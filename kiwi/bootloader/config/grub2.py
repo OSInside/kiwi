@@ -92,6 +92,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.timeout = self.get_boot_timeout_seconds()
         self.timeout_style = \
             self.xml_state.get_build_type_bootloader_timeout_style()
+        self.serial_line_setup = \
+            self.xml_state.get_build_type_bootloader_serial_line_setup()
         self.continue_on_timeout = self.get_continue_on_timeout()
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.mediacheck_boot = self.xml_state.build_type.get_mediacheck()
@@ -326,6 +328,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'boot_timeout_style': self.timeout_style or 'menu',
+            'serial_line_setup': self.serial_line_setup or 'serial',
             'title': self.get_menu_entry_install_title(),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
@@ -381,6 +384,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'boot_timeout_style': self.timeout_style or 'menu',
+            'serial_line_setup': self.serial_line_setup or 'serial',
             'title': self.get_menu_entry_title(plain=True),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
@@ -569,6 +573,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         according to the root filesystem setup
 
         * GRUB_TIMEOUT
+        * GRUB_TIMEOUT_STYLE
         * SUSE_BTRFS_SNAPSHOT_BOOTING
         * GRUB_BACKGROUND
         * GRUB_THEME
@@ -590,14 +595,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
                 re.sub(r'root=.* |root=.*$', '', self.cmdline).strip()
             )
-        if self.terminal and 'serial' in self.terminal:
-            serial_format = '"serial {0} {1} {2} {3} {4}"'
-            grub_default_entries['GRUB_SERIAL_COMMAND'] = serial_format.format(
-                '--speed=38400',
-                '--unit=0',
-                '--word=8',
-                '--parity=no',
-                '--stop=1'
+        if self.terminal and 'serial' in self.terminal and \
+           self.serial_line_setup:
+            grub_default_entries['GRUB_SERIAL_COMMAND'] = '"{0}"'.format(
+                self.serial_line_setup
             )
         if self.theme:
             theme_setup = '{0}/{1}/theme.txt'

@@ -795,6 +795,19 @@ class XMLState:
         if bootloader:
             return bootloader.get_console()
 
+    def get_build_type_bootloader_serial_line_setup(self):
+        """
+        Return bootloader serial line setup parameters for the
+        selected build type
+
+        :return: serial line setup
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_serial_line()
+
     def get_build_type_bootloader_timeout(self):
         """
         Return bootloader timeout setting for selected build type

@@ -49,6 +49,7 @@ class TestXMLState:
         self.bootloader.get_timeout_style.return_value = 'some-style'
         self.bootloader.get_targettype.return_value = 'some-target'
         self.bootloader.get_console.return_value = 'some-console'
+        self.bootloader.get_serial_line.return_value = 'some-serial'
 
     def test_get_description_section(self):
         description = self.state.get_description_section()
@@ -855,6 +856,12 @@ class TestXMLState:
         mock_bootloader.return_value = [self.bootloader]
         assert self.state.get_build_type_bootloader_console() == \
             'some-console'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_serial_line_setup(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_serial_line_setup() == \
+            'some-serial'
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_timeout(self, mock_bootloader):
