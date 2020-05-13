@@ -160,6 +160,7 @@ class TestPackageManagerZypper:
         assert self.manager.has_failed(1) is True
         assert self.manager.has_failed(4) is True
         assert self.manager.has_failed(-42) is True
+        assert self.manager.has_failed(127) is True
 
     @patch('kiwi.package_manager.zypper.os.unlink')
     @patch('kiwi.package_manager.zypper.os.path.exists')

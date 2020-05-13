@@ -274,14 +274,17 @@ class PackageManagerZypper(PackageManagerBase):
 
         :rtype: boolean
         """
+        error_codes = [
+            104,  # - ZYPPER_EXIT_INF_CAP_NOT_FOUND
+            105,  # - ZYPPER_EXIT_ON_SIGNAL
+            106,  # - ZYPPER_EXIT_INF_REPOS_SKIPPED
+            127   # - Command Not Found
+        ]
         if returncode == 0:
             # All is good
             return False
-        elif returncode == 104 or returncode == 105 or returncode == 106:
-            # Treat the following exit codes as error
-            # 104 - ZYPPER_EXIT_INF_CAP_NOT_FOUND
-            # 105 - ZYPPER_EXIT_ON_SIGNAL
-            # 106 - ZYPPER_EXIT_INF_REPOS_SKIPPED
+        elif returncode in error_codes:
+            # Treat matching exit code as error
             return True
         elif returncode >= 100:
             # Treat all other 100 codes as non error codes
