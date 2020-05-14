@@ -80,6 +80,9 @@ and cloud systems like Xen, KVM, VMware, EC2 and more.
 %package -n python%{python3_pkgversion}-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 Group:          Development/Languages/Python
+Obsoletes:      python2-kiwi
+Conflicts:      python2-kiwi
+Conflicts:      kiwi-man-pages < %{version}
 %if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} || 0%{?debian} || 0%{?ubuntu}
 Recommends:     jing
 %endif
