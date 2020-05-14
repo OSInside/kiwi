@@ -17,7 +17,6 @@
 #
 import os
 import logging
-import platform
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
@@ -41,9 +40,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         :param dict custom_args: custom isolinux config arguments
         """
         self.custom_args = custom_args
-        self.arch = platform.machine()
-        if self.arch == 'i686' or self.arch == 'i586':
-            self.arch = 'ix86'
+        self.arch = Defaults.get_platform_name()
 
         self.install_volid = self.xml_state.build_type.get_volid() or \
             Defaults.get_install_volume_id()

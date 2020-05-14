@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-import platform
-
+#
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
+from kiwi.defaults import Defaults
 
 
 class FileSystemSquashFs(FileSystemBase):
@@ -44,8 +44,8 @@ class FileSystemSquashFs(FileSystemBase):
                 self.custom_args['create_options'].append('xz')
 
             if '-Xbcj' not in self.custom_args['create_options']:
-                host_architecture = platform.machine()
-                if '86' in host_architecture:
+                host_architecture = Defaults.get_platform_name()
+                if Defaults.is_x86_arch(host_architecture):
                     self.custom_args['create_options'].append('-Xbcj')
                     self.custom_args['create_options'].append('x86')
                 if 'ppc' in host_architecture:

@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-import platform
 import os
 
 # project
@@ -86,7 +85,7 @@ class ContainerBuilder:
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version(),
                 '.', self.requested_container_type,
                 '.tar' if self.requested_container_type != 'appx' else ''

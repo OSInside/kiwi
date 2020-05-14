@@ -17,7 +17,6 @@
 #
 import os
 import logging
-import platform
 
 # project
 from kiwi.defaults import Defaults
@@ -78,7 +77,7 @@ class KisBuilder:
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version()
             ]
         )

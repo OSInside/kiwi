@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import platform
 import re
 
 # project
@@ -37,7 +36,7 @@ class FirmWare:
     * :param object xml_state: instance of :class:`XMLState`
     """
     def __init__(self, xml_state):
-        self.arch = platform.machine()
+        self.arch = Defaults.get_platform_name()
         self.zipl_target_type = \
             xml_state.get_build_type_bootloader_targettype()
         self.firmware = xml_state.build_type.get_firmware()

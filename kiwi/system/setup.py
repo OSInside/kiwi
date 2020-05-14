@@ -18,7 +18,6 @@
 import glob
 import os
 import logging
-import platform
 from collections import OrderedDict
 from collections import namedtuple
 from tempfile import NamedTemporaryFile
@@ -58,8 +57,7 @@ class SystemSetup:
     a minimal work environment inside of the image according to
     the desired image type.
 
-    :param str arch: platform.machine. The 32bit x86 platform is
-        handled as 'ix86'
+    :param str arch: Defaults.get_platform_name
     :param object xml_state: instance of :class:`XMLState`
     :param str description_dir: path to image description directory
     :param derived_description_dir: path to derived_description_dir
@@ -70,9 +68,7 @@ class SystemSetup:
     :param str root_dir: root directory path name
     """
     def __init__(self, xml_state, root_dir):
-        self.arch = platform.machine()
-        if self.arch == 'i686' or self.arch == 'i586':
-            self.arch = 'ix86'
+        self.arch = Defaults.get_platform_name()
         self.xml_state = xml_state
         self.description_dir = \
             xml_state.xml_data.description_dir

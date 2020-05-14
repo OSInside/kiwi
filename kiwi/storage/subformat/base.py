@@ -17,7 +17,6 @@
 #
 import os
 import logging
-import platform
 from collections import OrderedDict
 
 # project
@@ -40,14 +39,14 @@ class DiskFormatBase:
 
     :param object xml_state: Instance of XMLState
     :param string root_dir: root directory path name
-    :param string arch: platform.machine
+    :param string arch: Defaults.get_platform_name
     :param string target_dir: target directory path name
     :param dict custom_args: custom format options dictionary
     """
     def __init__(self, xml_state, root_dir, target_dir, custom_args=None):
         self.xml_state = xml_state
         self.root_dir = root_dir
-        self.arch = platform.machine()
+        self.arch = Defaults.get_platform_name()
         self.target_dir = target_dir
         self.custom_args = {}
         self.temp_image_dir = None

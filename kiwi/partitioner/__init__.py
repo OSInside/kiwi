@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import platform
 import logging
 
 # project
+from kiwi.defaults import Defaults
 from kiwi.partitioner.gpt import PartitionerGpt
 from kiwi.partitioner.msdos import PartitionerMsDos
 from kiwi.partitioner.dasd import PartitionerDasd
@@ -38,15 +38,15 @@ class Partitioner:
     :param object storage_provider: Instance of class based on DeviceProvider
     :param int start_sector: sector number
     """
-    def __new__(self, table_type, storage_provider, start_sector=None):        # noqa: C901
-        host_architecture = platform.machine()
+    def __new__(self, table_type, storage_provider, start_sector=None):  # noqa: C901
+        host_architecture = Defaults.get_platform_name()
         if host_architecture == 'x86_64':
             if table_type == 'gpt':
                 return PartitionerGpt(storage_provider, start_sector)
             elif table_type == 'msdos':
                 return PartitionerMsDos(storage_provider, start_sector)
 
-        elif host_architecture == 'i686' or host_architecture == 'i586':
+        elif host_architecture == 'ix86':
             if table_type == 'msdos':
                 return PartitionerMsDos(storage_provider, start_sector)
 

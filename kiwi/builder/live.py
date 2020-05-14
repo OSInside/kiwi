@@ -19,7 +19,6 @@ import os
 import logging
 from tempfile import mkdtemp
 from tempfile import NamedTemporaryFile
-import platform
 import shutil
 
 # project
@@ -60,9 +59,7 @@ class LiveImageBuilder:
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.media_dir = None
         self.live_container_dir = None
-        self.arch = platform.machine()
-        if self.arch == 'i686' or self.arch == 'i586':
-            self.arch = 'ix86'
+        self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -91,7 +88,7 @@ class LiveImageBuilder:
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version(),
                 '.iso'
             ]

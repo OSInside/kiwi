@@ -19,7 +19,6 @@ from string import Template
 import re
 import os
 import logging
-import platform
 import glob
 import shutil
 from collections import OrderedDict
@@ -62,16 +61,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 {'grub_directory_name': 'grub|grub2'}
         """
         self.custom_args = custom_args
-        arch = platform.machine()
+        arch = Defaults.get_platform_name()
         if arch == 'x86_64':
             # grub2 support for bios and efi systems
             self.arch = arch
         elif arch.startswith('ppc64'):
             # grub2 support for ofw and opal systems
             self.arch = arch
-        elif arch == 'i686' or arch == 'i586':
+        elif arch == 'ix86':
             # grub2 support for bios systems
-            self.arch = 'ix86'
+            self.arch = arch
         elif arch == 'aarch64' or arch.startswith('arm'):
             # grub2 support for efi systems
             self.arch = arch

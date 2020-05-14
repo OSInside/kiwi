@@ -18,7 +18,6 @@
 import os
 import logging
 from tempfile import mkdtemp
-import platform
 import shutil
 
 # project
@@ -59,9 +58,7 @@ class InstallImageBuilder:
         self, xml_state, root_dir, target_dir, boot_image_task,
         custom_args=None
     ):
-        self.arch = platform.machine()
-        if self.arch == 'i686' or self.arch == 'i586':
-            self.arch = 'ix86'
+        self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.boot_image_task = boot_image_task
