@@ -177,9 +177,31 @@ class TestRepositoryApt:
                 '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
             )
 
-    def test_import_trusted_keys(self):
+    @patch('kiwi.repository.apt.os.unlink')
+    @patch('kiwi.repository.apt.os.path.exists')
+    @patch('kiwi.repository.apt.Command.run')
+    def test_import_trusted_keys(self, mock_run, mock_exists, mock_unlink):
+        mock_exists.return_value = True
         self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
-        assert self.repo.signing_keys == ['key-file-a.asc', 'key-file-b.asc']
+        assert mock_run.call_args_list == [
+            call([
+                'gpg', '--no-options', '--no-default-keyring',
+                '--no-auto-check-trustdb', '--trust-model', 'always',
+                '--keyring', '/shared-dir/apt-get/trusted-keybox.gpg',
+                '--import', '--ignore-time-conflict', 'key-file-a.asc'
+            ]), call([
+                'gpg', '--no-options', '--no-default-keyring',
+                '--no-auto-check-trustdb', '--trust-model', 'always',
+                '--keyring', '/shared-dir/apt-get/trusted-keybox.gpg',
+                '--import', '--ignore-time-conflict', 'key-file-b.asc'
+            ]), call([
+                'gpg', '--no-options', '--no-default-keyring',
+                '--no-auto-check-trustdb', '--trust-model', 'always',
+                '--keyring', '/shared-dir/apt-get/trusted-keybox.gpg',
+                '--export', '--yes', '--output',
+                '/shared-dir/apt-get/trusted.gpg'
+            ])
+        ]
 
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):

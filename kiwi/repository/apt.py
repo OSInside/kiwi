@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import NamedTemporaryFile
 from urllib.parse import urlparse
 
@@ -23,6 +24,9 @@ from urllib.parse import urlparse
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
+from kiwi.command import Command
+
+log = logging.getLogger('kiwi')
 
 
 class RepositoryApt(RepositoryBase):
@@ -79,6 +83,7 @@ class RepositoryApt(RepositoryBase):
             'sources-dir': self.manager_base + '/sources.list.d',
             'preferences-dir': self.manager_base + '/preferences.d'
         }
+        self.keyring = '{}/trusted.gpg'.format(self.manager_base)
 
         self.runtime_apt_get_config_file = NamedTemporaryFile(
             dir=self.root_dir
@@ -204,13 +209,32 @@ class RepositoryApt(RepositoryBase):
 
     def import_trusted_keys(self, signing_keys):
         """
-        Keeps trusted keys so that later on they can be imported into
-        the image by the PackageManager instance.
+        Creates a new keyring including provided keys
 
         :param list signing_keys: list of the key files to import
         """
+        keybox = '{}/trusted-keybox.gpg'.format(self.manager_base)
+        gpg_args = [
+            'gpg', '--no-options', '--no-default-keyring',
+            '--no-auto-check-trustdb', '--trust-model', 'always',
+            '--keyring', keybox
+        ]
+        if os.path.exists(self.keyring):
+            os.unlink(self.keyring)
+        if os.path.exists(keybox):
+            os.unlink(keybox)
         for key in signing_keys:
-            self.signing_keys.append(key)
+            Command.run(gpg_args + ['--import', '--ignore-time-conflict', key])
+        if os.path.exists(keybox):
+            Command.run(
+                gpg_args + ['--export', '--yes', '--output', self.keyring]
+            )
+            os.unlink(keybox)
+            log.info('Custom keyring for APT created: {}'.format(self.keyring))
+            log.warning(
+                'The keyring is only available at build time. '
+                'It will not be part of the resulting image'
+            )
 
     def delete_repo(self, name):
         """
