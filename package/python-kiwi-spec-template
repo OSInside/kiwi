@@ -122,10 +122,12 @@ Requires:       gdisk
 Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
 Provides:       kiwi-packagemanager:yum
+Recommends:     gnupg2
 %endif
 %if 0%{?suse_version}
 # If it's available, let's pull it in
 Recommends:     dnf
+Recommends:     gpg2
 %endif
 %if 0%{?fedora} >= 26 || 0%{?suse_version}
 Requires:       zypper
@@ -136,6 +138,7 @@ Requires:       debootstrap
 Requires:       qemu-utils
 Requires:       squashfs-tools
 Requires:       gdisk
+Recommends:     gnupg
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
