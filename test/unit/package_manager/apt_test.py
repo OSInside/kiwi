@@ -24,6 +24,7 @@ class TestPackageManagerApt:
         repository = mock.Mock()
         repository.root_dir = 'root-dir'
         repository.signing_keys = ['key-file.asc']
+        repository.keyring = 'trusted.gpg'
         repository.unauthenticated = 'false'
         repository.components = ['main', 'restricted']
 
@@ -97,39 +98,74 @@ class TestPackageManagerApt:
         mock_sync.assert_called_once_with(
             'root-dir.debootstrap/', 'root-dir'
         )
-        with self._caplog.at_level(logging.WARNING):
-            data.sync_data.assert_called_once_with(
-                exclude=['proc', 'sys', 'dev'],
-                options=['-a', '-H', '-X', '-A']
+        data.sync_data.assert_called_once_with(
+            exclude=['proc', 'sys', 'dev'],
+            options=['-a', '-H', '-X', '-A']
+        )
+        assert mock_run.call_args_list == [
+            call(
+                [
+                    'debootstrap', '--keyring=trusted.gpg',
+                    '--variant=minbase', '--components=main,restricted',
+                    'xenial', 'root-dir.debootstrap', 'xenial_path'
+                ], ['env']
+            ),
+            call(
+                ['rm', '-r', '-f', 'root-dir.debootstrap']
+            ),
+            call(
+                [
+                    'chroot', 'root-dir', 'apt-get',
+                    '-c', 'apt.conf', '-y', 'update'
+                ], ['env']
             )
-            assert mock_run.call_args_list == [
-                call(
-                    [
-                        'debootstrap', '--no-check-gpg', '--variant=minbase',
-                        '--components=main,restricted', 'xenial',
-                        'root-dir.debootstrap', 'xenial_path'
-                    ], ['env']
-                ),
-                call(
-                    [
-                        'chroot', 'root-dir', 'apt-key', 'add', 'key-file.asc'
-                    ], ['env']
-                ),
-                call(
-                    ['rm', '-r', '-f', 'root-dir.debootstrap']
-                ),
-                call(
-                    [
-                        'chroot', 'root-dir', 'apt-get',
-                        '-c', 'apt.conf', '-y', 'update'
-                    ], ['env']
-                )
-            ]
-            mock_call.assert_called_once_with([
-                'chroot', 'root-dir', 'apt-get',
-                '-c', 'apt.conf', '-y', 'install', 'vim'],
-                ['env']
+        ]
+        mock_call.assert_called_once_with([
+            'chroot', 'root-dir', 'apt-get',
+            '-c', 'apt.conf', '-y', 'install', 'vim'],
+            ['env']
+        )
+
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command.Command.run')
+    @patch('os.path.exists')
+    @patch('kiwi.package_manager.apt.DataSync')
+    def test_process_install_requests_bootstrap_no_gpg_check(
+        self, mock_sync, mock_exists, mock_run, mock_call
+    ):
+        self.manager.request_package('apt-get')
+        self.manager.request_package('vim')
+        data = mock.Mock()
+        mock_sync.return_value = data
+        mock_exists.side_effect = lambda x: True if 'xenial' in x else False
+        self.manager.process_install_requests_bootstrap()
+        mock_sync.assert_called_once_with(
+            'root-dir.debootstrap/', 'root-dir'
+        )
+        data.sync_data.assert_called_once_with(
+            exclude=['proc', 'sys', 'dev'],
+            options=['-a', '-H', '-X', '-A']
+        )
+        assert mock_run.call_args_list == [
+            call(
+                [
+                    'debootstrap', '--no-check-gpg',
+                    '--variant=minbase', '--components=main,restricted',
+                    'xenial', 'root-dir.debootstrap', 'xenial_path'
+                ], ['env']
+            ),
+            call(
+                [
+                    'chroot', 'root-dir', 'apt-get',
+                    '-c', 'apt.conf', '-y', 'update'
+                ], ['env']
             )
+        ]
+        mock_call.assert_called_once_with([
+            'chroot', 'root-dir', 'apt-get',
+            '-c', 'apt.conf', '-y', 'install', 'vim'],
+            ['env']
+        )
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
