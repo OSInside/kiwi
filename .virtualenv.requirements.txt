@@ -22,3 +22,6 @@ xattr==0.9.3
 
 # Network request/response library
 requests
+
+# markup support
+anymarkup

@@ -1,4 +1,5 @@
 import sys
+import os
 import logging
 from mock import (
     patch, call, Mock, MagicMock, mock_open
@@ -50,6 +51,7 @@ class TestSystemSetup:
             description='../data/example_config.xml',
             derived_from='derived/description'
         )
+        self.description_dir = os.path.dirname(description.description)
         self.setup_with_real_xml = SystemSetup(
             XMLState(description.load()), 'root_dir'
         )
@@ -86,26 +88,54 @@ class TestSystemSetup:
             self.setup_with_real_xml.import_description()
 
         mock_iglob.assert_called_once_with(
-            '../data/config-cdroot.tar*'
+            '{0}/config-cdroot.tar*'.format(self.description_dir)
         )
         assert mock_command.call_args_list == [
-            call(['cp', '../data/config.sh', 'root_dir/image/config.sh']),
-            call([
-                'cp', '../data/my_edit_boot_script',
-                'root_dir/image/edit_boot_config.sh'
-            ]),
-            call([
-                'cp', '/absolute/path/to/my_edit_boot_install',
-                'root_dir/image/edit_boot_install.sh'
-            ]),
-            call(['cp', '../data/images.sh', 'root_dir/image/images.sh']),
-            call([
-                'cp', Defaults.project_file('config/functions.sh'),
-                'root_dir/.kconfig'
-            ]),
-            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
-            call(['cp', '../data/bootstrap.tgz', 'root_dir/image/']),
-            call(['cp', 'config-cdroot.tar.xz', 'root_dir/image/'])
+            call(
+                [
+                    'cp', '{0}/config.sh'.format(self.description_dir),
+                    'root_dir/image/config.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp',
+                    '{0}/my_edit_boot_script'.format(self.description_dir),
+                    'root_dir/image/edit_boot_config.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp', '/absolute/path/to/my_edit_boot_install',
+                    'root_dir/image/edit_boot_install.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp', '{0}/images.sh'.format(self.description_dir),
+                    'root_dir/image/images.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp', Defaults.project_file('config/functions.sh'),
+                    'root_dir/.kconfig'
+                ]
+            ),
+            call(
+                [
+                    'cp', '/absolute/path/to/image.tgz', 'root_dir/image/'
+                ]
+            ),
+            call(
+                [
+                    'cp', '{0}/bootstrap.tgz'.format(self.description_dir),
+                    'root_dir/image/'
+                ]
+            ),
+            call(
+                ['cp', 'config-cdroot.tar.xz', 'root_dir/image/']
+            )
         ]
 
     @patch('kiwi.path.Path.create')
@@ -127,24 +157,43 @@ class TestSystemSetup:
             self.setup_with_real_xml.import_description()
 
         assert mock_command.call_args_list == [
-            call(['cp', '../data/config.sh', 'root_dir/image/config.sh']),
-            call([
-                'cp', '../data/my_edit_boot_script',
-                'root_dir/image/edit_boot_config.sh'
-            ]),
-            call([
-                'cp', '/absolute/path/to/my_edit_boot_install',
-                'root_dir/image/edit_boot_install.sh'
-            ]),
-            call(['cp', '../data/images.sh', 'root_dir/image/images.sh']),
-            call([
-                'cp', Defaults.project_file('config/functions.sh'),
-                'root_dir/.kconfig'
-            ]),
-            call(['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']),
-            call([
-                'cp', 'derived/description/bootstrap.tgz', 'root_dir/image/'
-            ])
+            call(
+                [
+                    'cp', '{0}/config.sh'.format(self.description_dir),
+                    'root_dir/image/config.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp',
+                    '{0}/my_edit_boot_script'.format(self.description_dir),
+                    'root_dir/image/edit_boot_config.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp', '/absolute/path/to/my_edit_boot_install',
+                    'root_dir/image/edit_boot_install.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp', '{0}/images.sh'.format(self.description_dir),
+                    'root_dir/image/images.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp', Defaults.project_file('config/functions.sh'),
+                    'root_dir/.kconfig'
+                ]
+            ),
+            call(
+                ['cp', '/absolute/path/to/image.tgz', 'root_dir/image/']
+            ),
+            call(
+                ['cp', 'derived/description/bootstrap.tgz', 'root_dir/image/']
+            )
         ]
         mock_create.assert_called_once_with('root_dir/image')
 

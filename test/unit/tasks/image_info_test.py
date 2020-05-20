@@ -1,7 +1,8 @@
 import sys
-import mock
 
-from mock import patch, call
+from mock import (
+    patch, call, Mock, MagicMock
+)
 
 import kiwi
 
@@ -39,16 +40,16 @@ class TestImageInfoTask:
                 }
             }
         }
-        self.runtime_checker = mock.Mock()
-        kiwi.tasks.base.RuntimeChecker = mock.Mock(
+        self.runtime_checker = Mock()
+        kiwi.tasks.base.RuntimeChecker = Mock(
             return_value=self.runtime_checker
         )
-        self.runtime_config = mock.Mock()
-        kiwi.tasks.base.RuntimeConfig = mock.Mock(
+        self.runtime_config = Mock()
+        kiwi.tasks.base.RuntimeConfig = Mock(
             return_value=self.runtime_config
         )
-        self.solver = mock.MagicMock()
-        self.solver.solve = mock.Mock(
+        self.solver = MagicMock()
+        self.solver.solve = Mock(
             return_value={
                 'packagename': result_type(
                     uri='uri', installsize_bytes=42,
@@ -60,17 +61,17 @@ class TestImageInfoTask:
                 )
             }
         )
-        kiwi.tasks.image_info.Sat = mock.Mock(
+        kiwi.tasks.image_info.Sat = Mock(
             return_value=self.solver
         )
 
-        self.solver_repository = mock.Mock()
-        kiwi.tasks.image_info.SolverRepository = mock.Mock(
+        self.solver_repository = Mock()
+        kiwi.tasks.image_info.SolverRepository = Mock(
             return_value=self.solver_repository
         )
 
-        kiwi.tasks.image_info.Help = mock.Mock(
-            return_value=mock.Mock()
+        kiwi.tasks.image_info.Help = Mock(
+            return_value=Mock()
         )
         self.task = ImageInfoTask()
 
@@ -85,6 +86,8 @@ class TestImageInfoTask:
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--ignore-repos'] = False
         self.task.command_args['--resolve-package-list'] = False
+        self.task.command_args['--print-xml'] = False
+        self.task.command_args['--print-yaml'] = False
 
     @patch('kiwi.tasks.image_info.DataOutput')
     def test_process_image_info(self, mock_out):
@@ -151,3 +154,21 @@ class TestImageInfoTask:
         self.task.manual.show.assert_called_once_with(
             'kiwi::image::info'
         )
+
+    @patch('kiwi.tasks.image_info.DataOutput')
+    def test_process_image_info_print_xml(self, mock_out):
+        self._init_command_args()
+        self.task.command_args['--print-xml'] = True
+        self.task.process()
+        tmpfile, message = mock_out.display_file.call_args.args
+        assert tmpfile.startswith('/tmp/xslt-')
+        assert message == 'Description(XML):'
+
+    @patch('kiwi.tasks.image_info.DataOutput')
+    def test_process_image_info_print_yaml(self, mock_out):
+        self._init_command_args()
+        self.task.command_args['--print-yaml'] = True
+        self.task.process()
+        tmpfile, message = mock_out.display_file.call_args.args
+        assert tmpfile.startswith('/tmp/xslt-')
+        assert message == 'Description(YAML):'

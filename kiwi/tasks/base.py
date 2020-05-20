@@ -143,10 +143,10 @@ class CliTask:
                 'no XML description found in %s' % description_directory
             )
 
-        description = XMLDescription(
+        self.description = XMLDescription(
             config_file
         )
-        self.xml_data = description.load()
+        self.xml_data = self.description.load()
         self.config_file = config_file.replace('//', '/')
         self.xml_state = XMLState(
             self.xml_data,

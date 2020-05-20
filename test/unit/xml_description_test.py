@@ -114,7 +114,9 @@ class TestSchema:
                 </extension>
             </image>"""
         )
-        self.description_from_file = XMLDescription(description='description')
+        self.description_from_file = XMLDescription(
+            description='../data/example_config.xml'
+        )
         self.description_from_data = XMLDescription(xml_content=test_xml)
         self.extension_description_from_data = XMLDescription(
             xml_content=test_xml_extension
@@ -142,8 +144,7 @@ class TestSchema:
         assert parsed.get_schemaversion() == schemaversion
 
     @patch('lxml.etree.RelaxNG')
-    @patch.object(XMLDescription, '_xsltproc')
-    def test_load_schema_import_error(self, mock_xslt, mock_relax):
+    def test_load_schema_import_error(self, mock_relax):
         mock_relax.side_effect = KiwiSchemaImportError(
             'ImportError'
         )
@@ -153,9 +154,8 @@ class TestSchema:
     @patch('lxml.isoschematron.Schematron')
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
-    @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_validation_error_from_file(
-        self, mock_xslt, mock_parse, mock_relax, mock_schematron
+        self, mock_parse, mock_relax, mock_schematron
     ):
         mock_validate = mock.Mock()
         mock_validate.validate.side_effect = KiwiValidationError(
@@ -170,9 +170,8 @@ class TestSchema:
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.system.setup.Command.run')
-    @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_from_file_invalid(
-        self, mock_xslt, mock_command, mock_parse, mock_relax, mock_schematron
+        self, mock_command, mock_parse, mock_relax, mock_schematron
     ):
         mock_rng_validate = mock.Mock()
         mock_rng_validate.validate = mock.Mock(
@@ -219,9 +218,8 @@ class TestSchema:
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.system.setup.Command.run')
-    @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_from_data_invalid(
-        self, mock_xslt, mock_command, mock_parse, mock_relax, mock_schematron
+        self, mock_command, mock_parse, mock_relax, mock_schematron
     ):
         mock_rng_validate = mock.Mock()
         mock_rng_validate.validate = mock.Mock(
@@ -268,9 +266,8 @@ class TestSchema:
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.system.setup.Command.run')
-    @patch.object(XMLDescription, '_xsltproc')
     def test_load_schema_description_from_data_invalid_no_jing(
-        self, mock_xslt, mock_command, mock_parse, mock_relax, mock_schematron
+        self, mock_command, mock_parse, mock_relax, mock_schematron
     ):
         mock_rng_validate = mock.Mock()
         mock_rng_validate.validate = mock.Mock(
@@ -292,10 +289,8 @@ class TestSchema:
     @patch('lxml.etree.RelaxNG')
     @patch('lxml.etree.parse')
     @patch('kiwi.xml_parse.parse')
-    @patch.object(XMLDescription, '_xsltproc')
     def test_load_data_structure_error(
-        self, mock_xsltproc, mock_xml_parse,
-        mock_etree_parse, mock_relax, mock_schematron
+        self, mock_xml_parse, mock_etree_parse, mock_relax, mock_schematron
     ):
         mock_rng_validate = mock.Mock()
         mock_rng_validate.validate = mock.Mock(
