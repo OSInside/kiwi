@@ -116,7 +116,7 @@ class RepositoryApt(RepositoryBase):
         self.shared_apt_get_dir['sources-dir'] = \
             os.sep.join([self.manager_base, 'sources.list.d'])
         self.shared_apt_get_dir['preferences-dir'] = \
-            os.sep.join([self.root_dir, 'preferences.d'])
+            os.sep.join([self.manager_base, 'preferences.d'])
         self._write_runtime_config(system_default=True)
 
     def runtime_config(self):

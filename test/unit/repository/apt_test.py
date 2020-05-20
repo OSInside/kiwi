@@ -57,6 +57,10 @@ class TestRepositoryApt:
         template.substitute.return_value = 'template-data'
         self.apt_conf.get_image_template.return_value = template
         self.repo.use_default_location()
+        assert self.repo.shared_apt_get_dir['sources-dir'] == \
+            '../data/etc/apt/sources.list.d'
+        assert self.repo.shared_apt_get_dir['preferences-dir'] == \
+            '../data/etc/apt/preferences.d'
         self.apt_conf.get_image_template.assert_called_once_with(
             self.exclude_docs
         )
