@@ -1,7 +1,7 @@
 #!/bin/bash
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type lookup_disk_device_from_root >/dev/null 2>&1 || . /lib/kiwi-lib.sh
-type create_parted_partitions >/dev/null 2>&1 || . /lib/kiwi-partitions-lib.sh
+type create_partitions >/dev/null 2>&1 || . /lib/kiwi-partitions-lib.sh
 type resize_filesystem >/dev/null 2>&1 || . /lib/kiwi-filesystem-lib.sh
 type activate_volume_group >/dev/null 2>&1 || . /lib/kiwi-lvm-lib.sh
 type activate_mdraid >/dev/null 2>&1 || . /lib/kiwi-mdraid-lib.sh
@@ -103,8 +103,9 @@ function repart_standard_disk {
         d ${kiwi_RootPart}
         n p:lxroot ${kiwi_RootPart} . ${root_part_size}
     "
-    create_parted_partitions \
-        "${disk}" "${command_query}"
+    if ! create_partitions "${disk}" "${command_query}";then
+        die "Failed to create partition table"
+    fi
     # finalize table changes
     finalize_disk_repart
 }
@@ -158,8 +159,9 @@ function repart_lvm_disk {
         n p:lxlvm ${kiwi_RootPart} . ${lvm_part_size}
         t ${kiwi_RootPart} 8e
     "
-    create_parted_partitions \
-        "${disk}" "${command_query}"
+    if ! create_partitions "${disk}" "${command_query}";then
+        die "Failed to create partition table"
+    fi
     # finalize table changes
     finalize_disk_repart
 }
@@ -215,7 +217,7 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 setup_debug
 
-# when repartitioning disks, parted and friends might trigger re-reads of
+# when repartitioning disks, the used tools can trigger re-reads of
 # the partition table, in turn triggering systemd-fsck-root.service
 # repeatedly via udev events, which finally can cause booting to fail with
 # * start request repeated too quickly for systemd-fsck-root.service
