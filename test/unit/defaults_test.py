@@ -89,3 +89,9 @@ class TestDefaults:
     def test_is_x86_arch(self):
         assert Defaults.is_x86_arch('x86_64') is True
         assert Defaults.is_x86_arch('aarch64') is False
+
+    @patch('os.path.exists')
+    def test_get_vendor_grubenv(self, mock_path_exists):
+        mock_path_exists.return_value = True
+        assert Defaults.get_vendor_grubenv('boot/efi') == \
+            'boot/efi/EFI/fedora/grubenv'
