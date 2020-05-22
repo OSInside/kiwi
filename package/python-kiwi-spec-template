@@ -125,7 +125,9 @@ Requires:       gdisk
 Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
 Provides:       kiwi-packagemanager:yum
+%if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends:     gnupg2
+%endif
 %endif
 %if 0%{?suse_version}
 # If it's available, let's pull it in
