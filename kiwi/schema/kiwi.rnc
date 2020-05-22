@@ -2163,7 +2163,7 @@ div {
         }
         >> sch:pattern [ id = "targettype" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "targettype" ]
-            sch:param [ name = "types" value = "zipl" ]
+            sch:param [ name = "types" value = "zipl grub2_s390x_emu" ]
         ]
     k.bootloader.attlist =
         k.bootloader.name.attribute &

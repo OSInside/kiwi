@@ -3341,7 +3341,7 @@ emulated DASD devices use FBA</a:documentation>
       </attribute>
       <sch:pattern id="targettype" is-a="bootloader_name_type">
         <sch:param name="attr" value="targettype"/>
-        <sch:param name="types" value="zipl"/>
+        <sch:param name="types" value="zipl grub2_s390x_emu"/>
       </sch:pattern>
     </define>
     <define name="k.bootloader.attlist">
