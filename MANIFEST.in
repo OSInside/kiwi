@@ -9,6 +9,7 @@ graft dracut
 graft helper
 graft kiwi/boot
 graft kiwi/utils
+graft kiwi/markup
 graft kiwi/archive
 graft kiwi/bootloader
 graft kiwi/builder
