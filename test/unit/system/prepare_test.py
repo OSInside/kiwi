@@ -36,7 +36,7 @@ class TestSystemPrepare:
             description='../data/example_config.xml',
             derived_from='derived/description'
         )
-        self.description_dir = os.path.dirname(description.description)
+        self.description_dir = os.path.dirname(description.description_origin)
         self.xml = description.load()
 
         self.manager = mock.MagicMock(

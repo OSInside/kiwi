@@ -69,6 +69,7 @@ class XMLDescription:
         self.markup = Markup(description or xml_content)
         self.description = self.markup.get_xml_description()
         self.derived_from = derived_from
+        self.description_origin = description
         self.extension_data = {}
 
     def load(self): # noqa C901
@@ -228,8 +229,8 @@ class XMLDescription:
             parse = xml_parse.parse(
                 self.description, True
             )
-            parse.description_dir = self.description and os.path.dirname(
-                self.description
+            parse.description_dir = self.description_origin and os.path.dirname(
+                self.description_origin
             )
             parse.derived_description_dir = self.derived_from
             return parse

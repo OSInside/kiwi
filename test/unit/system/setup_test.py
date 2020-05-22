@@ -51,7 +51,7 @@ class TestSystemSetup:
             description='../data/example_config.xml',
             derived_from='derived/description'
         )
-        self.description_dir = os.path.dirname(description.description)
+        self.description_dir = os.path.dirname(description.description_origin)
         self.setup_with_real_xml = SystemSetup(
             XMLState(description.load()), 'root_dir'
         )
