@@ -136,8 +136,8 @@ class TestResultBundleTask:
         )
         checksum.sha256.assert_called_once_with()
         m_open.return_value.write.assert_called_once_with(
-            '{0}  compressed_filename'.format(
-                checksum.sha256.return_value
+            '{0}  compressed_filename{1}'.format(
+                checksum.sha256.return_value, os.linesep
             )
         )
 
