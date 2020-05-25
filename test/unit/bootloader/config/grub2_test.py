@@ -419,12 +419,15 @@ class TestBootLoaderConfigGrub2:
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.CommandCapabilities.check_version')
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('kiwi.defaults.Defaults.get_vendor_grubenv')
     def test_setup_disk_image_config(
-        self, mock_get_vendor_grubenv, mock_Path_which, mock_Command_run,
+        self, mock_get_vendor_grubenv, mock_Path_which,
+        mock_CommandCapabilities_check_version, mock_Command_run,
         mock_copy_grub_config_to_efi_path, mock_mount_system
     ):
+        mock_CommandCapabilities_check_version.return_value = True
         mock_get_vendor_grubenv.return_value = 'grubenv'
         mock_Path_which.return_value = '/path/to/grub2-mkconfig'
         self.firmware.efi_mode = Mock(
@@ -477,7 +480,6 @@ class TestBootLoaderConfigGrub2:
         self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
-        self.bootloader.validate_use_of_linuxefi = True
         self.bootloader.root_mount = Mock()
         self.bootloader.root_mount.mountpoint = 'root_mount_point'
         self.bootloader.efi_mount = Mock()

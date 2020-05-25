@@ -145,7 +145,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.cmdline = None
         self.iso_boot = False
         self.shim_fallback_setup = False
-        self.validate_use_of_linuxefi = False
 
     def write(self):
         """
@@ -241,11 +240,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
-        if self.validate_use_of_linuxefi:
-            # On systems that uses GRUB_USE_LINUXEFI with grub2 version
-            # less than 2.04 there is no support for dynamic EFI
-            # environment checking. In this condition we change the
-            # grub config to add this support as follows:
+        if self.firmware.efi_mode():
+            # On systems that are configured to use EFI with a grub2
+            # version less than 2.04 there is no support for dynamic
+            # EFI environment checking. In this condition we change
+            # the grub config to add this support as follows:
             #
             # * Apply only on grub < 2.04
             #    1. Modify grub.cfg to set linux/initrd as variables
@@ -638,7 +637,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 if use_linuxefi_implemented.returncode == 0:
                     grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
                     grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
-                    self.validate_use_of_linuxefi = True
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
         if self.custom_args.get('boot_is_crypto'):
