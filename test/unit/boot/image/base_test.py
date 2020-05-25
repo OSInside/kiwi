@@ -20,6 +20,14 @@ class TestBootImageBase:
     @patch('platform.machine')
     def setup(self, mock_machine, mock_exists):
         mock_machine.return_value = 'x86_64'
+        self.boot_names_type = namedtuple(
+            'boot_names_type', ['kernel_name', 'initrd_name']
+        )
+        self.kernel = Mock()
+        kernel_info = Mock
+        kernel_info.name = 'kernel_name'
+        kernel_info.version = 'kernel_version'
+        self.kernel.get_kernel.return_value = kernel_info
         self.boot_xml_state = Mock()
         self.xml_state = Mock()
         self.xml_state.get_initrd_system = Mock(
@@ -127,44 +135,64 @@ class TestBootImageBase:
     @patch('kiwi.boot.image.base.Kernel')
     @patch('kiwi.boot.image.base.Path.which')
     @patch('kiwi.boot.image.base.log.warning')
-    def test_get_boot_names(
-        self, mock_warning, mock_Path_which, mock_Kernel
+    @patch('glob.iglob')
+    def test_get_boot_names_default(
+        self, mock_iglob, mock_warning, mock_Path_which, mock_Kernel
     ):
-        boot_names_type = namedtuple(
-            'boot_names_type', ['kernel_name', 'initrd_name']
+        mock_iglob.return_value = []
+        mock_Path_which.return_value = None
+        mock_Kernel.return_value = self.kernel
+        self.xml_state.get_initrd_system.return_value = 'kiwi'
+        assert self.boot_image.get_boot_names() == self.boot_names_type(
+            kernel_name='kernel_name',
+            initrd_name='initrd-kernel_version'
         )
-        mock_Path_which.return_value = 'dracut'
-        kernel = Mock()
-        kernel_info = Mock()
-        kernel_info.name = 'kernel_name'
-        kernel_info.version = 'kernel_version'
-        kernel.get_kernel.return_value = kernel_info
-        mock_Kernel.return_value = kernel
+        self.xml_state.get_initrd_system.return_value = 'dracut'
+        assert self.boot_image.get_boot_names() == self.boot_names_type(
+            kernel_name='kernel_name',
+            initrd_name='initramfs-kernel_version.img'
+        )
 
+    @patch('kiwi.boot.image.base.Kernel')
+    @patch('kiwi.boot.image.base.Path.which')
+    @patch('kiwi.boot.image.base.log.warning')
+    @patch('glob.iglob')
+    @patch('os.path.islink')
+    def test_get_boot_names_from_file(
+        self, mock_islink, mock_iglob, mock_warning, mock_Path_which,
+        mock_Kernel
+    ):
+        mock_islink.return_value = False
+        mock_iglob.return_value = [
+            '/boot/initrd.img-kernel_version'
+        ]
+        mock_Path_which.return_value = None
+        mock_Kernel.return_value = self.kernel
+        self.xml_state.get_initrd_system.return_value = 'dracut'
+        assert self.boot_image.get_boot_names() == self.boot_names_type(
+            kernel_name='kernel_name',
+            initrd_name='initrd.img-kernel_version'
+        )
+
+    @patch('kiwi.boot.image.base.Kernel')
+    @patch('kiwi.boot.image.base.Path.which')
+    @patch('kiwi.boot.image.base.log.warning')
+    @patch('glob.iglob')
+    def test_get_boot_names_from_dracut(
+        self, mock_iglob, mock_warning, mock_Path_which, mock_Kernel
+    ):
+        mock_iglob.return_value = []
+        mock_Path_which.return_value = 'dracut'
+        mock_Kernel.return_value = self.kernel
+        self.xml_state.get_initrd_system.return_value = 'dracut'
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             file_handle.read.return_value = 'outfile="/boot/initrd-$kernel"'
-            assert self.boot_image.get_boot_names() == boot_names_type(
+            assert self.boot_image.get_boot_names() == self.boot_names_type(
                 kernel_name='kernel_name',
                 initrd_name='initrd-kernel_version'
             )
-
-        with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=io.IOBase)
-            file_handle = mock_open.return_value.__enter__.return_value
-            file_handle.read.return_value = 'outfile="foo"'
-            assert self.boot_image.get_boot_names() == boot_names_type(
-                kernel_name='kernel_name',
-                initrd_name='initramfs-kernel_version.img'
-            )
-
-        self.xml_state.get_initrd_system.return_value = 'kiwi'
-        mock_Path_which.return_value = None
-        assert self.boot_image.get_boot_names() == boot_names_type(
-            kernel_name='kernel_name',
-            initrd_name='initrd-kernel_version'
-        )
 
     def test_noop_methods(self):
         self.boot_image.include_module('module')
