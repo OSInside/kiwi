@@ -735,6 +735,36 @@ class Defaults:
                 return signed_grub
 
     @staticmethod
+    def get_efi_vendor_directory(efi_path):
+        """
+        Provides EFI vendor directory if present
+
+        Looks up distribution specific EFI vendor directory
+
+        :param string root_path: path to efi mountpoint
+
+        :return: directory path or None
+
+        :rtype: str
+        """
+        efi_vendor_directories = [
+            'EFI/fedora',
+            'EFI/opensuse'
+        ]
+        for efi_vendor_directory in efi_vendor_directories:
+            efi_vendor_directory = os.sep.join([efi_path, efi_vendor_directory])
+            if os.path.exists(efi_vendor_directory):
+                return efi_vendor_directory
+
+    @staticmethod
+    def get_vendor_grubenv(efi_path):
+        efi_vendor_directory = Defaults.get_efi_vendor_directory(efi_path)
+        if efi_vendor_directory:
+            grubenv = os.sep.join([efi_vendor_directory, 'grubenv'])
+            if os.path.exists(grubenv):
+                return grubenv
+
+    @staticmethod
     def get_shim_vendor_directory(root_path):
         """
         Provides shim vendor directory

@@ -294,6 +294,21 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 with open(config_file, 'w') as grub_config_file:
                     grub_config_file.write(grub_config)
 
+                if self.firmware.efi_mode():
+                    vendor_grubenv_file = \
+                        Defaults.get_vendor_grubenv(self.efi_mount.mountpoint)
+                    if vendor_grubenv_file:
+                        with open(vendor_grubenv_file) as vendor_grubenv:
+                            grubenv = vendor_grubenv.read()
+                            grubenv = grubenv.replace(
+                                'root={0}'.format(boot_options.get(
+                                    'root_device')
+                                ),
+                                self.root_reference
+                            )
+                        with open(vendor_grubenv_file, 'w') as vendor_grubenv:
+                            vendor_grubenv.write(grubenv)
+
         if self.firmware.efi_mode():
             self._copy_grub_config_to_efi_path(
                 self.efi_mount.mountpoint, config_file

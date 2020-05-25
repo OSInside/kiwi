@@ -420,10 +420,12 @@ class TestBootLoaderConfigGrub2:
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.Path.which')
+    @patch('kiwi.defaults.Defaults.get_vendor_grubenv')
     def test_setup_disk_image_config(
-        self, mock_Path_which, mock_Command_run,
+        self, mock_get_vendor_grubenv, mock_Path_which, mock_Command_run,
         mock_copy_grub_config_to_efi_path, mock_mount_system
     ):
+        mock_get_vendor_grubenv.return_value = 'grubenv'
         mock_Path_which.return_value = '/path/to/grub2-mkconfig'
         self.firmware.efi_mode = Mock(
             return_value='uefi'
@@ -455,9 +457,10 @@ class TestBootLoaderConfigGrub2:
             mock_copy_grub_config_to_efi_path.assert_called_once_with(
                 'efi_mount_point', 'root_mount_point/boot/grub2/grub.cfg'
             )
-            file_handle.write.assert_called_once_with(
-                'root=overlay:UUID=ID'
-            )
+            assert file_handle.write.call_args_list == [
+                call('root=overlay:UUID=ID'),
+                call('root=overlay:UUID=ID')
+            ]
 
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
