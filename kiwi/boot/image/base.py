@@ -446,7 +446,7 @@ class BootImageBase:
     def _get_boot_image_output_file_format_from_existing_file(
         self, kernel_version
     ):
-        for initrd_file in glob.iglob(self.boot_root_directory + '/init*'):
+        for initrd_file in glob.iglob(self.boot_root_directory + '/boot/init*'):
             if not os.path.islink(initrd_file):
                 return os.path.basename(initrd_file).replace(
                     kernel_version, '{kernel_version}'
