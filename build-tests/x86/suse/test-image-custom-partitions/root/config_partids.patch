@@ -1,0 +1,11 @@
+--- /usr/lib/dracut/modules.d/90kiwi-repart/kiwi-repart-disk.sh
++++ /usr/lib/dracut/modules.d/90kiwi-repart/kiwi-repart-disk.sh
+@@ -23,6 +23,8 @@ function initialize {
+     import_file ${profile}
+     import_file ${partition_ids}
+ 
++    export kiwi_RootPart=7
++
+     disk=$(lookup_disk_device_from_root)
+     export disk
+ 
