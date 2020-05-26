@@ -27,20 +27,29 @@ class TestRepositorPacman(object):
         with patch('builtins.open', create=True):
             self.repo = RepositoryPacman(root_bind)
 
-        assert runtime_pacman_config.set.call_args_list == [
-            call('options', 'Architecture', 'auto'),
-            call('options', 'CacheDir', '/shared-dir/pacman/cache'),
-            call('options', 'SigLevel', 'Never DatabaseNever'),
-            call('options', 'LocalFileSigLevel', 'Never DatabaseNever'),
-            call('options', 'Include', '/shared-dir/pacman/repos/*.repo')
-        ]
+            assert runtime_pacman_config.set.call_args_list == [
+                call('options', 'Architecture', 'auto'),
+                call('options', 'CacheDir', '/shared-dir/pacman/cache'),
+                call('options', 'SigLevel', 'Never DatabaseNever'),
+                call('options', 'LocalFileSigLevel', 'Never DatabaseNever'),
+                call('options', 'Include', '/shared-dir/pacman/repos/*.repo')
+            ]
 
-    @patch('kiwi.repository.pacman.NamedTemporaryFile')
-    @patch('kiwi.repository.pacman.Path.create')
-    def test_post_init_with_custom_args(self, mock_path, mock_temp):
-        self.repo.post_init(['check_signatures'])
-        assert self.repo.custom_args == []
-        assert self.repo.check_signatures
+            runtime_pacman_config.reset_mock()
+
+            RepositoryPacman(
+                root_bind, custom_args=['check_signatures']
+            )
+
+            assert runtime_pacman_config.set.call_args_list == [
+                call('options', 'Architecture', 'auto'),
+                call('options', 'CacheDir', '/shared-dir/pacman/cache'),
+                call('options', 'SigLevel', 'Required DatabaseRequired'),
+                call(
+                    'options', 'LocalFileSigLevel', 'Required DatabaseRequired'
+                ),
+                call('options', 'Include', '/shared-dir/pacman/repos/*.repo')
+            ]
 
     def test_runtime_config(self):
         assert self.repo.runtime_config()['pacman_args'] == \

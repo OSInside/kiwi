@@ -19,6 +19,7 @@ import re
 import os
 import pickle
 import logging
+import glob
 from collections import namedtuple
 
 # project
@@ -196,7 +197,9 @@ class BootImageBase:
                 'No kernel in boot image tree %s found' %
                 self.boot_root_directory
             )
-        dracut_output_format = self._get_boot_image_output_file_format()
+        dracut_output_format = self._get_boot_image_output_file_format(
+            kernel_info.version
+        )
         return boot_names_type(
             kernel_name=kernel_info.name,
             initrd_name=dracut_output_format.format(
@@ -380,15 +383,24 @@ class BootImageBase:
                     boot_description
             return boot_description
 
-    def _get_boot_image_output_file_format(self):
+    def _get_boot_image_output_file_format(self, kernel_version):
         """
         The initrd output file format varies between
         the different Linux distributions. Tools like lsinitrd, and also
         grub2 rely on the initrd output file to be in that format. Thus
         kiwi should use the same file format to stay compatible
-        with the distributions. The format is determined by the
-        outfile format used in the dracut initrd tool which is the
-        standard on all major linux distributions.
+        with the distributions. The format is determined in three
+        stages:
+
+        a) check for an existing initrd file and use this naming schema
+        b) if no initrd file is found check the dracut binary for its
+           default output file name schema
+        c) if no output file schema could be detected from the dracut
+           binary return a default output file format which is
+           initramfs-{kernel_version}.img
+
+        Let's hope all this mess can be deleted once all distros just
+        can agree on one initrd file name schema
         """
         if self.xml_state.get_initrd_system() == 'kiwi':
             # The custom kiwi initrd system is used only on SUSE systems.
@@ -400,6 +412,27 @@ class BootImageBase:
             default_outfile_format = 'initrd-{kernel_version}'
         else:
             default_outfile_format = 'initramfs-{kernel_version}.img'
+
+        outfile_format = \
+            self._get_boot_image_output_file_format_from_existing_file(
+                kernel_version
+            )
+        if not outfile_format:
+            outfile_format = \
+                self._get_boot_image_output_file_format_from_dracut_code()
+
+        if outfile_format:
+            return outfile_format
+        else:
+            log.warning('Could not detect dracut output file format')
+            log.warning(
+                'Using default initrd file name format {0}'.format(
+                    default_outfile_format
+                )
+            )
+            return default_outfile_format
+
+    def _get_boot_image_output_file_format_from_dracut_code(self):
         dracut_tool = Path.which(
             'dracut', root_dir=self.boot_root_directory, access_mode=os.X_OK
         )
@@ -410,11 +443,14 @@ class BootImageBase:
                 if matches:
                     return matches[0].replace('$kernel', '{kernel_version}')
 
-        log.warning('Could not detect dracut output file format')
-        log.warning('Using default initrd file name format {0}'.format(
-            default_outfile_format
-        ))
-        return default_outfile_format
+    def _get_boot_image_output_file_format_from_existing_file(
+        self, kernel_version
+    ):
+        for initrd_file in glob.iglob(self.boot_root_directory + '/init*'):
+            if not os.path.islink(initrd_file):
+                return os.path.basename(initrd_file).replace(
+                    kernel_version, '{kernel_version}'
+                )
 
     def __del__(self):
         if self.call_destructor:
