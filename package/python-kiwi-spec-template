@@ -49,7 +49,7 @@ Release:        0
 Url:            https://github.com/OSInside/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-3.0-or-later
-%if %{_vendor} == "debbuild"
+%if "%{_vendor}" == "debbuild"
 # Needed to set Maintainer in output debs
 Packager:       Marcus Schaefer <ms@suse.de>
 %endif
@@ -187,7 +187,7 @@ kiwi created initial ramdisk which is used to control the very
 first boot of an appliance. The tools are not meant to be used
 outside of the scope of kiwi appliance building.
 
-%if %{_vendor} != "debbuild"
+%if "%{_vendor}" != "debbuild"
 %ifarch %{ix86} x86_64
 %package -n kiwi-pxeboot
 Summary:        KIWI - PXE boot structure
@@ -394,7 +394,7 @@ ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi
 ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi-ng-3
 ln -sr %{buildroot}%{_bindir}/kiwicompat %{buildroot}%{_bindir}/kiwicompat-3
 
-%if %{_vendor} != "debbuild"
+%if "%{_vendor}" != "debbuild"
 # kiwi pxeboot directory structure to be packed in kiwi-pxeboot
 %ifarch %{ix86} x86_64
 for i in KIWI pxelinux.cfg image upload boot; do \
@@ -407,7 +407,7 @@ done
 %fdupes %{buildroot}/srv/tftpboot
 %endif
 
-%if %{_vendor} != "debbuild" && 0%{?suse_version} < 1550
+%if "%{_vendor}" != "debbuild" && 0%{?suse_version} < 1550
 %ifarch %{ix86} x86_64
 %pre -n kiwi-pxeboot
 #============================================================
@@ -460,7 +460,7 @@ fi
 %files -n dracut-kiwi-overlay
 %{_usr}/lib/dracut/modules.d/90kiwi-overlay
 
-%if %{_vendor} != "debbuild"
+%if "%{_vendor}" != "debbuild"
 %ifarch %{ix86} x86_64
 %files -n kiwi-pxeboot
 %if 0%{?suse_version} < 1550
