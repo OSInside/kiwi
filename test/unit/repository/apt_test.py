@@ -26,31 +26,29 @@ class TestRepositoryApt:
         root_bind.shared_location = '/shared-dir'
 
         with patch('builtins.open', create=True):
-            self.repo = RepositoryApt(root_bind, ['exclude_docs'])
+            self.repo = RepositoryApt(
+                root_bind, custom_args=['exclude_docs']
+            )
 
-        self.exclude_docs = True
-        self.apt_conf.get_host_template.assert_called_once_with(
-            self.exclude_docs
-        )
-        template.substitute.assert_called_once_with(
-            {
-                'apt_shared_base': '/shared-dir/apt-get',
-                'unauthenticated': 'true'
-            }
-        )
+            self.exclude_docs = True
+            self.apt_conf.get_host_template.assert_called_once_with(
+                self.exclude_docs
+            )
+            template.substitute.assert_called_once_with(
+                {
+                    'apt_shared_base': '/shared-dir/apt-get',
+                    'unauthenticated': 'true'
+                }
+            )
+            repo = RepositoryApt(
+                root_bind, custom_args=['check_signatures']
+            )
+            assert repo.custom_args == []
+            assert repo.unauthenticated == 'false'
 
-    @patch('kiwi.repository.apt.NamedTemporaryFile')
-    @patch('kiwi.repository.apt.Path.create')
-    def test_post_init_no_custom_args(self, mock_path, mock_temp):
-        self.repo.post_init()
-        assert self.repo.custom_args == []
-
-    @patch('kiwi.repository.apt.NamedTemporaryFile')
-    @patch('kiwi.repository.apt.Path.create')
-    def test_post_init_with_custom_args(self, mock_path, mock_temp):
-        self.repo.post_init(['check_signatures'])
-        assert self.repo.custom_args == []
-        assert self.repo.unauthenticated == 'false'
+            repo = RepositoryApt(root_bind)
+            assert repo.custom_args == []
+            assert repo.unauthenticated == 'true'
 
     def test_use_default_location(self):
         template = mock.Mock()
