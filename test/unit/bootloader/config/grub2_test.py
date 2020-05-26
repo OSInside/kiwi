@@ -491,8 +491,10 @@ class TestBootLoaderConfigGrub2:
                 [
                     '\tlinuxefi ${rel_dirname}/${basename} ...',
                     '\tlinux ${rel_dirname}/${basename} ...',
+                    '\tlinux16 ${rel_dirname}/${basename} ...',
                     '\tinitrdefi ${rel_dirname}/${initrd}',
-                    '\tinitrd ${rel_dirname}/${initrd}'
+                    '\tinitrd ${rel_dirname}/${initrd}',
+                    '\tinitrd16 ${rel_dirname}/${initrd}'
                 ]
             )
             self.bootloader.setup_disk_image_config(
@@ -515,6 +517,8 @@ class TestBootLoaderConfigGrub2:
                 call(
                     '\t$linux ${rel_dirname}/${basename} ...\n'
                     '\t$linux ${rel_dirname}/${basename} ...\n'
+                    '\t$linux ${rel_dirname}/${basename} ...\n'
+                    '\t$initrd ${rel_dirname}/${initrd}\n'
                     '\t$initrd ${rel_dirname}/${initrd}\n'
                     '\t$initrd ${rel_dirname}/${initrd}'
                 )
