@@ -261,11 +261,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 with open(config_file) as grub_config_file:
                     grub_config = grub_config_file.read()
                     grub_config = re.sub(
-                        r'([ \t]+)linux[efi]*([ \t]+)', r'\1$linux\2',
+                        r'([ \t]+)linux(efi|16)*([ \t]+)', r'\1$linux\3',
                         grub_config
                     )
                     grub_config = re.sub(
-                        r'([ \t]+)initrd[efi]*([ \t]+)', r'\1$initrd\2',
+                        r'([ \t]+)initrd(efi|16)*([ \t]+)', r'\1$initrd\3',
                         grub_config
                     )
                 with open(config_file, 'w') as grub_config_file:
