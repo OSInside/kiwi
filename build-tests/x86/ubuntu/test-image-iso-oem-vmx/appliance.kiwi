@@ -25,7 +25,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+        <type image="iso" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true" firmware="efi"/>
     </preferences>
     <preferences profiles="Virtual">
         <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0 splash">
@@ -33,7 +33,7 @@
         </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" filesystem="ext4" initrd_system="dracut" installiso="true">
+        <type image="oem" filesystem="ext4" initrd_system="dracut" installiso="true" firmware="efi">
             <bootloader name="grub2"/>
             <oemconfig>
                 <oem-swap>true</oem-swap>
@@ -58,7 +58,9 @@
         <package name="grub2-themes-ubuntu-mate"/>
         <package name="plymouth-theme-sabily"/>
         <package name="plymouth"/>
-        <package name="grub2"/>
+        <package name="grub-pc-bin"/>
+        <package name="grub2-common"/>
+        <package name="grub-efi-amd64-bin"/>
         <package name="linux-generic"/>
         <package name="isolinux"/>
         <package name="syslinux"/>
@@ -74,6 +76,7 @@
         <package name="isc-dhcp-client"/>
         <package name="netbase"/>
         <package name="dbus"/>
+        <package name="btrfs-progs"/>
     </packages>
     <packages type="image" profiles="Live">
         <package name="dracut-kiwi-live"/>
