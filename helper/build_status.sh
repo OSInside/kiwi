@@ -18,6 +18,7 @@ for image in \
     Virtualization:Appliances:Images:Testing_x86:suse/test-image-tbz \
     Virtualization:Appliances:Images:Testing_x86:suse/test-image-vmx \
     Virtualization:Appliances:Images:Testing_x86:suse/test-image-vmx-lvm \
+    Virtualization:Appliances:Images:Testing_x86:suse/test-image-custom-partitions \
     Virtualization:Appliances:Images:Testing_x86:centos/test-image-iso-oem-vmx \
     Virtualization:Appliances:Images:Testing_x86:fedora/test-image-iso-oem-vmx \
     Virtualization:Appliances:Images:Testing_x86:ubuntu/test-image-iso-oem-vmx \
