@@ -1,0 +1,11 @@
+[Unit]
+Description=Rebuild dracut initrd for this host
+ConditionPathExists=/.kiwi_dracut_hostonly.trigger
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'dracut -f'
+ExecStartPost=/bin/bash -c 'rm -f /.kiwi_dracut_hostonly.trigger'
+
+[Install]
+WantedBy=multi-user.target

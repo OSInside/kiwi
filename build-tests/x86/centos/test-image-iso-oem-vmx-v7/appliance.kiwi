@@ -24,16 +24,18 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial gfxterm"/>
+        </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="vmx" primary="true" filesystem="ext4" kernelcmdline="rhgb console=ttyS0" firmware="bios" format="qcow2">
-            <bootloader name="grub2"/>
+        <type image="vmx" primary="true" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2">
+            <bootloader name="grub2" console="serial gfxterm"/>
         </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" firmware="uefi">
-            <bootloader name="grub2"/>
+        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" firmware="uefi" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial gfxterm"/>
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>

@@ -3,22 +3,21 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.2" name="LimeJeOS-Fedora-Rawhide">
+<image schemaversion="7.2" name="LimeJeOS-CentOS-08.0">
     <description type="system">
         <author>Marcus Schaefer</author>
-        <contact>ms@suse.com</contact>
-        <specification>Fedora Rawhide JeOS</specification>
+        <contact>ms@suse.de</contact>
+        <specification>CentOS Enterprise 8 JeOS</specification>
     </description>
     <profiles>
-        <profile name="Live" description="Live image of Fedora Rawhide"/>
-        <profile name="Virtual" description="Virtual image of Fedora Rawhide"/>
-        <profile name="Disk" description="OEM image of Fedora Rawhide"/>
+        <profile name="Live" description="Live image of CentOS 8"/>
+        <profile name="Virtual" description="Virtual image of CentOS 8"/>
+        <profile name="Disk" description="OEM image of CentOS 8"/>
     </profiles>
     <preferences>
-        <version>2.0.0</version>
+        <version>1.3.0</version>
         <packagemanager>dnf</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
-        <bootloader-theme>breeze</bootloader-theme>
         <locale>en_US</locale>
         <keytable>us</keytable>
         <timezone>UTC</timezone>
@@ -30,7 +29,7 @@
         </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2">
+        <type image="vmx" primary="true" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2">
             <bootloader name="grub2" console="serial gfxterm"/>
         </type>
     </preferences>
@@ -49,28 +48,58 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
-        <source path="obs://Virtualization:Appliances:Staging/Fedora_Rawhide"/>
+        <source path="obs://Virtualization:Appliances:Staging/CentOS_8"/>
     </repository>
-    <repository type="rpm-md" alias="Fedora_Rawhide">
-        <source path="obs://Fedora:Rawhide/standard"/>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8/update"/>
     </repository>
-    <repository type="rpm-md" alias="Fedora_EPEL">
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8/extras"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8/powertools"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8/appstream"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8/baseos"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8/standard"/>
+    </repository>
+    <repository type="rpm-md">
         <source path="obs://Fedora:EPEL:8/standard"/>
     </repository>
     <packages type="image">
+        <package name="syslinux"/>
+        <package name="gdisk"/>
         <package name="grub2"/>
-        <package name="grubby"/>
         <package name="kernel"/>
         <package name="plymouth-theme-charge"/>
-        <package name="grub2-breeze-theme"/>
-        <package name="selinux-policy-targeted"/>
+        <package name="audit"/>
         <package name="dhclient"/>
-        <package name="glibc-all-langpacks"/>
-        <package name="vim"/>
-        <package name="tzdata"/>
-    </packages>
-    <packages type="image" profiles="Live,Disk">
-        <package name="syslinux"/>
+        <package name="e2fsprogs"/>
+        <package name="firewalld"/>
+        <package name="hostname"/>
+        <package name="initscripts"/>
+        <package name="iprutils"/>
+        <package name="irqbalance"/>
+        <package name="kbd"/>
+        <package name="kexec-tools"/>
+        <package name="openssh-clients"/>
+        <package name="openssh-server"/>
+        <package name="parted"/>
+        <package name="passwd"/>
+        <package name="policycoreutils"/>
+        <package name="rootfiles"/>
+        <package name="rsyslog"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="tuned"/>
+        <package name="xfsprogs"/>
+        <package name="NetworkManager"/>
+        <package name="iputils"/>
+        <package name="fipscheck"/>
     </packages>
     <packages type="image" profiles="Live">
         <package name="dracut-kiwi-live"/>
@@ -82,8 +111,9 @@
     <packages type="bootstrap">
         <package name="filesystem"/>
         <package name="basesystem"/>
-        <package name="grub2-efi-x64-modules"/>
-        <package name="grub2-efi-x64"/>
-        <package name="shim" arch="x86_64"/>
+        <package name="grub2-efi-x64-modules" arch="x86_64"/>
+        <package name="grub2-efi-x64" arch="x86_64"/>
+        <package name="shim-x64" arch="x86_64"/>
+        <package name="libdb-utils"/>
     </packages>
 </image>
