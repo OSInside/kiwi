@@ -19,6 +19,7 @@ import os
 import logging
 import pickle
 from tempfile import NamedTemporaryFile
+from typing import Dict, Union
 
 # project
 from kiwi.defaults import Defaults
@@ -46,6 +47,8 @@ from kiwi.utils.fstab import Fstab
 from kiwi.path import Path
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.partitioner import Partitioner
+from kiwi.storage.mapped_device import MappedDevice
+from kiwi.mount_manager import MountManager
 
 from kiwi.exceptions import (
     KiwiDiskBootImageError,
@@ -466,6 +469,9 @@ class DiskBuilder:
         # set root filesystem properties
         self._setup_property_root_is_readonly_snapshot()
 
+        # This is same as config.sh, just after everything has been created on the disk.
+        self._call_post_build_config(device_map)
+
         # prepare for install media if requested
         if self.install_media:
             log.info('Saving boot image instance to file')
@@ -509,6 +515,32 @@ class DiskBuilder:
         )
 
         return self.result
+
+    def _call_post_build_config(self, device_map: Dict[str, MappedDevice]):
+        """
+        Call post-build.sh config script. This is the same as config.sh, except
+        it is run on already created rootfs for final tuning/adjusting.
+
+        This method is mostly meant for embedded Linux images, where some packages
+        and other adjustments needs to be explicitly removed or any other things
+        has to be done directly.
+        """
+
+        if not self.system_setup.has_post_build_script():
+            return
+
+        if "root" not in device_map:
+            log.error("Need to call post-build.sh script, but unable to find root device!")
+            raise KiwiDiskBootImageError("Root device was not found")
+
+        mnt_point = MountManager(device=device_map["root"].get_device())
+        mnt_point.mount()
+
+        log.info("Mounted root-fs for post-build config on %s at %s", mnt_point.device, mnt_point.mountpoint)
+        self.system_setup.call_post_build_config(root_dir=mnt_point.mountpoint)
+
+        mnt_point.umount()
+        log.info("Umounted root-fs for post-build config")
 
     def create_disk_format(self, result_instance):
         """

@@ -18,6 +18,8 @@
 import glob
 import os
 import logging
+import shutil
+from typing import Optional, List
 from collections import OrderedDict
 from collections import namedtuple
 from tempfile import NamedTemporaryFile
@@ -78,6 +80,22 @@ class SystemSetup:
         self.root_dir = root_dir
         self._preferences_lookup()
         self._oemconfig_lookup()
+
+    def has_config_script(self) -> bool:
+        """
+        Indicates presense of the config.sh script.
+        Returns True if the script will be called.
+        """
+        return os.path.exists(self.root_dir + '/image/config.sh')
+
+    def has_post_build_script(self) -> bool:
+        """
+        Indicates presense of the post-build.sh script.
+        Returns True if the script will be called.
+        """
+        # So we know we need to extra-remount things, or not.
+
+        return os.path.exists(self.root_dir + '/image/post-build.sh')
 
     def import_description(self):
         """
@@ -453,6 +471,12 @@ class SystemSetup:
                 'setfiles', security_context_file, '/', '-v'
             ]
         )
+
+    def call_post_build_config(self, root_dir: str):
+        """
+        Calls post-configuration script 'post-build.sh', if any.
+        """
+        self._call_script("post-build.sh", root_dir=root_dir)
 
     def export_modprobe_setup(self, target_root_dir):
         """
@@ -843,6 +867,10 @@ class SystemSetup:
                 filepath='config.sh',
                 raise_if_not_exists=False
             ),
+            'post-build.sh': script_type(
+                filepath='post-build.sh',
+                raise_if_not_exists=False
+            ),
             'images.sh': script_type(
                 filepath='images.sh',
                 raise_if_not_exists=False
@@ -870,13 +898,9 @@ class SystemSetup:
                 else:
                     script_file = self.description_dir + '/' + script.filepath
                 if os.path.exists(script_file):
-                    log.info(
-                        '--> Importing %s script as %s',
-                        script.filepath, 'image/' + name
-                    )
-                    Command.run(
-                        ['cp', script_file, description_target + name]
-                    )
+                    log.info('--> Importing %s script as %s', script.filepath, 'image/' + name)
+                    shutil.copy(script_file, description_target + name)
+                    # Command.run(['cp', script_file, description_target + name])
                     need_script_helper_functions = True
                 elif script.raise_if_not_exists:
                     raise KiwiImportDescriptionError(
@@ -893,22 +917,35 @@ class SystemSetup:
                 ]
             )
 
-    def _call_script(self, name):
-        script_path = os.path.join(self.root_dir, 'image', name)
+    def _call_script(self, name: str, root_dir: Optional[str] = None):
+        """
+        Call previously prepared script from root overlay in chrooted mode.
+        """
+        sub_src: str
+        if root_dir is None:
+            root_dir = self.root_dir
+            sub_src = "image"
+        else:
+            sub_src = "tmp"
+
+        script_path: str = os.path.join(self.root_dir, 'image', name)  # Script is still on the original build path
         if os.path.exists(script_path):
-            command = ['chroot', self.root_dir]
+            # Move script to the chrooted env
+            if root_dir != self.root_dir:
+                script_path = shutil.move(script_path, os.path.join(root_dir, "tmp"))
+
+            log.info("--> Invoking %s", name)
+            command: List[str] = ['chroot', root_dir]
+
             if not Path.access(script_path, os.X_OK):
-                command += ['bash']
-            command += ['/image/' + name]
-            config_script = Command.call(command)
-            process = CommandProcess(
-                command=config_script, log_topic='Calling ' + name + ' script'
-            )
-            result = process.poll_and_watch()
-            if result.returncode != 0:
-                raise KiwiScriptFailed(
-                    '%s failed: %s' % (name, format(result.stderr))
-                )
+                command.append('sh')
+
+            command.append(os.path.join(sub_src, name))
+            result = CommandProcess(command=Command.call(command),
+                                    log_topic='Calling {} script'.format(name)).poll_and_watch()
+
+            if result.returncode != os.EX_OK:
+                raise KiwiScriptFailed('%s failed: %s' % (name, format(result.stderr)))
 
     def _call_script_no_chroot(
         self, name, option_list, working_directory
@@ -961,10 +998,8 @@ class SystemSetup:
         }
         oemconfig = self.xml_state.get_build_type_oemconfig_section()
         if oemconfig:
-            self.oemconfig['recovery'] = \
-                self._text(oemconfig.get_oem_recovery())
-            self.oemconfig['recovery_inplace'] = \
-                self._text(oemconfig.get_oem_inplace_recovery())
+            self.oemconfig['recovery'] = self._text(oemconfig.get_oem_recovery())
+            self.oemconfig['recovery_inplace'] = self._text(oemconfig.get_oem_inplace_recovery())
 
     def _text(self, section_content):
         """
