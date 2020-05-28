@@ -19,7 +19,7 @@ import os
 import logging
 import pickle
 from tempfile import NamedTemporaryFile
-from typing import Dict, Union
+from typing import Dict
 
 # project
 from kiwi.defaults import Defaults
