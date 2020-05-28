@@ -888,7 +888,7 @@ class SystemSetup:
             sorted(custom_scripts.items())
         )
 
-        description_target = self.root_dir + '/image/'
+        description_target = os.path.join(self.root_dir, 'image')
         need_script_helper_functions = False
 
         for name, script in list(sorted_custom_scripts.items()):
@@ -896,26 +896,17 @@ class SystemSetup:
                 if script.filepath.startswith('/'):
                     script_file = script.filepath
                 else:
-                    script_file = self.description_dir + '/' + script.filepath
+                    script_file = os.path.join(self.description_dir, script.filepath)
                 if os.path.exists(script_file):
-                    log.info('--> Importing %s script as %s', script.filepath, 'image/' + name)
-                    shutil.copy(script_file, description_target + name)
-                    # Command.run(['cp', script_file, description_target + name])
+                    log.info('--> Importing %s script as image/%s', script.filepath, name)
+                    shutil.copy(script_file, os.path.join(description_target, name))
                     need_script_helper_functions = True
                 elif script.raise_if_not_exists:
-                    raise KiwiImportDescriptionError(
-                        'Specified script %s does not exist' % script_file
-                    )
+                    raise KiwiImportDescriptionError('Specified script {} does not exist'.format(script_file))
 
         if need_script_helper_functions:
             log.info('--> Importing script helper functions')
-            Command.run(
-                [
-                    'cp',
-                    Defaults.get_common_functions_file(),
-                    self.root_dir + '/.kconfig'
-                ]
-            )
+            shutil.copy(Defaults.get_common_functions_file(), os.path.join(self.root_dir, ".kconfig"))
 
     def _call_script(self, name: str, root_dir: Optional[str] = None):
         """
