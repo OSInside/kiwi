@@ -934,7 +934,7 @@ class SystemSetup:
             command.append(os.path.join(sub_src, name))
             result = CommandProcess(command=Command.call(command),
                                     log_topic='Calling {} script'.format(name)).poll_and_watch()
-
+            os.unlink(script_path)
             if result.returncode != os.EX_OK:
                 raise KiwiScriptFailed('%s failed: %s' % (name, format(result.stderr)))
 
