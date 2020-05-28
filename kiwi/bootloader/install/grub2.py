@@ -39,6 +39,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
     """
     **grub2 bootloader installation**
     """
+
     def post_init(self, custom_args):
         """
         grub2 post initialization method

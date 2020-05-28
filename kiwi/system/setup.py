@@ -67,6 +67,7 @@ class SystemSetup:
         image archives, overlay files
     :param str root_dir: root directory path name
     """
+
     def __init__(self, xml_state, root_dir):
         self.arch = Defaults.get_platform_name()
         self.xml_state = xml_state

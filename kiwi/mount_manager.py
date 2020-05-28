@@ -38,6 +38,7 @@ class MountManager:
     * :param string device: device node name
     * :param string mountpoint: mountpoint directory name
     """
+
     def __init__(self, device, mountpoint=None):
         self.device = device
         self.mountpoint_created_by_mount_manager = False

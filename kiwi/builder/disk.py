@@ -67,6 +67,7 @@ class DiskBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
