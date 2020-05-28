@@ -24,7 +24,7 @@ __pycache__/
 *~
 *.kate-swp
 *.~
-
+*vscode/
 
 # C extensions
 *.so
