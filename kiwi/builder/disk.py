@@ -234,13 +234,13 @@ class DiskBuilder:
 
         # create the disk
         log.info('Creating raw disk image %s', self.diskname)
-        loop_provider = LoopDevice(
+        self.loop_provider = LoopDevice(
             self.diskname, disksize_mbytes, self.blocksize
         )
-        loop_provider.create()
+        self.loop_provider.create()
 
         self.disk = Disk(
-            self.firmware.get_partition_table_type(), loop_provider,
+            self.firmware.get_partition_table_type(), self.loop_provider,
             self.xml_state.get_disk_start_sector()
         )
 
@@ -249,7 +249,7 @@ class DiskBuilder:
             self.bootloader, self.xml_state, root_dir=self.root_dir,
             boot_dir=self.root_dir, custom_args={
                 'targetbase':
-                    loop_provider.get_device(),
+                    self.loop_provider.get_device(),
                 'grub_directory_name':
                     Defaults.get_grub_boot_directory_name(self.root_dir),
                 'boot_is_crypto':
@@ -320,22 +320,22 @@ class DiskBuilder:
                 'image_type':
                     self.xml_state.get_build_type_name()
             }
-            volume_manager = VolumeManager(
+            self.volume_manager = VolumeManager(
                 self.volume_manager_name, device_map,
                 self.root_dir + '/',
                 self.volumes,
                 volume_manager_custom_parameters
             )
-            volume_manager.setup(
+            self.volume_manager.setup(
                 self.volume_group_name
             )
-            volume_manager.create_volumes(
+            self.volume_manager.create_volumes(
                 self.requested_filesystem
             )
-            volume_manager.mount_volumes()
-            self.system = volume_manager
-            device_map['root'] = volume_manager.get_device().get('root')
-            device_map['swap'] = volume_manager.get_device().get('swap')
+            self.volume_manager.mount_volumes()
+            self.system = self.volume_manager
+            device_map['root'] = self.volume_manager.get_device().get('root')
+            device_map['swap'] = self.volume_manager.get_device().get('swap')
         else:
             log.info(
                 'Creating root(%s) filesystem on %s',
@@ -603,7 +603,6 @@ class DiskBuilder:
         try:
             with open(boot_image_dump_file, 'rb') as boot_image_dump:
                 boot_image = pickle.load(boot_image_dump)
-            boot_image.enable_cleanup()
             Path.wipe(boot_image_dump_file)
         except Exception as e:
             raise KiwiInstallMediaError(

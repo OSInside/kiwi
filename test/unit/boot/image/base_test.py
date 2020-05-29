@@ -69,8 +69,7 @@ class TestBootImageBase:
                 self.boot_image.dump('filename')
 
     @patch('pickle.dump')
-    @patch('kiwi.boot.image.base.BootImageBase.disable_cleanup')
-    def test_dump(self, mock_disable_cleanup, mock_dump):
+    def test_dump(self, mock_dump):
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
@@ -79,15 +78,6 @@ class TestBootImageBase:
             mock_dump.assert_called_once_with(
                 self.boot_image, file_handle
             )
-            mock_disable_cleanup.assert_called_once_with()
-
-    def test_disable_cleanup(self):
-        self.boot_image.disable_cleanup()
-        assert self.boot_image.call_destructor is False
-
-    def test_enable_cleanup(self):
-        self.boot_image.enable_cleanup()
-        assert self.boot_image.call_destructor is True
 
     @patch('os.listdir')
     def test_is_prepared(self, mock_listdir):
@@ -198,3 +188,4 @@ class TestBootImageBase:
         self.boot_image.include_module('module')
         self.boot_image.omit_module('module')
         self.boot_image.write_system_config_file({'config_key': 'value'})
+        self.boot_image.cleanup()

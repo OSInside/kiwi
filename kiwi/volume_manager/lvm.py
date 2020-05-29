@@ -81,7 +81,7 @@ class VolumeManagerLVM(VolumeManagerBase):
                 # the same key to put them on the same level
                 volume_name = 'swap'
             device_map[volume_name] = MappedDevice(
-                device=volume_node, device_provider=self
+                device=volume_node, device_provider=self.device_provider_root
             )
         return device_map
 
@@ -296,7 +296,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         filesystem = FileSystem(
             name=filesystem_name,
             device_provider=MappedDevice(
-                device=device_node, device_provider=self
+                device=device_node, device_provider=self.device_provider_root
             ),
             custom_args=self.custom_filesystem_args
         )

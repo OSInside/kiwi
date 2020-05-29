@@ -36,6 +36,9 @@ class TestFileSystemBase:
         with raises(NotImplementedError):
             self.fsbase.create_on_file('myimage')
 
+    def test_get_mountpoint(self):
+        assert self.fsbase.get_mountpoint() is None
+
     @patch('kiwi.filesystem.base.MountManager')
     @patch('kiwi.filesystem.base.DataSync')
     @patch('kiwi.filesystem.base.Command.run')
@@ -66,7 +69,7 @@ class TestFileSystemBase:
             ['chattr', '+C', 'tmpdir']
         )
         filesystem_mount.mount.assert_called_once_with([])
-        filesystem_mount.umount.assert_called_once_with()
+        assert self.fsbase.get_mountpoint() == 'tmpdir'
 
     def test_destructor_valid_mountpoint(self):
         self.fsbase.filesystem_mount = mock.Mock()

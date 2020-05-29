@@ -53,7 +53,9 @@ class TestBootImageKiwi:
         self.boot_image.include_file('/root/a')
 
     @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
-    def test_prepare(self, mock_boot_path):
+    @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
+    def test_prepare(self, mock_mkdtemp, mock_boot_path):
+        mock_mkdtemp.return_value = 'boot-root-directory'
         mock_boot_path.return_value = '../data'
         self.boot_image.prepare()
         self.system_prepare.setup_repositories.assert_called_once_with(
@@ -82,7 +84,11 @@ class TestBootImageKiwi:
         self.setup.call_image_script.assert_called_once_with()
 
     @patch('os.path.exists')
-    def test_prepare_no_boot_description_found(self, mock_os_path):
+    @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
+    def test_prepare_no_boot_description_found(
+        self, mock_mkdtemp, mock_os_path
+    ):
+        mock_mkdtemp.return_value = 'boot-root-directory'
         mock_os_path.return_value = False
         with raises(KiwiConfigFileNotFound):
             self.boot_image.prepare()
@@ -102,6 +108,7 @@ class TestBootImageKiwi:
         mock_sync.return_value = data
         mock_mkdtemp.return_value = 'temp-boot-directory'
         mock_prepared.return_value = True
+        self.boot_image.boot_root_directory = 'boot-root-directory'
         mbrid = mock.Mock()
         mbrid.write = mock.Mock()
         cpio = mock.Mock()
@@ -158,11 +165,12 @@ class TestBootImageKiwi:
             self.boot_image.target_dir + '/foo'
         )
 
-    @patch('kiwi.boot.image.base.Path.wipe')
+    @patch('kiwi.boot.image.builtin_kiwi.Path.wipe')
     @patch('os.path.exists')
-    def test_destructor(self, mock_path, mock_wipe):
+    def test_cleanup(self, mock_path, mock_wipe):
         mock_path.return_value = True
-        self.boot_image.__del__()
+        self.boot_image.temp_directories.append('boot-root-directory')
+        self.boot_image.cleanup()
         mock_wipe.assert_called_once_with('boot-root-directory')
 
     def teardown(self):

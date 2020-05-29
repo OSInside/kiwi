@@ -92,7 +92,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         filesystem = FileSystem(
             name='btrfs',
             device_provider=MappedDevice(
-                device=self.device, device_provider=self
+                device=self.device, device_provider=self.device_provider_root
             ),
             custom_args=self.custom_filesystem_args
         )

@@ -122,6 +122,19 @@ class FileSystemBase:
         """
         raise NotImplementedError
 
+    def get_mountpoint(self):
+        """
+        Provides mount point directory
+
+        Effective use of the directory is guaranteed only after sync_data
+
+        :return: directory path name
+
+        :rtype: string
+        """
+        if self.filesystem_mount:
+            return self.filesystem_mount.mountpoint
+
     def sync_data(self, exclude=None):
         """
         Copy root data tree into filesystem
@@ -150,7 +163,6 @@ class FileSystemBase:
             options=['-a', '-H', '-X', '-A', '--one-file-system'],
             exclude=exclude
         )
-        self.filesystem_mount.umount()
 
     def _apply_attributes(self):
         """

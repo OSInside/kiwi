@@ -312,6 +312,18 @@ class VolumeManagerBase(DeviceProvider):
             )
         return mbsize
 
+    def get_mountpoint(self):
+        """
+        Provides mount point directory
+
+        Effective use of the directory is guaranteed only after sync_data
+
+        :return: directory path name
+
+        :rtype: string
+        """
+        return self.mountpoint
+
     def sync_data(self, exclude=None):
         """
         Implements sync of root directory to mounted volumes
@@ -327,7 +339,6 @@ class VolumeManagerBase(DeviceProvider):
                 options=['-a', '-H', '-X', '-A', '--one-file-system'],
                 exclude=exclude
             )
-            self.umount_volumes()
 
     def set_property_readonly_root(self):
         """
@@ -343,11 +354,3 @@ class VolumeManagerBase(DeviceProvider):
         the mounts of all volumes
         """
         self.mountpoint = mkdtemp(prefix='kiwi_volumes.')
-
-    def __del__(self):
-        """
-        Implements destructor to cleanup all volume subsystems
-        and mount processes. overwrite in specialized volume
-        management class
-        """
-        pass
