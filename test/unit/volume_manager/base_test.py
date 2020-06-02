@@ -250,3 +250,9 @@ class TestVolumeManagerBase:
         mock_command.assert_called_once_with(
             ['chattr', '+C', 'toplevel/etc']
         )
+
+    @patch('kiwi.volume_manager.base.Path.wipe')
+    def test_cleanup_tempdirs(self, mock_Path_wipe):
+        self.volume_manager.temp_directories = ['tmpdir']
+        self.volume_manager._cleanup_tempdirs()
+        mock_Path_wipe.assert_called_once_with('tmpdir')

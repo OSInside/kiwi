@@ -132,7 +132,8 @@ class TestVolumeManagerLVM:
         self.volume_manager.volume_group = None
 
     @patch('kiwi.volume_manager.lvm.Command.run')
-    def test_setup_volume_group_host_conflict(self, mock_command):
+    @patch('kiwi.volume_manager.base.mkdtemp')
+    def test_setup_volume_group_host_conflict(self, mock_mkdtemp, mock_command):
         command = Mock()
         command.output = 'some_data_about_volume_group'
         mock_command.return_value = command

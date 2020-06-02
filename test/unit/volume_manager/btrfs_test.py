@@ -153,8 +153,9 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.FileSystem')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
+    @patch('kiwi.volume_manager.base.mkdtemp')
     def test_setup_volume_id_not_detected(
-        self, mock_mount, mock_mapped_device, mock_fs,
+        self, mock_mkdtemp, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
     ):
         command_call = Mock()
@@ -531,3 +532,8 @@ class TestVolumeManagerBtrfs:
             self.volume_manager.__del__()
             mock_umount_volumes.assert_called_once_with()
             mock_wipe.assert_called_once_with(self.volume_manager.mountpoint)
+        mock_umount_volumes.reset_mock()
+        mock_umount_volumes.return_value = False
+        with self._caplog.at_level(logging.WARNING):
+            self.volume_manager.__del__()
+            mock_umount_volumes.assert_called_once_with()

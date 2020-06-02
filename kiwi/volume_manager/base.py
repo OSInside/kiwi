@@ -58,6 +58,7 @@ class VolumeManagerBase(DeviceProvider):
     :raises KiwiVolumeManagerSetupError: if the given root_dir doesn't exist
     """
     def __init__(self, device_map, root_dir, volumes, custom_args=None):
+        self.temp_directories = []
         # all volumes are combined into one mountpoint. This is
         # needed at sync_data time. How to mount the volumes is
         # special to the volume management class
@@ -354,3 +355,8 @@ class VolumeManagerBase(DeviceProvider):
         the mounts of all volumes
         """
         self.mountpoint = mkdtemp(prefix='kiwi_volumes.')
+        self.temp_directories.append(self.mountpoint)
+
+    def _cleanup_tempdirs(self):
+        for directory in self.temp_directories:
+            Path.wipe(directory)
