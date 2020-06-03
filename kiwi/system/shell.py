@@ -16,10 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from tempfile import NamedTemporaryFile
+from typing import Optional, Any
+from collections.abc import Iterable
 
 # project
 from kiwi.command import Command
 from kiwi.defaults import Defaults
+
+from kiwi.exceptions import KiwiShellVariableValueError
 
 
 class Shell:
@@ -84,3 +88,35 @@ class Shell:
                 )
             ]
         )
+
+    @staticmethod
+    def format_to_variable_value(value: Optional[Any]) -> str:
+        """
+        Format given variable value to return a string value
+        representation that can be sourced by shell scripts.
+        If the provided value is not representable as a string
+        (list, dict, tuple etc) an exception is raised
+
+        :param any value: a python variable
+
+        :raises KiwiShellVariableValueError: if value is an iterable
+
+        :return: string value representation
+
+        :rtype: str
+        """
+        if value is None:
+            return ''
+        if isinstance(value, bool):
+            return format(value).lower()
+        elif isinstance(value, str):
+            return value
+        elif isinstance(value, bytes):
+            return format(value.decode())
+        elif isinstance(value, Iterable):
+            # we will have a hard time to turn an iterable (list, dict ...)
+            # into a useful string
+            raise KiwiShellVariableValueError(
+                'Value cannot be {0}'.format(type(value))
+            )
+        return format(value)

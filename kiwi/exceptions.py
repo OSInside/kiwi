@@ -795,3 +795,10 @@ class KiwiFileAccessError(KiwiError):
     """
     Exception raised if accessing a file or its metadata failed
     """
+
+
+class KiwiShellVariableValueError(KiwiError):
+    """
+    Exception raised if a given python value cannot be converted
+    into a string representation for use in shell scripts
+    """

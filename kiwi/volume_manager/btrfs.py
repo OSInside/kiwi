@@ -22,6 +22,7 @@ import shutil
 import datetime
 from xml.etree import ElementTree
 from xml.dom import minidom
+from typing import List
 
 # project
 from kiwi.command import Command
@@ -287,6 +288,21 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         return all_volumes_umounted
 
+    def get_mountpoint(self) -> str:
+        """
+        Provides btrfs root mount point directory
+
+        Effective use of the directory is guaranteed only after sync_data
+
+        :return: directory path name
+
+        :rtype: string
+        """
+        sync_target: List[str] = [self.mountpoint, '@']
+        if self.custom_args.get('root_is_snapshot'):
+            sync_target.extend(['.snapshots', '1', 'snapshot'])
+        return os.path.join(*sync_target)
+
     def sync_data(self, exclude=None):
         """
         Sync data into btrfs filesystem
@@ -297,9 +313,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         :param list exclude: files to exclude from sync
         """
         if self.toplevel_mount:
-            sync_target = self.mountpoint + '/@'
+            sync_target = self.get_mountpoint()
             if self.custom_args['root_is_snapshot']:
-                sync_target = self.mountpoint + '/@/.snapshots/1/snapshot'
                 self._create_snapshot_info(
                     ''.join([self.mountpoint, '/@/.snapshots/1/info.xml'])
                 )
@@ -309,7 +324,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 exclude=exclude
             )
             if self.custom_args['quota_groups'] and \
-                    self.custom_args['root_is_snapshot']:
+               self.custom_args['root_is_snapshot']:
                 self._create_snapper_quota_configuration()
 
     def set_property_readonly_root(self):
