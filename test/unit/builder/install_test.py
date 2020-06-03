@@ -178,6 +178,7 @@ class TestInstallImageBuilder:
         self.boot_image_task.create_initrd.assert_called_once_with(
             self.mbrid, 'initrd_kiwi_install', install_initrd=True
         )
+        self.boot_image_task.cleanup.assert_called_once_with()
         self.kernel.copy_kernel.assert_called_once_with(
             'temp_media_dir/boot/x86_64/loader', '/linux'
         )
@@ -354,6 +355,7 @@ class TestInstallImageBuilder:
         self.boot_image_task.create_initrd.assert_called_once_with(
             self.mbrid, 'initrd_kiwi_install', install_initrd=True
         )
+        self.boot_image_task.cleanup.assert_called_once_with()
         assert mock_command.call_args_list[1] == call(
             [
                 'mv', 'initrd',

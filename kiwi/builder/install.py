@@ -238,6 +238,7 @@ class InstallImageBuilder:
             custom_args=self.custom_iso_args
         )
         iso_image.create_on_file(self.isoname)
+        self.boot_image_task.cleanup()
 
     def create_install_pxe_archive(self):
         """
@@ -345,6 +346,7 @@ class InstallImageBuilder:
         archive = ArchiveTar(self.pxetarball)
 
         archive.create(self.pxe_dir)
+        self.boot_image_task.cleanup()
 
     def _create_pxe_install_kernel_and_initrd(self):
         kernelname = 'pxeboot.{0}.kernel'.format(self.pxename)

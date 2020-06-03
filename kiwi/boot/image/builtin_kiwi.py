@@ -49,17 +49,18 @@ class BootImageKiwi(BootImageBase):
         root filesystem which is a separate image to create
         the initrd from
         """
+        self.temp_directories = []
+
+    def prepare(self):
+        """
+        Prepare new root system suitable to create a kiwi initrd from it
+        """
         self.boot_root_directory = mkdtemp(
             prefix='kiwi_boot_root.', dir=self.target_dir
         )
         self.temp_directories.append(
             self.boot_root_directory
         )
-
-    def prepare(self):
-        """
-        Prepare new root system suitable to create a kiwi initrd from it
-        """
         self.load_boot_xml_description()
         boot_image_name = self.boot_xml_state.xml_data.get_name()
 
@@ -180,3 +181,8 @@ class BootImageKiwi(BootImageBase):
                 ['--check=crc32', '--lzma2=dict=1MiB', '--threads=0']
             )
             self.initrd_filename = compress.compressed_filename
+
+    def cleanup(self):
+        for directory in self.temp_directories:
+            if directory and os.path.exists(directory):
+                Path.wipe(directory)

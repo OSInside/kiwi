@@ -92,7 +92,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         filesystem = FileSystem(
             name='btrfs',
             device_provider=MappedDevice(
-                device=self.device, device_provider=self
+                device=self.device, device_provider=self.device_provider_root
             ),
             custom_args=self.custom_filesystem_args
         )
@@ -423,5 +423,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
     def __del__(self):
         if self.toplevel_mount:
             log.info('Cleaning up %s instance', type(self).__name__)
-            if self.umount_volumes():
-                Path.wipe(self.mountpoint)
+            if not self.umount_volumes():
+                log.warning('Subvolumes still busy')
+                return
+            Path.wipe(self.mountpoint)
+        self._cleanup_tempdirs()

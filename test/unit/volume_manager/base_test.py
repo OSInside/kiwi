@@ -206,13 +206,13 @@ class TestVolumeManagerBase:
         with raises(NotImplementedError):
             self.volume_manager.get_volumes()
 
+    def test_get_mountpoint(self):
+        assert self.volume_manager.get_mountpoint() is None
+
     @patch('kiwi.volume_manager.base.DataSync')
     @patch('kiwi.volume_manager.base.MountManager.is_mounted')
     @patch('kiwi.volume_manager.base.VolumeManagerBase.mount_volumes')
-    @patch('kiwi.volume_manager.base.VolumeManagerBase.umount_volumes')
-    def test_sync_data(
-        self, mock_umount_volumes, mock_mount_volumes, mock_mounted, mock_sync
-    ):
+    def test_sync_data(self, mock_mount_volumes, mock_mounted, mock_sync):
         data_sync = Mock()
         mock_sync.return_value = data_sync
         mock_mounted.return_value = False
@@ -226,7 +226,7 @@ class TestVolumeManagerBase:
             exclude=['exclude_me'],
             options=['-a', '-H', '-X', '-A', '--one-file-system']
         )
-        mock_umount_volumes.assert_called_once_with()
+        assert self.volume_manager.get_mountpoint() == 'mountpoint'
 
     @patch('kiwi.volume_manager.base.mkdtemp')
     def test_setup_mountpoint(self, mock_mkdtemp):
@@ -251,6 +251,8 @@ class TestVolumeManagerBase:
             ['chattr', '+C', 'toplevel/etc']
         )
 
-    def test_destructor(self):
-        # does nothing by default, just pass
-        self.volume_manager.__del__()
+    @patch('kiwi.volume_manager.base.Path.wipe')
+    def test_cleanup_tempdirs(self, mock_Path_wipe):
+        self.volume_manager.temp_directories = ['tmpdir']
+        self.volume_manager._cleanup_tempdirs()
+        mock_Path_wipe.assert_called_once_with('tmpdir')
