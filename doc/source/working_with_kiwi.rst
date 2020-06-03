@@ -175,8 +175,8 @@ The prepare step consists of the following substeps:
    At the end of the preparation stage the script :file:`config.sh` is
    executed (if present). It is run in the top level directory of the
    target root tree. The script's primary function is to complete the
-   system configuration, for example, to activate services. See
-   :ref:`image-customization-config-sh` section for further details.
+   system configuration. For more details about custom scripts
+   see :ref:`working-with-kiwi-user-defined-scripts`
 
 #. **Modify the Root Tree**
 
@@ -231,13 +231,8 @@ During the *create step* the following operations are performed by {kiwi}:
 #. **Execute the User-defined Script** :file:`images.sh`
 
    At the beginning of the image creation process the script named
-   :file:`images.sh` is executed (if present). It is run in the top level
-   directory of the unpacked root tree. The script is usually used to
-   remove files that are no needed in the final image. For example, if an
-   appliance is being built for a specific hardware, unnecessary kernel
-   drivers can be removed using this script.
-
-   See :ref:`image-customization-images-sh` for further details.
+   :file:`images.sh` is executed (if present). For more details about
+   custom scripts see :ref:`working-with-kiwi-user-defined-scripts`
 
 #. **Create the Requested Image Type**
 
