@@ -27,11 +27,6 @@ test -f /.profile && . /.profile
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Mount system filesystems
-#--------------------------------------
-baseMount
-
-#======================================
 # Setup baseproduct link
 #--------------------------------------
 suseSetupProduct
@@ -51,10 +46,6 @@ sed -i 's/DHCLIENT_SET_HOSTNAME="no"/DHCLIENT_SET_HOSTNAME="yes"/g' /etc/sysconf
 #--------------------------------------
 suseInsertService sshd
 suseInsertService network
-suseInsertService firstboot
-suseInsertService kdump
-suseInsertService ypbind
-suseInsertService autofs
 
 #======================================
 # Setup default target, multi-user
@@ -65,16 +56,3 @@ baseSetRunlevel 3
 # Add repo
 #--------------------------------------
 zypper ar --refresh http://download.opensuse.org/factory/repo/oss factory
-
-
-#======================================
-# SuSEconfig
-#--------------------------------------
-suseConfig
-
-#======================================
-# Umount kernel filesystems
-#--------------------------------------
-baseCleanMount
-
-exit 0
