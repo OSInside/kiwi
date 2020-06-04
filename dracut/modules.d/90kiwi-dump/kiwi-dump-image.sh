@@ -10,7 +10,7 @@ type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 #--------------------------------------
 function report_and_quit {
     local text_message="$1"
-    run_dialog --timeout 60 --msgbox "\"${text_message}\"" 5 70
+    run_dialog --timeout 60 --msgbox "\"${text_message}\"" 5 80
     if getargbool 0 rd.debug; then
         die "${text_message}"
     else
