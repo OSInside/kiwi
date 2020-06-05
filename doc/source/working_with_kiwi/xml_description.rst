@@ -707,8 +707,10 @@ following paths types:
 Adding and removing packages
 ----------------------------
 
-Now that we have defined the repositories, we can define which packages
-should be installed on the image. This is achieved via the `packages`
+Now that we have defined the repositories, we can define which packages or
+patterns should be installed on the image.
+
+This is achieved via the `packages`
 element which includes the packages that should be installed, ignore or
 removed via individual `package` child elements:
 
@@ -756,6 +758,30 @@ configured via the following attributes:
 
 We will describe the different child elements of `packages` in the following
 sections.
+
+If you want to install patterns, use the `namedCollection` element:
+
+.. code:: xml
+
+   <namedCollection name="devel_C_C++"/>
+
+On SUSE, patterns are just simple packages. To get the names of these
+packages, try this on a openSUSE host::
+
+    $ zypper search patterns
+
+This gives you all available patterns. To search for a specific pattern,
+like C++, try this::
+
+    $ zypper search patterns | grep C++
+    | patterns-devel-C-C++-devel_C_C++
+
+Add this name to your KIWI configuration file:
+
+.. code:: xml
+
+   <package name="patterns-devel-C-C++-devel_C_C++"/>
+
 
 .. _package-element:
 
