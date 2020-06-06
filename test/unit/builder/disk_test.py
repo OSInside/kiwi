@@ -395,8 +395,10 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
+    @patch('kiwi.builder.disk.SystemSetup')
     def test_create_disk_standard_root_with_dracut_initrd(
-        self, mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs
+        self, mock_SystemSetup, mock_path, mock_grub_dir,
+        mock_command, mock_rand, mock_fs
     ):
         self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
             kernel_name='vmlinuz-1.2.3-default',
@@ -408,6 +410,9 @@ class TestDiskBuilder:
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.initrd_system = 'dracut'
+        self.setup.script_exists.return_value = True
+        disk_system = mock.Mock()
+        mock_SystemSetup.return_value = disk_system
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
@@ -452,6 +457,9 @@ class TestDiskBuilder:
                 'prep_device': '/dev/prep-device'
             }
         )
+        self.setup.script_exists.assert_called_once_with('disk.sh')
+        disk_system.import_description.assert_called_once_with()
+        disk_system.call_disk_script.assert_called_once_with()
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
         )
