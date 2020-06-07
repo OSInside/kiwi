@@ -25,6 +25,10 @@
 %global python3_sitelib %(%{__python3} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
 %endif
 
+%if %{undefined python3_version}
+%global python3_version %(%{__python3} -c "import sys; print('{0}.{1}'.format(sys.version_info.major, sys.version_info.minor))")
+%endif
+
 %if 0%{?el7}
 %global python3_pkgversion 36
 %else
@@ -56,6 +60,7 @@ Packager:       Marcus Schaefer <ms@suse.de>
 Group:          %{pygroup}
 Source:         %{name}.tar.gz
 Source1:        %{name}-rpmlintrc
+Patch:          %{name}-py3_4-compat.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  gcc
 BuildRequires:  python%{python3_pkgversion}-%{develsuffix}
@@ -365,6 +370,10 @@ Provides manual pages to describe the kiwi commands
 
 %prep
 %setup -q -n kiwi-%{version}
+# Patches for Python 3.4 used on SLE12 which we still support
+%if "%{python3_version}" == "3.4"
+%patch -p0
+%endif
 
 # Drop shebang for kiwi/xml_parse.py, as we don't intend to use it
 # as an independent script

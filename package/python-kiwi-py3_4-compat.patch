@@ -1,0 +1,38 @@
+--- kiwi/system/shell.py
++++ kiwi/system/shell.py
+@@ -16,7 +16,6 @@
+ # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
+ #
+ from tempfile import NamedTemporaryFile
+-from typing import Optional, Any
+ from collections.abc import Iterable
+ 
+ # project
+@@ -90,7 +89,7 @@ class Shell:
+         )
+ 
+     @staticmethod
+-    def format_to_variable_value(value: Optional[Any]) -> str:
++    def format_to_variable_value(value):
+         """
+         Format given variable value to return a string value
+         representation that can be sourced by shell scripts.
+--- kiwi/volume_manager/btrfs.py
++++ kiwi/volume_manager/btrfs.py
+@@ -22,7 +22,6 @@ import shutil
+ import datetime
+ from xml.etree import ElementTree
+ from xml.dom import minidom
+-from typing import List
+ 
+ # project
+ from kiwi.command import Command
+@@ -298,7 +297,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
+ 
+         :rtype: string
+         """
+-        sync_target: List[str] = [self.mountpoint, '@']
++        sync_target = [self.mountpoint, '@']
+         if self.custom_args.get('root_is_snapshot'):
+             sync_target.extend(['.snapshots', '1', 'snapshot'])
+         return os.path.join(*sync_target)
