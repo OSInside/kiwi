@@ -34,5 +34,8 @@ addFilter("W: no-manual-page-for-binary setctsid");
 addFilter("W: no-manual-page-for-binary isconsole");
 addFilter("W: no-manual-page-for-binary kiwicompat");
 
+# don't complain about file attributes in source created from sdist
+addFilter("W: files-attr-not-set");
+
 # kiwi master package can't be noarch if sub packages are arch specific
 addFilter("W: no-binary");
