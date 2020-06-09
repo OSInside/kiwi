@@ -132,6 +132,7 @@ class BootImageKiwi(BootImageBase):
             temp_boot_root_directory = mkdtemp(
                 prefix='kiwi_boot_root_copy.'
             )
+            os.chmod(temp_boot_root_directory, 0o755)
             self.temp_directories.append(
                 temp_boot_root_directory
             )
