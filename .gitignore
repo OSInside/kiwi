@@ -81,3 +81,5 @@ target/
 
 # man pages
 *.1.gz
+# Editors
+.vscode/
