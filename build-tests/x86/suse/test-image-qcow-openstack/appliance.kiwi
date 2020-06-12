@@ -112,7 +112,6 @@
         <package name="sg3_utils"/>
         <package name="elfutils"/>
         <package name="iputils"/>
-        <package name="libyui-ncurses-pkg11"/>
         <package name="timezone"/>
         <package name="yast2"/>
         <package name="yast2-add-on"/>
@@ -159,7 +158,6 @@
         <package name="yast2-support"/>
         <package name="yast2-sysconfig"/>
         <package name="yast2-tftp-server"/>
-        <package name="yast2-trans-en_US"/>
         <package name="yast2-transfer"/>
         <package name="yast2-trans-stats"/>
         <package name="yast2-tune"/>
