@@ -100,8 +100,9 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.DataSync')
     @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
     @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
+    @patch('kiwi.boot.image.builtin_kiwi.os.chmod')
     def test_create_initrd(
-        self, mock_mkdtemp, mock_prepared, mock_sync,
+        self, mock_os_chmod, mock_mkdtemp, mock_prepared, mock_sync,
         mock_wipe, mock_create, mock_compress, mock_cpio
     ):
         data = mock.Mock()
@@ -118,6 +119,9 @@ class TestBootImageKiwi:
         self.boot_image.create_initrd(mbrid)
         mock_sync.assert_called_once_with(
             'boot-root-directory/', 'temp-boot-directory'
+        )
+        mock_os_chmod.assert_called_once_with(
+            'temp-boot-directory', 0o755
         )
         data.sync_data.assert_called_once_with(options=['-a'])
         mock_cpio.assert_called_once_with(
