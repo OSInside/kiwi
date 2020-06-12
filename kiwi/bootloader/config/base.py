@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import logging
 from collections import namedtuple
 
@@ -274,7 +275,7 @@ class BootLoaderConfigBase:
         if custom_cmdline:
             cmdline += ' ' + custom_cmdline
         custom_root = self._get_root_cmdline_parameter(uuid)
-        if custom_root:
+        if custom_root and custom_root not in cmdline:
             cmdline += ' ' + custom_root
         return cmdline.strip()
 
@@ -548,7 +549,9 @@ class BootLoaderConfigBase:
             log.info(
                 'Kernel root device explicitly set via kernelcmdline'
             )
-            return None
+            root_search = re.search(r'(root=(.*)[ ]+|root=(.*)$)', cmdline)
+            if root_search:
+                return root_search.group(1)
 
         want_root_cmdline_parameter = False
         if firmware and 'ec2' in firmware:
