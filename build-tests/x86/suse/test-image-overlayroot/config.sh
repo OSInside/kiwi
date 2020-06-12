@@ -54,12 +54,6 @@ rm -rf /usr/share/doc/manual/*
 rm -rf /opt/kde*
 
 #======================================
-# only basic version of vim is
-# installed; no syntax highlighting
-#--------------------------------------
-sed -i -e's/^syntax on/" syntax on/' /etc/vimrc
-
-#======================================
 # SuSEconfig
 #--------------------------------------
 suseConfig
