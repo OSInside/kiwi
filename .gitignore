@@ -81,3 +81,9 @@ target/
 
 # man pages
 *.1.gz
+
+# MyPy
+.mypy_cache/
+
+# Editors
+.vscode/
