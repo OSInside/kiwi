@@ -338,13 +338,6 @@ class SystemSetup:
                     'chroot', self.root_dir, 'systemd-firstboot',
                     '--locale=' + locale
                 ])
-            if os.path.exists(self.root_dir + '/etc/sysconfig/language'):
-                Shell.run_common_function(
-                    'baseUpdateSysConfig', [
-                        self.root_dir + '/etc/sysconfig/language',
-                        'RC_LANG', locale
-                    ]
-                )
 
     def setup_timezone(self):
         """

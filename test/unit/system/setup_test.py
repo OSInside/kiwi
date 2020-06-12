@@ -394,11 +394,10 @@ class TestSystemSetup:
             self.setup.setup_keyboard_map()
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
-    @patch('kiwi.system.setup.Shell.run_common_function')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
     def test_setup_locale(
-        self, mock_path, mock_run, mock_shell, mock_caps
+        self, mock_path, mock_run, mock_caps
     ):
         mock_caps.return_valure = True
         mock_path.return_value = True
@@ -411,24 +410,22 @@ class TestSystemSetup:
                 '--locale=locale1.UTF-8'
             ])
         ])
-        mock_shell.assert_called_once_with(
-            'baseUpdateSysConfig', [
-                'root_dir/etc/sysconfig/language', 'RC_LANG', 'locale1.UTF-8'
-            ]
-        )
 
-    @patch('kiwi.system.setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
-    def test_setup_locale_POSIX(self, mock_path, mock_run, mock_shell):
+    def test_setup_locale_POSIX(self, mock_path, mock_run, mock_caps):
+        mock_caps.return_valure = True
         mock_path.return_value = True
         self.setup.preferences['locale'] = 'POSIX,locale2'
         self.setup.setup_locale()
-        mock_shell.assert_called_once_with(
-            'baseUpdateSysConfig', [
-                'root_dir/etc/sysconfig/language', 'RC_LANG', 'POSIX'
-            ]
-        )
+        mock_run.assert_has_calls([
+            call(['rm', '-r', '-f', 'root_dir/etc/locale.conf']),
+            call([
+                'chroot', 'root_dir', 'systemd-firstboot',
+                '--locale=POSIX'
+            ])
+        ])
 
     @patch('kiwi.system.setup.Command.run')
     def test_setup_timezone(self, mock_command):
