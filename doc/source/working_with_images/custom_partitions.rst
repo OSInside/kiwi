@@ -32,8 +32,7 @@ schema can be customized. {kiwi} supports:
 
 1. Adding a spare partition *before* the root (`/`) partition.
 
-     It can be achieved by using the `spare_part` type attribute, see
-     :ref:`Schema Documentation <schema-docs>`.
+     It can be achieved by using the `spare_part` type attribute.
 
 2. Leaving some unpartitioned area at the *end* of the disk.
 
@@ -48,7 +47,7 @@ schema can be customized. {kiwi} supports:
      :ref:`here <db_kiwi_image_resize>`.
 
 Custom Partitioning at Boot Time
-++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Adding additional partitions at boot time of {kiwi} images is also possible,
 however, setting the tools and scripts for doing so needs to be handled by

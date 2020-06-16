@@ -1,5 +1,5 @@
-Command Line
-============
+Working from the Command Line
+=============================
 
 .. note::
 

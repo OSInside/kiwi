@@ -1,9 +1,12 @@
 Working with Images
 -------------------
 
-These sections contains some "low level" topics which are useful for
-different image types.
+.. note::
 
+   This document provides a collection of worksheets which
+   describes the creation and setup of appliances to work
+   within a number of different target environments.
+   
 .. toctree::
    :maxdepth: 1
 
