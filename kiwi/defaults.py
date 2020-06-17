@@ -41,6 +41,10 @@ this.edit_boot_config_script_name = 'edit_boot_config.sh'
 this.edit_boot_install_script_name = 'edit_boot_install.sh'
 this.image_metadata_directory = 'image'
 
+# Anything in this directory is copied then to a /tmp/payload
+# on the final image and used by disk.sh afterwards, then purged.
+DISK_SYNC_DIR = 'payload'
+
 
 class Defaults:
     """
@@ -48,6 +52,7 @@ class Defaults:
 
     Provides static methods for default values and state information
     """
+
     def __init__(self):
         self.defaults = {
             # alignment in bytes
