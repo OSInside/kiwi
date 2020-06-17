@@ -44,7 +44,8 @@ class PackageManager:
 
     :rtype: PackageManagerBase subclass
     """
-    def __new__(self, repository, package_manager, custom_args=None):
+    @staticmethod
+    def new(repository, package_manager, custom_args=None):
         if package_manager == 'zypper':
             manager = PackageManagerZypper(repository, custom_args)
         elif package_manager == 'dnf' or package_manager == 'yum':
