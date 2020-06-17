@@ -29,7 +29,8 @@ class SolverRepository:
 
     * :param object uri: Instance of :class:`Uri`
     """
-    def __new__(self, uri, user=None, secret=None):
+    @staticmethod
+    def new(uri, user=None, secret=None):
         if uri.repo_type == 'yast2':
             return SolverRepositorySUSE(uri, user, secret)
         elif uri.repo_type == 'rpm-md':
