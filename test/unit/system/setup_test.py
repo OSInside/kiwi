@@ -1188,5 +1188,5 @@ class TestSystemSetup:
 
     @patch('os.path.exists')
     def test_script_exists(self, mock_path_exists):
-        assert self.setup.script_exists('some-script') == \
+        assert self.setup.file_or_directory_exists('some-script') == \
             mock_path_exists.return_value

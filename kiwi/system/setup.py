@@ -106,9 +106,11 @@ class SystemSetup:
         self._import_custom_archives()
         self._import_cdroot_archive()
 
-    def script_exists(self, name):
         """
         Check if provided script base name exists in the image description
+    def file_or_directory_exists(self, name):
+        """
+        Check if provided target base name exists in the image description
         """
         return os.path.exists(os.path.join(self.description_dir, name))
 
