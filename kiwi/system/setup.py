@@ -109,10 +109,11 @@ class SystemSetup:
         """
         Check if provided script base name exists in the image description
     def file_or_directory_exists(self, name):
+    def file_or_directory_exists(self, target: str) -> bool:
         """
         Check if provided target base name exists in the image description
         """
-        return os.path.exists(os.path.join(self.description_dir, name))
+        return os.path.exists(os.path.join(self.description_dir, target))
 
     def cleanup(self):
         """
