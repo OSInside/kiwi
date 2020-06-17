@@ -561,7 +561,7 @@ class DiskBuilder:
             firmware = FirmWare(self.xml_state)
             loop_provider = LoopDevice(disk_format.diskname)
             loop_provider.create(overwrite=False)
-            partitioner = Partitioner(
+            partitioner = Partitioner.new(
                 firmware.get_partition_table_type(), loop_provider
             )
             partitioner.resize_table()

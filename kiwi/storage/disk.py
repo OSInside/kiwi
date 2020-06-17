@@ -37,6 +37,7 @@ class Disk(DeviceProvider):
     :param object storage_provider: Instance of class based on DeviceProvider
     :param int start_sector: sector number
     """
+
     def __init__(self, table_type, storage_provider, start_sector=None):
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
@@ -48,7 +49,7 @@ class Disk(DeviceProvider):
         self.partition_id_map = {}
         self.is_mapped = False
 
-        self.partitioner = Partitioner(
+        self.partitioner = Partitioner.new(
             table_type, storage_provider, start_sector
         )
 
