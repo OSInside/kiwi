@@ -323,7 +323,7 @@ class DiskBuilder:
                 'image_type':
                     self.xml_state.get_build_type_name()
             }
-            self.volume_manager = VolumeManager(
+            self.volume_manager = VolumeManager.new(
                 self.volume_manager_name, device_map,
                 self.root_dir + '/',
                 self.volumes,

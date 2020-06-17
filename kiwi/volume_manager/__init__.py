@@ -35,9 +35,8 @@ class VolumeManager:
     :param list volumes: list of volumes from :class:`XMLState::get_volumes()`
     :param dict custom_args: dictionary of custom volume manager arguments
     """
-    def __new__(
-        self, name, device_map, root_dir, volumes, custom_args=None
-    ):
+    @staticmethod
+    def new(name, device_map, root_dir, volumes, custom_args=None):
         if name == 'lvm':
             return VolumeManagerLVM(
                 device_map, root_dir, volumes, custom_args
