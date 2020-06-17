@@ -1093,7 +1093,7 @@ class DiskBuilder:
                 "custom arguments for bootloader installation %s",
                 custom_install_arguments
             )
-            bootloader = BootLoaderInstall(
+            bootloader = BootLoaderInstall.new(
                 self.bootloader, self.root_dir, self.disk.storage_provider,
                 custom_install_arguments
             )

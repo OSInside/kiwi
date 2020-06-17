@@ -33,7 +33,8 @@ class BootLoaderInstall:
     :param object device_provider: instance of :class:`DeviceProvider`
     :param dict custom_args: custom arguments dictionary
     """
-    def __new__(self, name, root_dir, device_provider, custom_args=None):
+    @staticmethod
+    def new(name, root_dir, device_provider, custom_args=None):
         if name == 'grub2':
             return BootLoaderInstallGrub2(
                 root_dir, device_provider, custom_args
