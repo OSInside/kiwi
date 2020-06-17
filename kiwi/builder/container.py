@@ -114,7 +114,7 @@ class ContainerBuilder:
             log.info(
                 'Setting up %s container', self.requested_container_type
             )
-            container_setup = ContainerSetup(
+            container_setup = ContainerSetup.new(
                 self.requested_container_type, self.root_dir,
                 self.container_config
             )

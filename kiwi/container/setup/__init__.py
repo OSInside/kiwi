@@ -27,9 +27,11 @@ from kiwi.exceptions import (
 
 class ContainerSetup:
     """
-        container setup factory
+    Container setup factory
     """
-    def __new__(self, name, root_dir, custom_args=None):
+
+    @staticmethod
+    def new(name, root_dir, custom_args=None):
         if name == 'docker':
             return ContainerSetupDocker(root_dir, custom_args)
         elif name == 'oci':
