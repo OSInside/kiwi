@@ -121,6 +121,11 @@ class Path:
             shutil.rmtree(path)
         except FileNotFoundError:
             log.warning("Skipped wiping {} -- path does not exists".format(path))
+        except NotADirectoryError:
+            try:
+                os.unlink(path)
+            except Exception as ex:
+                raise KiwiFileAccessError(ex)
         except Exception as ex:
             raise KiwiFileAccessError(ex)
 
