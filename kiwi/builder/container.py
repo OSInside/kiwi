@@ -41,6 +41,7 @@ class ContainerBuilder:
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.custom_args = custom_args or {}
         self.root_dir = root_dir
@@ -130,7 +131,7 @@ class ContainerBuilder:
         log.info(
             '--> Creating container image'
         )
-        container_image = ContainerImage(
+        container_image = ContainerImage.new(
             self.requested_container_type, self.root_dir, self.container_config
         )
         self.filename = container_image.create(

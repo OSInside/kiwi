@@ -32,7 +32,8 @@ class ContainerImage:
     :param string root_dir: root directory path name
     :param dict custom_args: custom arguments
     """
-    def __new__(self, name, root_dir, custom_args=None):
+    @staticmethod
+    def new(name, root_dir, custom_args=None):
         if name == 'docker':
             return ContainerImageOCI(
                 root_dir, 'docker-archive', custom_args=custom_args
