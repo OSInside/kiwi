@@ -25,7 +25,9 @@ class IsoTools:
     """
     **IsoTools factory**
     """
-    def __new__(self, source_dir):
+
+    @staticmethod
+    def new(source_dir):
         runtime_config = RuntimeConfig()
         if runtime_config.get_iso_tool_category() == 'cdrtools':
             return IsoToolsCdrTools(source_dir)
