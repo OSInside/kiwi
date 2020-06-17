@@ -136,7 +136,7 @@ class SystemSetup:
         os.chroot("/")
         payload_dst: str = os.path.join(self.root_dir, "tmp", defaults.DISK_SYNC_DIR)
         if os.path.exists(payload_dst):
-            shutil.rmtree(os.path.join(self.root_dir, "tmp", defaults.DISK_SYNC_DIR), ignore_errors=False)
+            shutil.rmtree(payload_dst, ignore_errors=False)
 
     def import_repositories_marked_as_imageinclude(self):
         """
