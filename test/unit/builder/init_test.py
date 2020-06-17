@@ -14,7 +14,7 @@ class TestImageBuilder:
         xml_state.get_build_type_name = Mock(
             return_value='ext4'
         )
-        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
             xml_state, 'target_dir', 'root_dir'
         )
@@ -25,7 +25,7 @@ class TestImageBuilder:
         xml_state.get_build_type_name = Mock(
             return_value='vmx'
         )
-        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
             xml_state, 'target_dir', 'root_dir', None
         )
@@ -36,7 +36,7 @@ class TestImageBuilder:
         xml_state.get_build_type_name = Mock(
             return_value='iso'
         )
-        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
             xml_state, 'target_dir', 'root_dir', None
         )
@@ -47,7 +47,7 @@ class TestImageBuilder:
         xml_state.get_build_type_name = Mock(
             return_value='kis'
         )
-        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
             xml_state, 'target_dir', 'root_dir', None
         )
@@ -55,7 +55,7 @@ class TestImageBuilder:
         xml_state.get_build_type_name = Mock(
             return_value='pxe'
         )
-        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
             xml_state, 'target_dir', 'root_dir', None
         )
@@ -66,7 +66,7 @@ class TestImageBuilder:
         xml_state.get_build_type_name = Mock(
             return_value='tbz'
         )
-        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
             xml_state, 'target_dir', 'root_dir', None
         )
@@ -77,7 +77,7 @@ class TestImageBuilder:
         xml_state.get_build_type_name = Mock(
             return_value='docker'
         )
-        ImageBuilder(xml_state, 'target_dir', 'root_dir')
+        ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(
             xml_state, 'target_dir', 'root_dir', None
         )
@@ -88,4 +88,4 @@ class TestImageBuilder:
             return_value='bogus'
         )
         with raises(KiwiRequestedTypeError):
-            ImageBuilder(xml_state, 'target_dir', 'root_dir')
+            ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
