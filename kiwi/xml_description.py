@@ -66,7 +66,7 @@ class XMLDescription:
             raise KiwiDescriptionConflict(
                 'description and xml_content are mutually exclusive'
             )
-        self.markup = Markup(description or xml_content)
+        self.markup = Markup.new(description or xml_content)
         self.description = self.markup.get_xml_description()
         self.derived_from = derived_from
         self.description_origin = description

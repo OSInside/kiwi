@@ -33,7 +33,8 @@ class Markup:
     :param string description: path to description file
     :param string xml_content: description data as content string
     """
-    def __new__(self, description):
+    @staticmethod
+    def new(description):
         try:
             markup = MarkupAny(description)
             log.info('Support for multiple markup descriptions available')
