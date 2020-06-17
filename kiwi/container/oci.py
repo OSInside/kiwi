@@ -60,6 +60,7 @@ class ContainerImageOCI:
             }
         }
     """
+
     def __init__(self, root_dir, transport, custom_args=None):
         self.root_dir = root_dir
         self.archive_transport = transport
@@ -119,7 +120,7 @@ class ContainerImageOCI:
         exclude_list.append('sys')
         exclude_list.append('proc')
 
-        oci = OCI()
+        oci = OCI.new()
         if base_image:
             oci.import_container_image(
                 'oci-archive:{0}:{1}'.format(

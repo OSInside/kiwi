@@ -33,6 +33,7 @@ class RootImportOCI(RootImportBase):
     Implements the base class for importing a root system from
     a oci image tarball file.
     """
+
     def post_init(self, custom_args):
         self.archive_transport = custom_args['archive_transport']
 
@@ -55,7 +56,7 @@ class RootImportOCI(RootImportBase):
             log.warning('Bypassing base image URI to OCI tools')
             image_uri = self.unknown_uri
 
-        oci = OCI()
+        oci = OCI.new()
         oci.import_container_image(image_uri)
         oci.unpack()
         oci.import_rootfs(self.root_dir)

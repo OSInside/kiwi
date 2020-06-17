@@ -29,7 +29,8 @@ class OCI:
     """
     **OCI Factory**
     """
-    def __new__(self):
+    @staticmethod
+    def new():
         runtime_config = RuntimeConfig()
         tool_name = runtime_config.get_oci_archive_tool()
         if tool_name == 'umoci':
