@@ -33,9 +33,8 @@ class BootImage:
     :param string root_dir: system image root directory
     :param list signing_keys: list of package signing keys
     """
-    def __new__(
-        self, xml_state, target_dir, root_dir=None, signing_keys=None
-    ):
+    @staticmethod
+    def new(xml_state, target_dir, root_dir=None, signing_keys=None):
         initrd_system = xml_state.get_initrd_system()
         if initrd_system == 'kiwi':
             return BootImageKiwi(

@@ -48,6 +48,7 @@ class KisBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
@@ -69,7 +70,7 @@ class KisBuilder:
         self.xz_options = custom_args['xz_options'] if custom_args \
             and 'xz_options' in custom_args else None
 
-        self.boot_image_task = BootImage(
+        self.boot_image_task = BootImage.new(
             xml_state, target_dir, root_dir,
             signing_keys=self.boot_signing_keys
         )

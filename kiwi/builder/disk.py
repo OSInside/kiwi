@@ -69,6 +69,7 @@ class DiskBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
@@ -118,7 +119,7 @@ class DiskBuilder:
         if custom_args and 'signing_keys' in custom_args:
             self.signing_keys = custom_args['signing_keys']
 
-        self.boot_image = BootImage(
+        self.boot_image = BootImage.new(
             xml_state, target_dir, root_dir, signing_keys=self.signing_keys
         )
         self.firmware = FirmWare(
