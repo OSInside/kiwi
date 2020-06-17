@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import shutil
 import logging
 import collections
 
@@ -114,10 +115,12 @@ class Path:
 
         :param string path: path name
         """
-        if os.path.exists(path):
-            Command.run(
-                ['rm', '-r', '-f', path]
-            )
+        try:
+            shutil.rmtree(path)
+        except FileNotFoundError:
+            log.warning("Skipped wiping {} -- path does not exists".format(path))
+        except Exception as ex:
+            raise KiwiFileAccessError(ex)
 
     @staticmethod
     def remove(path):
