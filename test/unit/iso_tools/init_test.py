@@ -16,7 +16,7 @@ class TestIsoTools:
     ):
         self.runtime_config.get_iso_tool_category.return_value = 'cdrtools'
         mock_RuntimeConfig.return_value = self.runtime_config
-        IsoTools('root-dir')
+        IsoTools.new('root-dir')
         mock_IsoToolsCdrTools.assert_called_once_with('root-dir')
 
     @patch('kiwi.iso_tools.IsoToolsXorrIso')
@@ -26,5 +26,5 @@ class TestIsoTools:
     ):
         self.runtime_config.get_iso_tool_category.return_value = 'xorriso'
         mock_RuntimeConfig.return_value = self.runtime_config
-        IsoTools('root-dir')
+        IsoTools.new('root-dir')
         mock_IsoToolsXorrIso.assert_called_once_with('root-dir')
