@@ -248,7 +248,7 @@ class DiskBuilder:
         )
 
         # create the bootloader instance
-        self.bootloader_config = BootLoaderConfig(
+        self.bootloader_config = BootLoaderConfig.new(
             self.bootloader, self.xml_state, root_dir=self.root_dir,
             boot_dir=self.root_dir, custom_args={
                 'targetbase':

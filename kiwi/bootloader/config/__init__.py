@@ -34,9 +34,8 @@ class BootLoaderConfig:
     :param string root_dir: root directory path name
     :param dict custom_args: custom bootloader config arguments dictionary
     """
-    def __new__(
-        self, name, xml_state, root_dir, boot_dir=None, custom_args=None
-    ):
+    @staticmethod
+    def new(name, xml_state, root_dir, boot_dir=None, custom_args=None):
         if name == 'grub2':
             return BootLoaderConfigGrub2(
                 xml_state, root_dir, boot_dir, custom_args
