@@ -42,7 +42,8 @@ class DiskFormat:
     :param string root_dir: root directory path name
     :param string target_dir: target directory path name
     """
-    def __new__(self, name, xml_state, root_dir, target_dir):  # noqa: C901
+    @staticmethod
+    def new(name, xml_state, root_dir, target_dir):  # noqa: C901
         custom_args = xml_state.get_build_type_format_options()
         if name == 'qcow2':
             return DiskFormatQcow2(
