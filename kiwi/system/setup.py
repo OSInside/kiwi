@@ -17,6 +17,7 @@
 #
 import glob
 import os
+import shutil
 import logging
 import copy
 from collections import OrderedDict
@@ -106,9 +107,15 @@ class SystemSetup:
         self._import_custom_archives()
         self._import_cdroot_archive()
 
+    def import_payload(self):
         """
-        Check if provided script base name exists in the image description
-    def file_or_directory_exists(self, name):
+        Import payload content.
+        """
+        if self.file_or_directory_exists(defaults.DISK_SYNC_DIR):
+            log.info("Importing disk.sh working payload")
+            payload_dst: str = os.path.join(self.root_dir, "tmp", defaults.DISK_SYNC_DIR)
+            shutil.copytree(os.path.join(self.description_dir, defaults.DISK_SYNC_DIR), payload_dst)
+
     def file_or_directory_exists(self, target: str) -> bool:
         """
         Check if provided target base name exists in the image description
@@ -126,6 +133,10 @@ class SystemSetup:
                 'rm', '-rf', '.kconfig', defaults.image_metadata_directory
             ]
         )
+        os.chroot("/")
+        payload_dst: str = os.path.join(self.root_dir, "tmp", defaults.DISK_SYNC_DIR)
+        if os.path.exists(payload_dst):
+            shutil.rmtree(os.path.join(self.root_dir, "tmp", defaults.DISK_SYNC_DIR), ignore_errors=False)
 
     def import_repositories_marked_as_imageinclude(self):
         """

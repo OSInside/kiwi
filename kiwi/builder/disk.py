@@ -468,6 +468,7 @@ class DiskBuilder:
                 self.xml_state, self.system.get_mountpoint()
             )
             disk_system.import_description()
+            disk_system.import_payload()
             disk_system.call_disk_script()
             disk_system.cleanup()
 
