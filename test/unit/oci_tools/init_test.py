@@ -22,7 +22,7 @@ class TestOCI:
     ):
         self.runtime_config.get_oci_archive_tool.return_value = 'umoci'
         mock_RuntimeConfig.return_value = self.runtime_config
-        OCI()
+        OCI.new()
         mock_OCIUmoci.assert_called_once_with()
 
     @patch('kiwi.oci_tools.OCIBuildah')
@@ -32,7 +32,7 @@ class TestOCI:
     ):
         self.runtime_config.get_oci_archive_tool.return_value = 'buildah'
         mock_RuntimeConfig.return_value = self.runtime_config
-        OCI()
+        OCI.new()
         mock_OCIBuildah.assert_called_once_with()
 
     @patch('kiwi.oci_tools.RuntimeConfig')
@@ -40,4 +40,4 @@ class TestOCI:
         self.runtime_config.get_oci_archive_tool.return_value = 'foo'
         mock_RuntimeConfig.return_value = self.runtime_config
         with raises(KiwiOCIArchiveToolError):
-            OCI()
+            OCI.new()
