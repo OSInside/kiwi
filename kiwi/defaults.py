@@ -48,6 +48,7 @@ class Defaults:
 
     Provides static methods for default values and state information
     """
+
     def __init__(self):
         self.defaults = {
             # alignment in bytes
