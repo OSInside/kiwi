@@ -98,16 +98,14 @@ class Path:
         return os.access(path, mode, **kwargs)
 
     @staticmethod
-    def create(path):
+    def create(path, mode=0o755):
         """
         Create path and all sub directories to target
 
         :param string path: path name
+        :param int mode: directory permissions, default 0o755
         """
-        if not os.path.exists(path):
-            Command.run(
-                ['mkdir', '-p', path]
-            )
+        os.makedirs(path, mode=mode, exist_ok=True)
 
     @staticmethod
     def wipe(path):
