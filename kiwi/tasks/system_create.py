@@ -61,6 +61,7 @@ class SystemCreateTask(CliTask):
     * :attr:`manual`
         Instance of Help
     """
+
     def process(self):
         """
         Create a system image from the specified root directory
@@ -96,7 +97,7 @@ class SystemCreateTask(CliTask):
         )
         setup.call_image_script()
 
-        image_builder = ImageBuilder(
+        image_builder = ImageBuilder.new(
             self.xml_state,
             abs_target_dir_path,
             abs_root_path,

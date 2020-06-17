@@ -263,7 +263,7 @@ class SystemBuildTask(CliTask):
         del setup
 
         log.info('Creating system image')
-        image_builder = ImageBuilder(
+        image_builder = ImageBuilder.new(
             self.xml_state,
             abs_target_dir_path,
             image_root,

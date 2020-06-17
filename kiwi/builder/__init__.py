@@ -33,7 +33,8 @@ class ImageBuilder:
     """
         image builder factory
     """
-    def __new__(self, xml_state, target_dir, root_dir, custom_args=None):
+    @staticmethod
+    def new(xml_state, target_dir, root_dir, custom_args=None):
         requested_image_type = xml_state.get_build_type_name()
         if requested_image_type in Defaults.get_filesystem_image_types():
             return FileSystemBuilder(
