@@ -106,6 +106,7 @@ class Path:
         :param string path: path name
         :param int mode: directory permissions, default 0o755
         """
+        log.debug('EXEC: Make directories: %s', path)
         os.makedirs(path, mode=mode, exist_ok=True)
 
     @staticmethod
@@ -115,6 +116,7 @@ class Path:
 
         :param string path: path name
         """
+        log.debug('EXEC: Attempt to wipe %s', path)
         try:
             shutil.rmtree(path)
         except FileNotFoundError:
