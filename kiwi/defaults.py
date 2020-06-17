@@ -48,6 +48,7 @@ class Defaults:
 
     Provides static methods for default values and state information
     """
+
     def __init__(self):
         self.defaults = {
             # alignment in bytes
@@ -242,6 +243,7 @@ class Defaults:
         ]
         return exclude_list
 
+    @staticmethod
     def get_exclude_list_for_non_physical_devices():
         """
         Provides the list of folders that are not associated
@@ -1550,6 +1552,7 @@ class Defaults:
         if key in self.defaults:
             return self.defaults[key]
 
+    @staticmethod
     def get_profile_file(root_dir):
         """
         Return name of profile file for given root directory
