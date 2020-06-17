@@ -39,7 +39,8 @@ class RootImport:
     * :attr:`image_type`
         type of the image to import
     """
-    def __new__(self, root_dir, image_uri, image_type):
+    @staticmethod
+    def new(root_dir, image_uri, image_type):
         log.info(
             'Importing root from a {0} image type'.format(image_type)
         )

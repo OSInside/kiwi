@@ -50,6 +50,7 @@ class SystemPrepare:
     :param object root_bind: instance of :class:`RootBind`
     :param list uri_list: a list of Uri references
     """
+
     def __init__(
         self, xml_state, root_dir, allow_existing=False
     ):
@@ -75,7 +76,7 @@ class SystemPrepare:
         root.create()
         image_uri = xml_state.get_derived_from_image_uri()
         if image_uri:
-            root_import = RootImport(
+            root_import = RootImport.new(
                 root_dir, image_uri, xml_state.build_type.get_image()
             )
             root_import.sync_data()
