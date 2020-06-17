@@ -51,6 +51,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
     :param list subvol_mount_list: list of mounted btrfs subvolumes
     :param object toplevel_mount: :class:`MountManager` for root mountpoint
     """
+
     def post_init(self, custom_args):
         """
         Post initialization method
@@ -90,7 +91,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         self.setup_mountpoint()
 
-        filesystem = FileSystem(
+        filesystem = FileSystem.new(
             name='btrfs',
             device_provider=MappedDevice(
                 device=self.device, device_provider=self.device_provider_root

@@ -55,6 +55,7 @@ class FileSystemBuilder:
         mount and creation arguments
     :param object result: instance of :class:`Result`
     """
+
     def __init__(self, xml_state, target_dir, root_dir):
         self.label = None
         self.root_uuid = None
@@ -167,7 +168,7 @@ class FileSystemBuilder:
             self.blocksize
         )
         loop_provider.create()
-        filesystem = FileSystem(
+        filesystem = FileSystem.new(
             self.requested_filesystem, loop_provider,
             self.root_dir + os.sep, self.filesystem_custom_parameters
         )
@@ -182,7 +183,7 @@ class FileSystemBuilder:
 
     def _operate_on_file(self):
         default_provider = DeviceProvider()
-        filesystem = FileSystem(
+        filesystem = FileSystem.new(
             self.requested_filesystem, default_provider,
             self.root_dir, self.filesystem_custom_parameters
         )

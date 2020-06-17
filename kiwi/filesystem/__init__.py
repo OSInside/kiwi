@@ -41,7 +41,8 @@ class FileSystem:
     :param string root_dir: root directory path name
     :param dict custom_args: dict of custom filesystem arguments
     """
-    def __new__(self, name, device_provider, root_dir=None, custom_args=None):
+    @staticmethod
+    def new(name, device_provider, root_dir=None, custom_args=None):
         if name == 'ext2':
             return FileSystemExt2(
                 device_provider, root_dir, custom_args
