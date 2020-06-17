@@ -464,7 +464,7 @@ class DiskBuilder:
 
         # run post sync script hook
         if self.system_setup.script_exists(
-            defaults.post_disk_sync_script_name
+            defaults.POST_DISK_SYNC_SCRIPT
         ):
             disk_system = SystemSetup(
                 self.xml_state, self.system.get_mountpoint()
