@@ -122,7 +122,7 @@ class SystemPrepare:
             repository_options.append(
                 '_install_langs%{0}'.format(':'.join(rpm_locale_list))
             )
-        repo = Repository(
+        repo = Repository.new(
             self.root_bind, package_manager, repository_options
         )
         repo.setup_package_database_configuration()

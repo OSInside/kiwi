@@ -37,7 +37,9 @@ class Repository:
 
     :raises KiwiRepositorySetupError: if package_manager is not supported
     """
-    def __new__(self, root_bind, package_manager, custom_args=None):
+
+    @staticmethod
+    def new(root_bind, package_manager, custom_args=None):
         if package_manager == 'zypper':
             return RepositoryZypper(root_bind, custom_args)
         elif package_manager == 'dnf' or package_manager == 'yum':
