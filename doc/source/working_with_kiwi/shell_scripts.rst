@@ -263,6 +263,30 @@ $kiwi_type
 Configuration Tips
 ------------------
 
+#. **Locale configuration:**
+
+  KIWI in order to set the locale relies on :command:`systemd-firstboot`,
+  which in turn writes the locale configuration file :file:`/etc/locale.conf`.
+  The values for the locale settings are taken from the description XML
+  file in the `<locale>` element under `<preferences>`.
+
+  KIWI assumes systemd adoption to handle these locale settings, in case the
+  build distribution does not honor `/etc/locale.conf` this is likely to not
+  produce any effect on the locale settings. As an example, in SLE12
+  distribution the locale configuration is already possible by using the
+  systemd toolchain, however this approach overlaps with SUSE specific
+  managers such as YaST. In that case using :command:`systemd-firstboot`
+  is only effective if locales in :file:`/etc/sysconfig/language` are
+  not set or if the file does not exist at all. In SLE12
+  :file:`/etc/sysconfig/language` has precendence over
+  :file:`/etc/locale.conf` for compatibility reasons and management tools
+  could still relay on `sysconfig` files for locale settings.
+
+  In any case the configuration is still possible in KIWI by using
+  any distribution specific way to configure the locale setting inside the
+  :file:`config.sh` script or by adding any additional configuration file
+  as part of the overlay root-tree.
+
 #. **Stateless systemd UUIDs:**
 
   Machine ID files are created and set (:file:`/etc/machine-id`,
