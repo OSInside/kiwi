@@ -69,6 +69,7 @@ class DiskBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
+
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
@@ -463,7 +464,7 @@ class DiskBuilder:
 
         # run post sync script hook
         if self.system_setup.script_exists(
-            defaults.post_disk_sync_script_name
+            defaults.POST_DISK_SYNC_SCRIPT
         ):
             disk_system = SystemSetup(
                 self.xml_state, self.system.get_mountpoint()

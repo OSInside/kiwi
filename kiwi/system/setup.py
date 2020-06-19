@@ -71,6 +71,7 @@ class SystemSetup:
         image archives, overlay files
     :param str root_dir: root directory path name
     """
+
     def __init__(self, xml_state, root_dir):
         self.arch = Defaults.get_platform_name()
         self.xml_state = xml_state
@@ -89,13 +90,13 @@ class SystemSetup:
         """
         log.info('Importing Image description to system tree')
         description = os.path.join(
-            self.root_dir, defaults.image_metadata_directory, 'config.xml'
+            self.root_dir, defaults.IMAGE_METADATA_DIR, 'config.xml'
         )
         log.info(
             '--> Importing state XML description to {0}'.format(description)
         )
         Path.create(
-            os.path.join(self.root_dir, defaults.image_metadata_directory)
+            os.path.join(self.root_dir, defaults.IMAGE_METADATA_DIR)
         )
         with open(description, 'w', encoding='utf-8') as config:
             config.write('<?xml version="1.0" encoding="utf-8"?>')
@@ -119,7 +120,7 @@ class SystemSetup:
         Command.run(
             [
                 'chroot', self.root_dir,
-                'rm', '-rf', '.kconfig', defaults.image_metadata_directory
+                'rm', '-rf', '.kconfig', defaults.IMAGE_METADATA_DIR
             ]
         )
 
@@ -557,7 +558,7 @@ class SystemSetup:
         Call disk.sh script chrooted
         """
         self._call_script(
-            defaults.post_disk_sync_script_name
+            defaults.POST_DISK_SYNC_SCRIPT
         )
 
     def call_config_script(self):
@@ -565,7 +566,7 @@ class SystemSetup:
         Call config.sh script chrooted
         """
         self._call_script(
-            defaults.post_prepare_script_name
+            defaults.POST_PREPARE_SCRIPT
         )
 
     def call_image_script(self):
@@ -573,7 +574,7 @@ class SystemSetup:
         Call images.sh script chrooted
         """
         self._call_script(
-            defaults.pre_create_script_name
+            defaults.PRE_CREATE_SCRIPT
         )
 
     def call_edit_boot_config_script(
@@ -590,7 +591,7 @@ class SystemSetup:
         :param str working_directory: directory name
         """
         self._call_script_no_chroot(
-            name=defaults.edit_boot_config_script_name,
+            name=defaults.EDIT_BOOT_CONFIG_SCRIPT,
             option_list=[filesystem, format(boot_part_id)],
             working_directory=working_directory
         )
@@ -609,7 +610,7 @@ class SystemSetup:
         :param str working_directory: directory name
         """
         self._call_script_no_chroot(
-            name=defaults.edit_boot_install_script_name,
+            name=defaults.EDIT_BOOT_INSTALL_SCRIPT,
             option_list=[diskname, boot_device_node],
             working_directory=working_directory
         )
@@ -814,7 +815,7 @@ class SystemSetup:
         glob_match = self.description_dir + '/config-cdroot.tar*'
         for cdroot_archive in sorted(glob.iglob(glob_match)):
             archive_file = os.path.join(
-                self.root_dir, defaults.image_metadata_directory
+                self.root_dir, defaults.IMAGE_METADATA_DIR
             )
             log.info(
                 '--> Importing {0} archive to {1}'.format(
@@ -839,7 +840,7 @@ class SystemSetup:
             archive_list += bootstrap_archives
 
         archive_target_dir = os.path.join(
-            self.root_dir, defaults.image_metadata_directory
+            self.root_dir, defaults.IMAGE_METADATA_DIR
         ) + os.sep
 
         for archive in archive_list:
@@ -885,23 +886,23 @@ class SystemSetup:
             'script_type', ['filepath', 'raise_if_not_exists']
         )
         custom_scripts = {
-            defaults.post_prepare_script_name: script_type(
-                filepath=defaults.post_prepare_script_name,
+            defaults.POST_PREPARE_SCRIPT: script_type(
+                filepath=defaults.POST_PREPARE_SCRIPT,
                 raise_if_not_exists=False
             ),
-            defaults.pre_create_script_name: script_type(
-                filepath=defaults.pre_create_script_name,
+            defaults.PRE_CREATE_SCRIPT: script_type(
+                filepath=defaults.PRE_CREATE_SCRIPT,
                 raise_if_not_exists=False
             ),
-            defaults.post_disk_sync_script_name: script_type(
-                filepath=defaults.post_disk_sync_script_name,
+            defaults.POST_DISK_SYNC_SCRIPT: script_type(
+                filepath=defaults.POST_DISK_SYNC_SCRIPT,
                 raise_if_not_exists=False
             ),
-            defaults.edit_boot_config_script_name: script_type(
+            defaults.EDIT_BOOT_CONFIG_SCRIPT: script_type(
                 filepath=self.xml_state.build_type.get_editbootconfig(),
                 raise_if_not_exists=True
             ),
-            defaults.edit_boot_install_script_name: script_type(
+            defaults.EDIT_BOOT_INSTALL_SCRIPT: script_type(
                 filepath=self.xml_state.build_type.get_editbootinstall(),
                 raise_if_not_exists=True
             )
@@ -911,7 +912,7 @@ class SystemSetup:
         )
 
         script_target_dir = os.path.join(
-            self.root_dir, defaults.image_metadata_directory
+            self.root_dir, defaults.IMAGE_METADATA_DIR
         )
         need_script_helper_functions = False
 
@@ -961,7 +962,7 @@ class SystemSetup:
             if not Path.access(script_path, os.X_OK):
                 command.append('bash')
             command.append(
-                os.path.join(defaults.image_metadata_directory, name)
+                os.path.join(defaults.IMAGE_METADATA_DIR, name)
             )
             command.extend(options)
             profile = Profile(self.xml_state)

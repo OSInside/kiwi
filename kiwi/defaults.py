@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import sys
 import glob
 from collections import namedtuple
 import platform
@@ -32,14 +31,12 @@ from kiwi.version import (
 from kiwi.exceptions import KiwiBootLoaderGrubDataError
 
 # Default module variables
-this = sys.modules[__name__]
-
-this.post_disk_sync_script_name = 'disk.sh'
-this.post_prepare_script_name = 'config.sh'
-this.pre_create_script_name = 'images.sh'
-this.edit_boot_config_script_name = 'edit_boot_config.sh'
-this.edit_boot_install_script_name = 'edit_boot_install.sh'
-this.image_metadata_directory = 'image'
+POST_DISK_SYNC_SCRIPT = 'disk.sh'
+POST_PREPARE_SCRIPT = 'config.sh'
+PRE_CREATE_SCRIPT = 'images.sh'
+EDIT_BOOT_CONFIG_SCRIPT = 'edit_boot_config.sh'
+EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
+IMAGE_METADATA_DIR = 'image'
 
 
 class Defaults:
