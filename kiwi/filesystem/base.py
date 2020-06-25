@@ -164,6 +164,15 @@ class FileSystemBase:
             exclude=exclude
         )
 
+    def umount(self):
+        """
+        Umounts the filesystem in case it is mounted, does nothing otherwise
+        """
+        if self.filesystem_mount:
+            log.info('umount %s instance', type(self).__name__)
+            self.filesystem_mount.umount()
+            self.filesystem_mount = None
+
     def _apply_attributes(self):
         """
         Apply filesystem attributes
@@ -187,6 +196,5 @@ class FileSystemBase:
                 )
 
     def __del__(self):
-        if self.filesystem_mount:
-            log.info('Cleaning up %s instance', type(self).__name__)
-            self.filesystem_mount.umount()
+        log.info('Cleaning up %s instance', type(self).__name__)
+        self.umount()

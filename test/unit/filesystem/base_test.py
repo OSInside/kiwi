@@ -71,7 +71,13 @@ class TestFileSystemBase:
         filesystem_mount.mount.assert_called_once_with([])
         assert self.fsbase.get_mountpoint() == 'tmpdir'
 
+    def test_umount(self):
+        mount = mock.Mock()
+        self.fsbase.filesystem_mount = mount
+        self.fsbase.umount()
+        mount.umount.assert_called_once_with()
+
     def test_destructor_valid_mountpoint(self):
         self.fsbase.filesystem_mount = mock.Mock()
         self.fsbase.__del__()
-        self.fsbase.filesystem_mount.umount.assert_called_once_with()
+        assert self.fsbase.filesystem_mount is None
