@@ -241,6 +241,8 @@ class LiveImageBuilder:
         live_filesystem.sync_data(
             Defaults.get_exclude_list_for_root_data_sync()
         )
+        live_filesystem.umount()
+
         log.info('--> Creating squashfs container for root image')
         self.live_container_dir = mkdtemp(
             prefix='live-container.', dir=self.target_dir
