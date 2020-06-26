@@ -90,7 +90,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         self.setup_mountpoint()
 
-        filesystem = FileSystem(
+        filesystem = FileSystem.new(
             name='btrfs',
             device_provider=MappedDevice(
                 device=self.device, device_provider=self.device_provider_root

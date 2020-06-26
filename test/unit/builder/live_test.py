@@ -30,11 +30,6 @@ class TestLiveImageBuilder:
             return_value=self.setup
         )
 
-        self.filesystem = mock.Mock()
-        kiwi.builder.live.FileSystem = mock.Mock(
-            return_value=self.filesystem
-        )
-
         self.filesystem_setup = mock.Mock()
         kiwi.builder.live.FileSystemSetup = mock.Mock(
             return_value=self.filesystem_setup
@@ -140,11 +135,12 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.shutil')
     @patch('kiwi.builder.live.Iso.set_media_tag')
     @patch('kiwi.builder.live.FileSystemIsoFs')
+    @patch('kiwi.builder.live.FileSystem.new')
     @patch('kiwi.builder.live.SystemSize')
     @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     def test_create_overlay_structure(
-        self, mock_exists, mock_grub_dir, mock_size,
+        self, mock_exists, mock_grub_dir, mock_size, mock_filesystem,
         mock_isofs, mock_tag, mock_shutil, mock_tmpfile, mock_dtemp,
         mock_setup_media_loader_directory
     ):
@@ -154,6 +150,8 @@ class TestLiveImageBuilder:
         mock_exists.return_value = True
         mock_grub_dir.return_value = 'grub2'
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
+        filesystem = mock.Mock()
+        mock_filesystem.return_value = filesystem
 
         def side_effect(prefix, dir):
             return tmpdir_name.pop()
@@ -179,7 +177,7 @@ class TestLiveImageBuilder:
 
         self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')
 
-        assert kiwi.builder.live.FileSystem.call_args_list == [
+        assert kiwi.builder.live.FileSystem.new.call_args_list == [
             call(
                 device_provider=self.loop, name='ext4',
                 root_dir='root_dir/',
@@ -195,11 +193,11 @@ class TestLiveImageBuilder:
             )
         ]
 
-        self.filesystem.create_on_device.assert_called_once_with()
-        self.filesystem.sync_data.assert_called_once_with(
+        filesystem.create_on_device.assert_called_once_with()
+        filesystem.sync_data.assert_called_once_with(
             ['image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi']
         )
-        self.filesystem.create_on_file.assert_called_once_with('tmpfile')
+        filesystem.create_on_file.assert_called_once_with('tmpfile')
 
         assert mock_shutil.copy.call_args_list == [
             call('tmpfile', 'temp-squashfs/LiveOS/rootfs.img'),

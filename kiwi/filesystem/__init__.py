@@ -15,24 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
-from kiwi.filesystem.ext2 import FileSystemExt2
-from kiwi.filesystem.ext3 import FileSystemExt3
-from kiwi.filesystem.ext4 import FileSystemExt4
-from kiwi.filesystem.btrfs import FileSystemBtrfs
-from kiwi.filesystem.xfs import FileSystemXfs
-from kiwi.filesystem.fat16 import FileSystemFat16
-from kiwi.filesystem.fat32 import FileSystemFat32
-from kiwi.filesystem.squashfs import FileSystemSquashFs
-from kiwi.filesystem.clicfs import FileSystemClicFs
-from kiwi.filesystem.swap import FileSystemSwap
-
-from kiwi.exceptions import (
-    KiwiFileSystemSetupError
+import importlib
+from typing import Dict
+from abc import (
+    ABCMeta,
+    abstractmethod
 )
 
+# project
+from kiwi.exceptions import KiwiFileSystemSetupError
 
-class FileSystem:
+
+class FileSystem(metaclass=ABCMeta):
     """
     **FileSystem factory**
 
@@ -41,48 +35,37 @@ class FileSystem:
     :param string root_dir: root directory path name
     :param dict custom_args: dict of custom filesystem arguments
     """
-    def __new__(self, name, device_provider, root_dir=None, custom_args=None):
-        if name == 'ext2':
-            return FileSystemExt2(
+    @abstractmethod
+    def __init__(self) -> None:
+        return None
+
+    @staticmethod
+    def new(
+        name: str, device_provider: object,
+        root_dir: str=None, custom_args: Dict=None  # noqa: E252
+    ):
+        name_map = {
+            'ext2': 'Ext2',
+            'ext3': 'Ext3',
+            'ext4': 'Ext4',
+            'btrfs': 'Btrfs',
+            'xfs': 'Xfs',
+            'fat16': 'Fat16',
+            'fat32': 'Fat32',
+            'squashfs': 'SquashFs',
+            'clicfs': 'ClicFs',
+            'swap': 'Swap'
+        }
+        try:
+            filesystem = importlib.import_module(
+                'kiwi.filesystem.{0}'.format(name)
+            )
+            return filesystem.__dict__['FileSystem{0}'.format(name_map[name])](
                 device_provider, root_dir, custom_args
             )
-        elif name == 'ext3':
-            return FileSystemExt3(
-                device_provider, root_dir, custom_args
-            )
-        elif name == 'ext4':
-            return FileSystemExt4(
-                device_provider, root_dir, custom_args
-            )
-        elif name == 'btrfs':
-            return FileSystemBtrfs(
-                device_provider, root_dir, custom_args
-            )
-        elif name == 'xfs':
-            return FileSystemXfs(
-                device_provider, root_dir, custom_args
-            )
-        elif name == 'fat16':
-            return FileSystemFat16(
-                device_provider, root_dir, custom_args
-            )
-        elif name == 'fat32':
-            return FileSystemFat32(
-                device_provider, root_dir, custom_args
-            )
-        elif name == 'squashfs':
-            return FileSystemSquashFs(
-                device_provider, root_dir, custom_args
-            )
-        elif name == 'clicfs':
-            return FileSystemClicFs(
-                device_provider, root_dir, custom_args
-            )
-        elif name == 'swap':
-            return FileSystemSwap(
-                device_provider, root_dir, custom_args
-            )
-        else:
+        except Exception as issue:
             raise KiwiFileSystemSetupError(
-                'Support for %s filesystem not implemented' % name
+                'Support for {0} filesystem not implemented: {1}'.format(
+                    name, issue
+                )
             )

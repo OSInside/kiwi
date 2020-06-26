@@ -293,7 +293,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             # perform a second lookup of a label specified via the
             # rootfs_label from the type setup
             volume_label = self.custom_args['root_label']
-        filesystem = FileSystem(
+        filesystem = FileSystem.new(
             name=filesystem_name,
             device_provider=MappedDevice(
                 device=device_node, device_provider=self.device_provider_root
