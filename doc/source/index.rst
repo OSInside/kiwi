@@ -3,8 +3,7 @@
 {kiwi} Documentation
 =====================
 
-.. note:: {kiwi} vs. {kiwi-legacy}
-
+.. note::
    This documentation covers {kiwi-product} |version|- the command line
    utility to build Linux system appliances. {kiwi} is stable and all
    new features, bugfixes, and improvements will be developed here.
@@ -16,16 +15,16 @@
 .. toctree::
    :maxdepth: 1
 
-   quickstart
-   installation
-   self_contained
    overview
-   working_with_kiwi
-   working_with_images
-   building
+   installation
+   quickstart
    commands
-   development
-   schema
+   self_contained
+   concept_and_workflow
+   image_description
+   building_images
+   working_with_images
+   contributing
    api
 
 .. sidebar:: Links
@@ -68,27 +67,46 @@ well be other files like scripts or configuration data.
 Use Cases
 ---------
 
-Not convinced yet? You can find a selection of the possible uses cases
-below:
+The following list shows a selection of use cases for which an
+appliance is needed:
 
-* You are a system administrator and wish to create a customized installer
-  for your network that includes additional software and your organizations
-  certificates? {kiwi} allows you to select which packages will be included
-  in the final image. On top of that you can add files to arbitrary
-  locations in the filesystem, for example to include SSL or SSH keys. You
-  can also tell {kiwi} to create an image that can be booted via PXE, so that
-  you don't even have to leave your desk to reinstall a system.
+Private and Public Clouds
+  Cloud environments are managed through an API provided by the cloud
+  service provider. The classic way to install a machine is not
+  possible in such an environment because there is no physical access
+  to the machine. An appliance is needed to be registered with the
+  cloud
 
-* You want to create a custom spin of your favorite Linux distribution with
-  additional repositories and packages that are not present by default?
-  With {kiwi} you can configure the repositories of your final image via the
-  image description and tweak the list of packages that are going to be
-  installed to match your target audience.
+Custom Linux Distribution
+  Linux distributors provides their distribution based on a collection
+  of packages and release them on an install media like a DVD or an USB
+  stick. Typically a lot more software components exists for the
+  distribution which are not part of the default installation media
+  or the installation media comes with software and installation
+  routines that are not matching your target audience. With an
+  appliance made by {kiwi} you can create provide an installation
+  media that matches custom criteria as needed by the customer
+  and does not require extra post processing steps after the
+  default installation method provided by the distributor.
 
-* The Raspberry Pi that is coordinating your home's Internet of Thing (IoT)
-  devices got very popular among your friends and every single one of them
-  wants a copy of that? {kiwi} will build you ready to deploy images for your
-  Raspberry Pi, tweaked to your needs.
+Live Systems
+  The ability to have a Linux OS that runs from a small storage
+  device like a USB stick or a SD card is the swiss army knife of many
+  system administrators. The creation of such a live system includes
+  use of technologies that are not part of a standard installation
+  process. An appliance builder is needed to create this sort of
+  system
+
+Embedded Systems
+  Embedded Systems like the Raspberry Pi comes with limited hardware
+  components. Their boot sequences often does not allow for classic
+  installation methods through USB or DVD devices. Instead they boot
+  through SD card slots or via the network. SoC (System on Chip) devices
+  also tend to implement non standard boot methods which can only
+  be implemented through custom OS appliances.
+
+And More
+  ...
 
 Contact
 -------

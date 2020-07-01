@@ -35,8 +35,9 @@ images that:
 The image creation process with {kiwi} is automated and does not require any
 user interaction. The information required for the image creation process is
 provided by the primary configuration file named :file:`config.xml`.
-This file is validated against the schema documented in
-:ref:`Schema Documentation <schema-docs>` section.
+This file is validated against the schema documented in:
+:ref:`image-description`.
+
 In addition, the image can optionally be customized
 using the :file:`config.sh` and :file:`images.sh` scripts
 and by using an *overlay tree (directory)* called :file:`root`.

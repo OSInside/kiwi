@@ -74,6 +74,3 @@ Tweak and Customize your Image
 
 Now that you have successfully built and started your first image, you can
 start tweaking it to match your needs.
-
-Find the documentation of the appliance description files in the following
-sections.
