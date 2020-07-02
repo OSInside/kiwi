@@ -144,7 +144,7 @@ class ArchiveTar:
     def _get_archive_items(self, source_dir, exclude_list):
         if self.create_from_file_list:
             return self._get_archive_content_list(
-                exclude_list, self.file_list, source_dir
+                source_dir, exclude_list, self.file_list
             )
         else:
             return self._get_archive_exclude_list(exclude_list) + ['.']

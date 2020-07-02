@@ -107,8 +107,8 @@ class TestArchiveTar:
             call(
                 [
                     'tar', '-C', 'source-dir', '--xattrs', '--xattrs-include=*',
-                    '-c', '-f', 'foo.tar', '.',
-                    '--exclude', './foo', '--exclude', './bar'
+                    '-c', '-f', 'foo.tar',
+                    '--exclude', './foo', '--exclude', './bar', '.'
                 ]
             )
         ]
