@@ -25,7 +25,7 @@ from kiwi.exceptions import (
 )
 
 
-class BootLoaderConfig(object):
+class BootLoaderConfig:
     """
     **BootLoaderConfig factory**
 
@@ -34,18 +34,20 @@ class BootLoaderConfig(object):
     :param string root_dir: root directory path name
     :param dict custom_args: custom bootloader config arguments dictionary
     """
-    def __new__(self, name, xml_state, root_dir, custom_args=None):
+    def __new__(
+        self, name, xml_state, root_dir, boot_dir=None, custom_args=None
+    ):
         if name == 'grub2':
             return BootLoaderConfigGrub2(
-                xml_state, root_dir, custom_args
+                xml_state, root_dir, boot_dir, custom_args
             )
         elif name == 'grub2_s390x_emu':
             return BootLoaderConfigZipl(
-                xml_state, root_dir, custom_args
+                xml_state, root_dir, boot_dir, custom_args
             )
         elif name == 'isolinux':
             return BootLoaderConfigIsoLinux(
-                xml_state, root_dir, custom_args
+                xml_state, root_dir, boot_dir, custom_args
             )
         else:
             raise KiwiBootLoaderConfigSetupError(

@@ -23,6 +23,7 @@ from kiwi.oci_tools.base import OCIBase
 from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.defaults import Defaults
 
 
 class OCIUmoci(OCIBase):
@@ -33,8 +34,12 @@ class OCIUmoci(OCIBase):
         """
         Initializes some umoci parameters and options
         """
-        self.container_name = ':'.join(
-            [self.container_dir, self.container_tag]
+        self.oci_dir = mkdtemp(prefix='kiwi_oci_dir.')
+        self.container_dir = os.sep.join(
+            [self.oci_dir, 'oci_layout']
+        )
+        self.working_image = '{0}:{1}'.format(
+            self.container_dir, Defaults.get_container_base_image_tag()
         )
         if CommandCapabilities.has_option_in_help(
             'umoci', '--no-history', ['config', '--help']
@@ -43,27 +48,55 @@ class OCIUmoci(OCIBase):
         else:
             self.no_history_flag = []
 
-    def init_layout(self, base_image=False):
+    def import_container_image(self, container_image_ref):
+        """
+        Imports container image reference to an OCI layout
+
+        :param str container_image_ref: container image reference
+        """
+        Command.run([
+            'skopeo', 'copy', container_image_ref, 'oci:{0}:{1}'.format(
+                self.container_dir, Defaults.get_container_base_image_tag()
+            )
+        ])
+
+    def export_container_image(
+        self, filename, transport, image_ref, additional_refs=None
+    ):
+        """
+        Exports the working container to a container image archive
+
+        :param str filename: The resulting filename
+        :param str transport: The archive format
+        :param str image_name: Name of the exported image
+        :param str image_tag: Tag of the exported image
+        :param list additional_tags: List of additional references
+        """
+        extra_tags_opt = []
+        if additional_refs:
+            for ref in additional_refs:
+                extra_tags_opt.extend(['--additional-tag', ref])
+
+        # make sure the target tar file does not exist
+        # skopeo doesn't support force overwrite
+        Path.wipe(filename)
+        Command.run([
+            'skopeo', 'copy', 'oci:{0}'.format(self.working_image),
+            '{0}:{1}:{2}'.format(transport, filename, image_ref)
+        ] + extra_tags_opt)
+
+    def init_container(self):
         """
         Initialize a new container layout
 
-        A new container layout can start with a non empty base
-        root image. If provided that base layout will be used with
-        the given primary tag provided at instance creation time.
-        The import and unpack of the base image is not a
-        responsibility of this class and done beforehead
-
         :param bool base_image: True|False
         """
-        if base_image:
-            self.container_name = '{0}:base_layer'.format(self.container_dir)
-        else:
-            Command.run(
-                ['umoci', 'init', '--layout', self.container_dir]
-            )
-            Command.run(
-                ['umoci', 'new', '--image', self.container_name]
-            )
+        Command.run(
+            ['umoci', 'init', '--layout', self.container_dir]
+        )
+        Command.run(
+            ['umoci', 'new', '--image', self.working_image]
+        )
 
     def unpack(self):
         """
@@ -72,7 +105,7 @@ class OCIUmoci(OCIBase):
         self.oci_root_dir = mkdtemp(prefix='kiwi_oci_root_dir.')
         Command.run([
             'umoci', 'unpack', '--image',
-            self.container_name, self.oci_root_dir
+            self.working_image, self.oci_root_dir
         ])
 
     def sync_rootfs(self, root_dir, exclude_list=None):
@@ -112,48 +145,33 @@ class OCIUmoci(OCIBase):
         history_flags.extend(['--history.created', self.creation_date])
         Command.run(
             ['umoci', 'repack'] + history_flags + [
-                '--image', self.container_name, self.oci_root_dir
+                '--image', self.working_image, self.oci_root_dir
             ]
         )
 
-    def add_tag(self, tag_name):
-        """
-        Add additional tag name to the container
-
-        :param string tag_name: A name
-        """
-        Command.run(
-            ['umoci', 'config'] + self.no_history_flag + [
-                '--image', self.container_name, '--tag', tag_name
-            ]
-        )
-
-    def set_config(self, oci_config, base_image=False):
+    def set_config(self, oci_config):
         """
         Set list of meta data information such as entry_point,
         maintainer, etc... to the container.
 
         :param list oci_config: meta data list
-        :param bool base_image: True|False
         """
         config_args = self._process_oci_config_to_arguments(oci_config)
         Command.run(
             [
                 'umoci', 'config'
             ] + config_args + self.no_history_flag + [
-                '--image', self.container_name,
-                '--tag', self.container_tag,
+                '--image', self.working_image,
+                '--tag', oci_config['container_tag'],
                 '--created', self.creation_date
             ]
         )
-        if base_image:
-            Command.run(['umoci', 'rm', '--image', self.container_name])
-            self.container_name = self.container_name = ':'.join(
-                [self.container_dir, self.container_tag]
-            )
+        self.working_image = '{0}:{1}'.format(
+            self.container_dir, oci_config['container_tag']
+        )
 
-    @classmethod                                                # noqa:C901
-    def _process_oci_config_to_arguments(cls, oci_config):
+    @staticmethod                                                # noqa:C901
+    def _process_oci_config_to_arguments(oci_config):
         """
         Process the oci configuration dictionary into a list of arguments
         for the 'umoci config' command
@@ -216,8 +234,8 @@ class OCIUmoci(OCIBase):
 
         return arguments
 
-    @classmethod
-    def _process_oci_history_to_arguments(cls, oci_config):
+    @staticmethod
+    def _process_oci_history_to_arguments(oci_config):
         history_args = []
         if 'history' in oci_config:
             if 'comment' in oci_config['history']:
@@ -234,7 +252,7 @@ class OCIUmoci(OCIBase):
                 ))
         return history_args
 
-    def garbage_collect(self):
+    def post_process(self):
         """
         Cleanup unused data from operations
         """
@@ -245,3 +263,5 @@ class OCIUmoci(OCIBase):
     def __del__(self):
         if self.oci_root_dir:
             Path.wipe(self.oci_root_dir)
+        if self.oci_dir:
+            Path.wipe(self.oci_dir)

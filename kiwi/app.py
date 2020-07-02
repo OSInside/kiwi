@@ -19,7 +19,7 @@
 from .tasks.base import CliTask
 
 
-class App(object):
+class App:
     """
     **Implements creation of task instances**
 

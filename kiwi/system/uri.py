@@ -16,8 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import mkdtemp
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 import requests
 import hashlib
 
@@ -26,7 +27,6 @@ from kiwi.mount_manager import MountManager
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.runtime_config import RuntimeConfig
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
@@ -34,8 +34,10 @@ from kiwi.exceptions import (
     KiwiUriOpenError
 )
 
+log = logging.getLogger('kiwi')
 
-class Uri(object):
+
+class Uri:
     """
     **Normalize url types available in a kiwi configuration into
     standard mime types**
@@ -219,9 +221,9 @@ class Uri(object):
         """
         Returns the fragment part of the URI.
 
-        :return: fragment part of the URI if any, None otherwise
+        :return: fragment part of the URI if any, empty string otherwise
 
-        :rtype: str, None
+        :rtype: str
         """
         uri = urlparse(self.uri)
         return uri.fragment
@@ -244,7 +246,7 @@ class Uri(object):
         return iso_mount.mountpoint
 
     def _local_path(self, path):
-        return os.path.normpath(path)
+        return os.path.abspath(os.path.normpath(path))
 
     def _obs_project_download_link(self, name):
         name_parts = name.split(os.sep)

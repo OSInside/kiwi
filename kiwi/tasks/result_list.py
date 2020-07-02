@@ -16,9 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi result list -h | --help
-       kiwi result list --target-dir=<directory>
-       kiwi result list help
+usage: kiwi-ng result list -h | --help
+       kiwi-ng result list --target-dir=<directory>
+       kiwi-ng result list help
 
 commands:
     list
@@ -29,12 +29,14 @@ options:
         the target directory as it was used in a system command
 """
 import os
+import logging
 
 # project
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.system.result import Result
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class ResultListTask(CliTask):

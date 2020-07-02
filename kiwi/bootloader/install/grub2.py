@@ -17,12 +17,11 @@
 #
 import glob
 import os
-import platform
+import logging
 
 # project
 from kiwi.bootloader.install.base import BootLoaderInstallBase
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.defaults import Defaults
 from kiwi.mount_manager import MountManager
 from kiwi.path import Path
@@ -32,6 +31,8 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubPlatformError,
     KiwiBootLoaderGrubDataError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderInstallGrub2(BootLoaderInstallBase):
@@ -57,7 +58,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 }
 
         """
-        self.arch = platform.machine()
+        self.arch = Defaults.get_platform_name()
         self.custom_args = custom_args
         self.install_arguments = []
         self.firmware = None
@@ -118,7 +119,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             return False
         return True
 
-    def install(self):
+    def install(self):  # noqa: C901
         """
         Install bootloader on disk device
         """
@@ -127,7 +128,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         if self.target_removable:
             self.install_arguments.append('--removable')
 
-        if self.arch == 'x86_64' or self.arch == 'i686' or self.arch == 'i586':
+        if Defaults.is_x86_arch(self.arch):
             self.target = 'i386-pc'
             self.install_device = self.device
             self.modules = ' '.join(
@@ -157,11 +158,19 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             device=self.custom_args['boot_device'],
             mountpoint=self.root_mount.mountpoint + '/boot'
         )
+        if self.custom_args.get('efi_device'):
+            self.efi_mount = MountManager(
+                device=self.custom_args['efi_device'],
+                mountpoint=self.root_mount.mountpoint + '/boot/efi'
+            )
 
         self.root_mount.mount()
 
         if not self.root_mount.device == self.boot_mount.device:
             self.boot_mount.mount()
+
+        if self.efi_mount:
+            self.efi_mount.mount()
 
         if self.volumes:
             for volume_path in Path.sort_by_hierarchy(
@@ -236,12 +245,6 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             # has applied at the bootloader/config level and we expect
             # no further tool calls to be required
             if shim_install:
-                self.efi_mount = MountManager(
-                    device=self.custom_args['efi_device'],
-                    mountpoint=self.root_mount.mountpoint + '/boot/efi'
-                )
-                self.efi_mount.mount()
-
                 # Before we call shim-install, the grub installer binary is
                 # replaced by a noop. Actually there is no reason for
                 # shim-install to call the grub installer because it should
@@ -310,9 +313,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
     def _get_tool_name(
         self, root_path, lookup_list, fallback_on_not_found=True
     ):
-        chroot_env = {'PATH': os.sep.join([root_path, 'usr', 'sbin'])}
         for tool in lookup_list:
-            if Path.which(filename=tool, custom_env=chroot_env):
+            if Path.which(filename=tool, root_dir=root_path):
                 return tool
 
         if fallback_on_not_found:

@@ -15,22 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import platform
+import logging
 import os
 
 # project
 from kiwi.container import ContainerImage
 from kiwi.container.setup import ContainerSetup
 from kiwi.system.setup import SystemSetup
-from kiwi.logger import log
 from kiwi.system.result import Result
 from kiwi.utils.checksum import Checksum
 from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiContainerBuilderError
 from kiwi.runtime_config import RuntimeConfig
 
+log = logging.getLogger('kiwi')
 
-class ContainerBuilder(object):
+
+class ContainerBuilder:
     """
     **Container image builder**
 
@@ -41,6 +42,7 @@ class ContainerBuilder(object):
         * xz_options: string of XZ compression parameters
     """
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
+        self.custom_args = custom_args or {}
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.container_config = xml_state.get_container_config()
@@ -48,8 +50,11 @@ class ContainerBuilder(object):
         self.base_image = None
         self.base_image_md5 = None
 
-        self.container_config['xz_options'] = custom_args['xz_options'] \
-            if custom_args and 'xz_options' in custom_args else None
+        self.container_config['xz_options'] = \
+            self.custom_args.get('xz_options')
+
+        self.container_config['metadata_path'] = \
+            xml_state.build_type.get_metadata_path()
 
         if xml_state.get_derived_from_image_uri():
             # The base image is expected to be unpacked by the kiwi
@@ -80,9 +85,10 @@ class ContainerBuilder(object):
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version(),
-                '.', self.requested_container_type, '.tar'
+                '.', self.requested_container_type,
+                '.tar' if self.requested_container_type != 'appx' else ''
             ]
         )
         self.result = Result(xml_state)
@@ -90,12 +96,14 @@ class ContainerBuilder(object):
 
     def create(self):
         """
-        Builds a container image which is usually a tarball including
-        container specific metadata.
+        Builds a container image which is usually a data archive
+        including container specific metadata.
 
         Image types which triggers this builder are:
 
         * image="docker"
+        * image="oci"
+        * image="appx"
 
         :return: result
 

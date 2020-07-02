@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-
+from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.storage.subformat.base import DiskFormatBase
@@ -40,11 +40,43 @@ class DiskFormatQcow2(DiskFormatBase):
         """
         Create qcow2 disk format
         """
+        intermediate = NamedTemporaryFile()
         Command.run(
             [
-                'qemu-img', 'convert', '-c', '-f', 'raw', self.diskname,
+                'qemu-img', 'convert', '-f', 'raw', self.diskname,
                 '-O', self.image_format
             ] + self.options + [
+                intermediate.name
+            ]
+        )
+        Command.run(
+            [
+                'qemu-img', 'convert', '-c', '-f', self.image_format,
+                intermediate.name, '-O', self.image_format,
                 self.get_target_file_path_for_format(self.image_format)
             ]
+        )
+
+    def store_to_result(self, result):
+        """
+        Store result file of the format conversion into the
+        provided result instance.
+
+        In case of a qcow2 format we store the result uncompressed
+        Since the format conversion only takes the real bytes into
+        account such that the sparseness of the raw disk will not
+        result in the output format and can be taken one by one
+
+        :param object result: Instance of Result
+        """
+        result.add(
+            key='disk_format_image',
+            filename=self.get_target_file_path_for_format(
+                self.image_format
+            ),
+            use_for_bundle=True,
+            compress=self.runtime_config.get_bundle_compression(
+                default=False
+            ),
+            shasum=True
         )

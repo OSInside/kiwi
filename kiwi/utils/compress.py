@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import NamedTemporaryFile
 
 # project
@@ -27,8 +28,10 @@ from kiwi.exceptions import (
     KiwiCompressionFormatUnknown
 )
 
+log = logging.getLogger('kiwi')
 
-class Compress(object):
+
+class Compress:
     """
     **File compression / decompression**
 
@@ -117,13 +120,21 @@ class Compress(object):
         """
         Detect compression format
 
-        :return: compression format name
+        :return: compression format name or None if it couldn't be inferred
 
-        :rtype: str
+        :rtype: Optional[str]
         """
         for zipper in self.supported_zipper:
+            cmd = [zipper, '-l', self.source_filename]
             try:
-                Command.run([zipper, '-l', self.source_filename])
+                Command.run(cmd)
                 return zipper
-            except Exception:
-                pass
+            except Exception as exc:
+                log.debug(
+                    'Error running "{cmd:s}", got a {exc_t:s}: {exc:s}'
+                    .format(
+                        cmd=' '.join(cmd),
+                        exc_t=type(exc).__name__,
+                        exc=str(exc)
+                    )
+                )

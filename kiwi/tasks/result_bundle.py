@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi result bundle -h | --help
-       kiwi result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
+usage: kiwi-ng result bundle -h | --help
+       kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
            [--zsync-source=<download_location>]
-       kiwi result bundle help
+       kiwi-ng result bundle help
 
 commands:
     bundle
@@ -47,13 +47,13 @@ options:
         are placed to the same download location
 """
 from collections import OrderedDict
+import logging
 import os
 
 # project
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.system.result import Result
-from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.utils.compress import Compress
 from kiwi.utils.checksum import Checksum
@@ -62,6 +62,8 @@ from kiwi.command import Command
 from kiwi.exceptions import (
     KiwiBundleError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class ResultBundleTask(CliTask):
@@ -128,8 +130,7 @@ class ResultBundleTask(CliTask):
                         'cp', result_file.filename, bundle_file
                     ]
                 )
-                if self.runtime_config.is_bundle_compression_requested() and \
-                   result_file.compress:
+                if result_file.compress:
                     log.info('--> XZ compressing')
                     compress = Compress(bundle_file)
                     compress.xz(self.runtime_config.get_xz_options())
@@ -163,8 +164,10 @@ class ResultBundleTask(CliTask):
                     checksum = Checksum(bundle_file)
                     with open(bundle_file + '.sha256', 'w') as shasum:
                         shasum.write(
-                            '{0}  {1}'.format(
-                                checksum.sha256(), bundle_file_basename
+                            '{0}  {1}{2}'.format(
+                                checksum.sha256(),
+                                os.path.basename(bundle_file),
+                                os.linesep
                             )
                         )
 

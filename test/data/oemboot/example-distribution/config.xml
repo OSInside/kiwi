@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.9" name="initrd-oemboot-suse-13.2">
+<image schemaversion="7.2" name="initrd-oemboot-suse-13.2">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@novell.com</contact>
@@ -85,7 +85,7 @@
     <drivers profiles="xen,ec2">
         <file name="drivers/xen/*"/>
     </drivers>
-    <repository type="yast2">
+    <repository>
         <source path="obs://13.2/repo/oss"/>
     </repository>
     <packages type="image" profiles="std">

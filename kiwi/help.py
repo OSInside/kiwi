@@ -21,7 +21,7 @@ import subprocess
 from .exceptions import KiwiHelpNoCommandGiven
 
 
-class Help(object):
+class Help:
     """
     **Implements man page help for kiwi commands**
 

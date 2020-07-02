@@ -1,11 +1,18 @@
-from mock import patch
-from mock import call
+import logging
+from pytest import fixture
+from mock import (
+    patch, call
+)
 import mock
 
 from kiwi.mount_manager import MountManager
 
 
-class TestMountManager(object):
+class TestMountManager:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         self.mount_manager = MountManager(
             '/dev/some-device', '/some/mountpoint'
@@ -47,19 +54,18 @@ class TestMountManager(object):
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
     @patch('time.sleep')
-    @patch('kiwi.logger.log.warning')
     def test_umount_with_errors(
-        self, mock_warn, mock_sleep, mock_mounted, mock_command
+        self, mock_sleep, mock_mounted, mock_command
     ):
         mock_command.side_effect = Exception
         mock_mounted.return_value = True
-        assert self.mount_manager.umount() is False
+        with self._caplog.at_level(logging.WARNING):
+            assert self.mount_manager.umount() is False
         assert mock_command.call_args_list == [
             call(['umount', '/some/mountpoint']),
             call(['umount', '/some/mountpoint']),
             call(['umount', '/some/mountpoint'])
         ]
-        assert mock_warn.called
 
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')

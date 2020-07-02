@@ -17,14 +17,16 @@
 #
 import json
 import os
+import logging
 from tempfile import NamedTemporaryFile
 
 # project
 from kiwi.path import Path
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
-class DataOutput(object):
+class DataOutput:
     """
     **Converts dict or list variables to a print friendly json format**
 
@@ -46,6 +48,16 @@ class DataOutput(object):
         Show data in json output format and selected style
         """
         self._json()
+
+    @staticmethod
+    def display_file(filename, message=None):
+        """
+        Show data from file
+        """
+        if message:
+            log.info(message)
+        with open(filename) as data:
+            print(data.read())
 
     def _json(self):
         """

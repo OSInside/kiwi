@@ -18,6 +18,7 @@
 import os
 import logging
 import glob
+from operator import attrgetter
 
 # project
 from kiwi.cli import Cli
@@ -30,8 +31,10 @@ from kiwi.exceptions import (
     KiwiConfigFileNotFound
 )
 
+log = logging.getLogger('kiwi')
 
-class CliTask(object):
+
+class CliTask:
     """
     Base class for all task classes, loads the task and provides
     the interface to the command options and the XML description
@@ -46,8 +49,6 @@ class CliTask(object):
         * setup color output
     """
     def __init__(self, should_perform_task_setup=True):
-        from ..logger import log
-
         self.cli = Cli()
 
         # initialize runtime checker
@@ -67,6 +68,32 @@ class CliTask(object):
 
         # get global args
         self.global_args = self.cli.get_global_args()
+
+        # initialize generic runtime check dicts
+        self.checks_before_command_args = {
+            'check_minimal_required_preferences': [],
+            'check_efi_mode_for_disk_overlay_correctly_setup': [],
+            'check_boot_description_exists': [],
+            'check_consistent_kernel_in_boot_and_system_image': [],
+            'check_container_tool_chain_installed': [],
+            'check_volume_setup_defines_reserved_labels': [],
+            'check_volume_setup_defines_multiple_fullsize_volumes': [],
+            'check_volume_setup_has_no_root_definition': [],
+            'check_volume_label_used_with_lvm': [],
+            'check_xen_uniquely_setup_as_server_or_guest': [],
+            'check_mediacheck_installed': [],
+            'check_dracut_module_for_live_iso_in_package_list': [],
+            'check_dracut_module_for_disk_overlay_in_package_list': [],
+            'check_dracut_module_for_disk_oem_in_package_list': [],
+            'check_dracut_module_for_oem_install_in_package_list': [],
+            'check_architecture_supports_iso_firmware_setup': [],
+            'check_appx_naming_conventions_valid': [],
+            'check_syslinux_installed_if_isolinux_is_used': []
+        }
+        self.checks_after_command_args = {
+            'check_repositories_configured': [],
+            'check_image_include_repos_publicly_resolvable': []
+        }
 
         if should_perform_task_setup:
             # set log level
@@ -99,8 +126,6 @@ class CliTask(object):
         * :attr:`xml_state`
             Instance of XMLState, stateful data
         """
-        from ..logger import log
-
         log.info('Loading XML description')
         config_file = description_directory + '/config.xml'
         if not os.path.exists(config_file):
@@ -118,10 +143,10 @@ class CliTask(object):
                 'no XML description found in %s' % description_directory
             )
 
-        description = XMLDescription(
+        self.description = XMLDescription(
             config_file
         )
-        self.xml_data = description.load()
+        self.xml_data = self.description.load()
         self.config_file = config_file.replace('//', '/')
         self.xml_state = XMLState(
             self.xml_data,
@@ -176,6 +201,22 @@ class CliTask(object):
                 0, 6
             )
         ]
+
+    def run_checks(self, checks):
+        """
+        This method runs the given runtime checks excluding the ones disabled
+        in the runtime configuration file.
+
+        :param dict checks: A dictionary with the runtime method names as keys
+            and their arguments list as the values.
+        """
+        exclude_list = self.runtime_config.get_disabled_runtime_checks()
+        if self.runtime_checker is not None:
+            for method, args in {
+                key: value for key, value in checks.items()
+                    if key not in exclude_list
+            }.items():
+                attrgetter(method)(self.runtime_checker)(*args)
 
     def _pop_token(self, tokens):
         token = tokens.pop(0)

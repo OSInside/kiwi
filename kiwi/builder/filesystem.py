@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import platform
+import logging
 import os
 
 # project
@@ -25,7 +25,6 @@ from kiwi.storage.loop_device import LoopDevice
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.system.setup import SystemSetup
 from kiwi.defaults import Defaults
-from kiwi.logger import log
 from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
 
@@ -33,12 +32,15 @@ from kiwi.exceptions import (
     KiwiFileSystemSetupError
 )
 
+log = logging.getLogger('kiwi')
 
-class FileSystemBuilder(object):
+
+class FileSystemBuilder:
     """
     **Filesystem image builder**
 
     :param str label: filesystem label
+    :param str root_uuid: UUID of the created filesystem (on block device only)
     :param str root_dir: root directory path name
     :param str target_dir: target directory path name
     :param str requested_image_type: configured image type
@@ -55,10 +57,11 @@ class FileSystemBuilder(object):
     """
     def __init__(self, xml_state, target_dir, root_dir):
         self.label = None
+        self.root_uuid = None
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.requested_image_type = xml_state.get_build_type_name()
-        if self.requested_image_type == 'pxe':
+        if self.requested_image_type in Defaults.get_kis_image_types():
             self.requested_filesystem = xml_state.build_type.get_filesystem()
         else:
             self.requested_filesystem = self.requested_image_type
@@ -68,8 +71,13 @@ class FileSystemBuilder(object):
                 self.requested_image_type
             )
         self.filesystem_custom_parameters = {
-            'mount_options': xml_state.get_fs_mount_option_list()
+            'mount_options': xml_state.get_fs_mount_option_list(),
+            'create_options': xml_state.get_fs_create_option_list()
         }
+        if self.requested_filesystem == 'squashfs':
+            self.filesystem_custom_parameters['compression'] = \
+                xml_state.build_type.get_squashfscompression()
+
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
@@ -77,7 +85,7 @@ class FileSystemBuilder(object):
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version(),
                 '.', self.requested_filesystem
             ]
@@ -126,7 +134,9 @@ class FileSystemBuilder(object):
             key='filesystem_image',
             filename=self.filename,
             use_for_bundle=True,
-            compress=True,
+            compress=self.runtime_config.get_bundle_compression(
+                default=True
+            ),
             shasum=True
         )
         self.result.add(
@@ -162,6 +172,7 @@ class FileSystemBuilder(object):
             self.root_dir + os.sep, self.filesystem_custom_parameters
         )
         filesystem.create_on_device(self.label)
+        self.root_uuid = loop_provider.get_uuid(loop_provider.get_device())
         log.info(
             '--> Syncing data to filesystem on %s', loop_provider.get_device()
         )

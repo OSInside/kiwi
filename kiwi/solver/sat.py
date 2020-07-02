@@ -16,21 +16,22 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
+import logging
 from collections import namedtuple
 from xml.etree import ElementTree
 from xml.dom import minidom
 
 # project
-from kiwi.logger import log
-
 from kiwi.exceptions import (
     KiwiSatSolverPluginError,
     KiwiSatSolverJobError,
     KiwiSatSolverJobProblems
 )
 
+log = logging.getLogger('kiwi')
 
-class Sat(object):
+
+class Sat:
     """
     **Sat Solver class to run package solver operations**
 
@@ -203,7 +204,7 @@ class Sat(object):
             selection = self.pool.select(
                 job_name, selection_name | selection_provides
             )
-            if selection.flags() & self.solv.Selection.SELECTION_PROVIDES:
+            if selection.flags & self.solv.Selection.SELECTION_PROVIDES:
                 log.info('--> Using capability match for {0}'.format(job_name))
             if selection.isempty():
                 if skip_missing:

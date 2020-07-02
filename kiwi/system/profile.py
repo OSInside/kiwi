@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+import logging
 import collections
 from tempfile import NamedTemporaryFile
 
@@ -22,8 +24,10 @@ from tempfile import NamedTemporaryFile
 from kiwi.system.shell import Shell
 from kiwi.defaults import Defaults
 
+log = logging.getLogger('kiwi')
 
-class Profile(object):
+
+class Profile:
     """
     **Create bash readable .profile environment from the XML
     description**
@@ -47,6 +51,18 @@ class Profile(object):
         self._strip_to_profile()
         self._oemconfig_to_profile()
         self._drivers_to_profile()
+        self._root_partition_uuid_to_profile()
+
+    def get_settings(self):
+        """
+        Return all profile elements that has a value
+        """
+        profile = {}
+        for key, value in list(self.dot_profile.items()):
+            profile[key] = Shell.format_to_variable_value(value)
+        return collections.OrderedDict(
+            sorted(profile.items())
+        )
 
     def add(self, key, value):
         """
@@ -61,27 +77,24 @@ class Profile(object):
         if key in self.dot_profile:
             del self.dot_profile[key]
 
-    def create(self):
+    def create(self, filename):
         """
         Create bash quoted profile
 
-        :return: profile dump for bash
-
-        :rtype: str
+        :param str filename: file path name
         """
-        Defaults.set_python_default_encoding_to_utf8()
-
-        sorted_profile = collections.OrderedDict(
-            sorted(self.dot_profile.items())
-        )
+        sorted_profile = self.get_settings()
         temp_profile = NamedTemporaryFile()
         with open(temp_profile.name, 'w') as profile:
             for key, value in list(sorted_profile.items()):
-                if value:
-                    profile.write(
-                        format(key) + '=' + self._format(value) + '\n'
-                    )
-        return Shell.quote_key_value_file(temp_profile.name)
+                profile.write(
+                    '{0}={1}{2}'.format(key, value, os.linesep)
+                )
+        profile_environment = Shell.quote_key_value_file(temp_profile.name)
+        with open(filename, 'w') as profile:
+            for line in profile_environment:
+                profile.write(line + os.linesep)
+                log.debug('--> {0}'.format(line))
 
     def _oemconfig_to_profile(self):
         # kiwi_oemvmcp_parmfile
@@ -89,6 +102,7 @@ class Profile(object):
         # kiwi_oemswapMB
         # kiwi_oemrootMB
         # kiwi_oemswap
+        # kiwi_oemresizeonce
         # kiwi_oempartition_install
         # kiwi_oemdevicefilter
         # kiwi_oemtitle
@@ -119,8 +133,18 @@ class Profile(object):
                 self._text(oemconfig.get_oem_swapsize())
             self.dot_profile['kiwi_oemrootMB'] = \
                 self._text(oemconfig.get_oem_systemsize())
+
+            # kiwi_oemconfig is used in older boot code to run the swap
+            # creation and setup code at boot time. This version of kiwi
+            # handles swap as part of the build process and therefore
+            # has to disable swap handling such that we stay backward
+            # compatbile for some time.
+            # OBSOLETE: to be removed at: 2020-05-25
             self.dot_profile['kiwi_oemswap'] = \
-                self._text(oemconfig.get_oem_swap())
+                self._text(False)
+
+            self.dot_profile['kiwi_oemresizeonce'] = \
+                self._text(oemconfig.get_oem_resize_once())
             self.dot_profile['kiwi_oempartition_install'] = \
                 self._text(oemconfig.get_oem_partition_install())
             self.dot_profile['kiwi_oemdevicefilter'] = \
@@ -279,7 +303,7 @@ class Profile(object):
         self.dot_profile['kiwi_compressed'] = \
             type_section.get_compressed()
         self.dot_profile['kiwi_boot_timeout'] = \
-            type_section.get_boottimeout()
+            self.xml_state.get_build_type_bootloader_timeout()
         self.dot_profile['kiwi_wwid_wait_timeout'] = \
             type_section.get_wwid_wait_timeout()
         self.dot_profile['kiwi_hybridpersistent'] = \
@@ -299,9 +323,9 @@ class Profile(object):
         self.dot_profile['kiwi_firmware'] = \
             type_section.get_firmware()
         self.dot_profile['kiwi_bootloader'] = \
-            type_section.get_bootloader()
+            self.xml_state.get_build_type_bootloader_name()
         self.dot_profile['kiwi_bootloader_console'] = \
-            type_section.get_bootloader_console()
+            self.xml_state.get_build_type_bootloader_console()
         self.dot_profile['kiwi_btrfs_root_is_snapshot'] = \
             type_section.get_btrfs_root_is_snapshot()
         self.dot_profile['kiwi_gpt_hybrid_mbr'] = \
@@ -349,6 +373,11 @@ class Profile(object):
         if self.xml_state.get_build_type_name() == 'cpio':
             self.dot_profile['kiwi_cpio_name'] = self.dot_profile['kiwi_iname']
 
+    def _root_partition_uuid_to_profile(self):
+        # kiwi_rootpartuuid
+        self.dot_profile['kiwi_rootpartuuid'] = \
+            self.xml_state.get_root_partition_uuid()
+
     def _text(self, section_content):
         """
         Helper method to return the text for XML elements of the
@@ -361,13 +390,3 @@ class Profile(object):
                 return 'true'
             else:
                 return content
-
-    def _format(self, value):
-        """
-        Helper method to format bool profile values in the way
-        the boot code expects them
-        """
-        if value is True:
-            return 'true'
-        else:
-            return format(value)

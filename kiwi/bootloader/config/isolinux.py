@@ -16,22 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import platform
-import shutil
+import logging
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.template.isolinux import BootLoaderTemplateIsoLinux
-from kiwi.utils.sync import DataSync
-from kiwi.logger import log
 from kiwi.path import Path
 from kiwi.defaults import Defaults
-from kiwi.command import Command
 
-from kiwi.exceptions import (
-    KiwiTemplateError,
-    KiwiBootLoaderIsoLinuxPlatformError
-)
+from kiwi.exceptions import KiwiTemplateError
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
@@ -45,15 +40,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         :param dict custom_args: custom isolinux config arguments
         """
         self.custom_args = custom_args
-        arch = platform.machine()
-        if arch == 'x86_64':
-            self.arch = arch
-        elif arch == 'i686' or arch == 'i586':
-            self.arch = 'ix86'
-        else:
-            raise KiwiBootLoaderIsoLinuxPlatformError(
-                'host architecture %s not supported for isolinux setup' % arch
-            )
+        self.arch = Defaults.get_platform_name()
 
         self.install_volid = self.xml_state.build_type.get_volid() or \
             Defaults.get_install_volume_id()
@@ -82,7 +69,7 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
                     self.xml_state.build_type.get_hybridpersistent_filesystem()
                 )
 
-        self.terminal = self.xml_state.build_type.get_bootloader_console()
+        self.terminal = self.xml_state.get_build_type_bootloader_console()
         self.gfxmode = self.get_gfxmode('isolinux')
         # isolinux counts the timeout in units of 1/10 sec
         self.timeout = self.get_boot_timeout_seconds() * 10
@@ -227,95 +214,26 @@ class BootLoaderConfigIsoLinux(BootLoaderConfigBase):
         """
         Provide isolinux boot metadata
 
-        The mbrid parameter is not used, because only isolinux
-        loader binary and possible theming files are copied
+        No extra boot images must be created for isolinux
 
         :param string mbrid: unused
-        :param string lookup_path: custom module lookup path
+        :param string lookup_path: unused
         """
-        self._copy_loader_data_to_boot_directory(lookup_path)
+        pass
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
         Provide isolinux boot metadata
 
-        Calls setup_install_boot_images because no different action required
+        No extra boot images must be created for isolinux
+
+        :param string mbrid: unused
+        :param string lookup_path: unused
         """
-        self.setup_install_boot_images(mbrid, lookup_path)
-
-    def _copy_loader_data_to_boot_directory(self, lookup_path):
-        if not lookup_path:
-            lookup_path = self.root_dir
-        loader_data = lookup_path + '/image/loader/'
-        Path.wipe(loader_data)
-        Path.create(loader_data)
-
-        syslinux_file_names = [
-            'isolinux.bin',
-            'ldlinux.c32',
-            'libcom32.c32',
-            'libutil.c32',
-            'gfxboot.c32',
-            'gfxboot.com',
-            'menu.c32',
-            'chain.c32',
-            'mboot.c32'
-        ]
-        syslinux_dirs = [
-            '/usr/share/syslinux/',
-            '/usr/lib/syslinux/modules/bios/',
-            '/usr/lib/ISOLINUX/'
-        ]
-        for syslinux_file_name in syslinux_file_names:
-            for syslinux_dir in syslinux_dirs:
-                syslinux_file = ''.join(
-                    [lookup_path, syslinux_dir, syslinux_file_name]
-                )
-                if os.path.exists(syslinux_file):
-                    shutil.copy(syslinux_file, loader_data)
-
-        bash_command = ' '.join(
-            ['cp', lookup_path + '/boot/memtest*', loader_data + '/memtest']
-        )
-        Command.run(
-            command=['bash', '-c', bash_command], raise_on_error=False
-        )
-
-        if self.get_boot_theme():
-            theme_path = ''.join(
-                [lookup_path, '/etc/bootsplash/themes/', self.get_boot_theme()]
-            )
-            if os.path.exists(theme_path + '/cdrom/gfxboot.cfg'):
-                bash_command = ' '.join(
-                    ['cp', theme_path + '/cdrom/*', loader_data]
-                )
-                Command.run(
-                    ['bash', '-c', bash_command]
-                )
-                # don't move down one menu entry the first time a F-key is used
-                Command.run(
-                    [
-                        'gfxboot',
-                        '--config-file', loader_data + '/gfxboot.cfg',
-                        '--change-config', 'install::autodown=0'
-                    ]
-                )
-
-            if os.path.exists(theme_path + '/bootloader/message'):
-                Command.run(
-                    ['cp', theme_path + '/bootloader/message', loader_data]
-                )
-
-        Path.create(self._get_iso_boot_path())
-        data = DataSync(
-            loader_data, self._get_iso_boot_path()
-        )
-        data.sync_data(
-            options=['-z', '-a']
-        )
+        pass
 
     def _get_iso_boot_path(self):
-        return self.root_dir + '/boot/' + self.arch + '/loader'
+        return self.boot_dir + '/boot/' + self.arch + '/loader'
 
     def _have_theme(self):
         if os.path.exists(self._get_iso_boot_path() + '/bootlogo'):

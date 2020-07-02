@@ -17,7 +17,7 @@
 #
 
 
-class RepositoryBase(object):
+class RepositoryBase:
     """
     Implements base class for package manager repository handling
 
@@ -63,7 +63,8 @@ class RepositoryBase(object):
 
     def add_repo(
         self, name, uri, repo_type, prio, dist, components,
-        user, secret, credentials_file, repo_gpgcheck, pkg_gpgcheck
+        user, secret, credentials_file, repo_gpgcheck, pkg_gpgcheck,
+        sourcetype
     ):
         """
         Add repository
@@ -74,13 +75,14 @@ class RepositoryBase(object):
         :param str uri: unused
         :param repo_type: unused
         :param int prio: unused
-        :param dist: unused
-        :param components: unused
-        :param user: unused
-        :param secret: unused
-        :param credentials_file: unused
-        :param repo_gpgcheck: unused
-        :param pkg_gpgcheck: unused
+        :param str dist: unused
+        :param str components: unused
+        :param str user: unused
+        :param str secret: unused
+        :param str credentials_file: unused
+        :param bool repo_gpgcheck: unused
+        :param bool pkg_gpgcheck: unused
+        :param str sourcetype: unused
         """
         raise NotImplementedError
 

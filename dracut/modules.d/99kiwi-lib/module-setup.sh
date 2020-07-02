@@ -2,12 +2,12 @@
 
 # called by dracut
 check() {
-    return 0
+    return 255
 }
 
 # called by dracut
 depends() {
-    echo udev-rules
+    echo udev-rules crypt
     return 0
 }
 
@@ -15,8 +15,9 @@ depends() {
 install() {
     declare moddir=${moddir}
     inst_multiple \
-        blkid blockdev parted dd mkdir grep cut tail head tr bc \
-        basename partprobe sgdisk mkswap readlink lsblk \
+        blkid blockdev dd mkdir rmdir \
+        grep cut tail head tr bc true false \
+        basename partprobe sfdisk sgdisk mkswap readlink lsblk \
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \

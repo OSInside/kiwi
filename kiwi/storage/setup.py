@@ -16,16 +16,18 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from collections import namedtuple
 
 # project
 from kiwi.firmware import FirmWare
 from kiwi.system.size import SystemSize
 from kiwi.defaults import Defaults
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
-class DiskSetup(object):
+class DiskSetup:
     """
     **Implements disk setup methods**
 
@@ -37,6 +39,7 @@ class DiskSetup(object):
     """
     def __init__(self, xml_state, root_dir):
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
+        self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
         self.configured_size = xml_state.get_build_type_size()
         self.build_type_name = xml_state.get_build_type_name()
         self.filesystem = xml_state.build_type.get_filesystem()
@@ -46,7 +49,7 @@ class DiskSetup(object):
         self.mdraid = xml_state.build_type.get_mdraid()
         self.luks = xml_state.build_type.get_luks()
         self.volume_manager = xml_state.get_volume_management()
-        self.bootloader = xml_state.build_type.get_bootloader()
+        self.bootloader = xml_state.get_build_type_bootloader_name()
         self.oemconfig = xml_state.get_build_type_oemconfig_section()
         self.volumes = xml_state.get_volumes()
 
@@ -60,7 +63,7 @@ class DiskSetup(object):
         self.root_dir = root_dir
         self.xml_state = xml_state
 
-    def get_disksize_mbytes(self):
+    def get_disksize_mbytes(self):  # noqa C901
         """
         Precalculate disk size requirements in mbytes
 
@@ -92,6 +95,11 @@ class DiskSetup(object):
                 log.info(
                     '--> volume(s) size setup adding %s MB', volume_mbytes
                 )
+        elif self.swap_mbytes:
+            calculated_disk_mbytes += self.swap_mbytes
+            log.info(
+                '--> swap partition adding %s MB', self.swap_mbytes
+            )
 
         legacy_bios_mbytes = self.firmware.get_legacy_bios_partition_size()
         if legacy_bios_mbytes:
@@ -181,17 +189,15 @@ class DiskSetup(object):
             return False
         if self.mdraid:
             return True
-        if self.volume_manager:
+        if self.volume_manager == 'lvm':
             return True
-        if self.filesystem == 'btrfs':
-            return True
+        if self.volume_manager == 'btrfs':
+            return False
         if self.filesystem == 'xfs':
             return True
         if self.root_filesystem_is_overlay:
             return True
         if self.bootloader == 'grub2_s390x_emu':
-            return True
-        if self.luks:
             return True
 
     def get_boot_label(self):

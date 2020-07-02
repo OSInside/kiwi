@@ -15,24 +15,15 @@ function set_root_map {
     export root_map
 }
 
-function set_swap_map {
-    swap_map=$1
-    export swap_map
-}
-
 function get_root_map {
     echo "${root_map}"
 }
 
-function get_swap_map {
-    echo "${swap_map}"
-}
-
 function lookup_disk_device_from_root {
     declare root=${root}
+    declare kiwi_RaidDev=${kiwi_RaidDev}
     local root_device=${root#block:}
     local disk_device
-    local disk_matches=0
     local wwn
     if [ -z "${root_device}" ];then
         die "No root device found"
@@ -42,22 +33,33 @@ function lookup_disk_device_from_root {
     fi
     for disk_device in $(
         lsblk -p -n -r -s -o NAME,TYPE "${root_device}" |\
-            grep disk | cut -f1 -d ' '
+            grep -E "disk|raid" | cut -f1 -d ' '
     ); do
-        disk_matches=$((disk_matches + 1))
-    done
-    # Check if root_device is managed by multipath. If this
-    # is the case prefer the multipath mapped device because
-    # directly accessing the mapped devices is no longer
-    # possible
-    if type multipath &> /dev/null; then
-        for wwn in $(multipath -l -v1 "${disk_device}");do
-            if [ -e "/dev/mapper/${wwn}" ];then
-                disk_device="/dev/mapper/${wwn}"
-                break
+        # Check if root_device is managed by multipath. If this
+        # is the case prefer the multipath mapped device because
+        # directly accessing the mapped devices is no longer
+        # possible
+        if type multipath &> /dev/null; then
+            for wwn in $(multipath -l -v1 "${disk_device}");do
+                if [ -e "/dev/mapper/${wwn}" ];then
+                    disk_device="/dev/mapper/${wwn}"
+                    echo "${disk_device}"
+                    return
+                fi
+            done
+        fi
+        # Check if root_device is managed by mdadm and that the md raid
+        # is not created as part of the kiwi image building process. If
+        # this is the case the md raid device comes from a fake raid
+        # controller and we need to prefer the md device over the storage
+        # disks
+        if type mdadm &> /dev/null && [ -z "${kiwi_RaidDev}" ]; then
+            if mdadm --detail -Y "${disk_device}" &>/dev/null; then
+                echo "${disk_device}"
+                return
             fi
-        done
-    fi
+        fi
+    done
     echo "${disk_device}"
 }
 
@@ -83,6 +85,9 @@ function get_persistent_device_from_unix_node {
             return
         fi
     done
+    warn "Could not find ${schema} representation of ${node}"
+    warn "Using original device ${unix_device}"
+    echo "${unix_device}"
 }
 
 function deactivate_all_device_maps {
@@ -112,4 +117,35 @@ function import_file {
         key=$(echo "${line}" | cut -d '=' -f1)
         eval "export ${key}" &>/dev/null
     done < ${source_format}
+}
+
+function binsize_to_bytesize {
+    # """
+    # converts binary sizes (1024k, 2.4G) to bytes
+    # uses awk to handle floating point numbers
+    # """
+    local sz="$1"
+    local bs=${sz:0:-1}
+    case ${sz} in
+        *K|*k) mult=1024 ;;
+        *M) mult=$((1024*1024)) ;;
+        *G) mult=$((1024*1024*1024)) ;;
+        *T) mult=$((1024*1024*1024*1024)) ;;
+        *) bs=${sz}; mult=1 ;;
+    esac
+    awk "BEGIN {print int(${bs}*${mult})}"
+}
+
+function bool {
+    # """
+    # provides boolean string true|false for given value.
+    # Only if value matches true return true, in any other
+    # case return false
+    # """
+    local value=$1
+    if [ -n "${value}" ] && [ "${value}" = "true" ] ;then
+        echo "true"
+    else
+        echo "false"
+    fi
 }

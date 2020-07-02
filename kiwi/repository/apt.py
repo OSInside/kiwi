@@ -16,13 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import NamedTemporaryFile
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 # project
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
+from kiwi.command import Command
+
+log = logging.getLogger('kiwi')
 
 
 class RepositoryApt(RepositoryBase):
@@ -66,6 +70,7 @@ class RepositoryApt(RepositoryBase):
         self.distribution = None
         self.distribution_path = None
         self.repo_names = []
+        self.components = []
 
         # apt-get support is based on creating a sources file which
         # contains path names to the repo and its cache. In order to
@@ -78,6 +83,7 @@ class RepositoryApt(RepositoryBase):
             'sources-dir': self.manager_base + '/sources.list.d',
             'preferences-dir': self.manager_base + '/preferences.d'
         }
+        self.keyring = '{}/trusted.gpg'.format(self.manager_base)
 
         self.runtime_apt_get_config_file = NamedTemporaryFile(
             dir=self.root_dir
@@ -110,7 +116,7 @@ class RepositoryApt(RepositoryBase):
         self.shared_apt_get_dir['sources-dir'] = \
             os.sep.join([self.manager_base, 'sources.list.d'])
         self.shared_apt_get_dir['preferences-dir'] = \
-            os.sep.join([self.root_dir, 'preferences.d'])
+            os.sep.join([self.manager_base, 'preferences.d'])
         self._write_runtime_config(system_default=True)
 
     def runtime_config(self):
@@ -128,7 +134,8 @@ class RepositoryApt(RepositoryBase):
         self, name, uri, repo_type='deb',
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
-        repo_gpgcheck=None, pkg_gpgcheck=None
+        repo_gpgcheck=None, pkg_gpgcheck=None,
+        sourcetype=None
     ):
         """
         Add apt_get repository
@@ -137,13 +144,14 @@ class RepositoryApt(RepositoryBase):
         :param str uri: repository URI
         :param repo_type: unused
         :param int prio: unused
-        :param dist: distribution name for non flat deb repos
-        :param components: distribution categories
-        :param user: unused
-        :param secret: unused
-        :param credentials_file: unused
+        :param str dist: distribution name for non flat deb repos
+        :param str components: distribution categories
+        :param str user: unused
+        :param str secret: unused
+        :param str credentials_file: unused
         :param bool repo_gpgcheck: enable repository signature validation
-        :param pkg_gpgcheck: unused
+        :param bool pkg_gpgcheck: unused
+        :param str sourcetype: unused
         """
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']
@@ -158,13 +166,14 @@ class RepositoryApt(RepositoryBase):
             uri = uri.replace('file://', 'file:/')
         if not components:
             components = 'main'
+        self._add_components(components)
         with open(list_file, 'w') as repo:
-            if repo_gpgcheck is None:
-                repo_line = 'deb {0}'.format(uri)
-            else:
-                repo_line = 'deb [trusted={0}] {1}'.format(
-                    'no' if repo_gpgcheck else 'yes', uri
+            if repo_gpgcheck is False:
+                repo_line = 'deb [trusted=yes check-valid-until=no] {0}'.format(
+                    uri
                 )
+            else:
+                repo_line = 'deb {0}'.format(uri)
             if not dist:
                 # create a debian flat repository setup. We consider the
                 # repository metadata to exist on the toplevel of the
@@ -200,13 +209,32 @@ class RepositoryApt(RepositoryBase):
 
     def import_trusted_keys(self, signing_keys):
         """
-        Keeps trusted keys so that later on they can be imported into
-        the image by the PackageManager instance.
+        Creates a new keyring including provided keys
 
         :param list signing_keys: list of the key files to import
         """
+        keybox = '{}/trusted-keybox.gpg'.format(self.manager_base)
+        gpg_args = [
+            'gpg', '--no-options', '--no-default-keyring',
+            '--no-auto-check-trustdb', '--trust-model', 'always',
+            '--keyring', keybox
+        ]
+        if os.path.exists(self.keyring):
+            os.unlink(self.keyring)
+        if os.path.exists(keybox):
+            os.unlink(keybox)
         for key in signing_keys:
-            self.signing_keys.append(key)
+            Command.run(gpg_args + ['--import', '--ignore-time-conflict', key])
+        if os.path.exists(keybox):
+            Command.run(
+                gpg_args + ['--export', '--yes', '--output', self.keyring]
+            )
+            os.unlink(keybox)
+            log.info('Custom keyring for APT created: {}'.format(self.keyring))
+            log.warning(
+                'The keyring is only available at build time. '
+                'It will not be part of the resulting image'
+            )
 
     def delete_repo(self, name):
         """
@@ -253,6 +281,11 @@ class RepositoryApt(RepositoryBase):
         for repo_file in repo_files:
             if repo_file not in self.repo_names:
                 Path.wipe(repos_dir + '/' + repo_file)
+
+    def _add_components(self, components):
+        for component in components.split():
+            if component not in self.components:
+                self.components.append(component)
 
     def _create_apt_get_runtime_environment(self):
         for apt_get_dir in list(self.shared_apt_get_dir.values()):

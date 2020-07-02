@@ -1,15 +1,17 @@
-kiwi system build
-=================
+kiwi-ng system build
+====================
+
+.. _db_kiwi_system_build_synopsis:
 
 SYNOPSIS
 --------
 
-.. code-block:: bash
+.. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi system build -h | --help
-   kiwi system build --description=<directory> --target-dir=<directory>
+   kiwi-ng system build -h | --help
+   kiwi-ng system build --description=<directory> --target-dir=<directory>
        [--allow-existing-root]
        [--clear-cache]
        [--ignore-repos]
@@ -17,9 +19,12 @@ SYNOPSIS
        [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
        [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
        [--add-package=<name>...]
+       [--add-bootstrap-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
-   kiwi system build help
+   kiwi-ng system build help
+
+.. _db_kiwi_system_build_desc:
 
 DESCRIPTION
 -----------
@@ -31,8 +36,15 @@ build command creates the root directory of the image below
 a log file `<target-dir>/build/image-root.log`. The result image files
 are created in the specified target-dir.
 
+.. _db_kiwi_system_build_opts:
+
 OPTIONS
 -------
+
+--add-bootstrap-package=<name>
+
+  specify package to install as part of the early kiwi bootstrap phase.
+  The option can be specified multiple times
 
 --add-package=<name>
 
@@ -137,6 +149,8 @@ OPTIONS
 --target-dir=<directory>
 
   Path to store the build results.
+
+.. _db_kiwi_system_build_uri:
 
 URI_TYPES
 ---------

@@ -1,6 +1,11 @@
 #!/bin/bash
 
 # called by dracut
+check() {
+    return 255
+}
+
+# called by dracut
 depends() {
     echo network rootfs-block dm kiwi-lib
     return 0

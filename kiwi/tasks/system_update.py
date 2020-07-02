@@ -16,11 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi system update -h | --help
-       kiwi system update --root=<directory>
+usage: kiwi-ng system update -h | --help
+       kiwi-ng system update --root=<directory>
            [--add-package=<name>...]
            [--delete-package=<name>...]
-       kiwi system update help
+       kiwi-ng system update help
 
 commands:
     update
@@ -39,6 +39,7 @@ options:
         path to the root directory of the image
 """
 import os
+import logging
 
 # project
 from kiwi.tasks.base import CliTask
@@ -46,7 +47,7 @@ from kiwi.privileges import Privileges
 from kiwi.help import Help
 from kiwi.system.prepare import SystemPrepare
 
-from kiwi.logger import log
+log = logging.getLogger('kiwi')
 
 
 class SystemUpdateTask(CliTask):

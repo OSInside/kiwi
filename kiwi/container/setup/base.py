@@ -27,7 +27,7 @@ from kiwi.exceptions import (
 )
 
 
-class ContainerSetupBase(object):
+class ContainerSetupBase:
     """
     Base class for setting up the root system to create
     a container image from for e.g docker. The methods here
@@ -48,9 +48,9 @@ class ContainerSetupBase(object):
                 'Container root directory %s does not exist' % root_dir
             )
         self.root_dir = root_dir
-        self.custom_args = {
-            'container_name': 'systemContainer'
-        }
+        self.custom_args = custom_args or {}
+        if 'container_name' not in self.custom_args:
+            self.custom_args['container_name'] = 'systemContainer'
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
@@ -70,16 +70,6 @@ class ContainerSetupBase(object):
         Implementation in specialized bootloader class required
         """
         raise NotImplementedError
-
-    def create_fstab(self):
-        """
-        Container boot mount setup
-
-        Initialize an empty fstab file, mount processes in a
-        container are controlled by the container infrastructure
-        """
-        with open(self.root_dir + '/etc/fstab', 'w'):
-            pass
 
     def deactivate_bootloader_setup(self):
         """
@@ -170,7 +160,7 @@ class ContainerSetupBase(object):
         try:
             data = DataSync('/dev/', self.root_dir + '/dev/')
             data.sync_data(
-                options=['-z', '-a', '-x', '--devices', '--specials']
+                options=['-a', '-x', '--devices', '--specials']
             )
         except Exception as e:
             raise KiwiContainerSetupError(

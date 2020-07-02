@@ -17,14 +17,13 @@
 #
 
 
-class PackageManagerBase(object):
+class PackageManagerBase:
     """
     **Implements base class for installation/deletion of
     packages and collections using a package manager**
 
     :param object repository: instance of :class:`Repository`
     :param str root_dir: root directory path name
-    :param object root_bind: instance of :class:`RootBind`
     :param list package_requests: list of packages to install or delete
     :param list collection_requests: list of collections to install
     :param list product_requests: list of products to install
@@ -32,7 +31,6 @@ class PackageManagerBase(object):
     def __init__(self, repository, custom_args=None):
         self.repository = repository
         self.root_dir = repository.root_dir
-        self.root_bind = repository.root_bind
         self.package_requests = []
         self.collection_requests = []
         self.product_requests = []
@@ -206,6 +204,15 @@ class PackageManagerBase(object):
         :rtype: boolean
         """
         return True if returncode != 0 else False
+
+    def clean_leftovers(self):
+        """
+        Cleans package manager related data not needed in the
+        resulting image such as custom macros
+
+        Implementation in specialized package manager class
+        """
+        pass
 
     def cleanup_requests(self):
         """

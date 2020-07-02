@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi system create -h | --help
-       kiwi system create --root=<directory> --target-dir=<directory>
+usage: kiwi-ng system create -h | --help
+       kiwi-ng system create --root=<directory> --target-dir=<directory>
            [--signing-key=<key-file>...]
-       kiwi system create help
+       kiwi-ng system create help
 
 commands:
     create
@@ -39,6 +39,7 @@ options:
         includes the key-file as a trusted key for package manager validations
 """
 import os
+import logging
 
 # project
 from kiwi.tasks.base import CliTask
@@ -47,7 +48,8 @@ from kiwi.builder import ImageBuilder
 from kiwi.system.setup import SystemSetup
 from kiwi.privileges import Privileges
 from kiwi.path import Path
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class SystemCreateTask(CliTask):
@@ -79,8 +81,9 @@ class SystemCreateTask(CliTask):
         self.load_xml_description(
             abs_root_path
         )
-        self.runtime_checker.check_target_directory_not_in_shared_cache(
-            abs_target_dir_path
+
+        self.run_checks(
+            {'check_target_directory_not_in_shared_cache': [abs_root_path]}
         )
 
         log.info('Creating system image')

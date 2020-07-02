@@ -16,18 +16,20 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 import yaml
 
 # project
-from .logger import log
-from .defaults import Defaults
-from .utils.size import StringToSize
-from .exceptions import (
+from kiwi.defaults import Defaults
+from kiwi.utils.size import StringToSize
+from kiwi.exceptions import (
     KiwiRuntimeConfigFormatError
 )
 
+log = logging.getLogger('kiwi')
 
-class RuntimeConfig(object):
+
+class RuntimeConfig:
     """
     **Implements reading of runtime configuration file:**
 
@@ -41,15 +43,17 @@ class RuntimeConfig(object):
     def __init__(self):
         self.config_data = None
 
-        config_file = os.sep.join(
-            [self._home_path(), '.config', 'kiwi', 'config.yml']
-        )
-        if not os.path.exists(config_file):
+        config_file = None
+        if self._home_path():
+            config_file = os.sep.join(
+                [self._home_path(), '.config', 'kiwi', 'config.yml']
+            )
+        if not config_file or not os.path.exists(config_file):
             config_file = '/etc/kiwi.yml'
         if os.path.exists(config_file):
             log.info('Reading runtime config file: {0}'.format(config_file))
             with open(config_file, 'r') as config:
-                self.config_data = yaml.load(config)
+                self.config_data = yaml.safe_load(config)
 
     def get_obs_download_server_url(self):
         """
@@ -90,7 +94,7 @@ class RuntimeConfig(object):
             obs_public = True
         return bool(obs_public)
 
-    def is_bundle_compression_requested(self):
+    def get_bundle_compression(self, default=True):
         """
         Return boolean value to express if the image bundle should
         contain XZ compressed image results or not.
@@ -102,7 +106,10 @@ class RuntimeConfig(object):
         of the bundle is smaller and the download speed increases.
         However the image must be uncompressed before use
 
-        By default the bundle will contain compressed results.
+        If no compression is explicitly configured, the provided
+        default value applies
+
+        :param bool default: Default value
 
         :return: True or False
 
@@ -112,9 +119,7 @@ class RuntimeConfig(object):
             element='bundle', attribute='compress'
         )
         if bundle_compress is None:
-            # if the bundle compression is not set,
-            # the default is compress image results
-            bundle_compress = True
+            bundle_compress = default
         return bool(bundle_compress)
 
     def get_xz_options(self):
@@ -239,6 +244,21 @@ class RuntimeConfig(object):
         )
         return StringToSize.to_bytes(max_size) if max_size else None
 
+    def get_disabled_runtime_checks(self):
+        """
+        Returns disabled runtime checks. Checks can be disabled with:
+
+        runtime_checks:
+            - disable: check_container_tool_chain_installed
+
+        if the provided string does not match any RuntimeChecker method it is
+        just ignored.
+        """
+        disabled_checks = self._get_attribute(
+            element='runtime_checks', attribute='disable'
+        )
+        return disabled_checks or ''
+
     def _get_attribute(self, element, attribute):
         if self.config_data:
             try:
@@ -254,4 +274,4 @@ class RuntimeConfig(object):
                 )
 
     def _home_path(self):
-        return os.environ['HOME']
+        return os.environ.get('HOME')

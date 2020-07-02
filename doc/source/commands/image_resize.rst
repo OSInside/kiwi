@@ -1,19 +1,23 @@
-.. _kiwi_image_resize:
+.. _db_kiwi_image_resize:
 
-kiwi image resize
-=================
+kiwi-ng image resize
+====================
+
+.. _db_kiwi_image_resize_synopsis:
 
 SYNOPSIS
 --------
 
-.. code-block:: bash
+.. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi image resize -h | --help
-   kiwi image resize --target-dir=<directory> --size=<size>
+   kiwi-ng image resize -h | --help
+   kiwi-ng image resize --target-dir=<directory> --size=<size>
        [--root=<directory>]
-   kiwi image resize help
+   kiwi-ng image resize help
+
+.. _db_kiwi_image_resize_desc:
 
 DESCRIPTION
 -----------
@@ -23,6 +27,8 @@ The additional space is free and not in use by the image. In order to
 make use of the additional free space a repartition process is required
 like it is provided by kiwi's oem boot code. Therefore the resize operation
 is useful for oem image builds most of the time.
+
+.. _db_kiwi_image_resize_opts:
 
 OPTIONS
 -------

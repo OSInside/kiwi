@@ -1,17 +1,21 @@
-kiwi system create
-==================
+kiwi-ng system create
+=====================
+
+.. _db_kiwi_system_create_synopsis:
 
 SYNOPSIS
 --------
 
-.. code-block:: bash
+.. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi system create -h | --help
-   kiwi system create --root=<directory> --target-dir=<directory>
+   kiwi-ng system create -h | --help
+   kiwi-ng system create --root=<directory> --target-dir=<directory>
        [--signing-key=<key-file>...]
-   kiwi system create help
+   kiwi-ng system create help
+
+.. _db_kiwi_system_create_desc:
 
 DESCRIPTION
 -----------
@@ -19,6 +23,8 @@ DESCRIPTION
 Create an image from a previously prepared image root directory.
 The kiwi create call is usually issued after a kiwi prepare command
 and builds the requested image type in the specified target directory
+
+.. _db_kiwi_system_create_opts:
 
 OPTIONS
 -------

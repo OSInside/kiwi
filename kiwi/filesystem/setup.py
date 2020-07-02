@@ -15,13 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
 from kiwi.system.size import SystemSize
-from kiwi.logger import log
 from kiwi.defaults import Defaults
 
+log = logging.getLogger('kiwi')
 
-class FileSystemSetup(object):
+
+class FileSystemSetup:
     """
     **Implement filesystem setup methods**
 

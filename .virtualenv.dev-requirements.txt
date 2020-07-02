@@ -35,10 +35,12 @@ flake8
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS
-generateDS==2.29.14
+generateDS==2.29.24
 
 # for building documentation
 sphinx
+
+git+https://github.com/openSUSE/rstxml2docbook.git@feature/kiwi
 
 sphinx_rtd_theme
 sphinxcontrib-spelling
@@ -47,3 +49,6 @@ pyenchant
 # for travis deployment tasks
 travis-sphinx
 ghp-import
+
+# for helper tools
+python-dateutil

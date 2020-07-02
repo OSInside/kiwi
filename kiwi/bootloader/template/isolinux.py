@@ -19,7 +19,7 @@ from string import Template
 from textwrap import dedent
 
 
-class BootLoaderTemplateIsoLinux(object):
+class BootLoaderTemplateIsoLinux:
     """
     **isolinux configuraton file templates**
     """
@@ -175,13 +175,14 @@ class BootLoaderTemplateIsoLinux(object):
         """
         template_data = self.header
         template_data += self.timeout
-        if terminal == 'serial':
+        if terminal and 'serial' in terminal:
             template_data += self.serial
             with_theme = False
-        if with_theme:
-            template_data += self.ui_theme
-        else:
-            template_data += self.ui_plain
+        if terminal != 'serial':
+            if with_theme:
+                template_data += self.ui_theme
+            else:
+                template_data += self.ui_plain
         template_data += self.menu_entry
         if failsafe:
             template_data += self.menu_entry_failsafe
@@ -206,13 +207,14 @@ class BootLoaderTemplateIsoLinux(object):
         """
         template_data = self.header
         template_data += self.timeout
-        if terminal == 'serial':
+        if terminal and 'serial' in terminal:
             template_data += self.serial
             with_theme = False
-        if with_theme:
-            template_data += self.ui_theme
-        else:
-            template_data += self.ui_plain
+        if terminal != 'serial':
+            if with_theme:
+                template_data += self.ui_theme
+            else:
+                template_data += self.ui_plain
         template_data += self.menu_entry_multiboot
         if failsafe:
             template_data += self.menu_entry_failsafe_multiboot
@@ -237,13 +239,14 @@ class BootLoaderTemplateIsoLinux(object):
         template_data = self.header
         if with_timeout:
             template_data += self.timeout
-        if terminal == 'serial':
+        if terminal and 'serial' in terminal:
             template_data += self.serial
             with_theme = False
-        if with_theme:
-            template_data += self.ui_theme
-        else:
-            template_data += self.ui_plain
+        if terminal != 'serial':
+            if with_theme:
+                template_data += self.ui_theme
+            else:
+                template_data += self.ui_plain
         template_data += self.menu_harddisk_entry
         template_data += self.menu_install_entry
         if failsafe:
@@ -267,13 +270,14 @@ class BootLoaderTemplateIsoLinux(object):
         template_data = self.header
         if with_timeout:
             template_data += self.timeout
-        if terminal == 'serial':
+        if terminal and 'serial' in terminal:
             template_data += self.serial
             with_theme = False
-        if with_theme:
-            template_data += self.ui_theme
-        else:
-            template_data += self.ui_plain
+        if terminal != 'serial':
+            if with_theme:
+                template_data += self.ui_theme
+            else:
+                template_data += self.ui_plain
         template_data += self.menu_harddisk_entry
         template_data += self.menu_install_entry_multiboot
         if failsafe:

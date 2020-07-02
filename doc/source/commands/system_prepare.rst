@@ -1,15 +1,17 @@
-kiwi system prepare
-===================
+kiwi-ng system prepare
+======================
+
+.. _db_kiwi_system_prepare_synopsis:
 
 SYNOPSIS
 --------
 
-.. code-block:: bash
+.. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi system prepare -h | --help
-   kiwi system prepare --description=<directory> --root=<directory>
+   kiwi-ng system prepare -h | --help
+   kiwi-ng system prepare --description=<directory> --root=<directory>
        [--allow-existing-root]
        [--clear-cache]
        [--ignore-repos]
@@ -17,9 +19,12 @@ SYNOPSIS
        [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
        [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
        [--add-package=<name>...]
+       [--add-bootstrap-package=<name>...]
        [--delete-package=<name>...]
        [--signing-key=<key-file>...]
-   kiwi system prepare help
+   kiwi-ng system prepare help
+
+.. _db_kiwi_system_prepare_desc:
 
 DESCRIPTION
 -----------
@@ -29,12 +34,19 @@ root directory from the specified XML description. The specified
 root directory is the root directory of the new image root system.
 As the root user you can enter this system via chroot as follows:
 
-.. code-block:: bash
+.. code:: bash
 
    $ chroot <directory> bash
 
+.. _db_kiwi_system_prepare_opts:
+
 OPTIONS
 -------
+
+--add-bootstrap-package=<name>
+
+  specify package to install as part of the early kiwi bootstrap phase.
+  The option can be specified multiple times
 
 --add-package=<name>
 

@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
 from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.command import Command
@@ -22,11 +24,12 @@ from kiwi.mount_manager import MountManager
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.filesystem import FileSystem
 from kiwi.path import Path
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiVolumeGroupConflict
 )
+
+log = logging.getLogger('kiwi')
 
 
 class VolumeManagerLVM(VolumeManagerBase):
@@ -72,8 +75,13 @@ class VolumeManagerLVM(VolumeManagerBase):
                 # root partition device from the disk. Therefore use
                 # the same key to put them on the same level
                 volume_name = 'root'
+            if volume_name == 'LVSwap':
+                # LVSwap volume device takes precedence over the
+                # swap partition device from the disk. Therefore use
+                # the same key to put them on the same level
+                volume_name = 'swap'
             device_map[volume_name] = MappedDevice(
-                device=volume_node, device_provider=self
+                device=volume_node, device_provider=self.device_provider_root
             )
         return device_map
 
@@ -168,12 +176,13 @@ class VolumeManagerLVM(VolumeManagerBase):
                 self.root_dir, volume
             )
             self._add_to_volume_map(volume.name)
-            self._create_filesystem(
-                volume.name, volume.label, filesystem_name
-            )
-            self._add_to_mount_list(
-                volume.name, volume.realpath
-            )
+            if volume.name != 'LVSwap':
+                self._create_filesystem(
+                    volume.name, volume.label, filesystem_name
+                )
+                self._add_to_mount_list(
+                    volume.name, volume.realpath
+                )
 
         if canonical_volume_list.full_size_volume:
             full_size_volume = canonical_volume_list.full_size_volume
@@ -287,7 +296,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         filesystem = FileSystem(
             name=filesystem_name,
             device_provider=MappedDevice(
-                device=device_node, device_provider=self
+                device=device_node, device_provider=self.device_provider_root
             ),
             custom_args=self.custom_filesystem_args
         )
@@ -345,3 +354,5 @@ class VolumeManagerLVM(VolumeManagerBase):
                     log.warning(
                         'volume group %s still busy', self.volume_group
                     )
+                    return
+        self._cleanup_tempdirs()

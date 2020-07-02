@@ -15,17 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
 
-from kiwi.logger import log
+# project
 from kiwi.exceptions import KiwiDecodingError
 
+log = logging.getLogger('kiwi')
 
-class Codec(object):
+
+class Codec:
     """
     **Performs conversions of literal byte sequences to strings**
     """
-    @classmethod
-    def decode(cls, literal):
+    @staticmethod
+    def decode(literal):
         """
         Decodes the given literal with the default charset. In case of
         failure attemps to decode using utf-8 charset.
@@ -35,6 +38,8 @@ class Codec(object):
         :return: decoded string
         :rtype: str
         """
+        if literal is None:
+            return ''
         try:
             return Codec._wrapped_decode(literal)
         except Exception:
@@ -46,8 +51,8 @@ class Codec(object):
                     'Locale setup is not utf-8 compatible'
                 )
 
-    @classmethod
-    def _wrapped_decode(cls, literal, charset=None):
+    @staticmethod
+    def _wrapped_decode(literal, charset=None):
         # This decode wrapper is only implemented to facilitate unit testing
         if charset:
             return literal.decode(charset)

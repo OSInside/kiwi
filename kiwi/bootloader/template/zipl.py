@@ -19,7 +19,7 @@ from string import Template
 from textwrap import dedent
 
 
-class BootLoaderTemplateZipl(object):
+class BootLoaderTemplateZipl:
     """
     **zipl configuraton file templates**
     """
@@ -36,12 +36,14 @@ class BootLoaderTemplateZipl(object):
                 targettype = ${target_type}
                 targetblocksize = ${blocksize}
                 targetoffset = ${offset}
-                targetgeometry = ${geometry}
                 default = ${default_boot}
                 prompt  = 1
                 target  = ${bootpath}
                 timeout = ${boot_timeout}
         ''').strip() + self.cr
+
+        self.add_targetgeometry = \
+            '    targetgeometry = ${geometry}' + self.cr
 
         self.activate_menu_entry = \
             '    1 = ${title}' + self.cr
@@ -64,7 +66,7 @@ class BootLoaderTemplateZipl(object):
                 parameters = "${failsafe_boot_options}"
         ''').strip() + self.cr
 
-    def get_template(self, failsafe=True):
+    def get_template(self, failsafe=True, targettype=None):
         """
         Bootloader configuration template for disk boot
 
@@ -75,6 +77,9 @@ class BootLoaderTemplateZipl(object):
         :rtype: Template
         """
         template_data = self.header
+        unsupported_for_target_geometry = ['FBA', 'SCSI']
+        if targettype and targettype not in unsupported_for_target_geometry:
+            template_data += self.add_targetgeometry
         template_data += self.activate_menu_entry
         if failsafe:
             template_data += self.activate_failsafe_menu_entry

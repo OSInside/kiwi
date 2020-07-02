@@ -1,17 +1,17 @@
 from mock import patch
+from pytest import raises
 
-from .test_helper import raises
-
-from kiwi.exceptions import KiwiPrivilegesError
 from kiwi.privileges import Privileges
 
+from kiwi.exceptions import KiwiPrivilegesError
 
-class TestPrivileges(object):
-    @raises(KiwiPrivilegesError)
+
+class TestPrivileges:
     @patch('os.geteuid')
     def test_check_for_root_permiossion_false(self, mock_euid):
         mock_euid.return_value = 1
-        Privileges.check_for_root_permissions()
+        with raises(KiwiPrivilegesError):
+            Privileges.check_for_root_permissions()
 
     @patch('os.geteuid')
     def test_check_for_root_permiossion_true(self, mock_euid):

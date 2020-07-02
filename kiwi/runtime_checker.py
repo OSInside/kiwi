@@ -16,22 +16,24 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import platform
+import re
 from textwrap import dedent
 
 # project
-from .xml_description import XMLDescription
-from .xml_state import XMLState
-from .system.uri import Uri
-from .defaults import Defaults
-from .path import Path
-from .utils.command_capabilities import CommandCapabilities
-from .exceptions import (
+from kiwi.xml_description import XMLDescription
+from kiwi.firmware import FirmWare
+from kiwi.xml_state import XMLState
+from kiwi.system.uri import Uri
+from kiwi.defaults import Defaults
+from kiwi.path import Path
+from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.runtime_config import RuntimeConfig
+from kiwi.exceptions import (
     KiwiRuntimeError
 )
 
 
-class RuntimeChecker(object):
+class RuntimeChecker:
     """
     **Implements build consistency checks at runtime**
 
@@ -61,12 +63,12 @@ class RuntimeChecker(object):
         """
         message = dedent('''\n
             The use of imageinclude="true" in the repository definition
-            for the Repository: {0} requires the repository to by publicly
-            available. The source locator of the repository however
-            indicates it is private to your local system. Therefore it
-            can't be included into the system image repository configuration.
-            Please define a publicly available repository in your image
-            XML description: {1}
+            for the Repository: {0}
+            requires the repository to by publicly available. The source
+            locator of the repository however indicates it is private to
+            your local system. Therefore it can't be included into the
+            system image repository configuration. Please define a publicly
+            available repository in your image XML description.
         ''')
 
         repository_sections = self.xml_state.get_repository_sections()
@@ -79,9 +81,7 @@ class RuntimeChecker(object):
                 uri = Uri(repo_source, repo_type)
                 if not uri.is_public():
                     raise KiwiRuntimeError(
-                        message.format(
-                            repo_source, self.xml_state.xml_data.description
-                        )
+                        message.format(repo_source)
                     )
 
     def check_target_directory_not_in_shared_cache(self, target_dir):
@@ -137,10 +137,33 @@ class RuntimeChecker(object):
         volume_management = self.xml_state.get_volume_management()
         if volume_management != 'lvm':
             for volume in self.xml_state.get_volumes():
-                if volume.label:
+                if volume.label and volume.name != 'LVSwap':
                     raise KiwiRuntimeError(
                         message.format(volume_management)
                     )
+
+    def check_volume_setup_defines_reserved_labels(self):
+        message = dedent('''\n
+            Reserved label name used in LVM volume setup
+
+            The label setup for volume {0} uses the reserved label {1}.
+            Reserved labels used by KIWI internally are {2}. Please
+            choose another label name for this volume.
+        ''')
+        reserved_labels = [
+            self.xml_state.build_type.get_rootfs_label() or 'ROOT',
+            'SWAP', 'SPARE'
+        ]
+        volume_management = self.xml_state.get_volume_management()
+        if volume_management == 'lvm':
+            for volume in self.xml_state.get_volumes():
+                if volume.name != 'LVSwap':
+                    if volume.label and volume.label in reserved_labels:
+                        raise KiwiRuntimeError(
+                            message.format(
+                                volume.name, volume.label, reserved_labels
+                            )
+                        )
 
     def check_volume_setup_defines_multiple_fullsize_volumes(self):
         """
@@ -189,18 +212,18 @@ class RuntimeChecker(object):
             if volume.mountpoint == '/':
                 raise KiwiRuntimeError(message)
 
-    def check_docker_tool_chain_installed(self):
+    def check_container_tool_chain_installed(self):
         """
-        When creating docker images the tools umoci and skopeo are used
-        in order to create docker compatible images. This check searches
-        for those tools to be installed in the build system and fails if
-        it can't find them
+        When creating container images the specific tools are used in order
+        to import and export OCI or Docker compatible images. This check
+        searches for those tools to be installed in the build system and
+        fails if it can't find them
         """
         message_tool_not_found = dedent('''\n
             Required tool {name} not found in caller environment
 
-            Creation of docker images requires the tools umoci and skopeo
-            to be installed on the build system. For SUSE based systems
+            Creation of OCI or Docker images requires the tools {name} and
+            skopeo to be installed on the build system. For SUSE based systems
             you can find the tools at:
 
             http://download.opensuse.org/repositories/Virtualization:/containers
@@ -208,11 +231,28 @@ class RuntimeChecker(object):
         message_version_unsupported = dedent('''\n
             {name} tool found with unknown version
         ''')
+        message_unknown_tool = dedent('''\n
+            Unknown tool: {0}.
+
+            Please configure KIWI with an appropriate value (umoci or buildah).
+            Consider this runtime configuration file syntax (/etc/kiwi.yml):
+
+            oci:
+                - archive_tool: umoci | buildah
+        ''')
 
         expected_version = (0, 1, 0)
 
-        if self.xml_state.get_build_type_name() == 'docker':
-            for tool in ['umoci', 'skopeo']:
+        if self.xml_state.get_build_type_name() in ['docker', 'oci']:
+            runtime_config = RuntimeConfig()
+            tool_name = runtime_config.get_oci_archive_tool()
+            if tool_name == 'buildah':
+                oci_tools = ['buildah', 'skopeo']
+            elif tool_name == 'umoci':
+                oci_tools = ['umoci', 'skopeo']
+            else:
+                raise KiwiRuntimeError(message_unknown_tool.format(tool_name))
+            for tool in oci_tools:
                 if not Path.which(filename=tool, access_mode=os.X_OK):
                     raise KiwiRuntimeError(
                         message_tool_not_found.format(name=tool)
@@ -239,6 +279,42 @@ class RuntimeChecker(object):
                 raise_on_error=False
             ):
                 raise KiwiRuntimeError(message)
+
+    def check_appx_naming_conventions_valid(self):
+        """
+        When building wsl images there are some naming conventions that
+        must be fulfilled to run the container on Microsoft Windows
+        """
+        launcher_pattern = r'[^\\]+(\.[Ee][Xx][Ee])$'
+        message_container_launcher_invalid = dedent('''\n
+            Invalid WSL launcher name: {0}
+
+            WSL launcher name must match the pattern: {1}
+        ''')
+        id_pattern = r'^[a-zA-Z0-9]+$'
+        message_container_id_invalid = dedent('''\n
+            Invalid WSL container application id: {0}
+
+            WSL container id must match the pattern: {1}
+        ''')
+        build_type = self.xml_state.get_build_type_name()
+        container_config = self.xml_state.get_container_config()
+        container_history = container_config.get('history') or {}
+        if build_type == 'appx' and container_config:
+            launcher = container_history.get('launcher')
+            if launcher and not re.match(launcher_pattern, launcher):
+                raise KiwiRuntimeError(
+                    message_container_launcher_invalid.format(
+                        launcher, launcher_pattern
+                    )
+                )
+            application_id = container_history.get('application_id')
+            if application_id and not re.match(id_pattern, application_id):
+                raise KiwiRuntimeError(
+                    message_container_id_invalid.format(
+                        application_id, id_pattern
+                    )
+                )
 
     def check_boot_description_exists(self):
         """
@@ -370,6 +446,40 @@ class RuntimeChecker(object):
                     )
                 )
 
+    def check_syslinux_installed_if_isolinux_is_used(self):
+        """
+        ISO images that are configured to use isolinux
+        requires the host to provide a set of syslinux
+        binaries.
+        """
+        message = dedent('''\n
+            Required syslinux module(s) not found
+
+            The ISO image build for this image setup uses isolinux
+            and therefore requires the syslinux modules to be
+            available on the build host. Please make sure your
+            build host has the syslinux package installed.
+        ''')
+        firmware = FirmWare(self.xml_state)
+        if Defaults.is_x86_arch(
+            Defaults.get_platform_name()
+        ) and not firmware.efi_mode():
+            image_builds_iso = False
+            build_type = self.xml_state.get_build_type_name()
+            if build_type == 'iso':
+                image_builds_iso = True
+            elif build_type == 'oem':
+                install_iso = self.xml_state.build_type.get_installiso()
+                install_stick = self.xml_state.build_type.get_installstick()
+                if install_iso or install_stick:
+                    image_builds_iso = True
+            if image_builds_iso:
+                syslinux_check_file = Path.which(
+                    'isohdpfx.bin', Defaults.get_syslinux_search_paths()
+                )
+                if not syslinux_check_file:
+                    raise KiwiRuntimeError(message)
+
     def check_dracut_module_for_oem_install_in_package_list(self):
         """
         OEM images if configured to use dracut as initrd system
@@ -405,6 +515,44 @@ class RuntimeChecker(object):
                     raise KiwiRuntimeError(
                         message.format(required_dracut_package)
                     )
+
+    def check_architecture_supports_iso_firmware_setup(self):
+        """
+        For creating ISO images a different bootloader setup is
+        performed depending on the configured firmware. If the
+        firmware is set to bios, isolinux is used and that limits
+        the architecture to x86 only. In any other case the appliance
+        configured bootloader is used. This check examines if the
+        host architecture is supported with the configured firmware
+        on request of an ISO image.
+        """
+        message = dedent('''\n
+            Unsupported firmware setup: {0} on {1} architecture
+
+            The selected firmware limits the creation of images to
+            the x86 platform. For the detected build host architecture
+            and the request to build a live or install ISO media
+            the EFI firmware must be used:
+
+            <type ... firmware="efi"/>
+        ''')
+        arch = Defaults.get_platform_name()
+        build_type = self.xml_state.get_build_type_name()
+        firmware = self.xml_state.build_type.get_firmware() or \
+            Defaults.get_default_firmware(arch)
+        if firmware == 'bios' and not Defaults.is_x86_arch(arch):
+            iso_build_requested = False
+            if build_type == 'iso':
+                iso_build_requested = True
+            elif build_type == 'oem':
+                install_iso = self.xml_state.build_type.get_installiso()
+                install_stick = self.xml_state.build_type.get_installstick()
+                if install_iso or install_stick:
+                    iso_build_requested = True
+            if iso_build_requested:
+                raise KiwiRuntimeError(
+                    message.format(firmware, arch)
+                )
 
     def check_dracut_module_for_disk_oem_in_package_list(self):
         """
@@ -523,34 +671,6 @@ class RuntimeChecker(object):
         if overlayroot and firmware == 'uefi':
             raise KiwiRuntimeError(message)
 
-    def check_grub_efi_installed_for_efi_firmware(self):
-        """
-        If the image is being built with efi or uefi firmware setting
-        we need a grub(2)-...-efi package installed. The check is not 100%
-        as every distribution has different names and different requirement
-        but it is a reasonable approximation on the safe side meaning the
-        user may still get an error but should not receive a false positive
-        """
-        message = dedent('''\n
-            Firmware set to efi or uefi but not grub*efi* package is
-            part of the image build.
-        ''')
-        firmware = self.xml_state.build_type.get_firmware()
-        if firmware in ('efi', 'uefi'):
-            grub_efi_packages = (
-                'grub2-x86_64-efi',  # SUSE
-                'grub-efi',  # Debian based distros have grub-efi-*
-                'grub2-efi'  # RedHat
-            )
-            package_names = \
-                self.xml_state.get_bootstrap_packages() + \
-                self.xml_state.get_system_packages()
-            for grub_package in grub_efi_packages:
-                for package_name in package_names:
-                    if package_name.startswith(grub_package):
-                        return True
-            raise KiwiRuntimeError(message)
-
     def check_xen_uniquely_setup_as_server_or_guest(self):
         """
         If the image is classified to be used as Xen image, it can
@@ -589,18 +709,12 @@ class RuntimeChecker(object):
             else:
                 raise KiwiRuntimeError(xen_message)
 
-    def check_mediacheck_only_for_x86_arch(self):
+    def check_mediacheck_installed(self):
         """
-        If the current architecture is not from the x86 family the
-        'mediacheck' feature available for iso images is not supported.
-        Checkmedia tool and its related boot code are only available
-        for x86 platforms.
+        If the image description enables the mediacheck attribute
+        the required tools to run this check must be installed
+        on the image build host
         """
-        message_arch_unsupported = dedent('''\n
-            The attribute 'mediacheck' is only supported for
-            x86 platforms, thus it can't be set to 'true'
-            for the current ({0}) architecture.
-        ''')
         message_tool_not_found = dedent('''\n
             Required tool {name} not found in caller environment
 
@@ -608,13 +722,8 @@ class RuntimeChecker(object):
             the above tool to be installed on the build system
         ''')
         if self.xml_state.build_type.get_mediacheck() is True:
-            arch = platform.machine()
             tool = 'tagmedia'
-            if arch not in ['x86_64', 'i586', 'i686']:
-                raise KiwiRuntimeError(
-                    message_arch_unsupported.format(arch)
-                )
-            elif not Path.which(filename=tool, access_mode=os.X_OK):
+            if not Path.which(filename=tool, access_mode=os.X_OK):
                 raise KiwiRuntimeError(
                     message_tool_not_found.format(name=tool)
                 )

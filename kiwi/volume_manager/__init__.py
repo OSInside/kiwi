@@ -24,26 +24,27 @@ from kiwi.exceptions import (
 )
 
 
-class VolumeManager(object):
+class VolumeManager:
     """
     **VolumeManager factory**
 
     :param str name: volume management name
-    :param object device_provider: instance of a class based on DeviceProvider
+    :param dict device_map:
+        dictionary of low level DeviceProvider intances
     :param str root_dir: root directory path name
     :param list volumes: list of volumes from :class:`XMLState::get_volumes()`
     :param dict custom_args: dictionary of custom volume manager arguments
     """
     def __new__(
-        self, name, device_provider, root_dir, volumes, custom_args=None
+        self, name, device_map, root_dir, volumes, custom_args=None
     ):
         if name == 'lvm':
             return VolumeManagerLVM(
-                device_provider, root_dir, volumes, custom_args
+                device_map, root_dir, volumes, custom_args
             )
         elif name == 'btrfs':
             return VolumeManagerBtrfs(
-                device_provider, root_dir, volumes, custom_args
+                device_map, root_dir, volumes, custom_args
             )
         else:
             raise KiwiVolumeManagerSetupError(

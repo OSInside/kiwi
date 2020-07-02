@@ -16,8 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from base64 import b64encode
-from six.moves.urllib.request import urlopen
-from six.moves.urllib.request import Request
+from urllib.request import urlopen
+from urllib.request import Request
 from tempfile import NamedTemporaryFile
 from tempfile import mkdtemp
 from lxml import etree
@@ -32,11 +32,13 @@ from kiwi.command import Command
 from kiwi.defaults import Defaults
 
 
-class SolverRepositoryBase(object):
+class SolverRepositoryBase:
     """
     **Base class interface for SAT solvable creation.**
 
-    * :param object uri: Instance of :class:`Uri`
+    :param object uri: Instance of :class:`Uri`
+    :param string user: User name for uri authentication
+    :param string secret: Secret token for uri authentication
     """
     def __init__(self, uri, user=None, secret=None):
         self.uri = uri

@@ -16,27 +16,27 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi -h | --help
-       kiwi [--profile=<name>...]
-            [--type=<build_type>]
-            [--logfile=<filename>]
-            [--debug]
-            [--color-output]
+usage: kiwi-ng -h | --help
+       kiwi-ng [--profile=<name>...]
+               [--type=<build_type>]
+               [--logfile=<filename>]
+               [--debug]
+               [--color-output]
            image <command> [<args>...]
-       kiwi [--debug]
-            [--color-output]
+       kiwi-ng [--debug]
+               [--color-output]
            result <command> [<args>...]
-       kiwi [--profile=<name>...]
-            [--shared-cache-dir=<directory>]
-            [--type=<build_type>]
-            [--logfile=<filename>]
-            [--debug]
-            [--color-output]
+       kiwi-ng [--profile=<name>...]
+               [--shared-cache-dir=<directory>]
+               [--type=<build_type>]
+               [--logfile=<filename>]
+               [--debug]
+               [--color-output]
            system <command> [<args>...]
-       kiwi compat <legacy_args>...
-       kiwi --compat <legacy_args>...
-       kiwi -v | --version
-       kiwi help
+       kiwi-ng compat <legacy_args>...
+       kiwi-ng --compat <legacy_args>...
+       kiwi-ng -v | --version
+       kiwi-ng help
 
 global options:
     --color-output
@@ -65,29 +65,24 @@ global options for services: image, system
         image build type. If not set the default XML specified
         build type will be used
 """
-from __future__ import print_function
 import sys
-import glob
-import re
 import os
-import importlib
+import pkg_resources
 from docopt import docopt
 
 # project
-from .exceptions import (
+from kiwi.exceptions import (
     KiwiUnknownServiceName,
-    KiwiCommandNotFound,
     KiwiCommandNotLoaded,
     KiwiLoadCommandUndefined,
     KiwiCompatError
 )
-from .path import Path
-from .defaults import Defaults
-from .version import __version__
-from .help import Help
+from kiwi.path import Path
+from kiwi.version import __version__
+from kiwi.help import Help
 
 
-class Cli(object):
+class Cli:
     """
     **Implements the main command line interface**
 
@@ -151,7 +146,7 @@ class Cli(object):
 
         :param list compat_args: legacy kiwi command arguments
         """
-        kiwicompat = self._lookup_kiwicompat()
+        kiwicompat = Path.which('kiwicompat', access_mode=os.X_OK)
         try:
             os.execvp(kiwicompat, ['kiwicompat'] + compat_args)
         except Exception as e:
@@ -210,51 +205,46 @@ class Cli(object):
         """
         Loads task class plugin according to service and command name
 
-        :return: importlib loaded module
+        :return: loaded task module
 
         :rtype: object
         """
-        command = self.get_command()
+        discovered_tasks = {
+            entry_point.name: entry_point.load()
+            for entry_point in pkg_resources.iter_entry_points('kiwi.tasks')
+        }
         service = self.get_servicename()
+        command = self.get_command()
+
         if service == 'compat':
             compat_arguments = self.all_args['<legacy_args>']
             if '--' in compat_arguments:
                 compat_arguments.remove('--')
             return self.invoke_kiwicompat(compat_arguments)
+
         if not command:
             raise KiwiLoadCommandUndefined(
-                'No command specified for %s service' % service
+                'No command specified for {0} service'.format(service)
             )
-        command_source_file = Defaults.project_file(
-            'tasks/' + service + '_' + command + '.py'
-        )
-        if not os.path.exists(command_source_file):
-            prefix = 'usage:'
-            for service_command in self._get_command_implementations(service):
-                print('%s kiwi %s' % (prefix, service_command))
-                prefix = '      '
-            raise SystemExit(1)
-        self.command_loaded = importlib.import_module(
-            'kiwi.tasks.' + service + '_' + command
-        )
-        return self.command_loaded
 
-    def _get_command_implementations(self, service):
-        command_implementations = []
-        glob_match = Defaults.project_file('/') + 'tasks/*.py'
-        for source_file in glob.iglob(glob_match):
-            with open(source_file, 'r') as source:
-                for line in source:
-                    if re.search('usage: (.*)', line):
-                        command_path = os.path.basename(
-                            source_file
-                        ).replace('.py', '').split('_')
-                        if command_path[0] == service:
-                            command_implementations.append(
-                                ' '.join(command_path)
-                            )
-                        break
-        return command_implementations
+        self.command_loaded = discovered_tasks.get(
+            service + '_' + command
+        )
+        if not self.command_loaded:
+            prefix = 'usage:'
+            discovered_tasks_for_service = ''
+            for task in discovered_tasks:
+                if task.startswith(service):
+                    discovered_tasks_for_service += '{0} kiwi-ng {1}\n'.format(
+                        prefix, task.replace('_', ' ')
+                    )
+                    prefix = '      '
+            raise KiwiCommandNotLoaded(
+                'Command "{0}" not found\n\n{1}'.format(
+                    command, discovered_tasks_for_service
+                )
+            )
+        return self.command_loaded
 
     def _load_command_args(self):
         try:
@@ -266,10 +256,3 @@ class Cli(object):
             raise KiwiCommandNotLoaded(
                 '%s command not loaded' % self.get_command()
             )
-
-    def _lookup_kiwicompat(self):
-        for kiwicompat_name in ['kiwicompat-3', 'kiwicompat-2']:
-            kiwicompat = Path.which(kiwicompat_name, access_mode=os.X_OK)
-            if kiwicompat:
-                return kiwicompat
-        raise KiwiCommandNotFound('kiwicompat not found')

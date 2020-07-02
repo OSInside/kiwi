@@ -9,6 +9,7 @@ graft dracut
 graft helper
 graft kiwi/boot
 graft kiwi/utils
+graft kiwi/markup
 graft kiwi/archive
 graft kiwi/bootloader
 graft kiwi/builder
@@ -34,6 +35,7 @@ include Makefile
 include README.rst
 include LICENSE
 include tox.ini
+include kiwi.yml
 
 recursive-include doc/build/man *
 recursive-include test *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz

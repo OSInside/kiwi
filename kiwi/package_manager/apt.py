@@ -17,11 +17,10 @@
 #
 import re
 import os
+import logging
 
 # project
 from kiwi.command import Command
-from kiwi.mount_manager import MountManager
-from kiwi.logger import log
 from kiwi.utils.sync import DataSync
 from kiwi.path import Path
 from kiwi.package_manager.base import PackageManagerBase
@@ -29,6 +28,8 @@ from kiwi.exceptions import (
     KiwiDebootstrapError,
     KiwiRequestError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class PackageManagerApt(PackageManagerBase):
@@ -133,20 +134,20 @@ class PackageManagerApt(PackageManagerBase):
             # debootstrap takes care to install apt-get
             self.package_requests.remove('apt-get')
         try:
-            dev_mount = MountManager(
-                device='/dev', mountpoint=self.root_dir + '/dev'
-            )
-            dev_mount.umount()
-            if self.repository.unauthenticated == 'false':
-                log.warning(
-                    'KIWI does not support signature checks for apt-get '
-                    'package manager during the bootstrap procedure, any '
-                    'provided key will only be used inside the chroot '
-                    'environment'
-                )
-            cmd = ['debootstrap', '--no-check-gpg']
+            cmd = ['debootstrap']
+            if self.repository.unauthenticated == 'false' and \
+               os.path.exists(self.repository.keyring):
+                cmd.append('--keyring={}'.format(self.repository.keyring))
+            else:
+                cmd.append('--no-check-gpg')
             if self.deboostrap_minbase:
                 cmd.append('--variant=minbase')
+            if self.repository.components:
+                cmd.append(
+                    '--components={0}'.format(
+                        ','.join(self.repository.components)
+                    )
+                )
             cmd.extend([
                 self.distribution, bootstrap_dir, self.distribution_path
             ])
@@ -155,12 +156,9 @@ class PackageManagerApt(PackageManagerBase):
                 bootstrap_dir + '/', self.root_dir
             )
             data.sync_data(
-                options=['-a', '-H', '-X', '-A']
+                options=['-a', '-H', '-X', '-A'],
+                exclude=['proc', 'sys', 'dev']
             )
-            for key in self.repository.signing_keys:
-                Command.run([
-                    'chroot', self.root_dir, 'apt-key', 'add', key
-                ], self.command_env)
         except Exception as e:
             raise KiwiDebootstrapError(
                 '%s: %s' % (type(e).__name__, format(e))
@@ -179,13 +177,17 @@ class PackageManagerApt(PackageManagerBase):
         :rtype: namedtuple
         """
         update_command = ['chroot', self.root_dir, 'apt-get']
-        update_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        update_command.extend(
+            Path.move_to_root(self.root_dir, self.apt_get_args)
+        )
         update_command.extend(self.custom_args)
         update_command.append('update')
         Command.run(update_command, self.command_env)
 
         apt_get_command = ['chroot', self.root_dir, 'apt-get']
-        apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        apt_get_command.extend(
+            Path.move_to_root(self.root_dir, self.apt_get_args)
+        )
         apt_get_command.extend(self.custom_args)
         apt_get_command.append('install')
         apt_get_command.extend(self._package_requests())
@@ -228,7 +230,7 @@ class PackageManagerApt(PackageManagerBase):
         else:
             apt_get_command = ['chroot', self.root_dir, 'apt-get']
             apt_get_command.extend(
-                self.root_bind.move_to_root(self.apt_get_args)
+                Path.move_to_root(self.root_dir, self.apt_get_args)
             )
             apt_get_command.extend(self.custom_args)
             apt_get_command.extend(['--auto-remove', 'remove'])
@@ -247,7 +249,9 @@ class PackageManagerApt(PackageManagerBase):
         :rtype: namedtuple
         """
         apt_get_command = ['chroot', self.root_dir, 'apt-get']
-        apt_get_command.extend(self.root_bind.move_to_root(self.apt_get_args))
+        apt_get_command.extend(
+            Path.move_to_root(self.root_dir, self.apt_get_args)
+        )
         apt_get_command.extend(self.custom_args)
         apt_get_command.append('upgrade')
 

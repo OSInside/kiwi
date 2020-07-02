@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.9" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="7.2" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -12,7 +12,7 @@
         <locale>de_DE</locale>
     </preferences>
     <preferences>
-        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async">
+        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
             <machine memory="512" xen_loader="pvgrub">
@@ -38,7 +38,7 @@
     <users>
         <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
     </users>
-    <repository type="yast2" priority="42">
+    <repository priority="42">
         <source path="iso:///image/CDs/dvd.iso"/>
     </repository>
     <repository type="rpm-md">

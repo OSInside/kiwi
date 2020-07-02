@@ -16,22 +16,23 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from .ext2 import FileSystemExt2
-from .ext3 import FileSystemExt3
-from .ext4 import FileSystemExt4
-from .btrfs import FileSystemBtrfs
-from .xfs import FileSystemXfs
-from .fat16 import FileSystemFat16
-from .fat32 import FileSystemFat32
-from .squashfs import FileSystemSquashFs
-from .clicfs import FileSystemClicFs
+from kiwi.filesystem.ext2 import FileSystemExt2
+from kiwi.filesystem.ext3 import FileSystemExt3
+from kiwi.filesystem.ext4 import FileSystemExt4
+from kiwi.filesystem.btrfs import FileSystemBtrfs
+from kiwi.filesystem.xfs import FileSystemXfs
+from kiwi.filesystem.fat16 import FileSystemFat16
+from kiwi.filesystem.fat32 import FileSystemFat32
+from kiwi.filesystem.squashfs import FileSystemSquashFs
+from kiwi.filesystem.clicfs import FileSystemClicFs
+from kiwi.filesystem.swap import FileSystemSwap
 
-from ..exceptions import (
+from kiwi.exceptions import (
     KiwiFileSystemSetupError
 )
 
 
-class FileSystem(object):
+class FileSystem:
     """
     **FileSystem factory**
 
@@ -75,6 +76,10 @@ class FileSystem(object):
             )
         elif name == 'clicfs':
             return FileSystemClicFs(
+                device_provider, root_dir, custom_args
+            )
+        elif name == 'swap':
+            return FileSystemSwap(
                 device_provider, root_dir, custom_args
             )
         else:

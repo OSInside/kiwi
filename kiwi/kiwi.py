@@ -17,12 +17,14 @@
 #
 import sys
 import docopt
+import logging
 
 # project
-from . import logger
-from .app import App
-from .exceptions import KiwiError
-from .defaults import Defaults
+from kiwi.app import App
+from kiwi.exceptions import KiwiError
+from kiwi.defaults import Defaults
+
+log = logging.getLogger('kiwi')
 
 
 def extras(help_, version, options, doc):
@@ -34,11 +36,13 @@ def extras(help_, version, options, doc):
     :param bool help_: indicate to show help
     :param string version: version string
     :param list options:
-        list of option tuples
 
-        .. code:: python
+    list of option tuples
 
-            [option(name='name', value='value')]
+    .. code:: python
+
+        [option(name='name', value='value')]
+
     :param string doc: docopt doc string
     """
     if help_ and any((o.name in ('-h', '--help')) and o.value for o in options):
@@ -64,10 +68,10 @@ def main():
         App()
     except KiwiError as e:
         # known exception, log information and exit
-        logger.log.error('%s: %s', type(e).__name__, format(e))
+        log.error('%s: %s', type(e).__name__, format(e))
         sys.exit(1)
     except KeyboardInterrupt:
-        logger.log.error('kiwi aborted by keyboard interrupt')
+        log.error('kiwi aborted by keyboard interrupt')
         sys.exit(1)
     except docopt.DocoptExit as e:
         # exception thrown by docopt, results in usage message
@@ -78,7 +82,7 @@ def main():
         sys.exit(e)
     except Exception:
         # exception we did no expect, show python backtrace
-        logger.log.error('Unexpected error:')
+        log.error('Unexpected error:')
         raise
 
 
@@ -89,7 +93,7 @@ def usage(command_usage):
     data now always consists out of:
 
     1. the generic call
-       kiwi [global options] service <command> [<args>]
+       kiwi-ng [global options] service <command> [<args>]
 
     2. the command specific usage defined by the docopt string
        short form by default, long form with -h | --help
@@ -111,7 +115,7 @@ def usage(command_usage):
         if process_lines:
             global_options += format(line)
 
-    print('usage: kiwi [global options] service <command> [<args>]\n')
+    print('usage: kiwi-ng [global options] service <command> [<args>]\n')
     print(format(command_usage).replace('usage:', '      '))
     if 'global options' not in format(command_usage):
         print(format(global_options))

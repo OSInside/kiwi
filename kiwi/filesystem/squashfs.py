@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-import platform
-
+#
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
+from kiwi.defaults import Defaults
 
 
 class FileSystemSquashFs(FileSystemBase):
@@ -37,22 +37,31 @@ class FileSystemSquashFs(FileSystemBase):
         :param list exclude: list of exclude dirs/files
         """
         exclude_options = []
+        compression = self.custom_args.get('compression')
+        if compression is None or compression == 'xz':
+            if '-comp' not in self.custom_args['create_options']:
+                self.custom_args['create_options'].append('-comp')
+                self.custom_args['create_options'].append('xz')
 
-        if '-comp' not in self.custom_args['create_options']:
-            self.custom_args['create_options'].append('-comp')
-            self.custom_args['create_options'].append('xz')
-
-        if '-Xbcj' not in self.custom_args['create_options']:
-            host_architecture = platform.machine()
-            if '86' in host_architecture:
-                self.custom_args['create_options'].append('-Xbcj')
-                self.custom_args['create_options'].append('x86')
-            if 'ppc' in host_architecture:
-                self.custom_args['create_options'].append('-Xbcj')
-                self.custom_args['create_options'].append('powerpc')
+            if '-Xbcj' not in self.custom_args['create_options']:
+                host_architecture = Defaults.get_platform_name()
+                if Defaults.is_x86_arch(host_architecture):
+                    self.custom_args['create_options'].append('-Xbcj')
+                    self.custom_args['create_options'].append('x86')
+                if 'ppc' in host_architecture:
+                    self.custom_args['create_options'].append('-Xbcj')
+                    self.custom_args['create_options'].append('powerpc')
+        elif compression != 'uncompressed':
+            if '-comp' not in self.custom_args['create_options']:
+                self.custom_args['create_options'].append('-comp')
+                self.custom_args['create_options'].append(compression)
+        else:
+            for flag in ['-noI', '-noD', '-noF', '-noX']:
+                if flag not in self.custom_args['create_options']:
+                    self.custom_args['create_options'].append(flag)
 
         if exclude:
-            exclude_options.append('-e')
+            exclude_options.extend(['-wildcards', '-e'])
             for item in exclude:
                 exclude_options.append(item)
 

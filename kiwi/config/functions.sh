@@ -10,10 +10,21 @@
 #               :
 # DESCRIPTION   : This module contains common used functions
 #               : for the config.sh and image.sh scripts
-#               : 
+#               :
 #               :
 # STATUS        : Development
 #----------------
+
+#======================================
+#             IMPORTANT
+#======================================
+# If you change *anything* in this file
+# PLEASE also adapt the documentation
+# in doc/source/working_with_kiwi/shell_scripts.rst
+#======================================
+#             IMPORTANT
+#======================================
+
 #======================================
 # work in POSIX environment
 #--------------------------------------
@@ -170,13 +181,7 @@ function suseInsertService {
 #--------------------------------------
 function suseService {
     # function kept for compatibility
-    service_name=$1
-    service_state=$2
-    if [ "${service_state}" = off ];then
-        baseRemoveService "${service_name}"
-    else
-        baseInsertService "${service_name}"
-    fi
+    baseService "$@"
 }
 
 #======================================
@@ -258,7 +263,7 @@ function baseSetupUserPermissions {
         fi
         if [[ ! "${shell}" =~ nologin|true|false ]];then
             group=$(grep "${group}" /etc/group | cut -f1 -d:)
-            chown -c -R "${usern}:${group} ${dir}/*"
+            chown -c -R "${usern}":"${group}" "${dir}"
         fi
     done < /etc/passwd
 }
@@ -315,11 +320,11 @@ function baseMount {
 }
 
 #======================================
-# baseStripMans 
+# baseStripMans
 #--------------------------------------
 function baseStripMans {
     # /..,/
-    # remove all manual pages, except 
+    # remove all manual pages, except
     # one given as parametr
     #
     # params - name of keep man pages
@@ -337,11 +342,11 @@ function baseStripMans {
 }
 
 #======================================
-# baseStripDocs 
+# baseStripDocs
 #--------------------------------------
 function baseStripDocs {
     # /.../
-    # remove all documentation, except 
+    # remove all documentation, except
     # copying license copyright
     # ----
     local docfiles
@@ -379,11 +384,11 @@ function baseStripTranslations {
 }
 
 #======================================
-# baseStripInfos 
+# baseStripInfos
 #--------------------------------------
 function baseStripInfos {
     # /.../
-    # remove all info files, 
+    # remove all info files,
     # except one given as parametr
     #
     # params - name of keep info files
@@ -398,10 +403,9 @@ function baseStripInfos {
 #--------------------------------------
 function baseStripAndKeep {
     # /.../
-    # helper function for strip* functions
-    # read stdin lines of files to check 
-    # for removing
-    # - params - files which should be keep
+    # helper function for the baseStrip* functions
+    # reads the list of files to check from stdin for removing
+    # - params - files which should be kept
     # ----
     local keepFiles="$*"
     local found
@@ -423,7 +427,9 @@ function baseStripAndKeep {
     done
 }
 #======================================
-# baseStripTools
+# baseStripTools {list of toolpath} {list of tools}
+# Helper function for suseStripInitrd
+# function parameters: toolpath, tools.
 #--------------------------------------
 function baseStripTools {
     local tpath=$1
@@ -447,7 +453,7 @@ function baseStripTools {
     done
 }
 #======================================
-# Rm  
+# Rm
 #--------------------------------------
 function Rm {
     # /.../
@@ -458,7 +464,7 @@ function Rm {
 }
 
 #======================================
-# Rpm  
+# Rpm
 #--------------------------------------
 function Rpm {
     # /.../
@@ -602,7 +608,7 @@ function baseStripUnusedLibs {
 #--------------------------------------
 function baseUpdateSysConfig {
     # /.../
-    # Update sysconfig variable contents
+    # Update the contents of a sysconfig variable
     # ----
     local FILE=$1
     local VAR
@@ -729,7 +735,7 @@ function baseStripFirmware {
     local kernel_module
     local firmware
     mkdir -p /lib/firmware-required
-    find "${base}" -name "*.ko" -print0 | \
+    find "${base}" \( -name "*.ko" -o -name "*.ko.xz" \) -print0 | \
     while IFS= read -r -d $'\0' kernel_module; do
         firmware=$(modinfo "${kernel_module}" | grep ^firmware)
         if [ -z "${firmware}" ];then
@@ -741,15 +747,27 @@ function baseStripFirmware {
         fi
         # could be more than one, loop
         for fname in $name ; do
-            for match in /lib/firmware/"${fname}" /lib/firmware/*/"${fname}";do
+            for match in /lib/firmware/"${fname}"      \
+                         /lib/firmware/"${fname}".xz   \
+                         /lib/firmware/*/"${fname}"    \
+                         /lib/firmware/*/"${fname}".xz ;do
                 if [ -e "${match}" ];then
-                    match=$(echo "${match}" | sed -e 's@\/lib\/firmware\/@@')
+                    match="${match//\/lib\/firmware\//}"
                     bmdir=$(dirname "${match}")
                     mkdir -p "/lib/firmware-required/${bmdir}"
                     mv "/lib/firmware/${match}" "/lib/firmware-required/${bmdir}"
                 fi
             done
         done
+    done
+    # Preserve licenses and txt files (which are needed for some firmware blobs)
+    find /lib/firmware \( -name 'LICENSE*' -o -name '*txt' \) -print | while read -r match; do
+        if [ -e "${match}" ];then
+            match="${match//\/lib\/firmware\//}"
+            bmdir=$(dirname "${match}")
+            mkdir -p "/lib/firmware-required/${bmdir}"
+            mv "/lib/firmware/${match}" "/lib/firmware-required/${bmdir}"
+        fi
     done
     rm -rf /lib/firmware
     mv /lib/firmware-required /lib/firmware
@@ -760,7 +778,7 @@ function baseStripFirmware {
 #--------------------------------------
 function baseStripModules {
     # /.../
-    # search for update modules and remove the old version
+    # search for updated modules and remove the old version
     # which might be provided by the standard kernel
     # ----
     local kernel=/lib/modules
@@ -769,7 +787,7 @@ function baseStripModules {
     local count=1
     local mosum=1
     local modup
-    files=$(find ${kernel} -type f -name "*.ko")
+    files=$(find ${kernel} -type f \( -name "*.ko" -o -name "*.ko.xz" \) )
     mlist=$(for i in ${files};do echo "$i";done | sed -e "s@.*/@@g" | sort)
     #======================================
     # create sorted module array
@@ -817,6 +835,8 @@ function baseStripModules {
 # baseCreateKernelTree
 #--------------------------------------
 function baseCreateKernelTree {
+    # Create a copy of the kernel source tree under /kernel-tree/ for stripping
+    # operations
     echo "Creating copy of kernel tree for strip operations"
     mkdir -p /kernel-tree
     cp -a /lib/modules/* /kernel-tree/
@@ -826,6 +846,8 @@ function baseCreateKernelTree {
 # baseSyncKernelTree
 #--------------------------------------
 function baseSyncKernelTree {
+    # Overwrite the original kernel tree with a minimized version from
+    # /kernel-tree/.
     echo "Replace kernel tree with downsized version"
     rm -rf /lib/modules/*
     cp -a /kernel-tree/* /lib/modules/
@@ -857,7 +879,7 @@ function baseStripKernelModules {
         fi
         echo "Downsizing kernel modules for ${kernel_dir}"
         for module in $(
-            find "/kernel-tree/${kernel_version}/kernel" -name "*.ko" | sort
+            find "/kernel-tree/${kernel_version}/kernel" -name "*.ko" -o -name "*.ko.xz" | sort
         ); do
             if ! baseKernelDriverMatches "${module}"; then
                 echo "Deleting unwanted module: ${module}"
@@ -881,10 +903,11 @@ function baseFixupKernelModuleDependencies {
     for kernel_dir in /kernel-tree/*;do
         echo "Checking kernel dependencies for ${kernel_dir}"
         kernel_version=$(/usr/bin/basename "${kernel_dir}")
-        module_files=$(find "/kernel-tree/${kernel_version}" -name "*.ko")
+        module_files=$(find "/kernel-tree/${kernel_version}" -name "*.ko" -o -name "*.ko.xz")
 
         for module in ${module_files};do
-            module_name=$(/usr/bin/basename "${module}")
+            module_u=${module%.xz}
+            module_name=$(/usr/bin/basename "${module_u}")
             module_info=$(/sbin/modprobe \
                 --set-version "${kernel_version}" --ignore-install \
                 --show-depends "${module_name%.ko}" |\
@@ -923,126 +946,33 @@ function baseUpdateModuleDependencies {
 }
 
 #======================================
-# baseCreateCommonKernelFile
-#--------------------------------------
-function baseCreateCommonKernelFile {
-    # /.../
-    # Search for the kernel file name and move them into
-    # a common file name used by kiwi
-    # ----
-    local kernel_dir
-    local kernel_names
-    local kernel_name
-    local kernel_version
-    local have_kernel_package=0
-    for kernel_dir in /lib/modules/*;do
-        if [ ! -d "${kernel_dir}" ];then
-            continue
-        fi
-        if [ -x /bin/rpm ];then
-            # if we have a package database take the kernel name from
-            # the package name. This could result in multiple kernel
-            # names
-            if kernel_names=$(rpm -qf "${kernel_dir}"); then
-                have_kernel_package=1
-            fi
-        else
-            # without a package database take the installed kernel
-            # directory name as the kernel name
-            kernel_names="${kernel_dir}"
-        fi
-        for kernel_name in ${kernel_names};do
-            #==========================================
-            # get kernel VERSION information
-            #------------------------------------------
-            if [ "${have_kernel_package}" -eq 0 ];then
-                # not in a package...
-                continue
-            fi
-            if echo "${kernel_name}" | grep -q "\-kmp\-";then
-                # a kernel module package...
-                continue
-            fi
-            if echo "${kernel_name}" | grep -q "\-source\-";then
-                # a kernel source package...
-                continue
-            fi
-            kernel_version=$(/usr/bin/basename "${kernel_dir}")
-            #==========================================
-            # create common kernel files, last wins !
-            #------------------------------------------
-            pushd /boot || return
-            if [ -f "uImage-${kernel_version}" ];then
-                # dedicated to kernels on arm
-                mv "uImage-${kernel_version}" vmlinuz
-            elif [ -f "Image-${kernel_version}" ];then
-                # dedicated to kernels on arm
-                mv "Image-${kernel_version}" vmlinuz
-            elif [ -f "zImage-${kernel_version}" ];then
-                # dedicated to kernels on arm
-                mv "zImage-${kernel_version}" vmlinuz
-            elif [ -f "vmlinuz-${kernel_version}.gz" ];then
-                # dedicated to kernels on x86
-                mv "vmlinuz-${kernel_version}" vmlinuz
-            elif [ -f "vmlinuz-${kernel_version}.el5" ];then
-                # dedicated to kernels on ppc
-                mv "vmlinux-${kernel_version}.el5" vmlinuz
-            elif [ -f "vmlinux-${kernel_version}" ];then
-                # dedicated to kernels on ppc
-                mv "vmlinux-${kernel_version}" vmlinux
-            elif [ -f "image-${kernel_version}" ];then
-                # dedicated to kernels on s390
-                mv "image-${kernel_version}" vmlinuz
-            elif [ -f "vmlinuz-${kernel_version}" ];then
-                # dedicated to xz kernels
-                mv "vmlinuz-${kernel_version}" vmlinuz
-            elif [ -f vmlinuz ];then
-                # nothing to map, vmlinuz already there
-                :
-            else
-                echo "Failed to find a mapping kernel"
-            fi
-            if [ -f "vmlinux-${kernel_version}.gz" ];then
-                mv "vmlinux-${kernel_version}.gz" vmlinux.gz
-            fi
-            popd || return
-        done
-    done
-}
-
-#======================================
 # baseStripKernel
 #--------------------------------------
 function baseStripKernel {
     # /.../
     # this function will strip the kernel
     #
-    # 1. create the vmlinux.gz and vmlinuz commonly named files
-    #    which are used as fallback for the kernel extraction in
-    #    case of kiwi boot images
-    #
-    # 2. handle <strip type="delete"> requests. Because this
+    # 1. handle <strip type="delete"> requests. Because this
     #    information is generic not only files of the kernel
     #    are affected but also other data which is unwanted
     #    gets deleted here
     #
-    # 3. only keep kernel modules matching the <drivers>
+    # 2. only keep kernel modules matching the <drivers>
     #    patterns from the kiwi boot image description
     #
-    # 4. lookup kernel module dependencies and bring back
+    # 3. lookup kernel module dependencies and bring back
     #    modules which were removed but still required by
     #    other modules kept in the system to stay consistent
     #
-    # 5. lookup for duplicate kernel modules due to kernel
+    # 4. lookup for duplicate kernel modules due to kernel
     #    module updates and keep only the latest version
     #
-    # 6. lookup for kernel firmware files and keep only those
+    # 5. lookup for kernel firmware files and keep only those
     #    for which a kernel driver is still present in the
     #    system
     # ----
     declare kiwi_initrd_system=${kiwi_initrd_system}
     declare kiwi_strip_delete=${kiwi_strip_delete}
-    baseCreateCommonKernelFile
     if [ "${kiwi_initrd_system}" = "dracut" ]; then
         echo "dracut initrd system requested, kernel strip skipped"
     else
@@ -1086,9 +1016,9 @@ function debianStripKernel {
 #--------------------------------------
 function suseSetupProduct {
     # /.../
-    # This function will create the /etc/products.d/baseproduct
+    # This function creates the /etc/products.d/baseproduct
     # link pointing to the product referenced by either
-    # the /etc/SuSE-brand or /etc/os-release file or the latest .prod file
+    # /etc/SuSE-brand or /etc/os-release or the latest .prod file
     # available in /etc/products.d
     # ----
     local prod=undef
@@ -1182,24 +1112,6 @@ function suseCleanup {
     # the final target system
     # ----
     baseCleanup
-    # zypper id
-    rm -f /var/lib/zypp/AnonymousUniqueId
-}
-
-#======================================
-# suseRemovePackagesMarkedForDeletion
-#--------------------------------------
-function suseRemovePackagesMarkedForDeletion {
-    # /.../
-    # This function removes all packages which are
-    # added into the <packages type="delete"> section
-    # ----
-    local packs
-    local final
-    packs=$(baseGetPackagesForDeletion)
-    final=$(rpm -q "${packs}" | grep -v "is not installed")
-    echo "suseRemovePackagesMarkedForDeletion: ${final}"
-    Rpm -e --nodeps --noscripts "${final}"
 }
 
 #======================================

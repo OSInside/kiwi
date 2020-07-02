@@ -15,17 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
 from kiwi.package_manager.zypper import PackageManagerZypper
 from kiwi.package_manager.apt import PackageManagerApt
 from kiwi.package_manager.dnf import PackageManagerDnf
+from kiwi.package_manager.pacman import PackageManagerPacman
 
 from kiwi.exceptions import (
     KiwiPackageManagerSetupError
 )
 
+log = logging.getLogger('kiwi')
 
-class PackageManager(object):
+
+class PackageManager:
     """
     **Package manager factory**
 
@@ -40,14 +45,14 @@ class PackageManager(object):
     :rtype: PackageManagerBase subclass
     """
     def __new__(self, repository, package_manager, custom_args=None):
-        from ..logger import log
-
         if package_manager == 'zypper':
             manager = PackageManagerZypper(repository, custom_args)
         elif package_manager == 'dnf' or package_manager == 'yum':
             manager = PackageManagerDnf(repository, custom_args)
         elif package_manager == 'apt-get':
             manager = PackageManagerApt(repository, custom_args)
+        elif package_manager == 'pacman':
+            manager = PackageManagerPacman(repository, custom_args)
         else:
             raise KiwiPackageManagerSetupError(
                 'Support for package manager %s not implemented' %

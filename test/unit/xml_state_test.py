@@ -1,18 +1,27 @@
-from mock import patch
-
-from .test_helper import raises
+import logging
+from collections import namedtuple
+from mock import (
+    patch, Mock
+)
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
+
 from kiwi.exceptions import (
     KiwiTypeNotFound,
     KiwiDistributionNameError,
     KiwiProfileNotFound
 )
-from collections import namedtuple
 
 
-class TestXMLState(object):
+class TestXMLState:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('platform.machine')
     def setup(self, mock_machine):
         mock_machine.return_value = 'x86_64'
@@ -34,6 +43,13 @@ class TestXMLState(object):
         self.no_image_packages_boot_state = XMLState(
             no_image_packages_description.load()
         )
+        self.bootloader = Mock()
+        self.bootloader.get_name.return_value = 'some-loader'
+        self.bootloader.get_timeout.return_value = 'some-timeout'
+        self.bootloader.get_timeout_style.return_value = 'some-style'
+        self.bootloader.get_targettype.return_value = 'some-target'
+        self.bootloader.get_console.return_value = 'some-console'
+        self.bootloader.get_serial_line.return_value = 'some-serial'
 
     def test_get_description_section(self):
         description = self.state.get_description_section()
@@ -76,6 +92,9 @@ class TestXMLState(object):
     def test_get_bootstrap_packages(self):
         assert self.state.get_bootstrap_packages() == [
             'filesystem', 'zypper'
+        ]
+        assert self.state.get_bootstrap_packages(plus_packages=['vim']) == [
+            'filesystem', 'vim', 'zypper'
         ]
         assert self.no_image_packages_boot_state.get_bootstrap_packages() == [
             'patterns-openSUSE-base'
@@ -250,21 +269,21 @@ class TestXMLState(object):
         state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
         assert state.get_build_type_name() == 'vmx'
 
-    @raises(KiwiTypeNotFound)
     def test_build_type_not_found(self):
         xml_data = self.description.load()
-        XMLState(xml_data, ['vmxFlavour'], 'foo')
+        with raises(KiwiTypeNotFound):
+            XMLState(xml_data, ['vmxFlavour'], 'foo')
 
-    @raises(KiwiTypeNotFound)
     def test_build_type_not_found_no_default_type(self):
         description = XMLDescription('../data/example_no_default_type.xml')
         xml_data = description.load()
-        XMLState(xml_data, ['minimal'])
+        with raises(KiwiTypeNotFound):
+            XMLState(xml_data, ['minimal'])
 
-    @raises(KiwiProfileNotFound)
     def test_profile_not_found(self):
         xml_data = self.description.load()
-        XMLState(xml_data, ['foo'])
+        with raises(KiwiProfileNotFound):
+            XMLState(xml_data, ['foo'])
 
     def test_profile_requires(self):
         xml_data = self.description.load()
@@ -316,6 +335,13 @@ class TestXMLState(object):
                 mountpoint='/usr/bin', fullsize=True,
                 label=None,
                 attributes=[]
+            ),
+            volume_type(
+                name='LVSwap', size='size:128',
+                realpath='swap',
+                mountpoint=None, fullsize=False,
+                label='SWAP',
+                attributes=[]
             )
         ]
 
@@ -339,6 +365,13 @@ class TestXMLState(object):
                 name='LVRoot', size=None, realpath='/',
                 mountpoint=None, fullsize=True,
                 label=None,
+                attributes=[]
+            ),
+            volume_type(
+                name='LVSwap', size='size:128',
+                realpath='swap',
+                mountpoint=None, fullsize=False,
+                label='SWAP',
                 attributes=[]
             )
         ]
@@ -372,6 +405,13 @@ class TestXMLState(object):
                 mountpoint=None, fullsize=False,
                 label=None,
                 attributes=[]
+            ),
+            volume_type(
+                name='LVSwap', size='size:128',
+                realpath='swap',
+                mountpoint=None, fullsize=False,
+                label='SWAP',
+                attributes=[]
             )
         ]
 
@@ -394,13 +434,6 @@ class TestXMLState(object):
         state = XMLState(xml_data, None, 'vmx')
         assert state.get_build_type_machine_section().get_guestOS() == 'suse'
 
-    def test_get_build_type_pxedeploy_section(self):
-        description = XMLDescription('../data/example_pxe_config.xml')
-        xml_data = description.load()
-        state = XMLState(xml_data, None, 'pxe')
-        assert state.get_build_type_pxedeploy_section().get_server() == \
-            '192.168.100.2'
-
     def test_get_drivers_list(self):
         assert self.state.get_drivers_list() == \
             ['crypto/*', 'drivers/acpi/*', 'bar']
@@ -410,6 +443,21 @@ class TestXMLState(object):
         state = XMLState(xml_data, None, 'oem')
         assert state.get_build_type_oemconfig_section().get_oem_swap()[0] is \
             True
+
+    def test_get_oemconfig_swap_mbytes(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['xenFlavour'], 'docker')
+        assert state.get_oemconfig_swap_mbytes() is None
+        state = XMLState(xml_data, ['vmxFlavour'], 'oem')
+        assert state.get_oemconfig_swap_mbytes() == 42
+
+    def test_get_oemconfig_swap_mbytes_default(self):
+        description = XMLDescription(
+            '../data/example_btrfs_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.get_oemconfig_swap_mbytes() == 128
 
     def test_get_users_sections(self):
         assert self.state.get_users_sections()[0].get_user()[0].get_name() == \
@@ -454,6 +502,13 @@ class TestXMLState(object):
         self.state.copy_systemdisk_section(self.boot_state)
         systemdisk = self.boot_state.get_build_type_system_disk_section()
         assert systemdisk.get_name() == 'mydisk'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_copy_bootloader_section(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        self.state.copy_bootloader_section(self.boot_state)
+        assert self.boot_state.get_build_type_bootloader_section() == \
+            self.bootloader
 
     def test_copy_strip_sections(self):
         self.state.copy_strip_sections(self.boot_state)
@@ -566,19 +621,22 @@ class TestXMLState(object):
     def test_get_fs_mount_option_list(self):
         assert self.state.get_fs_mount_option_list() == ['async']
 
-    @raises(KiwiDistributionNameError)
+    def test_get_fs_create_option_list(self):
+        assert self.state.get_fs_create_option_list() == ['-O', '^has_journal']
+
     @patch('kiwi.xml_parse.type_.get_boot')
     def test_get_distribution_name_from_boot_attribute_no_boot(self, mock_boot):
         mock_boot.return_value = None
-        self.state.get_distribution_name_from_boot_attribute()
+        with raises(KiwiDistributionNameError):
+            self.state.get_distribution_name_from_boot_attribute()
 
-    @raises(KiwiDistributionNameError)
     @patch('kiwi.xml_parse.type_.get_boot')
     def test_get_distribution_name_from_boot_attribute_invalid_boot(
         self, mock_boot
     ):
         mock_boot.return_value = 'invalid'
-        self.state.get_distribution_name_from_boot_attribute()
+        with raises(KiwiDistributionNameError):
+            self.state.get_distribution_name_from_boot_attribute()
 
     def test_delete_repository_sections(self):
         self.state.delete_repository_sections()
@@ -643,19 +701,17 @@ class TestXMLState(object):
             'somelabel': 'newlabelvalue'
         }
 
-    @patch('kiwi.logger.log.warning')
-    def test_add_container_label_no_container_image_type(self, mock_log_warn):
+    def test_add_container_label_no_container_image_type(self):
         xml_data = self.description.load()
         state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
         state.add_container_config_label('somelabel', 'newlabelvalue')
-        config = state.get_container_config()
-        assert not config
-        assert mock_log_warn.called
+        with self._caplog.at_level(logging.WARNING):
+            config = state.get_container_config()
+            assert not config
 
-    @patch('kiwi.logger.log.warning')
-    def test_set_container_tag_not_applied(self, mock_log_warn):
-        self.state.set_container_config_tag('new_tag')
-        assert mock_log_warn.called
+    def test_set_container_tag_not_applied(self):
+        with self._caplog.at_level(logging.WARNING):
+            self.state.set_container_config_tag('new_tag')
 
     def test_get_container_config(self):
         expected_config = {
@@ -680,7 +736,10 @@ class TestXMLState(object):
             'history': {
                 'author': 'history author',
                 'comment': 'This is a comment',
-                'created_by': 'created by text'
+                'created_by': 'created by text',
+                'application_id': '123',
+                'package_version': '2003.12.0.0',
+                'launcher': 'app'
             }
         }
         xml_data = self.description.load()
@@ -703,6 +762,9 @@ class TestXMLState(object):
 
     def test_get_spare_part(self):
         assert self.state.get_build_type_spare_part_size() == 200
+        assert self.state.get_build_type_spare_part_fs_attributes() == [
+            'no-copy-on-write'
+        ]
 
     def test_get_build_type_format_options(self):
         assert self.state.get_build_type_format_options() == {
@@ -722,10 +784,9 @@ class TestXMLState(object):
         state.set_derived_from_image_uri('file:///new_uri')
         assert state.get_derived_from_image_uri().translate() == '/new_uri'
 
-    @patch('kiwi.logger.log.warning')
-    def test_set_derived_from_image_uri_not_applied(self, mock_log_warn):
-        self.state.set_derived_from_image_uri('file:///new_uri')
-        assert mock_log_warn.called
+    def test_set_derived_from_image_uri_not_applied(self):
+        with self._caplog.at_level(logging.WARNING):
+            self.state.set_derived_from_image_uri('file:///new_uri')
 
     def test_is_xen_server(self):
         assert self.state.is_xen_server() is True
@@ -772,3 +833,50 @@ class TestXMLState(object):
         assert self.state.get_rpm_locale() == [
             'POSIX', 'C', 'C.UTF-8', 'en_US', 'de_DE'
         ]
+
+    def test_set_root_partition_uuid(self):
+        assert self.state.get_root_partition_uuid() is None
+        self.state.set_root_partition_uuid('some-id')
+        assert self.state.get_root_partition_uuid() == 'some-id'
+
+    def test_set_root_filesystem_uuid(self):
+        assert self.state.get_root_filesystem_uuid() is None
+        self.state.set_root_filesystem_uuid('some-id')
+        assert self.state.get_root_filesystem_uuid() == 'some-id'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_name(self, mock_bootloader):
+        mock_bootloader.return_value = [None]
+        assert self.state.get_build_type_bootloader_name() == 'grub2'
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_name() == 'some-loader'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_console(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_console() == \
+            'some-console'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_serial_line_setup(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_serial_line_setup() == \
+            'some-serial'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_timeout(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_timeout() == \
+            'some-timeout'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_timeout_style(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_timeout_style() == \
+            'some-style'
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_targettype(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_targettype() == \
+            'some-target'

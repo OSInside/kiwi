@@ -16,16 +16,18 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 
 # project
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiRaidSetupError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class RaidDevice(DeviceProvider):

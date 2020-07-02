@@ -22,8 +22,10 @@ import os
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.utils.rpm_database import RpmDataBase
+from kiwi.utils.rpm import Rpm
 from kiwi.path import Path
 from kiwi.exceptions import KiwiRequestError
+from kiwi.defaults import Defaults
 
 
 class PackageManagerZypper(PackageManagerBase):
@@ -44,6 +46,7 @@ class PackageManagerZypper(PackageManagerBase):
 
         :param list custom_args: custom zypper arguments
         """
+        self.anonymousId_file = '/var/lib/zypp/AnonymousUniqueId'
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
@@ -51,15 +54,15 @@ class PackageManagerZypper(PackageManagerBase):
         runtime_config = self.repository.runtime_config()
 
         self.zypper_args = runtime_config['zypper_args']
-        self.chroot_zypper_args = self.root_bind.move_to_root(
-            self.zypper_args
+        self.chroot_zypper_args = Path.move_to_root(
+            self.root_dir, self.zypper_args
         )
 
         self.command_env = runtime_config['command_env']
         self.chroot_command_env = dict(self.command_env)
         if 'ZYPP_CONF' in self.command_env:
-            self.chroot_command_env['ZYPP_CONF'] = self.root_bind.move_to_root(
-                [self.command_env['ZYPP_CONF']]
+            self.chroot_command_env['ZYPP_CONF'] = Path.move_to_root(
+                self.root_dir, [self.command_env['ZYPP_CONF']]
             )[0]
 
     def request_package(self, name):
@@ -105,7 +108,7 @@ class PackageManagerZypper(PackageManagerBase):
         command = ['zypper'] + self.zypper_args + [
             '--root', self.root_dir,
             'install', '--auto-agree-with-licenses'
-        ] + self.custom_args + self._install_items()
+        ] + self.custom_args + ['--'] + self._install_items()
         return Command.call(
             command, self.command_env
         )
@@ -136,7 +139,7 @@ class PackageManagerZypper(PackageManagerBase):
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + self.chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'
-            ] + self.custom_args + self._install_items(),
+            ] + self.custom_args + ['--'] + self._install_items(),
             self.chroot_command_env
         )
 
@@ -252,7 +255,8 @@ class PackageManagerZypper(PackageManagerBase):
         rpm package installed during bootstrap phase
         """
         rpmdb = RpmDataBase(self.root_dir)
-        rpmdb.set_database_to_image_path()
+        if rpmdb.has_rpm():
+            rpmdb.set_database_to_image_path()
 
     def has_failed(self, returncode):
         """
@@ -270,14 +274,17 @@ class PackageManagerZypper(PackageManagerBase):
 
         :rtype: boolean
         """
+        error_codes = [
+            104,  # - ZYPPER_EXIT_INF_CAP_NOT_FOUND
+            105,  # - ZYPPER_EXIT_ON_SIGNAL
+            106,  # - ZYPPER_EXIT_INF_REPOS_SKIPPED
+            127   # - Command Not Found
+        ]
         if returncode == 0:
             # All is good
             return False
-        elif returncode == 104 or returncode == 105 or returncode == 106:
-            # Treat the following exit codes as error
-            # 104 - ZYPPER_EXIT_INF_CAP_NOT_FOUND
-            # 105 - ZYPPER_EXIT_ON_SIGNAL
-            # 106 - ZYPPER_EXIT_INF_REPOS_SKIPPED
+        elif returncode in error_codes:
+            # Treat matching exit code as error
             return True
         elif returncode >= 100:
             # Treat all other 100 codes as non error codes
@@ -285,6 +292,20 @@ class PackageManagerZypper(PackageManagerBase):
 
         # Treat any other error code as error
         return True
+
+    def clean_leftovers(self):
+        """
+        Cleans package manager related data not needed in the
+        resulting image such as custom macros
+        """
+        Rpm(
+            self.root_dir, Defaults.get_custom_rpm_image_macro_name()
+        ).wipe_config()
+        id_file = os.path.normpath(
+            os.sep.join([self.root_dir, self.anonymousId_file])
+        )
+        if os.path.exists(id_file):
+            os.unlink(id_file)
 
     def _install_items(self):
         items = self.package_requests + self.collection_requests \

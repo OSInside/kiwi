@@ -3,16 +3,16 @@
 Quick Start
 ===========
 
-.. hint:: **Abstract**
+.. note:: **Abstract**
 
-   This document describes how to start working with KIWI, an OS appliance
+   This document describes how to start working with {kiwi}, an OS appliance
    builder.
    This description applies for version |version|.
 
 Before you start
 ----------------
 
-1. Install KIWI first, either via your distributions' package manager (see
+1. Install {kiwi} first, either via your distributions' package manager (see
    :ref:`kiwi-installation`) or via:
 
    .. code:: bash
@@ -24,7 +24,7 @@ Before you start
 
    .. code:: bash
 
-      $ git clone https://github.com/SUSE/kiwi-descriptions
+      $ git clone https://github.com/OSInside/kiwi-descriptions
 
 
 Choose a First Image
@@ -39,21 +39,21 @@ Build your First Image
 ----------------------
 
 Your first image will be a simple system disk image which can run
-in any full virtualization system like QEMU. Invoke the following KIWI
+in any full virtualization system like QEMU. Invoke the following {kiwi}
 command in order to build it:
 
 .. code:: bash
 
     $ sudo kiwi-ng --type vmx system build \
-        --description kiwi-descriptions/suse/x86_64/suse-leap-42.3-JeOS \
+        --description kiwi-descriptions/suse/x86_64/{exc_description} \
         --target-dir /tmp/myimage
 
 The resulting image will be placed into the folder :file:`/tmp/myimage`
 with the suffix :file:`.raw`.
 
-If you don't wish to create a openSUSE Leap 42.3 image, substitute the
-folder following the ``--description`` option with another folder that
-contains the image description which you selected.
+If you don't wish to create a openSUSE Leap {exc_os_version} image,
+substitute the folder following the ``--description`` option with another
+folder that contains the image description which you selected.
 
 
 Run your Image
@@ -65,9 +65,8 @@ QEMU and boot it as follows:
 
 .. code:: bash
 
-    $ qemu \
-        -boot c
-        -drive file=LimeJeOS-Leap-42.3.x86_64-1.42.3.raw,format=raw,if=virtio \
+    $ qemu -boot c \
+        -drive file={exc_image_base_name}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
         -m 4096
 
 Tweak and Customize your Image
@@ -75,6 +74,3 @@ Tweak and Customize your Image
 
 Now that you have successfully built and started your first image, you can
 start tweaking it to match your needs.
-
-Find the documentation of the appliance description files in the following
-sections.

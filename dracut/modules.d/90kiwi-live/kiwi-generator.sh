@@ -13,12 +13,12 @@ fi
 case "${liveroot}" in
     live:CDLABEL=*|CDLABEL=*) \
         root="${root#live:}"
-        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
+        root="${root//\//\\x2f}"
         root="live:/dev/disk/by-label/${root#CDLABEL=}"
         rootok=1 ;;
     live:AOEINTERFACE=*|AOEINTERFACE=*) \
         root="${root#live:}"
-        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
+        root="${root//\//\\x2f}"
         root="live:aoe:/dev/etherd/${root#AOEINTERFACE=}"
         rootok=1 ;;
 esac
@@ -33,6 +33,7 @@ ROOTFLAGS="$(getarg rootflags)"
 {
     echo "[Unit]"
     echo "Before=initrd-root-fs.target"
+    echo "DefaultDependencies=no"
     echo "[Mount]"
     echo "Where=/sysroot"
     echo "What=LiveOS_rootfs"

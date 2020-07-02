@@ -16,18 +16,22 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
+import copy
 
 # project
-from kiwi.logger import log
 from kiwi.utils.sync import DataSync
 from kiwi.mount_manager import MountManager
+from kiwi.command import Command
 
 from kiwi.exceptions import (
     KiwiFileSystemSyncError
 )
 
+log = logging.getLogger('kiwi')
 
-class FileSystemBase(object):
+
+class FileSystemBase:
     """
     **Implements base class for filesystem interface**
 
@@ -80,16 +84,19 @@ class FileSystemBase(object):
                 }
         """
         if custom_args:
-            self.custom_args = custom_args
+            self.custom_args = copy.deepcopy(custom_args)
 
-        if 'create_options' not in self.custom_args:
+        if not self.custom_args.get('create_options'):
             self.custom_args['create_options'] = []
 
-        if 'meta_data' not in self.custom_args:
+        if not self.custom_args.get('meta_data'):
             self.custom_args['meta_data'] = {}
 
-        if 'mount_options' not in self.custom_args:
+        if not self.custom_args.get('mount_options'):
             self.custom_args['mount_options'] = []
+
+        if not self.custom_args.get('fs_attributes'):
+            self.custom_args['fs_attributes'] = []
 
     def create_on_device(self, label=None):
         """
@@ -115,6 +122,19 @@ class FileSystemBase(object):
         """
         raise NotImplementedError
 
+    def get_mountpoint(self):
+        """
+        Provides mount point directory
+
+        Effective use of the directory is guaranteed only after sync_data
+
+        :return: directory path name
+
+        :rtype: string
+        """
+        if self.filesystem_mount:
+            return self.filesystem_mount.mountpoint
+
     def sync_data(self, exclude=None):
         """
         Copy root data tree into filesystem
@@ -135,6 +155,7 @@ class FileSystemBase(object):
         self.filesystem_mount.mount(
             self.custom_args['mount_options']
         )
+        self._apply_attributes()
         data = DataSync(
             self.root_dir, self.filesystem_mount.mountpoint
         )
@@ -142,9 +163,38 @@ class FileSystemBase(object):
             options=['-a', '-H', '-X', '-A', '--one-file-system'],
             exclude=exclude
         )
-        self.filesystem_mount.umount()
+
+    def umount(self):
+        """
+        Umounts the filesystem in case it is mounted, does nothing otherwise
+        """
+        if self.filesystem_mount:
+            log.info('umount %s instance', type(self).__name__)
+            self.filesystem_mount.umount()
+            self.filesystem_mount = None
+
+    def _apply_attributes(self):
+        """
+        Apply filesystem attributes
+        """
+        attribute_map = {
+            'synchronous-updates': '+S',
+            'no-copy-on-write': '+C'
+        }
+        for attribute in self.custom_args['fs_attributes']:
+            if attribute_map.get(attribute):
+                log.info(
+                    '--> setting {0} for {1}'.format(
+                        attribute, self.filesystem_mount.mountpoint
+                    )
+                )
+                Command.run(
+                    [
+                        'chattr', attribute_map.get(attribute),
+                        self.filesystem_mount.mountpoint
+                    ]
+                )
 
     def __del__(self):
-        if self.filesystem_mount:
-            log.info('Cleaning up %s instance', type(self).__name__)
-            self.filesystem_mount.umount()
+        log.info('Cleaning up %s instance', type(self).__name__)
+        self.umount()

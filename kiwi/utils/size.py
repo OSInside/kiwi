@@ -21,12 +21,12 @@ import math
 from kiwi.exceptions import KiwiSizeError
 
 
-class StringToSize(object):
+class StringToSize:
     """
     **Performs size convertions from strings to numbers**
     """
-    @classmethod
-    def to_bytes(cls, size_value):
+    @staticmethod
+    def to_bytes(size_value):
         """
         Convert the given string representig a size into the appropriate
         number of bytes.
@@ -36,7 +36,7 @@ class StringToSize(object):
         :return: the number of bytes represented by size_value string
         :rtype: int
         """
-        size_format = '^(\d+)([gGmM]{0,1})$'
+        size_format = r'^(\d+)([gGmM]{0,1})$'
         size = re.search(size_format, size_value)
         if not size:
             raise KiwiSizeError(
@@ -46,4 +46,5 @@ class StringToSize(object):
             )
         size_base = int(size.group(1))
         size_unit = {'g': 3, 'm': 2}.get(size.group(2).lower())
-        return size_unit and size_base * math.pow(0x400, size_unit) or size_base
+        return size_base * math.pow(1024, size_unit) if size_unit \
+            else size_base

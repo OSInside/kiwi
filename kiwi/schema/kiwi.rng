@@ -48,12 +48,12 @@
   </define>
   <define name="volume-size-type">
     <data type="token">
-      <param name="pattern">\d+|\d+M|\d+G|all</param>
+      <param name="pattern">(\d+|\d+M|\d+G|all)</param>
     </data>
   </define>
   <define name="partition-size-type">
     <data type="token">
-      <param name="pattern">\d+|\d+M|\d+G</param>
+      <param name="pattern">(\d+|\d+M|\d+G)</param>
     </data>
   </define>
   <define name="vhd-tag-type">
@@ -74,6 +74,21 @@
   <define name="portnum-type">
     <data type="token">
       <param name="pattern">(\d+|\d+/(udp|tcp))</param>
+    </data>
+  </define>
+  <define name="grub_console">
+    <data type="token">
+      <param name="pattern">(console|gfxterm|serial)( (console|gfxterm|serial))*</param>
+    </data>
+  </define>
+  <define name="fs_attributes">
+    <data type="token">
+      <param name="pattern">(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*</param>
+    </data>
+  </define>
+  <define name="package-version-type">
+    <data type="token">
+      <param name="pattern">(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}</param>
     </data>
   </define>
   <!--
@@ -115,7 +130,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>6.9</value>
+        <value>7.2</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -433,40 +448,6 @@ file was fetched</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <configuration>
-    
-  -->
-  <div>
-    <define name="k.configuration.source.attribute">
-      <ref name="k.source.attribute"/>
-    </define>
-    <define name="k.configuration.dest.attribute">
-      <ref name="k.dest.attribute"/>
-    </define>
-    <define name="k.configuration.arch.attribute">
-      <ref name="k.arch.attribute"/>
-    </define>
-    <define name="k.configuration.attlist">
-      <interleave>
-        <ref name="k.configuration.source.attribute"/>
-        <ref name="k.configuration.dest.attribute"/>
-        <optional>
-          <ref name="k.configuration.arch.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.configuration">
-      <element name="configuration">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the configuration files which should be included
-into the image after deployment</a:documentation>
-        <ref name="k.configuration.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <contact>
     
   -->
@@ -535,42 +516,6 @@ into the image after deployment</a:documentation>
         <a:documentation>Ignores a Package</a:documentation>
         <ref name="k.ignore.attlist"/>
         <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <initrd>
-    
-  -->
-  <div>
-    <define name="k.initrd.attlist">
-      <empty/>
-    </define>
-    <define name="k.initrd">
-      <element name="initrd">
-        <a:documentation>As part of the network deploy configuration this element
-specifies where the boot image (initrd) can be found</a:documentation>
-        <ref name="k.initrd.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <kernel>
-    
-  -->
-  <div>
-    <define name="k.kernel.attlist">
-      <empty/>
-    </define>
-    <define name="k.kernel">
-      <element name="kernel">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the where to find the boot kernel</a:documentation>
-        <ref name="k.kernel.attlist"/>
-        <text/>
       </element>
     </define>
   </div>
@@ -705,6 +650,30 @@ of the OEM image</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <oem-resize-once>
+    
+  -->
+  <div>
+    <define name="k.oem-resize-once.content">
+      <data type="boolean"/>
+    </define>
+    <define name="k.oem-resize-once.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-resize-once">
+      <element name="oem-resize-once">
+        <a:documentation>For oem images: repart/resize only on first boot: true/false
+By default the repart/resize happens on every reboot and
+therefore also allows for disk geometry changes during the
+livetime of the machine. If set to false the repart/resize
+operation happens only once and then never again</a:documentation>
+        <ref name="k.oem-resize-once.attlist"/>
+        <ref name="k.oem-resize-once.content"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-device-filter>
     
   -->
@@ -744,7 +713,7 @@ regular expression. The expression is handled by the bash regexp
 operator. Interface names matching the rule will be skipped. All
 other interface names stay in the list. It is also possible to
 pass the variable kiwi_oemnicfilter as kernel command
-line in a PXE deployment</a:documentation>
+line in a netboot deployment</a:documentation>
         <ref name="k.oem-nic-filter.attlist"/>
         <ref name="k.oem-nic-filter.content"/>
       </element>
@@ -1259,6 +1228,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <value>zypper</value>
         <value>yum</value>
         <value>dnf</value>
+        <value>pacman</value>
       </choice>
     </define>
     <define name="k.packagemanager.attlist">
@@ -1323,33 +1293,6 @@ the /etc/fstab file or not</a:documentation>
         <a:documentation>A Partition</a:documentation>
         <ref name="k.partition.attlist"/>
         <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <partitions>
-    
-  -->
-  <div>
-    <define name="k.partitions.device.attribute">
-      <attribute name="device">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the disk device name</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.partitions.attlist">
-      <optional>
-        <ref name="k.partitions.device.attribute"/>
-      </optional>
-    </define>
-    <define name="k.partitions">
-      <element name="partitions">
-        <a:documentation>A List of Partitions</a:documentation>
-        <ref name="k.partitions.attlist"/>
-        <oneOrMore>
-          <ref name="k.partition"/>
-        </oneOrMore>
       </element>
     </define>
   </div>
@@ -1443,13 +1386,8 @@ definition can be composed by other existing profiles.</a:documentation>
           <value>apt-rpm</value>
           <value>deb-dir</value>
           <value>mirrors</value>
-          <value>red-carpet</value>
           <value>rpm-dir</value>
           <value>rpm-md</value>
-          <value>slack-site</value>
-          <value>up2date-mirrors</value>
-          <value>urpmi</value>
-          <value>yast2</value>
         </choice>
       </attribute>
     </define>
@@ -1457,10 +1395,10 @@ definition can be composed by other existing profiles.</a:documentation>
       <attribute name="alias">
         <a:documentation>Alias name to be used for this repository. This is an
 optional free form text. If not set the source attribute
-value is used and builds the alias name by replacing
-each '/' with a '_'. An alias name should be set if the
-source argument doesn't really explain what this repository
-contains</a:documentation>
+value is used and builds the alias name by running a md5 digest
+of the defined URI of the repository. An alias name should be
+set if the source argument doesn't really explain what this
+repository contains.</a:documentation>
       </attribute>
     </define>
     <define name="k.repository.components.attribute">
@@ -1499,7 +1437,7 @@ appended into the repository configuration file.</a:documentation>
     </define>
     <define name="k.repository.package_gpgcheck.attribute">
       <attribute name="package_gpgcheck">
-        <a:documentation>Specify whether or not this specific repository is configured to
+        <a:documentation>Specify whether or not this specific repository is configured
 to run package signature validation. If not set, no value is
 appended into the repository configuration file.</a:documentation>
         <data type="boolean"/>
@@ -1526,6 +1464,21 @@ whether and how this information is passed</a:documentation>
 whether and how this information is passed</a:documentation>
       </ref>
     </define>
+    <define name="k.repository.sourcetype.attribute">
+      <attribute name="sourcetype">
+        <a:documentation>Specify the source type of the repository path.
+Depending on if the source path is a simple url or a
+pointer to a metadata file or mirror list, the
+configured package manager needs to be setup
+appropriately. By default the source is expected to
+be a simple repository url</a:documentation>
+        <choice>
+          <value>baseurl</value>
+          <value>metalink</value>
+          <value>mirrorlist</value>
+        </choice>
+      </attribute>
+    </define>
     <define name="k.repository.attlist">
       <interleave>
         <optional>
@@ -1536,6 +1489,9 @@ whether and how this information is passed</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.alias.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repository.sourcetype.attribute"/>
         </optional>
         <optional>
           <ref name="k.repository.components.attribute"/>
@@ -1778,23 +1734,6 @@ volume management system</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <timeout>
-    
-  -->
-  <div>
-    <define name="k.timeout.attlist">
-      <empty/>
-    </define>
-    <define name="k.timeout">
-      <element name="timeout">
-        <a:documentation>Specifies an ATFTP Download Timeout</a:documentation>
-        <ref name="k.timeout.attlist"/>
-        <text/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <timezone>
     
   -->
@@ -1842,42 +1781,6 @@ provided with KIWI</a:documentation>
 image description. When kiwi builds the boot image the
 information is passed as add-profile option</a:documentation>
       </attribute>
-    </define>
-    <define name="k.type.bootloader.attribute">
-      <attribute name="bootloader">
-        <a:documentation>Specifies the bootloader used for booting the image.
-At the moment grub2, zipl and the combination of zipl plus
-userspace grub2 are supported. The special custom entry
-allows to skip the bootloader configuration and installation
-and leaves this up to the user which can be done by using
-the editbootinstall and editbootconfig custom scripts</a:documentation>
-        <choice>
-          <value>grub2</value>
-          <value>zipl</value>
-          <value>grub2_s390x_emu</value>
-          <value>custom</value>
-        </choice>
-      </attribute>
-      <sch:pattern id="bootloader" is-a="image_type">
-        <sch:param name="attr" value="bootloader"/>
-        <sch:param name="types" value="oem vmx"/>
-      </sch:pattern>
-    </define>
-    <define name="k.type.bootloader_console.attribute">
-      <attribute name="bootloader_console">
-        <a:documentation>Specifies the bootloader console.
-The value only has an effect for the grub bootloader.
-By default a graphics console setup is used</a:documentation>
-        <choice>
-          <value>console</value>
-          <value>gfxterm</value>
-          <value>serial</value>
-        </choice>
-      </attribute>
-      <sch:pattern id="bootloader_console" is-a="image_type">
-        <sch:param name="attr" value="bootloader_console"/>
-        <sch:param name="types" value="oem vmx iso"/>
-      </sch:pattern>
     </define>
     <define name="k.type.xen_server.attribute">
       <attribute name="xen_server">
@@ -1973,21 +1876,57 @@ can only be configured for the disk image types oem and vmx</a:documentation>
         <sch:param name="types" value="oem vmx"/>
       </sch:pattern>
     </define>
-    <define name="k.type.zipl_targettype.attribute">
-      <attribute name="zipl_targettype">
-        <a:documentation>The device type of the disk zipl should boot. On zFCP
-devices use SCSI, on DASD devices use CDL or LDL on
-emulated DASD devices use FBA</a:documentation>
+    <define name="k.type.spare_part_mountpoint.attribute">
+      <attribute name="spare_part_mountpoint">
+        <a:documentation>Specify mount point for spare partition in the system.
+Can only be configured for the disk image types oem and vmx</a:documentation>
+      </attribute>
+      <sch:pattern id="spare_part_mountpoint" is-a="image_type">
+        <sch:param name="attr" value="spare_part_mountpoint"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.spare_part_fs.attribute">
+      <attribute name="spare_part_fs">
+        <a:documentation>Specify filesystem for spare partition in the system.
+Can only be configured for the disk image types oem and vmx</a:documentation>
         <choice>
-          <value>CDL</value>
-          <value>LDL</value>
-          <value>FBA</value>
-          <value>SCSI</value>
+          <value>btrfs</value>
+          <value>ext2</value>
+          <value>ext3</value>
+          <value>ext4</value>
+          <value>xfs</value>
         </choice>
       </attribute>
-      <sch:pattern id="zipl_targettype" is-a="image_type">
-        <sch:param name="attr" value="zipl_targettype"/>
+      <sch:pattern id="spare_part_fs" is-a="image_type">
+        <sch:param name="attr" value="spare_part_fs"/>
         <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.spare_part_fs_attributes.attribute">
+      <attribute name="spare_part_fs_attributes">
+        <a:documentation>Specify filesystem attributes for the spare partition.
+Attributes can be specified as comma separated list.
+Can only be configured for the disk image types oem and vmx</a:documentation>
+        <ref name="fs_attributes"/>
+      </attribute>
+      <sch:pattern id="spare_part_fs_attributes" is-a="image_type">
+        <sch:param name="attr" value="spare_part_fs_attributes"/>
+        <sch:param name="types" value="oem vmx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.spare_part_is_last.attribute">
+      <attribute name="spare_part_is_last">
+        <a:documentation>Specify if the spare partition should be the last one in
+the partition table. Can only be configured for the vmx
+disk image type. By default the root partition is the last
+one and the spare partition lives behind it. With this
+attribute that setup can be toggled.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="spare_part_is_last" is-a="image_type">
+        <sch:param name="attr" value="spare_part_is_last"/>
+        <sch:param name="types" value="vmx"/>
       </sch:pattern>
     </define>
     <define name="k.type.bootpartsize.attribute">
@@ -2040,28 +1979,16 @@ information is passed as add-profile option</a:documentation>
         <sch:param name="types" value="oem vmx iso pxe cpio"/>
       </sch:pattern>
     </define>
-    <define name="k.type.boottimeout.attribute">
-      <attribute name="boottimeout">
-        <a:documentation>Specifies the boot timeout in seconds prior to launching
-the default boot option. By default the timeout is set
-to 10sec</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-      <sch:pattern id="boottimeout" is-a="image_type">
-        <sch:param name="attr" value="boottimeout"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
-      </sch:pattern>
-    </define>
     <define name="k.type.compressed.attribute">
       <attribute name="compressed">
         <a:documentation>Specifies whether the image output file should be
 compressed or not. This makes only sense for filesystem
-only images respectively for the pxe or cpio type</a:documentation>
+only images.</a:documentation>
         <data type="boolean"/>
       </attribute>
       <sch:pattern id="compressed" is-a="image_type">
         <sch:param name="attr" value="compressed"/>
-        <sch:param name="types" value="pxe"/>
+        <sch:param name="types" value="pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.devicepersistency.attribute">
@@ -2113,11 +2040,28 @@ structure</a:documentation>
       </attribute>
       <sch:pattern id="filesystem" is-a="image_type">
         <sch:param name="attr" value="filesystem"/>
-        <sch:param name="types" value="vmx oem pxe"/>
+        <sch:param name="types" value="vmx oem pxe kis"/>
       </sch:pattern>
       <sch:pattern id="filesystem_mandatory" is-a="image_type_requirement">
         <sch:param name="attr" value="filesystem"/>
-        <sch:param name="types" value="vmx oem pxe"/>
+        <sch:param name="types" value="vmx oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.squashfscompression.attribute">
+      <attribute name="squashfscompression">
+        <a:documentation>Specifies the compression type for mksquashfs</a:documentation>
+        <choice>
+          <value>uncompressed</value>
+          <value>gzip</value>
+          <value>lzo</value>
+          <value>lz4</value>
+          <value>xz</value>
+          <value>zstd</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="squashfscompression" is-a="image_type">
+        <sch:param name="attr" value="squashfscompression"/>
+        <sch:param name="types" value="vmx oem pxe kis iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.overlayroot.attribute">
@@ -2261,6 +2205,11 @@ partitions</a:documentation>
 The string given here is passed as value to the -o option of mount</a:documentation>
       </attribute>
     </define>
+    <define name="k.type.fscreateoptions.attribute">
+      <attribute name="fscreateoptions">
+        <a:documentation>Specifies options to create the filesystem</a:documentation>
+      </attribute>
+    </define>
     <define name="k.type.hybridpersistent.attribute">
       <attribute name="hybridpersistent">
         <a:documentation>Will trigger the creation of a partition for a COW file
@@ -2310,7 +2259,7 @@ system does not support all features of the kiwi initrd</a:documentation>
       </attribute>
       <sch:pattern id="initrd_system" is-a="image_type">
         <sch:param name="attr" value="initrd_system"/>
-        <sch:param name="types" value="oem"/>
+        <sch:param name="types" value="oem pxe"/>
       </sch:pattern>
     </define>
     <define name="k.type.image.attribute">
@@ -2327,13 +2276,30 @@ system does not support all features of the kiwi initrd</a:documentation>
           <value>iso</value>
           <value>oem</value>
           <value>pxe</value>
+          <value>kis</value>
           <value>squashfs</value>
           <value>tbz</value>
           <value>vmx</value>
           <value>xfs</value>
           <value>oci</value>
+          <value>appx</value>
         </choice>
       </attribute>
+      <sch:pattern id="metadata_path_mandatory" is-a="image_type_requirement">
+        <sch:param name="attr" value="metadata_path"/>
+        <sch:param name="types" value="appx"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.metadata_path.attribute">
+      <attribute name="metadata_path">
+        <a:documentation>Specifies a path to additional metadata required for
+the selected image type or its tools used to create
+that image type</a:documentation>
+      </attribute>
+      <sch:pattern id="metadata_path" is-a="image_type">
+        <sch:param name="attr" value="metadata_path"/>
+        <sch:param name="types" value="appx"/>
+      </sch:pattern>
     </define>
     <define name="k.type.installboot.attribute">
       <attribute name="installboot">
@@ -2354,7 +2320,7 @@ only evaluated for grub and ext|syslinux</a:documentation>
     <define name="k.type.install_continue_on_timeout.attribute">
       <attribute name="install_continue_on_timeout">
         <a:documentation>Specifies the boot timeout handling for the KIWI
-install image. If set to "true" the configured boottimeout
+install image. If set to "true" the configured timeout
 or its default value applies. If set to "false" no
 timeout applies in the boot menu of the install image.</a:documentation>
         <data type="boolean"/>
@@ -2425,7 +2391,7 @@ kernel command line options</a:documentation>
       </attribute>
       <sch:pattern id="kernelcmdline" is-a="image_type">
         <sch:param name="attr" value="kernelcmdline"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem vmx iso pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.luks.attribute">
@@ -2437,7 +2403,7 @@ mount that filesystem while booting</a:documentation>
       </attribute>
       <sch:pattern id="luks" is-a="image_type">
         <sch:param name="attr" value="luks"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem vmx iso pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.luksOS.attribute">
@@ -2450,7 +2416,7 @@ distribution</a:documentation>
       </attribute>
       <sch:pattern id="luksOS" is-a="image_type">
         <sch:param name="attr" value="luksOS"/>
-        <sch:param name="types" value="oem vmx iso pxe"/>
+        <sch:param name="types" value="oem vmx iso pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.mdraid.attribute">
@@ -2490,7 +2456,7 @@ will force any COW action to happen in RAM</a:documentation>
       </attribute>
       <sch:pattern id="rootfs_label" is-a="image_type">
         <sch:param name="attr" value="rootfs_label"/>
-        <sch:param name="types" value="oem vmx pxe docker"/>
+        <sch:param name="types" value="oem vmx pxe kis docker"/>
       </sch:pattern>
     </define>
     <define name="k.type.vga.attribute">
@@ -2501,7 +2467,7 @@ hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt</a:documen
       </attribute>
       <sch:pattern id="vga" is-a="image_type">
         <sch:param name="attr" value="vga"/>
-        <sch:param name="types" value="oem vmx pxe iso"/>
+        <sch:param name="types" value="oem vmx pxe kis iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.gcelicense.attribute">
@@ -2598,15 +2564,6 @@ default.</a:documentation>
           <ref name="k.type.bootkernel.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.bootloader.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.bootloader_console.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.zipl_targettype.attribute"/>
-        </optional>
-        <optional>
           <ref name="k.type.bootpartition.attribute"/>
         </optional>
         <optional>
@@ -2620,9 +2577,6 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.bootprofile.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.boottimeout.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.btrfs_quota_groups.attribute"/>
@@ -2661,6 +2615,12 @@ default.</a:documentation>
           <ref name="k.type.fsmountoptions.attribute"/>
         </optional>
         <optional>
+          <ref name="k.type.fscreateoptions.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.squashfscompression.attribute"/>
+        </optional>
+        <optional>
           <ref name="k.type.gcelicense.attribute"/>
         </optional>
         <optional>
@@ -2679,6 +2639,9 @@ default.</a:documentation>
           <ref name="k.type.initrd_system.attribute"/>
         </optional>
         <ref name="k.type.image.attribute"/>
+        <optional>
+          <ref name="k.type.metadata_path.attribute"/>
+        </optional>
         <optional>
           <ref name="k.type.installboot.attribute"/>
         </optional>
@@ -2728,6 +2691,18 @@ default.</a:documentation>
           <ref name="k.type.spare_part.attribute"/>
         </optional>
         <optional>
+          <ref name="k.type.spare_part_mountpoint.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.spare_part_fs.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.spare_part_fs_attributes.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.spare_part_is_last.attribute"/>
+        </optional>
+        <optional>
           <ref name="k.type.target_blocksize.attribute"/>
         </optional>
         <optional>
@@ -2765,6 +2740,9 @@ default.</a:documentation>
         <interleave>
           <ref name="k.type.attlist"/>
           <optional>
+            <ref name="k.bootloader"/>
+          </optional>
+          <optional>
             <ref name="k.containerconfig"/>
           </optional>
           <optional>
@@ -2772,9 +2750,6 @@ default.</a:documentation>
           </optional>
           <optional>
             <ref name="k.oemconfig"/>
-          </optional>
-          <optional>
-            <ref name="k.pxedeploy"/>
           </optional>
           <optional>
             <ref name="k.size"/>
@@ -2786,47 +2761,6 @@ default.</a:documentation>
             <ref name="k.vagrantconfig"/>
           </zeroOrMore>
         </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
-    common element <union>
-    
-  -->
-  <div>
-    <define name="k.union.ro.attribute">
-      <attribute name="ro">
-        <a:documentation>Device only for read-only </a:documentation>
-      </attribute>
-    </define>
-    <define name="k.union.rw.attribute">
-      <attribute name="rw">
-        <a:documentation>Device for Read-Write</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.union.type.attribute">
-      <attribute name="type">
-        <a:documentation>Union type to use to overlay read-write and read-only parts</a:documentation>
-        <value>overlayfs</value>
-      </attribute>
-    </define>
-    <define name="k.union.attlist">
-      <interleave>
-        <ref name="k.union.ro.attribute"/>
-        <ref name="k.union.rw.attribute"/>
-        <ref name="k.union.type.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.union">
-      <element name="union">
-        <a:documentation>As part of the network deploy configuration this section
-specifies the overlay filesystem setup if required by the
-filesystem type of the system image.An overlay setup is
-only required if the system image uses a squashfs
-compressed filesystem.</a:documentation>
-        <ref name="k.union.attlist"/>
-        <empty/>
       </element>
     </define>
   </div>
@@ -2886,14 +2820,14 @@ to the user according to he specifing toolchain behaviour.</a:documentation>
         <optional>
           <ref name="k.user.groups.attribute"/>
         </optional>
-        <ref name="k.user.home.attribute"/>
+        <optional>
+          <ref name="k.user.home.attribute"/>
+        </optional>
         <optional>
           <ref name="k.user.id.attribute"/>
         </optional>
         <ref name="k.user.name.attribute"/>
-        <optional>
-          <ref name="k.user.password.attribute"/>
-        </optional>
+        <ref name="k.user.password.attribute"/>
         <optional>
           <ref name="k.user.pwdformat"/>
         </optional>
@@ -3197,60 +3131,6 @@ on an extra volume.</a:documentation>
   </div>
   <!--
     ==========================================
-    main block: <pxedeploy>
-    
-  -->
-  <div>
-    <define name="k.pxedeploy.server.attribute">
-      <attribute name="server">
-        <a:documentation>Name or IP Address of server for downloading the data</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.pxedeploy.blocksize.attribute">
-      <attribute name="blocksize">
-        <a:documentation>Blocksize value used for atftp downloads</a:documentation>
-        <data type="nonNegativeInteger"/>
-      </attribute>
-    </define>
-    <define name="k.pxedeploy.attlist">
-      <interleave>
-        <optional>
-          <ref name="k.pxedeploy.server.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.pxedeploy.blocksize.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.pxedeploy">
-      <element name="pxedeploy">
-        <a:documentation>Controls the Image Deploy Process</a:documentation>
-        <interleave>
-          <ref name="k.pxedeploy.attlist"/>
-          <optional>
-            <ref name="k.timeout"/>
-          </optional>
-          <optional>
-            <ref name="k.kernel"/>
-          </optional>
-          <optional>
-            <ref name="k.initrd"/>
-          </optional>
-          <optional>
-            <ref name="k.partitions"/>
-          </optional>
-          <optional>
-            <ref name="k.union"/>
-          </optional>
-          <zeroOrMore>
-            <ref name="k.configuration"/>
-          </zeroOrMore>
-        </interleave>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     main block: <description>
     
   -->
@@ -3359,12 +3239,150 @@ references file names in linux lib directories to keep.</a:documentation>
   </div>
   <!--
     ==========================================
+    main block: <bootloader>
+    
+  -->
+  <div>
+    <sch:pattern abstract="true" id="bootloader_image_type">
+      <sch:rule context="bootloader[@$attr]">
+        <sch:assert test="contains('$types', ../@image)">bootloader($attr) is only available for the following image types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <sch:pattern abstract="true" id="bootloader_name_type">
+      <sch:rule context="bootloader[@$attr]">
+        <sch:assert test="contains('$types', @name)">bootloader($attr) attribute is only available for the following bootloader types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <define name="k.bootloader.name.attribute">
+      <attribute name="name">
+        <a:documentation>Specifies the bootloader used for booting the image.
+At the moment grub2, isolinux, zipl and the combination of
+zipl plus userspace grub2 are supported. The special custom
+entry allows to skip the bootloader configuration and installation
+and leaves this up to the user which can be done by using
+the editbootinstall and editbootconfig custom scripts</a:documentation>
+        <choice>
+          <value>grub2</value>
+          <value>isolinux</value>
+          <value>zipl</value>
+          <value>grub2_s390x_emu</value>
+          <value>custom</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="loader_name" is-a="bootloader_image_type">
+        <sch:param name="attr" value="name"/>
+        <sch:param name="types" value="oem vmx iso"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.console.attribute">
+      <attribute name="console">
+        <a:documentation>Specifies the bootloader console.
+The value is available for grub and isolinux bootloader
+types. By default a graphics console setup is used</a:documentation>
+        <ref name="grub_console"/>
+      </attribute>
+      <sch:pattern id="loader_console" is-a="bootloader_name_type">
+        <sch:param name="attr" value="console"/>
+        <sch:param name="types" value="grub2 isolinux grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.serial_line.attribute">
+      <attribute name="serial_line">
+        <a:documentation>Specifies the bootloader serial line setup. The setup
+is effective if the bootloader console is set to use
+the serial line. The attribute is available for the grub
+bootloader</a:documentation>
+      </attribute>
+      <sch:pattern id="serial_line" is-a="bootloader_name_type">
+        <sch:param name="attr" value="serial_line"/>
+        <sch:param name="types" value="grub2 grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.timeout.attribute">
+      <attribute name="timeout">
+        <a:documentation>Specifies the boot timeout in seconds prior to launching
+the default boot option. By default the timeout is set
+to 10sec</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+      <sch:pattern id="timeout" is-a="bootloader_name_type">
+        <sch:param name="attr" value="timeout"/>
+        <sch:param name="types" value="grub2 isolinux zipl grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.timeout_style.attribute">
+      <attribute name="timeout_style">
+        <a:documentation>Specifies the boot timeout style to control the way in which
+the timeout interacts with displaying the menu. If set the
+display of the bootloader menu is delayed after the timeout
+expired. In countdown mode an indication of the remaining time
+is displayed. The attribute is available for the grub loader.</a:documentation>
+        <choice>
+          <value>countdown</value>
+          <value>hidden</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="timeout_style" is-a="bootloader_name_type">
+        <sch:param name="attr" value="timeout_style"/>
+        <sch:param name="types" value="grub2 grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.targettype.attribute">
+      <attribute name="targettype">
+        <a:documentation>The device type of the disk zipl should boot. On zFCP
+devices use SCSI, on DASD devices use CDL or LDL on
+emulated DASD devices use FBA</a:documentation>
+        <choice>
+          <value>CDL</value>
+          <value>LDL</value>
+          <value>FBA</value>
+          <value>SCSI</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="targettype" is-a="bootloader_name_type">
+        <sch:param name="attr" value="targettype"/>
+        <sch:param name="types" value="zipl grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.attlist">
+      <interleave>
+        <ref name="k.bootloader.name.attribute"/>
+        <optional>
+          <ref name="k.bootloader.console.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.serial_line.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.timeout.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.timeout_style.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.targettype.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.bootloader">
+      <element name="bootloader">
+        <a:documentation>The bootloader section is used to select the bootloader
+and to provide configuration parameters for it</a:documentation>
+        <interleave>
+          <ref name="k.bootloader.attlist"/>
+          <empty/>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     main block: <containerconfig>
     
   -->
   <div>
     <sch:pattern abstract="true" id="container_type">
-      <sch:rule context="containerconfig">
+      <sch:rule context="containerconfig[@$attr]">
         <sch:assert test="contains('$types', ../@image)">containerconfig($attr) is only available for the following image types: $types</sch:assert>
       </sch:rule>
     </sch:pattern>
@@ -3376,7 +3394,7 @@ image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="name" is-a="container_type">
         <sch:param name="attr" value="name"/>
-        <sch:param name="types" value="docker oci"/>
+        <sch:param name="types" value="docker oci appx"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.tag.attribute">
@@ -3766,6 +3784,25 @@ At least one label must be configured</a:documentation>
         <a:documentation>Specifies the 'author' history record.</a:documentation>
       </attribute>
     </define>
+    <define name="k.history.application_id">
+      <attribute name="application_id">
+        <a:documentation>Specifies a custom application ID, used for WSL containers</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.history.package_version">
+      <attribute name="package_version">
+        <a:documentation>Specifies a version information, used for WSL containers.
+The version given here follows the package numbering rules
+as documented in: https://docs.microsoft.com/en-us/windows/uwp/publish/package-version-numbering</a:documentation>
+        <ref name="package-version-type"/>
+      </attribute>
+    </define>
+    <define name="k.history.launcher">
+      <attribute name="launcher">
+        <a:documentation>Specifies name of the container launcher program
+Used for WSL containers</a:documentation>
+      </attribute>
+    </define>
     <define name="k.history.attlist">
       <interleave>
         <optional>
@@ -3773,6 +3810,15 @@ At least one label must be configured</a:documentation>
         </optional>
         <optional>
           <ref name="k.history.author.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.history.application_id"/>
+        </optional>
+        <optional>
+          <ref name="k.history.package_version"/>
+        </optional>
+        <optional>
+          <ref name="k.history.launcher"/>
         </optional>
       </interleave>
     </define>
@@ -3807,6 +3853,9 @@ and setup the system disk.</a:documentation>
           </optional>
           <optional>
             <ref name="k.oem-bootwait"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-resize-once"/>
           </optional>
           <optional>
             <ref name="k.oem-device-filter"/>
@@ -3887,6 +3936,11 @@ and setup the system disk.</a:documentation>
     
   -->
   <div>
+    <sch:pattern abstract="true" id="vagrant_provider">
+      <sch:rule context="vagrantconfig[@$attr]">
+        <sch:assert test="contains('$providers', @provider)">$attr attribute is only available for the following vagrant providers: $providers</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.vagrantconfig.provider.attribute">
       <attribute name="provider">
         <a:documentation>The vagrant provider for this box</a:documentation>
@@ -3900,6 +3954,17 @@ and setup the system disk.</a:documentation>
       <attribute name="virtualbox_guest_additions_present">
         <a:documentation>Guest additions are present in this box</a:documentation>
         <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="virtualbox_guest_additions_present" is-a="vagrant_provider">
+        <sch:param name="attr" value="virtualbox_guest_additions_present"/>
+        <sch:param name="providers" value="virtualbox"/>
+      </sch:pattern>
+    </define>
+    <define name="k.vagrantconfig.embedded_vagrantfile.attribute">
+      <attribute name="embedded_vagrantfile">
+        <a:documentation>Path to a Vagrantfile that will be embedded in the box
+Kiwi cannot check the Vagrantfile for correctnes, therefore use this
+at your own risk!</a:documentation>
       </attribute>
     </define>
     <define name="k.vagrantconfig.virtualsize.attribute">
@@ -3927,6 +3992,9 @@ If not specified the image name is used</a:documentation>
         </optional>
         <optional>
           <ref name="k.vagrantconfig.virtualbox_guest_additions_present.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.vagrantconfig.embedded_vagrantfile.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -4113,6 +4181,7 @@ packages are only installed if this build type is requested.</a:documentation>
           <value>iso</value>
           <value>oem</value>
           <value>pxe</value>
+          <value>kis</value>
           <value>vmx</value>
           <value>oci</value>
           <value>uninstall</value>
@@ -4124,7 +4193,7 @@ packages are only installed if this build type is requested.</a:documentation>
     </define>
     <define name="k.packages.patternType.attribute">
       <attribute name="patternType">
-        <a:documentation>Selection type for patterns. Could be onlyRequired
+        <a:documentation>Selection type for patterns. Can be onlyRequired
 or plusRecommended</a:documentation>
         <choice>
           <value>onlyRequired</value>

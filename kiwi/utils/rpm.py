@@ -24,7 +24,7 @@ from kiwi.defaults import Defaults
 from kiwi.path import Path
 
 
-class Rpm(object):
+class Rpm:
     """
     **Helper methods to handle the rpm database configuration**
     """
@@ -98,10 +98,11 @@ class Rpm(object):
 
         Write bootstrap macro file to the custom rpm macros path
         """
-        Path.create(self.macro_path)
-        with open(self.macro_file, 'w') as macro:
-            for entry in self.custom_config:
-                macro.write('{0}{1}'.format(entry, os.linesep))
+        if self.custom_config:
+            Path.create(self.macro_path)
+            with open(self.macro_file, 'w') as macro:
+                for entry in self.custom_config:
+                    macro.write('{0}{1}'.format(entry, os.linesep))
 
     def wipe_config(self):
         """

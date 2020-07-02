@@ -10,7 +10,7 @@ type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 #--------------------------------------
 function report_and_quit {
     local text_message="$1"
-    run_dialog --timeout 60 --msgbox "\"${text_message}\"" 5 70
+    run_dialog --timeout 60 --msgbox "\"${text_message}\"" 5 80
     if getargbool 0 rd.debug; then
         die "${text_message}"
     else
@@ -45,9 +45,17 @@ function get_disk_list {
     local disk_device_by_id
     local disk_meta
     local list_items
+    local max_disk
+    local kiwi_oem_maxdisk
     local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
+    local message
     if [ -n "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
+    fi
+    max_disk=0
+    kiwi_oem_maxdisk=$(getarg rd.kiwi.oem.maxdisk=)
+    if [ -n "${kiwi_oem_maxdisk}" ]; then
+        max_disk=$(binsize_to_bytesize "${kiwi_oem_maxdisk}") || max_disk=0
     fi
     if getargbool 0 rd.kiwi.ramdisk; then
         # target should be a ramdisk on request. Thus actively
@@ -67,7 +75,7 @@ function get_disk_list {
         scan_multipath_devices
     fi
     for disk_meta in $(
-        eval lsblk "${blk_opts}" | grep disk | tr ' ' ":"
+        eval lsblk "${blk_opts}" | grep -E "disk|raid" | tr ' ' ":"
     );do
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
         if [ "$(blkid "${disk_device}" -s LABEL -o value)" = \
@@ -77,6 +85,18 @@ function get_disk_list {
             continue
         fi
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
+        if [ ${max_disk} -gt 0 ]; then
+            local disk_size_bytes
+            disk_size_bytes=$(binsize_to_bytesize "${disk_size}") || \
+                disk_size_bytes=0
+            if [ "${disk_size_bytes}" -gt "${max_disk}" ]; then
+                message="${disk_device} filtered out by"
+                message="${message} rd.kiwi.oem.maxdisk=${kiwi_oem_maxdisk}"
+                message="${message} (disk size is: ${disk_size})"
+                info "${message}" >&2
+                continue
+            fi
+        fi
         disk_device_by_id=$(
             get_persistent_device_from_unix_node "${disk_device}" "${disk_id}"
         )
@@ -91,7 +111,9 @@ function get_disk_list {
         # check for custom filter rule
         if [ -n "${kiwi_oemdevicefilter}" ];then
             if [[ ${disk_device} =~ ${kiwi_oemdevicefilter} ]];then
-                info "${disk_device} filtered out by: ${kiwi_oemdevicefilter}"
+                message="${disk_device} filtered out by rule:"
+                message="${message} ${kiwi_oemdevicefilter}"
+                info "${message}" >&2
                 continue
             fi
         fi
@@ -109,6 +131,7 @@ function get_selected_disk {
     declare kiwi_oemunattended_id=${kiwi_oemunattended_id}
     local disk_list
     local device_array
+    kiwi_oemunattended=$(bool "${kiwi_oemunattended}")
     disk_list=$(get_disk_list)
     if [ -n "${disk_list}" ];then
         local count=0
@@ -123,7 +146,7 @@ function get_selected_disk {
         if [ "${device_index}" -eq 1 ];then
             # one single disk device found, use it
             echo "${device_array[0]}"
-        elif [ -n "${kiwi_oemunattended}" ];then
+        elif [ "${kiwi_oemunattended}" = "true" ];then
             if [ -z "${kiwi_oemunattended_id}" ];then
                 # unattended mode requested but no target specifier,
                 # thus use first device from list
@@ -193,6 +216,8 @@ function dump_image {
     local image_from_remote=$3
     local image_source
     local image_basename
+    kiwi_oemsilentinstall=$(bool "${kiwi_oemsilentinstall}")
+    kiwi_oemunattended=$(bool "${kiwi_oemunattended}")
     image_source="$(echo "${image_source_files}" | cut -f1 -d\|)"
     image_basename=$(basename "${image_source}")
     local progress=/dev/install_progress
@@ -208,7 +233,7 @@ function dump_image {
 
     check_image_fits_target "${image_target}"
 
-    if [ -z "${kiwi_oemunattended}" ];then
+    if [ "${kiwi_oemunattended}" = "false" ];then
         local ack_dump_text="Destroying ALL data on ${image_target}, continue ?"
         if ! run_dialog --yesno "\"${ack_dump_text}\"" 7 80; then
             local install_cancel_text="System installation canceled"
@@ -217,7 +242,8 @@ function dump_image {
     fi
 
     echo "${load_text} [${image_target}]..."
-    if command -v pv &>/dev/null && [ -z "${kiwi_oemsilentinstall}" ];then
+    if command -v pv &>/dev/null && [ "${kiwi_oemsilentinstall}" = "false" ]
+    then
         # dump with dialog based progress information
         setup_progress_fifo ${progress}
         eval "${dump}" "${image_source}" "${image_target}" "${progress}" &
@@ -268,11 +294,14 @@ function check_image_integrity {
     local verify_text="Verifying ${image_target}"
     local title_text="Installation..."
     local verify_result=/dumped_image.md5
-    if [ -n "${kiwi_oemskipverify}" ];then
+    kiwi_oemskipverify=$(bool "${kiwi_oemskipverify}")
+    kiwi_oemsilentverify=$(bool "${kiwi_oemsilentverify}")
+    if [ "${kiwi_oemskipverify}" = "true" ];then
         # no verification wanted
         return
     fi
-    if command -v pv &>/dev/null && [ -z "${kiwi_oemsilentverify}" ];then
+    if command -v pv &>/dev/null && [ "${kiwi_oemsilentverify}" = "false" ]
+    then
         # verify with dialog based progress information
         setup_progress_fifo ${progress}
         run_progress_dialog "${verify_text}" "${title_text}" &
@@ -332,6 +361,10 @@ function get_remote_image_source_files {
     image_kernel_uri=$(
         echo "${image_uri}" | awk '{ gsub("\\.xz",".kernel", $1); print $1 }'
     )
+    image_config_uri=$(
+        echo "${image_uri}" | \
+        awk '{ gsub("\\.xz",".config.bootoptions", $1); print $1 }'
+    )
 
     # if we can not access image_md5_uri, maybe network setup
     # by dracut did fail, so collect some additional info
@@ -355,34 +388,13 @@ function get_remote_image_source_files {
             "Failed to fetch ${image_initrd_uri}, see /tmp/fetch.info"
     fi
 
-    echo "${image_uri}|${image_md5}"
-}
+    if ! fetch_file "${image_config_uri}" > "/config.bootoptions"
+    then
+        report_and_quit \
+            "Failed to fetch ${image_config_uri}, see /tmp/fetch.info"
+    fi
 
-function boot_installed_system {
-    local boot_options
-    # if rd.kiwi.install.pass.bootparam is given, pass on most
-    # boot options to the kexec kernel
-    if getargbool 0 rd.kiwi.install.pass.bootparam; then
-        local cmdline
-        local option
-        read -r cmdline < /proc/cmdline
-        for option in ${cmdline}; do
-            case ${option} in
-                rd.kiwi.*) ;; # skip all rd.kiwi options, they might do harm
-                *)  boot_options="${boot_options}${option} ";;
-            esac
-        done
-    fi
-    boot_options="${boot_options}$(cat /config.bootoptions)"
-    if getargbool 0 rd.kiwi.debug; then
-        boot_options="${boot_options} rd.kiwi.debug"
-    fi
-    kexec -l /run/install/boot/*/loader/linux \
-        --initrd /run/install/initrd.system_image \
-        --command-line "${boot_options}"
-    if ! kexec -e; then
-        report_and_quit "Failed to kexec boot system"
-    fi
+    echo "${image_uri}|${image_md5}"
 }
 
 #======================================
@@ -411,15 +423,3 @@ else
 fi
 
 check_image_integrity "${image_target}"
-
-if getargbool 0 rd.kiwi.ramdisk; then
-    # For ramdisk deployment a kexec boot is not possible as it
-    # will wipe the contents of the ramdisk. Therefore we prepare
-    # the switch_root from this deployment initrd. Also see the
-    # unit generator: dracut-kiwi-ramdisk-generator
-    kpartx -s -a "${image_target}"
-else
-    # Standard deployment will use kexec to activate and boot the
-    # deployed system
-    boot_installed_system
-fi

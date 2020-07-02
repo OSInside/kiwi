@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi image resize -h | --help
-       kiwi image resize --target-dir=<directory> --size=<size>
+usage: kiwi-ng image resize -h | --help
+       kiwi-ng image resize --target-dir=<directory> --size=<size>
            [--root=<directory>]
-       kiwi image resize help
+       kiwi-ng image resize help
 
 commands:
     resize
@@ -44,6 +44,7 @@ options:
         the target directory to expect image build results
 """
 import os
+import logging
 
 # project
 from kiwi.firmware import FirmWare
@@ -51,13 +52,14 @@ from kiwi.storage.loop_device import LoopDevice
 from kiwi.partitioner import Partitioner
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
-from kiwi.logger import log
 from kiwi.storage.subformat import DiskFormat
 from kiwi.utils.size import StringToSize
 
 from kiwi.exceptions import (
     KiwiImageResizeError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class ImageResizeTask(CliTask):

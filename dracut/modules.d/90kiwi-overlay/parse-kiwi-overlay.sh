@@ -15,8 +15,8 @@ modprobe -q loop
 case "${overlayroot}" in
     overlay:UUID=*|UUID=*) \
         root="${root#overlay:}"
-        root="$(echo "${root}" | sed 's,/,\\x2f,g')"
-        root="overlay:/dev/disk/by-uuid/${root#UUID=}"
+        root="${root//\//\\x2f}"
+        root="block:/dev/disk/by-uuid/${root#UUID=}"
         rootok=1 ;;
 esac
 
@@ -27,6 +27,6 @@ info "root was ${overlayroot}, is now ${root}"
 # make sure that init doesn't complain
 [ -z "${root}" ] && root="overlay"
 
-wait_for_dev -n /run/rootfsbase
+wait_for_dev -n "${root#block:}"
 
 return 0

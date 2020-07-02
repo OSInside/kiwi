@@ -16,34 +16,38 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
+import logging
 import copy
 import platform
 from collections import namedtuple
 from textwrap import dedent
 
 # project
-from . import xml_parse
-from .logger import log
-from .system.uri import Uri
-from .defaults import Defaults
-from .utils.size import StringToSize
+from kiwi import xml_parse
+from kiwi.system.uri import Uri
+from kiwi.defaults import Defaults
+from kiwi.utils.size import StringToSize
 
-from .exceptions import (
+from kiwi.exceptions import (
     KiwiProfileNotFound,
     KiwiTypeNotFound,
     KiwiDistributionNameError
 )
 
+log = logging.getLogger('kiwi')
 
-class XMLState(object):
+
+class XMLState:
     """
     **Implements methods to get stateful information from the XML data**
 
-    :param object xml_data: instance of XMLDescription
+    :param object xml_data: parse result from XMLDescription.load()
     :param list profiles: list of used profiles
     :param object build_type: build <type> section reference
     """
     def __init__(self, xml_data, profiles=None, build_type=None):
+        self.root_partition_uuid = None
+        self.root_filesystem_uuid = None
         self.host_architecture = platform.machine()
         self.xml_data = xml_data
         self.profiles = self._used_profiles(profiles)
@@ -133,8 +137,8 @@ class XMLState(object):
 
         :rtype: str
         """
-        if self.get_build_type_name() in ['vmx', 'iso']:
-            # vmx and iso image types always use dracut as initrd system
+        if self.get_build_type_name() in ['vmx', 'iso', 'kis']:
+            # vmx, iso and kis image types always use dracut as initrd system
             initrd_system = 'dracut'
         elif self.get_build_type_name() in ['oem', 'pxe']:
             # pxe and oem image types default to kiwi if unset
@@ -370,13 +374,15 @@ class XMLState(object):
         """
         return self.get_packages_sections(['image'])
 
-    def get_bootstrap_packages(self):
+    def get_bootstrap_packages(self, plus_packages=None):
         """
         List of package names from the type="bootstrap" packages section(s)
 
         The list gets the selected package manager appended
         if there is a request to install packages inside of
         the image via a chroot operation
+
+        :param list plus_packages: list of additional packages
 
         :return: package names
 
@@ -392,6 +398,8 @@ class XMLState(object):
                 result.append(package.package_section.get_name())
             if self.get_system_packages():
                 result.append(self.get_package_manager())
+        if plus_packages:
+            result += plus_packages
         return sorted(list(set(result)))
 
     def get_system_packages(self):
@@ -650,18 +658,6 @@ class XMLState(object):
         if systemdisk_sections:
             return systemdisk_sections[0]
 
-    def get_build_type_pxedeploy_section(self):
-        """
-        First pxedeploy section from the build type section
-
-        :return: <pxedeploy> section reference
-
-        :rtype: xml_parse::pxedeploy
-        """
-        pxedeploy_sections = self.build_type.get_pxedeploy()
-        if pxedeploy_sections:
-            return pxedeploy_sections[0]
-
     def get_build_type_machine_section(self):
         """
         First machine section from the build type section
@@ -763,6 +759,93 @@ class XMLState(object):
 
         return []
 
+    def get_build_type_bootloader_section(self):
+        """
+        First bootloader section from the build type section
+
+        :return: <bootloader> section reference
+
+        :rtype: xml_parse::bootloader
+        """
+        bootloader_sections = self.build_type.get_bootloader()
+        if bootloader_sections:
+            return bootloader_sections[0]
+
+    def get_build_type_bootloader_name(self):
+        """
+        Return bootloader name for selected build type
+
+        :return: bootloader name
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        return bootloader.get_name() if bootloader else \
+            Defaults.get_default_bootloader()
+
+    def get_build_type_bootloader_console(self):
+        """
+        Return bootloader console setting for selected build type
+
+        :return: console string
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_console()
+
+    def get_build_type_bootloader_serial_line_setup(self):
+        """
+        Return bootloader serial line setup parameters for the
+        selected build type
+
+        :return: serial line setup
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_serial_line()
+
+    def get_build_type_bootloader_timeout(self):
+        """
+        Return bootloader timeout setting for selected build type
+
+        :return: timeout string
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_timeout()
+
+    def get_build_type_bootloader_timeout_style(self):
+        """
+        Return bootloader timeout style setting for selected build type
+
+        :return: timeout_style string
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_timeout_style()
+
+    def get_build_type_bootloader_targettype(self):
+        """
+        Return bootloader target type setting. Only relevant for
+        the zipl bootloader because zipl is installed differently
+        depending on the storage target it runs later
+
+        :return: target type string
+
+        :rtype: string
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_targettype()
+
     def get_build_type_oemconfig_section(self):
         """
         First oemconfig section from the build type section
@@ -787,6 +870,27 @@ class XMLState(object):
         oemconfig = self.get_build_type_oemconfig_section()
         if oemconfig and oemconfig.get_oem_multipath_scan():
             return oemconfig.get_oem_multipath_scan()[0]
+
+    def get_oemconfig_swap_mbytes(self):
+        """
+        Return swapsize in MB if requested or None
+
+        Operates on the value of oem-swap and if set to true
+        returns the given size or the default value.
+
+        :return: Content of <oem-swapsize> section value or default
+
+        :rtype: int
+        """
+        oemconfig = self.get_build_type_oemconfig_section()
+        if oemconfig and oemconfig.get_oem_swap():
+            swap_requested = oemconfig.get_oem_swap()[0]
+            if swap_requested:
+                swapsize = oemconfig.get_oem_swapsize()
+                if swapsize:
+                    return swapsize[0]
+                else:
+                    return Defaults.get_swapsize_mbytes()
 
     def get_build_type_containerconfig_section(self):
         """
@@ -869,6 +973,19 @@ class XMLState(object):
         spare_part_size = self.build_type.get_spare_part()
         if spare_part_size:
             return self._to_mega_byte(spare_part_size)
+
+    def get_build_type_spare_part_fs_attributes(self):
+        """
+        Build type specific list of filesystem attributes applied to
+        the spare partition.
+
+        :return: list of strings or empty list
+
+        :rtype: list
+        """
+        spare_part_attributes = self.build_type.get_spare_part_fs_attributes()
+        if spare_part_attributes:
+            return spare_part_attributes.strip().split(',')
 
     def get_build_type_format_options(self):
         """
@@ -1051,7 +1168,7 @@ class XMLState(object):
 
         container_config_section.set_labels(labels)
 
-    def get_volumes(self):
+    def get_volumes(self):  # noqa C901
         """
         List of configured systemdisk volumes.
 
@@ -1086,6 +1203,7 @@ class XMLState(object):
         """
         volume_type_list = []
         systemdisk_section = self.get_build_type_system_disk_section()
+        swap_mbytes = self.get_oemconfig_swap_mbytes()
         if not systemdisk_section:
             return volume_type_list
 
@@ -1187,6 +1305,19 @@ class XMLState(object):
                     mountpoint=None,
                     realpath='/',
                     label=None,
+                    attributes=[]
+                )
+            )
+
+        if swap_mbytes and self.get_volume_management() == 'lvm':
+            volume_type_list.append(
+                volume_type(
+                    name='LVSwap',
+                    size='size:{0}'.format(swap_mbytes),
+                    fullsize=False,
+                    mountpoint=None,
+                    realpath='swap',
+                    label='SWAP',
                     attributes=[]
                 )
             )
@@ -1476,6 +1607,18 @@ class XMLState(object):
                 [machine_section]
             )
 
+    def copy_bootloader_section(self, target_state):
+        """
+        Copy bootloader section from this xml state to the target xml state
+
+        :param object target_state: XMLState instance
+        """
+        bootloader_section = self.get_build_type_bootloader_section()
+        if bootloader_section:
+            target_state.build_type.set_bootloader(
+                [bootloader_section]
+            )
+
     def copy_oemconfig_section(self, target_state):
         """
         Copy oemconfig sections from this xml state to the target xml state
@@ -1710,6 +1853,25 @@ class XMLState(object):
 
         return option_list
 
+    def get_fs_create_option_list(self):
+        """
+        List of root filesystem creation options
+
+        The list contains elements with the information from the
+        fscreateoptions attribute string that got split into its
+        substring components
+
+        :return: list with create options
+
+        :rtype: list
+        """
+        option_list = []
+        create_options = self.build_type.get_fscreateoptions()
+        if create_options:
+            option_list = create_options.split()
+
+        return option_list
+
     def get_derived_from_image_uri(self):
         """
         Uri object of derived image if configured
@@ -1746,6 +1908,34 @@ class XMLState(object):
                 type section
             ''')
             log.warning(message.format(uri))
+
+    def set_root_partition_uuid(self, uuid):
+        """
+        Store PARTUUID provided in uuid as state information
+
+        :param string uuid: PARTUUID
+        """
+        self.root_partition_uuid = uuid
+
+    def get_root_partition_uuid(self):
+        """
+        Return preserved PARTUUID
+        """
+        return self.root_partition_uuid
+
+    def set_root_filesystem_uuid(self, uuid):
+        """
+        Store UUID provided in uuid as state information
+
+        :param string uuid: UUID
+        """
+        self.root_filesystem_uuid = uuid
+
+    def get_root_filesystem_uuid(self):
+        """
+        Return preserved UUID
+        """
+        return self.root_filesystem_uuid
 
     def _used_profiles(self, profiles=None):
         """
@@ -1918,6 +2108,15 @@ class XMLState(object):
                 if history[0].get_author():
                     container_history['history']['author'] = \
                         history[0].get_author()
+                if history[0].get_launcher():
+                    container_history['history']['launcher'] = \
+                        history[0].get_launcher()
+                if history[0].get_application_id():
+                    container_history['history']['application_id'] = \
+                        history[0].get_application_id()
+                if history[0].get_package_version():
+                    container_history['history']['package_version'] = \
+                        history[0].get_package_version()
                 container_history['history']['comment'] = \
                     history[0].get_valueOf_()
         return container_history

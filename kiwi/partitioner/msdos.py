@@ -16,15 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from tempfile import NamedTemporaryFile
+import logging
 
 # project
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.partitioner.base import PartitionerBase
 
 from kiwi.exceptions import (
     KiwiPartitionerMsDosFlagError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class PartitionerMsDos(PartitionerBase):
@@ -40,6 +42,7 @@ class PartitionerMsDos(PartitionerBase):
         self.flag_map = {
             'f.active': True,
             't.linux': '83',
+            't.swap': '82',
             't.lvm': '8e',
             't.raid': 'fd',
             't.efi': None,

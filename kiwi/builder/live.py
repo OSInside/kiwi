@@ -16,9 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import mkdtemp
 from tempfile import NamedTemporaryFile
-import platform
 import shutil
 
 # project
@@ -37,15 +37,17 @@ from kiwi.system.result import Result
 from kiwi.iso_tools.iso import Iso
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.system.kernel import Kernel
-from kiwi.logger import log
 from kiwi.runtime_config import RuntimeConfig
+from kiwi.iso_tools.base import IsoToolsBase
 
 from kiwi.exceptions import (
     KiwiLiveBootImageError
 )
 
+log = logging.getLogger('kiwi')
 
-class LiveImageBuilder(object):
+
+class LiveImageBuilder:
     """
     **Live image builder**
 
@@ -57,9 +59,7 @@ class LiveImageBuilder(object):
     def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.media_dir = None
         self.live_container_dir = None
-        self.arch = platform.machine()
-        if self.arch == 'i686' or self.arch == 'i586':
-            self.arch = 'ix86'
+        self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -68,9 +68,6 @@ class LiveImageBuilder(object):
             Defaults.get_volume_id()
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
-        self.filesystem_custom_parameters = {
-            'mount_options': xml_state.get_fs_mount_option_list()
-        }
         self.publisher = xml_state.build_type.get_publisher() or \
             Defaults.get_publisher()
         self.custom_args = custom_args
@@ -91,7 +88,7 @@ class LiveImageBuilder(object):
             [
                 target_dir, '/',
                 xml_state.xml_data.get_name(),
-                '.' + platform.machine(),
+                '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version(),
                 '.iso'
             ]
@@ -138,6 +135,78 @@ class LiveImageBuilder(object):
             }
         }
 
+        log.info(
+            'Setting up live image bootloader configuration'
+        )
+        if self.firmware.efi_mode():
+            # setup bootloader config to boot the ISO via EFI
+            # This also embedds an MBR and the respective BIOS modules
+            # for compat boot. The complete bootloader setup will be
+            # based on grub
+            bootloader_config = BootLoaderConfig(
+                'grub2', self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.media_dir, custom_args={
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir)
+                }
+            )
+            bootloader_config.setup_live_boot_images(
+                mbrid=self.mbrid, lookup_path=self.root_dir
+            )
+        else:
+            # setup bootloader config to boot the ISO via isolinux.
+            # This allows for booting on x86 platforms in BIOS mode
+            # only.
+            bootloader_config = BootLoaderConfig(
+                'isolinux', self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.media_dir
+            )
+        IsoToolsBase.setup_media_loader_directory(
+            self.boot_image.boot_root_directory, self.media_dir,
+            bootloader_config.get_boot_theme()
+        )
+        bootloader_config.write_meta_data()
+        bootloader_config.setup_live_image_config(
+            mbrid=self.mbrid
+        )
+        bootloader_config.write()
+
+        # call custom editbootconfig script if present
+        self.system_setup.call_edit_boot_config_script(
+            filesystem='iso:{0}'.format(self.media_dir), boot_part_id=1,
+            working_directory=self.root_dir
+        )
+
+        # prepare dracut initrd call
+        self.boot_image.prepare()
+
+        # create dracut initrd for live image
+        log.info('Creating live ISO boot image')
+        live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
+            self.live_type
+        )
+        live_dracut_modules.append('pollcdrom')
+        for dracut_module in live_dracut_modules:
+            self.boot_image.include_module(dracut_module)
+        self.boot_image.omit_module('multipath')
+        self.boot_image.write_system_config_file(
+            config={
+                'modules': live_dracut_modules,
+                'omit_modules': ['multipath']
+            },
+            config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
+        )
+        self.boot_image.create_initrd(self.mbrid)
+
+        # setup kernel file(s) and initrd in ISO boot layout
+        log.info('Setting up kernel file(s) and boot image in ISO boot layout')
+        self._setup_live_iso_kernel_and_initrd()
+
+        # calculate size and decide if we need UDF
+        if rootsize.accumulate_mbyte_file_sizes() > 4096:
+            log.info('ISO exceeds 4G size, using UDF filesystem')
+            custom_iso_args['meta_data']['udf'] = True
+
         # pack system into live boot structure as expected by dracut
         log.info(
             'Packing system into dracut live ISO type: {0}'.format(
@@ -146,7 +215,8 @@ class LiveImageBuilder(object):
         )
         root_filesystem = Defaults.get_default_live_iso_root_filesystem()
         filesystem_custom_parameters = {
-            'mount_options': self.xml_state.get_fs_mount_option_list()
+            'mount_options': self.xml_state.get_fs_mount_option_list(),
+            'create_options': self.xml_state.get_fs_create_option_list()
         }
         filesystem_setup = FileSystemSetup(
             self.xml_state, self.root_dir
@@ -171,6 +241,8 @@ class LiveImageBuilder(object):
         live_filesystem.sync_data(
             Defaults.get_exclude_list_for_root_data_sync()
         )
+        live_filesystem.umount()
+
         log.info('--> Creating squashfs container for root image')
         self.live_container_dir = mkdtemp(
             prefix='live-container.', dir=self.target_dir
@@ -182,7 +254,11 @@ class LiveImageBuilder(object):
         live_container_image = FileSystem(
             name='squashfs',
             device_provider=None,
-            root_dir=self.live_container_dir
+            root_dir=self.live_container_dir,
+            custom_args={
+                'compression':
+                    self.xml_state.build_type.get_squashfscompression()
+            }
         )
         container_image = NamedTemporaryFile()
         live_container_image.create_on_file(
@@ -192,60 +268,6 @@ class LiveImageBuilder(object):
         shutil.copy(
             container_image.name, self.media_dir + '/LiveOS/squashfs.img'
         )
-
-        # setup bootloader config to boot the ISO via isolinux
-        log.info('Setting up isolinux bootloader configuration')
-        bootloader_config_isolinux = BootLoaderConfig(
-            'isolinux', self.xml_state, self.media_dir
-        )
-        bootloader_config_isolinux.setup_live_boot_images(
-            mbrid=None,
-            lookup_path=self.boot_image.boot_root_directory
-        )
-        bootloader_config_isolinux.setup_live_image_config(
-            mbrid=None
-        )
-        bootloader_config_isolinux.write()
-
-        # setup bootloader config to boot the ISO via EFI
-        if self.firmware.efi_mode():
-            log.info('Setting up EFI grub bootloader configuration')
-            bootloader_config_grub = BootLoaderConfig(
-                'grub2', self.xml_state, self.media_dir, {
-                    'grub_directory_name':
-                        Defaults.get_grub_boot_directory_name(self.root_dir)
-                }
-            )
-            bootloader_config_grub.setup_live_boot_images(
-                mbrid=self.mbrid, lookup_path=self.root_dir
-            )
-            bootloader_config_grub.setup_live_image_config(
-                mbrid=self.mbrid
-            )
-            bootloader_config_grub.write()
-
-        # call custom editbootconfig script if present
-        self.system_setup.call_edit_boot_config_script(
-            filesystem='iso:{0}'.format(self.media_dir), boot_part_id=1,
-            working_directory=self.root_dir
-        )
-
-        # prepare dracut initrd call
-        self.boot_image.prepare()
-
-        # create dracut initrd for live image
-        log.info('Creating live ISO boot image')
-        self._create_dracut_live_iso_config()
-        self.boot_image.create_initrd(self.mbrid)
-
-        # setup kernel file(s) and initrd in ISO boot layout
-        log.info('Setting up kernel file(s) and boot image in ISO boot layout')
-        self._setup_live_iso_kernel_and_initrd()
-
-        # calculate size and decide if we need UDF
-        if rootsize.accumulate_mbyte_file_sizes() > 4096:
-            log.info('ISO exceeds 4G size, using UDF filesystem')
-            custom_iso_args['meta_data']['udf'] = True
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
@@ -289,23 +311,6 @@ class LiveImageBuilder(object):
             shasum=False
         )
         return self.result
-
-    def _create_dracut_live_iso_config(self):
-        live_config_file = self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
-        omit_modules = [
-            'kiwi-dump', 'kiwi-overlay', 'kiwi-repart', 'kiwi-lib', 'multipath'
-        ]
-        live_config = [
-            'add_dracutmodules+=" {0} pollcdrom "'.format(
-                Defaults.get_live_dracut_module_from_flag(self.live_type)
-            ),
-            'omit_dracutmodules+=" {0} "'.format(' '.join(omit_modules)),
-            'hostonly="no"',
-            'dracut_rescue_image="no"'
-        ]
-        with open(live_config_file, 'w') as config:
-            for entry in live_config:
-                config.write(entry + os.linesep)
 
     def _setup_live_iso_kernel_and_initrd(self):
         """

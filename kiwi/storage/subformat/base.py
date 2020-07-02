@@ -16,40 +16,43 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import platform
+import logging
 from collections import OrderedDict
 
 # project
 from kiwi.command import Command
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 from kiwi.path import Path
-from kiwi.logger import log
 
 from kiwi.exceptions import (
     KiwiFormatSetupError,
     KiwiResizeRawDiskError
 )
 
+log = logging.getLogger('kiwi')
 
-class DiskFormatBase(object):
+
+class DiskFormatBase:
     """
     **Base class to create disk formats from a raw disk image**
 
     :param object xml_state: Instance of XMLState
     :param string root_dir: root directory path name
-    :param string arch: platform.machine
+    :param string arch: Defaults.get_platform_name
     :param string target_dir: target directory path name
     :param dict custom_args: custom format options dictionary
     """
     def __init__(self, xml_state, root_dir, target_dir, custom_args=None):
         self.xml_state = xml_state
         self.root_dir = root_dir
-        self.arch = platform.machine()
+        self.arch = Defaults.get_platform_name()
         self.target_dir = target_dir
         self.custom_args = {}
         self.temp_image_dir = None
         self.image_format = None
         self.diskname = self.get_target_file_path_for_format('raw')
+        self.runtime_config = RuntimeConfig()
 
         self.post_init(custom_args)
 
@@ -187,7 +190,9 @@ class DiskFormatBase(object):
                 self.image_format
             ),
             use_for_bundle=True,
-            compress=True,
+            compress=self.runtime_config.get_bundle_compression(
+                default=True
+            ),
             shasum=True
         )
 

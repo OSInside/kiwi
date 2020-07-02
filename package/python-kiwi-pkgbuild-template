@@ -1,0 +1,70 @@
+# Maintainer: Marcus Schaefer <ms@suse.com>
+# Maintainer: David Cassany <dcassany@suse.com>
+
+pkgname=('python-kiwi' 'kiwi-man-pages' 'dracut-kiwi-lib' 'dracut-kiwi-oem-repart' 'dracut-kiwi-oem-dump' 'dracut-kiwi-live' 'dracut-kiwi-overlay')
+arch=(x86_64)
+pkgver=%%VERSION
+pkgrel=0
+pkgdesc="KIWI - Appliance Builder Next Generation"
+url="https://github.com/SUSE/kiwi/tarball/master"
+license=('GPL3')
+makedepends=(python-setuptools gcc shadow grep)
+provides=(kiwi-ng kiwi)
+source=("${pkgname}.tar.gz")
+changelog="${pkgname}.changes"
+md5sums=('%%MD5SUM')
+
+
+build() {
+  cd kiwi-${pkgver}
+  python setup.py build
+}
+
+package_python-kiwi(){
+  depends=(python-docopt python-future python-lxml python-requests python-setuptools python-six python-pyxattr python-yaml grub qemu squashfs-tools gptfdisk pacman e2fsprogs xfsprogs btrfs-progs libisoburn lvm2 mtools parted multipath-tools rsync tar shadow kiwi-man-pages)
+  optdepends=('gnupg: keyring creation for APT package manager')
+  cd kiwi-${pkgver}
+  python setup.py install --root="${pkgdir}/" --optimize=1 --skip-build
+  ln -sr "${pkgdir}/usr/bin/kiwi-ng" "${pkgdir}/usr/bin/kiwi"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE" 
+}
+
+package_kiwi-man-pages(){
+  cd kiwi-${pkgver}
+  make buildroot="${pkgdir}/" docdir="/usr/share/doc/${pkgname}" install_package_docs
+}
+
+package_dracut-kiwi-lib(){
+  depends=(cryptsetup btrfs-progs gptfdisk coreutils e2fsprogs grep lvm2 mdadm parted util-linux xfsprogs dialog curl xz device-mapper dracut)
+  cd kiwi-${pkgver}
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/99kiwi-lib
+  cp -a dracut/modules.d/99kiwi-lib ${pkgdir}/usr/lib/dracut/modules.d/
+}
+
+package_dracut-kiwi-oem-repart(){
+  depends=(dracut-kiwi-lib)
+  cd kiwi-${pkgver}
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-repart
+  cp -a dracut/modules.d/90kiwi-repart ${pkgdir}/usr/lib/dracut/modules.d/
+}
+
+package_dracut-kiwi-oem-dump(){
+  depends=(dracut-kiwi-lib multipath-tools)
+  cd kiwi-${pkgver}
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-dump
+  cp -a dracut/modules.d/90kiwi-dump ${pkgdir}/usr/lib/dracut/modules.d/
+}
+
+package_dracut-kiwi-live(){
+  depends=(dracut dialog xfsprogs e2fsprogs util-linux device-mapper libisoburn parted)
+  cd kiwi-${pkgver}
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-live
+  cp -a dracut/modules.d/90kiwi-live ${pkgdir}/usr/lib/dracut/modules.d/
+}
+
+package_dracut-kiwi-overlay(){
+  depends=(dracut util-linux)
+  cd kiwi-${pkgver}
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-overlay
+  cp -a dracut/modules.d/90kiwi-overlay ${pkgdir}/usr/lib/dracut/modules.d/
+}

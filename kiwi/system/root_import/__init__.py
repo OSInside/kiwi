@@ -15,14 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
-from kiwi.system.root_import.docker import RootImportDocker
 from kiwi.system.root_import.oci import RootImportOCI
 from kiwi.exceptions import KiwiRootImportError
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
-class RootImport(object):
+class RootImport:
     """
     Root import factory
 
@@ -42,9 +44,15 @@ class RootImport(object):
             'Importing root from a {0} image type'.format(image_type)
         )
         if image_type == 'docker':
-            root_import = RootImportDocker(root_dir, image_uri)
+            root_import = RootImportOCI(
+                root_dir, image_uri,
+                custom_args={'archive_transport': 'docker-archive'}
+            )
         elif image_type == 'oci':
-            root_import = RootImportOCI(root_dir, image_uri)
+            root_import = RootImportOCI(
+                root_dir, image_uri,
+                custom_args={'archive_transport': 'oci-archive'}
+            )
         else:
             raise KiwiRootImportError(
                 'Support to import {0} images not implemented'.format(

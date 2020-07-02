@@ -15,14 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
+
 # project
 from kiwi.command import Command
-from kiwi.logger import log
 from kiwi.partitioner.base import PartitionerBase
 
 from kiwi.exceptions import (
     KiwiPartitionerGptFlagError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class PartitionerGpt(PartitionerBase):
@@ -39,9 +42,11 @@ class PartitionerGpt(PartitionerBase):
             'f.active': None,
             't.csm': 'EF02',
             't.linux': '8300',
+            't.swap': '8200',
             't.lvm': '8E00',
             't.raid': 'FD00',
-            't.efi': 'EF00'
+            't.efi': 'EF00',
+            't.prep': '4100'
         }
 
     def create(self, name, mbsize, type_name, flags=None):
@@ -138,12 +143,12 @@ class PartitionerGpt(PartitionerBase):
             if '(EFI System)' in partition_info.output:
                 efi_partition_number = number
             partition_ids.append(format(number))
-        Command.run(
-            ['sgdisk', '-m', ':'.join(partition_ids), self.disk_device]
-        )
         if efi_partition_number:
             # turn former EFI partition into standard linux partition
             self.set_flag(efi_partition_number, 't.linux')
+        Command.run(
+            ['sgdisk', '-m', ':'.join(partition_ids), self.disk_device]
+        )
 
     def resize_table(self, entries=128):
         """

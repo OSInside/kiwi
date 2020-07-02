@@ -16,14 +16,17 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import time
+import logging
 from tempfile import mkdtemp
 
 # project
-from .command import Command
-from .path import Path
+from kiwi.command import Command
+from kiwi.path import Path
+
+log = logging.getLogger('kiwi')
 
 
-class MountManager(object):
+class MountManager:
     """
     **Implements methods for mounting, umounting and mount checking**
 
@@ -88,7 +91,6 @@ class MountManager(object):
 
         :rtype: bool
         """
-        from .logger import log
         if self.is_mounted():
             umounted_successfully = False
             for busy in [1, 2, 3]:

@@ -19,13 +19,14 @@
 from kiwi.repository.zypper import RepositoryZypper
 from kiwi.repository.apt import RepositoryApt
 from kiwi.repository.dnf import RepositoryDnf
+from kiwi.repository.pacman import RepositoryPacman
 
 from kiwi.exceptions import (
     KiwiRepositorySetupError
 )
 
 
-class Repository(object):
+class Repository:
     """
     **Repository factory**
 
@@ -43,6 +44,8 @@ class Repository(object):
             return RepositoryDnf(root_bind, custom_args)
         elif package_manager == 'apt-get':
             return RepositoryApt(root_bind, custom_args)
+        elif package_manager == 'pacman':
+            return RepositoryPacman(root_bind, custom_args)
         else:
             raise KiwiRepositorySetupError(
                 'Support for %s repository manager not implemented' %

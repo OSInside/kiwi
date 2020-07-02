@@ -21,6 +21,9 @@ function resize_filesystem {
         resize_fs="${resize_fs} xfs_growfs ${mpoint}"
         resize_fs="${resize_fs};umount ${mpoint} && rmdir ${mpoint}"
     ;;
+    swap)
+        resize_fs="mkswap ${device} --label SWAP"
+    ;;
     *)
         # don't know how to resize this filesystem
         warn "Don't know how to resize ${fstype}... skipped"
@@ -40,17 +43,35 @@ function check_filesystem {
     local device=$1
     test -n "${device}" || return
     local check_fs
+    local check_fs_return_ok
     local fstype
     fstype=$(probe_filesystem "${device}")
     case ${fstype} in
     ext2|ext3|ext4)
+        # The exit code by e2fsck is the sum of the following conditions:
+        # 0    - No errors
+        # 1    - File system errors corrected
+        # 2    - File system errors corrected, system should be rebooted
+        # 4    - File system errors left uncorrected
+        # 8    - Operational error
+        # 16   - Usage or syntax error
+        # 32   - E2fsck canceled by user request
+        # 128  - Shared library error
         check_fs="e2fsck -p -f ${device}"
+        check_fs_return_ok="test \$? -le 2"
     ;;
     btrfs)
+        # btrfs check returns a zero exit status if it succeeds.
+        # Non zero is returned in case of failure.
         check_fs="btrfsck ${device}"
+        check_fs_return_ok="test \$? -eq 0"
     ;;
     xfs)
+        # xfs_repair -n (no modify mode) will return a status of 1 if
+        # filesystem corruption was detected and 0 if no filesystem
+        # corruption was detected.
         check_fs="xfs_repair -n ${device}"
+        check_fs_return_ok="test \$? -eq 0"
     ;;
     *)
         # don't know how to check this filesystem
@@ -59,7 +80,8 @@ function check_filesystem {
     ;;
     esac
     info "Checking ${fstype} filesystem on ${device}..."
-    if ! eval "${check_fs}"; then
+    eval "${check_fs}"
+    if ! eval "${check_fs_return_ok}"; then
         die "Failed to check filesystem"
     fi
 }
@@ -76,27 +98,6 @@ function probe_filesystem {
         fstype=luks
     fi
     echo ${fstype}
-}
-
-function create_swap {
-    # """
-    # create swap signature on device and create a
-    # fstab reference file which is used by a pre-pivot
-    # hook to update the system fstab
-    # """
-    local device=$1
-    local swap_label="SWAP"
-    test -n "${device}" || return
-    if ! mkswap "${device}" --label "${swap_label}" 1>&2;then
-        die "Failed to create swap signature"
-    fi
-    echo "LABEL=${swap_label} swap swap defaults 0 0" > /fstab.swap
-}
-
-function merge_swap_to_fstab {
-    if [ -f /sysroot/etc/fstab ];then
-        test -f /fstab.swap && cat /fstab.swap >> /sysroot/etc/fstab
-    fi
 }
 
 #======================================

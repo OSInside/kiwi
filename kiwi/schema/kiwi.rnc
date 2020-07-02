@@ -29,12 +29,15 @@ safe-posix-short-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]{1,32}"}
 locale-name = xsd:token {pattern = "(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "\d*|image"}
-volume-size-type = xsd:token {pattern = "\d+|\d+M|\d+G|all"}
-partition-size-type = xsd:token {pattern = "\d+|\d+M|\d+G"}
+volume-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G|all)"}
+partition-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G)"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
 groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*"}
 arch-name = xsd:token {pattern = "(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x))*"}
 portnum-type = xsd:token {pattern = "(\d+|\d+/(udp|tcp))"}
+grub_console = xsd:token {pattern = "(console|gfxterm|serial)( (console|gfxterm|serial))*"}
+fs_attributes = xsd:token {pattern = "(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*"}
+package-version-type =  xsd:token {pattern = "(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}"}
 
 #==========================================
 # start with image description
@@ -59,7 +62,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "6.9" }
+        attribute schemaversion { "7.2" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -242,28 +245,6 @@ div {
 }
 
 #==========================================
-# common element <configuration>
-#
-div {
-    k.configuration.source.attribute = k.source.attribute
-    k.configuration.dest.attribute = k.dest.attribute
-    k.configuration.arch.attribute = k.arch.attribute
-    k.configuration.attlist = 
-        k.configuration.source.attribute &
-        k.configuration.dest.attribute &
-        k.configuration.arch.attribute?
-
-    k.configuration =
-        ## As part of the network deploy configuration this section
-        ## specifies the configuration files which should be included
-        ## into the image after deployment
-        element configuration {
-            k.configuration.attlist,
-            empty
-        }
-}
-
-#==========================================
 # common element <contact>
 #
 div {
@@ -307,34 +288,6 @@ div {
         element ignore {
             k.ignore.attlist,
             empty
-        }
-}
-
-#==========================================
-# common element <initrd>
-#
-div {
-    k.initrd.attlist = empty
-    k.initrd =
-        ## As part of the network deploy configuration this element
-        ## specifies where the boot image (initrd) can be found
-        element initrd {
-            k.initrd.attlist,
-            text
-        }
-}
-
-#==========================================
-# common element <kernel>
-#
-div {
-    k.kernel.attlist = empty
-    k.kernel =
-        ## As part of the network deploy configuration this section
-        ## specifies the where to find the boot kernel
-        element kernel {
-            k.kernel.attlist,
-            text
         }
 }
 
@@ -432,6 +385,24 @@ div {
 }
 
 #==========================================
+# common element <oem-resize-once>
+#
+div {
+    k.oem-resize-once.content = xsd:boolean
+    k.oem-resize-once.attlist = empty
+    k.oem-resize-once =
+        ## For oem images: repart/resize only on first boot: true/false
+        ## By default the repart/resize happens on every reboot and
+        ## therefore also allows for disk geometry changes during the
+        ## livetime of the machine. If set to false the repart/resize
+        ## operation happens only once and then never again
+        element oem-resize-once {
+            k.oem-resize-once.attlist,
+            k.oem-resize-once.content
+        }
+}
+
+#==========================================
 # common element <oem-device-filter>
 #
 div {
@@ -459,7 +430,7 @@ div {
         ## operator. Interface names matching the rule will be skipped. All
         ## other interface names stay in the list. It is also possible to
         ## pass the variable kiwi_oemnicfilter as kernel command
-        ## line in a PXE deployment
+        ## line in a netboot deployment
         element oem-nic-filter {
             k.oem-nic-filter.attlist,
             k.oem-nic-filter.content
@@ -822,7 +793,7 @@ div {
 #
 div {
     k.packagemanager.content = 
-        "apt-get" | "zypper" | "yum" | "dnf"
+        "apt-get" | "zypper" | "yum" | "dnf" | "pacman"
     k.packagemanager.attlist = empty
     k.packagemanager =
         ## Name of the Package Manager
@@ -861,23 +832,6 @@ div {
         element partition {
             k.partition.attlist,
             empty
-        }
-}
-
-#==========================================
-# common element <partitions>
-#
-div {
-    k.partitions.device.attribute =
-        ## As part of the network deploy configuration this section
-        ## specifies the disk device name
-        attribute device { text }
-    k.partitions.attlist = k.partitions.device.attribute?
-    k.partitions =
-        ## A List of Partitions
-        element partitions { 
-            k.partitions.attlist, 
-            k.partition+
         }
 }
 
@@ -937,17 +891,15 @@ div {
     k.repository.type.attribute =
         ## Type of repository
         attribute type {
-        "apt-deb" | "apt-rpm" | "deb-dir" | "mirrors" | "red-carpet" |
-        "rpm-dir" | "rpm-md"  | "slack-site" | "up2date-mirrors" | "urpmi" |
-        "yast2"
-    }
+            "apt-deb" | "apt-rpm" | "deb-dir" | "mirrors" | "rpm-dir" | "rpm-md"
+        }
     k.repository.alias.attribute =
         ## Alias name to be used for this repository. This is an
         ## optional free form text. If not set the source attribute
-        ## value is used and builds the alias name by replacing
-        ## each '/' with a '_'. An alias name should be set if the
-        ## source argument doesn't really explain what this repository
-        ## contains
+        ## value is used and builds the alias name by running a md5 digest
+        ## of the defined URI of the repository. An alias name should be
+        ## set if the source argument doesn't really explain what this
+        ## repository contains.
         attribute alias { text }
     k.repository.components.attribute =
         ## Distribution components, used for deb repositories. If
@@ -971,7 +923,7 @@ div {
         ## appended into the repository configuration file.
         attribute repository_gpgcheck { xsd:boolean }
     k.repository.package_gpgcheck.attribute =
-        ## Specify whether or not this specific repository is configured to
+        ## Specify whether or not this specific repository is configured
         ## to run package signature validation. If not set, no value is
         ## appended into the repository configuration file.
         attribute package_gpgcheck { xsd:boolean }
@@ -989,10 +941,21 @@ div {
         ## Channel username if required. It depends on the url type
         ## whether and how this information is passed
         k.username.attribute
+    k.repository.sourcetype.attribute =
+        ## Specify the source type of the repository path.
+        ## Depending on if the source path is a simple url or a
+        ## pointer to a metadata file or mirror list, the
+        ## configured package manager needs to be setup
+        ## appropriately. By default the source is expected to
+        ## be a simple repository url
+        attribute sourcetype {
+            "baseurl" | "metalink" | "mirrorlist"
+        }
     k.repository.attlist =
         k.repository.type.attribute? &
         k.repository.profiles.attribute? &
         k.repository.alias.attribute? &
+        k.repository.sourcetype.attribute? &
         k.repository.components.attribute? &
         k.repository.distribution.attribute? &
         (
@@ -1154,19 +1117,6 @@ div {
 }
 
 #==========================================
-# common element <timeout>
-#
-div {
-    k.timeout.attlist = empty
-    k.timeout = 
-        ## Specifies an ATFTP Download Timeout
-        element timeout {
-            k.timeout.attlist,
-            text
-        }
-}
-
-#==========================================
 # common element <timezone>
 #
 div {
@@ -1220,31 +1170,6 @@ div {
         ## image description. When kiwi builds the boot image the
         ## information is passed as add-profile option
         attribute bootkernel { text }
-    k.type.bootloader.attribute =
-        ## Specifies the bootloader used for booting the image.
-        ## At the moment grub2, zipl and the combination of zipl plus
-        ## userspace grub2 are supported. The special custom entry
-        ## allows to skip the bootloader configuration and installation
-        ## and leaves this up to the user which can be done by using
-        ## the editbootinstall and editbootconfig custom scripts
-        attribute bootloader {
-            "grub2" | "zipl" | "grub2_s390x_emu" | "custom"
-        }
-        >> sch:pattern [ id = "bootloader" is-a = "image_type"
-            sch:param [ name = "attr" value = "bootloader" ]
-            sch:param [ name = "types" value = "oem vmx" ]
-        ]
-    k.type.bootloader_console.attribute =
-        ## Specifies the bootloader console.
-        ## The value only has an effect for the grub bootloader.
-        ## By default a graphics console setup is used
-        attribute bootloader_console {
-            "console" | "gfxterm" | "serial"
-        }
-        >> sch:pattern [ id = "bootloader_console" is-a = "image_type"
-            sch:param [ name = "attr" value = "bootloader_console" ]
-            sch:param [ name = "types" value = "oem vmx iso" ]
-        ]
     k.type.xen_server.attribute =
         ## Specify the image is a Xen dom0 (Xen Server) image
         ## The information is used to create a correct bootloader
@@ -1318,16 +1243,43 @@ div {
             sch:param [ name = "attr" value = "spare_part" ]
             sch:param [ name = "types" value = "oem vmx" ]
         ]
-    k.type.zipl_targettype.attribute =
-        ## The device type of the disk zipl should boot. On zFCP
-        ## devices use SCSI, on DASD devices use CDL or LDL on
-        ## emulated DASD devices use FBA
-        attribute zipl_targettype {
-            "CDL" | "LDL" | "FBA" | "SCSI"
-        }
-        >> sch:pattern [ id = "zipl_targettype" is-a = "image_type"
-            sch:param [ name = "attr" value = "zipl_targettype" ]
+    k.type.spare_part_mountpoint.attribute =
+        ## Specify mount point for spare partition in the system.
+        ## Can only be configured for the disk image types oem and vmx
+        attribute spare_part_mountpoint { text }
+        >> sch:pattern [ id = "spare_part_mountpoint" is-a = "image_type"
+            sch:param [ name = "attr" value = "spare_part_mountpoint" ]
             sch:param [ name = "types" value = "oem vmx" ]
+        ]
+    k.type.spare_part_fs.attribute =
+        ## Specify filesystem for spare partition in the system.
+        ## Can only be configured for the disk image types oem and vmx
+        attribute spare_part_fs {
+            "btrfs" | "ext2" | "ext3" | "ext4" | "xfs"
+        }
+        >> sch:pattern [ id = "spare_part_fs" is-a = "image_type"
+            sch:param [ name = "attr" value = "spare_part_fs" ]
+            sch:param [ name = "types" value = "oem vmx" ]
+        ]
+    k.type.spare_part_fs_attributes.attribute =
+        ## Specify filesystem attributes for the spare partition.
+        ## Attributes can be specified as comma separated list.
+        ## Can only be configured for the disk image types oem and vmx
+        attribute spare_part_fs_attributes { fs_attributes }
+        >> sch:pattern [ id = "spare_part_fs_attributes" is-a = "image_type"
+            sch:param [ name = "attr" value = "spare_part_fs_attributes" ]
+            sch:param [ name = "types" value = "oem vmx" ]
+        ]
+    k.type.spare_part_is_last.attribute =
+        ## Specify if the spare partition should be the last one in
+        ## the partition table. Can only be configured for the vmx
+        ## disk image type. By default the root partition is the last
+        ## one and the spare partition lives behind it. With this
+        ## attribute that setup can be toggled.
+        attribute spare_part_is_last { xsd:boolean }
+        >> sch:pattern [ id = "spare_part_is_last" is-a = "image_type"
+            sch:param [ name = "attr" value = "spare_part_is_last" ]
+            sch:param [ name = "types" value = "vmx" ]
         ]
     k.type.bootpartsize.attribute =
         ## For images with a separate boot partition this attribute
@@ -1365,23 +1317,14 @@ div {
             sch:param [ name = "attr" value = "bootprofile" ]
             sch:param [ name = "types" value = "oem vmx iso pxe cpio" ]
         ]
-    k.type.boottimeout.attribute =
-        ## Specifies the boot timeout in seconds prior to launching
-        ## the default boot option. By default the timeout is set
-        ## to 10sec
-        attribute boottimeout { xsd:nonNegativeInteger }
-        >> sch:pattern [ id = "boottimeout" is-a = "image_type"
-            sch:param [ name = "attr" value = "boottimeout" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
-        ]
     k.type.compressed.attribute =
         ## Specifies whether the image output file should be
         ## compressed or not. This makes only sense for filesystem
-        ## only images respectively for the pxe or cpio type
+        ## only images.
         attribute compressed { xsd:boolean }
         >> sch:pattern [ id = "compressed" is-a = "image_type"
             sch:param [ name = "attr" value = "compressed" ]
-            sch:param [ name = "types" value = "pxe" ]
+            sch:param [ name = "types" value = "pxe kis" ]
         ]
     k.type.devicepersistency.attribute =
         ## Specifies which method to use in order to get persistent
@@ -1414,12 +1357,21 @@ div {
         }
         >> sch:pattern [ id = "filesystem" is-a = "image_type"
             sch:param [ name = "attr" value = "filesystem" ]
-            sch:param [ name = "types" value = "vmx oem pxe" ]
+            sch:param [ name = "types" value = "vmx oem pxe kis" ]
         ]
         >> sch:pattern [
             id = "filesystem_mandatory" is-a = "image_type_requirement"
             sch:param [ name = "attr" value = "filesystem" ]
-            sch:param [ name = "types" value = "vmx oem pxe" ]
+            sch:param [ name = "types" value = "vmx oem" ]
+        ]
+	k.type.squashfscompression.attribute = 
+        ## Specifies the compression type for mksquashfs
+        attribute squashfscompression {
+            "uncompressed" | "gzip" | "lzo" | "lz4" | "xz" | "zstd"
+        }
+        >> sch:pattern [ id = "squashfscompression" is-a = "image_type"
+            sch:param [ name = "attr" value = "squashfscompression" ]
+            sch:param [ name = "types" value = "vmx oem pxe kis iso" ]
         ]
     k.type.overlayroot.attribute =
         ## Specifies to use an overlay root system consisting
@@ -1520,6 +1472,9 @@ div {
         ## Specifies the filesystem mount options which also ends up in fstab
         ## The string given here is passed as value to the -o option of mount
         attribute fsmountoptions { text }
+    k.type.fscreateoptions.attribute =
+        ## Specifies options to create the filesystem
+        attribute fscreateoptions { text }
     k.type.hybridpersistent.attribute =
         ## Will trigger the creation of a partition for a COW file
         ## to keep data persistent over a reboot
@@ -1556,15 +1511,29 @@ div {
         }
         >> sch:pattern [ id = "initrd_system" is-a = "image_type"
             sch:param [ name = "attr" value = "initrd_system" ]
-            sch:param [ name = "types" value = "oem" ]
+            sch:param [ name = "types" value = "oem pxe" ]
         ]
     k.type.image.attribute =
         ## Specifies the image type
         attribute image {
             "btrfs" | "clicfs" | "cpio" | "docker" | "ext2" | "ext3" |
-            "ext4" | "iso" | "oem" | "pxe" | "squashfs" | "tbz" |
-            "vmx" | "xfs" | "oci"
+            "ext4" | "iso" | "oem" | "pxe" | "kis" | "squashfs" | "tbz" |
+            "vmx" | "xfs" | "oci" | "appx"
         }
+        >> sch:pattern [
+            id = "metadata_path_mandatory" is-a = "image_type_requirement"
+            sch:param [ name = "attr" value = "metadata_path" ]
+            sch:param [ name = "types" value = "appx" ]
+        ]
+    k.type.metadata_path.attribute =
+        ## Specifies a path to additional metadata required for
+        ## the selected image type or its tools used to create
+        ## that image type
+        attribute metadata_path { text }
+        >> sch:pattern [ id = "metadata_path" is-a = "image_type"
+            sch:param [ name = "attr" value = "metadata_path" ]
+            sch:param [ name = "types" value = "appx" ]
+        ]
     k.type.installboot.attribute =
         ## Specifies the bootloader default boot entry for the
         ## initial boot of a kiwi install image. This value is
@@ -1578,7 +1547,7 @@ div {
         ]
     k.type.install_continue_on_timeout.attribute =
         ## Specifies the boot timeout handling for the KIWI
-        ## install image. If set to "true" the configured boottimeout
+        ## install image. If set to "true" the configured timeout
         ## or its default value applies. If set to "false" no
         ## timeout applies in the boot menu of the install image.
         attribute install_continue_on_timeout { xsd:boolean }
@@ -1631,7 +1600,7 @@ div {
         attribute kernelcmdline { text }
         >> sch:pattern [ id = "kernelcmdline" is-a = "image_type"
             sch:param [ name = "attr" value = "kernelcmdline" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
+            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
         ]
     k.type.luks.attribute =
         ## Setup cryptographic volume along with the given filesystem
@@ -1641,7 +1610,7 @@ div {
         attribute luks { text }
         >> sch:pattern [ id = "luks" is-a = "image_type"
             sch:param [ name = "attr" value = "luks" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
+            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
         ]
     k.type.luksOS.attribute =
         ## With the luksOS value a predefined set of ciper, keysize
@@ -1653,7 +1622,7 @@ div {
         }
         >> sch:pattern [ id = "luksOS" is-a = "image_type"
             sch:param [ name = "attr" value = "luksOS" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe" ]
+            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
         ]
     k.type.mdraid.attribute =
         ## Setup software raid in degraded mode with one disk
@@ -1681,7 +1650,7 @@ div {
         attribute rootfs_label { text }
         >> sch:pattern [ id = "rootfs_label" is-a = "image_type"
             sch:param [ name = "attr" value = "rootfs_label" ]
-            sch:param [ name = "types" value = "oem vmx pxe docker" ]
+            sch:param [ name = "types" value = "oem vmx pxe kis docker" ]
         ] 
     k.type.vga.attribute =
         ## Specifies the kernel framebuffer mode. More information
@@ -1690,7 +1659,7 @@ div {
         attribute vga { text }
         >> sch:pattern [ id = "vga" is-a = "image_type"
             sch:param [ name = "attr" value = "vga" ]
-            sch:param [ name = "types" value = "oem vmx pxe iso" ]
+            sch:param [ name = "types" value = "oem vmx pxe kis iso" ]
         ]
     k.type.gcelicense.attribute =
         ## Specifies the license tag in a GCE format
@@ -1755,15 +1724,11 @@ div {
         k.type.bootfilesystem.attribute? &
         k.type.firmware.attribute? &
         k.type.bootkernel.attribute? &
-        k.type.bootloader.attribute? &
-        k.type.bootloader_console.attribute? &
-        k.type.zipl_targettype.attribute? &
         k.type.bootpartition.attribute? &
         k.type.bootpartsize.attribute? &
         k.type.efipartsize.attribute? &
         k.type.efiparttable.attribute? &
         k.type.bootprofile.attribute? &
-        k.type.boottimeout.attribute? &
         k.type.btrfs_quota_groups.attribute? &
         k.type.btrfs_root_is_snapshot.attribute? &
         k.type.btrfs_root_is_readonly_snapshot.attribute? &
@@ -1776,6 +1741,8 @@ div {
         k.type.format.attribute? &
         k.type.formatoptions.attribute? &
         k.type.fsmountoptions.attribute? &
+        k.type.fscreateoptions.attribute? &
+        k.type.squashfscompression.attribute? &
         k.type.gcelicense.attribute? &
         k.type.hybridpersistent.attribute? &
         k.type.hybridpersistent_filesystem.attribute? &
@@ -1783,6 +1750,7 @@ div {
         k.type.force_mbr.attribute? &
         k.type.initrd_system.attribute? &
         k.type.image.attribute &
+        k.type.metadata_path.attribute? &
         k.type.installboot.attribute? &
         k.type.install_continue_on_timeout.attribute? &
         k.type.installprovidefailsafe.attribute? &
@@ -1799,6 +1767,10 @@ div {
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &
         k.type.spare_part.attribute? &
+        k.type.spare_part_mountpoint.attribute? &
+        k.type.spare_part_fs.attribute? &
+        k.type.spare_part_fs_attributes.attribute? &
+        k.type.spare_part_is_last.attribute? &
         k.type.target_blocksize.attribute? &
         k.type.target_removable.attribute? &
         k.type.vga.attribute? &
@@ -1813,43 +1785,13 @@ div {
         ## The Image Type of the Logical Extend
         element type { 
             k.type.attlist &
+            k.bootloader? &
             k.containerconfig? &
             k.machine? &
             k.oemconfig? &
-            k.pxedeploy? &
             k.size? &
             k.systemdisk? &
             k.vagrantconfig*
-        }
-}
-
-#==========================================
-# common element <union>
-#
-div {
-    k.union.ro.attribute =
-        ## Device only for read-only 
-        attribute ro { text }
-    k.union.rw.attribute =
-        ## Device for Read-Write
-        attribute rw { text }
-    k.union.type.attribute =
-        ## Union type to use to overlay read-write and read-only parts
-        attribute type { "overlayfs" }
-    k.union.attlist =
-        k.union.ro.attribute &
-        k.union.rw.attribute &
-        k.union.type.attribute
-    
-    k.union =  
-        ## As part of the network deploy configuration this section
-        ## specifies the overlay filesystem setup if required by the
-        ## filesystem type of the system image.An overlay setup is
-        ## only required if the system image uses a squashfs
-        ## compressed filesystem.
-        element union {
-            k.union.attlist,
-            empty
         }
 }
 
@@ -1882,10 +1824,10 @@ div {
         attribute shell { text }
     k.user.attlist =
         k.user.groups.attribute? &
-        k.user.home.attribute &
+        k.user.home.attribute? &
         k.user.id.attribute? &
         k.user.name.attribute &
-        k.user.password.attribute? &
+        k.user.password.attribute &
         k.user.pwdformat? &
         k.user.realname.attribute? &
         k.user.shell.attribute?
@@ -2068,32 +2010,6 @@ div {
 }
 
 #==========================================
-# main block: <pxedeploy>
-#
-div {
-    k.pxedeploy.server.attribute =
-        ## Name or IP Address of server for downloading the data
-        attribute server { text }
-    k.pxedeploy.blocksize.attribute = 
-        ## Blocksize value used for atftp downloads
-        attribute blocksize { xsd:nonNegativeInteger }
-    k.pxedeploy.attlist =
-        k.pxedeploy.server.attribute? &
-        k.pxedeploy.blocksize.attribute?
-    k.pxedeploy =
-        ## Controls the Image Deploy Process
-        element pxedeploy {
-            k.pxedeploy.attlist &
-            k.timeout? &
-            k.kernel? &
-            k.initrd? &
-            k.partitions? &
-            k.union? &
-            k.configuration*
-        }
-}
-
-#==========================================
 # main block: <description>
 #
 div {
@@ -2156,6 +2072,117 @@ div {
 }
 
 #==========================================
+# main block: <bootloader>
+#
+div {
+    sch:pattern [
+        abstract = "true"
+        id = "bootloader_image_type"
+        sch:rule [
+            context = "bootloader[@$attr]"
+            sch:assert [
+                test = "contains('$types', ../@image)"
+                "bootloader($attr) is only available for the following "
+                "image types: $types"
+            ]
+        ]
+    ]
+    sch:pattern [
+        abstract = "true"
+        id = "bootloader_name_type"
+        sch:rule [
+            context = "bootloader[@$attr]"
+            sch:assert [
+                test = "contains('$types', @name)"
+                "bootloader($attr) attribute is only available for the following "
+                "bootloader types: $types"
+            ]
+        ]
+    ]
+    k.bootloader.name.attribute =
+        ## Specifies the bootloader used for booting the image.
+        ## At the moment grub2, isolinux, zipl and the combination of
+        ## zipl plus userspace grub2 are supported. The special custom
+        ## entry allows to skip the bootloader configuration and installation
+        ## and leaves this up to the user which can be done by using
+        ## the editbootinstall and editbootconfig custom scripts
+        attribute name {
+            "grub2" | "isolinux" | "zipl" | "grub2_s390x_emu" | "custom"
+        }
+        >> sch:pattern [ id = "loader_name" is-a = "bootloader_image_type"
+            sch:param [ name = "attr" value = "name" ]
+            sch:param [ name = "types" value = "oem vmx iso" ]
+        ]
+    k.bootloader.console.attribute =
+        ## Specifies the bootloader console.
+        ## The value is available for grub and isolinux bootloader
+        ## types. By default a graphics console setup is used
+        attribute console { grub_console }
+        >> sch:pattern [ id = "loader_console" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "console" ]
+            sch:param [ name = "types" value = "grub2 isolinux grub2_s390x_emu" ]
+        ]
+    k.bootloader.serial_line.attribute =
+        ## Specifies the bootloader serial line setup. The setup
+        ## is effective if the bootloader console is set to use
+        ## the serial line. The attribute is available for the grub
+        ## bootloader
+        attribute serial_line { text }
+        >> sch:pattern [ id = "serial_line" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "serial_line" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
+        ]
+    k.bootloader.timeout.attribute =
+        ## Specifies the boot timeout in seconds prior to launching
+        ## the default boot option. By default the timeout is set
+        ## to 10sec
+        attribute timeout { xsd:nonNegativeInteger }
+        >> sch:pattern [ id = "timeout" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "timeout" ]
+            sch:param [ name = "types" value = "grub2 isolinux zipl grub2_s390x_emu" ]
+        ]
+    k.bootloader.timeout_style.attribute =
+        ## Specifies the boot timeout style to control the way in which
+        ## the timeout interacts with displaying the menu. If set the
+        ## display of the bootloader menu is delayed after the timeout
+        ## expired. In countdown mode an indication of the remaining time
+        ## is displayed. The attribute is available for the grub loader.
+        attribute timeout_style {
+            "countdown" | "hidden"
+        }
+        >> sch:pattern [ id = "timeout_style" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "timeout_style" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
+        ]
+    k.bootloader.targettype.attribute =
+        ## The device type of the disk zipl should boot. On zFCP
+        ## devices use SCSI, on DASD devices use CDL or LDL on
+        ## emulated DASD devices use FBA
+        attribute targettype {
+            "CDL" | "LDL" | "FBA" | "SCSI"
+        }
+        >> sch:pattern [ id = "targettype" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "targettype" ]
+            sch:param [ name = "types" value = "zipl grub2_s390x_emu" ]
+        ]
+    k.bootloader.attlist =
+        k.bootloader.name.attribute &
+        k.bootloader.console.attribute? &
+        k.bootloader.serial_line.attribute? &
+        k.bootloader.timeout.attribute? &
+        k.bootloader.timeout_style.attribute? &
+        k.bootloader.targettype.attribute?
+
+    k.bootloader =
+        ## The bootloader section is used to select the bootloader
+        ## and to provide configuration parameters for it
+        element bootloader {
+            k.bootloader.attlist &
+            empty
+        }
+}
+
+#==========================================
 # main block: <containerconfig>
 #
 div {
@@ -2163,7 +2190,7 @@ div {
         abstract = "true"
         id = "container_type"
         sch:rule [
-            context = "containerconfig"
+            context = "containerconfig[@$attr]"
             sch:assert [
                 test = "contains('$types', ../@image)"
                 "containerconfig($attr) is only available for the following "~
@@ -2178,7 +2205,7 @@ div {
         attribute name { text }
         >> sch:pattern [ id = "name" is-a = "container_type"
             sch:param [ name = "attr" value = "name" ]
-            sch:param [ name = "types" value = "docker oci" ]
+            sch:param [ name = "types" value = "docker oci appx" ]
         ]
     k.containerconfig.tag.attribute =
         ## Specifies a tag for the container. This is usually the
@@ -2446,9 +2473,27 @@ div {
         ## Specifies the 'author' history record.
         attribute author { text }
 
+    k.history.application_id =
+        ## Specifies a custom application ID, used for WSL containers
+        attribute application_id { text }
+
+    k.history.package_version =
+        ## Specifies a version information, used for WSL containers.
+        ## The version given here follows the package numbering rules
+        ## as documented in: https://docs.microsoft.com/en-us/windows/uwp/publish/package-version-numbering
+        attribute package_version { package-version-type }
+
+    k.history.launcher =
+        ## Specifies name of the container launcher program
+        ## Used for WSL containers
+        attribute launcher { text }
+
     k.history.attlist =
         k.history.created_by.attribute? &
-		k.history.author.attribute?
+		k.history.author.attribute? &
+        k.history.application_id? &
+        k.history.package_version? &
+        k.history.launcher?
 
     k.history =
         ## Provides details about the container history. Includes the
@@ -2473,6 +2518,7 @@ div {
             k.oemconfig.attlist &
             k.oem-boot-title? &
             k.oem-bootwait? &
+            k.oem-resize-once? &
             k.oem-device-filter? &
             k.oem-nic-filter? &
             k.oem-inplace-recovery? &
@@ -2503,12 +2549,33 @@ div {
 # main block: <vagrantconfig>
 #
 div {
+    sch:pattern [
+        abstract = "true"
+        id = "vagrant_provider"
+        sch:rule [
+            context = "vagrantconfig[@$attr]"
+            sch:assert [
+                test = "contains('$providers', @provider)"
+                "$attr attribute is only available for the following "
+                "vagrant providers: $providers"
+            ]
+        ]
+    ]
     k.vagrantconfig.provider.attribute =
         ## The vagrant provider for this box
         attribute provider { "libvirt" | "virtualbox" }
     k.vagrantconfig.virtualbox_guest_additions_present.attribute =
         ## Guest additions are present in this box
         attribute virtualbox_guest_additions_present { xsd:boolean }
+        >> sch:pattern [ id = "virtualbox_guest_additions_present" is-a = "vagrant_provider"
+            sch:param [ name = "attr" value = "virtualbox_guest_additions_present" ]
+            sch:param [ name = "providers" value = "virtualbox" ]
+        ]
+    k.vagrantconfig.embedded_vagrantfile.attribute =
+        ## Path to a Vagrantfile that will be embedded in the box
+        ## Kiwi cannot check the Vagrantfile for correctnes, therefore use this
+        ## at your own risk!
+        attribute embedded_vagrantfile { text }
     k.vagrantconfig.virtualsize.attribute =
         ## virtualsize provides the value of the virtual_size key which
         ## is embedded in the metadata.json hash inside the box file, as
@@ -2524,7 +2591,8 @@ div {
         k.vagrantconfig.provider.attribute &
         k.vagrantconfig.virtualsize.attribute &
         k.vagrantconfig.boxname.attribute? &
-        k.vagrantconfig.virtualbox_guest_additions_present.attribute?
+        k.vagrantconfig.virtualbox_guest_additions_present.attribute? &
+        k.vagrantconfig.embedded_vagrantfile.attribute?
     k.vagrantconfig =
         ## The vagrantconfig element specifies the Vagrant meta
         ## configuration options which are used inside a vagrant box
@@ -2618,12 +2686,12 @@ div {
         ## packages are only installed if this build type is requested.
         attribute type {
             "bootstrap" | "delete" | "docker" | "image" |
-            "iso" | "oem" | "pxe" | "vmx" | "oci" |
+            "iso" | "oem" | "pxe" | "kis" | "vmx" | "oci" |
             "uninstall"
         }
     k.packages.profiles.attribute = k.profiles.attribute
     k.packages.patternType.attribute =
-        ## Selection type for patterns. Could be onlyRequired
+        ## Selection type for patterns. Can be onlyRequired
         ## or plusRecommended
         attribute patternType {
             "onlyRequired" | "plusRecommended"

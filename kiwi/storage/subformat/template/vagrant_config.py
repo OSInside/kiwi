@@ -18,10 +18,9 @@
 import os
 
 from textwrap import dedent
-from string import Template
 
 
-class VagrantConfigTemplate(object):
+class VagrantConfigTemplate:
     """
     **Generate a Vagrantfile configuration template**
 
@@ -29,9 +28,9 @@ class VagrantConfigTemplate(object):
     inside a vagrant box.
 
     The included Vagrantfile carries additional information for vagrant: by
-    default that is just the boxes' MAC address, but depending on the provider
-    additional information need to be present. These can be passed via the
-    parameter ``custom_settings`` to the method :meth:`get_template`.
+    default that is nothing, but depending on the provider additional
+    information need to be present. These can be passed via the parameter
+    ``custom_settings`` to the method :meth:`get_template`.
 
     Example usage:
 
@@ -43,10 +42,8 @@ class VagrantConfigTemplate(object):
         >>> vagrant_config = VagrantConfigTemplate()
         >>> print(
         ...     vagrant_config.get_template()
-        ...     .substitute({'mac_address': 'deadbeef'})
         ... )
         Vagrant.configure("2") do |config|
-          config.vm.base_mac = "deadbeef"
         end
 
     If your provider/box requires additional settings, provide them as follows:
@@ -61,10 +58,8 @@ class VagrantConfigTemplate(object):
         ... ''').strip()
         >>> print(
         ...     vagrant_config.get_template(extra_settings)
-        ...     .substitute({'mac_address': 'DEADBEEF'})
         ... )
         Vagrant.configure("2") do |config|
-          config.vm.base_mac = "DEADBEEF"
           config.vm.hostname = "no-dead-beef"
           config.vm.provider :special do |special|
             special.secret_settings = "please_work"
@@ -77,10 +72,6 @@ class VagrantConfigTemplate(object):
 
         self.header = dedent('''
             Vagrant.configure("2") do |config|
-        ''').strip() + os.linesep
-
-        self.mac = self.indent + dedent('''
-            config.vm.base_mac = "${mac_address}"
         ''').strip() + os.linesep
 
         self.end = dedent('''
@@ -96,18 +87,17 @@ class VagrantConfigTemplate(object):
             pasted into the Vagrantfile template. The string is put at the
             correct indentation level for you, but the internal indentation has
             to be provided by the caller.
-        :return: A template with ``custom_settings`` inserted at the
+        :return: A string with ``custom_settings`` inserted at the
             appropriate position. The template has one the variable
             ``mac_address`` that must be substituted.
-        :rtype: string.Template
+        :rtype: str
         """
-        template_data = self.header
-        template_data += self.mac
+        template = self.header
         if custom_settings:
-            template_data += self.indent
-            template_data += self.indent.join(
+            template += self.indent
+            template += self.indent.join(
                 custom_settings.splitlines(True)
             )
-            template_data += os.linesep
-        template_data += self.end
-        return Template(template_data)
+            template += os.linesep
+        template += self.end
+        return template

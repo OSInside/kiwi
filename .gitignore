@@ -11,7 +11,6 @@ doc/source/development/schema/xsdDocHtml.css
 tools/dcounter
 tools/driveready
 tools/isconsole
-tools/kversion
 tools/setctsid
 tools/startshell
 tools/utimer
@@ -37,6 +36,7 @@ env/
 .env2/
 .env3/
 build/
+build_travis/
 develop-eggs/
 dist/
 downloads/
@@ -74,9 +74,16 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+doc/xml/
 
 # PyBuilder
 target/
 
 # man pages
 *.1.gz
+
+# MyPy
+.mypy_cache/
+
+# Editors
+.vscode/

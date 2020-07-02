@@ -31,7 +31,6 @@ addFilter("W: no-manual-page-for-binary startshell");
 addFilter("W: no-manual-page-for-binary utimer");
 addFilter("W: no-manual-page-for-binary driveready");
 addFilter("W: no-manual-page-for-binary setctsid");
-addFilter("W: no-manual-page-for-binary kversion");
 addFilter("W: no-manual-page-for-binary isconsole");
 addFilter("W: no-manual-page-for-binary kiwicompat");
 

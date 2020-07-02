@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from six.moves.configparser import ConfigParser
+from configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
@@ -154,7 +154,8 @@ class RepositoryZypper(RepositoryBase):
         1. Create the rpm image macro which persists during the build
         2. Create the rpm bootstrap macro to make sure for bootstrapping
            the rpm database location matches the host rpm database setup.
-           This macro only persists during the bootstrap phase
+           This macro only persists during the bootstrap phase. If the
+           image was already bootstrapped a compat link is created instead.
         3. Create zypper compat link
         """
         rpmdb = RpmDataBase(
@@ -164,7 +165,11 @@ class RepositoryZypper(RepositoryBase):
             rpmdb.set_macro_from_string(self.locale[0])
         rpmdb.write_config()
 
-        RpmDataBase(self.root_dir).set_database_to_host_path()
+        rpmdb = RpmDataBase(self.root_dir)
+        if rpmdb.has_rpm():
+            rpmdb.link_database_to_host_path()
+        else:
+            rpmdb.set_database_to_host_path()
         # Zypper compat code:
         #
         # Manually adding the compat link /var/lib/rpm that points to the
@@ -188,18 +193,18 @@ class RepositoryZypper(RepositoryBase):
         # For further details on the motivation in zypper please
         # refer to bsc#1112357
         rpmdb.init_database()
-        Path.create(
-            os.sep.join([self.root_dir, 'var', 'lib'])
-        )
-        Command.run(
-            [
-                'ln', '-s', ''.join(
-                    ['../..', rpmdb.rpmdb_host.expand_query('%_dbpath')]
-                ), os.sep.join(
-                    [self.root_dir, 'var', 'lib', 'rpm']
-                )
-            ], raise_on_error=False
-        )
+        image_rpm_compat_link = '/var/lib/rpm'
+        host_rpm_dbpath = rpmdb.rpmdb_host.expand_query('%_dbpath')
+        if host_rpm_dbpath != image_rpm_compat_link:
+            Path.create(
+                self.root_dir + os.path.dirname(image_rpm_compat_link)
+            )
+            Command.run(
+                [
+                    'ln', '-s', ''.join(['../..', host_rpm_dbpath]),
+                    self.root_dir + image_rpm_compat_link
+                ], raise_on_error=False
+            )
 
     def use_default_location(self):
         """
@@ -228,7 +233,8 @@ class RepositoryZypper(RepositoryBase):
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
-        repo_gpgcheck=None, pkg_gpgcheck=None
+        repo_gpgcheck=None, pkg_gpgcheck=None,
+        sourcetype=None
     ):
         """
         Add zypper repository
@@ -237,13 +243,14 @@ class RepositoryZypper(RepositoryBase):
         :param str uri: repository URI
         :param repo_type: repostory type name
         :param int prio: zypper repostory priority
-        :param dist: unused
-        :param components: unused
-        :param user: credentials username
-        :param secret: credentials password
-        :param credentials_file: zypper credentials file
+        :param str dist: unused
+        :param str components: unused
+        :param str user: credentials username
+        :param str secret: credentials password
+        :param str credentials_file: zypper credentials file
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: enable package signature validation
+        :param str sourcetype: unused
         """
         if credentials_file:
             repo_secret = os.sep.join(

@@ -1,16 +1,20 @@
-kiwi result list
-================
+kiwi-ng result list
+===================
+
+.. _db_kiwi_result_list_synopsis:
 
 SYNOPSIS
 --------
 
-.. code-block:: bash
+.. code:: bash
 
-   kiwi [global options] service <command> [<args>]
+   kiwi-ng [global options] service <command> [<args>]
 
-   kiwi result list -h | --help
-   kiwi result list --target-dir=<directory>
-   kiwi result list help
+   kiwi-ng result list -h | --help
+   kiwi-ng result list --target-dir=<directory>
+   kiwi-ng result list help
+
+.. _db_kiwi_result_list_desc:
 
 DESCRIPTION
 -----------
@@ -20,6 +24,8 @@ Please note if you build an image several times with the same
 target directory the build result information will be overwritten
 each time you build the image. Therefore the build result list
 is valid for the last build
+
+.. _db_kiwi_result_list_opts:
 
 OPTIONS
 -------

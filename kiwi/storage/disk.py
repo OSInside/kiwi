@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from collections import OrderedDict
 from tempfile import NamedTemporaryFile
 
@@ -24,7 +25,8 @@ from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.partitioner import Partitioner
-from kiwi.logger import log
+
+log = logging.getLogger('kiwi')
 
 
 class Disk(DeviceProvider):
@@ -177,6 +179,18 @@ class Disk(DeviceProvider):
         self.partitioner.create('p.spare', mbsize, 't.linux')
         self._add_to_map('spare')
         self._add_to_public_id_map('kiwi_SparePart')
+
+    def create_swap_partition(self, mbsize):
+        """
+        Create swap partition
+
+        Populates kiwi_SwapPart(id)
+
+        :param int mbsize: partition size
+        """
+        self.partitioner.create('p.swap', mbsize, 't.swap')
+        self._add_to_map('swap')
+        self._add_to_public_id_map('kiwi_SwapPart')
 
     def create_efi_csm_partition(self, mbsize):
         """

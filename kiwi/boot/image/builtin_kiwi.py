@@ -16,19 +16,21 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from tempfile import mkdtemp
-from collections import namedtuple
 
+# project
 from kiwi.defaults import Defaults
 from kiwi.utils.sync import DataSync
 from kiwi.system.prepare import SystemPrepare
 from kiwi.system.profile import Profile
 from kiwi.system.setup import SystemSetup
-from kiwi.logger import log
 from kiwi.archive.cpio import ArchiveCpio
 from kiwi.utils.compress import Compress
 from kiwi.path import Path
 from kiwi.boot.image.base import BootImageBase
+
+log = logging.getLogger('kiwi')
 
 
 class BootImageKiwi(BootImageBase):
@@ -47,17 +49,18 @@ class BootImageKiwi(BootImageBase):
         root filesystem which is a separate image to create
         the initrd from
         """
+        self.temp_directories = []
+
+    def prepare(self):
+        """
+        Prepare new root system suitable to create a kiwi initrd from it
+        """
         self.boot_root_directory = mkdtemp(
             prefix='kiwi_boot_root.', dir=self.target_dir
         )
         self.temp_directories.append(
             self.boot_root_directory
         )
-
-    def prepare(self):
-        """
-        Prepare new root system suitable to create a kiwi initrd from it
-        """
         self.load_boot_xml_description()
         boot_image_name = self.boot_xml_state.xml_data.get_name()
 
@@ -86,7 +89,9 @@ class BootImageKiwi(BootImageBase):
         self.setup = SystemSetup(
             self.boot_xml_state, self.boot_root_directory
         )
-        self.setup.import_shell_environment(profile)
+        profile.create(
+            Defaults.get_profile_file(self.boot_root_directory)
+        )
         self.setup.import_description()
         self.setup.import_overlay_files(
             follow_links=True
@@ -127,6 +132,7 @@ class BootImageKiwi(BootImageBase):
             temp_boot_root_directory = mkdtemp(
                 prefix='kiwi_boot_root_copy.'
             )
+            os.chmod(temp_boot_root_directory, 0o755)
             self.temp_directories.append(
                 temp_boot_root_directory
             )
@@ -135,7 +141,7 @@ class BootImageKiwi(BootImageBase):
                 temp_boot_root_directory
             )
             data.sync_data(
-                options=['-z', '-a']
+                options=['-a']
             )
             boot_directory = temp_boot_root_directory + '/boot'
             Path.wipe(boot_directory)
@@ -177,26 +183,7 @@ class BootImageKiwi(BootImageBase):
             )
             self.initrd_filename = compress.compressed_filename
 
-    def get_boot_names(self):
-        """
-        Provides kernel and initrd names for kiwi boot image
-
-        :return:
-            Contains boot_names_type tuple
-
-            .. code:: python
-
-                boot_names_type(
-                    kernel_name='linux.vmx',
-                    initrd_name='initrd.vmx'
-                )
-
-        :rtype: tuple
-        """
-        boot_names_type = namedtuple(
-            'boot_names_type', ['kernel_name', 'initrd_name']
-        )
-        return boot_names_type(
-            kernel_name='linux.vmx',
-            initrd_name='initrd.vmx'
-        )
+    def cleanup(self):
+        for directory in self.temp_directories:
+            if directory and os.path.exists(directory):
+                Path.wipe(directory)

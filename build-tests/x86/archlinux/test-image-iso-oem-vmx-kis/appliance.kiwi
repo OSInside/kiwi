@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="6.8" name="LimeJeOS-Arch">
+    <description type="system">
+        <author>David Cassany</author>
+        <contact>dcassany@suse.com</contact>
+        <specification>Arch JeOS</specification>
+    </description>
+    <profiles>
+        <profile name="Live" description="Live image of Arch Linux">
+            <requires profile="Bootloader"/>
+        </profile>
+        <profile name="Virtual" description="Virtual image of Arch Linux">
+            <requires profile="Bootloader"/>
+        </profile>
+        <profile name="Disk" description="OEM image of Arch Linux">
+            <requires profile="Bootloader"/>
+        </profile>
+        <profile name="KIS" description="KIS image of Arch Linux"/>
+        <profile name="Bootloader" description="bootloader related software"/>
+    </profiles>
+    <preferences>
+        <version>1.0.0</version>
+        <packagemanager>pacman</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Live">
+        <type image="iso" flags="overlay" hybrid="true" hybridpersistent_filesystem="ext4" hybridpersistent="true" firmware="efi"/>
+    </preferences>
+    <preferences profiles="Virtual">
+        <type image="vmx" primary="true" filesystem="ext4" bootloader="grub2" firmware="efi"/>
+    </preferences>
+    <preferences profiles="Disk">
+        <type image="oem" initrd_system="dracut" filesystem="ext4" bootloader="grub2" installiso="true"/>
+    </preferences>
+    <preferences profiles="KIS">
+        <type image="kis" filesystem="ext4"/>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository components="Virtualization_Appliances_Staging_Arch_Linux">
+        <source path="obs://Virtualization:Appliances:Staging/Arch_Linux"/>
+    </repository>
+    <repository components="Virtualization_Appliances_Images_Testing_x86_archlinux_standard">
+        <source path="obs://Virtualization:Appliances:Images:Testing_x86:archlinux/standard"/>
+    </repository>
+    <repository components="Arch_Community_standard">
+        <source path="obs://Arch:Community/standard"/>
+    </repository>
+    <repository components="Arch_Extra_standard">
+        <source path="obs://Arch:Extra/standard"/>
+    </repository>
+    <repository components="Arch_Core_standard">
+        <source path="obs://Arch:Core/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="dracut"/>
+        <package name="udev"/>
+        <package name="systemd"/>
+        <package name="dhclient"/>
+        <package name="openssh"/>
+        <package name="busybox"/>
+        <package name="binutils"/>
+        <package name="base"/>
+        <package name="parted"/>
+        <package name="ifplugd"/>
+        <package name="systemd-resolvconf"/>
+        <package name="linux"/>
+        <package name="linux-firmware"/>
+        <package name="netctl"/>
+        <package name="dracut-hooks"/>
+    <!--
+        dracut-hooks provide some packman hooks
+        to ensure dracut recreates the initrd on kernel
+        update. Dracut adoption is low in Arch Linux
+        (April 2020), thus there are yet no hooks
+        to properly fill /boot and manage kernel
+        updates.
+    -->
+    </packages>
+    <packages type="image" profiles="Bootloader">
+        <package name="efibootmgr"/>
+        <package name="dosfstools"/>
+        <package name="grub"/>
+    </packages>
+    <packages type="image" profiles="Live">
+        <package name="syslinux"/>
+        <package name="dracut-kiwi-live"/>
+    </packages>
+    <packages type="image" profiles="Disk">
+        <package name="syslinux"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="pacman-mirrorlist"/>
+        <package name="archlinux-keyring"/>
+    </packages>
+</image>

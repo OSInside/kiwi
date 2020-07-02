@@ -24,7 +24,7 @@ from ...exceptions import (
 )
 
 
-class BootLoaderInstall(object):
+class BootLoaderInstall:
     """
     **BootLoaderInstall Factory**
 

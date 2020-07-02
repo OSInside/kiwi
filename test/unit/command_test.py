@@ -1,21 +1,18 @@
 from mock import patch
 from collections import namedtuple
-
+from pytest import raises
 import mock
-
 import os
 
-from .test_helper import raises
+from kiwi.command import Command
 
 from kiwi.exceptions import (
     KiwiCommandError,
     KiwiCommandNotFound
 )
-from kiwi.command import Command
 
 
-class TestCommand(object):
-    @raises(KiwiCommandError)
+class TestCommand:
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')
     def test_run_raises_error(self, mock_popen, mock_which):
@@ -26,19 +23,20 @@ class TestCommand(object):
         )
         mock_process.returncode = 1
         mock_popen.return_value = mock_process
-        Command.run(['command', 'args'])
+        with raises(KiwiCommandError):
+            Command.run(['command', 'args'])
 
-    @raises(KiwiCommandError)
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')
     def test_run_failure(self, mock_popen, mock_which):
         mock_which.return_value = 'command'
         mock_popen.side_effect = KiwiCommandError('Run failure')
-        Command.run(['command', 'args'])
+        with raises(KiwiCommandError):
+            Command.run(['command', 'args'])
 
-    @raises(KiwiCommandError)
     def test_run_invalid_environment(self):
-        Command.run(['command', 'args'], {'HOME': '/root'})
+        with raises(KiwiCommandError):
+            Command.run(['command', 'args'], {'HOME': '/root'})
 
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')
@@ -84,13 +82,13 @@ class TestCommand(object):
         mock_access.return_value = True
         assert Command.run(['command', 'args']) == run_result
 
-    @raises(KiwiCommandNotFound)
     def test_run_command_does_not_exist(self):
-        Command.run(['does-not-exist'])
+        with raises(KiwiCommandNotFound):
+            Command.run(['does-not-exist'])
 
-    @raises(KiwiCommandNotFound)
     def test_call_command_does_not_exist(self):
-        Command.call(['does-not-exist'], os.environ)
+        with raises(KiwiCommandNotFound):
+            Command.call(['does-not-exist'], os.environ)
 
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')
@@ -107,10 +105,10 @@ class TestCommand(object):
         assert call.error == mock_process.stderr
         assert call.process == mock_process
 
-    @raises(KiwiCommandError)
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')
     def test_call_failure(self, mock_popen, mock_which):
         mock_which.return_value = 'command'
         mock_popen.side_effect = KiwiCommandError('Call failure')
-        Command.call(['command', 'args'])
+        with raises(KiwiCommandError):
+            Command.call(['command', 'args'])

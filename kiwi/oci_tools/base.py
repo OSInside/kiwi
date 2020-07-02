@@ -15,16 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
-from tempfile import mkdtemp
 from datetime import datetime
 
 # project
-from kiwi.path import Path
 from kiwi.utils.sync import DataSync
 
 
-class OCIBase(object):
+class OCIBase:
     """
     **Base Class for Open Container Interface operations**
 
@@ -35,25 +32,12 @@ class OCIBase(object):
     to provide a common interface in kiwi to allow using all
     tools such that the container support in kiwi covers every
     linux distribution no matter what tooling was preferred
-
-    :param string container_tag: primary tag name
     """
-    def __init__(self, container_tag, container_dir=None):
-        self.container_tag = container_tag
+    def __init__(self):
         self.oci_root_dir = None
-        if container_dir:
-            self.oci_dir = None
-            self.container_dir = container_dir
-        else:
-            self.oci_dir = mkdtemp(prefix='kiwi_oci_dir.')
-            self.container_dir = os.sep.join(
-                [self.oci_dir, 'oci_layout']
-            )
-
         self.creation_date = datetime.utcnow().strftime(
             '%Y-%m-%dT%H:%M:%S+00:00'
         )
-
         self.post_init()
 
     def post_init(self):
@@ -64,15 +48,36 @@ class OCIBase(object):
         """
         pass
 
-    def init_layout(self, base_image=False):
+    def import_container_image(self, container_image_ref):
         """
-        Initialize a new container layout
-
-        A new container layout can start with a non empty base root image.
+        Imports container image reference to a working space
 
         Implementation in specialized tool class
 
-        :param string base_image: True|False
+        :param string container_image_ref: image reference to import
+        """
+        raise NotImplementedError
+
+    def export_container_image(
+        self, filename, transport, image_ref, additional_refs=None
+    ):
+        """
+        Exports the working container to a container image archive
+
+        Implementation in specialized tool class
+
+        :param str filename: The resulting filename
+        :param str transport: The archive format
+        :param str image_ref: Image reference of the exported image
+        :param list additional_tags: List of additional references
+        """
+        raise NotImplementedError
+
+    def init_container(self):
+        """
+        Initialize a new container
+
+        Implementation in specialized tool class
         """
         raise NotImplementedError
 
@@ -116,18 +121,7 @@ class OCIBase(object):
         """
         raise NotImplementedError
 
-    def add_tag(self, tag_name):
-        """
-        Add additional tag name to the container
-
-        Implementation in specialized tool class
-
-        :param string tag_name: A name
-        :param string container_name: custom container_dir:tag specifier
-        """
-        raise NotImplementedError
-
-    def set_config(self, oci_config, base_image=False):
+    def set_config(self, oci_config):
         """
         Set list of meta data information such as entry_point,
         maintainer, etc... to the container. The validation of
@@ -136,20 +130,20 @@ class OCIBase(object):
         Implementation in specialized tool class
 
         :param list oci_config: meta data list
-        :param string container_name: custom container_dir:tag specifier
         """
         raise NotImplementedError
 
-    def garbage_collect(self):
+    def post_process(self):
         """
-        Cleanup unused data from operations
+        Performs latest steps after the container layers is added and
+        configured.
 
         Implementation in specialized tool class
         """
         raise NotImplementedError
 
-    @classmethod
-    def _sync_data(cls, origin, destination, exclude_list=None, options=None):
+    @staticmethod
+    def _sync_data(origin, destination, exclude_list=None, options=None):
         """
         Synchronizes the origin and destination paths to be equivalent
 
@@ -160,7 +154,3 @@ class OCIBase(object):
         sync.sync_data(
             options=options, exclude=exclude_list
         )
-
-    def __del__(self):
-        if self.oci_dir:
-            Path.wipe(self.oci_dir)

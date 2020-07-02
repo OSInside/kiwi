@@ -16,15 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from kiwi.container.docker import ContainerImageDocker
 from kiwi.container.oci import ContainerImageOCI
+from kiwi.container.appx import ContainerImageAppx
 
 from kiwi.exceptions import (
     KiwiContainerImageSetupError
 )
 
 
-class ContainerImage(object):
+class ContainerImage:
     """
     **Container Image factory**
 
@@ -34,10 +34,18 @@ class ContainerImage(object):
     """
     def __new__(self, name, root_dir, custom_args=None):
         if name == 'docker':
-            return ContainerImageDocker(root_dir, custom_args)
+            return ContainerImageOCI(
+                root_dir, 'docker-archive', custom_args=custom_args
+            )
         elif name == 'oci':
-            return ContainerImageOCI(root_dir, custom_args)
+            return ContainerImageOCI(
+                root_dir, 'oci-archive', custom_args=custom_args
+            )
+        elif name == 'appx':
+            return ContainerImageAppx(
+                root_dir, custom_args=custom_args
+            )
         else:
             raise KiwiContainerImageSetupError(
-                'Support for %s container not implemented' % name
+                'Support for {0} container not implemented'.format(name)
             )

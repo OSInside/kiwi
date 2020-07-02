@@ -1,0 +1,12 @@
+UUID=bd604632-663b-4d4c-b5b0-8d8686267ea2  /          ext4  acl,user_xattr  0  1
+UUID=daa5a8c3-5c72-4343-a1d4-bb74ec4e586e  swap       swap  defaults        0  0
+UUID=FCF7-B051                             /boot/efi  vfat  defaults        0  0
+LABEL=BOOT                                 /boot      xfs   defaults        0  0
+LABEL=foo  /home      ext4  defaults        0  0
+PARTUUID=3c8bd108-01 /bar ext4 defaults 0 0
+/dev/mynode /foo ext4 defaults 0 0
+# entry with the same mountpoint, expected to be skipped
+LABEL=bar  /home      xfs  defaults        0  0
+
+
+# this comment line and the line above should be ignored by the parser

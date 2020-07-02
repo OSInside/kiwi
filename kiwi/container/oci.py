@@ -16,51 +16,53 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 
 # project
 from kiwi.defaults import Defaults
-from kiwi.path import Path
-from kiwi.archive.tar import ArchiveTar
-from kiwi.logger import log
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.oci_tools import OCI
+from kiwi.utils.compress import Compress
+
+log = logging.getLogger('kiwi')
 
 
-class ContainerImageOCI(object):
+class ContainerImageOCI:
     """
     Create oci container from a root directory
 
     :param string root_dir: root directory path name
     :param dict custom_args:
-        Custom processing arguments defined as hash keys:
 
-        Example
+    Custom processing arguments defined as hash keys:
 
-        .. code:: python
+    Example
 
-            {
-                'container_name': 'name',
-                'container_tag': '1.0',
-                'additional_tags': ['current', 'foobar'],
-                'entry_command': ['/bin/bash', '-x'],
-                'entry_subcommand': ['ls', '-l'],
-                'maintainer': 'tux',
-                'user': 'root',
-                'workingdir': '/root',
-                'expose_ports': ['80', '42'],
-                'volumes': ['/var/log', '/tmp'],
-                'environment': {'PATH': '/bin'},
-                'labels': {'name': 'value'},
-                'history': {
-                    'created_by': 'some explanation here',
-                    'comment': 'some comment here',
-                    'author': 'tux'
-                }
+    .. code:: python
+
+        {
+            'container_name': 'name',
+            'container_tag': '1.0',
+            'additional_tags': ['current', 'foobar'],
+            'entry_command': ['/bin/bash', '-x'],
+            'entry_subcommand': ['ls', '-l'],
+            'maintainer': 'tux',
+            'user': 'root',
+            'workingdir': '/root',
+            'expose_ports': ['80', '42'],
+            'volumes': ['/var/log', '/tmp'],
+            'environment': {'PATH': '/bin'},
+            'labels': {'name': 'value'},
+            'history': {
+                'created_by': 'some explanation here',
+                'comment': 'some comment here',
+                'author': 'tux'
             }
+        }
     """
-    def __init__(self, root_dir, custom_args=None):
+    def __init__(self, root_dir, transport, custom_args=None):
         self.root_dir = root_dir
-        self.oci_root_dir = None
+        self.archive_transport = transport
         if custom_args:
             self.oci_config = custom_args
         else:
@@ -73,7 +75,7 @@ class ContainerImageOCI(object):
         # buildservice.
         if Defaults.is_buildservice_worker():
             bs_label = 'org.openbuildservice.disturl'
-            # Do not label anything if any build service label is
+            # Do not label anything if the build service label is
             # already present
             if 'labels' not in self.oci_config or \
                     bs_label not in self.oci_config['labels']:
@@ -104,8 +106,6 @@ class ContainerImageOCI(object):
             self.oci_config['history']['created_by'] = \
                 Defaults.get_default_container_created_by()
 
-        self.oci = OCI(self.oci_config['container_tag'])
-
     def create(self, filename, base_image):
         """
         Create compressed oci system container tar archive
@@ -119,44 +119,51 @@ class ContainerImageOCI(object):
         exclude_list.append('sys')
         exclude_list.append('proc')
 
+        oci = OCI()
         if base_image:
-            Path.create(self.oci.container_dir)
-            image_tar = ArchiveTar(base_image)
-            image_tar.extract(self.oci.container_dir)
-
-        self.oci.init_layout(bool(base_image))
-
-        self.oci.unpack()
-        self.oci.sync_rootfs(''.join([self.root_dir, os.sep]), exclude_list)
-        self.oci.repack(self.oci_config)
-
-        if 'additional_tags' in self.oci_config:
-            for tag in self.oci_config['additional_tags']:
-                self.oci.add_tag(tag)
-
-        self.oci.set_config(self.oci_config, bool(base_image))
-
-        self.oci.garbage_collect()
-
-        return self.pack_image_to_file(filename)
-
-    def pack_image_to_file(self, filename):
-        """
-        Packs the oci image into the given filename.
-
-        :param string filename: file name of the resulting packed image
-        """
-        oci_tarfile = ArchiveTar(filename)
-        container_compressor = self.runtime_config.get_container_compression()
-        if container_compressor:
-            return oci_tarfile.create_xz_compressed(
-                self.oci.container_dir,
-                xz_options=self.runtime_config.get_xz_options()
+            oci.import_container_image(
+                'oci-archive:{0}:{1}'.format(
+                    base_image, Defaults.get_container_base_image_tag()
+                )
             )
         else:
-            return oci_tarfile.create(
-                self.oci.container_dir
+            oci.init_container()
+
+        image_ref = '{0}:{1}'.format(
+            self.oci_config['container_name'], self.oci_config['container_tag']
+        )
+
+        oci.unpack()
+        oci.sync_rootfs(self.root_dir, exclude_list)
+        oci.repack(self.oci_config)
+        oci.set_config(self.oci_config)
+        oci.post_process()
+
+        if self.archive_transport == 'docker-archive':
+            image_ref = '{0}:{1}'.format(
+                self.oci_config['container_name'],
+                self.oci_config['container_tag']
             )
+            additional_refs = []
+            if 'additional_tags' in self.oci_config:
+                additional_refs = []
+                for tag in self.oci_config['additional_tags']:
+                    additional_refs.append('{0}:{1}'.format(
+                        self.oci_config['container_name'], tag
+                    ))
+        else:
+            image_ref = self.oci_config['container_tag']
+            additional_refs = []
+
+        oci.export_container_image(
+            filename, self.archive_transport, image_ref, additional_refs
+        )
+
+        if self.runtime_config.get_container_compression():
+            compressor = Compress(filename)
+            return compressor.xz(self.runtime_config.get_xz_options())
+        else:
+            return filename
 
     def _append_buildservice_disturl_label(self):
         with open(os.sep + Defaults.get_buildservice_env_name()) as env:
@@ -164,8 +171,10 @@ class ContainerImageOCI(object):
                 if line.startswith('BUILD_DISTURL') and '=' in line:
                     disturl = line.split('=')[1].lstrip('\'\"').rstrip('\n\'\"')
                     if disturl:
-                        self.oci_config['labels'] = {
-                            'org.openbuildservice.disturl': disturl
-                        }
+                        label = {'org.openbuildservice.disturl': disturl}
+                        if self.oci_config.get('labels'):
+                            self.oci_config['labels'].update(label)
+                        else:
+                            self.oci_config['labels'] = label
                         return
             log.warning('Could not find BUILD_DISTURL inside .buildenv')

@@ -17,6 +17,7 @@
 #
 # project
 from kiwi.oci_tools.umoci import OCIUmoci
+from kiwi.oci_tools.buildah import OCIBuildah
 from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
@@ -24,15 +25,17 @@ from kiwi.exceptions import (
 )
 
 
-class OCI(object):
+class OCI:
     """
     **OCI Factory**
     """
-    def __new__(self, container_tag, container_dir=None):
+    def __new__(self):
         runtime_config = RuntimeConfig()
         tool_name = runtime_config.get_oci_archive_tool()
         if tool_name == 'umoci':
-            return OCIUmoci(container_tag, container_dir)
+            return OCIUmoci()
+        elif tool_name == 'buildah':
+            return OCIBuildah()
         else:
             raise KiwiOCIArchiveToolError(
                 'No support for {0} tool available'.format(tool_name)

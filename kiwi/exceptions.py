@@ -113,13 +113,6 @@ class KiwiBootLoaderInstallSetupError(KiwiError):
     """
 
 
-class KiwiBootLoaderIsoLinuxPlatformError(KiwiError):
-    """
-    Exception raised if an attempt was made to use isolinux on
-    an unsupported platform.
-    """
-
-
 class KiwiBootLoaderTargetError(KiwiError):
     """
     Exception raised if the target to read the bootloader path
@@ -501,10 +494,10 @@ class KiwiProfileNotFound(KiwiError):
     """
 
 
-class KiwiPxeBootImageError(KiwiError):
+class KiwiKisBootImageError(KiwiError):
     """
     Exception raised if a required boot file e.g the kernel could
-    not be found in the process of building a pxe image.
+    not be found in the process of building a kis image.
     """
 
 
@@ -611,6 +604,18 @@ class KiwiSatSolverPluginError(KiwiError):
     Exception raised if the python solv module failed to load.
     The solv module is provided by SUSE's rpm package python-solv
     and provides a python binding to the libsolv C library
+    """
+
+
+class KiwiAnyMarkupPluginError(KiwiError):
+    """
+    Exception raised if the python anymarkup module failed to load.
+    """
+
+
+class KiwiMarkupConversionError(KiwiError):
+    """
+    Exception raised if the markup format conversion is not possible.
     """
 
 
@@ -777,4 +782,23 @@ class KiwiCommandCapabilitiesError(KiwiError):
 class KiwiDecodingError(KiwiError):
     """
     Exception is raised on decoding literals failure
+    """
+
+
+class KiwiBuildahError(KiwiError):
+    """
+    Exception raised on inconsistent buildah class calls
+    """
+
+
+class KiwiFileAccessError(KiwiError):
+    """
+    Exception raised if accessing a file or its metadata failed
+    """
+
+
+class KiwiShellVariableValueError(KiwiError):
+    """
+    Exception raised if a given python value cannot be converted
+    into a string representation for use in shell scripts
     """

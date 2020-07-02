@@ -17,7 +17,7 @@
 #
 import os
 import glob
-from six.moves.configparser import ConfigParser
+from configparser import ConfigParser
 from tempfile import NamedTemporaryFile
 
 # project
@@ -105,7 +105,8 @@ class RepositoryDnf(RepositoryBase):
         1. Create the rpm image macro which persists during the build
         2. Create the rpm bootstrap macro to make sure for bootstrapping
            the rpm database location matches the host rpm database setup.
-           This macro only persists during the bootstrap phase
+           This macro only persists during the bootstrap phase. If the
+           image was already bootstrapped a compat link is created instead.
         """
         rpmdb = RpmDataBase(
             self.root_dir, Defaults.get_custom_rpm_image_macro_name()
@@ -114,7 +115,11 @@ class RepositoryDnf(RepositoryBase):
             rpmdb.set_macro_from_string(self.locale[0])
         rpmdb.write_config()
 
-        RpmDataBase(self.root_dir).set_database_to_host_path()
+        rpmdb = RpmDataBase(self.root_dir)
+        if rpmdb.has_rpm():
+            rpmdb.link_database_to_host_path()
+        else:
+            rpmdb.set_database_to_host_path()
 
     def use_default_location(self):
         """
@@ -148,7 +153,8 @@ class RepositoryDnf(RepositoryBase):
         self, name, uri, repo_type='rpm-md',
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
-        repo_gpgcheck=None, pkg_gpgcheck=None
+        repo_gpgcheck=None, pkg_gpgcheck=None,
+        sourcetype=None
     ):
         """
         Add dnf repository
@@ -157,13 +163,15 @@ class RepositoryDnf(RepositoryBase):
         :param str uri: repository URI
         :param repo_type: repostory type name
         :param int prio: dnf repostory priority
-        :param dist: unused
-        :param components: unused
-        :param user: unused
-        :param secret: unused
-        :param credentials_file: unused
+        :param str dist: unused
+        :param str components: unused
+        :param str user: unused
+        :param str secret: unused
+        :param str credentials_file: unused
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: enable package signature validation
+        :param str sourcetype:
+            source type, one of 'baseurl', 'metalink' or 'mirrorlist'
         """
         repo_file = self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -176,7 +184,7 @@ class RepositoryDnf(RepositoryBase):
             name, 'name', name
         )
         repo_config.set(
-            name, 'baseurl', uri
+            name, sourcetype if sourcetype else 'baseurl', uri
         )
         if prio:
             repo_config.set(
@@ -189,6 +197,13 @@ class RepositoryDnf(RepositoryBase):
         if pkg_gpgcheck is not None:
             repo_config.set(
                 name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
+            )
+        if Defaults.is_buildservice_worker():
+            # when building in the build service, modular metadata is inaccessible...
+            # in order to use modular content in the build service, we need to disable
+            # modular filtering, which is done with module_hotfixes option
+            repo_config.set(
+                name, 'module_hotfixes', '1'
             )
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)

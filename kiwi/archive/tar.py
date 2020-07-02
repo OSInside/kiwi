@@ -23,7 +23,7 @@ from kiwi.defaults import Defaults
 from kiwi.utils.command_capabilities import CommandCapabilities
 
 
-class ArchiveTar(object):
+class ArchiveTar:
     """
     **Extraction/Creation of tar archives**
 

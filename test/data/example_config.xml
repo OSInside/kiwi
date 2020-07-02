@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.9" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="7.2" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -40,7 +40,7 @@
         <rpm-locale-filtering>true</rpm-locale-filtering>
     </preferences>
     <preferences>
-        <type bootloader="grub2" image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" btrfs_root_is_snapshot="true" spare_part="200M" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4">
+        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" fscreateoptions="-O ^has_journal" btrfs_root_is_snapshot="true" spare_part="200M" spare_part_fs_attributes="no-copy-on-write" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
             <machine memory="512" xen_loader="hvmloader">
@@ -51,6 +51,7 @@
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
+                <oem-swapsize>42</oem-swapsize>
                 <oem-recovery>false</oem-recovery>
             </oemconfig>
             <vagrantconfig provider="libvirt" virtualsize="42"/>
@@ -66,17 +67,17 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="ec2Flavour">
-        <type image="vmx" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" bootloader="grub2" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
+        <type image="vmx" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
     </preferences>
     <preferences profiles="xenFlavour">
-        <type image="vmx" filesystem="ext3" bootprofile="xen" bootkernel="xenk" bootloader="grub2" kernelcmdline="splash">
+        <type image="vmx" filesystem="ext3" bootprofile="xen" bootkernel="xenk" kernelcmdline="splash">
             <machine memory="512" xen_loader="hvmloader">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
             </machine>
             <size>10</size>
         </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" bootloader="grub2" kernelcmdline="splash">
+        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" kernelcmdline="splash">
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
@@ -85,7 +86,7 @@
         <type image="docker"/>
     </preferences>
     <preferences profiles="vmxFlavour">
-        <type image="vmx" filesystem="ext3" format="vmdk" bootloader="grub2" kernelcmdline="splash" bootpartition="false">
+        <type image="vmx" filesystem="ext3" format="vmdk" kernelcmdline="splash" bootpartition="false">
             <size unit="G" unpartitioned="1">4</size>
             <systemdisk name="systemVG"/>
             <machine memory="512" guestOS="suse" HWversion="4">
@@ -95,7 +96,7 @@
                 <vmconfig-entry>cpuid.coresPerSocket = "2"</vmconfig-entry>
             </machine>
         </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" installiso="true" bootloader="grub2" kernelcmdline="splash">
+        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" installiso="true" kernelcmdline="splash">
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
@@ -129,7 +130,7 @@
                     <label name="somelabel" value="labelvalue"/>
                     <label name="someotherlabel" value="anotherlabelvalue"/>
                 </labels>
-                <history author="history author" created_by="created by text">This is a comment</history>
+                <history author="history author" created_by="created by text" application_id="123" launcher="app" package_version="2003.12.0.0">This is a comment</history>
             </containerconfig>
         </type>
         <type image="iso" mediacheck="true"/>
@@ -145,9 +146,9 @@
     <users>
         <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
         <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
-        <user groups="kiwi,admin,users" pwdformat="plain" password="mypwd" home="/home/kiwi" name="kiwi"/>
+        <user groups="kiwi,admin,users" pwdformat="plain" password="mypwd" name="kiwi"/>
     </users>
-    <repository type="yast2" priority="42">
+    <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso"/>
     </repository>
     <repository type="rpm-md" imageinclude="true">
