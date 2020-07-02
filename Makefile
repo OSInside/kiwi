@@ -11,18 +11,11 @@ version := $(shell \
     'from kiwi.version import __version__; print(__version__)'\
 )
 
-.PHONY: test
-test:
-	tox -e unit_py3_6
-
-flake:
-	tox -e check
-
 .PHONY: tools
 tools:
-	# apart from all python source we need to compile the
-	# C tools. see setup.py for details when this target is
-	# called
+	# apart from python sources there are also some legacy
+	# C tools used in custom kiwi boot descriptions.
+	# Note: These information will be missing when installed from pip
 	${MAKE} -C tools all
 
 install_dracut:
@@ -39,9 +32,9 @@ install_package_docs:
 		${buildroot}${docdir}/python-kiwi/README
 
 install:
-	# apart from all python source we also need to install
+	# apart from python sources there are also
 	# the C tools, the manual pages and the completion
-	# see setup.py for details when this target is called
+	# Note: These information will be missing when installed from pip
 	${MAKE} -C tools buildroot=${buildroot} install
 	# manual pages
 	install -d -m 755 ${buildroot}usr/share/man/man8
@@ -52,10 +45,11 @@ install:
 		install -m 644 $$man ${buildroot}usr/share/man/man8 ;\
 	done
 	# completion
-	install -d -m 755 ${buildroot}etc/bash_completion.d
+	install -d -m 755 ${buildroot}usr/share/bash-completion/completions
 	$(python) helper/completion_generator.py \
-		> ${buildroot}etc/bash_completion.d/kiwi-ng.sh
+		> ${buildroot}usr/share/bash-completion/completions/kiwi-ng.sh
 	# kiwi default configuration
+	install -d -m 755 ${buildroot}etc
 	install -m 644 kiwi.yml ${buildroot}etc/kiwi.yml
 
 tox:

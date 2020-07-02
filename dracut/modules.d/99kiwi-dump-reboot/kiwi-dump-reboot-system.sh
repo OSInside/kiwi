@@ -1,3 +1,4 @@
+#!/bin/bash
 type report_and_quit >/dev/null 2>&1 || . /lib/kiwi-dump-image.sh
 type get_selected_disk >/dev/null 2>&1 || . /lib/kiwi-dump-image.sh
 type run_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh

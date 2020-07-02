@@ -36,3 +36,11 @@ addFilter("W: no-manual-page-for-binary kiwicompat");
 
 # kiwi master package can't be noarch if sub packages are arch specific
 addFilter("W: no-binary");
+
+# if we add a provides to the obsoleted another warning that the
+# same package is provided and obsoleted appears. This warning is
+# pointless or doesn't explain what it really wants
+addFilter("W: obsolete-not-provided");
+
+# providing deb packages from this spec requires the tag to be hard coded
+addFilter("W: hardcoded-packager-tag");

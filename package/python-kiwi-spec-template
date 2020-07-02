@@ -376,12 +376,15 @@ sed -e "s|pyxattr|xattr|" -i setup.py
 %endif
 
 %build
-# Build Python 3 version
-python3 setup.py build --cflags="${RPM_OPT_FLAGS}"
+# Build C-Tools
+make CFLAGS="${RPM_OPT_FLAGS}" tools
 
 %install
 # Install Python 3 version
 python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
+
+# Install C-Tools, man-pages, completion and kiwi default configuration
+make buildroot=%{buildroot}/ install
 
 # Install dracut modules
 make buildroot=%{buildroot}/ install_dracut
@@ -430,7 +433,7 @@ fi
 %{_bindir}/kiwi-ng-3*
 %{_bindir}/kiwicompat-3*
 %{python3_sitelib}/kiwi*
-%config %_sysconfdir/bash_completion.d/kiwi-ng.sh
+%{_usr}/share/bash-completion/completions/kiwi-ng.sh
 %{_defaultdocdir}/python-kiwi/LICENSE
 %{_defaultdocdir}/python-kiwi/README
 

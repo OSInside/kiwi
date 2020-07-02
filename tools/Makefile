@@ -3,7 +3,7 @@ buildroot = /
 SRCS := $(wildcard *.c)
 PRGS := $(patsubst %.c,%,$(SRCS))
 
-CC = gcc -Wall -fpic -Wno-unused-result -O2
+CC = gcc
 
 all: $(PRGS)
 
