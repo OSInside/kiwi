@@ -1,3 +1,5 @@
+.. _kiwi_system_create:
+
 kiwi-ng system create
 =====================
 

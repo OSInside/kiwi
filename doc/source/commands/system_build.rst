@@ -1,3 +1,5 @@
+.. _kiwi_system_build:
+
 kiwi-ng system build
 ====================
 
