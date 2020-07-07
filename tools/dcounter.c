@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     }
     if (argc == 2 && strstr(*argv, "-l")) {
         newline = 1;
-        strncpy (prefix,*(argv+1),strlen(*(argv+1)));
+        strncpy (prefix, *(argv+1), strlen(prefix));
         argv += 2;
         argc -= 2;
     }
