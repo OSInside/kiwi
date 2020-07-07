@@ -228,7 +228,7 @@ class LiveImageBuilder:
             self.xml_state.build_type.get_target_blocksize()
         )
         loop_provider.create()
-        live_filesystem = FileSystem(
+        live_filesystem = FileSystem.new(
             name=root_filesystem,
             device_provider=loop_provider,
             root_dir=self.root_dir + os.sep,
@@ -251,7 +251,7 @@ class LiveImageBuilder:
         shutil.copy(
             root_image.name, self.live_container_dir + '/LiveOS/rootfs.img'
         )
-        live_container_image = FileSystem(
+        live_container_image = FileSystem.new(
             name='squashfs',
             device_provider=None,
             root_dir=self.live_container_dir,

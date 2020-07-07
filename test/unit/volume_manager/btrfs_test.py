@@ -77,7 +77,7 @@ class TestVolumeManagerBtrfs:
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Command.run')
-    @patch('kiwi.volume_manager.btrfs.FileSystem')
+    @patch('kiwi.volume_manager.btrfs.FileSystem.new')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.base.mkdtemp')
@@ -108,7 +108,7 @@ class TestVolumeManagerBtrfs:
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Command.run')
-    @patch('kiwi.volume_manager.btrfs.FileSystem')
+    @patch('kiwi.volume_manager.btrfs.FileSystem.new')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.base.mkdtemp')
@@ -150,7 +150,7 @@ class TestVolumeManagerBtrfs:
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Command.run')
-    @patch('kiwi.volume_manager.btrfs.FileSystem')
+    @patch('kiwi.volume_manager.btrfs.FileSystem.new')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.base.mkdtemp')
@@ -280,7 +280,7 @@ class TestVolumeManagerBtrfs:
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Command.run')
-    @patch('kiwi.volume_manager.btrfs.FileSystem')
+    @patch('kiwi.volume_manager.btrfs.FileSystem.new')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.base.mkdtemp')

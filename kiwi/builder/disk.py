@@ -348,7 +348,7 @@ class DiskBuilder:
                 'mount_options': self.custom_root_mount_args,
                 'create_options': self.custom_root_creation_args
             }
-            filesystem = FileSystem(
+            filesystem = FileSystem.new(
                 self.requested_filesystem, device_map['root'],
                 self.root_dir + '/',
                 filesystem_custom_parameters
@@ -360,7 +360,7 @@ class DiskBuilder:
 
         # create swap on current root device if requested
         if self.swap_mbytes:
-            swap = FileSystem(
+            swap = FileSystem.new(
                 'swap', device_map['swap']
             )
             swap.create_on_device(
@@ -669,7 +669,7 @@ class DiskBuilder:
                 spare_part_data_path = self.root_dir + '{0}/'.format(
                     self.spare_part_mountpoint
                 )
-            filesystem = FileSystem(
+            filesystem = FileSystem.new(
                 self.spare_part_fs,
                 device_map['spare'],
                 spare_part_data_path,
@@ -686,7 +686,7 @@ class DiskBuilder:
                 'Creating EFI(fat16) filesystem on %s',
                 device_map['efi'].get_device()
             )
-            filesystem = FileSystem(
+            filesystem = FileSystem.new(
                 'fat16', device_map['efi'], self.root_dir + '/boot/efi/'
             )
             filesystem.create_on_device(
@@ -706,7 +706,7 @@ class DiskBuilder:
                 'Creating boot(%s) filesystem on %s',
                 boot_filesystem, device_map['boot'].get_device()
             )
-            filesystem = FileSystem(
+            filesystem = FileSystem.new(
                 boot_filesystem, device_map['boot'], boot_directory
             )
             filesystem.create_on_device(

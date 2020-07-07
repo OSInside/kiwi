@@ -6,6 +6,7 @@ omit =
 
 [report]
 omit =
+    */filesystem/__init__.py
     */app.py
     */kiwi.py
     */xml_parse.py

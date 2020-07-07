@@ -88,7 +88,7 @@ class TestFileSystemBuilder:
             )
 
     @patch('kiwi.builder.filesystem.LoopDevice')
-    @patch('kiwi.builder.filesystem.FileSystem')
+    @patch('kiwi.builder.filesystem.FileSystem.new')
     @patch('kiwi.builder.filesystem.FileSystemSetup')
     @patch('platform.machine')
     def test_create_on_loop(
@@ -123,7 +123,7 @@ class TestFileSystemBuilder:
             'target_dir'
         )
 
-    @patch('kiwi.builder.filesystem.FileSystem')
+    @patch('kiwi.builder.filesystem.FileSystem.new')
     @patch('kiwi.builder.filesystem.DeviceProvider')
     @patch('platform.machine')
     def test_create_on_file(

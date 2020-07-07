@@ -144,7 +144,7 @@ class TestVolumeManagerLVM:
     @patch('kiwi.path.Path.create')
     @patch('kiwi.volume_manager.base.SystemSize')
     @patch('kiwi.volume_manager.lvm.Command.run')
-    @patch('kiwi.volume_manager.lvm.FileSystem')
+    @patch('kiwi.volume_manager.lvm.FileSystem.new')
     @patch('kiwi.volume_manager.lvm.MappedDevice')
     @patch('kiwi.volume_manager.lvm.MountManager')
     @patch('kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume')
