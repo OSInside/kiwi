@@ -342,8 +342,8 @@ oemconfig.oem-shutdown-interactive Element
   variable in the initrd
 
 oemconfig.oem-swap Element
-  Specify if a swap partition should be created. The creation of a
-  swap partition is the default behavior. This value is represented
+  Specify if a swap partition should be created. By default no
+  swap partition will be created. This value is represented
   by the ``kiwi_oemswap`` variable in the initrd
 
 oemconfig.oem-swapsize Element
