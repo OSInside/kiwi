@@ -21,7 +21,6 @@ import logging
 from kiwi.defaults import Defaults
 from kiwi.archive.tar import ArchiveTar
 from kiwi.system.setup import SystemSetup
-from kiwi.utils.checksum import Checksum
 from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
 
@@ -52,7 +51,6 @@ class ArchiveBuilder:
             xml_state=xml_state, root_dir=self.root_dir
         )
         self.filename = self._target_file_for('tar.xz')
-        self.checksum = self._target_file_for('md5')
         self.xz_options = custom_args['xz_options'] if custom_args \
             and 'xz_options' in custom_args else None
 
@@ -87,9 +85,6 @@ class ArchiveBuilder:
                 self.root_dir, xz_options=self.xz_options,
                 exclude=Defaults.get_exclude_list_for_root_data_sync()
             )
-            checksum = Checksum(self.filename)
-            log.info('--> Creating archive checksum')
-            checksum.md5(self.checksum)
             self.result.verify_image_size(
                 self.runtime_config.get_max_size_constraint(),
                 self.filename
@@ -100,11 +95,6 @@ class ArchiveBuilder:
                 use_for_bundle=True,
                 compress=False,
                 shasum=True
-            )
-            self.result.add(
-                key='root_archive_md5',
-                filename=self.checksum,
-                use_for_bundle=False
             )
             self.result.add(
                 key='image_packages',

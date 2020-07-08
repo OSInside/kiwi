@@ -50,12 +50,9 @@ class TestArchiveBuilder:
             archive.create()
 
     @patch('kiwi.builder.archive.ArchiveTar')
-    @patch('kiwi.builder.archive.Checksum')
     @patch('platform.machine')
-    def test_create(self, mock_machine, mock_checksum, mock_tar):
+    def test_create(self, mock_machine, mock_tar):
         mock_machine.return_value = 'x86_64'
-        checksum = mock.Mock()
-        mock_checksum.return_value = checksum
         archive = mock.Mock()
         mock_tar.return_value = archive
         self.archive.create()
@@ -66,12 +63,6 @@ class TestArchiveBuilder:
             'root_dir', exclude=[
                 'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi'
             ], xz_options=None
-        )
-        mock_checksum.assert_called_once_with(
-            'target_dir/myimage.x86_64-1.2.3.tar.xz'
-        )
-        checksum.md5.assert_called_once_with(
-            'target_dir/myimage.x86_64-1.2.3.md5'
         )
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
