@@ -759,6 +759,8 @@ class Defaults:
         """
         efi_vendor_directories = [
             'EFI/fedora',
+            'EFI/redhat',
+            'EFI/centos',
             'EFI/opensuse'
         ]
         for efi_vendor_directory in efi_vendor_directories:
