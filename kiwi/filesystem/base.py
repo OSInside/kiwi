@@ -20,6 +20,7 @@ import logging
 import copy
 
 # project
+from kiwi.defaults import Defaults
 from kiwi.utils.sync import DataSync
 from kiwi.mount_manager import MountManager
 from kiwi.command import Command
@@ -160,8 +161,7 @@ class FileSystemBase:
             self.root_dir, self.filesystem_mount.mountpoint
         )
         data.sync_data(
-            options=['-a', '-H', '-X', '-A', '--one-file-system'],
-            exclude=exclude
+            exclude=exclude, options=Defaults.get_sync_options()
         )
 
     def umount(self):

@@ -99,8 +99,8 @@ class TestPackageManagerApt:
             'root-dir.debootstrap/', 'root-dir'
         )
         data.sync_data.assert_called_once_with(
-            exclude=['proc', 'sys', 'dev'],
-            options=['-a', '-H', '-X', '-A']
+            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace'],
+            exclude=['proc', 'sys', 'dev']
         )
         assert mock_run.call_args_list == [
             call(
@@ -143,8 +143,8 @@ class TestPackageManagerApt:
             'root-dir.debootstrap/', 'root-dir'
         )
         data.sync_data.assert_called_once_with(
-            exclude=['proc', 'sys', 'dev'],
-            options=['-a', '-H', '-X', '-A']
+            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace'],
+            exclude=['proc', 'sys', 'dev']
         )
         assert mock_run.call_args_list == [
             call(

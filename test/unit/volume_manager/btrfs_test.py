@@ -415,7 +415,7 @@ class TestVolumeManagerBtrfs:
         )
         sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
-            options=['-a', '-H', '-X', '-A', '--one-file-system']
+            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace']
         )
         assert m_open.call_args_list == [
             call('tmpdir/@/.snapshots/1/info.xml', 'w'),
@@ -474,7 +474,7 @@ class TestVolumeManagerBtrfs:
         )
         sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
-            options=['-a', '-H', '-X', '-A', '--one-file-system']
+            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace']
         )
         assert m_open.call_args_list == [
             call('tmpdir/@/.snapshots/1/info.xml', 'w'),
@@ -508,7 +508,7 @@ class TestVolumeManagerBtrfs:
         )
         sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
-            options=['-a', '-H', '-X', '-A', '--one-file-system']
+            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace']
         )
 
     @patch('kiwi.volume_manager.btrfs.Command.run')

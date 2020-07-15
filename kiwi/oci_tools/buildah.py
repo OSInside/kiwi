@@ -161,7 +161,7 @@ class OCIBuildah(OCIBase):
         self._sync_data(
             ''.join([root_dir, os.sep]), self.oci_root_dir,
             exclude_list=exclude_list,
-            options=['-a', '-H', '-X', '-A', '--delete']
+            options=Defaults.get_sync_options() + ['--delete']
         )
 
     def import_rootfs(self, root_dir, exclude_list=None):
@@ -173,7 +173,8 @@ class OCIBuildah(OCIBase):
         """
         self._sync_data(
             os.sep.join([self.oci_root_dir, '']), root_dir,
-            exclude_list=exclude_list, options=['-a', '-H', '-X', '-A']
+            exclude_list=exclude_list,
+            options=Defaults.get_sync_options()
         )
 
     def repack(self, oci_config):
