@@ -144,15 +144,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.root_reference = None
         self.cmdline = None
         self.iso_boot = False
-        self.shim_fallback_setup = False
+        self.early_boot_script_efi = None
 
     def write(self):
         """
         Write bootloader configuration
 
         * writes grub.cfg template by KIWI if template system is used
-        * copies grub config file to alternative boot path for EFI systems
-          in fallback mode
         * creates an embedded fat efi image for EFI ISO boot
         """
         if self.config:
@@ -164,9 +162,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 config.write(self.config)
 
             if self.firmware.efi_mode():
-                self._copy_grub_config_to_efi_path(
-                    self.boot_dir, config_file
-                )
                 if self.iso_boot:
                     self._create_embedded_fat_efi_image()
 
@@ -308,9 +303,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                         with open(vendor_grubenv_file, 'w') as vendor_grubenv:
                             vendor_grubenv.write(grubenv)
 
-        if self.firmware.efi_mode():
+        if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
-                self.efi_mount.mountpoint, config_file
+                self.efi_mount.mountpoint, self.early_boot_script_efi
             )
 
     def setup_install_image_config(
@@ -368,6 +363,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             raise KiwiTemplateError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
+        if self.firmware.efi_mode() and self.early_boot_script_efi:
+            self._copy_grub_config_to_efi_path(
+                self.boot_dir, self.early_boot_script_efi
+            )
 
     def setup_live_image_config(
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
@@ -423,6 +422,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             raise KiwiTemplateError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
+        if self.firmware.efi_mode() and self.early_boot_script_efi:
+            self._copy_grub_config_to_efi_path(
+                self.boot_dir, self.early_boot_script_efi
+            )
 
     def setup_install_boot_images(self, mbrid, lookup_path=None):
         """
@@ -463,7 +466,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
             self._copy_efi_modules_to_boot_directory(lookup_path)
-            self._setup_secure_boot_efi_image(lookup_path)
+            self._setup_secure_boot_efi_image(
+                lookup_path=lookup_path, mbrid=mbrid
+            )
 
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
@@ -500,33 +505,33 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         elif self.firmware.efi_mode() == 'uefi':
             self._copy_efi_modules_to_boot_directory(lookup_path)
             if not self._get_shim_install():
-                self.shim_fallback_setup = True
-                self._setup_secure_boot_efi_image(lookup_path)
+                self._setup_secure_boot_efi_image(
+                    lookup_path=lookup_path, uuid=boot_uuid
+                )
 
         if self.xen_guest:
             self._copy_xen_modules_to_boot_directory(lookup_path)
 
     def _copy_grub_config_to_efi_path(self, root_path, config_file):
-        if self.iso_boot or self.shim_fallback_setup:
-            efi_boot_path = Defaults.get_shim_vendor_directory(
-                root_path
+        efi_boot_path = Defaults.get_shim_vendor_directory(
+            root_path
+        )
+        if not efi_boot_path:
+            efi_boot_path = os.path.normpath(
+                os.sep.join([root_path, 'EFI/BOOT'])
             )
-            if not efi_boot_path:
-                efi_boot_path = os.path.normpath(
-                    os.sep.join([root_path, 'EFI/BOOT'])
-                )
-            Path.create(efi_boot_path)
-            grub_config_file_for_efi_boot = os.sep.join(
-                [efi_boot_path, 'grub.cfg']
-            )
-            log.info(
-                'Copying {0} -> {1} to be found by EFI'.format(
-                    config_file, grub_config_file_for_efi_boot
-                )
-            )
-            shutil.copy(
+        Path.create(efi_boot_path)
+        grub_config_file_for_efi_boot = os.sep.join(
+            [efi_boot_path, 'grub.cfg']
+        )
+        log.info(
+            'Copying {0} -> {1} to be found by EFI'.format(
                 config_file, grub_config_file_for_efi_boot
             )
+        )
+        shutil.copy(
+            config_file, grub_config_file_for_efi_boot
+        )
 
     def _supports_bios_modules(self):
         if self.arch == 'ix86' or self.arch == 'x86_64':
@@ -665,7 +670,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     grub_default[key] = value
                 grub_default.write()
 
-    def _setup_secure_boot_efi_image(self, lookup_path):
+    def _setup_secure_boot_efi_image(self, lookup_path, uuid=None, mbrid=None):
         """
         Provide the shim loader and the shim signed grub2 loader
         in the required boot path. Normally this task is done by
@@ -706,6 +711,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Command.run(
                 ['cp', grub_image, self._get_efi_image_name()]
             )
+        self._create_efi_config_search(uuid, mbrid)
 
     def _setup_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
         """
@@ -784,6 +790,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         early_boot_script = os.path.normpath(
             os.sep.join([self.efi_boot_path, 'earlyboot.cfg'])
         )
+        self.early_boot_script_efi = early_boot_script
         if uuid:
             self._create_early_boot_script_for_uuid_search(
                 early_boot_script, uuid
@@ -809,6 +816,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _create_efi_config_search(self, uuid=None, mbrid=None):
         efi_boot_config = self.efi_boot_path + '/grub.cfg'
+        self.early_boot_script_efi = efi_boot_config
         if uuid:
             self._create_early_boot_script_for_uuid_search(
                 efi_boot_config, uuid
@@ -817,8 +825,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_early_boot_script_for_mbrid_search(
                 efi_boot_config, mbrid
             )
-        with open(efi_boot_config, 'a') as config:
-            config.write('normal{0}'.format(os.linesep))
 
     def _create_bios_image(self, mbrid=None, lookup_path=None):
         early_boot_script = os.path.normpath(
@@ -868,6 +874,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     self.get_boot_path(), self.boot_directory_name, os.linesep
                 )
             )
+            early_boot.write(
+                'configfile ($root)/boot/{0}/grub.cfg{1}'.format(
+                    self.boot_directory_name, os.linesep
+                )
+            )
 
     def _create_early_boot_script_for_mbrid_search(self, filename, mbrid):
         with open(filename, 'w') as early_boot:
@@ -881,6 +892,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
             early_boot.write(
                 'set prefix=($root)/boot/{0}{1}'.format(
+                    self.boot_directory_name, os.linesep
+                )
+            )
+            early_boot.write(
+                'configfile ($root)/boot/{0}/grub.cfg{1}'.format(
                     self.boot_directory_name, os.linesep
                 )
             )
