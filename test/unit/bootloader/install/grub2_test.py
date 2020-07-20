@@ -316,7 +316,7 @@ class TestBootLoaderInstallGrub2:
                 '/dev/some-device'
             ]),
             call([
-                'cp', '-p', 'tmp_root/usr/sbin/grub2-install.orig',
+                'mv', 'tmp_root/usr/sbin/grub2-install.orig',
                 'tmp_root/usr/sbin/grub2-install'
             ])
         ]

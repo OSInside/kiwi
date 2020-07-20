@@ -297,7 +297,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             )
             if os.path.exists(grub2_install_backup):
                 Command.run(
-                    ['cp', '-p', grub2_install_backup, grub2_install]
+                    ['mv', grub2_install_backup, grub2_install]
                 )
 
     def _get_grub2_install_tool_name(self, root_path):
