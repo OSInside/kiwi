@@ -223,6 +223,17 @@ class Defaults:
         )).lstrip(os.sep)
 
     @staticmethod
+    def get_sync_options():
+        """
+        Provides list of default data sync options
+
+        :return: list of rsync options
+
+        :rtype: list
+        """
+        return ['-a', '-H', '-X', '-A', '--one-file-system', '--inplace']
+
+    @staticmethod
     def get_exclude_list_for_root_data_sync():
         """
         Provides the list of files or folders that are created

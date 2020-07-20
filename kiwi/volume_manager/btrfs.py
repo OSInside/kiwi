@@ -320,8 +320,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 )
             data = DataSync(self.root_dir, sync_target)
             data.sync_data(
-                options=['-a', '-H', '-X', '-A', '--one-file-system'],
-                exclude=exclude
+                options=Defaults.get_sync_options(), exclude=exclude
             )
             if self.custom_args['quota_groups'] and \
                self.custom_args['root_is_snapshot']:

@@ -66,7 +66,10 @@ class TestOCIBuildah:
         )
         sync.sync_data.assert_called_once_with(
             exclude=['/dev', '/proc'],
-            options=['-a', '-H', '-X', '-A', '--delete']
+            options=[
+                '-a', '-H', '-X', '-A', '--one-file-system',
+                '--inplace', '--delete'
+            ]
         )
 
     @patch('kiwi.oci_tools.base.DataSync')
@@ -80,7 +83,7 @@ class TestOCIBuildah:
         )
         sync.sync_data.assert_called_once_with(
             exclude=['/dev', '/proc'],
-            options=['-a', '-H', '-X', '-A']
+            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace']
         )
 
     @patch('kiwi.oci_tools.umoci.Command.run')

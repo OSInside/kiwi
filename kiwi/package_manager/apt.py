@@ -20,6 +20,7 @@ import os
 import logging
 
 # project
+from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.utils.sync import DataSync
 from kiwi.path import Path
@@ -156,7 +157,7 @@ class PackageManagerApt(PackageManagerBase):
                 bootstrap_dir + '/', self.root_dir
             )
             data.sync_data(
-                options=['-a', '-H', '-X', '-A'],
+                options=Defaults.get_sync_options(),
                 exclude=['proc', 'sys', 'dev']
             )
         except Exception as e:

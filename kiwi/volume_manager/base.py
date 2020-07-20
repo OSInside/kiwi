@@ -337,8 +337,7 @@ class VolumeManagerBase(DeviceProvider):
                 self.mount_volumes()
             data = DataSync(self.root_dir, self.mountpoint)
             data.sync_data(
-                options=['-a', '-H', '-X', '-A', '--one-file-system'],
-                exclude=exclude
+                options=Defaults.get_sync_options(), exclude=exclude
             )
 
     def set_property_readonly_root(self):

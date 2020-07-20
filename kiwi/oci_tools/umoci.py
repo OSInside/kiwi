@@ -119,7 +119,7 @@ class OCIUmoci(OCIBase):
             ''.join([root_dir, os.sep]),
             os.sep.join([self.oci_root_dir, 'rootfs']),
             exclude_list=exclude_list,
-            options=['-a', '-H', '-X', '-A', '--delete']
+            options=Defaults.get_sync_options() + ['--delete']
         )
 
     def import_rootfs(self, root_dir, exclude_list=None):
@@ -132,7 +132,7 @@ class OCIUmoci(OCIBase):
         self._sync_data(
             os.sep.join([self.oci_root_dir, 'rootfs', '']),
             root_dir, exclude_list=exclude_list,
-            options=['-a', '-H', '-X', '-A']
+            options=Defaults.get_sync_options()
         )
 
     def repack(self, oci_config):
