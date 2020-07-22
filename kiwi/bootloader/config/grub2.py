@@ -289,7 +289,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     grub_config_file.write(grub_config)
 
                 loader_entries_pattern = os.sep.join(
-                    [self.root_mount.mountpoint, 'boot', 'entries', '*.conf']
+                    [
+                        self.root_mount.mountpoint,
+                        'boot', 'loader', 'entries', '*.conf'
+                    ]
                 )
                 for menu_entry_file in glob.iglob(loader_entries_pattern):
                     with open(menu_entry_file) as grub_menu_entry_file:
