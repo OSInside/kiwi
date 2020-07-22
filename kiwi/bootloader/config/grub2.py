@@ -297,9 +297,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 for menu_entry_file in glob.iglob(loader_entries_pattern):
                     with open(menu_entry_file) as grub_menu_entry_file:
                         menu_entry = grub_menu_entry_file.read()
-                        menu_entry = menu_entry.replace(
-                            'root={0}'.format(boot_options.get('root_device')),
-                            self.root_reference
+                        menu_entry = re.sub(
+                            r'root=.*?(\s|$)(.*)',
+                            r'{0}\1\2'.format(self.root_reference),
+                            menu_entry
                         )
                     with open(menu_entry_file, 'w') as grub_menu_entry_file:
                         grub_menu_entry_file.write(menu_entry)
