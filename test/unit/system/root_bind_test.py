@@ -161,7 +161,9 @@ class TestRootBind:
         with self._caplog.at_level(logging.WARNING):
             self.bind_root.cleanup()
             self.mount_manager.umount_lazy.assert_called_once_with()
-            mock_remove_hierarchy.assert_called_once_with('root-dir/mountpoint')
+            mock_remove_hierarchy.assert_called_once_with(
+                root='root-dir', path='/mountpoint'
+            )
             assert mock_command.call_args_list == [
                 call(['rm', '-f', 'root-dir/etc/sysconfig/proxy']),
                 call(

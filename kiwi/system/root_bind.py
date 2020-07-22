@@ -284,7 +284,7 @@ class RootBind:
     def _cleanup_dir_stack(self):
         for location in reversed(self.dir_stack):
             try:
-                Path.remove_hierarchy(self.root_dir + location)
+                Path.remove_hierarchy(root=self.root_dir, path=location)
             except Exception as e:
                 log.warning(
                     'Failed to remove directory hierarchy {0}: {1}'.format(
