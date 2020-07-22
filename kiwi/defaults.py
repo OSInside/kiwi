@@ -803,8 +803,8 @@ class Defaults:
         :rtype: str
         """
         shim_vendor_patterns = [
-            '/boot/efi/EFI/*/shim.efi',
-            '/EFI/*/shim.efi'
+            '/boot/efi/EFI/*/shim*.efi',
+            '/EFI/*/shim*.efi'
         ]
         for shim_vendor_pattern in shim_vendor_patterns:
             for shim_file in glob.iglob(root_path + shim_vendor_pattern):
