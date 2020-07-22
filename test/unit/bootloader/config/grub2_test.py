@@ -422,11 +422,13 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.CommandCapabilities.check_version')
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('kiwi.defaults.Defaults.get_vendor_grubenv')
+    @patch('glob.iglob')
     def test_setup_disk_image_config(
-        self, mock_get_vendor_grubenv, mock_Path_which,
+        self, mock_iglob, mock_get_vendor_grubenv, mock_Path_which,
         mock_CommandCapabilities_check_version, mock_Command_run,
         mock_copy_grub_config_to_efi_path, mock_mount_system
     ):
+        mock_iglob.return_value = ['some_entry.conf']
         mock_CommandCapabilities_check_version.return_value = True
         mock_get_vendor_grubenv.return_value = 'grubenv'
         mock_Path_which.return_value = '/path/to/grub2-mkconfig'
@@ -461,6 +463,7 @@ class TestBootLoaderConfigGrub2:
                 'efi_mount_point', 'root_mount_point/boot/grub2/grub.cfg'
             )
             assert file_handle.write.call_args_list == [
+                call('root=overlay:UUID=ID'),
                 call('root=overlay:UUID=ID'),
                 call('root=overlay:UUID=ID')
             ]
