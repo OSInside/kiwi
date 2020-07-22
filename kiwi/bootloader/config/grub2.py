@@ -298,8 +298,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     with open(menu_entry_file) as grub_menu_entry_file:
                         menu_entry = grub_menu_entry_file.read()
                         menu_entry = re.sub(
-                            r'root=.*?(\s|$)(.*)',
-                            r'{0}\1\2'.format(self.root_reference),
+                            r'options (.*)',
+                            r'options {0}'.format(self.cmdline),
                             menu_entry
                         )
                     with open(menu_entry_file, 'w') as grub_menu_entry_file:

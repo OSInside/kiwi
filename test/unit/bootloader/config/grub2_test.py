@@ -448,9 +448,28 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.efi_mount.mountpoint = 'efi_mount_point'
         self.bootloader.early_boot_script_efi = 'earlyboot.cfg'
         with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=io.IOBase)
-            file_handle = mock_open.return_value.__enter__.return_value
-            file_handle.read.return_value = 'root=rootdev'
+            mock_open_grub = MagicMock(spec=io.IOBase)
+            mock_open_menu = MagicMock(spec=io.IOBase)
+
+            def open_file(filename, mode=None):
+                print(filename)
+                if filename == 'root_mount_point/boot/grub2/grub.cfg':
+                    return mock_open_grub.return_value
+                elif filename == 'some_entry.conf':
+                    return mock_open_menu.return_value
+                elif filename == 'grubenv':
+                    return mock_open_grub.return_value
+
+            mock_open.side_effect = open_file
+
+            file_handle_grub = \
+                mock_open_grub.return_value.__enter__.return_value
+            file_handle_menu = \
+                mock_open_menu.return_value.__enter__.return_value
+
+            file_handle_grub.read.return_value = 'root=rootdev'
+            file_handle_menu.read.return_value = 'options foo bar'
+
             self.bootloader.setup_disk_image_config(
                 boot_options={
                     'root_device': 'rootdev', 'boot_device': 'bootdev'
@@ -468,10 +487,12 @@ class TestBootLoaderConfigGrub2:
             mock_copy_grub_config_to_efi_path.assert_called_once_with(
                 'efi_mount_point', 'earlyboot.cfg'
             )
-            assert file_handle.write.call_args_list == [
-                call('root=overlay:UUID=ID'),
+            assert file_handle_grub.write.call_args_list == [
                 call('root=overlay:UUID=ID'),
                 call('root=overlay:UUID=ID')
+            ]
+            assert file_handle_menu.write.call_args_list == [
+                call('options some-cmdline root=UUID=foo')
             ]
 
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
