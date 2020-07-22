@@ -293,6 +293,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 with open(config_file, 'w') as grub_config_file:
                     grub_config_file.write(grub_config)
 
+                loader_entries_pattern = os.sep.join(
+                    [self.root_mount.mountpoint, 'boot', 'entries', '*.conf']
+                )
+                for menu_entry_file in glob.iglob(loader_entries_pattern):
+                    with open(menu_entry_file) as grub_menu_entry_file:
+                        menu_entry = grub_menu_entry_file.read()
+                        menu_entry = menu_entry.replace(
+                            'root={0}'.format(boot_options.get('root_device')),
+                            self.root_reference
+                        )
+                    with open(menu_entry_file, 'w') as grub_menu_entry_file:
+                        grub_menu_entry_file.write(menu_entry)
+
                 if self.firmware.efi_mode():
                     vendor_grubenv_file = \
                         Defaults.get_vendor_grubenv(self.efi_mount.mountpoint)
