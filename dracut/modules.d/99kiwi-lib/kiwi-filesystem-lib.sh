@@ -67,11 +67,10 @@ function check_filesystem {
         check_fs_return_ok="test \$? -eq 0"
     ;;
     xfs)
-        # xfs_repair -n (no modify mode) will return a status of 1 if
-        # filesystem corruption was detected and 0 if no filesystem
-        # corruption was detected.
-        check_fs="xfs_repair -n ${device}"
-        check_fs_return_ok="test \$? -eq 0"
+        # xfs_repair can be used to check the filesystem. However
+        # for subsequent xfs_growfs no check is needed. Thus for
+        # xfs we skip the checking
+        return
     ;;
     *)
         # don't know how to check this filesystem
