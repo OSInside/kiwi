@@ -3,19 +3,19 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.2" name="VMX-Fedora-30.0">
+<image schemaversion="7.2" name="LimeJeOS-Fedora-Rawhide">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
-        <specification>Fedora 30 JeOS</specification>
+        <specification>Fedora Rawhide JeOS</specification>
     </description>
     <profiles>
-        <profile name="Live" description="Live image of Fedora 30"/>
-        <profile name="Virtual" description="Virtual image of Fedora 30"/>
-        <profile name="Disk" description="OEM image of Fedora 30"/>
+        <profile name="Live" description="Live image of Fedora Rawhide"/>
+        <profile name="Virtual" description="Virtual image of Fedora Rawhide"/>
+        <profile name="Disk" description="OEM image of Fedora Rawhide"/>
     </profiles>
     <preferences>
-        <version>1.30.1</version>
+        <version>2.0.0</version>
         <packagemanager>dnf</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
         <bootloader-theme>breeze</bootloader-theme>
@@ -25,16 +25,18 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial gfxterm"/>
+        </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0 splash">
-            <bootloader name="grub2" console="serial console"/>
+        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2">
+            <bootloader name="grub2" console="serial gfxterm"/>
         </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" firmware="uefi">
-            <bootloader name="grub2"/>
+        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" firmware="uefi" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial gfxterm"/>
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
@@ -47,13 +49,13 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
-        <source path="obs://Virtualization:Appliances:Staging/Fedora_30"/>
+        <source path="obs://Virtualization:Appliances:Staging/Fedora_Rawhide"/>
     </repository>
-    <repository type="rpm-md" alias="Fedora30Update">
-        <source path="obs://Fedora:30/update"/>
+    <repository type="rpm-md" alias="Fedora_Rawhide">
+        <source path="obs://Fedora:Rawhide/standard"/>
     </repository>
-    <repository type="rpm-md" alias="Fedora30">
-        <source path="obs://Fedora:30/standard"/>
+    <repository type="rpm-md" alias="Fedora_EPEL">
+        <source path="obs://Fedora:EPEL:8/standard"/>
     </repository>
     <packages type="image">
         <package name="grub2"/>
@@ -66,6 +68,7 @@
         <package name="glibc-all-langpacks"/>
         <package name="vim"/>
         <package name="tzdata"/>
+        <package name="NetworkManager"/>
     </packages>
     <packages type="image" profiles="Live,Disk">
         <package name="syslinux"/>
@@ -83,5 +86,6 @@
         <package name="grub2-efi-x64-modules"/>
         <package name="grub2-efi-x64"/>
         <package name="shim" arch="x86_64"/>
+        <archive name="kernelcmdline.tar.gz"/>
     </packages>
 </image>
