@@ -30,7 +30,7 @@ function resize_filesystem {
         return
     ;;
     esac
-    if _is_ramdisk_device "${device}"; then
+    if ! _is_ramdisk_device "${device}"; then
         check_filesystem "${device}"
     fi
     info "Resizing ${fstype} filesystem on ${device}..."
@@ -104,9 +104,5 @@ function probe_filesystem {
 # Methods considered private
 #--------------------------------------
 function _is_ramdisk_device {
-    local device=$1
-    if echo "${device}" | grep -qi "/dev/ram";then
-        return 1
-    fi
-    return 0
+    echo "$1" | grep -qi "/dev/ram"
 }
