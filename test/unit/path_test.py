@@ -56,7 +56,7 @@ class TestPath:
 
     @patch('kiwi.command.Command.run')
     def test_remove_hierarchy(self, mock_command):
-        Path.remove_hierarchy('/my_root/tmp/foo/bar')
+        Path.remove_hierarchy('/my_root', '/tmp/foo/bar')
         with self._caplog.at_level(logging.WARNING):
             assert mock_command.call_args_list == [
                 call(
@@ -74,6 +74,11 @@ class TestPath:
             ]
             assert 'remove_hierarchy: path /my_root/tmp is protected' in \
                 self._caplog.text
+        mock_command.reset_mock()
+        Path.remove_hierarchy('/home/kiwi/my_root', 'foo')
+        mock_command.assert_called_once_with(
+            ['rmdir', '--ignore-fail-on-non-empty', '/home/kiwi/my_root/foo']
+        )
 
     def test_move_to_root(self):
         assert [

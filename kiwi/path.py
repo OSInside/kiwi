@@ -133,15 +133,20 @@ class Path:
         )
 
     @staticmethod
-    def remove_hierarchy(path):
+    def remove_hierarchy(root, path):
         """
         Recursively remove an empty path and its sub directories
-        ignore non empty or protected paths and leave them untouched
+        starting at a given root directory. Ignore non empty or
+        protected paths and leave them untouched
 
-        :param string path: path name
+        :param string root: start at directory
+        :param string path: path name below root
         """
         Command.run(
-            ['rmdir', '--ignore-fail-on-non-empty', path]
+            [
+                'rmdir', '--ignore-fail-on-non-empty',
+                os.path.normpath(os.sep.join([root, path]))
+            ]
         )
         path_elements = path.split(os.sep)
         protected_elements = [
@@ -153,12 +158,15 @@ class Path:
                 if path_elements[path_index - 1] in protected_elements:
                     log.warning(
                         'remove_hierarchy: path {0} is protected'.format(
-                            sub_path
+                            os.path.normpath(os.sep.join([root, sub_path]))
                         )
                     )
                     return
                 Command.run(
-                    ['rmdir', '--ignore-fail-on-non-empty', sub_path]
+                    [
+                        'rmdir', '--ignore-fail-on-non-empty',
+                        os.path.normpath(os.sep.join([root, sub_path]))
+                    ]
                 )
 
     @staticmethod
