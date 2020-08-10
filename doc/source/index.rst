@@ -22,6 +22,7 @@
    self_contained
    concept_and_workflow
    image_description
+   image_types_and_results
    building_images
    working_with_images
    contributing

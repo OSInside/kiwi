@@ -417,8 +417,8 @@ For details see: :ref:`vmx-bootloader`
 <preferences><type><containerconfig>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to describe the container configuration metadata in docker or wsl
-image types. For details see: :ref:`building-docker-build` and:
-:ref:`building-wsl-build`
+image types. For details see: :ref:`building_docker_build` and:
+:ref:`building_wsl_build`
 
 <preferences><type><vagrantconfig>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

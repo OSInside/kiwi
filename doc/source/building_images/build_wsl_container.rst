@@ -1,4 +1,4 @@
-.. _building-wsl-build:
+.. _building_wsl_build:
 
 Build a WSL Container Image
 ===========================
