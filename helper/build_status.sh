@@ -1,49 +1,49 @@
 #!/bin/bash
 
-for image in \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-azure \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-docker \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-docker-derived\
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-ec2 \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-gce \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-iso \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-luks \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-MicroOS \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-oem \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-oem-legacy \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-orthos-oem \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-overlayroot \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-pxe \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-qcow-openstack\
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-tbz \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-vmx \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-vmx-lvm \
-    Virtualization:Appliances:Images:Testing_x86:suse/test-image-custom-partitions \
-    Virtualization:Appliances:Images:Testing_x86:centos/test-image-iso-oem-vmx \
-    Virtualization:Appliances:Images:Testing_x86:fedora/test-image-iso-oem-vmx \
-    Virtualization:Appliances:Images:Testing_x86:ubuntu/test-image-iso-oem-vmx \
-    Virtualization:Appliances:Images:Testing_s390:suse/test-image-oem \
-    Virtualization:Appliances:Images:Testing_s390:suse/test-image-vmx \
-    Virtualization:Appliances:Images:Testing_arm:suse/test-image-iso \
-    Virtualization:Appliances:Images:Testing_arm:suse/test-image-rpi-oem \
-    Virtualization:Appliances:Images:Testing_arm:fedora/test-image-iso \
-    Virtualization:Appliances:Images:Testing_ppc:suse/test-image-vmx \
-    Virtualization:Appliances:Images:Testing_ppc:fedora/test-image-vmx \
-    Virtualization:Appliances:Images:Testing_x86:archlinux/test-image-iso-oem-vmx-kis
+for project in \
+    Virtualization:Appliances:Images:Testing_x86:suse \
+    Virtualization:Appliances:Images:Testing_x86:centos \
+    Virtualization:Appliances:Images:Testing_x86:fedora \
+    Virtualization:Appliances:Images:Testing_x86:ubuntu \
+    Virtualization:Appliances:Images:Testing_s390:suse \
+    Virtualization:Appliances:Images:Testing_arm:suse \
+    Virtualization:Appliances:Images:Testing_arm:fedora \
+    Virtualization:Appliances:Images:Testing_ppc:suse \
+    Virtualization:Appliances:Images:Testing_ppc:fedora \
+    Virtualization:Appliances:Images:Testing_x86:archlinux
 do
-    project=$(echo "${image}" | cut -f1 -d/)
-    package=$(echo "${image}" | cut -f2 -d/)
-    if [ "${project_last}" != "${project}" ];then
-        echo
-        echo "$project"
-    fi
-    echo "${package}"
-    osc -A https://api.opensuse.org \
-        results "${project}" "${package}"
-    if [ "$1" = "refresh" ];then
-        echo -n "[refresh requested: ]"
+    echo "${project}"
+    if [ ! "$1" = "refresh" ];then
         osc -A https://api.opensuse.org \
-            service remoterun "${project}" "${package}"
+            results -V "${project}" | grep -B100 Legend | grep -v Legend
+    else
+        for package in $(osc -A https://api.opensuse.org list "${project}");do
+            if [[ "${package}" =~ ^test- ]];then
+                echo -n "[refresh requested for ${package}: ]"
+                osc -A https://api.opensuse.org \
+                    service remoterun "${project}" "${package}"
+            fi
+        done
+        echo
     fi
-    project_last="${project}"
 done
+
+if [ ! "$1" = "refresh" ];then
+cat << EOF
+Legend:
+ . succeeded
+   disabled            
+ U unresolvable        
+ F failed              
+ B broken              
+ b blocked             
+ % building            
+ f finished            
+ s scheduled           
+ L locked              
+ x excluded            
+ d dispatching         
+ S signing             
+ ? buildstatus not available
+EOF
+fi
