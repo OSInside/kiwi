@@ -541,14 +541,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         grub_config_file_for_efi_boot = os.sep.join(
             [efi_boot_path, 'grub.cfg']
         )
-        log.info(
-            'Copying {0} -> {1} to be found by EFI'.format(
+        if config_file != grub_config_file_for_efi_boot:
+            log.info(
+                'Copying {0} -> {1} to be found by EFI'.format(
+                    config_file, grub_config_file_for_efi_boot
+                )
+            )
+            shutil.copy(
                 config_file, grub_config_file_for_efi_boot
             )
-        )
-        shutil.copy(
-            config_file, grub_config_file_for_efi_boot
-        )
 
     def _supports_bios_modules(self):
         if self.arch == 'ix86' or self.arch == 'x86_64':
