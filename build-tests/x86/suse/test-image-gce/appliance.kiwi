@@ -122,7 +122,6 @@
         <package name="udev"/>
         <package name="growpart"/>
         <package name="python3-gcemetadata"/>
-        <package name="google-compute-engine-init"/>
         <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
