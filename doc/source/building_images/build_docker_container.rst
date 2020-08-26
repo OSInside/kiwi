@@ -1,4 +1,4 @@
-.. _building-docker-build:
+.. _building_docker_build:
 
 Build a Docker Container Image
 ==============================
