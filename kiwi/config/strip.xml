@@ -324,6 +324,7 @@
     no reference except for the ones listed here
     -->
     <strip type="libs">
+        <file name="libpam"/>
         <file name="libfontenc"/>
         <file name="libfreetype"/>
         <file name="libgcc_s"/>
