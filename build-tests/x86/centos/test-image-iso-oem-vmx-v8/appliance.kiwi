@@ -95,7 +95,6 @@
         <package name="rootfiles"/>
         <package name="rsyslog"/>
         <package name="selinux-policy-targeted"/>
-        <package name="tuned"/>
         <package name="xfsprogs"/>
         <package name="NetworkManager"/>
         <package name="iputils"/>

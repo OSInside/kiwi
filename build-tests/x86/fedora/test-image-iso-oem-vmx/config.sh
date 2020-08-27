@@ -27,24 +27,14 @@ test -f /.profile && . /.profile
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Mount system filesystems
-#--------------------------------------
-baseMount
-
-#======================================
 # Activate services
 #--------------------------------------
-baseInsertService network
-baseInsertService grub_config
+baseInsertService dbus-broker
+baseInsertService NetworkManager
 
 #======================================
 # Setup default target, multi-user
 #--------------------------------------
 baseSetRunlevel 3
-
-#======================================
-# Umount kernel filesystems
-#--------------------------------------
-baseCleanMount
 
 exit 0
