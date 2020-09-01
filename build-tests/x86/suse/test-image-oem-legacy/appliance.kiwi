@@ -63,6 +63,7 @@
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
     <packages type="bootstrap">
+        <package name="gawk"/>
         <package name="udev"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>

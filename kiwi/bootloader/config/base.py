@@ -542,8 +542,6 @@ class BootLoaderConfigBase:
         self.proc_mount.bind_mount()
 
     def _get_root_cmdline_parameter(self, uuid):
-        firmware = self.xml_state.build_type.get_firmware()
-        initrd_system = self.xml_state.get_initrd_system()
         cmdline = self.xml_state.build_type.get_kernelcmdline()
         if cmdline and 'root=' in cmdline:
             log.info(
@@ -553,28 +551,14 @@ class BootLoaderConfigBase:
             if root_search:
                 return root_search.group(1)
 
-        want_root_cmdline_parameter = False
-        if firmware and 'ec2' in firmware:
-            # EC2 requires to specifiy the root device in the bootloader
-            # configuration. This is because the used pvgrub or hvmloader
-            # reads this information and passes it to the guest configuration
-            # which has an impact on the devices attached to the guest.
-            want_root_cmdline_parameter = True
-
-        if initrd_system == 'dracut':
-            # When using a dracut initrd we have to specify the location
-            # of the root device
-            want_root_cmdline_parameter = True
-
-        if want_root_cmdline_parameter:
-            if uuid and self.xml_state.build_type.get_overlayroot():
-                return 'root=overlay:UUID={0}'.format(uuid)
-            elif uuid:
-                return 'root=UUID={0} rw'.format(uuid)
-            else:
-                log.warning(
-                    'root=UUID=<uuid> setup requested, but uuid is not provided'
-                )
+        if uuid and self.xml_state.build_type.get_overlayroot():
+            return 'root=overlay:UUID={0}'.format(uuid)
+        elif uuid:
+            return 'root=UUID={0} rw'.format(uuid)
+        else:
+            log.warning(
+                'root=UUID=<uuid> setup requested, but uuid is not provided'
+            )
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)

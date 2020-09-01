@@ -644,16 +644,6 @@ function baseStripInitrd {
     for path in /sbin /usr/sbin /usr/bin /bin;do
         baseStripTools "${path}" "${tools}"
     done
-    #==========================================
-    # remove unused libs
-    #------------------------------------------
-    baseStripUnusedLibs "${kiwi_strip_libs}"
-    #==========================================
-    # remove package manager meta data
-    #------------------------------------------
-    for p in dpkg rpm yum;do
-        rm -rf "/var/lib/$p"
-    done
 }
 
 #======================================
