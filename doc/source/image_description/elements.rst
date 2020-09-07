@@ -308,6 +308,21 @@ bootpartition="true|false":
   partition should be used or not (the default depends on the current
   layout). This will override {kiwi}'s default layout.
 
+bootpartsize="nonNegativeInteger":
+  For images with a separate boot partition this attribute
+  specifies the size in MB. If not set the boot partition
+  size is set to 200 MB
+
+efipartsize="nonNegativeInteger":
+  For images with an EFI fat partition this attribute
+  specifies the size in MB. If not set the EFI partition
+  size is set to 20 MB
+
+efiparttable="msdos|gpt":
+  For images with an EFI firmware specifies the partition
+  table type to use. If not set defaults to the GPT partition
+  table type
+
 btrfs_quota_groups="true|false":
   Boolean parameter to activate filesystem quotas if
   the filesystem is `btrfs`. By default quotas are inactive.
@@ -340,10 +355,10 @@ editbootinstall="file_path":
   after the bootloader is installed. The script runs relative to the
   directory which contains the image structure.
 
-filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs"
+filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs":
   The root filesystem
 
-firmware="efi|uefi"
+firmware="efi|uefi":
   Specifies the boot firmware of the appliance, supported
   options are: `bios`, `ec2`, `efi`, `uefi`, `ofw` and `opal`.
   This attribute is used to differentiate the image according to the
@@ -396,7 +411,7 @@ luks="passphrase":
   password. Note that the password must be entered when booting the
   appliance!
 
-target_blocksize="number"
+target_blocksize="number":
   Specifies the image blocksize in bytes which has to
   match the logical blocksize of the target storage device. By default 512
   Bytes is used, which works on many disks. You can obtain the blocksize
@@ -405,6 +420,190 @@ target_blocksize="number"
   .. code:: shell-session
 
      blockdev --report $DEVICE
+
+target_removable="true|false":
+  Indicate if the target disk for oem images is deployed
+  to a removable device e.g a USB stick or not. This only
+  affects the EFI setup if requested and in the end avoids
+  the creation of a custom boot menu entry in the firmware
+  of the target machine. By default the target disk is
+  expected to be non-removable
+
+spare_part="number":
+  Request a spare partition right before the root partition
+  of the requested size. The attribute takes a size value
+  and allows a unit in MB or GB, e.g 200M. If no unit is given
+  the value is considered to be mbytes. A spare partition
+  can only be configured for the disk image types oem and vmx
+
+spare_part_mountpoint="dir_path":
+  Specify mount point for spare partition in the system.
+  Can only be configured for the disk image types oem and vmx
+
+spare_part_fs="btrfs|ext2|ext3|ext4|xfs":
+  Specify filesystem for spare partition in the system.
+  Can only be configured for the disk image types oem and vmx
+
+spare_part_fs_attributes="attribute_list":
+  Specify filesystem attributes for the spare partition.
+  Attributes can be specified as comma separated list.
+  Currently the attributes `no-copy-on-write` and `synchronous-updates`
+  are available. Can only be configured for the disk image
+  types oem and vmx
+
+spare_part_is_last="true|false":
+  Specify if the spare partition should be the last one in
+  the partition table. Can only be configured for the vmx
+  disk image type. By default the root partition is the last
+  one and the spare partition lives before it. With this
+  attribute that setup can be toggled.
+
+devicepersistency="by-uuid|by-label|by-path":
+  Specifies which method to use for persistent device names.
+  This will affect all files written by kiwi that includes
+  device references for example `etc/fstab` or the `root=`
+  parameter in the kernel commandline. By default by-uuid
+  is used
+
+squashfscompression="uncompressed|gzip|lzo|lz4|xz|zstd":
+  Specifies the compression type for mksquashfs
+
+overlayroot="true|false"
+  Specifies to use an overlay root system consisting
+  out of a squashfs compressed read-only root system
+  overlayed using the overlayfs filesystem into an
+  extra read-write partition. Available for the disk
+  image types, vmx and oem
+
+bootfilesystem="ext2|ext3|ext4|fat32|fat16":
+  If an extra boot partition is required this attribute
+  specify which filesystem should be used for it. The
+  type of the selected bootloader might overwrite this
+  setting if there is no alternative possible though.
+
+flags="overlay|dmsquash"
+  For the iso image type specifies the live iso technology and
+  dracut module to use. If set to overlay the kiwi-live dracut
+  module will be used to support a live iso system based on
+  squashfs+overlayfs. If set to dmsquash the dracut standard
+  dmsquash-live module will be used to support a live iso
+  system based on the capabilities of the upstream dracut
+  module.
+
+format="gce|ova|qcow2|vagrant|vmdk|vdi|vhd|vhdx|vhd-fixed":
+  For disk image types vmx and oem, specifies the format of
+  the virtual disk such that it can run on the desired target
+  virtualization platform.
+
+formatoptions="string":
+  Specifies additional format options passed on to qemu-img
+  formatoptions is a comma separated list of format specific
+  options in a name=value format like qemu-img expects it.
+  kiwi will take the information and pass it as parameter to
+  the -o option in the qemu-img call
+
+fsmountoptions="string":
+  Specifies the filesystem mount options which also ends up in fstab
+  The string given here is passed as value to the -o option of mount
+
+fscreateoptions="string":
+  Specifies options to use at creation time of the filesystem
+
+force_mbr="true|false":
+  Force use of MBR (msdos table) partition table even if the
+  use of the GPT would be the natural choice. On e.g some
+  arm systems an EFI partition layout is required but must
+  not be stored in a GPT. For those rare cases this attribute
+  allows to force the use of the msdos table including all
+  its restrictions in max partition size and amount of
+  partitions
+
+gpt_hybrid_mbr="true|false":
+  For GPT disk types only: Create a hybrid GPT/MBR partition table
+
+hybridpersistent="true|false":
+  For the live ISO type, triggers the creation of a partition for
+  a COW file to keep data persistent over a reboot
+
+hybridpersistent_filesystem="ext4|xfs":
+  For the live ISO type, set the filesystem to use for persistent
+  writing if a hybrid image is used as disk on e.g a USB Stick.
+  By default the ext4 filesystem is used.
+
+initrd_system="kiwi|dracut":
+  Specify which initrd builder to use, default is set to `dracut`
+
+metadata_path="dir_path":
+  Specifies a path to additional metadata required for the selected
+  image type or its tools used to create that image type.
+
+  .. note::
+
+     Currently this is only effective for the appx container image type.
+
+installboot="failsafe-install|harddisk|install":
+  Specifies the bootloader default boot entry for the initial
+  boot of a {kiwi} install image.
+
+  .. note::
+
+     This value is only evaluated for grub
+
+install_continue_on_timeout="true|false":
+  Specifies the boot timeout handling for the {kiwi}
+  install image. If set to "true" the configured timeout
+  or its default value applies. If set to "false" no
+  timeout applies in the boot menu of the install image.
+
+installprovidefailsafe="true|false":
+  Specifies if the bootloader menu should provide an
+  failsafe entry with special kernel parameters or not
+
+installiso="true|false"
+  Specifies if an install iso image should be created.
+  This attribute is only available for the `oem` type.
+  The generated ISO image is an hybrid ISO which can be
+  used as disk on e.g a USB stick or as ISO.
+
+installpxe="true|false":
+  Specifies if a tarball that contains all data for a pxe network
+  installation should be created. This attribute is only available
+  for the `oem` type.
+
+mediacheck="true|false":
+  For ISO images, specifies if the bootloader menu should provide an
+  mediacheck entry to verify ISO integrity or not. Disabled by default
+  and only available for the x86 arch family.
+
+mdraid="mirroring|striping":
+  Setup software raid in degraded mode with one disk
+  Thus only mirroring and striping is possible
+
+primary="true|false":
+  Specifies this type to be the primary type. If no type option
+  is given on the commandline, {kiwi} will build this type
+
+ramonly="true|false":
+  For all images that are configured to use the overlay filesystem
+  this setting forces any COW(Copy-On-Write) action to happen in RAM.
+
+rootfs_label="string":
+  Label name to set for the root filesystem. By default `ROOT` is used
+
+volid="string":
+  For the ISO type only, specifies the volume ID (volume name or label)
+  to be written into the master block. There is space for 32 characters.
+
+vhdfixedtag="GUID_string":
+  For the VHD disk format, specifies the GUID
+
+derived_from="string":
+  For container images, specifies the image URI of the container image.
+  The image created by {kiwi} will use the specified container as the
+  base root to work on.
+
+publisher="string":
+  For ISO images, specifies the publisher name of the ISO.
 
 The following sections shows the supported child elements of the `type`
 element including references to their usage in a detailed type setup:
