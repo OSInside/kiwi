@@ -424,17 +424,15 @@ class TestBootLoaderConfigGrub2:
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    @patch('kiwi.bootloader.config.grub2.CommandCapabilities.check_version')
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('kiwi.defaults.Defaults.get_vendor_grubenv')
     @patch('glob.iglob')
     def test_setup_disk_image_config(
         self, mock_iglob, mock_get_vendor_grubenv, mock_Path_which,
-        mock_CommandCapabilities_check_version, mock_Command_run,
-        mock_copy_grub_config_to_efi_path, mock_mount_system
+        mock_Command_run, mock_copy_grub_config_to_efi_path,
+        mock_mount_system
     ):
         mock_iglob.return_value = ['some_entry.conf']
-        mock_CommandCapabilities_check_version.return_value = True
         mock_get_vendor_grubenv.return_value = 'grubenv'
         mock_Path_which.return_value = '/path/to/grub2-mkconfig'
         self.firmware.efi_mode = Mock(
@@ -450,15 +448,15 @@ class TestBootLoaderConfigGrub2:
         with patch('builtins.open', create=True) as mock_open:
             mock_open_grub = MagicMock(spec=io.IOBase)
             mock_open_menu = MagicMock(spec=io.IOBase)
+            mock_open_grubenv = MagicMock(spec=io.IOBase)
 
             def open_file(filename, mode=None):
-                print(filename)
                 if filename == 'root_mount_point/boot/grub2/grub.cfg':
                     return mock_open_grub.return_value
                 elif filename == 'some_entry.conf':
                     return mock_open_menu.return_value
                 elif filename == 'grubenv':
-                    return mock_open_grub.return_value
+                    return mock_open_grubenv.return_value
 
             mock_open.side_effect = open_file
 
@@ -466,8 +464,11 @@ class TestBootLoaderConfigGrub2:
                 mock_open_grub.return_value.__enter__.return_value
             file_handle_menu = \
                 mock_open_menu.return_value.__enter__.return_value
+            file_handle_grubenv = \
+                mock_open_grubenv.return_value.__enter__.return_value
 
             file_handle_grub.read.return_value = 'root=rootdev'
+            file_handle_grubenv.read.return_value = 'root=rootdev'
             file_handle_menu.read.return_value = 'options foo bar'
 
             self.bootloader.setup_disk_image_config(
@@ -488,25 +489,38 @@ class TestBootLoaderConfigGrub2:
                 'efi_mount_point', 'earlyboot.cfg'
             )
             assert file_handle_grub.write.call_args_list == [
-                call('root=overlay:UUID=ID'),
+                # first write of grub.cfg, adapting to linux/initrd as variables
+                call(
+                    'set linux=linux\n'
+                    'set initrd=initrd\n'
+                    'if [ "${grub_cpu}" = "x86_64" -o '
+                    '"${grub_cpu}" = "i386" ];then\n'
+                    '    if [ "${grub_platform}" = "efi" ]; then\n'
+                    '        set linux=linuxefi\n'
+                    '        set initrd=initrdefi\n'
+                    '    fi\n'
+                    'fi\n'
+                ),
+                call('root=rootdev'),
+                # second write of grub.cfg, setting overlay root
                 call('root=overlay:UUID=ID')
             ]
-            assert file_handle_menu.write.call_args_list == [
-                call('options some-cmdline root=UUID=foo')
-            ]
+            file_handle_grubenv.write.assert_called_once_with(
+                'root=overlay:UUID=ID'
+            )
+            file_handle_menu.write.assert_called_once_with(
+                'options some-cmdline root=UUID=foo'
+            )
 
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    @patch('kiwi.bootloader.config.grub2.CommandCapabilities.check_version')
     @patch('kiwi.bootloader.config.grub2.Path.which')
     def test_setup_disk_image_config_validate_linuxefi(
-        self, mock_Path_which, mock_CommandCapabilities_check_version,
-        mock_Command_run, mock_copy_grub_config_to_efi_path,
-        mock_mount_system
+        self, mock_Path_which, mock_Command_run,
+        mock_copy_grub_config_to_efi_path, mock_mount_system
     ):
         mock_Path_which.return_value = '/path/to/grub2-mkconfig'
-        mock_CommandCapabilities_check_version.return_value = False
         self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
