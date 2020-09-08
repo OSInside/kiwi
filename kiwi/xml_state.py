@@ -395,7 +395,7 @@ class XMLState:
         )
         if package_list:
             for package in package_list:
-                result.append(package.package_section.get_name())
+                result.append(package.package_section.get_name().strip())
             if self.get_system_packages():
                 result.append(self.get_package_manager())
         if plus_packages:
@@ -420,7 +420,7 @@ class XMLState:
         )
         if package_list:
             for package in package_list:
-                result.append(package.package_section.get_name())
+                result.append(package.package_section.get_name().strip())
         return sorted(list(set(result)))
 
     def get_bootstrap_archives(self):
@@ -438,7 +438,7 @@ class XMLState:
                 archive_list = bootstrap_packages_section.get_archive()
                 if archive_list:
                     for archive in archive_list:
-                        result.append(archive.get_name())
+                        result.append(archive.get_name().strip())
         return sorted(result)
 
     def get_system_archives(self):
@@ -456,7 +456,7 @@ class XMLState:
         )
         for packages in image_packages_sections:
             for archive in packages.get_archive():
-                result.append(archive.get_name())
+                result.append(archive.get_name().strip())
         return sorted(result)
 
     def get_system_ignore_packages(self):
@@ -475,7 +475,7 @@ class XMLState:
         for packages in image_packages_sections:
             for package in packages.get_ignore():
                 if self.package_matches_host_architecture(package):
-                    result.append(package.get_name())
+                    result.append(package.get_name().strip())
         return sorted(result)
 
     def get_collection_type(self, section_type='image'):
