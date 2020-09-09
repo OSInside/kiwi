@@ -24,7 +24,6 @@ import shutil
 from collections import OrderedDict
 
 # project
-from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.command import Command
@@ -236,12 +235,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
         if self.firmware.efi_mode():
-            # On systems that are configured to use EFI with a grub2
-            # version less than 2.04 there is no support for dynamic
-            # EFI environment checking. In this condition we change
-            # the grub config to add this support as follows:
+            # On systems that are configured to use EFI with grub2
+            # there is no support for dynamic EFI environment checking.
+            # In this condition we change the grub config to add this
+            # support as follows:
             #
-            # * Apply only on grub < 2.04
+            # * Apply on grub with EFI
             #    1. Modify grub.cfg to set linux/initrd as variables
             #    2. Prepend hybrid setup to select linux vs. linuxefi on demand
             #
@@ -249,25 +248,21 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # Any subsequent call of the grub config tool will overwrite
             # the setup and disables dynamic EFI environment checking
             # at boot time
-            if not CommandCapabilities.check_version(
-                self._get_grub2_mkconfig_tool(),
-                version_waterline=(2, 4), raise_on_error=False
-            ):
-                with open(config_file) as grub_config_file:
-                    grub_config = grub_config_file.read()
-                    grub_config = re.sub(
-                        r'([ \t]+)linux(efi|16)*([ \t]+)', r'\1$linux\3',
-                        grub_config
-                    )
-                    grub_config = re.sub(
-                        r'([ \t]+)initrd(efi|16)*([ \t]+)', r'\1$initrd\3',
-                        grub_config
-                    )
-                with open(config_file, 'w') as grub_config_file:
-                    grub_config_file.write(
-                        Template(self.grub2.header_hybrid).substitute()
-                    )
-                    grub_config_file.write(grub_config)
+            with open(config_file) as grub_config_file:
+                grub_config = grub_config_file.read()
+                grub_config = re.sub(
+                    r'([ \t]+)linux(efi|16)*([ \t]+)', r'\1$linux\3',
+                    grub_config
+                )
+                grub_config = re.sub(
+                    r'([ \t]+)initrd(efi|16)*([ \t]+)', r'\1$initrd\3',
+                    grub_config
+                )
+            with open(config_file, 'w') as grub_config_file:
+                grub_config_file.write(
+                    Template(self.grub2.header_hybrid).substitute()
+                )
+                grub_config_file.write(grub_config)
 
         if self.root_reference:
             if self.root_filesystem_is_overlay or \
