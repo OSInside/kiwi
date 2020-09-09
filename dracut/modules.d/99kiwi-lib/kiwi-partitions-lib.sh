@@ -32,6 +32,7 @@ function create_msdos_partitions {
     local partid
     local part_size_end
     local cmd_list
+    local start_sector_from
     local cmd
 
     # put partition setup in a command list(cmd_list)
@@ -49,13 +50,16 @@ function create_msdos_partitions {
         "d")
             # delete a partition...
             partid=${cmd_list[$index + 1]}
+            start_sector_from[$partid]=$(
+                _get_msdos_partition_start_sector "${disk_device}" "${partid}"
+            )
             sfdisk --force --delete "${disk_device}" "${partid}"
         ;;
         "n")
             # create a partition...
             partid=${cmd_list[$index + 2]}
             part_size_end=${cmd_list[$index + 4]}
-            echo ",${part_size_end}" > /tmp/sfdisk.in
+            echo "${start_sector_from[$partid]},${part_size_end}" > /tmp/sfdisk.in
             sfdisk --force -N "${partid}" "${disk_device}" <  /tmp/sfdisk.in
         ;;
         "t")
@@ -404,6 +408,16 @@ function resize_wanted {
 #======================================
 # Methods considered private
 #--------------------------------------
+function _get_msdos_partition_start_sector {
+    # """
+    # read start sector from given partition
+    # """
+    local disk_device=$1
+    local partid=$2
+    sfdisk --dump "${disk_device}" |\
+        grep "${partid} :" | cut -f1 -d, | cut -f2 -d= | tr -d " "
+}
+
 function _to_guid {
     # """
     # convert two digit partition id to guid id
