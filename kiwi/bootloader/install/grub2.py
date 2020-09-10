@@ -129,12 +129,16 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.install_arguments.append('--removable')
 
         if Defaults.is_x86_arch(self.arch):
-            self.target = 'i386-pc'
+            if self.firmware and self.firmware.efi_mode():
+                self.target = 'x86_64-efi'
+            else:
+                self.target = 'i386-pc'
             self.install_device = self.device
             self.modules = ' '.join(
                 Defaults.get_grub_bios_modules(multiboot=True)
             )
             self.install_arguments.append('--skip-fs-probe')
+
         elif self.arch.startswith('ppc64'):
             if not self.custom_args or 'prep_device' not in self.custom_args:
                 raise KiwiBootLoaderGrubInstallError(

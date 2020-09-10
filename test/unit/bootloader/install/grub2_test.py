@@ -279,7 +279,7 @@ class TestBootLoaderInstallGrub2:
         mock_exists.return_value = True
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
-            self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
+            self.root_mount.mountpoint + '/usr/lib/grub2/x86_64-efi'
         self.firmware.efi_mode.return_value = 'uefi'
         self.boot_mount.device = self.root_mount.device
 
@@ -296,9 +296,9 @@ class TestBootLoaderInstallGrub2:
         assert mock_command.call_args_list == [
             call([
                 'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
-                '--directory', '/usr/lib/grub2/i386-pc',
+                '--directory', '/usr/lib/grub2/x86_64-efi',
                 '--boot-directory', '/boot',
-                '--target', 'i386-pc',
+                '--target', 'x86_64-efi',
                 '--modules', ' '.join(
                     Defaults.get_grub_bios_modules(multiboot=True)
                 ),
@@ -340,7 +340,7 @@ class TestBootLoaderInstallGrub2:
         mock_exists.return_value = True
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
-            self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
+            self.root_mount.mountpoint + '/usr/lib/grub2/x86_64-efi'
         self.firmware.efi_mode.return_value = 'uefi'
         self.boot_mount.device = self.root_mount.device
 
@@ -357,9 +357,9 @@ class TestBootLoaderInstallGrub2:
         assert mock_command.call_args_list == [
             call([
                 'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
-                '--directory', '/usr/lib/grub2/i386-pc',
+                '--directory', '/usr/lib/grub2/x86_64-efi',
                 '--boot-directory', '/boot',
-                '--target', 'i386-pc',
+                '--target', 'x86_64-efi',
                 '--modules', ' '.join(
                     Defaults.get_grub_bios_modules(multiboot=True)
                 ),
