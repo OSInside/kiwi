@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="LimeJeOS-openSUSE-13.2">
+<image schemaversion="7.2" name="JeOS">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
-        <specification>
-            openSUSE 13.2 JeOS, is a small text based image
-        </specification>
+        <specification>JeOS</specification>
     </description>
     <preferences>
-        <version>1.13.2</version>
+        <version>1.1.0</version>
         <packagemanager>zypper</packagemanager>
         <locale>en_US</locale>
         <keytable>us.map.gz</keytable>
@@ -18,13 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" installiso="true" kernelcmdline="splash" firmware="efi">
-            <oemconfig>
-                <oem-inplace-recovery>true</oem-inplace-recovery>
-                <oem-recovery-part-size>200</oem-recovery-part-size>
-                <oem-swap>true</oem-swap>
-            </oemconfig>
-        </type>
+        <type image="oem" boot="oemboot/example-distribution" filesystem="ext3"/>
     </preferences>
     <repository>
         <source path="obs://13.2/repo/oss"/>

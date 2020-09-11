@@ -18,7 +18,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext4" initrd_system="dracut" firmware="uefi" spare_part="500M" editbootconfig="custom_partitions_create.sh" editbootinstall="custom_partitions_setup.sh" installiso="true" bootloader="grub2">
+        <type image="oem" filesystem="ext4" firmware="uefi" spare_part="500M" editbootconfig="custom_partitions_create.sh" editbootinstall="custom_partitions_setup.sh" installiso="true" bootloader="grub2">
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>512</oem-swapsize>

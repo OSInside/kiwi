@@ -140,9 +140,12 @@ class XMLState:
         if self.get_build_type_name() in ['vmx', 'iso', 'kis']:
             # vmx, iso and kis image types always use dracut as initrd system
             initrd_system = 'dracut'
-        elif self.get_build_type_name() in ['oem', 'pxe']:
-            # pxe and oem image types default to kiwi if unset
+        elif self.get_build_type_name() == 'pxe':
+            # pxe image type defaults to kiwi if unset
             initrd_system = self.build_type.get_initrd_system() or 'kiwi'
+        elif self.get_build_type_name() == 'oem':
+            # oem image type defaults to dracut if unset
+            initrd_system = self.build_type.get_initrd_system() or 'dracut'
         else:
             initrd_system = self.build_type.get_initrd_system()
         return initrd_system

@@ -18,7 +18,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" boot="oemboot/suse-13.2" installiso="true" kernelcmdline="splash" firmware="efi" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true">
+        <type image="oem" filesystem="btrfs" initrd_system="kiwi" boot="oemboot/example-distribution" installiso="true" kernelcmdline="splash" firmware="efi" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true">
             <oemconfig>
                 <oem-multipath-scan>false</oem-multipath-scan>
                 <oem-swap>true</oem-swap>

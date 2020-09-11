@@ -18,7 +18,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" boot="oemboot/suse-13.2" installiso="true" kernelcmdline="splash" firmware="efi">
+        <type image="oem" filesystem="btrfs" installiso="true" kernelcmdline="splash" firmware="efi">
             <systemdisk/>
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>

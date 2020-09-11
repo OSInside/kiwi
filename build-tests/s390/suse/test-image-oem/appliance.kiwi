@@ -14,7 +14,7 @@
         <locale>en_US</locale>
         <keytable>us</keytable>
         <timezone>Europe/Berlin</timezone>
-        <type image="oem" filesystem="xfs" initrd_system="dracut" kernelcmdline="cio_ignore=all,!ipldev,!condev">
+        <type image="oem" filesystem="xfs" kernelcmdline="cio_ignore=all,!ipldev,!condev">
             <bootloader name="grub2_s390x_emu" console="serial" targettype="FBA"/>
             <systemdisk>
                 <volume name="home"/>
