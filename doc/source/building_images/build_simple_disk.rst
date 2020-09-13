@@ -1,33 +1,40 @@
-.. _vmx:
+.. _simple_disk:
 
 Build a Virtual Disk Image
 ==========================
 
 .. sidebar:: Abstract
 
-   This chapter explains how to build a simple disk image, including:
+   This page explains how to build a simple disk image.
+   It contains how to:
 
-   - how to define a vmx image in the image description
-   - how to build a vmx image
-   - how to run it with QEMU
+   - define a simple disk image in the image description
+   - build a simple disk image
+   - run it with QEMU
 
-A Virtual Disk Image is a compressed system disk with additional metadata
-useful for cloud frameworks like Amazon EC2, Google Compute Engine, or
-Microsoft Azure.
+A simple Virtual Disk Image is a compressed system disk with additional
+metadata useful for cloud frameworks like Amazon EC2, Google Compute Engine,
+or Microsoft Azure. It is used as the native disk of a system and does
+not require an extra installation workflow or a complex first boot setup
+procedure which is why we call it a *simple* disk image.
 
-To instruct {kiwi} to build a VMX image add a `type` element with
-`image="vmx"` in :file:`config.xml`. An example configuration for a 42 GB
-large VMDK image with 512 MB RAM, an IDE controller and a bridged network
-interface is shown below:
+To instruct {kiwi} to build a simple disk image add a `type` element with
+`image="oem"` in :file:`config.xml` that has the `oem-resize` feature
+disabled. An example configuration for a 42 GB large VMDK image with
+512 MB RAM, an IDE controller and a bridged network interface is shown
+below:
 
 .. code:: xml
 
    <image schemaversion="7.2" name="JeOS-Tumbleweed">
      <!-- snip -->
      <preferences>
-       <type image="vmx" filesystem="ext4" format="vmdk">
+       <type image="oem" filesystem="ext4" format="vmdk">
          <bootloader name="grub2" timeout="0"/>
          <size unit="G">42</size>
+         <oemconfig>
+             <oem-resize>false</oem-resize>
+         </oemconfig>
          <machine memory="512" guestOS="suse" HWversion="4">
            <vmdisk id="0" controller="ide"/>
            <vmnic driver="e1000" interface="0" mode="bridged"/>
@@ -39,7 +46,7 @@ interface is shown below:
    </image>
 
 The following attributes of the `type` element are of special interest
-when building VMX images:
+when building simple disk images:
 
 - `format`: Specifies the format of the virtual disk, possible values are:
   `gce`, `ova`, `qcow2`, `vagrant`, `vmdk`, `vdi`, `vhd`, `vhdx` and
@@ -53,8 +60,8 @@ when building VMX images:
 
 The `bootloader`, `size` and `machine` child-elements of `type` can be
 used to customize the virtual machine image further. We describe them in
-the following sections: :ref:`vmx-bootloader`, :ref:`vmx-the-size-element`
-and :ref:`vmx-the-machine-element`
+the following sections: :ref:`disk-bootloader`, :ref:`disk-the-size-element`
+and :ref:`disk-the-machine-element`
 
 Once your image description is finished (or you are content with a image
 from the :ref:`example descriptions <example-descriptions>` and use one of
@@ -62,7 +69,7 @@ them) build the image with {kiwi}:
 
 .. code:: bash
 
-   $ sudo kiwi-ng --type vmx system build \
+   $ sudo kiwi-ng --type oem system build \
        --description kiwi-descriptions/suse/x86_64/{exc_description} \
        --target-dir /tmp/myimage
 
@@ -86,7 +93,7 @@ framework see:
 
 For information how to setup a Vagrant box, see: :ref:`setup_vagrant`.
 
-.. _vmx-bootloader:
+.. _disk-bootloader:
 
 Setting up the Bootloader of the Image
 --------------------------------------
@@ -137,7 +144,7 @@ targettype="CDL|LDL|FBA|SCSI":
   emulated DASD devices use `FBA`. The attribute is available for the
   zipl loader only
 
-.. _vmx-the-size-element:
+.. _disk-the-size-element:
 
 Modifying the Size of the Image
 -------------------------------
@@ -149,8 +156,11 @@ added to the virtual machine image of which 5 GB are left unpartitioned:
 .. code:: xml
 
    <preferences>
-     <type image="vmx" format="vmdk">
+     <type image="oem" format="vmdk">
        <size unit="G" additive="true" unpartitioned="5">20</size>
+       <oemconfig>
+           <oem-resize>false</oem-resize>
+       </oemconfig>
      </type>
    </preferences>
 
@@ -170,7 +180,7 @@ further:
   `unit` or the default.
 
 
-.. _vmx-the-machine-element:
+.. _disk-the-machine-element:
 
 Customizing the Virtual Machine
 -------------------------------
@@ -240,7 +250,7 @@ The following example adds the two entries `numvcpus = "4"` and
 .. code:: xml
 
    <preferences>
-     <type image="vmx" filesystem="ext4" format="vmdk">
+     <type image="oem" filesystem="ext4" format="vmdk">
        <machine memory="512" guestOS="suse" HWversion="4">
          <vmconfig-entry>numvcpus = "4"</vmconfig-entry>
          <vmconfig-entry>cpuid.coresPerSocket = "2"</vmconfig-entry>
@@ -263,7 +273,7 @@ In the following example we add a bridged network interface using the
 .. code:: xml
 
    <preferences>
-     <type image="vmx" filesystem="ext4" format="vmdk">
+     <type image="oem" filesystem="ext4" format="vmdk">
        <machine memory="4096" guestOS="suse" HWversion="4">
          <vmnic driver="e1000" interface="0" mode="bridged"/>
        </machine>
@@ -299,7 +309,7 @@ The following example adds a disk with the ID 0 using an IDE controller:
 .. code:: xml
 
    <preferences>
-     <type image="vmx" filesystem="ext4" format="vmdk">
+     <type image="oem" filesystem="ext4" format="vmdk">
        <machine memory="512" guestOS="suse" HWversion="4">
          <vmdisk id="0" controller="ide"/>
        </machine>
@@ -336,7 +346,7 @@ IDE controller:
 .. code:: xml
 
    <preferences>
-     <type image="vmx" filesystem="ext4">
+     <type image="oem" filesystem="ext4">
        <machine memory="512" xen_loader="hvmloader">
          <vmdvd id="0" controller="scsi"/>
          <vmdvd id="1" controller="ide"/>

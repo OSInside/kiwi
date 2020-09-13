@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="VMX-openSUSE-Tumbleweed">
+<image schemaversion="7.3" name="VMX-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -16,7 +16,10 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="vmx" filesystem="ext3" kernelcmdline="console=ttyS0 splash" firmware="efi" format="vmdk" overlayroot="true">
+        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0 splash" firmware="efi" format="vmdk" overlayroot="true">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <bootloader name="grub2"/>
             <size unit="G">4</size>
         </type>

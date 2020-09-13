@@ -1274,7 +1274,7 @@ class Defaults:
 
         :rtype: list
         """
-        return ['oem', 'vmx']
+        return ['oem']
 
     @staticmethod
     def get_live_image_types():

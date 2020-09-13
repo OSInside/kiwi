@@ -265,16 +265,14 @@ image="iso"
   system storage components. A useful pocket system for testing
   and demo and debugging purposes.
 
-image="vmx"
-  An image representing the system disk, useful for cloud frameworks
-  like Amazon EC2, Google Compute Engine or Microsoft Azure.
-
 image="oem"
   An image representing an expandable system disk. This means after
   deployment the system can resize itself to the new disk geometry.
   The resize operation is configurable as part of the image description
   and an installation image for CD/DVD, USB stick and Network deployment
-  can be created in addition.
+  can be created in addition. For use in cloud frameworks like
+  Amazon EC2, Google Compute Engine or Microsoft Azure this disk
+  type also supports the common virtual disk formats.
 
 image="docker"
   An archive image suitable for the docker container engine.
@@ -434,29 +432,35 @@ spare_part="number":
   of the requested size. The attribute takes a size value
   and allows a unit in MB or GB, e.g 200M. If no unit is given
   the value is considered to be mbytes. A spare partition
-  can only be configured for the disk image types oem and vmx
+  can only be configured for the disk image type oem
 
 spare_part_mountpoint="dir_path":
   Specify mount point for spare partition in the system.
-  Can only be configured for the disk image types oem and vmx
+  Can only be configured for the disk image type oem
 
 spare_part_fs="btrfs|ext2|ext3|ext4|xfs":
   Specify filesystem for spare partition in the system.
-  Can only be configured for the disk image types oem and vmx
+  Can only be configured for the disk image type oem
 
 spare_part_fs_attributes="attribute_list":
   Specify filesystem attributes for the spare partition.
   Attributes can be specified as comma separated list.
   Currently the attributes `no-copy-on-write` and `synchronous-updates`
   are available. Can only be configured for the disk image
-  types oem and vmx
+  type oem
 
 spare_part_is_last="true|false":
   Specify if the spare partition should be the last one in
-  the partition table. Can only be configured for the vmx
-  disk image type. By default the root partition is the last
-  one and the spare partition lives before it. With this
-  attribute that setup can be toggled.
+  the partition table. Can only be configured for the `oem`
+  type with oem-resize switched off. By default the root
+  partition is the last one and the spare partition lives
+  before it. With this attribute that setup can be toggled.
+  However, if the root partition is no longer the last one
+  the oem repart/resize code can no longer work because
+  the spare part would block it. Because of that moving
+  the spare part at the end of the disk is only applied
+  if oem-resize is switched off. There is a runtime
+  check in the {kiwi} code to check this condition
 
 devicepersistency="by-uuid|by-label|by-path":
   Specifies which method to use for persistent device names.
@@ -473,7 +477,7 @@ overlayroot="true|false"
   out of a squashfs compressed read-only root system
   overlayed using the overlayfs filesystem into an
   extra read-write partition. Available for the disk
-  image types, vmx and oem
+  image type oem only
 
 bootfilesystem="ext2|ext3|ext4|fat32|fat16":
   If an extra boot partition is required this attribute
@@ -491,7 +495,7 @@ flags="overlay|dmsquash"
   module.
 
 format="gce|ova|qcow2|vagrant|vmdk|vdi|vhd|vhdx|vhd-fixed":
-  For disk image types vmx and oem, specifies the format of
+  For disk image type oem, specifies the format of
   the virtual disk such that it can run on the desired target
   virtualization platform.
 
@@ -610,8 +614,8 @@ element including references to their usage in a detailed type setup:
 
 <preferences><type><bootloader>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Used to describe the bootloader setup in vmx or oem disk image types.
-For details see: :ref:`vmx-bootloader`
+Used to describe the bootloader setup in the oem disk image type.
+For details see: :ref:`disk-bootloader`
 
 <preferences><type><containerconfig>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -621,12 +625,12 @@ image types. For details see: :ref:`building_docker_build` and:
 
 <preferences><type><vagrantconfig>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Used to describe vagrant configuration metadata in vmx disk image
+Used to describe vagrant configuration metadata in a disk image
 that is being used as a vagrant box. For details see: :ref:`setup_vagrant`
 
 <preferences><type><systemdisk>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Used to describe the geometry, partitions and volumes, in a vmx or oem
+Used to describe the geometry, partitions and volumes, in a
 disk image. For details see: :ref:`custom_volumes`
 
 <preferences><type><oemconfig>
@@ -636,14 +640,14 @@ For details see: :ref:`oem_customize`
 
 <preferences><type><size>
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-Used to customize the size of the resulting disk image in a vmx or
-oem image. For details see: :ref:`vmx-the-size-element`
+Used to customize the size of the resulting disk image in an
+oem image. For details see: :ref:`disk-the-size-element`
 
 <preferences><type><machine>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to customize the virtual machine configuration which describes
 the components of an emulated hardware.
-For details see: :ref:`vmx-the-machine-element`
+For details see: :ref:`disk-the-machine-element`
 
 .. _sec.repository:
 
@@ -1058,15 +1062,15 @@ For example:
      <packagemanager name="zypper"/>
    </preferences>
 
-   <preferences profiles="vmx_qcow_format">
-     <type image="vmx" filesystem="ext4" format="qcow2"/>
+   <preferences profiles="oem_qcow_format">
+     <type image="oem" filesystem="ext4" format="qcow2"/>
    </preferences>
 
-   <preferences profiles="vmx_vmdk_format">
-     <type image="vmx" filesystem="ext4" format="vmdk"/>
+   <preferences profiles="oem_vmdk_format">
+     <type image="oem" filesystem="ext4" format="vmdk"/>
    </preferences>
 
-The above example configures two version of the same vmx type.
+The above example configures two version of the same oem type.
 One builds a disk in qcow2 format the other builds a disk in
 vmdk format. The global preferences section without a profile
 assigned will be used in any case and defines those preferences

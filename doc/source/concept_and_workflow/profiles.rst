@@ -10,7 +10,7 @@ configurations.
 
 The use of profiles is advisable to distinguish image builds of the same
 type but with different settings. In the following example, two virtual
-machine images of the vmx type are configured: one for QEMU (using the
+machine images of the `oem` type are configured: one for QEMU (using the
 `qcow2` format) and one for VMWare (using the `vmdk` format).
 
 .. code:: xml
@@ -25,10 +25,10 @@ machine images of the vmx type are configured: one for QEMU (using the
            <packagemanager>zypper</packagemanager>
        </preferences>
        <preferences profiles="QEMU">
-           <type image="vmx" format="qcow2" filesystem="ext4">
+           <type image="oem" format="qcow2" filesystem="ext4">
        </preferences>
        <preferences profiles="VMWare">
-           <type image="vmx" format="vmdk" filesystem="ext4">
+           <type image="oem" format="vmdk" filesystem="ext4">
        </preferences>
    </image>
 

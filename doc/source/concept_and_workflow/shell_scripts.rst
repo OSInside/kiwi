@@ -30,16 +30,15 @@ images.sh
   a live iso but not when building a virtual disk image.
 
 disk.sh
-  is executed for the disk image types `vmx` and `oem`
-  only and runs after the synchronisation of the root tree into the
-  disk image loop file. At call time of the script the device name
-  of the currently mapped root device is passed as a parameter.
-  The chroot environment for this script call is the virtual disk
-  itself and not the root tree as with :file:`config.sh` and
-  :file:`images.sh`. :file:`disk.sh` is usually used to apply
-  changes at parts of the system that are not an element of the
-  file based root tree such as the partition table, the bootloader
-  or filesystem attributes.
+  is executed for the disk image type `oem` only and runs after the
+  synchronisation of the root tree into the disk image loop file.
+  At call time of the script the device name of the currently mapped
+  root device is passed as a parameter. The chroot environment for
+  this script call is the virtual disk itself and not the root tree
+  as with :file:`config.sh` and :file:`images.sh`. The script :file:`disk.sh`
+  is usually used to apply changes at parts of the system that are not an
+  element of the file based root tree such as the partition table, the
+  bootloader or filesystem attributes.
 
 {kiwi} executes scripts via the operating system if their executable
 bit is set (in that case a shebang is mandatory) otherwise they will be

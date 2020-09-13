@@ -78,7 +78,7 @@ class TestCli:
             sys.argv[0],
             '--compat', '--',
             '--build', 'description',
-            '--type', 'vmx',
+            '--type', 'oem',
             '-d', 'destination'
         ]
         cli = Cli()
@@ -89,7 +89,7 @@ class TestCli:
             sys.argv[0],
             'compat',
             '--build', 'description',
-            '--type', 'vmx',
+            '--type', 'oem',
             '-d', 'destination'
         ]
         cli = Cli()
@@ -132,13 +132,13 @@ class TestCli:
             sys.argv[0],
             '--compat', '--',
             '--build', 'description',
-            '--type', 'vmx',
+            '--type', 'oem',
             '-d', 'destination'
         ]
         cli = Cli()
         cli.load_command()
         mock_compat.assert_called_once_with(
-            ['--build', 'description', '--type', 'vmx', '-d', 'destination']
+            ['--build', 'description', '--type', 'oem', '-d', 'destination']
         )
 
     @patch('kiwi.cli.Path.which')

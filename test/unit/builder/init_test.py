@@ -23,7 +23,7 @@ class TestImageBuilder:
     def test_disk_builder(self, mock_builder):
         xml_state = Mock()
         xml_state.get_build_type_name = Mock(
-            return_value='vmx'
+            return_value='oem'
         )
         ImageBuilder(xml_state, 'target_dir', 'root_dir')
         mock_builder.assert_called_once_with(

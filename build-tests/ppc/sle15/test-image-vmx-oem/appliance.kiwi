@@ -2,7 +2,7 @@
 
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.2" name="SLE15">
+<image schemaversion="7.3" name="SLE15">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -23,7 +23,10 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0 splash" firmware="ofw" format="qcow2">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 splash" firmware="ofw" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <bootloader name="grub2" console="serial"/>
         </type>
     </preferences>

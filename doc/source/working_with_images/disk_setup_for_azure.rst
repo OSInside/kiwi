@@ -6,10 +6,10 @@ Image Description for Microsoft Azure
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   vmx images built with {kiwi} and references the following
-   articles:
+   Azure disk images built with {kiwi} and references the
+   following articles:
 
-   * :ref:`vmx`
+   * :ref:`simple_disk`
 
 A virtual disk image which is able to boot in the Microsoft Azure
 cloud framework has to comply the following constraints:
@@ -39,11 +39,11 @@ description as follows:
 
 2. Image Type definition
 
-   Update the vmx image type setup as follows
+   Update the oem image type setup as follows
 
    .. code:: xml
 
-      <type image="vmx"
+      <type image="oem"
             filesystem="ext4"
             kernelcmdline="console=ttyS0 rootdelay=300 net.ifnames=0"
             devicepersistency="by-uuid"
@@ -53,6 +53,9 @@ description as follows:
             bootpartsize="1024">
         <bootloader name="grub2" timeout="1"/>
         <size unit="M">30720</size>
+        <oemconfig>
+            <oem-resize>false</oem-resize>
+        </oemconfig>
       </type>
 
 An image built with the above setup can be uploaded into the

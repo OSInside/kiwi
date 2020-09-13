@@ -20,14 +20,14 @@ ISO Hybrid Live Image
 Virtual Disk Image
   An image representing the system disk, useful for cloud frameworks
   like Amazon EC2, Google Compute Engine or Microsoft Azure.
-  For further details refer to :ref:`vmx`
+  For further details refer to :ref:`simple_disk`
 
 OEM Expandable Disk Image
   An image representing an expandable system disk. This means after
   deployment the system can resize itself to the new disk geometry.
   The resize operation is configurable as part of the image description
   and an installation image for CD/DVD, USB stick and Network deployment
-  can be created in addition. For further details refer to: :ref:`oem`
+  can be created in addition. For further details refer to: :ref:`expandable_disk`
 
 Docker Container Image
   An archive image suitable for the docker container engine.
@@ -128,23 +128,13 @@ image="iso"
   - **live image**:
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.iso`
 
-image="vmx"
-  An image representing the system disk. The disk format can be
-  defined in :ref:`\<preferences\>\<type\><sec.preferences>` element as
-  documented in :ref:`vmx`. For a `format="qcow2"` the result is:
-
-  - **disk image**:
-    :file:`{exc_image_base_name}.x86_64-{exc_image_version}.qcow2`
-
 image="oem"
-  An image representing an expandable system disk. As for `vmx` type this
-  results in a disk image. In addition to the `vmx` type `oem` has a couple
-  of optional additional installation images. {kiwi} can produce an
-  installation ISO (by setting `installiso="true"` in
-  :ref:`\<preferences\>\<type\><sec.preferences>`) or a tarball including
-  the artifacts for a network deployment (by setting `installiso="true"` in
-  :ref:`\<preferences\>\<type\><sec.preferences>`), see
-  :ref:`OEM example<oem>` for further details. The results for `oem` can be:
+  An image representing an expandable disk image. {kiwi} can also produce an
+  installation ISO for this disk image by setting `installiso="true"` in
+  the :ref:`\<preferences\>\<type\><sec.preferences>`) section or a tarball
+  including the artifacts for a network deployment by setting `installiso="true"`.
+  For further details see :ref:`expandable_disk`. The results for `oem`
+  can be:
 
   - **disk image**:
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.raw`
@@ -152,6 +142,17 @@ image="oem"
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.install.iso`
   - **installation pxe archive (optional)**:
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.install.tar`
+
+  The disk image can also be provided in one of the various virtual disk
+  formats which can be specified in `format` attribute of the
+  :ref:`\<preferences\>\<type\><sec.preferences>` section. For further
+  details see :ref:`simple_disk`. The result for e.g  `format="qcow2"`
+  would be:
+
+  - **disk image**:
+    :file:`{exc_image_base_name}.x86_64-{exc_image_version}.qcow2`
+
+  instead of the `.raw` default disk format.
 
 image="docker"
   An archive image suitable for the docker container engine. The result is

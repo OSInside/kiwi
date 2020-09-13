@@ -91,7 +91,7 @@ class TestSystemPrepare:
         root_bind.root_dir = 'root_dir'
         mock_root_bind.return_value = root_bind
         state = XMLState(
-            xml, profiles=['vmxFlavour'], build_type='docker'
+            xml, profiles=['containerFlavour'], build_type='docker'
         )
         uri = mock.Mock()
         get_derived_from_image_uri = mock.Mock(

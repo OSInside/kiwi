@@ -26,7 +26,7 @@ class TestImageInfoTask:
             ]
         )
         self.result_info = {
-            'image': 'LimeJeOS-openSUSE-13.2',
+            'image': 'LimeJeOS',
             'resolved-packages': {
                 'packagename': {
                     'version': '0.8.15', 'arch': 'x86_64',
@@ -96,7 +96,7 @@ class TestImageInfoTask:
         self.task.process()
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
         mock_out.assert_called_once_with(
-            {'image': 'LimeJeOS-openSUSE-13.2'}
+            {'image': 'LimeJeOS'}
         )
 
     @patch('kiwi.tasks.image_info.DataOutput')
@@ -106,7 +106,7 @@ class TestImageInfoTask:
         self.task.global_args['--color-output'] = True
         self.task.process()
         mock_out.assert_called_once_with(
-            {'image': 'LimeJeOS-openSUSE-13.2'}, style='color'
+            {'image': 'LimeJeOS'}, style='color'
         )
 
     @patch('kiwi.tasks.image_info.DataOutput')

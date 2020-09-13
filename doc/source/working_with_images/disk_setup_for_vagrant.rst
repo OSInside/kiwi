@@ -6,10 +6,10 @@ Image Description for Vagrant
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   VMX images built with {kiwi} and references the following
-   article:
+   Vagrant controlled disk images built with {kiwi} and references
+   the following article:
 
-   * :ref:`vmx`
+   * :ref:`simple_disk`
 
 `Vagrant <https://www.vagrantup.com>`_ is a framework to
 implement consistent processing/testing work environments based on
@@ -35,17 +35,20 @@ building and maintaining boxes.
 Vagrant expects boxes to be setup in a specific way (for details refer to
 the `Vagrant box documentation
 <https://www.vagrantup.com/docs/boxes/base.html>`_.), applied to the
-referenced {kiwi} image description from :ref:`vmx`, the following steps are
-required:
+referenced {kiwi} image description from :ref:`simple_disk`, the following
+steps are required:
 
 1. Update the image type setup
 
    .. code:: xml
 
-      <type image="vmx" filesystem="ext4" format="vagrant">
+      <type image="oem" filesystem="ext4" format="vagrant">
           <bootloader name="grub2" timeout="0"/>
           <vagrantconfig provider="libvirt" virtualsize="42"/>
           <size unit="G">42</size>
+          <oemconfig>
+              <oem-resize>false</oem-resize>
+          </oemconfig>
       </type>
 
    This modifies the type to build a Vagrant box for the libvirt
@@ -58,7 +61,7 @@ required:
 
    .. code:: xml
 
-      <type image="vmx" filesystem="ext4" format="vagrant">
+      <type image="oem" filesystem="ext4" format="vagrant">
           <bootloader name="grub2" timeout="0"/>
           <vagrantconfig
             provider="virtualbox"
@@ -66,6 +69,9 @@ required:
             virtualsize="42"
           />
           <size unit="G">42</size>
+          <oemconfig>
+              <oem-resize>false</oem-resize>
+          </oemconfig>
       </type>
 
    The resulting Vagrant box then uses the ``vboxfs`` module for the
@@ -227,7 +233,7 @@ description directory next to :file:`config.sh`):
 
 .. code:: xml
 
-   <type image="vmx" filesystem="ext4" format="vagrant">
+   <type image="oem" filesystem="ext4" format="vagrant">
        <bootloader name="grub2" timeout="0"/>
        <vagrantconfig
          provider="libvirt"
@@ -235,6 +241,9 @@ description directory next to :file:`config.sh`):
          embedded_vagrantfile="MyVagrantfile"
        />
        <size unit="G">42</size>
+       <oemconfig>
+           <oem-resize>false</oem-resize>
+       </oemconfig>
    </type>
 
 
@@ -259,7 +268,7 @@ customized one (the libvirt profile in the following example):
 
      <preferences profiles="libvirt">
        <type
-         image="vmx"
+         image="oem"
          filesystem="ext4"
          format="vagrant">
            <bootloader name="grub2" timeout="0"/>
@@ -269,11 +278,14 @@ customized one (the libvirt profile in the following example):
              embedded_vagrantfile="LibvirtVagrantfile"
            />
            <size unit="G">42</size>
+           <oemconfig>
+               <oem-resize>false</oem-resize>
+           </oemconfig>
       </type>
       </preferences>
       <preferences profiles="virtualbox">
         <type
-          image="vmx"
+          image="oem"
           filesystem="ext4"
           format="vagrant">
             <bootloader name="grub2" timeout="0"/>
@@ -283,6 +295,9 @@ customized one (the libvirt profile in the following example):
               virtualsize="42"
             />
             <size unit="G">42</size>
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
         </type>
       </preferences>
 

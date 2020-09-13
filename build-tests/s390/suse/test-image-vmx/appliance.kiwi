@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="VMX-openSUSE-Tumbleweed">
+<image schemaversion="7.3" name="VMX-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -14,7 +14,10 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0" format="qcow2">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <bootloader name="grub2_s390x_emu" console="serial" targettype="SCSI"/>
         </type>
     </preferences>

@@ -124,7 +124,7 @@ EXAMPLE
 
    $ git clone https://github.com/OSInside/kiwi-descriptions
 
-   $ kiwi --type vmx system build \
+   $ kiwi --type oem system build \
        --description kiwi-descriptions/suse/x86_64/{exc_description} \
        --target-dir /tmp/myimage
 
@@ -142,4 +142,4 @@ to use a legacy {kiwi} commandline as follows:
 
    $ kiwi compat \
        --build kiwi-descriptions/suse/x86_64/{exc_description} \
-       --type vmx -d /tmp/myimage
+       --type oem -d /tmp/myimage

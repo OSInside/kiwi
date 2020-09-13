@@ -256,7 +256,7 @@ class VolumeManagerBase(DeviceProvider):
         )
 
     def get_volume_mbsize(
-        self, volume, all_volumes, filesystem_name, image_type=None
+        self, volume, all_volumes, filesystem_name, resize_on_boot=False
     ):
         """
         Implements size lookup for the given path and desired
@@ -265,7 +265,13 @@ class VolumeManagerBase(DeviceProvider):
         :param tuple volume: volume to check size for
         :param list all_volumes: list of all volume tuples
         :param str filesystem_name: filesystem name
-        :param image_type: build type name
+        :param resize_on_boot:
+            specify the time of the resize. If the resize happens at
+            boot time the volume size is only the minimum size to
+            just store the data. If the volume size is fixed and
+            does not change at boot time the returned size is the
+            requested size which can be greater than the minimum
+            needed size.
 
         :return: mbsize
 
@@ -278,12 +284,11 @@ class VolumeManagerBase(DeviceProvider):
         )
         mbsize = int(mbsize)
 
-        if image_type and image_type == 'oem':
-            # only for vmx types we need to create the volumes in the
-            # configured size. oem disks are self expandable and will
-            # resize to the configured sizes on first boot of the disk
-            # image. Therefore the requested size is set to null
-            # and we add the required minimum size to hold the data
+        if resize_on_boot:
+            # If resize_on_boot is true, the disk is self expandable and
+            # will resize to the configured sizes on first boot
+            # Therefore the requested size is set to null and we add
+            # the required minimum size for just storing the data
             size_type = 'freespace'
             mbsize = Defaults.get_min_volume_mbytes()
 

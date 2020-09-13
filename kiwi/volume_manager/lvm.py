@@ -50,8 +50,8 @@ class VolumeManagerLVM(VolumeManagerBase):
             self.custom_args = {}
         if 'root_label' not in self.custom_args:
             self.custom_args['root_label'] = 'ROOT'
-        if 'image_type' not in self.custom_args:
-            self.custom_args['image_type'] = None
+        if 'resize_on_boot' not in self.custom_args:
+            self.custom_args['resize_on_boot'] = False
 
         if self.custom_filesystem_args['mount_options']:
             self.mount_options = self.custom_filesystem_args['mount_options'][0]
@@ -161,7 +161,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         for volume in canonical_volume_list.volumes:
             volume_mbsize = self.get_volume_mbsize(
                 volume, self.volumes, filesystem_name,
-                self.custom_args['image_type']
+                self.custom_args['resize_on_boot']
             )
             log.info(
                 '--> volume %s with %s MB', volume.name, volume_mbsize

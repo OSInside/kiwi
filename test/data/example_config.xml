@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="7.3" name="LimeJeOS" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -22,17 +22,20 @@
         <author>Marcus</author>
         <contact>ms@suse.com</contact>
         <specification>
-            openSUSE 13.2 JeOS, is a small text based image
+            Testing various configuration states
         </specification>
     </description>
     <profiles>
-        <profile name="xenFlavour" description="VMX with Xen kernel"/>
-        <profile name="ec2Flavour" description="VMX with EC2/Xen kernel"/>
-        <profile name="vmxFlavour" description="VMX with default kernel" import="true"/>
-        <profile name="derivedContainer" description="Container built on top of a base issue"/>
+        <profile name="xenDom0Flavour" description="Disk Dom0"/>
+        <profile name="xenDomUFlavour" description="Disk DomU"/>
+        <profile name="ec2Flavour" description="Disk EC2"/>
+        <profile name="vmxFlavour" description="Disk" import="true"/>
+        <profile name="vmxSimpleFlavour" description="Disk no resize"/>
+        <profile name="containerFlavour" description="Container image"/>
+        <profile name="derivedContainer" description="Container from a base"/>
         <profile name="composedProfile" description="Composed profile">
-            <requires profile="vmxFlavour"/>
-            <requires profile="xenFlavour"/>
+            <requires profile="vmxSimpleFlavour"/>
+            <requires profile="xenDomUFlavour"/>
         </profile>
     </profiles>
     <preferences>
@@ -40,6 +43,17 @@
         <rpm-locale-filtering>true</rpm-locale-filtering>
     </preferences>
     <preferences>
+        <version>1.13.2</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>true</rpm-check-signatures>
+        <bootsplash-theme>openSUSE</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences profiles="vmxFlavour">
         <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" fscreateoptions="-O ^has_journal" btrfs_root_is_snapshot="true" spare_part="200M" spare_part_fs_attributes="no-copy-on-write" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
@@ -56,27 +70,27 @@
             </oemconfig>
             <vagrantconfig provider="libvirt" virtualsize="42"/>
         </type>
-        <version>1.13.2</version>
-        <packagemanager>zypper</packagemanager>
-        <locale>en_US</locale>
-        <keytable>us.map.gz</keytable>
-        <timezone>Europe/Berlin</timezone>
-        <rpm-excludedocs>true</rpm-excludedocs>
-        <rpm-check-signatures>true</rpm-check-signatures>
-        <bootsplash-theme>openSUSE</bootsplash-theme>
-        <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="ec2Flavour">
-        <type image="vmx" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
+        <type image="oem" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+        </type>
     </preferences>
-    <preferences profiles="xenFlavour">
-        <type image="vmx" filesystem="ext3" bootprofile="xen" bootkernel="xenk" kernelcmdline="splash">
+    <preferences profiles="xenDomUFlavour">
+        <type image="oem" filesystem="ext3" bootprofile="xen" bootkernel="xenk" kernelcmdline="splash">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <machine memory="512" xen_loader="hvmloader">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
             </machine>
             <size>10</size>
         </type>
+    </preferences>
+    <preferences profiles="xenDom0Flavour">
         <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" kernelcmdline="splash">
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
@@ -85,8 +99,11 @@
         </type>
         <type image="docker"/>
     </preferences>
-    <preferences profiles="vmxFlavour">
-        <type image="vmx" filesystem="ext3" format="vmdk" kernelcmdline="splash" bootpartition="false">
+    <preferences profiles="vmxSimpleFlavour">
+        <type image="oem" filesystem="ext3" format="vmdk" kernelcmdline="splash" bootpartition="false">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <size unit="G" unpartitioned="1">4</size>
             <systemdisk name="systemVG"/>
             <machine memory="512" guestOS="suse" HWversion="4">
@@ -96,16 +113,9 @@
                 <vmconfig-entry>cpuid.coresPerSocket = "2"</vmconfig-entry>
             </machine>
         </type>
-        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" installiso="true" kernelcmdline="splash">
-            <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
-                <oem-swap>true</oem-swap>
-            </oemconfig>
-            <machine memory="512" guestOS="suse" HWversion="4">
-                <vmdisk id="0" controller="ide"/>
-                <vmnic driver="e1000" interface="0" mode="bridged"/>
-            </machine>
-        </type>
+        <type image="iso" mediacheck="true"/>
+    </preferences>
+    <preferences profiles="containerFlavour">
         <type image="docker">
             <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag" additionaltags="current,foobar">
                 <entrypoint execute="/bin/bash">
@@ -133,7 +143,6 @@
                 <history author="history author" created_by="created by text" application_id="123" launcher="app" package_version="2003.12.0.0">This is a comment</history>
             </containerconfig>
         </type>
-        <type image="iso" mediacheck="true"/>
     </preferences>
     <preferences profiles="derivedContainer">
         <type image="docker" derived_from="obs://project/repo/image#mytag">
@@ -180,7 +189,7 @@
         <package name="xen-tools" arch="x86_64"/>
         <package name="xen" arch="x86_64"/>
     </packages>
-    <packages type="image" profiles="xenFlavour">
+    <packages type="image" profiles="xenDom0Flavour,xenDomUFlavour">
         <package name="kernel-xen"/>
         <package name="xen-tools" arch="x86_64"/>
         <package name="xen" arch="x86_64"/>

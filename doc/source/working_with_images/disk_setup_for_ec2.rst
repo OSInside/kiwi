@@ -6,10 +6,10 @@ Image Description for Amazon EC2
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   vmx images built with {kiwi} and references the following
+   Amazon EC2 images built with {kiwi} and references the following
    articles:
 
-   * :ref:`vmx`
+   * :ref:`simple_disk`
 
 A virtual disk image which is able to boot in the Amazon EC2
 cloud framework has to comply the following constraints:
@@ -45,11 +45,11 @@ description as follows:
 
 2. Image Type definition
 
-   Update the vmx image type setup as follows
+   Update the oem image type setup as follows
 
    .. code:: xml
 
-      <type image="vmx"
+      <type image="oem"
             filesystem="ext4"
             kernelcmdline="console=xvc0 multipath=off net.ifnames=0"
             devicepersistency="by-label"
@@ -57,6 +57,9 @@ description as follows:
         <bootloader name="grub2" timeout="1"/>
         <size unit="M">10240</size>
         <machine xen_loader="hvmloader"/>
+        <oemconfig>
+            <oem-resize>false</oem-resize>
+        </oemconfig>
       </type>
 
 3. Cloud Init setup
