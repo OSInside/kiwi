@@ -181,6 +181,15 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_consistent_kernel_in_boot_and_system_image()
 
+    def test_check_initrd_selection_required(self):
+        description = XMLDescription(
+            '../data/example_runtime_checker_no_initrd_system_reference.xml'
+        )
+        xml_state = XMLState(description.load())
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_initrd_selection_required()
+
     def test_check_boot_description_exists_no_boot_ref(self):
         description = XMLDescription(
             '../data/example_runtime_checker_no_boot_reference.xml'

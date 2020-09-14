@@ -18,7 +18,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="pxe" filesystem="squashfs" boot="netboot/suse-13.2"/>
+        <type image="pxe" filesystem="squashfs" boot="netboot/..."/>
     </preferences>
     <repository>
         <source path="obs://13.2/repo/oss"/>

@@ -820,7 +820,7 @@ class TestXMLState:
         state = XMLState(xml_data, ['vmxFlavour'], 'docker')
         assert state.get_initrd_system() is None
         state = XMLState(xml_data, [], 'oem')
-        assert state.get_initrd_system() == 'kiwi'
+        assert state.get_initrd_system() == 'dracut'
 
     def test_get_rpm_locale_filtering(self):
         assert self.state.get_rpm_locale_filtering() is True

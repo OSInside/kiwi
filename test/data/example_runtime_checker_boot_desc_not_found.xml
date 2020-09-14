@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" initrd_system="kiwi" filesystem="ext3" boot="oemboot/foo"/>
+        <type image="oem" initrd_system="kiwi" filesystem="ext3" boot="oemboot/..."/>
     </preferences>
     <repository>
         <source path="obs://13.2/repo/oss"/>

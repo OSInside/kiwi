@@ -27,7 +27,7 @@
         </type>
     </preferences>
     <preferences profiles="PhysicalBSZ_4096">
-        <type image="oem" filesystem="ext4" initrd_system="dracut" kernelcmdline="console=ttyS0  cio_ignore=all,!ipldev,!condev" target_blocksize="4096">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0  cio_ignore=all,!ipldev,!condev" target_blocksize="4096">
             <bootloader name="grub2_s390x_emu" console="serial" targettype="CDL"/>
             <systemdisk>
                 <volume name="home"/>

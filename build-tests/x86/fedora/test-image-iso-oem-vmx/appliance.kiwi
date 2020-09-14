@@ -35,7 +35,7 @@
         </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" initrd_system="dracut" filesystem="ext4" installiso="true" firmware="uefi" kernelcmdline="console=ttyS0">
+        <type image="oem" filesystem="ext4" installiso="true" firmware="uefi" kernelcmdline="console=ttyS0">
             <bootloader name="grub2" console="serial gfxterm"/>
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>

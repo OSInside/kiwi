@@ -316,6 +316,37 @@ class RuntimeChecker:
                     )
                 )
 
+    def check_initrd_selection_required(self):
+        """
+        If the boot attribute is used without selecting kiwi
+        as the initrd_system, the setting of the boot attribute
+        will not have any effect. We assume that configurations
+        which explicitly specify the boot attribute wants to use
+        the custom kiwi initrd system and not dracut.
+        """
+        message_kiwi_initrd_system_not_selected = dedent('''\n
+            Missing initrd_system selection for boot attribute
+
+            The selected boot="'{0}'" boot description indicates
+            the custom kiwi initrd system should be used instead
+            of dracut. If this is correct please explicitly request
+            the kiwi initrd system as follows:
+
+            <type initrd_system="kiwi"/>
+
+            If this is not want you want and dracut should be used
+            as initrd system, please delete the boot attribute
+            as it is obsolete in this case.
+        ''')
+        initrd_system = self.xml_state.get_initrd_system()
+        boot_image_reference = self.xml_state.build_type.get_boot()
+        if initrd_system != 'kiwi' and boot_image_reference:
+            raise KiwiRuntimeError(
+                message_kiwi_initrd_system_not_selected.format(
+                    boot_image_reference
+                )
+            )
+
     def check_boot_description_exists(self):
         """
         If a kiwi initrd is used, a lookup to the specified boot

@@ -84,6 +84,9 @@
 #      # verify for legacy kiwi boot images that they exist on the host
 #      - check_boot_description_exists
 
+#      # verify if kiwi initrd_system was set if a boot attribute exists
+#      - check_initrd_selection_required
+
 #      # verify for legacy kiwi boot images that the same kernel is used
 #      - check_consistent_kernel_in_boot_and_system_image
 

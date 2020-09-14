@@ -86,7 +86,7 @@ class TestProfile:
             'kiwi_oemvmcp_parmfile': None,
             'kiwi_profiles': '',
             'kiwi_ramonly': True,
-            'kiwi_initrd_system': 'kiwi',
+            'kiwi_initrd_system': 'dracut',
             'kiwi_install_volid': 'INSTALL',
             'kiwi_btrfs_root_is_snapshot': None,
             'kiwi_gpt_hybrid_mbr': None,

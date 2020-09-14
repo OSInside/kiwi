@@ -18,7 +18,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" boot="oemboot/suse-13.2" installiso="true" kernelcmdline="splash" firmware="efi" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true"/>
+        <type image="oem" filesystem="btrfs" installiso="true" kernelcmdline="splash" firmware="efi" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true"/>
     </preferences>
     <repository>
         <source path="obs://13.2/repo/oss"/>

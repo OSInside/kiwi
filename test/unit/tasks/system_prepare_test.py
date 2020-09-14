@@ -96,6 +96,8 @@ class TestSystemPrepareTask:
         self.runtime_checker.\
             check_boot_description_exists.assert_called_once_with()
         self.runtime_checker.\
+            check_initrd_selection_required.assert_called_once_with()
+        self.runtime_checker.\
             check_consistent_kernel_in_boot_and_system_image.\
             assert_called_once_with()
         self.runtime_checker.\
