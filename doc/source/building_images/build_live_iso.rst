@@ -20,7 +20,7 @@ To add a live ISO build to your appliance, create a `type` element with
 
 .. code:: xml
 
-   <image schemaversion="6.9" name="JeOS-Tumbleweed">
+   <image schemaversion="{schema_version}" name="Tumbleweed_appliance">
      <!-- snip -->
      <preferences>
        <type image="iso" primary="true" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>

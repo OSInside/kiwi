@@ -3,11 +3,11 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.3" name="LimeJeOS-CentOS-07.0">
+<image schemaversion="7.3" name="CentOS-07.0_appliance">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.de</contact>
-        <specification>CentOS Enterprise 7 JeOS</specification>
+        <specification>CentOS Enterprise 7 Appliance</specification>
     </description>
     <profiles>
         <profile name="Live" description="Live image of CentOS 7"/>

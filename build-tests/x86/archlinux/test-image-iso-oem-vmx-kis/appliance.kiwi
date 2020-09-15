@@ -3,11 +3,11 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.3" name="LimeJeOS-Arch">
+<image schemaversion="7.3" name="Arch_appliance">
     <description type="system">
         <author>David Cassany</author>
         <contact>dcassany@suse.com</contact>
-        <specification>Arch JeOS</specification>
+        <specification>Arch Appliance</specification>
     </description>
     <profiles>
         <profile name="Live" description="Live image of Arch Linux">
