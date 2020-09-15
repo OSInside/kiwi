@@ -717,8 +717,8 @@ class TestBootLoaderConfigGrub2:
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
                     'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512', 'crypto',
-                    'cryptodisk', 'test', 'true', 'multiboot', 'part_gpt',
-                    'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'cryptodisk', 'test', 'true', 'loadenv', 'multiboot',
+                    'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
                 ]
             )
         ]
@@ -789,8 +789,8 @@ class TestBootLoaderConfigGrub2:
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
                     'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512', 'crypto',
-                    'cryptodisk', 'test', 'true', 'part_gpt', 'part_msdos',
-                    'efi_gop', 'efi_uga', 'linuxefi'
+                    'cryptodisk', 'test', 'true', 'loadenv', 'part_gpt',
+                    'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
                 ]
             )
         ]
@@ -1201,8 +1201,8 @@ class TestBootLoaderConfigGrub2:
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
                     'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
-                    'crypto', 'cryptodisk', 'test', 'true', 'part_gpt',
-                    'part_msdos', 'biosdisk', 'vga', 'vbe',
+                    'crypto', 'cryptodisk', 'test', 'true', 'loadenv',
+                    'part_gpt', 'part_msdos', 'biosdisk', 'vga', 'vbe',
                     'chain', 'boot'
                 ]
             ),
@@ -1226,8 +1226,8 @@ class TestBootLoaderConfigGrub2:
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
                     'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
-                    'crypto', 'cryptodisk', 'test', 'true', 'part_gpt',
-                    'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'crypto', 'cryptodisk', 'test', 'true', 'loadenv',
+                    'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
                 ]
             )
         ]

@@ -455,7 +455,8 @@ class Defaults:
             'crypto',
             'cryptodisk',
             'test',
-            'true'
+            'true',
+            'loadenv'
         ]
         if multiboot:
             modules.append('multiboot')
