@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="JeOS">
+<image schemaversion="7.2" name="Appliance">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
-        <specification>JeOS</specification>
+        <specification>Appliance</specification>
     </description>
     <preferences>
         <version>1.1.0</version>

@@ -17,7 +17,7 @@ class TestBootLoaderTemplateZipl:
             default_boot='1',
             bootpath='boot/zipl',
             boot_timeout='200',
-            title='LimeJeOS-DASD-ECKD-SLE12_(_VMX_)',
+            title='DASD-ECKD-SLE12_(_VMX_)',
             kernel_file='linux.vmx',
             initrd_file='initrd.vmx',
             boot_options='cio_ignore=all,!ipldev,!condev',

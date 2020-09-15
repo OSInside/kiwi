@@ -56,7 +56,7 @@ class TestXMLState:
         assert description.author == 'Marcus'
         assert description.contact == 'ms@suse.com'
         assert description.specification == \
-            'openSUSE 13.2 JeOS, is a small text based image'
+            'openSUSE 13.2 Appliance, is a small text based image'
 
     def test_build_type_primary_selected(self):
         assert self.state.get_build_type_name() == 'oem'

@@ -210,7 +210,7 @@ your dependent packages. These repositories can be provided in two ways:
    .. code:: xml
 
       <project name="Virtualization:Appliances:Images:openSUSE-Tumbleweed">
-        <title>JeOS for Tumbleweed </title>
+        <title>Tumbleweed JeOS images</title>
         <description>Host JeOS images for Tumbleweed</description>
         <repository name="images">
           <path project="Virtualization:Appliances:Builder" repository="Factory"/>
@@ -225,7 +225,7 @@ your dependent packages. These repositories can be provided in two ways:
    .. code:: xml
 
       <project name="Virtualization:Appliances:Images:openSUSE-Tumbleweed">
-        <title>JeOS for Tumbleweed </title>
+        <title>Tumbleweed JeOS images</title>
         <description>Host JeOS images for Tumbleweed</description>
         <repository name="images">
           <path project="Virtualization:Appliances:Builder" repository="Factory"/>

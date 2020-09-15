@@ -335,7 +335,7 @@ class TestDiskBuilder:
         )
         self.bootloader_install.install.assert_called_once_with()
         self.setup.call_edit_boot_install_script.assert_called_once_with(
-            'target_dir/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.raw',
+            'target_dir/openSUSE-13.2_appliance.x86_64-1.13.2.raw',
             '/dev/boot-device'
         )
 
@@ -465,7 +465,7 @@ class TestDiskBuilder:
         )
         self.bootloader_install.install.assert_called_once_with()
         self.setup.call_edit_boot_install_script.assert_called_once_with(
-            'target_dir/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.raw',
+            'target_dir/openSUSE-13.2_appliance.x86_64-1.13.2.raw',
             '/dev/boot-device'
         )
         self.boot_image_task.prepare.assert_called_once_with()

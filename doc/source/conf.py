@@ -65,8 +65,8 @@ def setup(app):
 
 
 prolog_replacements = {
-    '{exc_image_base_name}': 'LimeJeOS-Leap-15.1',
-    '{exc_description}': 'suse-leap-15.1-JeOS',
+    '{exc_image_base_name}': 'Leap-15.1_appliance',
+    '{exc_description}': 'suse-leap-15.1',
     '{exc_netboot}': 'netboot/suse-leap15.1',
     '{exc_os_version}': '15.1',
     '{exc_image_version}': '1.15.1',

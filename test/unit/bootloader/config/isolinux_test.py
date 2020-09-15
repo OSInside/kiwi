@@ -65,7 +65,7 @@ class TestBootLoaderConfigIsoLinux:
             return_value='Bob'
         )
         self.state.xml_data.get_name = mock.Mock(
-            return_value='LimeJeOS-openSUSE-13.2'
+            return_value='openSUSE-13.2_appliance'
         )
         self.state.build_type.get_image = mock.Mock(
             return_value='oem'

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.8" name="LimeJeOS-TW">
+<image schemaversion="6.8" name="Tumbleweed_appliance">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.de</contact>
         <specification>
-            TW JeOS, is a small text based image
+            Tumbleweed Appliance, is a small text based image
         </specification>
     </description>
     <preferences>

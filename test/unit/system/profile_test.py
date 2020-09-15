@@ -50,7 +50,7 @@ class TestProfile:
             'kiwi_fsmountoptions': None,
             'kiwi_hybridpersistent_filesystem': None,
             'kiwi_hybridpersistent': None,
-            'kiwi_iname': 'LimeJeOS-openSUSE-13.2',
+            'kiwi_iname': 'openSUSE-13.2_appliance',
             'kiwi_installboot': None,
             'kiwi_iversion': '1.13.2',
             'kiwi_keytable': 'us.map.gz',
@@ -118,7 +118,7 @@ class TestProfile:
         os.remove(self.tmpfile.name)
         os.remove(self.profile_file)
         assert profile.dot_profile['kiwi_displayname'] == \
-            'LimeJeOS-openSUSE-13.2'
+            'openSUSE-13.2_appliance'
 
     @patch('kiwi.system.profile.NamedTemporaryFile')
     @patch('kiwi.path.Path.which')
@@ -133,7 +133,7 @@ class TestProfile:
         os.remove(self.tmpfile.name)
         os.remove(self.profile_file)
         assert profile.dot_profile['kiwi_cpio_name'] == \
-            'LimeJeOS-openSUSE-13.2'
+            'openSUSE-13.2_appliance'
 
     def test_add(self):
         self.profile.add('foo', 'bar')

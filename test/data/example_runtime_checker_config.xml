@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="7.2" name="openSUSE-13.2_appliance" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -22,7 +22,7 @@
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>
-            openSUSE 13.2 JeOS, is a small text based image
+            openSUSE 13.2 Appliance, is a small text based image
         </specification>
     </description>
     <profiles>
@@ -61,7 +61,7 @@
                     application_id="tumbleweed"
                     package_version="2003.12.0.0"
                     launcher="Invalid-Launcher"
-                >Tumbleweed JeOS text based</history>
+                >Tumbleweed Appliance text based</history>
             </containerconfig>
         </type>
     </preferences>
@@ -73,7 +73,7 @@
                     application_id="invalid-id"
                     package_version="2003.12.0.0"
                     launcher="openSUSE-Tumbleweed.exe"
-                >Tumbleweed JeOS text based</history>
+                >Tumbleweed Appliance text based</history>
             </containerconfig>
         </type>
     </preferences>

@@ -22,7 +22,7 @@ interface is shown below:
 
 .. code:: xml
 
-   <image schemaversion="7.2" name="JeOS-Tumbleweed">
+   <image schemaversion="7.2" name="Tumbleweed_appliance">
      <!-- snip -->
      <preferences>
        <type image="vmx" filesystem="ext4" format="vmdk">

@@ -6,7 +6,7 @@ drwxr-xr-x   4    0    0            2048 Dec  9 2015 [     32 02]  boot
 -rw-r--r--   1    0    0              35 Dec  9 2015 [   2160 00]  config.isoclient 
 drwxr-xr-x   3    0    0            2048 Dec  9 2015 [     30 02]  EFI 
 -rw-r--r--   1    0    0              37 Dec  9 2015 [   2158 00]  header_end 
--rw-r--r--   1    0    0       339083264 Dec  9 2015 [   2161 00]  LimeJeOS-openSUSE-13.2.raw.squashfs 
+-rw-r--r--   1    0    0       339083264 Dec  9 2015 [   2161 00]  openSUSE-13.2_appliance.raw.squashfs 
 
 Directory listing of /boot/
 drwxr-xr-x   4    0    0            2048 Dec  9 2015 [     32 02]  . 

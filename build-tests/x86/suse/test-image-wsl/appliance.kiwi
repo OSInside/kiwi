@@ -15,7 +15,7 @@
         <keytable>us</keytable>
         <type image="appx" metadata_path="/usr/share/wsl-appx">
             <containerconfig name="Tumbleweed">
-                <history author="KIWI-Team" application_id="tumbleweed" package_version="2003.12.0.0" launcher="openSUSE-Tumbleweed.exe">Tumbleweed JeOS text based</history>
+                <history author="KIWI-Team" application_id="tumbleweed" package_version="2003.12.0.0" launcher="openSUSE-Tumbleweed.exe">Tumbleweed appliance text based</history>
             </containerconfig>
         </type>
     </preferences>
