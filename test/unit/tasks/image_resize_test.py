@@ -25,8 +25,8 @@ class TestImageResizeTask:
 
     def setup(self):
         sys.argv = [
-            sys.argv[0], '--type', 'vmx', 'image', 'resize',
-            '--target-dir', 'target_dir', '--size', '20g',
+            sys.argv[0], '--profile', 'vmxSimpleFlavour', '--type', 'oem',
+            'image', 'resize', '--target-dir', 'target_dir', '--size', '20g',
             '--root', '../data/root-dir'
         ]
         self.abs_root_dir = os.path.abspath('../data/root-dir')
@@ -144,8 +144,8 @@ class TestImageResizeTask:
             assert '--> loaded {0}'.format(
                 os.sep.join([self.abs_root_dir, 'image', 'config.xml'])
             ) in self._caplog.text
-            assert '--> Selected build type: vmx' in self._caplog.text
-            assert '--> Selected profiles: vmxFlavour' in self._caplog.text
+            assert '--> Selected build type: oem' in self._caplog.text
+            assert '--> Selected profiles: vmxSimpleFlavour' in self._caplog.text
             assert 'Resizing raw disk to 42 bytes' in self._caplog.text
             assert 'Raw disk is already at 42 bytes' in self._caplog.text
 

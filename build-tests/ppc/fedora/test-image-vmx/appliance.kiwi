@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="VMX-Fedora-30.0">
+<image schemaversion="7.3" name="VMX-Fedora-30.0">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -15,7 +15,10 @@
         <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0 splash" firmware="ofw" format="qcow2">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 splash" firmware="ofw" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <bootloader name="grub2" console="serial"/>
         </type>
     </preferences>

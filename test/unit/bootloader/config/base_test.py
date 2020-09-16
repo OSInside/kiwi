@@ -239,13 +239,13 @@ class TestBootLoaderConfigBase:
     def test_get_menu_entry_title(self, mock_displayname):
         mock_displayname.return_value = None
         assert self.bootloader.get_menu_entry_title() == \
-            'LimeJeOS-openSUSE-13.2 [ OEM ]'
+            'LimeJeOS [ OEM ]'
 
     @patch('kiwi.xml_parse.image.get_displayname')
     def test_get_menu_entry_title_plain(self, mock_displayname):
         mock_displayname.return_value = None
         assert self.bootloader.get_menu_entry_title(plain=True) == \
-            'LimeJeOS-openSUSE-13.2'
+            'LimeJeOS'
 
     @patch('kiwi.xml_parse.image.get_displayname')
     def test_get_menu_entry_title_by_displayname(self, mock_displayname):
@@ -257,7 +257,7 @@ class TestBootLoaderConfigBase:
     def test_get_menu_entry_install_title(self, mock_displayname):
         mock_displayname.return_value = None
         assert self.bootloader.get_menu_entry_install_title() == \
-            'LimeJeOS-openSUSE-13.2'
+            'LimeJeOS'
 
     @patch('kiwi.xml_parse.type_.get_vga')
     def test_get_gfxmode_default(self, mock_get_vga):

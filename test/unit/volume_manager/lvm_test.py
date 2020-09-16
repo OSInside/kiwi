@@ -76,7 +76,7 @@ class TestVolumeManagerLVM:
     def test_post_init_no_additional_custom_args(self):
         self.volume_manager.post_init(None)
         assert self.volume_manager.custom_args == {
-            'root_label': 'ROOT', 'image_type': None
+            'root_label': 'ROOT', 'resize_on_boot': False
         }
 
     def test_post_init_no_mount_options(self):

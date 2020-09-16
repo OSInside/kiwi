@@ -27,7 +27,7 @@ class TestKiwiCompat:
         sys.argv = [
             'kiwicompat',
             '--create', 'root_dir',
-            '--type', 'vmx',
+            '--type', 'oem',
             '-d', 'destination'
         ]
         mock_exec.side_effect = OSError('exec failed')
@@ -43,7 +43,7 @@ class TestKiwiCompat:
         sys.argv = [
             'kiwicompat',
             '--create', 'root_dir',
-            '--type', 'vmx',
+            '--type', 'oem',
             '-d', 'destination'
         ]
         kiwi.kiwi_compat.main()
@@ -70,7 +70,7 @@ class TestKiwiCompat:
         sys.argv = [
             'kiwicompat',
             '--build', 'description',
-            '--type', 'vmx',
+            '--type', 'oem',
             '--ignore-repos',
             '--set-repo', 'repo_a',
             '--set-repoalias', 'a', '--set-repopriority', '1',
@@ -92,7 +92,7 @@ class TestKiwiCompat:
                 'kiwi',
                 '--logfile', 'logfile',
                 '--debug',
-                '--type', 'vmx',
+                '--type', 'oem',
                 '--profile', 'profile',
                 'system', 'build',
                 '--description', 'description',
@@ -111,14 +111,14 @@ class TestKiwiCompat:
         sys.argv = [
             'kiwicompat',
             '--create', 'root_dir',
-            '--type', 'vmx',
+            '--type', 'oem',
             '-d', 'destination'
         ]
         kiwi.kiwi_compat.main()
         mock_exec.assert_called_once_with(
             'kiwi-ng', [
                 'kiwi',
-                '--type', 'vmx',
+                '--type', 'oem',
                 'system', 'create',
                 '--root', 'root_dir',
                 '--target-dir', 'destination'

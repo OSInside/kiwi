@@ -3,7 +3,7 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="6.8" name="LimeJeOS-Arch">
+<image schemaversion="7.3" name="LimeJeOS-Arch">
     <description type="system">
         <author>David Cassany</author>
         <contact>dcassany@suse.com</contact>
@@ -31,13 +31,20 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" hybrid="true" hybridpersistent_filesystem="ext4" hybridpersistent="true" firmware="efi"/>
+        <type image="iso" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true" firmware="efi"/>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="vmx" primary="true" filesystem="ext4" bootloader="grub2" firmware="efi"/>
+        <type image="oem" primary="true" filesystem="ext4" firmware="efi">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2"/>
+        </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" filesystem="ext4" bootloader="grub2" installiso="true"/>
+        <type image="oem" filesystem="ext4" installiso="true">
+            <bootloader name="grub2"/>
+        </type>
     </preferences>
     <preferences profiles="KIS">
         <type image="kis" filesystem="ext4"/>

@@ -605,8 +605,10 @@ class RuntimeChecker:
         ''')
         required_dracut_package = 'dracut-kiwi-oem-repart'
         initrd_system = self.xml_state.get_initrd_system()
+        disk_resize_requested = self.xml_state.get_oemconfig_oem_resize()
         build_type = self.xml_state.get_build_type_name()
-        if build_type == 'oem' and initrd_system == 'dracut':
+        if build_type == 'oem' and initrd_system == 'dracut' and \
+           disk_resize_requested:
             package_names = \
                 self.xml_state.get_bootstrap_packages() + \
                 self.xml_state.get_system_packages()

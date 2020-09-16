@@ -62,7 +62,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "7.2" }
+        attribute schemaversion { "7.3" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -381,6 +381,25 @@ div {
         element oem-bootwait {
             k.oem-bootwait.attlist,
             k.oem-bootwait.content
+        }
+}
+
+#==========================================
+# common element <oem-resize>
+#
+div {
+    k.oem-resize.content = xsd:boolean
+    k.oem-resize.attlist = empty
+    k.oem-resize =
+        ## activate/deactivate disk resize on first boot: true/false
+        ## By default the repart/resize is activated when creating
+        ## an oem image. If the disk image should be more simple
+        ## and should not react on storage geometry changes at all
+        ## this option allows to switch off the use and inclusion
+        ## of the kiwi oem dracut module that implements the resize
+        element oem-resize {
+            k.oem-resize.attlist,
+            k.oem-resize.content
         }
 }
 
@@ -1157,6 +1176,19 @@ div {
             ]
         ]
     ]
+    sch:pattern [
+        abstract = "true"
+        id = "image_expandable"
+        sch:rule [
+            context = "type[@$attr='true']"
+            sch:assert [
+                test = "oemconfig/oem-resize[contains(text(), 'false')]"
+                "$attr attribute also needs the setting: "
+                "<oem-resize>false</oem-resize> in the "
+                "<oemconfig> section of the selected <type>"
+            ]
+        ]
+    ]
     k.type.boot.attribute =
         ## Specifies the path of the boot image (initrd) description
         ## provided with KIWI
@@ -1178,7 +1210,7 @@ div {
         attribute xen_server { xsd:boolean }
         >> sch:pattern [ id = "xen_server" is-a = "image_type"
             sch:param [ name = "attr" value = "xen_server" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.btrfs_quota_groups.attribute =
         ## activate the quota system if the filesystem is btrfs based.
@@ -1186,7 +1218,7 @@ div {
         attribute btrfs_quota_groups { xsd:boolean }
         >> sch:pattern [ id = "btrfs_quota_groups" is-a = "image_type"
             sch:param [ name = "attr" value = "btrfs_quota_groups" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.btrfs_root_is_snapshot.attribute =
         ## Tell kiwi to install the system into a btrfs snapshot
@@ -1195,7 +1227,7 @@ div {
         attribute btrfs_root_is_snapshot { xsd:boolean }
         >> sch:pattern [ id = "btrfs_root_is_snapshot" is-a = "image_type"
             sch:param [ name = "attr" value = "btrfs_root_is_snapshot" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.btrfs_root_is_readonly_snapshot.attribute =
         ## Tell kiwi to set the btrfs root filesystem snapshot read-only
@@ -1207,7 +1239,7 @@ div {
         attribute btrfs_root_is_readonly_snapshot { xsd:boolean }
         >> sch:pattern [ id = "btrfs_root_is_readonly_snapshot" is-a = "image_type"
             sch:param [ name = "attr" value = "btrfs_root_is_readonly_snapshot" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.target_blocksize.attribute =
         ## Specifies the image blocksize in bytes which has to match
@@ -1218,7 +1250,7 @@ div {
         attribute target_blocksize { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "target_blocksize" is-a = "image_type"
             sch:param [ name = "attr" value = "target_blocksize" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.target_removable.attribute =
         ## Indicate if the target disk for oem images is deployed
@@ -1230,56 +1262,65 @@ div {
         attribute target_removable { xsd:boolean }
         >> sch:pattern [ id = "target_removable" is-a = "image_type"
             sch:param [ name = "attr" value = "target_removable" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.spare_part.attribute =
         ## Request a spare partition right before the root partition
         ## of the requested size. The attribute takes a size value
         ## and allows a unit in MB or GB, e.g 200M. If no unit is given
         ## the value is considered to be mbytes. A spare partition
-        ## can only be configured for the disk image types oem and vmx
+        ## can only be configured for the disk image type oem
         attribute spare_part { partition-size-type }
         >> sch:pattern [ id = "spare_part" is-a = "image_type"
             sch:param [ name = "attr" value = "spare_part" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.spare_part_mountpoint.attribute =
         ## Specify mount point for spare partition in the system.
-        ## Can only be configured for the disk image types oem and vmx
+        ## Can only be configured for the disk image type oem
         attribute spare_part_mountpoint { text }
         >> sch:pattern [ id = "spare_part_mountpoint" is-a = "image_type"
             sch:param [ name = "attr" value = "spare_part_mountpoint" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.spare_part_fs.attribute =
         ## Specify filesystem for spare partition in the system.
-        ## Can only be configured for the disk image types oem and vmx
+        ## Can only be configured for the disk image type oem
         attribute spare_part_fs {
             "btrfs" | "ext2" | "ext3" | "ext4" | "xfs"
         }
         >> sch:pattern [ id = "spare_part_fs" is-a = "image_type"
             sch:param [ name = "attr" value = "spare_part_fs" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.spare_part_fs_attributes.attribute =
         ## Specify filesystem attributes for the spare partition.
         ## Attributes can be specified as comma separated list.
-        ## Can only be configured for the disk image types oem and vmx
+        ## Can only be configured for the disk image type oem
         attribute spare_part_fs_attributes { fs_attributes }
         >> sch:pattern [ id = "spare_part_fs_attributes" is-a = "image_type"
             sch:param [ name = "attr" value = "spare_part_fs_attributes" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.spare_part_is_last.attribute =
         ## Specify if the spare partition should be the last one in
-        ## the partition table. Can only be configured for the vmx
-        ## disk image type. By default the root partition is the last
-        ## one and the spare partition lives behind it. With this
-        ## attribute that setup can be toggled.
+        ## the partition table. Can only be configured for the oem
+        ## type with oem-resize switched off. By default the root
+        ## partition is the last one and the spare partition lives
+        ## before it. With this attribute that setup can be toggled.
+        ## However if the root partition is no longer the last one
+        ## the oem repart/resize code can no longer work because
+        ## the spare part would block it. Because of that moving
+        ## the spare part at the end of the disk is only applied
+        ## if oem-resize is switched off. There is a runtime
+        ## check in the kiwi code to check this condition
         attribute spare_part_is_last { xsd:boolean }
         >> sch:pattern [ id = "spare_part_is_last" is-a = "image_type"
             sch:param [ name = "attr" value = "spare_part_is_last" ]
-            sch:param [ name = "types" value = "vmx" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+        >> sch:pattern [ id = "spare_part_is_last_valid" is-a = "image_expandable"
+            sch:param [ name = "attr" value = "spare_part_is_last" ]
         ]
     k.type.bootpartsize.attribute =
         ## For images with a separate boot partition this attribute
@@ -1288,7 +1329,7 @@ div {
         attribute bootpartsize { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "bootpartsize" is-a = "image_type"
             sch:param [ name = "attr" value = "bootpartsize" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.efipartsize.attribute =
         ## For images with an EFI fat partition this attribute
@@ -1297,7 +1338,7 @@ div {
         attribute efipartsize { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "efipartsize" is-a = "image_type"
             sch:param [ name = "attr" value = "efipartsize" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.efiparttable.attribute =
         ## For images with an EFI firmware specifies the partition
@@ -1306,7 +1347,7 @@ div {
         attribute efiparttable { "msdos" | "gpt" }
         >> sch:pattern [ id = "efiparttable" is-a = "image_type"
             sch:param [ name = "attr" value = "efiparttable" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.bootprofile.attribute =
         ## Specifies the boot profile defined in the boot image
@@ -1315,7 +1356,7 @@ div {
         attribute bootprofile { text }
         >> sch:pattern [ id = "bootprofile" is-a = "image_type"
             sch:param [ name = "attr" value = "bootprofile" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe cpio" ]
+            sch:param [ name = "types" value = "oem iso pxe cpio" ]
         ]
     k.type.compressed.attribute =
         ## Specifies whether the image output file should be
@@ -1338,7 +1379,7 @@ div {
         attribute editbootconfig { text }
         >> sch:pattern [ id = "editbootconfig" is-a = "image_type"
             sch:param [ name = "attr" value = "editbootconfig" ]
-            sch:param [ name = "types" value = "vmx oem iso" ]
+            sch:param [ name = "types" value = "oem iso" ]
         ]
     k.type.editbootinstall.attribute =
         ## Specifies the path to a script which is called right
@@ -1348,7 +1389,7 @@ div {
         attribute editbootinstall { text }
         >> sch:pattern [ id = "editbootinstall" is-a = "image_type"
             sch:param [ name = "attr" value = "editbootinstall" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.filesystem.attribute = 
         ## Specifies the root filesystem type
@@ -1357,12 +1398,12 @@ div {
         }
         >> sch:pattern [ id = "filesystem" is-a = "image_type"
             sch:param [ name = "attr" value = "filesystem" ]
-            sch:param [ name = "types" value = "vmx oem pxe kis" ]
+            sch:param [ name = "types" value = "oem pxe kis" ]
         ]
         >> sch:pattern [
             id = "filesystem_mandatory" is-a = "image_type_requirement"
             sch:param [ name = "attr" value = "filesystem" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
 	k.type.squashfscompression.attribute = 
         ## Specifies the compression type for mksquashfs
@@ -1371,18 +1412,18 @@ div {
         }
         >> sch:pattern [ id = "squashfscompression" is-a = "image_type"
             sch:param [ name = "attr" value = "squashfscompression" ]
-            sch:param [ name = "types" value = "vmx oem pxe kis iso" ]
+            sch:param [ name = "types" value = "oem pxe kis iso" ]
         ]
     k.type.overlayroot.attribute =
         ## Specifies to use an overlay root system consisting
         ## out of a squashfs compressed read-only root system
         ## overlayed using the overlayfs filesystem into an
         ## extra read-write partition. Available for the disk
-        ## image types, vmx and oem
+        ## image type oem
         attribute overlayroot { xsd:boolean }
         >> sch:pattern [ id = "overlayroot" is-a = "image_type"
             sch:param [ name = "attr" value = "overlayroot" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.firmware.attribute =
         ## Specifies the boot firmware of the system. Most systems
@@ -1397,7 +1438,7 @@ div {
         }
         >> sch:pattern [ id = "firmware" is-a = "image_type"
             sch:param [ name = "attr" value = "firmware" ]
-            sch:param [ name = "types" value = "vmx oem pxe iso" ]
+            sch:param [ name = "types" value = "oem pxe iso" ]
         ]
     k.type.bootpartition.attribute =
         ## specify if an extra boot partition should be used or not.
@@ -1405,7 +1446,7 @@ div {
         attribute bootpartition { xsd:boolean }
         >> sch:pattern [ id = "bootpartition" is-a = "image_type"
             sch:param [ name = "attr" value = "bootpartition" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.bootfilesystem.attribute =
         ## if an extra boot partition is required this attribute
@@ -1417,7 +1458,7 @@ div {
         }
         >> sch:pattern [ id = "bootfilesystem" is-a = "image_type"
             sch:param [ name = "attr" value = "bootfilesystem" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.flags.attribute =
         ## Specifies live iso technology and dracut module to use.
@@ -1442,7 +1483,7 @@ div {
         }
         >> sch:pattern [ id = "format" is-a = "image_type"
             sch:param [ name = "attr" value = "format" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.formatoptions.attribute =
         ## Specifies additional format options passed on to qemu-img
@@ -1453,7 +1494,7 @@ div {
         attribute formatoptions { text }
         >> sch:pattern [ id = "formatoptions" is-a = "image_type"
             sch:param [ name = "attr" value = "formatoptions" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.force_mbr.attribute =
         ## Force use of MBR (msdos table) partition table even if the
@@ -1466,7 +1507,7 @@ div {
         attribute force_mbr { xsd:boolean }
         >> sch:pattern [ id = "force_mbr" is-a = "image_type"
             sch:param [ name = "attr" value = "force_mbr" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.fsmountoptions.attribute =
         ## Specifies the filesystem mount options which also ends up in fstab
@@ -1500,7 +1541,7 @@ div {
         attribute gpt_hybrid_mbr { xsd:boolean }
         >> sch:pattern [ id = "gpt_hybrid_mbr" is-a = "image_type"
             sch:param [ name = "attr" value = "gpt_hybrid_mbr" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.initrd_system.attribute =
         ## specify which initrd builder to use, default is kiwi's
@@ -1518,7 +1559,7 @@ div {
         attribute image {
             "btrfs" | "clicfs" | "cpio" | "docker" | "ext2" | "ext3" |
             "ext4" | "iso" | "oem" | "pxe" | "kis" | "squashfs" | "tbz" |
-            "vmx" | "xfs" | "oci" | "appx"
+            "xfs" | "oci" | "appx"
         }
         >> sch:pattern [
             id = "metadata_path_mandatory" is-a = "image_type_requirement"
@@ -1600,7 +1641,7 @@ div {
         attribute kernelcmdline { text }
         >> sch:pattern [ id = "kernelcmdline" is-a = "image_type"
             sch:param [ name = "attr" value = "kernelcmdline" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
+            sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
     k.type.luks.attribute =
         ## Setup cryptographic volume along with the given filesystem
@@ -1610,7 +1651,7 @@ div {
         attribute luks { text }
         >> sch:pattern [ id = "luks" is-a = "image_type"
             sch:param [ name = "attr" value = "luks" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
+            sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
     k.type.luksOS.attribute =
         ## With the luksOS value a predefined set of ciper, keysize
@@ -1622,7 +1663,7 @@ div {
         }
         >> sch:pattern [ id = "luksOS" is-a = "image_type"
             sch:param [ name = "attr" value = "luksOS" ]
-            sch:param [ name = "types" value = "oem vmx iso pxe kis" ]
+            sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
     k.type.mdraid.attribute =
         ## Setup software raid in degraded mode with one disk
@@ -1632,7 +1673,7 @@ div {
         }
         >> sch:pattern [ id = "mdraid" is-a = "image_type"
             sch:param [ name = "attr" value = "mdraid" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.primary.attribute =
         ## Specifies the primary type (choose KIWI option type)
@@ -1643,14 +1684,14 @@ div {
         attribute ramonly { xsd:boolean }
         >> sch:pattern [ id = "ramonly" is-a = "image_type"
             sch:param [ name = "attr" value = "ramonly" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.rootfs_label.attribute =
         ## label to set for the root filesystem. By default ROOT is used
         attribute rootfs_label { text }
         >> sch:pattern [ id = "rootfs_label" is-a = "image_type"
             sch:param [ name = "attr" value = "rootfs_label" ]
-            sch:param [ name = "types" value = "oem vmx pxe kis docker" ]
+            sch:param [ name = "types" value = "oem pxe kis docker" ]
         ] 
     k.type.vga.attribute =
         ## Specifies the kernel framebuffer mode. More information
@@ -1659,21 +1700,21 @@ div {
         attribute vga { text }
         >> sch:pattern [ id = "vga" is-a = "image_type"
             sch:param [ name = "attr" value = "vga" ]
-            sch:param [ name = "types" value = "oem vmx pxe kis iso" ]
+            sch:param [ name = "types" value = "oem pxe kis iso" ]
         ]
     k.type.gcelicense.attribute =
         ## Specifies the license tag in a GCE format
         attribute gcelicense { text }
         >> sch:pattern [ id = "gcelicense" is-a = "image_type"
             sch:param [ name = "attr" value = "gcelicense" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.vhdfixedtag.attribute =
         ## Specifies the GUID in a fixed format VHD
         attribute vhdfixedtag { vhd-tag-type }
         >> sch:pattern [ id = "vhdfixedtag" is-a = "image_type"
             sch:param [ name = "attr" value = "vhdfixedtag" ]
-            sch:param [ name = "types" value = "oem vmx" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.volid.attribute =
         ## for the iso type only:
@@ -1716,7 +1757,7 @@ div {
         attribute disk_start_sector { xsd:integer { minInclusive = "2048" } }
         >> sch:pattern [ id = "disk_start_sector" is-a = "image_type"
             sch:param [ name = "attr" value = "disk_start_sector" ]
-            sch:param [ name = "types" value = "vmx oem" ]
+            sch:param [ name = "types" value = "oem" ]
         ]
     k.type.attlist =
         ## Specifies the image type
@@ -2111,7 +2152,7 @@ div {
         }
         >> sch:pattern [ id = "loader_name" is-a = "bootloader_image_type"
             sch:param [ name = "attr" value = "name" ]
-            sch:param [ name = "types" value = "oem vmx iso" ]
+            sch:param [ name = "types" value = "oem iso" ]
         ]
     k.bootloader.console.attribute =
         ## Specifies the bootloader console.
@@ -2518,6 +2559,7 @@ div {
             k.oemconfig.attlist &
             k.oem-boot-title? &
             k.oem-bootwait? &
+            k.oem-resize? &
             k.oem-resize-once? &
             k.oem-device-filter? &
             k.oem-nic-filter? &
@@ -2686,7 +2728,7 @@ div {
         ## packages are only installed if this build type is requested.
         attribute type {
             "bootstrap" | "delete" | "docker" | "image" |
-            "iso" | "oem" | "pxe" | "kis" | "vmx" | "oci" |
+            "iso" | "oem" | "pxe" | "kis" | "oci" |
             "uninstall"
         }
     k.packages.profiles.attribute = k.profiles.attribute

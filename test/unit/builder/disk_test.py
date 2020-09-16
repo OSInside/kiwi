@@ -219,7 +219,7 @@ class TestDiskBuilder:
     def test_create_invalid_type_for_install_media(
         self, mock_cmd, mock_fs
     ):
-        self.disk_builder.build_type_name = 'vmx'
+        self.disk_builder.build_type_name = 'kis'
         with patch('builtins.open'):
             with raises(KiwiInstallMediaError):
                 self.disk_builder.create_disk()
@@ -872,6 +872,7 @@ class TestDiskBuilder:
         self.disk.create_root_partition.reset_mock()
         self.disk.create_spare_partition.reset_mock()
         self.disk_builder.spare_part_is_last = True
+        self.disk_builder.disk_resize_requested = False
 
         with patch('builtins.open'):
             self.disk_builder.create_disk()

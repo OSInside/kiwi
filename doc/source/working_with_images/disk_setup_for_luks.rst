@@ -6,11 +6,11 @@ Image Description Encrypted Disk
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   vmx images with an encrypted root filesystem setup.
+   disk images with an encrypted root filesystem setup.
    The information here is based on top of the following
    article:
 
-   * :ref:`vmx`
+   * :ref:`simple_disk`
 
 A virtual disk image can be partially or fully encrypted
 using the LUKS extension supported by {kiwi}. A fully encrypted
@@ -41,26 +41,24 @@ Update the {kiwi} image description as follows:
 
 2. Image Type definition
 
-   Update the vmx image type setup as follows
+   Update the oem image type setup as follows
 
    Full disk encryption including :file:`/boot`:
      .. code:: xml
 
-        <type image="vmx"
-            image="vmx"
-            filesystem="ext4"
-            luks="linux"
-            bootpartition="false">
+        <type image="oem" filesystem="ext4" luks="linux" bootpartition="false">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
         </type>
 
    Encrypted root partition with an unencrypted extra :file:`/boot` partition:
      .. code:: xml
 
-        <type image="vmx"
-            image="vmx"
-            filesystem="ext4"
-            luks="linux"
-            bootpartition="true">
+        <type image="oem" filesystem="ext4" luks="linux" bootpartition="true">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
         </type>
 
    .. note::

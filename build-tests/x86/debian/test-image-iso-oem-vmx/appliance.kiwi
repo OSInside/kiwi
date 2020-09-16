@@ -3,7 +3,7 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.2" name="LimeJeOS-Debian-Buster">
+<image schemaversion="7.3" name="LimeJeOS-Debian-Buster">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.de</contact>
@@ -30,7 +30,10 @@
         </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="efi" format="qcow2">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="efi" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <bootloader name="grub2" console="serial gfxterm"/>
         </type>
     </preferences>
@@ -89,7 +92,6 @@
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
     <packages type="bootstrap">
-        <!-- comptibility package for /usr/lib paths -->
         <package name="usrmerge"/>
     </packages>
 </image>

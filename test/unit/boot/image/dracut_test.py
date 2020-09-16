@@ -140,12 +140,12 @@ class TestBootImageKiwi:
                 '--add', ' foo ', '--omit', ' bar ',
                 '--install', 'system-directory/etc/foo',
                 '--install', '/system-directory/var/lib/bar',
-                'LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd.xz', '1.2.3'
+                'LimeJeOS.x86_64-1.13.2.initrd.xz', '1.2.3'
             ], stderr_to_stdout=True),
             call([
                 'mv',
                 'system-directory/'
-                'LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd.xz',
+                'LimeJeOS.x86_64-1.13.2.initrd.xz',
                 'some-target-dir'
             ])
         ]

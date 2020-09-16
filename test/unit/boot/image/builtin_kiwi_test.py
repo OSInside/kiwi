@@ -128,7 +128,7 @@ class TestBootImageKiwi:
             ''.join(
                 [
                     self.boot_image.target_dir,
-                    '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
+                    '/LimeJeOS.x86_64-1.13.2.initrd'
                 ]
             )
         )
@@ -136,7 +136,7 @@ class TestBootImageKiwi:
             ''.join(
                 [
                     self.boot_image.target_dir,
-                    '/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.initrd'
+                    '/LimeJeOS.x86_64-1.13.2.initrd'
                 ]
             )
         )

@@ -861,6 +861,21 @@ class XMLState:
         if oemconfig_sections:
             return oemconfig_sections[0]
 
+    def get_oemconfig_oem_resize(self):
+        """
+        State value to activate/deactivate disk resize. Returns a
+        boolean value if specified or True to set resize on by default
+
+        :return: Content of <oem-resize> section value
+
+        :rtype: bool
+        """
+        oemconfig = self.get_build_type_oemconfig_section()
+        if oemconfig and oemconfig.get_oem_resize():
+            return oemconfig.get_oem_resize()[0]
+        else:
+            return True
+
     def get_oemconfig_oem_multipath_scan(self):
         """
         State value to activate multipath maps. Returns a boolean

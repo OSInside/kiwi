@@ -9,7 +9,7 @@ Deploy and Run System in a RamDisk
    oem images built with {kiwi} and references the following
    articles:
 
-   * :ref:`oem`
+   * :ref:`expandable_disk`
 
 If a machine should run the OS completely in memory without
 the need for any persistent storage, the approach to deploy

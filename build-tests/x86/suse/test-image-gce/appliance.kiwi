@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="GCE-openSUSE-Tumbleweed">
+<image schemaversion="7.3" name="GCE-openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.de</contact>
         <specification>GCE test build</specification>
     </description>
     <preferences>
-        <type image="vmx" filesystem="ext4" kernelcmdline="console=ttyS0,38400n8 net.ifnames=0 NON_PERSISTENT_DEVICE_NAMES=1 dis_ucode_ldr" format="gce" gcelicense="1111111111111111111" firmware="efi">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0,38400n8 net.ifnames=0 NON_PERSISTENT_DEVICE_NAMES=1 dis_ucode_ldr" format="gce" gcelicense="1111111111111111111" firmware="efi">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <bootloader name="grub2" timeout="1"/>
             <size unit="M">10240</size>
         </type>

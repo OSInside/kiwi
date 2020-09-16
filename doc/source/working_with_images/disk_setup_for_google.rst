@@ -6,10 +6,10 @@ Image Description for Google Compute Engine
 .. sidebar:: Abstract
 
    This page provides further information for handling
-   vmx images built with {kiwi} and references the following
+   GCE images built with {kiwi} and references the following
    articles:
 
-   * :ref:`vmx`
+   * :ref:`simple_disk`
 
 A virtual disk image which is able to boot in the Google Compute Engine
 cloud framework has to comply the following constraints:
@@ -47,8 +47,8 @@ description as follows:
    boot code which can resize the disk from within the initrd before
    the system gets activated through systemd.
 
-   Update the vmx image type setup to be changed into an expandable
-   (oem) type as follows:
+   Update the oem image type setup to be changed into an expandable
+   type as follows:
 
    .. code:: xml
 
@@ -60,6 +60,7 @@ description as follows:
         <bootloader name="grub2" timeout="1"/>
         <size unit="M">10240</size>
         <oemconfig>
+            <oem-resize>true</oem-resize>
             <oem-swap>false</oem-swap>
         </oemconfig>
       </type>

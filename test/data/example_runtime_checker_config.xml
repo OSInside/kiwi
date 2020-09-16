@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="7.3" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -28,14 +28,16 @@
     <profiles>
         <profile name="metadata" description="Inlude some preferences metadata"/>
         <profile name="noVersion" description="Does not include version element"/>
-        <profile name="xenFlavour" description="VMX with Xen kernel"/>
-        <profile name="ec2Flavour" description="VMX with EC2/Xen kernel"/>
+        <profile name="xenDom0Flavour" description="Disk Xen dom0"/>
+        <profile name="xenDomUFlavour" description="Disk Xen domU"/>
+        <profile name="ec2Flavour" description="Disk with EC2/Xen kernel"/>
         <profile name="docker" description="docker image">
             <requires profile="noVersion"/>
         </profile>
-        <profile name="vmxFlavour" description="VMX with default kernel" import="true">
+        <profile name="vmxFlavour" description="Disk with default kernel" import="true">
             <requires profile="metadata"/>
         </profile>
+        <profile name="vmxSimpleFlavour" description="Disk no resize"/>
         <profile name="wsl_launcher" description="Appx invalid launcher name"/>
         <profile name="wsl_id" description="Appx invalid id"/>
     </profiles>
@@ -56,24 +58,14 @@
     <preferences profiles="wsl_launcher">
         <type image="appx" metadata_path="/usr/share/wsl-appx">
             <containerconfig name="Tumbleweed">
-                <history
-                    author="KIWI-Team"
-                    application_id="tumbleweed"
-                    package_version="2003.12.0.0"
-                    launcher="Invalid-Launcher"
-                >Tumbleweed JeOS text based</history>
+                <history author="KIWI-Team" application_id="tumbleweed" package_version="2003.12.0.0" launcher="Invalid-Launcher">Tumbleweed JeOS text based</history>
             </containerconfig>
         </type>
     </preferences>
     <preferences profiles="wsl_id">
         <type image="appx" metadata_path="/usr/share/wsl-appx">
             <containerconfig name="Tumbleweed">
-                <history
-                    author="KIWI-Team"
-                    application_id="invalid-id"
-                    package_version="2003.12.0.0"
-                    launcher="openSUSE-Tumbleweed.exe"
-                >Tumbleweed JeOS text based</history>
+                <history author="KIWI-Team" application_id="invalid-id" package_version="2003.12.0.0" launcher="openSUSE-Tumbleweed.exe">Tumbleweed JeOS text based</history>
             </containerconfig>
         </type>
     </preferences>
@@ -83,15 +75,24 @@
         </type>
     </preferences>
     <preferences profiles="ec2Flavour">
-        <type image="vmx" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2"/>
+        <type image="oem" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+        </type>
     </preferences>
-    <preferences profiles="xenFlavour">
-        <type image="vmx" filesystem="ext3" bootprofile="xen" bootkernel="xenk" kernelcmdline="splash">
+    <preferences profiles="xenDomUFlavour">
+        <type image="oem" filesystem="ext3" bootprofile="xen" bootkernel="xenk" kernelcmdline="splash">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <machine memory="512" xen_loader="pvgrub">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>
                 <vmnic interface=""/>
             </machine>
         </type>
+    </preferences>
+    <preferences profiles="xenDom0Flavour">
         <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" kernelcmdline="splash" xen_server="true" firmware="bios">
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
@@ -99,8 +100,11 @@
             </oemconfig>
         </type>
     </preferences>
-    <preferences profiles="vmxFlavour">
-        <type image="vmx" filesystem="ext3" format="vmdk" kernelcmdline="splash" bootpartition="false">
+    <preferences profiles="vmxSimpleFlavour">
+        <type image="oem" filesystem="ext3" format="vmdk" kernelcmdline="splash" bootpartition="false">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
             <systemdisk name="systemVG">
                 <volume name="foo" label="SWAP"/>
             </systemdisk>
@@ -109,6 +113,8 @@
                 <vmnic driver="e1000" interface="0" mode="bridged"/>
             </machine>
         </type>
+    </preferences>
+    <preferences profiles="vmxFlavour">
         <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="btrfs" initrd_system="dracut" installiso="true">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk">
@@ -160,7 +166,7 @@
         <package name="xen-tools" arch="x86_64"/>
         <package name="xen" arch="x86_64"/>
     </packages>
-    <packages type="image" profiles="xenFlavour">
+    <packages type="image" profiles="xenDom0Flavour">
         <package name="kernel-xen"/>
         <package name="xen-tools" arch="x86_64"/>
         <package name="xen" arch="x86_64"/>

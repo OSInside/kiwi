@@ -107,6 +107,8 @@ class DiskBuilder:
         self.target_removable = xml_state.build_type.get_target_removable()
         self.root_filesystem_is_multipath = \
             xml_state.get_oemconfig_oem_multipath_scan()
+        self.disk_resize_requested = \
+            xml_state.get_oemconfig_oem_resize()
         self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
         self.disk_setup = DiskSetup(
             xml_state, root_dir
@@ -216,8 +218,9 @@ class DiskBuilder:
         """
         if self.install_media and self.build_type_name != 'oem':
             raise KiwiInstallMediaError(
-                'Install media requires oem type setup, got %s' %
-                self.build_type_name
+                'Install media requires oem type setup, got {0}'.format(
+                    self.build_type_name
+                )
             )
 
         if self.root_filesystem_is_overlay and self.volume_manager_name:
@@ -320,8 +323,8 @@ class DiskBuilder:
                     self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot(),
                 'quota_groups':
                     self.xml_state.build_type.get_btrfs_quota_groups(),
-                'image_type':
-                    self.xml_state.get_build_type_name()
+                'resize_on_boot':
+                    self.disk_resize_requested
             }
             self.volume_manager = VolumeManager(
                 self.volume_manager_name, device_map,
@@ -403,7 +406,7 @@ class DiskBuilder:
                 self.boot_image.write_system_config_file(
                     config={'modules': ['kiwi-overlay']}
                 )
-            if self.build_type_name == 'oem':
+            if self.disk_resize_requested:
                 self.boot_image.include_module('kiwi-repart')
 
         # create initrd cpio archive

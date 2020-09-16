@@ -129,7 +129,7 @@ class TestVolumeManagerBase:
         mock_size.return_value = size
         assert self.volume_manager.get_volume_mbsize(
             self.volume_manager.volumes[0], self.volume_manager.volumes,
-            'ext3', 'oem'
+            'ext3', True
         ) == 72
 
     @patch('kiwi.volume_manager.base.SystemSize')
@@ -188,7 +188,7 @@ class TestVolumeManagerBase:
         ]
         assert self.volume_manager.get_volume_mbsize(
             self.volume_manager.volumes[2], self.volume_manager.volumes,
-            'ext3', 'oem'
+            'ext3', True
         ) == 72
         size.accumulate_mbyte_file_sizes.assert_called_once_with(
             ['root_dir/usr', 'root_dir/usr/lib']

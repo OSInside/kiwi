@@ -1,23 +1,24 @@
-.. _oem:
+.. _expandable_disk:
 
-Build an OEM Expandable Disk Image
-==================================
+Build an Expandable Disk Image
+==============================
 
 .. sidebar:: Abstract
 
-   This page explains how to build an OEM disk image. It contains:
+   This page explains how to build an expandable disk image.
+   It contains how to:
 
-   * how to build an OEM image
-   * how to deploy an OEM image
-   * how to run the deployed system
+   * build an expandable disk image
+   * deploy an expandable disk image
+   * run the deployed system
 
-An OEM disk represents the system disk with the capability to auto
+An expandable disk represents the system disk with the capability to auto
 expand the disk and its filesystem to a custom disk geometry. This
-allows deploying the same OEM image on target systems of a different
+allows deploying the same disk image on target systems with different
 hardware setup.
 
-The following example shows how to build and deploy an OEM disk image
-based on openSUSE Leap using a QEMU virtual machine as OEM target
+The following example shows how to build and deploy such a disk image
+based on openSUSE Leap using a QEMU virtual machine as the target
 system:
 
 1. Make sure you have checked out the example image descriptions,
@@ -33,11 +34,11 @@ system:
 
    Find the following result images below :file:`/tmp/myimage`.
 
-   * The OEM disk image with the suffix :file:`.raw` is an expandable
+   * The disk image with the suffix :file:`.raw` is an expandable
      virtual disk. It can expand itself to a custom disk geometry.
 
-   * The OEM installation image with the suffix :file:`install.iso` is a
-     hybrid installation system which contains the OEM disk image and is
+   * The installation image with the suffix :file:`install.iso` is a
+     hybrid installation system which contains the disk image and is
      capable to install this image on any target disk.
 
 .. _deployment_methods:
@@ -45,25 +46,25 @@ system:
 Deployment Methods
 ------------------
 
-The basic idea behind an OEM image is to provide the virtual disk data for
-OEM vendors to support easy deployment of the system to physical storage
-media.
+The basic idea behind an expandable disk image is to provide the virtual
+disk data for OEM vendors to support easy deployment of the system to
+physical storage media.
 
 There are the following basic deployment strategies:
 
 1. :ref:`deploy_manually`
 
-   Manually deploy the OEM disk image onto the target disk
+   Manually deploy the disk image onto the target disk.
 
 2. :ref:`deploy_from_iso`
 
-   Boot the OEM installation image and let {kiwi}'s OEM installer
-   deploy the OEM disk image from CD/DVD or USB stick onto the target disk
+   Boot the installation image and let {kiwi}'s installer
+   deploy the disk image from CD/DVD or USB stick onto the target disk.
 
 3. :ref:`deploy_from_network`
 
-   PXE boot the target system and let {kiwi}'s OEM installer
-   deploy the OEM disk image from the network onto the target disk
+   PXE boot the target system and let {kiwi}'s installer
+   deploy the disk image from the network onto the target disk.
 
 .. _deploy_manually:
 
@@ -83,11 +84,11 @@ The following steps shows how to do it:
    .. note:: Retaining the Disk Geometry
 
        If the target disk geometry is less or equal to the geometry of
-       the OEM disk image itself, the disk expansion performed for a physical
-       disk install during the OEM boot workflow will be skipped and the
+       the disk image itself, the disk expansion performed for a physical
+       disk install during the boot workflow will be skipped and the
        original disk geometry stays untouched.
 
-2. Dump OEM image on target disk
+2. Dump disk image on target disk.
 
    .. code:: bash
 
@@ -117,8 +118,8 @@ The following steps shows how to do it:
 
    Follow the steps above to create a virtual target disk
 
-2. Boot the OEM installation image as CD/DVD with the
-   target disk attached
+2. Boot the installation image as CD/DVD with the
+   target disk attached.
 
    .. code:: bash
 
@@ -126,7 +127,7 @@ The following steps shows how to do it:
 
    .. note:: USB Stick Deployment
 
-       Like any other iso image built with {kiwi}, also the OEM installation
+       Like any other ISO image built with {kiwi}, also the installation
        image is a hybrid image. Thus it can also be used on USB stick and
        serve as installation stick image like it is explained in
        :ref:`hybrid_iso`
@@ -136,7 +137,7 @@ The following steps shows how to do it:
 Network Deployment
 ------------------
 
-The deployment from the network downloads the OEM disk image from a
+The deployment from the network downloads the disk image from a
 PXE boot server. This requires a PXE network boot server to be setup
 as explained in :ref:`network-boot-server`
 
@@ -145,7 +146,7 @@ deployment process over the network using a QEMU virtual machine as
 target system:
 
 1. Make sure to create an installation PXE TAR archive along with your
-   OEM image by replacing the following setup in
+   disk image by replacing the following setup in
    kiwi-descriptions/suse/x86_64/{exc_description}/config.xml
 
    Instead of
@@ -180,7 +181,7 @@ target system:
           scp pxeboot.{exc_image_base_name}.x86_64-{exc_image_version}.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
           scp pxeboot.{exc_image_base_name}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
-3. Copy the OEM disk image, MD5 file, system kernel, initrd and bootoptions to
+3. Copy the disk image, MD5 file, system kernel, initrd and bootoptions to
    the PXE boot server:
 
    Activation of the deployed system is done via `kexec` of the kernel
@@ -292,29 +293,37 @@ element like the following example shows:
    </oemconfig>
 
 
-The following list of optional oem element settings exists:
+The following list of optional `oem` element settings exists:
+
+oemconfig.oem-resize Element
+  Specify if the disk has the capability to expand itself to
+  a new disk geometry or not. By default, this feature is activated.
+  The implementation of the resize capability is done in a dracut
+  module packaged as `dracut-kiwi-oem-repart`. If `oem-resize` is
+  set to false, the installation of the corresponding dracut package
+  can be skipped as well.
 
 oemconfig.oem-boot-title Element
   By default, the string OEM will be used as the boot manager menu
   entry when KIWI creates the GRUB configuration during deployment.
-  The oem-boot-title element allows you to set a custom name for the
+  The `oem-boot-title` element allows you to set a custom name for the
   grub menu entry. This value is represented by the
   ``kiwi_oemtitle`` variable in the initrd
 
 oemconfig.oem-bootwait Element
   Specify if the system should wait for user interaction prior to
-  continuing the boot process after the oem image has been dumped to
+  continuing the boot process after the disk image has been dumped to
   the designated storage device (default value is false). This value
   is represented by the ``kiwi_oembootwait`` variable in the initrd
 
 oemconfig.oem-reboot Element
-  Specify if the system is to be rebooted after the oem image has
+  Specify if the system is to be rebooted after the disk image has
   been deployed to the designated storage device (default value is
   false). This value is represented by the ``kiwi_oemreboot``
   variable in the initrd
 
 oemconfig.oem-reboot-interactive Element
-  Specify if the system is to be rebooted after the oem image has
+  Specify if the system is to be rebooted after the disk image has
   been deployed to the designated storage device (default value is
   false). Prior to reboot a message is posted and must be
   acknowledged by the user in order for the system to reboot. This
@@ -322,19 +331,19 @@ oemconfig.oem-reboot-interactive Element
   in the initrd
 
 oemconfig.oem-silent-boot Element
-  Specify if the system should boot in silent mode after the oem
+  Specify if the system should boot in silent mode after the disk
   image has been deployed to the designated storage device (default
   value is false). This value is represented by the
   ``kiwi_oemsilentboot`` variable in the initrd
 
 oemconfig.oem-shutdown Element
-  Specify if the system is to be powered down after the oem image
+  Specify if the system is to be powered down after the disk image
   has been deployed to the designated storage device (default value
   is false). This value is represented by the ``kiwi_oemshutdown``
   variable in the initrd
 
 oemconfig.oem-shutdown-interactive Element
-  Specify if the system is to be powered down after the oem image
+  Specify if the system is to be powered down after the disk image
   has been deployed to the designated storage device (default value
   is false). Prior to shutdown a message is posted and must be
   acknowledged by the user in order for the system to power off.
@@ -363,9 +372,9 @@ oemconfig.oem-systemsize Element
   specifies the size of the LVM partition which contains all
   specified volumes. Thus, the sum of all specified volume sizes
   plus the sum of the specified freespace for each volume must be
-  smaller or equal to the size specified with the oem-systemsize.
-  This value is represented by the variable ``kiwi_oemrootMB`` in
-  the initrd
+  smaller or equal to the size specified with the `oem-systemsize`
+  element. This value is represented by the variable ``kiwi_oemrootMB``
+  in the initrd
 
 oemconfig.oem-unattended Element
   The installation of the image to the target system occurs

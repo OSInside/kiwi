@@ -146,7 +146,6 @@ class TestDiskSetup:
 
     def test_get_disksize_mbytes_configured_additive(self):
         self.setup.configured_size = mock.Mock()
-        self.setup.build_type_name = 'vmx'
         self.setup.configured_size.additive = True
         self.setup.configured_size.mbytes = 42
         root_size = self.size.accumulate_mbyte_file_sizes.return_value
@@ -159,7 +158,6 @@ class TestDiskSetup:
 
     def test_get_disksize_mbytes_configured(self):
         self.setup.configured_size = mock.Mock()
-        self.setup.build_type_name = 'vmx'
         self.setup.configured_size.additive = False
         self.setup.configured_size.mbytes = 42
         with self._caplog.at_level(logging.WARNING):

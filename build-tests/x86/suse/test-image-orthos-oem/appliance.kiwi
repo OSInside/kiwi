@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.2" name="factory-kiwi">
+<image schemaversion="7.3" name="factory-kiwi">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.de</contact>
