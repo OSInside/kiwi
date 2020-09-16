@@ -767,7 +767,7 @@ class TestBootLoaderConfigGrub2:
                 call('set root="cryptouuid/0815"\n'),
                 call('search --fs-uuid --set=root 0815\n'),
                 call('set prefix=($root)//grub2\n'),
-                call('configfile ($root)/boot/grub2/grub.cfg\n')
+                call('configfile ($root)//grub2/grub.cfg\n')
             ]
         assert mock_command.call_args_list == [
             call(
@@ -825,7 +825,7 @@ class TestBootLoaderConfigGrub2:
                 call('set root="cryptouuid/0815"\n'),
                 call('search --fs-uuid --set=root 0815\n'),
                 call('set prefix=($root)//grub2\n'),
-                call('configfile ($root)/boot/grub2/grub.cfg\n')
+                call('configfile ($root)//grub2/grub.cfg\n')
             ]
             mock_open.assert_called_once_with(
                 'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'
