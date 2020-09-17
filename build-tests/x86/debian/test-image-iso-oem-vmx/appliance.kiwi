@@ -3,11 +3,11 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.3" name="LimeJeOS-Debian-Buster">
+<image schemaversion="7.3" name="Debian-Buster_appliance">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.de</contact>
-        <specification>Debian Buster JeOS</specification>
+        <specification>Debian Buster Appliance</specification>
     </description>
     <profiles>
         <profile name="Live" description="Live image of Debian Buster"/>

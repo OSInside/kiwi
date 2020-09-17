@@ -26,7 +26,7 @@ below:
 
 .. code:: xml
 
-   <image schemaversion="7.2" name="JeOS-Tumbleweed">
+   <image schemaversion="{schema_version}" name="Tumbleweed_appliance">
      <!-- snip -->
      <preferences>
        <type image="oem" filesystem="ext4" format="vmdk">

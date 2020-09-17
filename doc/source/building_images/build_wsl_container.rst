@@ -128,7 +128,7 @@ openSUSE TW:
 #. Setup the image type:
 
    Edit the XML description file:
-   :file:`kiwi-descriptions/suse/x86_64/suse-tumbleweed-JeOS/config.xml`
+   :file:`kiwi-descriptions/suse/x86_64/suse-tumbleweed/config.xml`
    and add the following type and containerconfig:
 
    .. code:: xml
@@ -141,7 +141,7 @@ openSUSE TW:
                   application_id="tumbleweed"
                   package_version="2003.12.0.0"
                   launcher="openSUSE-Tumbleweed.exe"
-              >TW JeOS text based</history>
+              >Tumbleweed Appliance text based</history>
           </containerconfig>
       </type>
 
@@ -158,7 +158,7 @@ openSUSE TW:
    .. code:: bash
 
       $ sudo kiwi-ng --type appx system build \
-          --description kiwi-descriptions/suse/x86_64/suse-tumbleweed-JeOS \
+          --description kiwi-descriptions/suse/x86_64/suse-tumbleweed \
           --target-dir /tmp/myimage
 
 Testing the WSL image
