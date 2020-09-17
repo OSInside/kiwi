@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.3" name="OEM-openSUSE-Tumbleweed">
+<image schemaversion="7.3" name="openSUSE-Tumbleweed">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
-        <specification>oem disk for RaspberryPi test build</specification>
+        <specification>Disk image for RaspberryPi test build</specification>
     </description>
     <preferences>
         <version>1.15.0</version>

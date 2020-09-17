@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.3" name="docker-builder-image">
+<image schemaversion="7.3" name="openSUSE-Tumbleweed">
     <description type="system">
         <author>David Cassany</author>
         <contact>dcassany@suse.de</contact>
@@ -23,6 +23,5 @@
         <package name="kiwi-image-iso-requires"/>
         <package name="kiwi-image-oem-requires"/>
         <package name="kiwi-image-pxe-requires"/>
-        <package name="kiwi-image-vmx-requires"/>
     </packages>
 </image>
