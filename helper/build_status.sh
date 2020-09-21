@@ -23,9 +23,11 @@ do
             echo -e "$(echo $line |\
                 sed -e s@^F@'\\033[31mF\\e[0m'@ |\
                 sed -e s@^U@'\\033[33mU\\e[0m'@ |\
+                sed -e s@^D@'\\033[36mD\\e[0m'@ |\
                 sed -e s@^\\.@'\\033[32m.\\e[0m'@)"
         done < <(osc -A https://api.opensuse.org \
-            results -V "${project}" | grep -B100 Legend | grep -v Legend
+            results -V "${project}" | sed -e 's@^   @  D @' |\
+            grep -B100 Legend | grep -v Legend
         )
     else
         for package in $(osc -A https://api.opensuse.org list "${project}");do
@@ -43,18 +45,18 @@ if [ ! "$1" = "refresh" ];then
 cat << EOF
 Legend:
  . succeeded
-   disabled            
- U unresolvable        
- F failed              
- B broken              
- b blocked             
- % building            
- f finished            
- s scheduled           
- L locked              
- x excluded            
- d dispatching         
- S signing             
+ D Disabled
+ U unresolvable
+ F failed
+ B broken
+ b blocked
+ % building
+ f finished
+ s scheduled
+ L locked
+ x excluded
+ d dispatching
+ S signing
  ? buildstatus not available
 EOF
 fi
