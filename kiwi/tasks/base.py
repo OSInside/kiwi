@@ -89,7 +89,8 @@ class CliTask:
             'check_dracut_module_for_oem_install_in_package_list': [],
             'check_architecture_supports_iso_firmware_setup': [],
             'check_appx_naming_conventions_valid': [],
-            'check_syslinux_installed_if_isolinux_is_used': []
+            'check_syslinux_installed_if_isolinux_is_used': [],
+            'check_image_type_unique': []
         }
         self.checks_after_command_args = {
             'check_repositories_configured': [],

@@ -20,6 +20,7 @@ import re
 from textwrap import dedent
 
 # project
+from io import StringIO
 from kiwi.xml_description import XMLDescription
 from kiwi.firmware import FirmWare
 from kiwi.xml_state import XMLState
@@ -791,3 +792,44 @@ class RuntimeChecker:
 
         if not self.xml_state.get_image_version():
             raise KiwiRuntimeError(message_missing_version)
+
+    def check_image_type_unique(self):
+        """
+        Verify that the selected image type is unique within
+        the range of the configured types and profiles.
+        """
+        message = dedent('''\n
+            Conflicting image type setup detected
+
+            The selected image type '{0}' in the {1} profile
+            selection is not unique. There are the followng type
+            settings which overrides each other:
+            {2}
+            To solve this conflict please move the image type
+            setup into its own profile and select them using
+            the --profile option at call time.
+        ''')
+        image_type_sections = []
+        type_dict = {}
+        for preferences in self.xml_state.get_preferences_sections():
+            image_type_sections += preferences.get_type()
+
+        for image_type in image_type_sections:
+            type_name = image_type.get_image()
+            if type_dict.get(type_name):
+                type_dict[type_name].append(image_type)
+            else:
+                type_dict[type_name] = [image_type]
+
+        for type_name, type_list in list(type_dict.items()):
+            if len(type_list) > 1:
+                type_export = StringIO()
+                for image_type in type_list:
+                    type_export.write(os.linesep)
+                    image_type.export(type_export, 0)
+                raise KiwiRuntimeError(
+                    message.format(
+                        type_name, self.xml_state.profiles or ['Default'],
+                        type_export.getvalue()
+                    )
+                )

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.3" name="TypeConflict">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.de</contact>
+        <specification>Test conflicting type setup</specification>
+    </description>
+    <preferences>
+        <version>1.1.0</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="oem" filesystem="ext3"/>
+        <type image="oem" filesystem="xfs"/>
+    </preferences>
+    <repository>
+        <source path="obs://13.2/repo/oss"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+    </packages>
+</image>

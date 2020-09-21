@@ -350,5 +350,14 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_syslinux_installed_if_isolinux_is_used()
 
+    def test_check_image_type_unique(self):
+        description = XMLDescription(
+            '../data/example_runtime_checker_conflicting_types.xml'
+        )
+        xml_state = XMLState(description.load())
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_image_type_unique()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
