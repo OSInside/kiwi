@@ -50,7 +50,7 @@ class ContainerSetupBase:
         self.root_dir = root_dir
         self.custom_args = custom_args or {}
         if 'container_name' not in self.custom_args:
-            self.custom_args['container_name'] = 'systemContainer'
+            self.custom_args['container_name'] = 'system-container'
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
