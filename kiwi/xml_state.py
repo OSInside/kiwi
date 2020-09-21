@@ -1119,6 +1119,16 @@ class XMLState:
         container_config.update(
             self._match_docker_history()
         )
+
+        desc = self.get_description_section()
+        author_contact = "{0} <{1}>".format(desc.author, desc.contact)
+        if 'history' not in container_config:
+            container_config['history'] = {}
+        if 'author' not in container_config['history']:
+            container_config['history']['author'] = author_contact
+        if 'maintainer' not in container_config:
+            container_config['maintainer'] = author_contact
+
         return container_config
 
     def set_container_config_tag(self, tag):

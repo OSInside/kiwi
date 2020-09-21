@@ -30,7 +30,7 @@ class TestContainerSetupBase:
         self.container.custom_args == {}
 
     def test_get_container_name(self):
-        assert self.container.get_container_name() == 'systemContainer'
+        assert self.container.get_container_name() == 'system-container'
 
     @patch('os.path.exists')
     def test_deactivate_bootloader_setup(self, mock_exists):

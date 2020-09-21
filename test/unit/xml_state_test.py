@@ -718,7 +718,10 @@ class TestXMLState:
         state.add_container_config_label('somelabel', 'newlabelvalue')
         with self._caplog.at_level(logging.WARNING):
             config = state.get_container_config()
-            assert not config
+            assert config == {
+                'history': {'author': 'Marcus <ms@suse.com>'},
+                'maintainer': 'Marcus <ms@suse.com>'
+            }
 
     def test_set_container_tag_not_applied(self):
         with self._caplog.at_level(logging.WARNING):
@@ -766,6 +769,7 @@ class TestXMLState:
             'workingdir': '/root',
             'user': 'root',
             'entry_command': [],
+            'history': {'author': 'Marcus <ms@suse.com>'}
         }
         xml_data = self.description.load()
         state = XMLState(xml_data, ['derivedContainer'], 'docker')
