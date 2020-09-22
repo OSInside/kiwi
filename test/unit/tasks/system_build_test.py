@@ -69,7 +69,7 @@ class TestSystemBuildTask:
         self.builder.create = mock.Mock(
             return_value=self.result
         )
-        kiwi.tasks.system_build.ImageBuilder = mock.Mock(
+        kiwi.tasks.system_build.ImageBuilder.new = mock.Mock(
             return_value=self.builder
         )
 

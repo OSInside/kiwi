@@ -96,7 +96,7 @@ class SystemCreateTask(CliTask):
         )
         setup.call_image_script()
 
-        image_builder = ImageBuilder(
+        image_builder = ImageBuilder.new(
             self.xml_state,
             abs_target_dir_path,
             abs_root_path,
