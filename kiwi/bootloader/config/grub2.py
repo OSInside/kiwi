@@ -234,86 +234,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
-        if self.firmware.efi_mode():
-            # On systems that are configured to use EFI with grub2
-            # there is no support for dynamic EFI environment checking.
-            # In this condition we change the grub config to add this
-            # support as follows:
-            #
-            # * Apply on grub with EFI
-            #    1. Modify grub.cfg to set linux/initrd as variables
-            #    2. Prepend hybrid setup to select linux vs. linuxefi on demand
-            #
-            # Please note this is a one time modification done by kiwi
-            # Any subsequent call of the grub config tool will overwrite
-            # the setup and disables dynamic EFI environment checking
-            # at boot time
-            with open(config_file) as grub_config_file:
-                grub_config = grub_config_file.read()
-                grub_config = re.sub(
-                    r'([ \t]+)linux(efi|16)*([ \t]+)', r'\1$linux\3',
-                    grub_config
-                )
-                grub_config = re.sub(
-                    r'([ \t]+)initrd(efi|16)*([ \t]+)', r'\1$initrd\3',
-                    grub_config
-                )
-            with open(config_file, 'w') as grub_config_file:
-                grub_config_file.write(
-                    Template(self.grub2.header_hybrid).substitute()
-                )
-                grub_config_file.write(grub_config)
-
-        if self.root_reference:
-            if self.root_filesystem_is_overlay or \
-               Defaults.is_buildservice_worker():
-                # grub2-mkconfig has no idea how the correct root= setup is
-                # for disk images created with overlayroot enabled or in a
-                # buildservice worker environment. Because of that the mkconfig
-                # tool just finds the raw partition loop device and includes it
-                # which is wrong. In this particular case we have to patch the
-                # written config file and replace the wrong root= reference with
-                # the correct value.
-                with open(config_file) as grub_config_file:
-                    grub_config = grub_config_file.read()
-                    grub_config = grub_config.replace(
-                        'root={0}'.format(boot_options.get('root_device')),
-                        self.root_reference
-                    )
-                with open(config_file, 'w') as grub_config_file:
-                    grub_config_file.write(grub_config)
-
-                loader_entries_pattern = os.sep.join(
-                    [
-                        self.root_mount.mountpoint,
-                        'boot', 'loader', 'entries', '*.conf'
-                    ]
-                )
-                for menu_entry_file in glob.iglob(loader_entries_pattern):
-                    with open(menu_entry_file) as grub_menu_entry_file:
-                        menu_entry = grub_menu_entry_file.read()
-                        menu_entry = re.sub(
-                            r'options (.*)',
-                            r'options {0}'.format(self.cmdline),
-                            menu_entry
-                        )
-                    with open(menu_entry_file, 'w') as grub_menu_entry_file:
-                        grub_menu_entry_file.write(menu_entry)
-
-                if self.firmware.efi_mode():
-                    vendor_grubenv_file = \
-                        Defaults.get_vendor_grubenv(self.efi_mount.mountpoint)
-                    if vendor_grubenv_file:
-                        with open(vendor_grubenv_file) as vendor_grubenv:
-                            grubenv = vendor_grubenv.read()
-                            grubenv = grubenv.replace(
-                                'root={0}'.format(boot_options.get(
-                                    'root_device')
-                                ),
-                                self.root_reference
-                            )
-                        with open(vendor_grubenv_file, 'w') as vendor_grubenv:
-                            vendor_grubenv.write(grubenv)
+        # Patch the written grub config file to actually work:
+        # Unfortunately the grub tooling has several bugs and issues
+        # which prevents it to work in image build environments.
+        # More details can be found in the individual methods.
+        # One fine day the following fix methods can hopefully
+        # be deleted...
+        self._fix_grub_to_support_dynamic_efi_and_bios_boot(config_file)
+        self._fix_grub_root_device_reference(config_file, boot_options)
+        self._fix_grub_loader_entries_boot_cmdline()
 
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
@@ -1123,3 +1052,101 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         return Path.which(
             filename='shim-install', root_dir=self.boot_dir
         )
+
+    def _fix_grub_to_support_dynamic_efi_and_bios_boot(self, config_file):
+        if self.firmware.efi_mode():
+            # On systems that are configured to use EFI with grub2
+            # there is no support for dynamic EFI environment checking.
+            # In this condition we change the grub config to add this
+            # support as follows:
+            #
+            # * Apply on grub with EFI
+            #    1. Modify grub.cfg to set linux/initrd as variables
+            #    2. Prepend hybrid setup to select linux vs. linuxefi on demand
+            #
+            # Please note this is a one time modification done by kiwi
+            # Any subsequent call of the grub config tool will overwrite
+            # the setup and disables dynamic EFI environment checking
+            # at boot time
+            with open(config_file) as grub_config_file:
+                grub_config = grub_config_file.read()
+                grub_config = re.sub(
+                    r'([ \t]+)linux(efi|16)*([ \t]+)', r'\1$linux\3',
+                    grub_config
+                )
+                grub_config = re.sub(
+                    r'([ \t]+)initrd(efi|16)*([ \t]+)', r'\1$initrd\3',
+                    grub_config
+                )
+            with open(config_file, 'w') as grub_config_file:
+                grub_config_file.write(
+                    Template(self.grub2.header_hybrid).substitute()
+                )
+                grub_config_file.write(grub_config)
+
+    def _fix_grub_root_device_reference(self, config_file, boot_options):
+        if self.root_reference:
+            if self.root_filesystem_is_overlay or \
+               Defaults.is_buildservice_worker():
+                # grub2-mkconfig has no idea how the correct root= setup is
+                # for disk images created with overlayroot enabled or in a
+                # buildservice worker environment. Because of that the mkconfig
+                # tool just finds the raw partition loop device and includes it
+                # which is wrong. In this particular case we have to patch the
+                # written config file and replace the wrong root= reference with
+                # the correct value.
+                with open(config_file) as grub_config_file:
+                    grub_config = grub_config_file.read()
+                    grub_config = grub_config.replace(
+                        'root={0}'.format(boot_options.get('root_device')),
+                        self.root_reference
+                    )
+                with open(config_file, 'w') as grub_config_file:
+                    grub_config_file.write(grub_config)
+
+                if self.firmware.efi_mode():
+                    vendor_grubenv_file = \
+                        Defaults.get_vendor_grubenv(self.efi_mount.mountpoint)
+                    if vendor_grubenv_file:
+                        with open(vendor_grubenv_file) as vendor_grubenv:
+                            grubenv = vendor_grubenv.read()
+                            grubenv = grubenv.replace(
+                                'root={0}'.format(
+                                    boot_options.get('root_device')
+                                ),
+                                self.root_reference
+                            )
+                        with open(vendor_grubenv_file, 'w') as vendor_grubenv:
+                            vendor_grubenv.write(grubenv)
+
+    def _fix_grub_loader_entries_boot_cmdline(self):
+        if self.cmdline:
+            # For distributions that follows the bootloader spec here:
+            # https://www.freedesktop.org/wiki/Specifications/BootLoaderSpec
+            # the menu entries are managed in extra files written to
+            # boot/loader/entries. The grub2-mkconfig tool imports the
+            # information from there and has no own menu entries data
+            # in grub.cfg anymore. Unfortunately the system that writes
+            # those new boot/loader/entries has several issues. It produces
+            # a complete mess when used in chroot environments. In such
+            # an environment it takes the proc/cmdline data from the host
+            # that built the image and completely ignores the setup of
+            # the image description. Overall for image building the
+            # tooling is completely broken and we are forced to patch the
+            # entire cmdline for the menuentries on such systems.
+            loader_entries_pattern = os.sep.join(
+                [
+                    self.root_mount.mountpoint,
+                    'boot', 'loader', 'entries', '*.conf'
+                ]
+            )
+            for menu_entry_file in glob.iglob(loader_entries_pattern):
+                with open(menu_entry_file) as grub_menu_entry_file:
+                    menu_entry = grub_menu_entry_file.read()
+                    menu_entry = re.sub(
+                        r'options (.*)',
+                        r'options {0}'.format(self.cmdline),
+                        menu_entry
+                    )
+                with open(menu_entry_file, 'w') as grub_menu_entry_file:
+                    grub_menu_entry_file.write(menu_entry)
