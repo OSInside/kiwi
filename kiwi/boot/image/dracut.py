@@ -39,6 +39,13 @@ class BootImageDracut(BootImageBase):
 
         Initialize empty list of dracut caller options
         """
+        # signing keys are only taken into account on install of
+        # packages. As dracut runs from a pre defined root directory,
+        # no signing keys will be used in the process of creating
+        # an initrd with dracut
+        self.signing_keys = None
+
+        # Initialize empty list of dracut caller options
         self.dracut_options = []
         self.included_files = []
         self.included_files_install = []

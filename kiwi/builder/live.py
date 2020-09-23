@@ -27,7 +27,7 @@ from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.filesystem.setup import FileSystemSetup
 from kiwi.storage.loop_device import LoopDevice
-from kiwi.boot.image import BootImageDracut
+from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.system.size import SystemSize
 from kiwi.system.setup import SystemSetup
 from kiwi.firmware import FirmWare

@@ -6,6 +6,7 @@ omit =
 
 [report]
 omit =
+    */boot/image/__init__.py
     */filesystem/__init__.py
     */app.py
     */kiwi.py

@@ -14,23 +14,27 @@ class TestBootImage:
             return_value='kiwi'
         )
 
+    def test_factory_init(self):
+        with raises(TypeError):
+            BootImage()
+
     def test_boot_image_not_implemented(self):
         self.xml_state.get_initrd_system.return_value = 'foo'
         with raises(KiwiBootImageSetupError):
-            BootImage(self.xml_state, 'target_dir')
+            BootImage.new(self.xml_state, 'target_dir')
 
-    @patch('kiwi.boot.image.BootImageKiwi')
+    @patch('kiwi.boot.image.builtin_kiwi.BootImageKiwi')
     def test_boot_image_task_kiwi(self, mock_kiwi):
         self.xml_state.get_initrd_system.return_value = 'kiwi'
-        BootImage(self.xml_state, 'target_dir')
+        BootImage.new(self.xml_state, 'target_dir')
         mock_kiwi.assert_called_once_with(
             self.xml_state, 'target_dir', None, None
         )
 
-    @patch('kiwi.boot.image.BootImageDracut')
+    @patch('kiwi.boot.image.dracut.BootImageDracut')
     def test_boot_image_task_dracut(self, mock_dracut):
         self.xml_state.get_initrd_system.return_value = 'dracut'
-        BootImage(self.xml_state, 'target_dir', 'root_dir')
+        BootImage.new(self.xml_state, 'target_dir', 'root_dir')
         mock_dracut.assert_called_once_with(
             self.xml_state, 'target_dir', 'root_dir', None
         )

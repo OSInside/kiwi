@@ -121,7 +121,7 @@ class DiskBuilder:
         if custom_args and 'signing_keys' in custom_args:
             self.signing_keys = custom_args['signing_keys']
 
-        self.boot_image = BootImage(
+        self.boot_image = BootImage.new(
             xml_state, target_dir, root_dir, signing_keys=self.signing_keys
         )
         self.firmware = FirmWare(

@@ -16,15 +16,19 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from kiwi.boot.image.builtin_kiwi import BootImageKiwi
-from kiwi.boot.image.dracut import BootImageDracut
+import importlib
+from typing import List
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
 
 from kiwi.exceptions import (
     KiwiBootImageSetupError
 )
 
 
-class BootImage:
+class BootImage(metaclass=ABCMeta):
     """
     **BootImge Factory**
 
@@ -33,19 +37,35 @@ class BootImage:
     :param string root_dir: system image root directory
     :param list signing_keys: list of package signing keys
     """
-    def __new__(
-        self, xml_state, target_dir, root_dir=None, signing_keys=None
+    @abstractmethod
+    def __init__(self) -> None:
+        return None
+
+    @staticmethod
+    def new(
+        xml_state: object, target_dir: str,
+        root_dir: str=None, signing_keys: List=None  # noqa: E252
     ):
         initrd_system = xml_state.get_initrd_system()
-        if initrd_system == 'kiwi':
-            return BootImageKiwi(
-                xml_state, target_dir, None, signing_keys
+        name_map = {
+            'builtin_kiwi':
+                'BootImageKiwi' if initrd_system == 'kiwi' else None,
+            'dracut':
+                'BootImageDracut' if initrd_system == 'dracut' else None
+        }
+        for boot_image_namespace, boot_image_name in list(name_map.items()):
+            if boot_image_name:
+                break
+        try:
+            boot_image = importlib.import_module(
+                'kiwi.boot.image.{0}'.format(boot_image_namespace)
             )
-        elif initrd_system == 'dracut':
-            return BootImageDracut(
-                xml_state, target_dir, root_dir, None
+            return boot_image.__dict__[boot_image_name](
+                xml_state, target_dir, root_dir, signing_keys
             )
-        else:
+        except Exception as issue:
             raise KiwiBootImageSetupError(
-                'Support for %s initrd system not implemented' % initrd_system
+                'Support for {0} initrd system not implemented: {1}'.format(
+                    initrd_system, issue
+                )
             )

@@ -26,7 +26,7 @@ class TestKisBuilder:
         self.boot_image_task = MagicMock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd_file_name'
-        mock_boot.return_value = self.boot_image_task
+        mock_boot.new.return_value = self.boot_image_task
         self.filesystem = MagicMock()
         self.filesystem.filename = 'myimage.fs'
         self.filesystem.root_uuid = 'some_uuid'
