@@ -1,7 +1,9 @@
 import sys
-
+import logging
 from mock import patch
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from .test_helper import argv_kiwi_tests
 
@@ -15,6 +17,10 @@ from kiwi.exceptions import (
 
 
 class TestCli:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         self.help_global_args = {
             'help': False,
@@ -94,6 +100,19 @@ class TestCli:
         ]
         cli = Cli()
         assert cli.get_servicename() == 'compat'
+
+    def test_warning_on_use_of_legacy_disk_type(self):
+        sys.argv = [
+            sys.argv[0],
+            '--type', 'vmx', 'system', 'build',
+            '--description', 'description',
+            '--target-dir', 'directory'
+        ]
+        cli = Cli()
+        with self._caplog.at_level(logging.WARNING):
+            cli.get_global_args()
+            assert 'vmx type is now a subset of oem, --type set to oem' in \
+                self._caplog.text
 
     def test_get_servicename_image(self):
         sys.argv = [

@@ -65,6 +65,7 @@ global options for services: image, system
         image build type. If not set the default XML specified
         build type will be used
 """
+import logging
 import sys
 import os
 import pkg_resources
@@ -80,6 +81,8 @@ from kiwi.exceptions import (
 from kiwi.path import Path
 from kiwi.version import __version__
 from kiwi.help import Help
+
+log = logging.getLogger('kiwi')
 
 
 class Cli:
@@ -198,6 +201,11 @@ class Cli:
         result = {}
         for arg, value in list(self.all_args.items()):
             if not arg == '<command>' and not arg == '<args>':
+                if arg == '--type' and value == 'vmx':
+                    log.warning(
+                        'vmx type is now a subset of oem, --type set to oem'
+                    )
+                    value = 'oem'
                 result[arg] = value
         return result
 
