@@ -188,7 +188,6 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                 )
             return start_track * blocks
         else:
-            blocks = self._read_msdos_disk_geometry('blocks per track')
             parted_call = Command.run(
                 ['parted', '-m', self.target_device, 'unit', 's', 'print']
             )
@@ -199,7 +198,7 @@ class BootLoaderConfigZipl(BootLoaderConfigBase):
                     'unknown partition format: %s' % parted_output
                 )
             start_track = int(first_partition_format.group(1))
-            return start_track * blocks
+            return start_track
 
     def _read_msdos_disk_geometry(self, value):
         sfdisk_call = Command.run(

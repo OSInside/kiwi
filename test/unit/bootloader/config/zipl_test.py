@@ -166,7 +166,12 @@ class TestBootLoaderConfigZipl:
     def test_setup_disk_image_config_msdos_invalid_geometry(self, mock_command):
         self.bootloader.target_table_type = 'msdos'
         command_results = [
-            self.command_type(output='bogus data\n')
+            self.command_type(output='bogus data\n'),
+            self.command_type(
+                output='BYT; /dev/sda:312500000s:scsi:512:512:msdos:ATA '
+                'WDC WD1600HLFS-7; 1:2048s:251660287s:251658240s:ext4::type=83;'
+                ' 2:251660288s:312499999s:60839712s:linux-swap(v1)::type=82;'
+            )
         ]
 
         def side_effect(arg):
@@ -235,10 +240,6 @@ class TestBootLoaderConfigZipl:
                 output='BYT; /dev/sda:312500000s:scsi:512:512:msdos:ATA '
                 'WDC WD1600HLFS-7; 1:2048s:251660287s:251658240s:ext4::type=83;'
                 ' 2:251660288s:312499999s:60839712s:linux-swap(v1)::type=82;'
-            ),
-            self.command_type(
-                output='/dev/sda: 242251 cylinders, 256 heads, '
-                '63 sectors/track\n'
             )
         ]
 
@@ -256,7 +257,7 @@ class TestBootLoaderConfigZipl:
             {
                 'blocksize': '4096',
                 'initrd_file': 'initrd',
-                'offset': 129024,
+                'offset': 2048,
                 'device': '/dev/loop0',
                 'kernel_file': 'image',
                 'title': 'image-name_(_OEM_)',
