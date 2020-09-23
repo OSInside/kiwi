@@ -14,7 +14,7 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" format="qcow2">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" format="qcow2" target_blocksize="512">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
