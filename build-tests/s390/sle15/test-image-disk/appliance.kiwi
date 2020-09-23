@@ -22,11 +22,11 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="oem" filesystem="xfs" kernelcmdline="console=ttyS0 cio_ignore=all,!ipldev,!condev" format="qcow2">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" format="qcow2">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2_s390x_emu" console="serial" targettype="FBA"/>
+            <bootloader name="grub2_s390x_emu" console="serial" targettype="SCSI"/>
         </type>
     </preferences>
     <preferences profiles="PhysicalBSZ_4096">
