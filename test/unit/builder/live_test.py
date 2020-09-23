@@ -170,6 +170,7 @@ class TestLiveImageBuilder:
         )
         mock_size.return_value = rootsize
 
+        self.setup.export_package_changes.return_value = '.changes'
         self.setup.export_package_verification.return_value = '.verified'
         self.setup.export_package_list.return_value = '.packages'
 
@@ -285,6 +286,13 @@ class TestLiveImageBuilder:
                 filename='.packages',
                 use_for_bundle=True,
                 compress=False,
+                shasum=False
+            ),
+            call(
+                key='image_changes',
+                filename='.changes',
+                use_for_bundle=True,
+                compress=True,
                 shasum=False
             ),
             call(
