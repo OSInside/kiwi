@@ -49,6 +49,11 @@ class BootImageKiwi(BootImageBase):
         root filesystem which is a separate image to create
         the initrd from
         """
+        # builtin kiwi initrd builds its own root tree to create
+        # an initrd from. Thus there is no pre defined boot root
+        # directory
+        self.boot_root_directory = None
+
         self.temp_directories = []
 
     def prepare(self):

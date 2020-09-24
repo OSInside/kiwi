@@ -156,7 +156,7 @@ class TestDiskBuilder:
             kernel_name='linux.vmx',
             initrd_name='initrd.vmx'
         )
-        kiwi.builder.disk.BootImage = mock.Mock(
+        kiwi.builder.disk.BootImage.new = mock.Mock(
             return_value=self.boot_image_task
         )
         self.firmware = mock.Mock()
