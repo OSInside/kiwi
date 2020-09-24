@@ -16,50 +16,64 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from kiwi.builder.archive import ArchiveBuilder
-from kiwi.builder.filesystem import FileSystemBuilder
-from kiwi.builder.container import ContainerBuilder
-from kiwi.builder.disk import DiskBuilder
-from kiwi.builder.live import LiveImageBuilder
-from kiwi.builder.kis import KisBuilder
+import importlib
+from typing import Dict
+from abc import (
+    ABCMeta, abstractmethod
+)
 from kiwi.defaults import Defaults
-
 from kiwi.exceptions import (
     KiwiRequestedTypeError
 )
 
 
-class ImageBuilder:
+class ImageBuilder(metaclass=ABCMeta):
     """
-        image builder factory
+    Image builder factory
     """
-    def __new__(self, xml_state, target_dir, root_dir, custom_args=None):
-        requested_image_type = xml_state.get_build_type_name()
-        if requested_image_type in Defaults.get_filesystem_image_types():
-            return FileSystemBuilder(
-                xml_state, target_dir, root_dir
+    @abstractmethod
+    def __init__(self) -> None:
+        return None
+
+    @staticmethod
+    def new(
+        xml_state: object, target_dir: str,
+        root_dir: str, custom_args: Dict=None  # noqa: E252
+    ):
+        image_type = xml_state.get_build_type_name()
+        name_map = {
+            'filesystem':
+                'FileSystemBuilder' if
+                image_type in Defaults.get_filesystem_image_types() else None,
+            'disk':
+                'DiskBuilder' if
+                image_type in Defaults.get_disk_image_types() else None,
+            'live':
+                'LiveImageBuilder' if
+                image_type in Defaults.get_live_image_types() else None,
+            'kis':
+                'KisBuilder' if
+                image_type in Defaults.get_kis_image_types() else None,
+            'archive':
+                'ArchiveBuilder' if
+                image_type in Defaults.get_archive_image_types() else None,
+            'container':
+                'ContainerBuilder' if
+                image_type in Defaults.get_container_image_types() else None
+        }
+        for builder_namespace, builder_name in list(name_map.items()):
+            if builder_name:
+                break
+        try:
+            builder = importlib.import_module(
+                'kiwi.builder.{0}'.format(builder_namespace)
             )
-        elif requested_image_type in Defaults.get_disk_image_types():
-            return DiskBuilder(
+            return builder.__dict__[builder_name](
                 xml_state, target_dir, root_dir, custom_args
             )
-        elif requested_image_type in Defaults.get_live_image_types():
-            return LiveImageBuilder(
-                xml_state, target_dir, root_dir, custom_args
-            )
-        elif requested_image_type in Defaults.get_kis_image_types():
-            return KisBuilder(
-                xml_state, target_dir, root_dir, custom_args
-            )
-        elif requested_image_type in Defaults.get_archive_image_types():
-            return ArchiveBuilder(
-                xml_state, target_dir, root_dir, custom_args
-            )
-        elif requested_image_type in Defaults.get_container_image_types():
-            return ContainerBuilder(
-                xml_state, target_dir, root_dir, custom_args
-            )
-        else:
+        except Exception as issue:
             raise KiwiRequestedTypeError(
-                'requested image type %s not supported' % requested_image_type
+                'Requested image type {0} not supported: {1}'.format(
+                    image_type, issue
+                )
             )

@@ -39,23 +39,13 @@ class FileSystemBuilder:
     """
     **Filesystem image builder**
 
-    :param str label: filesystem label
-    :param str root_uuid: UUID of the created filesystem (on block device only)
-    :param str root_dir: root directory path name
+    :param obsject xml_state: Instance of :class:`XMLState`
     :param str target_dir: target directory path name
-    :param str requested_image_type: configured image type
-    :param str requested_filesystem: requested filesystem name
-    :param obejct system_setup: instance of :class:`SystemSetup`
-    :param str filename: file name of the filesystem image
-    :param int blocksize: configured disk blocksize
-    :param object filesystem_setup: instance of :class:`FileSystemSetup`
-    :param object filesystems_no_device_node: List of filesystems which are
-        created from a data tree and do not require a block device e.g loop
-    :param dict filesystem_custom_parameters: Configured custom filesystem
-        mount and creation arguments
-    :param object result: instance of :class:`Result`
+    :param str root_dir: root directory path name
+    :param dict custom_args: Custom processing arguments defined as hash keys:
+        * None
     """
-    def __init__(self, xml_state, target_dir, root_dir):
+    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
         self.label = None
         self.root_uuid = None
         self.root_dir = root_dir
