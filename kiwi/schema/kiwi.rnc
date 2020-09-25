@@ -2142,13 +2142,14 @@ div {
     ]
     k.bootloader.name.attribute =
         ## Specifies the bootloader used for booting the image.
-        ## At the moment grub2, isolinux, zipl and the combination of
-        ## zipl plus userspace grub2 are supported. The special custom
-        ## entry allows to skip the bootloader configuration and installation
-        ## and leaves this up to the user which can be done by using
-        ## the editbootinstall and editbootconfig custom scripts
+        ## At the moment grub2, isolinux, and the combination of
+        ## zipl plus userspace grub2(grub2_s390x_emu) are supported.
+        ## The special custom entry allows to skip the bootloader
+        ## configuration and installation and leaves this up to the
+        ## user which can be done by using the editbootinstall and
+        ## editbootconfig custom scripts
         attribute name {
-            "grub2" | "isolinux" | "zipl" | "grub2_s390x_emu" | "custom"
+            "grub2" | "isolinux" | "grub2_s390x_emu" | "custom"
         }
         >> sch:pattern [ id = "loader_name" is-a = "bootloader_image_type"
             sch:param [ name = "attr" value = "name" ]
@@ -2180,7 +2181,7 @@ div {
         attribute timeout { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "timeout" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "timeout" ]
-            sch:param [ name = "types" value = "grub2 isolinux zipl grub2_s390x_emu" ]
+            sch:param [ name = "types" value = "grub2 isolinux grub2_s390x_emu" ]
         ]
     k.bootloader.timeout_style.attribute =
         ## Specifies the boot timeout style to control the way in which
@@ -2196,15 +2197,14 @@ div {
             sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
         ]
     k.bootloader.targettype.attribute =
-        ## The device type of the disk zipl should boot. On zFCP
-        ## devices use SCSI, on DASD devices use CDL or LDL on
-        ## emulated DASD devices use FBA
+        ## The device type of the disk on s390. For zFCP
+        ## devices use SCSI, for  emulated DASD devices use FBA
         attribute targettype {
-            "CDL" | "LDL" | "FBA" | "SCSI"
+            "FBA" | "SCSI"
         }
         >> sch:pattern [ id = "targettype" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "targettype" ]
-            sch:param [ name = "types" value = "zipl grub2_s390x_emu" ]
+            sch:param [ name = "types" value = "grub2_s390x_emu" ]
         ]
     k.bootloader.attlist =
         k.bootloader.name.attribute &

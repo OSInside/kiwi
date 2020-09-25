@@ -1,0 +1,55 @@
+## This is the template for '@zipldir@/config' and is subject to
+## rpm's %config file handling in case of grub2-s390x-emu package update.
+
+[defaultboot]
+defaultmenu = menu
+
+[grub2]
+    target = @zipldir@
+    ramdisk = @zipldir@/initrd,0x2000000
+    image = @zipldir@/image
+    parameters = "root=@GRUB_DEVICE@ @GRUB_EMU_CONMODE@ @GRUB_CMDLINE_LINUX@ @GRUB_CMDLINE_LINUX_DEFAULT@ initgrub quiet splash=silent plymouth.enable=0 "
+
+[grub2-mem1G]
+    target = @zipldir@
+    image  = @zipldir@/image
+    ramdisk = @zipldir@/initrd,0x2000000
+    parameters = "root=@GRUB_DEVICE@ @GRUB_EMU_CONMODE@ @GRUB_CMDLINE_LINUX@ @GRUB_CMDLINE_LINUX_DEFAULT@ initgrub quiet splash=silent plymouth.enable=0 mem=1G "
+
+[skip-grub2]
+    target = @zipldir@
+    ramdisk = @zipldir@/initrd,0x2000000
+    image = @zipldir@/image
+    parameters = "root=@GRUB_DEVICE@ @GRUB_CONMODE@ @GRUB_CMDLINE_LINUX@ @GRUB_CMDLINE_LINUX_DEFAULT@ "
+#@
+#@[grub2-previous]
+#@    target = @zipldir@
+#@    image  = @zipldir@/image.prev
+#@    ramdisk = @zipldir@/initrd.prev,0x2000000
+#@    parameters = "root=@GRUB_DEVICE@ @GRUB_EMU_CONMODE@ @GRUB_CMDLINE_LINUX@ @GRUB_CMDLINE_LINUX_DEFAULT@ initgrub quiet splash=silent plymouth.enable=0 "
+#@
+#@[grub2-mem1G-previous]
+#@    target = @zipldir@
+#@    image  = @zipldir@/image.prev
+#@    ramdisk = @zipldir@/initrd.prev,0x2000000
+#@    parameters = "root=@GRUB_DEVICE@ @GRUB_EMU_CONMODE@ @GRUB_CMDLINE_LINUX@ @GRUB_CMDLINE_LINUX_DEFAULT@ initgrub quiet splash=silent plymouth.enable=0 mem=1G "
+#@
+#@[skip-grub2-previous]
+#@    target = @zipldir@
+#@    image  = @zipldir@/image.prev
+#@    ramdisk = @zipldir@/initrd.prev,0x2000000
+#@    parameters = "root=@GRUB_DEVICE@ @GRUB_CONMODE@ @GRUB_CMDLINE_LINUX@ @GRUB_CMDLINE_LINUX_DEFAULT@ "
+
+:menu
+    target = @zipldir@
+    timeout = 60
+    default = 1
+    prompt = 0
+    secure = @SUSE_SECURE_BOOT@
+    1 = grub2
+    2 = skip-grub2
+    3 = grub2-mem1G
+#@    4 = grub2-previous
+#@    5 = skip-grub2-previous
+#@    6 = grub2-mem1G-previous
+

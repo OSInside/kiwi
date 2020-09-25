@@ -145,6 +145,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.modules = ' '.join(Defaults.get_grub_ofw_modules())
             self.install_arguments.append('--skip-fs-probe')
             self.install_arguments.append('--no-nvram')
+        elif self.arch.startswith('s390'):
+            self.target = 's390x-emu'
+            self.install_device = self.device
+            self.modules = ' '.join(Defaults.get_grub_s390_modules())
+            self.install_arguments.append('--skip-fs-probe')
+            self.install_arguments.append('--no-nvram')
         else:
             raise KiwiBootLoaderGrubPlatformError(
                 'host architecture %s not supported for grub2 installation' %

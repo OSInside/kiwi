@@ -14,11 +14,11 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" format="qcow2">
+        <type image="oem" filesystem="xfs" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2_s390x_emu" console="serial" targettype="SCSI"/>
+            <bootloader name="grub2_s390x_emu" console="serial"/>
         </type>
     </preferences>
     <users>
@@ -35,6 +35,7 @@
         <package name="vim"/>
         <package name="grub2"/>
         <package name="grub2-s390x-emu"/>
+        <package name="blog"/>
         <package name="lvm2"/>
         <package name="plymouth"/>
         <package name="fontconfig"/>

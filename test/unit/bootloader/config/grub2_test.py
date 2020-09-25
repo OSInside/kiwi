@@ -104,7 +104,9 @@ class TestBootLoaderConfigGrub2:
         )
         self.bootloader = BootLoaderConfigGrub2(
             self.state, 'root_dir', None, {
-                'grub_directory_name': 'grub2', 'boot_is_crypto': True
+                'grub_directory_name': 'grub2',
+                'boot_is_crypto': True,
+                'targetbase': 'rootdev'
             }
         )
         self.bootloader.cmdline = 'some-cmdline root=UUID=foo'
@@ -188,6 +190,16 @@ class TestBootLoaderConfigGrub2:
         assert bootloader.arch == mock_machine.return_value
 
     @patch('platform.machine')
+    def test_post_init_s390_platform(self, mock_machine):
+        xml_state = MagicMock()
+        xml_state.build_type.get_firmware = Mock(
+            return_value=None
+        )
+        mock_machine.return_value = 's390x'
+        bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
+        assert bootloader.arch == mock_machine.return_value
+
+    @patch('platform.machine')
     def test_post_init_arm64_platform(self, mock_machine):
         xml_state = MagicMock()
         xml_state.build_type.get_firmware = Mock(
@@ -238,6 +250,19 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.write_meta_data()
         mock_setup_default_grub.assert_called_once_with()
         mock_setup_sysconfig_bootloader.assert_called_once_with()
+
+    @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
+    @patch.object(BootLoaderConfigGrub2, '_setup_sysconfig_bootloader')
+    @patch.object(BootLoaderConfigGrub2, '_setup_zipl2grub_conf')
+    def test_write_meta_data_s390(
+        self, mock_setup_zipl2grub_conf, mock_setup_sysconfig_bootloader,
+        mock_setup_default_grub
+    ):
+        self.bootloader.arch = 's390x'
+        self.bootloader.write_meta_data()
+        mock_setup_default_grub.assert_called_once_with()
+        mock_setup_sysconfig_bootloader.assert_called_once_with()
+        mock_setup_zipl2grub_conf.assert_called_once_with()
 
     @patch('os.path.exists')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
@@ -312,6 +337,56 @@ class TestBootLoaderConfigGrub2:
         )
         mock_shutil_copy.assert_called_once_with(
             'config_file', 'root_dir/EFI/fedora/grub.cfg'
+        )
+
+    @patch('shutil.copy')
+    @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_zipl2grub_conf(
+        self, mock_Command_run, mock_exists, mock_shutil_copy
+    ):
+        path_return_values = [True, False]
+
+        def path_exists(arg):
+            return path_return_values.pop(0)
+
+        command = Mock()
+        command.output = '  2048'
+        mock_Command_run.return_value = command
+        mock_exists.side_effect = path_exists
+        xml_state = MagicMock()
+        xml_state.get_build_type_bootloader_targettype = Mock(
+            return_value='FBA'
+        )
+        xml_state.build_type.get_target_blocksize = Mock(
+            return_value=None
+        )
+        self.bootloader.xml_state = xml_state
+        with open('../data/etc/default/zipl2grub.conf.in') as zipl_grub:
+            zipl_config = zipl_grub.read()
+        with patch('builtins.open', create=True) as mock_open:
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = zipl_config
+            self.bootloader._setup_zipl2grub_conf()
+            assert \
+                '    targettype = FBA\n' \
+                '    targetbase = rootdev\n' \
+                '    targetblocksize = 512\n' \
+                '    targetoffset = 2048' \
+                in file_handle.write.call_args[0][0]
+        mock_shutil_copy.assert_called_once_with(
+            'root_dir/etc/default/zipl2grub.conf.in',
+            'root_dir/etc/default/zipl2grub.conf.in.orig'
+        )
+        path_return_values = [True, True]
+        mock_shutil_copy.reset_mock()
+        with patch('builtins.open', create=True) as mock_open:
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = zipl_config
+            self.bootloader._setup_zipl2grub_conf()
+        mock_shutil_copy.assert_called_once_with(
+            'root_dir/etc/default/zipl2grub.conf.in.orig',
+            'root_dir/etc/default/zipl2grub.conf.in'
         )
 
     @patch('os.path.exists')
@@ -895,6 +970,39 @@ class TestBootLoaderConfigGrub2:
         mock_get_boot_path.return_value = '/boot'
         mock_machine.return_value = 'ppc64le'
         self.bootloader.arch = 'ppc64le'
+        self.firmware.efi_mode = Mock(
+            return_value=None
+        )
+        self.bootloader.xen_guest = False
+        self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
+        self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+
+        self.bootloader.setup_disk_boot_images('0815')
+
+        mock_command.assert_called_once_with(
+            [
+                'cp', 'root_dir/usr/share/grub2/unicode.pf2',
+                'root_dir/boot/grub2/fonts'
+            ]
+        )
+
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
+    @patch('os.path.exists')
+    @patch('platform.machine')
+    def test_setup_disk_boot_images_s390(
+        self, mock_machine, mock_exists, mock_sync,
+        mock_command, mock_get_boot_path
+    ):
+        mock_get_boot_path.return_value = '/boot'
+        mock_machine.return_value = 's390x'
+        self.bootloader.arch = 's390x'
         self.firmware.efi_mode = Mock(
             return_value=None
         )

@@ -46,10 +46,8 @@ class BootLoaderInstall(metaclass=ABCMeta):
         custom_args: Dict = None
     ):
         name_map = {
-            'grub2':
-                'BootLoaderInstallGrub2' if name == 'grub2' else None,
-            'zipl':
-                'BootLoaderInstallZipl' if name == 'grub2_s390x_emu' else None
+            'grub2': 'BootLoaderInstallGrub2'
+            if name == 'grub2' or name == 'grub2_s390x_emu' else None
         }
 
         for bootloader_namespace, bootloader_name in list(name_map.items()):

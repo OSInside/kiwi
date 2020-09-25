@@ -197,8 +197,6 @@ class DiskSetup:
             return True
         if self.root_filesystem_is_overlay:
             return True
-        if self.bootloader == 'grub2_s390x_emu':
-            return True
 
     def get_boot_label(self):
         """
@@ -208,10 +206,7 @@ class DiskSetup:
 
         :rtype: str
         """
-        label = 'BOOT'
-        if self.bootloader == 'grub2_s390x_emu':
-            label = 'ZIPL'
-        return label
+        return 'BOOT'
 
     def get_root_label(self):
         """

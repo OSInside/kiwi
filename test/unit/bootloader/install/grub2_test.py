@@ -227,6 +227,45 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.glob.glob')
+    def test_install_s390_emu(
+        self, mock_glob, mock_grub_path, mock_mount_manager,
+        mock_command, mock_which, mock_wipe
+    ):
+        mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
+        mock_grub_path.return_value = \
+            self.root_mount.mountpoint + '/usr/lib/grub2/s390x-emu'
+        self.bootloader.arch = 's390x'
+
+        def side_effect(device, mountpoint=None):
+            return self.mount_managers.pop()
+
+        mock_mount_manager.side_effect = side_effect
+
+        self.bootloader.install()
+        self.bootloader.root_mount.mount.assert_called_once_with()
+        self.bootloader.boot_mount.mount.assert_called_once_with()
+        mock_wipe.assert_called_once_with(
+            'tmp_root/boot/grub2/grubenv'
+        )
+        mock_command.assert_called_once_with(
+            [
+                'chroot', 'tmp_root', 'grub2-install', '--skip-fs-probe',
+                '--no-nvram', '--directory', '/usr/lib/grub2/s390x-emu',
+                '--boot-directory', '/boot',
+                '--target', 's390x-emu',
+                '--modules', ' '.join(
+                    Defaults.get_grub_s390_modules()
+                ),
+                '/dev/some-device'
+            ]
+        )
+
+    @patch('kiwi.bootloader.install.grub2.Path.wipe')
+    @patch('kiwi.bootloader.install.grub2.Path.which')
+    @patch('kiwi.bootloader.install.grub2.Command.run')
+    @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @patch('kiwi.bootloader.install.grub2.glob.glob')
     def test_install(
         self, mock_glob, mock_grub_path, mock_mount_manager,
         mock_command, mock_which, mock_wipe

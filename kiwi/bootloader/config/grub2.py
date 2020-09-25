@@ -73,6 +73,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         elif arch == 'aarch64' or arch.startswith('arm'):
             # grub2 support for efi systems
             self.arch = arch
+        elif arch.startswith('s390'):
+            # grub2 support for s390x systems
+            self.arch = arch
         else:
             raise KiwiBootLoaderGrubPlatformError(
                 'host architecture %s not supported for grub2 setup' % arch
@@ -170,6 +173,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         * cmdline arguments initialization
         * etc/default/grub setup file
+        * etc/default/zipl2grub.conf.in (s390 only)
         * etc/sysconfig/bootloader
 
         :param string root_uuid: root device UUID
@@ -186,6 +190,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         self._setup_default_grub()
         self._setup_sysconfig_bootloader()
+        if self.arch.startswith('s390'):
+            self._setup_zipl2grub_conf()
 
     def setup_disk_image_config(
         self, boot_uuid=None, root_uuid=None, hypervisor=None,
@@ -526,6 +532,45 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 log.info('--> {0}:{1}'.format(key, value))
                 sysconfig_bootloader[key] = value
             sysconfig_bootloader.write()
+
+    def _setup_zipl2grub_conf(self):
+        zipl2grub_config_file = ''.join(
+            [self.root_dir, '/etc/default/zipl2grub.conf.in']
+        )
+        zipl2grub_config_file_orig = ''.join(
+            [self.root_dir, '/etc/default/zipl2grub.conf.in.orig']
+        )
+        target_type = self.xml_state.get_build_type_bootloader_targettype()
+        target_blocksize = self.xml_state.build_type.get_target_blocksize()
+        if target_type and os.path.exists(zipl2grub_config_file):
+            if os.path.exists(zipl2grub_config_file_orig):
+                # reset the original template file first
+                shutil.copy(zipl2grub_config_file_orig, zipl2grub_config_file)
+            else:
+                # no copy of the original template, create it
+                shutil.copy(zipl2grub_config_file, zipl2grub_config_file_orig)
+            with open(zipl2grub_config_file) as zipl_config_file:
+                zipl_config = zipl_config_file.read()
+                zipl_config = re.sub(
+                    r'(:menu)',
+                    r':menu\n'
+                    r'    targettype = {0}\n'
+                    r'    targetbase = {1}\n'
+                    r'    targetblocksize = {2}\n'
+                    r'    targetoffset = {3}'.format(
+                        target_type,
+                        self.custom_args['targetbase'],
+                        target_blocksize or 512,
+                        self._get_partition_start_sector(
+                            self.custom_args['targetbase']
+                        )
+                    ),
+                    zipl_config
+                )
+            log.debug('Updated zipl template as follows')
+            with open(zipl2grub_config_file, 'w') as zipl_config_file:
+                log.debug(zipl_config)
+                zipl_config_file.write(zipl_config)
 
     def _setup_default_grub(self):  # noqa: C901
         """
@@ -1150,3 +1195,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     )
                 with open(menu_entry_file, 'w') as grub_menu_entry_file:
                     grub_menu_entry_file.write(menu_entry)
+
+    def _get_partition_start_sector(self, disk_device):
+        bash_command = ' '.join(
+            [
+                'sfdisk', '--dump', disk_device,
+                '|', 'grep', '"1 :"',
+                '|', 'cut', '-f1', '-d,',
+                '|', 'cut', '-f2', '-d='
+            ]
+        )
+        return Command.run(
+            ['bash', '-c', bash_command]
+        ).output.strip()

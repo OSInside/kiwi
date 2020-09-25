@@ -10,7 +10,7 @@
     </description>
     <profiles>
         <profile name="Virtual" description="Image for use with kvm"/>
-        <profile name="PhysicalBSZ_4096" description="Image for physical 4k storage disk CDL mode"/>
+        <profile name="Physical" description="Image for physical storage disk FBA mode"/>
     </profiles>
     <preferences>
         <version>1.15.1</version>
@@ -22,19 +22,16 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" format="qcow2">
+        <type image="oem" filesystem="xfs" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2_s390x_emu" console="serial" targettype="SCSI"/>
+            <bootloader name="grub2_s390x_emu" console="serial"/>
         </type>
     </preferences>
-    <preferences profiles="PhysicalBSZ_4096">
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0  cio_ignore=all,!ipldev,!condev" target_blocksize="4096">
-            <bootloader name="grub2_s390x_emu" console="serial" targettype="CDL"/>
-            <systemdisk>
-                <volume name="home"/>
-            </systemdisk>
+    <preferences profiles="Physical">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 cio_ignore=all,!ipldev,!condev">
+            <bootloader name="grub2_s390x_emu" console="serial" targettype="FBA"/>
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>4096</oem-swapsize>

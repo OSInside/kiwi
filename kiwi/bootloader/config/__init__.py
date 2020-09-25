@@ -46,12 +46,11 @@ class BootLoaderConfig(metaclass=ABCMeta):
         boot_dir: str = None, custom_args: Dict = None
     ):
         name_map = {
-            'grub2':
-                'BootLoaderConfigGrub2' if name == 'grub2' else None,
-            'zipl':
-                'BootLoaderConfigZipl' if name == 'grub2_s390x_emu' else None,
-            'isolinux':
-                'BootLoaderConfigIsoLinux' if name == 'isolinux' else None
+            'grub2': 'BootLoaderConfigGrub2'
+            if name == 'grub2' or name == 'grub2_s390x_emu' else None,
+
+            'isolinux': 'BootLoaderConfigIsoLinux'
+            if name == 'isolinux' else None
         }
 
         for bootloader_namespace, bootloader_name in list(name_map.items()):
