@@ -271,7 +271,7 @@ class Uri:
                 return download_link
         except Exception as e:
             raise KiwiUriOpenError(
-                '{0}: {1}'.format(type(e).__name__, format(e))
+                '{0}: {1} {2}'.format(type(e).__name__, format(e), download_link)
             )
 
     def _buildservice_path(self, name, urischeme, fragment=None):

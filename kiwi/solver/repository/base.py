@@ -132,7 +132,7 @@ class SolverRepositoryBase:
             location = urlopen(request)
         except Exception as e:
             raise KiwiUriOpenError(
-                '{0}: {1}'.format(type(e).__name__, format(e))
+                '{0}: {1} {2}'.format(type(e).__name__, format(e), os.sep.join([self._get_mime_typed_uri(), repo_source]))
             )
         with open(target, 'wb') as target_file:
             target_file.write(location.read())
