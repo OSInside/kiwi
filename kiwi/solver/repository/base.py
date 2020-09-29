@@ -118,10 +118,15 @@ class SolverRepositoryBase:
 
         :raises KiwiUriOpenError: if the download fails
         """
+        download_link = None
         try:
-            request = Request(
-                os.sep.join([self._get_mime_typed_uri(), repo_source])
+            download_link = os.sep.join(
+                [
+                    self._get_mime_typed_uri(),
+                    repo_source
+                ]
             )
+            request = Request(download_link)
             if self.user and self.secret:
                 credentials = b64encode(
                     format(':'.join([self.user, self.secret])).encode()
@@ -132,7 +137,7 @@ class SolverRepositoryBase:
             location = urlopen(request)
         except Exception as e:
             raise KiwiUriOpenError(
-                '{0}: {1}'.format(type(e).__name__, format(e))
+                '{0}: {1} {2}'.format(type(e).__name__, format(e), download_link)
             )
         with open(target, 'wb') as target_file:
             target_file.write(location.read())

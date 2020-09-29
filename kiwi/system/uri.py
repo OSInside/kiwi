@@ -252,6 +252,7 @@ class Uri:
         name_parts = name.split(os.sep)
         repository = name_parts.pop()
         project = os.sep.join(name_parts)
+        download_link = None
         try:
             download_link = os.sep.join(
                 [
@@ -271,7 +272,7 @@ class Uri:
                 return download_link
         except Exception as e:
             raise KiwiUriOpenError(
-                '{0}: {1}'.format(type(e).__name__, format(e))
+                '{0}: {1} {2}'.format(type(e).__name__, format(e), download_link)
             )
 
     def _buildservice_path(self, name, urischeme, fragment=None):
