@@ -141,7 +141,7 @@ class TestDiskBuilder:
         self.bootloader_config.get_boot_cmdline = mock.Mock(
             return_value='boot_cmdline'
         )
-        kiwi.builder.disk.BootLoaderConfig = mock.MagicMock(
+        kiwi.builder.disk.BootLoaderConfig.new = mock.MagicMock(
             return_value=self.bootloader_config
         )
         kiwi.builder.disk.DiskSetup = mock.MagicMock(

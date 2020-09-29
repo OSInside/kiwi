@@ -41,7 +41,7 @@ class TestLiveImageBuilder:
         )
 
         self.bootloader = mock.Mock()
-        kiwi.builder.live.BootLoaderConfig = mock.Mock(
+        kiwi.builder.live.BootLoaderConfig.new = mock.Mock(
             return_value=self.bootloader
         )
 
@@ -221,7 +221,7 @@ class TestLiveImageBuilder:
             config_file='root_dir/etc/dracut.conf.d/02-livecd.conf'
         )
 
-        kiwi.builder.live.BootLoaderConfig.assert_called_once_with(
+        kiwi.builder.live.BootLoaderConfig.new.assert_called_once_with(
             'grub2', self.xml_state, root_dir='root_dir',
             boot_dir='temp_media_dir', custom_args={
                 'grub_directory_name': 'grub2'
@@ -304,9 +304,9 @@ class TestLiveImageBuilder:
 
         self.firmware.efi_mode.return_value = None
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
-        kiwi.builder.live.BootLoaderConfig.reset_mock()
+        kiwi.builder.live.BootLoaderConfig.new.reset_mock()
         self.live_image.create()
-        kiwi.builder.live.BootLoaderConfig.assert_called_once_with(
+        kiwi.builder.live.BootLoaderConfig.new.assert_called_once_with(
             'isolinux', self.xml_state, root_dir='root_dir',
             boot_dir='temp_media_dir'
         )

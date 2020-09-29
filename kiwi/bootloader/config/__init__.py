@@ -15,17 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
-from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
-from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
-from kiwi.bootloader.config.zipl import BootLoaderConfigZipl
+import importlib
+from typing import Dict
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
 
 from kiwi.exceptions import (
     KiwiBootLoaderConfigSetupError
 )
 
 
-class BootLoaderConfig:
+class BootLoaderConfig(metaclass=ABCMeta):
     """
     **BootLoaderConfig factory**
 
@@ -34,22 +36,35 @@ class BootLoaderConfig:
     :param string root_dir: root directory path name
     :param dict custom_args: custom bootloader config arguments dictionary
     """
-    def __new__(
-        self, name, xml_state, root_dir, boot_dir=None, custom_args=None
+    @abstractmethod
+    def __init__(self) -> None:
+        return None                     # pragma: no cover
+
+    @staticmethod
+    def new(
+        name: str, xml_state: object, root_dir: str,
+        boot_dir: str = None, custom_args: Dict = None
     ):
-        if name == 'grub2':
-            return BootLoaderConfigGrub2(
+        name_map = {
+            'grub2':
+                'BootLoaderConfigGrub2' if name == 'grub2' else None,
+            'zipl':
+                'BootLoaderConfigZipl' if name == 'grub2_s390x_emu' else None,
+            'isolinux':
+                'BootLoaderConfigIsoLinux' if name == 'isolinux' else None
+        }
+
+        for bootloader_namespace, bootloader_name in list(name_map.items()):
+            if bootloader_name:
+                break
+        try:
+            booloader_config = importlib.import_module(
+                'kiwi.bootloader.config.{}'.format(bootloader_namespace)
+            )
+            return booloader_config.__dict__[bootloader_name](
                 xml_state, root_dir, boot_dir, custom_args
             )
-        elif name == 'grub2_s390x_emu':
-            return BootLoaderConfigZipl(
-                xml_state, root_dir, boot_dir, custom_args
-            )
-        elif name == 'isolinux':
-            return BootLoaderConfigIsoLinux(
-                xml_state, root_dir, boot_dir, custom_args
-            )
-        else:
+        except Exception:
             raise KiwiBootLoaderConfigSetupError(
-                'Support for %s bootloader config not implemented' % name
+                'Support for {} bootloader config not implemented'.format(name)
             )

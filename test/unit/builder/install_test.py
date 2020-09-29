@@ -46,7 +46,7 @@ class TestInstallImageBuilder:
             return_value=self.mbrid
         )
         kiwi.builder.install.Path = mock.Mock()
-        kiwi.builder.install.BootLoaderConfig = mock.Mock()
+        kiwi.builder.install.BootLoaderConfig.new = mock.Mock()
         self.checksum = mock.Mock()
         kiwi.builder.install.Checksum = mock.Mock(
             return_value=self.checksum
@@ -110,7 +110,7 @@ class TestInstallImageBuilder:
         )
         assert install_image.arch == 'ix86'
 
-    @patch('kiwi.builder.install.BootLoaderConfig')
+    @patch('kiwi.builder.install.BootLoaderConfig.new')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.shutil.copy')
     @patch('kiwi.builder.install.mkdtemp')

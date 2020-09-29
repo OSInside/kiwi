@@ -195,7 +195,7 @@ class InstallImageBuilder:
             # This also embedds an MBR and the respective BIOS modules
             # for compat boot. The complete bootloader setup will be
             # based on grub
-            bootloader_config = BootLoaderConfig(
+            bootloader_config = BootLoaderConfig.new(
                 'grub2', self.xml_state, root_dir=self.root_dir,
                 boot_dir=self.media_dir, custom_args={
                     'grub_directory_name':
@@ -210,7 +210,7 @@ class InstallImageBuilder:
             # setup bootloader config to boot the ISO via isolinux.
             # This allows for booting on x86 platforms in BIOS mode
             # only.
-            bootloader_config = BootLoaderConfig(
+            bootloader_config = BootLoaderConfig.new(
                 'isolinux', self.xml_state, root_dir=self.root_dir,
                 boot_dir=self.media_dir
             )
