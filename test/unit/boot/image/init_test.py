@@ -14,10 +14,6 @@ class TestBootImage:
             return_value='kiwi'
         )
 
-    def test_factory_init(self):
-        with raises(TypeError):
-            BootImage()
-
     def test_boot_image_not_implemented(self):
         self.xml_state.get_initrd_system.return_value = 'foo'
         with raises(KiwiBootImageSetupError):

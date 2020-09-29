@@ -33,7 +33,7 @@ class ImageBuilder(metaclass=ABCMeta):
     """
     @abstractmethod
     def __init__(self) -> None:
-        return None
+        return None  # pragma: no cover
 
     @staticmethod
     def new(

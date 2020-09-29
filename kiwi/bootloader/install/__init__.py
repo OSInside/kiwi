@@ -38,7 +38,7 @@ class BootLoaderInstall(metaclass=ABCMeta):
     """
     @abstractmethod
     def __init__(self) -> None:
-        return None                     # pragma: no cover
+        return None  # pragma: no cover
 
     @staticmethod
     def new(

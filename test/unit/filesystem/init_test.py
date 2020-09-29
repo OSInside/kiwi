@@ -12,10 +12,6 @@ class TestFileSystem:
         with raises(KiwiFileSystemSetupError):
             FileSystem.new('foo', Mock(), 'root_dir')
 
-    def test_factory_init(self):
-        with raises(TypeError):
-            FileSystem()
-
     @patch('kiwi.filesystem.ext2.FileSystemExt2')
     def test_filesystem_ext2(self, mock_ext2):
         provider = Mock()

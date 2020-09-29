@@ -9,10 +9,6 @@ from kiwi.exceptions import KiwiRequestedTypeError
 
 
 class TestImageBuilder:
-    def test_factory_init(self):
-        with raises(TypeError):
-            ImageBuilder()
-
     @patch('kiwi.builder.filesystem.FileSystemBuilder')
     def test_filesystem_builder(self, mock_builder):
         xml_state = Mock()
