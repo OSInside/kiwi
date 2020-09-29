@@ -244,7 +244,8 @@ class TestRepositoryZypper:
         mock_Path_create.assert_called_once_with('../data/var/lib')
         mock_Command_run.assert_called_once_with(
             [
-                'ln', '-s', '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
+                'ln', '-s', '--no-target-directory',
+                '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
             ], raise_on_error=False
         )
         mock_Command_run.reset_mock()
@@ -276,7 +277,8 @@ class TestRepositoryZypper:
         mock_Path_create.assert_called_once_with('../data/var/lib')
         mock_Command_run.assert_called_once_with(
             [
-                'ln', '-s', '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
+                'ln', '-s', '--no-target-directory',
+                '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
             ], raise_on_error=False
         )
 
