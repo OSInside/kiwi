@@ -118,6 +118,7 @@ class SolverRepositoryBase:
 
         :raises KiwiUriOpenError: if the download fails
         """
+        download_link = None
         try:
             download_link = os.sep.join(
                 [

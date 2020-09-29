@@ -252,6 +252,7 @@ class Uri:
         name_parts = name.split(os.sep)
         repository = name_parts.pop()
         project = os.sep.join(name_parts)
+        download_link = None
         try:
             download_link = os.sep.join(
                 [
