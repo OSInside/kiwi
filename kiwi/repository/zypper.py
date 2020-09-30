@@ -201,7 +201,8 @@ class RepositoryZypper(RepositoryBase):
             )
             Command.run(
                 [
-                    'ln', '-s', ''.join(['../..', host_rpm_dbpath]),
+                    'ln', '-s', '--no-target-directory',
+                    ''.join(['../..', host_rpm_dbpath]),
                     self.root_dir + image_rpm_compat_link
                 ], raise_on_error=False
             )
