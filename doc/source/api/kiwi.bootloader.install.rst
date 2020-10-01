@@ -22,14 +22,6 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.bootloader.install.zipl` Module
--------------------------------------
-
-.. automodule:: kiwi.bootloader.install.zipl
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. _db_kiwi_bootloader_install_contents:
 
 Module Contents

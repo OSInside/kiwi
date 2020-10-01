@@ -113,11 +113,6 @@ class TestDiskSetup:
         self.setup.filesystem = 'xfs'
         assert self.setup.need_boot_partition() is True
 
-    def test_need_boot_partition_grub2_s390x_emu(self):
-        self._init_bootpart_check()
-        self.setup.bootloader = 'grub2_s390x_emu'
-        assert self.setup.need_boot_partition() is True
-
     def test_boot_partition_size(self):
         self.setup.bootpart_requested = True
         assert self.setup.boot_partition_size() == \
@@ -216,8 +211,6 @@ class TestDiskSetup:
 
     def test_get_boot_label(self):
         assert self.setup.get_boot_label() == 'BOOT'
-        self.setup.bootloader = 'grub2_s390x_emu'
-        assert self.setup.get_boot_label() == 'ZIPL'
 
     def test_get_efi_label(self):
         assert self.setup.get_efi_label() == 'EFI'

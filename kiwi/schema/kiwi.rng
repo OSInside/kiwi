@@ -3294,15 +3294,15 @@ references file names in linux lib directories to keep.</a:documentation>
     <define name="k.bootloader.name.attribute">
       <attribute name="name">
         <a:documentation>Specifies the bootloader used for booting the image.
-At the moment grub2, isolinux, zipl and the combination of
-zipl plus userspace grub2 are supported. The special custom
-entry allows to skip the bootloader configuration and installation
-and leaves this up to the user which can be done by using
-the editbootinstall and editbootconfig custom scripts</a:documentation>
+At the moment grub2, isolinux, and the combination of
+zipl plus userspace grub2(grub2_s390x_emu) are supported.
+The special custom entry allows to skip the bootloader
+configuration and installation and leaves this up to the
+user which can be done by using the editbootinstall and
+editbootconfig custom scripts</a:documentation>
         <choice>
           <value>grub2</value>
           <value>isolinux</value>
-          <value>zipl</value>
           <value>grub2_s390x_emu</value>
           <value>custom</value>
         </choice>
@@ -3345,7 +3345,7 @@ to 10sec</a:documentation>
       </attribute>
       <sch:pattern id="timeout" is-a="bootloader_name_type">
         <sch:param name="attr" value="timeout"/>
-        <sch:param name="types" value="grub2 isolinux zipl grub2_s390x_emu"/>
+        <sch:param name="types" value="grub2 isolinux grub2_s390x_emu"/>
       </sch:pattern>
     </define>
     <define name="k.bootloader.timeout_style.attribute">
@@ -3367,19 +3367,16 @@ is displayed. The attribute is available for the grub loader.</a:documentation>
     </define>
     <define name="k.bootloader.targettype.attribute">
       <attribute name="targettype">
-        <a:documentation>The device type of the disk zipl should boot. On zFCP
-devices use SCSI, on DASD devices use CDL or LDL on
-emulated DASD devices use FBA</a:documentation>
+        <a:documentation>The device type of the disk on s390. For zFCP
+devices use SCSI, for  emulated DASD devices use FBA</a:documentation>
         <choice>
-          <value>CDL</value>
-          <value>LDL</value>
           <value>FBA</value>
           <value>SCSI</value>
         </choice>
       </attribute>
       <sch:pattern id="targettype" is-a="bootloader_name_type">
         <sch:param name="attr" value="targettype"/>
-        <sch:param name="types" value="zipl grub2_s390x_emu"/>
+        <sch:param name="types" value="grub2_s390x_emu"/>
       </sch:pattern>
     </define>
     <define name="k.bootloader.attlist">

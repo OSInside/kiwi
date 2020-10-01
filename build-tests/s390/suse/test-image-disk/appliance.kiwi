@@ -14,11 +14,8 @@
         <locale>en_US</locale>
         <keytable>us</keytable>
         <timezone>Europe/Berlin</timezone>
-        <type image="oem" filesystem="xfs" kernelcmdline="cio_ignore=all,!ipldev,!condev">
+        <type image="oem" filesystem="ext4" kernelcmdline="cio_ignore=all,!ipldev,!condev">
             <bootloader name="grub2_s390x_emu" console="serial" targettype="FBA"/>
-            <systemdisk>
-                <volume name="home"/>
-            </systemdisk>
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>4096</oem-swapsize>
@@ -41,6 +38,7 @@
         <package name="s390-tools"/>
         <package name="grub2-s390x-emu"/>
         <package name="grub2"/>
+        <package name="blog"/>
         <package name="lvm2"/>
         <package name="tar"/>
         <package name="parted"/>

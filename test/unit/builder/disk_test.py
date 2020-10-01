@@ -644,10 +644,6 @@ class TestDiskBuilder:
 
         self.bootloader_config.write.assert_called_once_with()
 
-        assert mock_fs.call_args_list[1] == call(
-            'ext2', self.device_map['boot'], 'root_dir/boot/zipl/'
-        )
-
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')

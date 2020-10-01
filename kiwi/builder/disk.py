@@ -647,10 +647,7 @@ class DiskBuilder:
             exclude_list.append(
                 '{0}/.*'.format(self.spare_part_mountpoint.lstrip(os.sep))
             )
-        if 'boot' in device_map and self.bootloader == 'grub2_s390x_emu':
-            exclude_list.append('boot/zipl/*')
-            exclude_list.append('boot/zipl/.*')
-        elif 'boot' in device_map:
+        if 'boot' in device_map:
             exclude_list.append('boot/*')
             exclude_list.append('boot/.*')
         if 'efi' in device_map:
@@ -702,9 +699,6 @@ class DiskBuilder:
             if not boot_filesystem:
                 boot_filesystem = self.requested_filesystem
             boot_directory = self.root_dir + '/boot/'
-            if self.bootloader == 'grub2_s390x_emu':
-                boot_directory = self.root_dir + '/boot/zipl/'
-                boot_filesystem = 'ext2'
             log.info(
                 'Creating boot(%s) filesystem on %s',
                 boot_filesystem, device_map['boot'].get_device()
@@ -895,10 +889,7 @@ class DiskBuilder:
             custom_root_mount_args, fs_check_interval
         )
         if device_map.get('boot'):
-            if self.bootloader == 'grub2_s390x_emu':
-                boot_mount_point = '/boot/zipl'
-            else:
-                boot_mount_point = '/boot'
+            boot_mount_point = '/boot'
             self._add_generic_fstab_entry(
                 device_map['boot'].get_device(), boot_mount_point
             )
