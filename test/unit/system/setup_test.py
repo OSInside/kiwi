@@ -29,7 +29,13 @@ class TestSystemSetup:
         self._caplog = caplog
 
     @patch('platform.machine')
-    def setup(self, mock_machine):
+    @patch('kiwi.system.setup.RuntimeConfig')
+    def setup(self, mock_RuntimeConfig, mock_machine):
+        self.runtime_config = Mock()
+        self.runtime_config.get_package_changes = Mock(
+            return_value=True
+        )
+        mock_RuntimeConfig.return_value = self.runtime_config
         mock_machine.return_value = 'x86_64'
         self.xml_state = MagicMock()
         self.xml_state.get_package_manager = Mock(
@@ -1095,6 +1101,7 @@ class TestSystemSetup:
                 '%{NAME}|\\n', '--changelog', '--dbpath', 'image_dbpath'
             ]
         )
+        self.runtime_config.get_package_changes.assert_called_once_with()
 
     @patch('kiwi.system.setup.Command.run')
     @patch('os.path.exists')
@@ -1126,6 +1133,7 @@ class TestSystemSetup:
                 call('package_b|\n'),
                 call('changes\n')
             ]
+        self.runtime_config.get_package_changes.assert_called_once_with()
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')

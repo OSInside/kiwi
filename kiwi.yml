@@ -25,6 +25,10 @@
 #  # Specify if the bundle tarball should contain compressed results.
 #  # Note: already compressed result information will not be touched
 #  - compress: false
+#  # Specify if the image build result and bundle should contain
+#  # a .changes file. The .changes file contains the package changelog
+#  # information from all packages installed into the image.
+#  - has_package_changes: false
 
 
 # Setup behaviour of XZ compressor

@@ -26,6 +26,7 @@ from tempfile import NamedTemporaryFile
 # project
 import kiwi.defaults as defaults
 
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.mount_manager import MountManager
 from kiwi.system.uri import Uri
 from kiwi.repository import Repository
@@ -73,6 +74,7 @@ class SystemSetup:
     """
 
     def __init__(self, xml_state, root_dir):
+        self.runtime_config = RuntimeConfig()
         self.arch = Defaults.get_platform_name()
         self.xml_state = xml_state
         self.description_dir = \
@@ -527,24 +529,25 @@ class SystemSetup:
 
         :param str target_dir: path name
         """
-        filename = ''.join(
-            [
-                target_dir, '/',
-                self.xml_state.xml_data.get_name(),
-                '.' + self.arch,
-                '-' + self.xml_state.get_image_version(),
-                '.changes'
-            ]
-        )
-        packager = Defaults.get_default_packager_tool(
-            self.xml_state.get_package_manager()
-        )
-        if packager == 'rpm':
-            self._export_rpm_package_changes(filename)
-            return filename
-        elif packager == 'dpkg':
-            self._export_deb_package_changes(filename)
-            return filename
+        if self.runtime_config.get_package_changes():
+            filename = ''.join(
+                [
+                    target_dir, '/',
+                    self.xml_state.xml_data.get_name(),
+                    '.' + self.arch,
+                    '-' + self.xml_state.get_image_version(),
+                    '.changes'
+                ]
+            )
+            packager = Defaults.get_default_packager_tool(
+                self.xml_state.get_package_manager()
+            )
+            if packager == 'rpm':
+                self._export_rpm_package_changes(filename)
+                return filename
+            elif packager == 'dpkg':
+                self._export_deb_package_changes(filename)
+                return filename
 
     def export_package_verification(self, target_dir):
         """
