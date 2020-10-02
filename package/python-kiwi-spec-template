@@ -272,7 +272,7 @@ Summary:        KIWI - Dracut module for oem(repart) image type
 # to set up the build environment...
 BuildRequires:  dracut
 %endif
-Requires:       dracut-kiwi-lib
+Requires:       dracut-kiwi-lib = %{version}
 License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
@@ -289,7 +289,7 @@ Summary:        KIWI - Dracut module for oem(install) image type
 # to set up the build environment...
 BuildRequires:  dracut
 %endif
-Requires:       dracut-kiwi-lib
+Requires:       dracut-kiwi-lib = %{version}
 Requires:       kexec-tools
 Requires:       gawk
 Requires:       kpartx

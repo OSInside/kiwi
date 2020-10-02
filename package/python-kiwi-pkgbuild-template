@@ -42,14 +42,14 @@ package_dracut-kiwi-lib(){
 }
 
 package_dracut-kiwi-oem-repart(){
-  depends=(dracut-kiwi-lib)
+  depends=(dracut-kiwi-lib=${pkgver})
   cd kiwi-${pkgver}
   install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-repart
   cp -a dracut/modules.d/90kiwi-repart ${pkgdir}/usr/lib/dracut/modules.d/
 }
 
 package_dracut-kiwi-oem-dump(){
-  depends=(dracut-kiwi-lib multipath-tools)
+  depends=(dracut-kiwi-lib=${pkgver} multipath-tools)
   cd kiwi-${pkgver}
   install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-dump
   cp -a dracut/modules.d/90kiwi-dump ${pkgdir}/usr/lib/dracut/modules.d/
