@@ -157,6 +157,15 @@ class ContainerBuilder:
             shasum=False
         )
         self.result.add(
+            key='image_changes',
+            filename=self.system_setup.export_package_changes(
+                self.target_dir
+            ),
+            use_for_bundle=True,
+            compress=True,
+            shasum=False
+        )
+        self.result.add(
             key='image_verified',
             filename=self.system_setup.export_package_verification(
                 self.target_dir

@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+import io
 from mock import (
     patch, call, Mock, MagicMock, mock_open
 )
@@ -28,7 +29,13 @@ class TestSystemSetup:
         self._caplog = caplog
 
     @patch('platform.machine')
-    def setup(self, mock_machine):
+    @patch('kiwi.system.setup.RuntimeConfig')
+    def setup(self, mock_RuntimeConfig, mock_machine):
+        self.runtime_config = Mock()
+        self.runtime_config.get_package_changes = Mock(
+            return_value=True
+        )
+        mock_RuntimeConfig.return_value = self.runtime_config
         mock_machine.return_value = 'x86_64'
         self.xml_state = MagicMock()
         self.xml_state.get_package_manager = Mock(
@@ -1060,7 +1067,73 @@ class TestSystemSetup:
             )
 
         assert result == 'target_dir/some-image.x86_64-1.2.3.packages'
-        mock_command.assert_called_once_with(['pacman', '-Qe'])
+        mock_command.assert_called_once_with(
+            ['pacman', '--query', '--dbpath', 'root_dir/var/lib/pacman']
+        )
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch('kiwi.system.setup.RpmDataBase')
+    @patch('kiwi.system.setup.MountManager')
+    def test_export_package_changes_rpm(
+        self, mock_MountManager, mock_RpmDataBase, mock_command
+    ):
+        rpmdb = Mock()
+        rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
+        rpmdb.rpmdb_host.expand_query.return_value = 'host_dbpath'
+        rpmdb.has_rpm.return_value = True
+        mock_RpmDataBase.return_value = rpmdb
+        command = Mock()
+        command.output = 'package|\nchanges'
+        mock_command.return_value = command
+
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            result = self.setup.export_package_changes('target_dir')
+            mock_open.assert_called_once_with(
+                'target_dir/some-image.x86_64-1.2.3.changes', 'w',
+                encoding='utf-8'
+            )
+
+        assert result == 'target_dir/some-image.x86_64-1.2.3.changes'
+        mock_command.assert_called_once_with(
+            [
+                'rpm', '--root', 'root_dir', '-qa', '--qf',
+                '%{NAME}|\\n', '--changelog', '--dbpath', 'image_dbpath'
+            ]
+        )
+        self.runtime_config.get_package_changes.assert_called_once_with()
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch('os.path.exists')
+    @patch('os.listdir')
+    def test_export_package_changes_dpkg(
+        self, mock_os_listdir, mock_os_path_exists, mock_command
+    ):
+        command = Mock()
+        command.output = 'changes'
+        mock_command.return_value = command
+        self.xml_state.get_package_manager = Mock(
+            return_value='apt-get'
+        )
+        mock_os_listdir.return_value = ['package_b', 'package_a']
+        mock_os_path_exists.return_value = True
+
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            result = self.setup.export_package_changes('target_dir')
+            file_handle = mock_open.return_value.__enter__.return_value
+            mock_open.assert_called_once_with(
+                'target_dir/some-image.x86_64-1.2.3.changes', 'w',
+                encoding='utf-8'
+            )
+            assert result == 'target_dir/some-image.x86_64-1.2.3.changes'
+            assert file_handle.write.call_args_list == [
+                call('package_a|\n'),
+                call('changes\n'),
+                call('package_b|\n'),
+                call('changes\n')
+            ]
+        self.runtime_config.get_package_changes.assert_called_once_with()
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')

@@ -119,6 +119,7 @@ class TestContainerBuilder:
         )
         mock_image.return_value = container_image
         self.setup.export_package_verification.return_value = '.verified'
+        self.setup.export_package_changes.return_value = '.changes'
         self.setup.export_package_list.return_value = '.packages'
         self.container.base_image = None
         self.container.create()
@@ -145,6 +146,13 @@ class TestContainerBuilder:
                 filename='.packages',
                 use_for_bundle=True,
                 compress=False,
+                shasum=False
+            ),
+            call(
+                key='image_changes',
+                filename='.changes',
+                use_for_bundle=True,
+                compress=True,
                 shasum=False
             ),
             call(
@@ -193,6 +201,7 @@ class TestContainerBuilder:
         )
         mock_checksum.return_value = checksum
 
+        self.setup.export_package_changes.return_value = '.changes'
         self.setup.export_package_verification.return_value = '.verified'
         self.setup.export_package_list.return_value = '.packages'
 
@@ -223,6 +232,13 @@ class TestContainerBuilder:
                 filename='.packages',
                 use_for_bundle=True,
                 compress=False,
+                shasum=False
+            ),
+            call(
+                key='image_changes',
+                filename='.changes',
+                use_for_bundle=True,
+                compress=True,
                 shasum=False
             ),
             call(

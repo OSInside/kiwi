@@ -94,6 +94,37 @@ class RuntimeConfig:
             obs_public = True
         return bool(obs_public)
 
+    def get_package_changes(self, default=True):
+        """
+        Return boolean value to express if the image build and bundle
+        should contain a .changes file. The .changes file contains
+        the package changelog information from all packages installed
+        into the image.
+
+        bundle:
+          - has_package_changes: true|false
+
+        By default the creation is switched on.
+        When building in the Open Build Service the default is
+        switched off because obs provides a .report file containing
+        the same information.
+
+        :param bool default: Default value
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        bundle_package_changes = self._get_attribute(
+            element='bundle', attribute='has_package_changes'
+        )
+        if bundle_package_changes is None:
+            if Defaults.is_buildservice_worker():
+                bundle_package_changes = False
+            else:
+                bundle_package_changes = default
+        return bool(bundle_package_changes)
+
     def get_bundle_compression(self, default=True):
         """
         Return boolean value to express if the image bundle should

@@ -26,6 +26,7 @@ from tempfile import NamedTemporaryFile
 # project
 import kiwi.defaults as defaults
 
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.mount_manager import MountManager
 from kiwi.system.uri import Uri
 from kiwi.repository import Repository
@@ -73,6 +74,7 @@ class SystemSetup:
     """
 
     def __init__(self, xml_state, root_dir):
+        self.runtime_config = RuntimeConfig()
         self.arch = Defaults.get_platform_name()
         self.xml_state = xml_state
         self.description_dir = \
@@ -519,6 +521,33 @@ class SystemSetup:
         elif packager == 'pacman':
             self._export_pacman_package_list(filename)
             return filename
+
+    def export_package_changes(self, target_dir):
+        """
+        Export image package changelog for comparision of
+        actual changes of the installed packages
+
+        :param str target_dir: path name
+        """
+        if self.runtime_config.get_package_changes():
+            filename = ''.join(
+                [
+                    target_dir, '/',
+                    self.xml_state.xml_data.get_name(),
+                    '.' + self.arch,
+                    '-' + self.xml_state.get_image_version(),
+                    '.changes'
+                ]
+            )
+            packager = Defaults.get_default_packager_tool(
+                self.xml_state.get_package_manager()
+            )
+            if packager == 'rpm':
+                self._export_rpm_package_changes(filename)
+                return filename
+            elif packager == 'dpkg':
+                self._export_deb_package_changes(filename)
+                return filename
 
     def export_package_verification(self, target_dir):
         """
@@ -1079,7 +1108,12 @@ class SystemSetup:
 
     def _export_pacman_package_list(self, filename):
         log.info('Export pacman packages metadata')
-        query_call = Command.run(['pacman', '-Qe'])
+        query_call = Command.run(
+            [
+                'pacman', '--query', '--dbpath',
+                os.sep.join([self.root_dir, 'var/lib/pacman'])
+            ]
+        )
         with open(filename, 'w') as packages:
             for line in query_call.output.splitlines():
                 package, _, version_release = line.partition(' ')
@@ -1089,6 +1123,41 @@ class SystemSetup:
                         package, version, release, os.linesep
                     )
                 ])
+
+    def _export_rpm_package_changes(self, filename):
+        log.info('Export rpm packages changelog metadata')
+        dbpath_option = [
+            '--dbpath', self._get_rpm_database_location()
+        ]
+        query_call = Command.run(
+            [
+                'rpm', '--root', self.root_dir,
+                '-qa', '--qf', '%{NAME}|\\n', '--changelog'
+            ] + dbpath_option
+        )
+        with open(filename, 'w', encoding='utf-8') as changelog:
+            changelog.write(query_call.output)
+
+    def _export_deb_package_changes(self, filename):
+        log.info('Export deb packages changelog metadata')
+        package_doc_dir = os.sep.join(
+            [self.root_dir, '/usr/share/doc']
+        )
+        with open(filename, 'w', encoding='utf-8') as changelog:
+            for package in sorted(os.listdir(package_doc_dir)):
+                changelog_file = os.sep.join(
+                    [package_doc_dir, package, 'changelog.Debian.gz']
+                )
+                if os.path.exists(changelog_file):
+                    changelog.write(
+                        '{0}{1}{2}'.format(package, '|', os.linesep)
+                    )
+                    changelog.write(
+                        '{0}{1}'.format(
+                            Command.run(['zcat', changelog_file]).output,
+                            os.linesep
+                        )
+                    )
 
     def _export_rpm_package_verification(self, filename):
         log.info('Export rpm verification metadata')

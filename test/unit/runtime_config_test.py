@@ -115,3 +115,20 @@ class TestRuntimeConfig:
             'check_dracut_module_for_oem_install_in_package_list',
             'check_container_tool_chain_installed'
         ]
+
+    def test_get_package_changes_default(self):
+        assert self.runtime_config.get_package_changes() is True
+
+    @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
+    def test_get_packages_changes_default_for_obs(
+        self, mock_is_buildservice_worker
+    ):
+        mock_is_buildservice_worker.return_value = True
+        assert self.runtime_config.get_package_changes() is False
+
+    @patch.object(RuntimeConfig, '_get_attribute')
+    def test_get_packages_changes_explicit_setup(self, mock_get_attribute):
+        mock_get_attribute.return_value = False
+        assert self.runtime_config.get_package_changes() is False
+        mock_get_attribute.return_value = True
+        assert self.runtime_config.get_package_changes() is True
