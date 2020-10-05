@@ -137,9 +137,6 @@ second the location of the XSD Schema
       <attribute name="id">
         <a:documentation>An identification number which is represented in a file
 named /etc/ImageID</a:documentation>
-        <data type="string">
-          <param name="length">10</param>
-        </data>
       </attribute>
     </define>
     <define name="k.image.attlist">
