@@ -189,6 +189,14 @@ the available kernel boot parameters for this modules:
   OS deployment is `/dev/sdj`. With `rd.kiwi.oem.maxdisk=500G` the
   deployment will land on that RAID disk.
 
+``rd.live.overlay.size``
+  Tells a live ISO image the size for the `tmpfs` filesystem that is used
+  for the `overlayfs` mount process. If the write area of the overlayfs
+  mount uses this tmpfs, any new data written during the runtime of
+  the system will fillup this space. The default value used is set
+  to `50%` which means one half of the available RAM space can be used
+  for writing new data.
+
 ``rd.live.overlay.persistent``
   Tells a live ISO image to prepare a persistent
   write partition.

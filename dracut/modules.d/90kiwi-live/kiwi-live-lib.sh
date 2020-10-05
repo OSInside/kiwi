@@ -1,6 +1,20 @@
 #!/bin/bash
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
+function getOverlayBaseDirectory {
+    # initialize and print overlay base directory below which
+    # the iso and overlayfs based mountpoints are managed
+    local overlay_base=/run/overlay
+    local overlay_size
+    mkdir -p "${overlay_base}"
+    if ! mountpoint -q "${overlay_base}";then
+        overlay_size=$(getarg rd.live.overlay.size)
+        [ -z "${overlay_size}" ] && overlay_size="50%"
+        mount -t tmpfs -o "size=${overlay_size}" tmpfs "${overlay_base}"
+    fi
+    echo "${overlay_base}"
+}
+
 function lookupIsoDiskDevice {
     local root=$1
     local iso_label=${root#/dev/disk/by-label/}
@@ -100,8 +114,10 @@ function initGlobalOptions {
 }
 
 function mountIso {
-    ln -s "${isodev}" /run/initramfs/isodev
-    local iso_mount_point=/run/initramfs/live
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
+    ln -s "${isodev}" "${overlay_base}/isodev"
+    local iso_mount_point="${overlay_base}/live"
     mkdir -m 0755 -p "${iso_mount_point}"
     if ! mount -o ro -n -t "${isofs_type}" "${isodev}" "${iso_mount_point}"; then
         die "Failed to mount live ISO device"
@@ -111,7 +127,9 @@ function mountIso {
 
 function mountCompressedContainerFromIso {
     local iso_mount_point=$1
-    local container_mount_point=/run/initramfs/squashfs_container
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
+    local container_mount_point="${overlay_base}/squashfs_container"
     squashfs_container="${iso_mount_point}/${live_dir}/${squash_image}"
     mkdir -m 0755 -p "${container_mount_point}"
     if ! mount -n "${squashfs_container}" "${container_mount_point}";then
@@ -122,8 +140,10 @@ function mountCompressedContainerFromIso {
 
 function mountReadOnlyRootImageFromContainer {
     local container_mount_point=$1
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
     local rootfs_image="${container_mount_point}/LiveOS/rootfs.img"
-    local root_mount_point=/run/rootfsbase
+    local root_mount_point="${overlay_base}/rootfsbase"
     mkdir -m 0755 -p "${root_mount_point}"
     if ! mount -n "${rootfs_image}" "${root_mount_point}"; then
         die "Failed to mount live ISO root filesystem"
@@ -132,15 +152,19 @@ function mountReadOnlyRootImageFromContainer {
 }
 
 function prepareTemporaryOverlay {
-    mkdir -m 0755 -p /run/overlayfs/rw
-    mkdir -m 0755 -p /run/overlayfs/work
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
+    mkdir -m 0755 -p "${overlay_base}/overlayfs/rw"
+    mkdir -m 0755 -p "${overlay_base}/overlayfs/work"
 }
 
 function preparePersistentOverlay {
     if [ -z "${isodiskmode}" ] || [ -z "${isodiskdev}" ]; then
         return 1
     fi
-    local overlay_mount_point=/run/overlayfs
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
+    local overlay_mount_point="${overlay_base}/overlayfs"
     mkdir -m 0755 -p "${overlay_mount_point}"
     if [ "${isodiskmode}" = "disk_boot" ];then
         if ! preparePersistentOverlayDiskBoot "${overlay_mount_point}"; then
@@ -151,8 +175,8 @@ function preparePersistentOverlay {
             return 1
         fi
     fi
-    mkdir -m 0755 -p ${overlay_mount_point}/rw
-    mkdir -m 0755 -p ${overlay_mount_point}/work
+    mkdir -m 0755 -p "${overlay_mount_point}/rw"
+    mkdir -m 0755 -p "${overlay_mount_point}/work"
 }
 
 function preparePersistentOverlayLoopBoot {

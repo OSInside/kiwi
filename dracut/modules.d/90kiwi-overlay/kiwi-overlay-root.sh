@@ -1,6 +1,7 @@
 #!/bin/bash
 # root=overlay:UUID=uuid was converted to
 # root=block:/dev/disk/by-uuid/uuid in cmdline hook
+type getOverlayBaseDirectory >/dev/null 2>&1 || . /lib/kiwi-filesystem-lib.sh
 
 #======================================
 # functions
@@ -35,8 +36,10 @@ function initGlobalDevices {
 }
 
 function mountReadOnlyRootImage {
-    local root_mount_point=/run/rootfsbase
-    mkdir -m 0755 -p ${root_mount_point}
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
+    local root_mount_point="${overlay_base}/rootfsbase"
+    mkdir -m 0755 -p "${root_mount_point}"
     if ! mount -n "${read_only_partition}" "${root_mount_point}"; then
         die "Failed to mount overlay(ro) root filesystem"
     fi
@@ -44,13 +47,15 @@ function mountReadOnlyRootImage {
 }
 
 function preparePersistentOverlay {
-    local overlay_mount_point=/run/overlayfs
-    mkdir -m 0755 -p ${overlay_mount_point}
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
+    local overlay_mount_point="${overlay_base}/overlayfs"
+    mkdir -m 0755 -p "${overlay_mount_point}"
     if ! mount "${write_partition}" "${overlay_mount_point}"; then
         die "Failed to mount overlay(rw) filesystem"
     fi
-    mkdir -m 0755 -p ${overlay_mount_point}/rw
-    mkdir -m 0755 -p ${overlay_mount_point}/work
+    mkdir -m 0755 -p "${overlay_mount_point}/rw"
+    mkdir -m 0755 -p "${overlay_mount_point}/work"
 }
 
 #======================================

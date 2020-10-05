@@ -1,5 +1,19 @@
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
+function getOverlayBaseDirectory {
+    # initialize and print overlay base directory below which
+    # the overlayfs based mountpoints are managed
+    local overlay_base=/run/overlay
+    local overlay_size
+    mkdir -p "${overlay_base}"
+    if ! mountpoint -q "${overlay_base}";then
+        overlay_size=$(getarg rd.root.overlay.size)
+        [ -z "${overlay_size}" ] && overlay_size="50%"
+        mount -t tmpfs -o "size=${overlay_size}" tmpfs "${overlay_base}"
+    fi
+    echo "${overlay_base}"
+}
+
 function resize_filesystem {
     local device=$1
     test -n "${device}" || return

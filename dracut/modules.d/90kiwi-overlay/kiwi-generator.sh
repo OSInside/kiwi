@@ -1,6 +1,7 @@
 #!/bin/bash
 
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
+type getOverlayBaseDirectory >/dev/null 2>&1 || . /lib/kiwi-filesystem-lib.sh
 
 [ -z "${root}" ] && root=$(getarg root=)
 
@@ -24,6 +25,7 @@ GENERATOR_DIR="$2"
 [ -z "$GENERATOR_DIR" ] && exit 1
 [ -d "$GENERATOR_DIR" ] || mkdir "$GENERATOR_DIR"
 
+OVERLAY_BASE="$(getOverlayBaseDirectory)"
 ROOTFLAGS="$(getarg rootflags)"
 {
     echo "[Unit]"
@@ -32,7 +34,7 @@ ROOTFLAGS="$(getarg rootflags)"
     echo "[Mount]"
     echo "Where=/sysroot"
     echo "What=OverlayOS_rootfs"
-    echo "Options=${ROOTFLAGS},lowerdir=/run/rootfsbase,upperdir=/run/overlayfs/rw,workdir=/run/overlayfs/work"
+    echo "Options=${ROOTFLAGS},lowerdir=${OVERLAY_BASE}/rootfsbase,upperdir=${OVERLAY_BASE}/overlayfs/rw,workdir=${OVERLAY_BASE}/overlayfs/work"
     echo "Type=overlay"
     _dev=OverlayOS_rootfs
 } > "$GENERATOR_DIR"/sysroot.mount
