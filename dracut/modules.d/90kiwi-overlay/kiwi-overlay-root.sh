@@ -46,6 +46,13 @@ function mountReadOnlyRootImage {
     echo "${root_mount_point}"
 }
 
+function prepareTemporaryOverlay {
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
+    mkdir -m 0755 -p "${overlay_base}/overlayfs/rw"
+    mkdir -m 0755 -p "${overlay_base}/overlayfs/work"
+}
+
 function preparePersistentOverlay {
     local overlay_base
     overlay_base=$(getOverlayBaseDirectory)
@@ -78,7 +85,11 @@ loadKernelModules
 mountReadOnlyRootImage
 
 # prepare overlay for generated systemd OverlayOS_rootfs service
-preparePersistentOverlay
+if getargbool 0 rd.root.overlay.readonly; then
+    prepareTemporaryOverlay
+else
+    preparePersistentOverlay
+fi
 
 need_shutdown
 
