@@ -345,6 +345,7 @@ Summary:        KIWI - Dracut module for vmx(+overlay) image type
 # to set up the build environment...
 BuildRequires:  dracut
 %endif
+Requires:       dracut-kiwi-lib = %{version}-%{release}
 Requires:       util-linux
 Requires:       dracut
 License:        GPL-3.0-or-later

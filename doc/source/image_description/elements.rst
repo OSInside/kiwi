@@ -473,11 +473,31 @@ squashfscompression="uncompressed|gzip|lzo|lz4|xz|zstd":
   Specifies the compression type for mksquashfs
 
 overlayroot="true|false"
-  Specifies to use an overlay root system consisting
-  out of a squashfs compressed read-only root system
-  overlayed using the overlayfs filesystem into an
-  extra read-write partition. Available for the disk
-  image type oem only
+  For the `oem` type only, specifies to use an `overlayfs` based root
+  filesystem consisting out of a squashfs compressed read-only root
+  filesystem combined with a write-partition or tmpfs.
+  The optional kernel boot parameter `rd.root.overlay.readonly` can
+  be used to point the write area into a `tmpfs` instead of
+  the existing persistent write-partition. In this mode all
+  written data is temporary until reboot of the system. The kernel
+  boot parameter `rd.root.overlay.size` can be used to configure
+  the size for the `tmpfs` that is used for the `overlayfs` mount
+  process if `rd.root.overlay.readonly` is requested. That size
+  basically configures the amount of space available for writing
+  new data during the runtime of the system. The default value
+  is set to `50%` which means one half of the available RAM space can
+  be used for writing new data. By default the persistent
+  write-partition is used. The size of that partition can be
+  influenced via the optional `<size>` element in the `<type>`
+  section or via the optional `<oem-resize>` element in the
+  `<oemconfig>` section of the XML description. Setting a fixed
+  `<size>` value will set the size of the image disk to that
+  value and results in an image file of that size. The available
+  space for the write partition is that size reduced by the
+  size the squashfs read-only system needs. If the `<oem-resize>`
+  element is set to `true` an eventually given `<size>` element
+  will not have any effect because the write partition will be
+  resized on first boot to the available disk space.
 
 bootfilesystem="ext2|ext3|ext4|fat32|fat16":
   If an extra boot partition is required this attribute

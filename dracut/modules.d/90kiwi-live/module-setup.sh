@@ -29,7 +29,7 @@ install() {
     inst_multiple \
         umount dmsetup blockdev blkid lsblk dd losetup \
         grep cut partprobe find wc fdisk tail mkfs.ext4 mkfs.xfs \
-        dialog cat
+        dialog cat mountpoint
 
     dmsquashdir=$(find "${dracutbasedir}/modules.d" -name "*dmsquash-live")
     if [ -n "${dmsquashdir}" ] && \
