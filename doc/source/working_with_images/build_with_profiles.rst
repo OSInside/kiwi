@@ -16,8 +16,7 @@ command line flag `--profile=$PROFILE_NAME`:
 
 .. code:: shell-session
 
-   $ sudo kiwi-ng --type iso system build \
-         --profile=workstation \
+   $ sudo kiwi-ng --type iso --profile=workstation system build \
          --description kiwi-descriptions/suse/x86_64/{exc_description} \
          --target-dir /tmp/myimage
 
