@@ -542,7 +542,7 @@ class TestBootLoaderConfigGrub2:
             file_handle_grubenv = \
                 mock_open_grubenv.return_value.__enter__.return_value
 
-            file_handle_grub.read.return_value = 'root=rootdev'
+            file_handle_grub.read.return_value = 'root=PARTUUID=xx'
             file_handle_grubenv.read.return_value = 'root=rootdev'
             file_handle_menu.read.return_value = 'options foo bar'
 
@@ -576,7 +576,7 @@ class TestBootLoaderConfigGrub2:
                     '    fi\n'
                     'fi\n'
                 ),
-                call('root=rootdev'),
+                call('root=PARTUUID=xx'),
                 # second write of grub.cfg, setting overlay root
                 call('root=overlay:UUID=ID')
             ]

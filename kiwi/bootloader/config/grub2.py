@@ -1142,10 +1142,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 # the correct value.
                 with open(config_file) as grub_config_file:
                     grub_config = grub_config_file.read()
-                    grub_config = grub_config.replace(
-                        'root={0}'.format(boot_options.get('root_device')),
-                        self.root_reference
+                    # The following expression matches any of the following
+                    # grub mkconfig root= settings and replaces it with a
+                    # correct value
+                    # 1. root=LOCAL-KIWI-MAPPED-DEVICE
+                    # 2. root=.*(lazy)=ANY-LINUX-BY-ID-VALUE
+                    grub_config = re.sub(
+                        r'(root=.*?=[a-zA-Z0-9:\.-]+)|(root={0})'.format(
+                            boot_options.get('root_device')
+                        ),
+                        '{0}'.format(self.root_reference),
+                        grub_config
                     )
+
                 with open(config_file, 'w') as grub_config_file:
                     grub_config_file.write(grub_config)
 
