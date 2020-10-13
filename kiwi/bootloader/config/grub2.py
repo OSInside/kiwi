@@ -39,6 +39,7 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubModulesError,
     KiwiBootLoaderGrubSecureBootError,
     KiwiBootLoaderGrubFontError,
+    KiwiDiskGeometryError
 )
 
 log = logging.getLogger('kiwi')
@@ -102,6 +103,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.firmware = FirmWare(
             self.xml_state
         )
+        self.target_table_type = self.firmware.get_partition_table_type()
 
         self.live_type = self.xml_state.build_type.get_flags()
         if not self.live_type:
@@ -553,15 +555,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 zipl_config = zipl_config_file.read()
                 zipl_config = re.sub(
                     r'(:menu)',
-                    r':menu\n'
-                    r'    targettype = {0}\n'
-                    r'    targetbase = {1}\n'
-                    r'    targetblocksize = {2}\n'
-                    r'    targetoffset = {3}'.format(
+                    ':menu\n'
+                    '    targettype = {0}\n'
+                    '    targetbase = {1}\n'
+                    '    targetblocksize = {2}\n'
+                    '    targetoffset = {3}\n'
+                    '    {4}'.format(
                         target_type,
                         self.custom_args['targetbase'],
                         target_blocksize or 512,
-                        self._get_partition_start_sector(
+                        self._get_partition_start(
+                            self.custom_args['targetbase']
+                        ),
+                        self._get_disk_geometry(
                             self.custom_args['targetbase']
                         )
                     ),
@@ -1132,6 +1138,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def _fix_grub_root_device_reference(self, config_file, boot_options):
         if self.root_reference:
             if self.root_filesystem_is_overlay or \
+               self.arch.startswith('s390') or \
                Defaults.is_buildservice_worker():
                 # grub2-mkconfig has no idea how the correct root= setup is
                 # for disk images created with overlayroot enabled or in a
@@ -1205,15 +1212,67 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 with open(menu_entry_file, 'w') as grub_menu_entry_file:
                     grub_menu_entry_file.write(menu_entry)
 
-    def _get_partition_start_sector(self, disk_device):
-        bash_command = ' '.join(
-            [
-                'sfdisk', '--dump', disk_device,
-                '|', 'grep', '"1 :"',
-                '|', 'cut', '-f1', '-d,',
-                '|', 'cut', '-f2', '-d='
+    def _get_partition_start(self, disk_device):
+        if self.target_table_type == 'dasd':
+            blocks = self._get_dasd_disk_geometry_element(
+                disk_device, 'blocks per track'
+            )
+            bash_command = [
+                'fdasd', '-f', '-s', '-p', disk_device,
+                '|', 'grep', '"^ "',
+                '|', 'head', '-n', '1',
+                '|', 'tr', '-s', '" "'
             ]
+            fdasd_call = Command.run(
+                ['bash', '-c', ' '.join(bash_command)]
+            )
+            fdasd_output = fdasd_call.output
+            try:
+                start_track = int(fdasd_output.split(' ')[2].lstrip())
+            except Exception:
+                raise KiwiDiskGeometryError(
+                    'unknown partition format: %s' % fdasd_output
+                )
+            return '{0}'.format(start_track * blocks)
+        else:
+            bash_command = ' '.join(
+                [
+                    'sfdisk', '--dump', disk_device,
+                    '|', 'grep', '"1 :"',
+                    '|', 'cut', '-f1', '-d,',
+                    '|', 'cut', '-f2', '-d='
+                ]
+            )
+            return Command.run(
+                ['bash', '-c', bash_command]
+            ).output.strip()
+
+    def _get_disk_geometry(self, disk_device):
+        disk_geometry = ''
+        if self.target_table_type == 'dasd':
+            disk_geometry = 'targetgeometry = {0},{1},{2}'.format(
+                self._get_dasd_disk_geometry_element(
+                    disk_device, 'cylinders'
+                ),
+                self._get_dasd_disk_geometry_element(
+                    disk_device, 'tracks per cylinder'
+                ),
+                self._get_dasd_disk_geometry_element(
+                    disk_device, 'blocks per track'
+                )
+            )
+        return disk_geometry
+
+    def _get_dasd_disk_geometry_element(self, disk_device, search):
+        fdasd = ['fdasd', '-f', '-p', disk_device]
+        bash_command = fdasd + ['|', 'grep', '"' + search + '"']
+        fdasd_call = Command.run(
+            ['bash', '-c', ' '.join(bash_command)]
         )
-        return Command.run(
-            ['bash', '-c', bash_command]
-        ).output.strip()
+        fdasd_output = fdasd_call.output
+        try:
+            return int(fdasd_output.split(':')[1].lstrip())
+        except Exception:
+            raise KiwiDiskGeometryError(
+                'unknown format for disk geometry: %s' % fdasd_output
+            )

@@ -487,10 +487,16 @@ class BootLoaderConfigBase:
         self.root_mount = MountManager(
             device=root_device
         )
-        self.boot_mount = MountManager(
-            device=boot_device,
-            mountpoint=self.root_mount.mountpoint + '/boot'
-        )
+        if 's390' in self.arch:
+            self.boot_mount = MountManager(
+                device=boot_device,
+                mountpoint=self.root_mount.mountpoint + '/boot/zipl'
+            )
+        else:
+            self.boot_mount = MountManager(
+                device=boot_device,
+                mountpoint=self.root_mount.mountpoint + '/boot'
+            )
         if efi_device:
             self.efi_mount = MountManager(
                 device=efi_device,

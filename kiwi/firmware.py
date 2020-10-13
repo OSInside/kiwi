@@ -63,9 +63,7 @@ class FirmWare:
         :rtype: str
         """
         if 's390' in self.arch:
-            if self.zipl_target_type and 'LDL' in self.zipl_target_type:
-                return 'dasd'
-            elif self.zipl_target_type and 'CDL' in self.zipl_target_type:
+            if self.zipl_target_type and 'CDL' in self.zipl_target_type:
                 return 'dasd'
             else:
                 return 'msdos'
