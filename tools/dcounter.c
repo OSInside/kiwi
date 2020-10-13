@@ -6,12 +6,13 @@
 int main(int argc, char **argv) {
     int i, percent = -1;
     int newline = 0;
-    char prefix[512];
+    const int max_prefix_len = 512;
+    char prefix[max_prefix_len];
     unsigned cnt = 0, blk_size = 1024*1024, blk_cnt = 0, size = 0;
     ssize_t r, w, p;
     char buf[1024*1024];
     argv++; argc--;
-    memset (prefix,'\0',512);
+    memset (prefix,'\0',max_prefix_len);
     if (argc > 1 && strstr(*argv, "-s")) {
         i = atoi(argv[1]);
         if (i) {
@@ -22,7 +23,7 @@ int main(int argc, char **argv) {
     }
     if (argc == 2 && strstr(*argv, "-l")) {
         newline = 1;
-        strncpy (prefix, *(argv+1), strlen(prefix));
+        strncpy (prefix, *(argv+1), max_prefix_len - 1);
         argv += 2;
         argc -= 2;
     }
