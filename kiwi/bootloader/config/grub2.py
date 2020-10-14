@@ -299,7 +299,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         else:
             log.info('--> Using standard boot install template')
-            hybrid_boot = True
+            hybrid_boot = False
+            module_path = self._get_efi_modules_path(self.root_dir)
+            if os.path.exists(module_path + '/linuxefi.mod'):
+                hybrid_boot = True
             template = self.grub2.get_install_template(
                 self.failsafe_boot, hybrid_boot, self.terminal,
                 self.continue_on_timeout
@@ -358,7 +361,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         else:
             log.info('--> Using standard boot template')
-            hybrid_boot = True
+            hybrid_boot = False
+            module_path = self._get_efi_modules_path(self.root_dir)
+            if os.path.exists(module_path + '/linuxefi.mod'):
+                hybrid_boot = True
             template = self.grub2.get_iso_template(
                 self.failsafe_boot, hybrid_boot,
                 self.terminal, self.mediacheck_boot
@@ -1113,21 +1119,23 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # Any subsequent call of the grub config tool will overwrite
             # the setup and disables dynamic EFI environment checking
             # at boot time
-            with open(config_file) as grub_config_file:
-                grub_config = grub_config_file.read()
-                grub_config = re.sub(
-                    r'([ \t]+)linux(efi|16)*([ \t]+)', r'\1$linux\3',
-                    grub_config
-                )
-                grub_config = re.sub(
-                    r'([ \t]+)initrd(efi|16)*([ \t]+)', r'\1$initrd\3',
-                    grub_config
-                )
-            with open(config_file, 'w') as grub_config_file:
-                grub_config_file.write(
-                    Template(self.grub2.header_hybrid).substitute()
-                )
-                grub_config_file.write(grub_config)
+            module_path = self._get_efi_modules_path(self.root_dir)
+            if os.path.exists(module_path + '/linuxefi.mod'):
+                with open(config_file) as grub_config_file:
+                    grub_config = grub_config_file.read()
+                    grub_config = re.sub(
+                        r'([ \t]+)linux(efi|16)*([ \t]+)', r'\1$linux\3',
+                        grub_config
+                    )
+                    grub_config = re.sub(
+                        r'([ \t]+)initrd(efi|16)*([ \t]+)', r'\1$initrd\3',
+                        grub_config
+                    )
+                with open(config_file, 'w') as grub_config_file:
+                    grub_config_file.write(
+                        Template(self.grub2.header_hybrid).substitute()
+                    )
+                    grub_config_file.write(grub_config)
 
     def _fix_grub_root_device_reference(self, config_file, boot_options):
         if self.root_reference:
