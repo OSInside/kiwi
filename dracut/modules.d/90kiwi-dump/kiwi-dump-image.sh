@@ -137,7 +137,7 @@ function get_selected_disk {
         local count=0
         local device_index=0
         for entry in ${disk_list};do
-            if [ $((count % 3)) -eq 0 ];then
+            if [ $((count % 2)) -eq 0 ];then
                 device_array[${device_index}]=${entry}
                 device_index=$((device_index + 1))
             fi
