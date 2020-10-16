@@ -104,7 +104,7 @@ The notable differences to running {kiwi} locally include:
           <!-- image description with the profiles foo_profile and bar_profile
         </image>
 
-  2. Use the `multibuild <https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_ feature.
+  2. Use the `multibuild <https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.multibuild.html>`_ feature.
 
   The first option is simpler to use, but has the disadvantage that your
   appliances are built sequentially. The `multibuild` feature allows to

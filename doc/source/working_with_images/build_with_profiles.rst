@@ -28,7 +28,7 @@ Building with the Open Build Service
 ------------------------------------
 
 The Open Build Service (OBS) support profiles via the `multibuild
-<https://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.multibuild.html>`_
+<https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.multibuild.html>`_
 feature. An example project using this feature is the
 `openSUSE-Tumbleweed
 <https://build.opensuse.org/package/show/openSUSE:Factory/openSUSE-Tumbleweed>`_
