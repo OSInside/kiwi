@@ -291,12 +291,15 @@ class TestSystemPrepare:
             'kiwi'
         )
         self.manager.process_install_requests_bootstrap.assert_called_once_with(
+            self.system.root_bind
         )
         mock_tar.assert_called_once_with(
             '{0}/bootstrap.tgz'.format(self.description_dir)
         )
         tar.extract.assert_called_once_with('root_dir')
-        self.manager.post_process_install_requests_bootstrap.assert_called_once_with()
+        self.manager.post_process_install_requests_bootstrap.assert_called_once_with(
+            self.system.root_bind
+        )
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_packages_sections')
     def test_install_bootstrap_skipped(self, mock_bootstrap_section):

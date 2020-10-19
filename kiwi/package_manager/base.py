@@ -98,7 +98,7 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def process_install_requests_bootstrap(self):
+    def process_install_requests_bootstrap(self, root_bind=None):
         """
         Process package install requests for bootstrap phase (no chroot)
 
@@ -182,7 +182,7 @@ class PackageManagerBase:
         """
         pass
 
-    def post_process_install_requests_bootstrap(self):
+    def post_process_install_requests_bootstrap(self, root_bind=None):
         """
         Process extra code required after bootstrapping
 

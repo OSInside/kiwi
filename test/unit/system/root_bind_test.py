@@ -95,6 +95,23 @@ class TestRootBind:
         shared_mount.bind_mount.assert_called_once_with()
 
     @patch('kiwi.system.root_bind.MountManager')
+    def test_umount_kernel_file_systems(self, mock_mount):
+        self.mount_manager.device = '/proc'
+        self.mount_manager.is_mounted = Mock(return_value=True)
+        self.bind_root.umount_kernel_file_systems()
+        self.mount_manager.umount_lazy.assert_called_once_with()
+        assert self.bind_root.mount_stack == []
+
+    @patch('kiwi.system.root_bind.MountManager')
+    def test_umount_kernel_file_systems_raises_error(self, mock_mount):
+        self.mount_manager.device = '/proc'
+        self.mount_manager.is_mounted = Mock(return_value=True)
+        self.mount_manager.umount_lazy = Mock(side_effect=Exception)
+        self.bind_root.umount_kernel_file_systems()
+        self.mount_manager.umount_lazy.assert_called_once_with()
+        assert self.bind_root.mount_stack == [self.mount_manager]
+
+    @patch('kiwi.system.root_bind.MountManager')
     @patch('kiwi.system.root_bind.Path.create')
     def test_mount_shared_directory(self, mock_path, mock_mount):
         shared_mount = Mock()

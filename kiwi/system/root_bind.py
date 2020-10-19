@@ -98,6 +98,19 @@ class RootBind:
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
+    def umount_kernel_file_systems(self):
+        """
+        Umount kernel filesystems
+
+        :raises KiwiMountKernelFileSystemsError: if some kernel filesystem
+            fails to mount
+        """
+        umounts = [
+            mnt for mnt in self.mount_stack if mnt.device
+            in self.bind_locations
+        ]
+        self._cleanup_mounts(umounts)
+
     def mount_shared_directory(self, host_dir=None):
         """
         Bind mount shared location
@@ -266,19 +279,22 @@ class RootBind:
 
                 shutil.move(config_rpm_new, self.root_dir + config)
 
-    def _cleanup_mount_stack(self):
-        for mount in reversed(self.mount_stack):
-            if mount.is_mounted():
+    def _cleanup_mounts(self, umounts):
+        for umount in reversed(umounts):
+            if umount.is_mounted():
                 try:
-                    mount.umount_lazy()
+                    umount.umount_lazy()
+                    self.mount_stack.remove(umount)
                 except Exception as e:
                     log.warning(
                         'Image root directory %s not cleanly umounted: %s',
                         self.root_dir, format(e)
                     )
             else:
-                log.warning('Path %s not a mountpoint', mount.mountpoint)
+                log.warning('Path %s not a mountpoint', umount.mountpoint)
 
+    def _cleanup_mount_stack(self):
+        self._cleanup_mounts(self.mount_stack)
         del self.mount_stack[:]
 
     def _cleanup_dir_stack(self):
