@@ -143,16 +143,22 @@ class PackageManagerApt(PackageManagerBase):
                 cmd.append('--no-check-gpg')
             if self.deboostrap_minbase:
                 cmd.append('--variant=minbase')
+            if self.package_requests:
+                cmd.append(
+                    '--include={}'.format(','.join(self.package_requests))
+                )
             if self.repository.components:
                 cmd.append(
                     '--components={0}'.format(
                         ','.join(self.repository.components)
                     )
                 )
+            self.cleanup_requests()
             cmd.extend([
                 self.distribution, bootstrap_dir, self.distribution_path
             ])
-            Command.run(cmd, self.command_env)
+            result = Command.call(cmd, self.command_env)
+            output, error = result.process.communicate()
             data = DataSync(
                 bootstrap_dir + '/', self.root_dir
             )
@@ -167,7 +173,7 @@ class PackageManagerApt(PackageManagerBase):
         finally:
             Path.wipe(bootstrap_dir)
 
-        return self.process_install_requests()
+        return result
 
     def process_install_requests(self):
         """
