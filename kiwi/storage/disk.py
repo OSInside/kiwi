@@ -105,14 +105,13 @@ class Disk(DeviceProvider):
         """
         Create root partition for use with LVM
 
-        Populates kiwi_RootPart(id) and kiwi_RootPartVol(LVRoot)
+        Populates kiwi_RootPart(id)
 
         :param int mbsize: partition size
         """
         self.partitioner.create('p.lxlvm', mbsize, 't.lvm')
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
-        self._add_to_public_id_map('kiwi_RootPartVol', 'LVRoot')
 
     def create_root_raid_partition(self, mbsize):
         """

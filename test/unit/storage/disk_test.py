@@ -73,7 +73,6 @@ class TestDisk:
             'p.lxlvm', 100, 't.lvm'
         )
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
-        assert self.disk.public_partition_id_map['kiwi_RootPartVol'] == 'LVRoot'
 
     def test_create_root_raid_partition(self):
         self.disk.create_root_raid_partition(100)

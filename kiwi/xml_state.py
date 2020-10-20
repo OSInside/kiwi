@@ -23,6 +23,8 @@ from collections import namedtuple
 from textwrap import dedent
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi import xml_parse
 from kiwi.system.uri import Uri
 from kiwi.defaults import Defaults
@@ -1223,7 +1225,8 @@ class XMLState:
                         mountpoint=path,
                         fullsize=True,
                         label=volume_label,
-                        attributes=['no-copy-on-write']
+                        attributes=['no-copy-on-write'],
+                        is_root_volume=True|False
                     )
                 ]
 
@@ -1243,7 +1246,8 @@ class XMLState:
                 'mountpoint',
                 'fullsize',
                 'label',
-                'attributes'
+                'attributes',
+                'is_root_volume'
             ]
         )
 
@@ -1262,6 +1266,7 @@ class XMLState:
                 fullsize = False
                 label = volume.get_label()
                 attributes = []
+                is_root_volume = False
 
                 if volume.get_copy_on_write() is False:
                     # by default copy-on-write is switched on for any
@@ -1270,11 +1275,21 @@ class XMLState:
                     attributes.append('no-copy-on-write')
 
                 if '@root' in name:
-                    # setup root volume, it takes a fixed volume name and
-                    # has no specific mountpoint
+                    # setup root volume, it takes an optional volume
+                    # name if specified as @root=name and has no specific
+                    # mountpoint. The default name is set to
+                    # defaults.ROOT_VOLUME_NAME if no other root volume
+                    # name is provided
                     mountpoint = None
                     realpath = '/'
-                    name = 'LVRoot'
+                    is_root_volume = True
+                    root_volume_expression = re.match(
+                        r'@root=(.+)', name
+                    )
+                    if root_volume_expression:
+                        name = root_volume_expression.group(1)
+                    else:
+                        name = defaults.ROOT_VOLUME_NAME
                     have_root_volume_setup = True
                 elif not mountpoint:
                     # setup volume without mountpoint. In this case the name
@@ -1310,7 +1325,8 @@ class XMLState:
                         mountpoint=mountpoint,
                         realpath=realpath,
                         label=label,
-                        attributes=attributes
+                        attributes=attributes,
+                        is_root_volume=is_root_volume
                     )
                 )
 
@@ -1327,13 +1343,14 @@ class XMLState:
                 fullsize = True
             volume_type_list.append(
                 volume_type(
-                    name='LVRoot',
+                    name=defaults.ROOT_VOLUME_NAME,
                     size=size,
                     fullsize=fullsize,
                     mountpoint=None,
                     realpath='/',
                     label=None,
-                    attributes=[]
+                    attributes=[],
+                    is_root_volume=True
                 )
             )
 
@@ -1346,7 +1363,8 @@ class XMLState:
                     mountpoint=None,
                     realpath='swap',
                     label='SWAP',
-                    attributes=[]
+                    attributes=[],
+                    is_root_volume=False
                 )
             )
 

@@ -292,6 +292,35 @@ class TestXMLState:
             'composedProfile', 'vmxSimpleFlavour', 'xenDomUFlavour'
         ]
 
+    def test_get_volumes_custom_root_volume_name(self):
+        description = XMLDescription(
+            '../data/example_lvm_custom_rootvol_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        volume_type = namedtuple(
+            'volume_type', [
+                'name',
+                'size',
+                'realpath',
+                'mountpoint',
+                'fullsize',
+                'label',
+                'attributes',
+                'is_root_volume'
+            ]
+        )
+        assert state.get_volumes() == [
+            volume_type(
+                name='myroot', size='freespace:500',
+                realpath='/',
+                mountpoint=None, fullsize=False,
+                label=None,
+                attributes=[],
+                is_root_volume=True
+            )
+        ]
+
     def test_get_volumes(self):
         description = XMLDescription('../data/example_lvm_default_config.xml')
         xml_data = description.load()
@@ -304,44 +333,51 @@ class TestXMLState:
                 'mountpoint',
                 'fullsize',
                 'label',
-                'attributes'
+                'attributes',
+                'is_root_volume'
             ]
         )
         assert state.get_volumes() == [
             volume_type(
                 name='usr_lib', size='size:1024',
                 realpath='usr/lib',
-                mountpoint='usr/lib', fullsize=False,
+                mountpoint='usr/lib',
+                fullsize=False,
                 label='library',
-                attributes=[]
+                attributes=[],
+                is_root_volume=False
             ),
             volume_type(
                 name='LVRoot', size='freespace:500',
                 realpath='/',
                 mountpoint=None, fullsize=False,
                 label=None,
-                attributes=[]
+                attributes=[],
+                is_root_volume=True
             ),
             volume_type(
                 name='etc_volume', size='freespace:30',
                 realpath='etc',
                 mountpoint='etc', fullsize=False,
                 label=None,
-                attributes=['no-copy-on-write']
+                attributes=['no-copy-on-write'],
+                is_root_volume=False
             ),
             volume_type(
                 name='bin_volume', size=None,
                 realpath='/usr/bin',
                 mountpoint='/usr/bin', fullsize=True,
                 label=None,
-                attributes=[]
+                attributes=[],
+                is_root_volume=False
             ),
             volume_type(
                 name='LVSwap', size='size:128',
                 realpath='swap',
                 mountpoint=None, fullsize=False,
                 label='SWAP',
-                attributes=[]
+                attributes=[],
+                is_root_volume=False
             )
         ]
 
@@ -357,7 +393,8 @@ class TestXMLState:
                 'mountpoint',
                 'fullsize',
                 'label',
-                'attributes'
+                'attributes',
+                'is_root_volume'
             ]
         )
         assert state.get_volumes() == [
@@ -365,14 +402,16 @@ class TestXMLState:
                 name='LVRoot', size=None, realpath='/',
                 mountpoint=None, fullsize=True,
                 label=None,
-                attributes=[]
+                attributes=[],
+                is_root_volume=True
             ),
             volume_type(
                 name='LVSwap', size='size:128',
                 realpath='swap',
                 mountpoint=None, fullsize=False,
                 label='SWAP',
-                attributes=[]
+                attributes=[],
+                is_root_volume=False
             )
         ]
 
@@ -390,7 +429,8 @@ class TestXMLState:
                 'mountpoint',
                 'fullsize',
                 'label',
-                'attributes'
+                'attributes',
+                'is_root_volume'
             ]
         )
         assert state.get_volumes() == [
@@ -398,20 +438,23 @@ class TestXMLState:
                 name='usr', size=None, realpath='usr',
                 mountpoint='usr', fullsize=True,
                 label=None,
-                attributes=[]
+                attributes=[],
+                is_root_volume=False
             ),
             volume_type(
                 name='LVRoot', size='freespace:30', realpath='/',
                 mountpoint=None, fullsize=False,
                 label=None,
-                attributes=[]
+                attributes=[],
+                is_root_volume=True
             ),
             volume_type(
                 name='LVSwap', size='size:128',
                 realpath='swap',
                 mountpoint=None, fullsize=False,
                 label='SWAP',
-                attributes=[]
+                attributes=[],
+                is_root_volume=False
             )
         ]
 

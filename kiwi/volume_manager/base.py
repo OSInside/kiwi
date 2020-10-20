@@ -299,7 +299,7 @@ class VolumeManagerBase(DeviceProvider):
                 if lookup_path == volume_path:
                     continue
                 if lookup_path == os.sep:
-                    # exclude any sub volume path if lookup_path is / [LVRoot]
+                    # exclude any sub volume path if lookup_path is /
                     exclude_paths.append(
                         os.path.normpath(self.root_dir + os.sep + volume_path)
                     )

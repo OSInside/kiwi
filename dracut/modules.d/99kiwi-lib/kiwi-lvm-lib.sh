@@ -152,7 +152,6 @@ function read_volume_setup_all_free {
     local volume
     local name
     local mpoint
-    local have_root_volume_setup=false
     while read -r volspec;do
         if ! [[ "${volspec}" =~ "kiwi_Volume_" ]];then
             continue
@@ -160,18 +159,12 @@ function read_volume_setup_all_free {
         volume=$(echo "${volspec}" | cut -f2 -d= | tr -d \' | tr -d \")
         size=$(echo "${volume}" | cut -f2 -d\| | cut -f2 -d:)
         name=$(echo "${volume}" | cut -f1 -d\|)
-        if [ "${name}" = "LVRoot" ];then
-            have_root_volume_setup=true
-        fi
         if [ "${size}" = "all" ];then
             mpoint=$(echo "${volume}" | cut -f3 -d\|)
             echo "${name},${mpoint}"
             return
         fi
     done < "${profile}"
-    if [ "${have_root_volume_setup}" = "false" ];then
-        echo LVRoot,
-    fi
 }
 
 function get_all_free_volume {
