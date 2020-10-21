@@ -296,27 +296,14 @@ function baseGetProfilesUsed {
 # baseCleanMount
 #--------------------------------------
 function baseCleanMount {
-    for path in /proc/sys/fs/binfmt_misc /proc /dev/pts /sys;do
-        [ -d "${path}" ] && umount "${path}" &>/dev/null
-    done
+    echo "DEPRECATED: ${FUNCNAME[0]} is obsolete and only exists as noop method"
 }
 
 #======================================
 # baseMount
 #--------------------------------------
 function baseMount {
-    if [ ! -e /proc/cmdline ];then
-        mount -t proc proc /proc
-    fi
-    if [ ! -e /sys/kernel ];then
-        mount -t sysfs sysfs /sys
-    fi
-    if [ ! -e /proc/sys/fs/binfmt_misc/register ];then
-        mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc
-    fi
-    if [ ! -e /dev/pts/0 ];then
-        mount -t devpts -o mode=0620,gid=5 devpts /dev/pts
-    fi
+    echo "DEPRECATED: ${FUNCNAME[0]} is obsolete and only exists as noop method"
 }
 
 #======================================
