@@ -232,7 +232,11 @@ class Profile:
 
             volume_count = 1
             for volume in self.xml_state.get_volumes():
-                volume_id_name = 'kiwi_Volume_{id}'.format(id=volume_count)
+                if volume.is_root_volume:
+                    volume_id_name = 'kiwi_Volume_Root'
+                else:
+                    volume_id_name = 'kiwi_Volume_{id}'.format(id=volume_count)
+                    volume_count += 1
                 self.dot_profile[volume_id_name] = '|'.join(
                     [
                         volume.name,
@@ -240,7 +244,6 @@ class Profile:
                         volume.mountpoint or ''
                     ]
                 )
-                volume_count += 1
 
     def _preferences_to_profile(self):
         # kiwi_iversion

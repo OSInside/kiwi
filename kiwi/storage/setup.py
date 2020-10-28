@@ -322,7 +322,7 @@ class DiskSetup:
 
     def _get_root_volume_configuration(self):
         """
-        Provide LVRoot volume configuration if present and in
+        Provide root volume configuration if present and in
         use according to the selected volume management. So far
         this only affects the LVM volume manager
         """
@@ -330,7 +330,7 @@ class DiskSetup:
             'root_volume_type', ['size_type', 'req_size']
         )
         for volume in self.volumes:
-            if volume.name == 'LVRoot':
+            if volume.is_root_volume:
                 if volume.size:
                     [size_type, req_size] = volume.size.split(':')
                     return root_volume_type(

@@ -32,29 +32,30 @@ class TestVolumeManagerBtrfs:
                 'realpath',
                 'mountpoint',
                 'fullsize',
-                'attributes'
+                'attributes',
+                'is_root_volume'
             ]
         )
         self.volumes = [
             self.volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
                 mountpoint=None, fullsize=False,
-                attributes=[]
+                attributes=[], is_root_volume=True
             ),
             self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
                 mountpoint='/etc', fullsize=False,
-                attributes=[]
+                attributes=[], is_root_volume=False
             ),
             self.volume_type(
                 name='myvol', size='size:500', realpath='/data',
                 mountpoint='LVdata', fullsize=False,
-                attributes=[]
+                attributes=[], is_root_volume=False
             ),
             self.volume_type(
                 name='LVhome', size=None, realpath='/home',
                 mountpoint='/home', fullsize=True,
-                attributes=[]
+                attributes=[], is_root_volume=False
             )
         ]
         mock_path.return_value = True
@@ -186,15 +187,23 @@ class TestVolumeManagerBtrfs:
             call(
                 'tmpdir/@/', self.volume_type(
                     name='myvol', size='size:500', realpath='/data',
-                    mountpoint='LVdata', fullsize=False, attributes=[])
+                    mountpoint='LVdata', fullsize=False, attributes=[],
+                    is_root_volume=False
+                )
             ),
-            call('tmpdir/@/', self.volume_type(
-                name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False, attributes=[])
+            call(
+                'tmpdir/@/', self.volume_type(
+                    name='LVetc', size='freespace:200', realpath='/etc',
+                    mountpoint='/etc', fullsize=False, attributes=[],
+                    is_root_volume=False
+                )
             ),
-            call('tmpdir/@/', self.volume_type(
-                name='LVhome', size=None, realpath='/home',
-                mountpoint='/home', fullsize=True, attributes=[])
+            call(
+                'tmpdir/@/', self.volume_type(
+                    name='LVhome', size=None, realpath='/home',
+                    mountpoint='/home', fullsize=True, attributes=[],
+                    is_root_volume=False
+                )
             )
         ]
         assert mock_path.call_args_list == [

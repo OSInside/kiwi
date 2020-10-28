@@ -70,8 +70,8 @@ class VolumeManagerLVM(VolumeManagerBase):
         """
         device_map = {}
         for volume_name, volume_node in list(self.volume_map.items()):
-            if volume_name == 'LVRoot':
-                # LVRoot volume device takes precedence over the
+            if self._is_root_volume(volume_name):
+                # root volume device takes precedence over the
                 # root partition device from the disk. Therefore use
                 # the same key to put them on the same level
                 volume_name = 'root'
@@ -228,7 +228,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         """
         fstab_entries = []
         for volume_mount in self.mount_list:
-            if 'LVRoot' not in volume_mount.device:
+            if not self._is_root_volume(volume_mount.device):
                 mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
                 if not mount_path.startswith('/'):
                     mount_path = '/' + mount_path
@@ -288,7 +288,7 @@ class VolumeManagerLVM(VolumeManagerBase):
 
     def _create_filesystem(self, volume_name, volume_label, filesystem_name):
         device_node = self.volume_map[volume_name]
-        if volume_name == 'LVRoot' and not volume_label:
+        if self._is_root_volume(volume_name) and not volume_label:
             # if there is no @root volume definition for the root volume,
             # perform a second lookup of a label specified via the
             # rootfs_label from the type setup
@@ -306,7 +306,7 @@ class VolumeManagerLVM(VolumeManagerBase):
 
     def _add_to_mount_list(self, volume_name, realpath):
         device_node = self.volume_map[volume_name]
-        if volume_name == 'LVRoot':
+        if self._is_root_volume(volume_name):
             # root volume must be first in the list
             self.mount_list.insert(
                 0, MountManager(
@@ -342,6 +342,11 @@ class VolumeManagerLVM(VolumeManagerBase):
             # if vgs returned no information on the selected volume
             # group name, it is considered to be not used
             return False
+
+    def _is_root_volume(self, name):
+        for volume in self.volumes:
+            if name in volume.name and volume.is_root_volume:
+                return True
 
     def __del__(self):
         if self.volume_group:

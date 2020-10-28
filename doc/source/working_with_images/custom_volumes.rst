@@ -54,6 +54,16 @@ attributes:
 
         <volume name="@root" size="4G"/>
 
+     In addition to the custom size of the root volume it's also possible
+     to setup the name of the root volume as follows:
+
+     .. code:: xml
+
+        <volume name="@root=rootlv" size="4G"/>
+
+     If no name for the root volume is specified the
+     default name: **LVRoot** applies.
+
 - `freespace`: Optional attribute defining the additional free space added
   to the volume. If no suffix (`M` or `G`) is used, the value is considered
   to be in megabytes.

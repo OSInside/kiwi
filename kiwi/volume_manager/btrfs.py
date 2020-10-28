@@ -157,7 +157,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             )
 
         for volume in canonical_volume_list.volumes:
-            if volume.name == 'LVRoot':
+            if volume.is_root_volume:
                 # the btrfs root volume named '@' has been created as
                 # part of the setup procedure
                 pass

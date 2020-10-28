@@ -37,6 +37,7 @@ PRE_CREATE_SCRIPT = 'images.sh'
 EDIT_BOOT_CONFIG_SCRIPT = 'edit_boot_config.sh'
 EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
 IMAGE_METADATA_DIR = 'image'
+ROOT_VOLUME_NAME = 'LVRoot'
 
 
 class Defaults:

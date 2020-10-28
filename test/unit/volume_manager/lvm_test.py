@@ -28,29 +28,35 @@ class TestVolumeManagerLVM:
                 'mountpoint',
                 'fullsize',
                 'label',
-                'attributes'
+                'attributes',
+                'is_root_volume'
             ]
         )
         self.volumes = [
             self.volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
-                mountpoint=None, fullsize=False, label=None, attributes=[]
+                mountpoint=None, fullsize=False, label=None, attributes=[],
+                is_root_volume=True
             ),
             self.volume_type(
                 name='LVSwap', size='size:100', realpath='swap',
-                mountpoint=None, fullsize=False, label='SWAP', attributes=[]
+                mountpoint=None, fullsize=False, label='SWAP', attributes=[],
+                is_root_volume=False
             ),
             self.volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False, label='etc', attributes=[]
+                mountpoint='/etc', fullsize=False, label='etc', attributes=[],
+                is_root_volume=False
             ),
             self.volume_type(
                 name='myvol', size='size:500', realpath='/data',
-                mountpoint='LVdata', fullsize=False, label=None, attributes=[]
+                mountpoint='LVdata', fullsize=False, label=None, attributes=[],
+                is_root_volume=False
             ),
             self.volume_type(
                 name='LVhome', size=None, realpath='/home',
-                mountpoint='/home', fullsize=True, label=None, attributes=[]
+                mountpoint='/home', fullsize=True, label=None, attributes=[],
+                is_root_volume=False
             ),
         ]
         mock_path.return_value = True
@@ -178,28 +184,28 @@ class TestVolumeManagerLVM:
                 'root_dir', self.volume_type(
                     name='LVSwap', size='size:100', realpath='swap',
                     mountpoint=None, fullsize=False, label='SWAP',
-                    attributes=[]
+                    attributes=[], is_root_volume=False
                 )
             ),
             call(
                 'root_dir', self.volume_type(
                     name='LVRoot', size='freespace:100', realpath='/',
                     mountpoint=None, fullsize=False, label=None,
-                    attributes=[]
+                    attributes=[], is_root_volume=True
                 )
             ),
             call(
                 'root_dir', self.volume_type(
                     name='myvol', size='size:500', realpath='/data',
                     mountpoint='LVdata', fullsize=False, label=None,
-                    attributes=[]
+                    attributes=[], is_root_volume=False
                 )
             ),
             call(
                 'root_dir', self.volume_type(
                     name='LVetc', size='freespace:200', realpath='/etc',
                     mountpoint='/etc', fullsize=False, label='etc',
-                    attributes=[]
+                    attributes=[], is_root_volume=False
                 )
             )
         ]
