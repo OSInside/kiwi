@@ -3365,10 +3365,12 @@ is displayed. The attribute is available for the grub loader.</a:documentation>
     <define name="k.bootloader.targettype.attribute">
       <attribute name="targettype">
         <a:documentation>The device type of the disk on s390. For zFCP
-devices use SCSI, for  emulated DASD devices use FBA</a:documentation>
+devices use SCSI, for  emulated DASD devices use FBA,
+for 4k DASD devices use CDL</a:documentation>
         <choice>
           <value>FBA</value>
           <value>SCSI</value>
+          <value>CDL</value>
         </choice>
       </attribute>
       <sch:pattern id="targettype" is-a="bootloader_name_type">

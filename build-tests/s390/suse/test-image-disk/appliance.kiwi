@@ -1,24 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
 <image schemaversion="7.3" name="kiwi-test-image-disk">
     <description type="system">
-        <author>Marcus Schaefer</author>
+        <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
-        <specification>Disk to run on emulated DASD(FBA mode)</specification>
+        <specification>Virtual and Physical disk image test</specification>
     </description>
+    <profiles>
+        <profile name="Virtual" description="Image for use with kvm"/>
+        <profile name="Physical" description="Image for physical storage disk CDL mode"/>
+    </profiles>
     <preferences>
-        <version>1.1.0</version>
+        <version>1.15.1</version>
         <packagemanager>zypper</packagemanager>
-        <rpm-excludedocs>true</rpm-excludedocs>
-        <rpm-check-signatures>false</rpm-check-signatures>
         <locale>en_US</locale>
         <keytable>us</keytable>
         <timezone>Europe/Berlin</timezone>
-        <type image="oem" filesystem="ext4" kernelcmdline="cio_ignore=all,!ipldev,!condev">
-            <bootloader name="grub2_s390x_emu" console="serial" targettype="FBA"/>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Virtual">
+        <type image="oem" filesystem="xfs" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2_s390x_emu" console="serial"/>
+        </type>
+    </preferences>
+    <preferences profiles="Physical">
+        <type image="oem" filesystem="xfs" kernelcmdline="console=ttyS0 dasd_mod.dasd=ipldev" bootpartition="true" bootfilesystem="ext3" target_blocksize="4096">
+            <bootloader name="grub2_s390x_emu" console="serial" targettype="CDL"/>
             <oemconfig>
                 <oem-swap>true</oem-swap>
-                <oem-swapsize>4096</oem-swapsize>
+                <oem-swapsize>512</oem-swapsize>
             </oemconfig>
         </type>
     </preferences>
@@ -30,7 +46,7 @@
     </repository>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>
-        <package name="cmsfs"/>
+        <package name="blog"/>
         <package name="kernel-default"/>
         <package name="iputils"/>
         <package name="iproute2"/>
@@ -38,7 +54,6 @@
         <package name="s390-tools"/>
         <package name="grub2-s390x-emu"/>
         <package name="grub2"/>
-        <package name="blog"/>
         <package name="lvm2"/>
         <package name="tar"/>
         <package name="parted"/>
@@ -60,9 +75,11 @@
         <package name="dracut-kiwi-oem-repart"/>
     </packages>
     <packages type="bootstrap">
+        <package name="udev"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
         <package name="openSUSE-release"/>
         <package name="openSUSE-release-dvd"/>
     </packages>

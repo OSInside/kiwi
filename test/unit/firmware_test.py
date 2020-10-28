@@ -35,8 +35,6 @@ class TestFirmWare:
         mock_platform.return_value = 's390x'
         xml_state.build_type.get_firmware.return_value = None
         xml_state.get_build_type_bootloader_targettype = mock.Mock()
-        xml_state.get_build_type_bootloader_targettype.return_value = 'LDL'
-        self.firmware_s390_ldl = FirmWare(xml_state)
 
         xml_state.get_build_type_bootloader_targettype.return_value = 'CDL'
         self.firmware_s390_cdl = FirmWare(xml_state)
@@ -65,7 +63,6 @@ class TestFirmWare:
         assert self.firmware_bios.get_partition_table_type() == 'msdos'
         assert self.firmware_efi.get_partition_table_type() == 'gpt'
         assert self.firmware_efi_mbr.get_partition_table_type() == 'msdos'
-        assert self.firmware_s390_ldl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_cdl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_scsi.get_partition_table_type() == 'msdos'
 

@@ -2198,9 +2198,10 @@ div {
         ]
     k.bootloader.targettype.attribute =
         ## The device type of the disk on s390. For zFCP
-        ## devices use SCSI, for  emulated DASD devices use FBA
+        ## devices use SCSI, for  emulated DASD devices use FBA,
+        ## for 4k DASD devices use CDL
         attribute targettype {
-            "FBA" | "SCSI"
+            "FBA" | "SCSI" | "CDL"
         }
         >> sch:pattern [ id = "targettype" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "targettype" ]

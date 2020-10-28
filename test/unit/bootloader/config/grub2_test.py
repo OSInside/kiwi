@@ -1,6 +1,7 @@
 import io
 import os
 import logging
+from collections import namedtuple
 from mock import (
     patch, call, MagicMock, Mock
 )
@@ -21,7 +22,8 @@ from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderGrubDataError,
     KiwiBootLoaderGrubFontError,
-    KiwiBootLoaderGrubModulesError
+    KiwiBootLoaderGrubModulesError,
+    KiwiDiskGeometryError
 )
 
 
@@ -36,6 +38,9 @@ class TestBootLoaderConfigGrub2:
     def setup(
         self, mock_machine, mock_theme, mock_firmware
     ):
+        self.command_type = namedtuple(
+            'command_return_type', ['output']
+        )
         self.find_grub = {}
         self.os_exists = {
             'root_dir/boot/grub2/fonts/unicode.pf2': True,
@@ -342,7 +347,7 @@ class TestBootLoaderConfigGrub2:
     @patch('shutil.copy')
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    def test_setup_zipl2grub_conf(
+    def test_setup_zipl2grub_conf_512_byte_target(
         self, mock_Command_run, mock_exists, mock_shutil_copy
     ):
         path_return_values = [True, False]
@@ -352,6 +357,7 @@ class TestBootLoaderConfigGrub2:
 
         command = Mock()
         command.output = '  2048'
+        self.bootloader.target_table_type = 'msdos'
         mock_Command_run.return_value = command
         mock_exists.side_effect = path_exists
         xml_state = MagicMock()
@@ -388,6 +394,120 @@ class TestBootLoaderConfigGrub2:
             'root_dir/etc/default/zipl2grub.conf.in.orig',
             'root_dir/etc/default/zipl2grub.conf.in'
         )
+
+    @patch('shutil.copy')
+    @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_zipl2grub_conf_4096_byte_target(
+        self, mock_Command_run, mock_exists, mock_shutil_copy
+    ):
+        path_return_values = [True, False]
+        command_return_values = [
+            self.command_type(
+                output='  blocks per track .....: 12\n'
+            ),
+            self.command_type(
+                output=' /dev/loop01 2 6401 6400 1 Linux native\n'
+            ),
+            self.command_type(
+                output='  cylinders ............: 10017\n'
+            ),
+            self.command_type(
+                output='  tracks per cylinder ..: 15\n'
+            ),
+            self.command_type(
+                output='  blocks per track .....: 12\n'
+            )
+        ]
+
+        def path_exists(arg):
+            return path_return_values.pop(0)
+
+        def command_run(arg):
+            return command_return_values.pop(0)
+
+        self.bootloader.target_table_type = 'dasd'
+        mock_Command_run.side_effect = command_run
+        mock_exists.side_effect = path_exists
+        xml_state = MagicMock()
+        xml_state.get_build_type_bootloader_targettype = Mock(
+            return_value='CDL'
+        )
+        xml_state.build_type.get_target_blocksize = Mock(
+            return_value=4096
+        )
+        self.bootloader.xml_state = xml_state
+        with open('../data/etc/default/zipl2grub.conf.in') as zipl_grub:
+            zipl_config = zipl_grub.read()
+        with patch('builtins.open', create=True) as mock_open:
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = zipl_config
+            self.bootloader._setup_zipl2grub_conf()
+            assert \
+                '    targettype = CDL\n' \
+                '    targetbase = rootdev\n' \
+                '    targetblocksize = 4096\n' \
+                '    targetoffset = 24\n' \
+                '    targetgeometry = 10017,15,12' \
+                in file_handle.write.call_args[0][0]
+
+        assert mock_Command_run.call_args_list == [
+            call(
+                [
+                    'bash', '-c',
+                    'fdasd -f -p rootdev | grep "blocks per track"'
+                ]
+            ),
+            call(
+                [
+                    'bash', '-c',
+                    'fdasd -f -s -p rootdev | grep "^ " | '
+                    'head -n 1 | tr -s " "'
+                ]
+            ),
+            call(
+                [
+                    'bash', '-c', 'fdasd -f -p rootdev | grep "cylinders"'
+                ]
+            ),
+            call(
+                [
+                    'bash', '-c',
+                    'fdasd -f -p rootdev | grep "tracks per cylinder"'
+                ]
+            ),
+            call(
+                [
+                    'bash', '-c',
+                    'fdasd -f -p rootdev | grep "blocks per track"'
+                ]
+            )
+        ]
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch.object(BootLoaderConfigGrub2, '_get_dasd_disk_geometry_element')
+    def test_get_partition_start_raises(
+        self, mock_get_dasd_disk_geometry_element, mock_Command_run
+    ):
+        self.bootloader.target_table_type = 'dasd'
+        mock_Command_run.return_value = self.command_type(
+            output='bogus data'
+        )
+        with raises(KiwiDiskGeometryError):
+            self.bootloader._get_partition_start('/dev/disk')
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_get_dasd_disk_geometry_element_raises(
+        self, mock_Command_run
+    ):
+        self.bootloader.target_table_type = 'dasd'
+        mock_Command_run.return_value = self.command_type(
+            output='bogus data'
+        )
+        with raises(KiwiDiskGeometryError):
+            self.bootloader._get_dasd_disk_geometry_element(
+                '/dev/disk', 'tracks per cylinder'
+            )
 
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.SysConfig')

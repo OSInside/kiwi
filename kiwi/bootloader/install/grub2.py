@@ -160,10 +160,16 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.root_mount = MountManager(
             device=self.custom_args['root_device']
         )
-        self.boot_mount = MountManager(
-            device=self.custom_args['boot_device'],
-            mountpoint=self.root_mount.mountpoint + '/boot'
-        )
+        if 's390' in self.arch:
+            self.boot_mount = MountManager(
+                device=self.custom_args['boot_device'],
+                mountpoint=self.root_mount.mountpoint + '/boot/zipl'
+            )
+        else:
+            self.boot_mount = MountManager(
+                device=self.custom_args['boot_device'],
+                mountpoint=self.root_mount.mountpoint + '/boot'
+            )
         if self.custom_args.get('efi_device'):
             self.efi_mount = MountManager(
                 device=self.custom_args['efi_device'],
@@ -230,18 +236,57 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             Path.wipe(grubenv)
 
         # install grub2 boot code
-        Command.run(
-            [
-                'chroot', self.root_mount.mountpoint,
-                self._get_grub2_install_tool_name(self.root_mount.mountpoint)
-            ] + self.install_arguments + [
-                '--directory', module_directory,
-                '--boot-directory', boot_directory,
-                '--target', self.target,
-                '--modules', self.modules,
-                self.install_device
-            ]
-        )
+        if self.firmware.get_partition_table_type() == 'dasd':
+            # On s390 and in CDL mode (4k DASD) the call of grub2-install
+            # does not work because grub2-install is not able to identify
+            # a 4k fdasd partitioned device as a grub supported device
+            # and fails. As grub2-install is only used to invoke
+            # grub2-zipl-setup and has no other job to do we can
+            # circumvent this problem by directly calling grub2-zipl-setup
+            # instead.
+            Command.run(
+                [
+                    'chroot', self.root_mount.mountpoint,
+                    'grub2-zipl-setup', '--keep'
+                ]
+            )
+            zipl_config_file = ''.join(
+                [
+                    self.root_mount.mountpoint, '/boot/zipl/config'
+                ]
+            )
+            zipl2grub_config_file_orig = ''.join(
+                [
+                    self.root_mount.mountpoint,
+                    '/etc/default/zipl2grub.conf.in.orig'
+                ]
+            )
+            if os.path.exists(zipl2grub_config_file_orig):
+                Command.run(
+                    [
+                        'mv', zipl2grub_config_file_orig,
+                        zipl2grub_config_file_orig.replace('.orig', '')
+                    ]
+                )
+            if os.path.exists(zipl_config_file):
+                Command.run(
+                    ['mv', zipl_config_file, zipl_config_file + '.kiwi']
+                )
+        else:
+            Command.run(
+                [
+                    'chroot', self.root_mount.mountpoint,
+                    self._get_grub2_install_tool_name(
+                        self.root_mount.mountpoint
+                    )
+                ] + self.install_arguments + [
+                    '--directory', module_directory,
+                    '--boot-directory', boot_directory,
+                    '--target', self.target,
+                    '--modules', self.modules,
+                    self.install_device
+                ]
+            )
 
         if self.firmware and self.firmware.efi_mode() == 'uefi':
             shim_install = self._get_shim_install_tool_name(
