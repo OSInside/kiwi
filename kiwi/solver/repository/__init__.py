@@ -15,29 +15,45 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
-from kiwi.solver.repository.suse import SolverRepositorySUSE
-from kiwi.solver.repository.rpm_md import SolverRepositoryRpmMd
-from kiwi.solver.repository.rpm_dir import SolverRepositoryRpmDir
+import importlib
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
 
+# project
 from kiwi.exceptions import KiwiSolverRepositorySetupError
 
 
-class SolverRepository:
+class SolverRepository(metaclass=ABCMeta):
     """
     **Repository factory for creation of SAT solvables**
 
     * :param object uri: Instance of :class:`Uri`
     """
-    def __new__(self, uri, user=None, secret=None):
-        if uri.repo_type == 'yast2':
-            return SolverRepositorySUSE(uri, user, secret)
-        elif uri.repo_type == 'rpm-md':
-            return SolverRepositoryRpmMd(uri, user, secret)
-        elif uri.repo_type == 'rpm-dir':
-            return SolverRepositoryRpmDir(uri, user, secret)
-        else:
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
+
+    @staticmethod
+    def new(uri: object, user: str=None, secret: str=None):  # noqa: E252
+        name_map = {
+            'yast2': ['SolverRepositorySUSE', 'suse'],
+            'rpm-md': ['SolverRepositoryRpmMd', 'rpm_md'],
+            'rpm-dir': ['SolverRepositoryRpmDir', 'rpm_dir']
+        }
+        try:
+            module_name = name_map[uri.repo_type][0]
+            module_namespace = name_map[uri.repo_type][1]
+            repository = importlib.import_module(
+                'kiwi.solver.repository.{0}'.format(module_namespace)
+            )
+            return repository.__dict__[module_name](
+                uri, user, secret
+            )
+        except Exception as issue:
             raise KiwiSolverRepositorySetupError(
-                'Support for %s solver repository type not implemented' %
-                uri.repo_type
+                'Support for {0} solver repotype not implemented: {1}'.format(
+                    uri.repo_type, issue
+                )
             )
