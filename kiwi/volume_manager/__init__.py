@@ -15,16 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
-from kiwi.volume_manager.lvm import VolumeManagerLVM
-from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
-
-from kiwi.exceptions import (
-    KiwiVolumeManagerSetupError
+import importlib
+from typing import (
+    Dict, List
+)
+from abc import (
+    ABCMeta,
+    abstractmethod
 )
 
+# project
+from kiwi.exceptions import KiwiVolumeManagerSetupError
 
-class VolumeManager:
+
+class VolumeManager(metaclass=ABCMeta):
     """
     **VolumeManager factory**
 
@@ -35,18 +39,30 @@ class VolumeManager:
     :param list volumes: list of volumes from :class:`XMLState::get_volumes()`
     :param dict custom_args: dictionary of custom volume manager arguments
     """
-    def __new__(
-        self, name, device_map, root_dir, volumes, custom_args=None
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
+
+    @staticmethod
+    def new(
+        name: str, device_map: object, root_dir: str,
+        volumes: List, custom_args: Dict = None
     ):
-        if name == 'lvm':
-            return VolumeManagerLVM(
+        name_map = {
+            'lvm': 'LVM',
+            'btrfs': 'Btrfs'
+        }
+        try:
+            volume_manager = importlib.import_module(
+                'kiwi.volume_manager.{0}'.format(name)
+            )
+            module_name = 'VolumeManager{0}'.format(name_map[name])
+            return volume_manager.__dict__[module_name](
                 device_map, root_dir, volumes, custom_args
             )
-        elif name == 'btrfs':
-            return VolumeManagerBtrfs(
-                device_map, root_dir, volumes, custom_args
-            )
-        else:
+        except Exception as issue:
             raise KiwiVolumeManagerSetupError(
-                'Support for %s volume manager not implemented' % name
+                'Support for {0} volume manager not implemented: {1}'.format(
+                    name, issue
+                )
             )
