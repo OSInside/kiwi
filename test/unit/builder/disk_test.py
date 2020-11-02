@@ -1,7 +1,6 @@
-import mock
 import sys
 from mock import (
-    call, patch, mock_open
+    call, patch, mock_open, Mock, MagicMock
 )
 from pytest import raises
 import kiwi
@@ -43,13 +42,13 @@ class TestDiskBuilder:
             '../data/example_disk_config.xml'
         )
         self.device_map = {
-            'root': MappedDevice('/dev/root-device', mock.Mock()),
-            'swap': MappedDevice('/dev/swap-device', mock.Mock()),
-            'readonly': MappedDevice('/dev/readonly-root-device', mock.Mock()),
-            'boot': MappedDevice('/dev/boot-device', mock.Mock()),
-            'prep': MappedDevice('/dev/prep-device', mock.Mock()),
-            'efi': MappedDevice('/dev/efi-device', mock.Mock()),
-            'spare': MappedDevice('/dev/spare-device', mock.Mock())
+            'root': MappedDevice('/dev/root-device', Mock()),
+            'swap': MappedDevice('/dev/swap-device', Mock()),
+            'readonly': MappedDevice('/dev/readonly-root-device', Mock()),
+            'boot': MappedDevice('/dev/boot-device', Mock()),
+            'prep': MappedDevice('/dev/prep-device', Mock()),
+            'efi': MappedDevice('/dev/efi-device', Mock()),
+            'spare': MappedDevice('/dev/spare-device', Mock())
         }
         self.id_map = {
             'kiwi_RootPart': 1,
@@ -61,93 +60,86 @@ class TestDiskBuilder:
         self.boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']
         )
-        self.block_operation = mock.Mock()
-        self.block_operation.get_blkid = mock.Mock(
+        self.block_operation = Mock()
+        self.block_operation.get_blkid = Mock(
             return_value='blkid_result'
         )
-        self.block_operation.get_filesystem = mock.Mock(
+        self.block_operation.get_filesystem = Mock(
             return_value='blkid_result_fs'
         )
-        kiwi.builder.disk.BlockID = mock.Mock(
+        kiwi.builder.disk.BlockID = Mock(
             return_value=self.block_operation
         )
-        self.loop_provider = mock.Mock()
-        kiwi.builder.disk.LoopDevice = mock.Mock(
+        self.loop_provider = Mock()
+        kiwi.builder.disk.LoopDevice = Mock(
             return_value=self.loop_provider
         )
-        self.disk = mock.Mock()
-        provider = mock.Mock()
-        provider.get_device = mock.Mock(
+        self.disk = Mock()
+        provider = Mock()
+        provider.get_device = Mock(
             return_value='/dev/some-loop'
         )
         self.disk.storage_provider = provider
-        self.partitioner = mock.Mock()
-        self.partitioner.get_id = mock.Mock(
+        self.partitioner = Mock()
+        self.partitioner.get_id = Mock(
             return_value=1
         )
         self.disk.partitioner = self.partitioner
-        self.disk.get_uuid = mock.Mock(
+        self.disk.get_uuid = Mock(
             return_value='0815'
         )
-        self.disk.get_public_partition_id_map = mock.Mock(
+        self.disk.get_public_partition_id_map = Mock(
             return_value=self.id_map_sorted
         )
-        self.disk.get_device = mock.Mock(
+        self.disk.get_device = Mock(
             return_value=self.device_map
         )
-        kernel_info = mock.Mock()
+        kernel_info = Mock()
         kernel_info.version = '1.2.3'
         kernel_info.name = 'vmlinuz-1.2.3-default'
-        self.kernel = mock.Mock()
-        self.kernel.get_kernel = mock.Mock(
+        self.kernel = Mock()
+        self.kernel.get_kernel = Mock(
             return_value=kernel_info
         )
-        self.kernel.get_xen_hypervisor = mock.Mock()
-        self.kernel.copy_kernel = mock.Mock()
-        self.kernel.copy_xen_hypervisor = mock.Mock()
-        kiwi.builder.disk.Kernel = mock.Mock(
+        self.kernel.get_xen_hypervisor = Mock()
+        self.kernel.copy_kernel = Mock()
+        self.kernel.copy_xen_hypervisor = Mock()
+        kiwi.builder.disk.Kernel = Mock(
             return_value=self.kernel
         )
-        self.disk.subformat = mock.Mock()
-        self.disk.subformat.get_target_file_path_for_format = mock.Mock(
-            return_value='some-target-format-name'
-        )
-        kiwi.builder.disk.DiskFormat = mock.Mock(
-            return_value=self.disk.subformat
-        )
-        kiwi.builder.disk.Disk = mock.Mock(
+        kiwi.builder.disk.Disk = Mock(
             return_value=self.disk
         )
-        self.disk_setup = mock.Mock()
+        self.disk_setup = Mock()
         self.disk_setup.get_disksize_mbytes.return_value = 1024
         self.disk_setup.boot_partition_size.return_value = 0
-        self.disk_setup.get_efi_label = mock.Mock(
+        self.disk_setup.get_efi_label = Mock(
             return_value='EFI'
         )
-        self.disk_setup.get_root_label = mock.Mock(
+        self.disk_setup.get_root_label = Mock(
             return_value='ROOT'
         )
-        self.disk_setup.get_boot_label = mock.Mock(
+        self.disk_setup.get_boot_label = Mock(
             return_value='BOOT'
         )
-        self.disk_setup.need_boot_partition = mock.Mock(
+        self.disk_setup.need_boot_partition = Mock(
             return_value=True
         )
-        self.bootloader_install = mock.Mock()
-        kiwi.builder.disk.BootLoaderInstall.new = mock.MagicMock(
+        self.bootloader_install = Mock()
+        kiwi.builder.disk.BootLoaderInstall.new = MagicMock(
             return_value=self.bootloader_install
         )
-        self.bootloader_config = mock.Mock()
-        self.bootloader_config.get_boot_cmdline = mock.Mock(
+        self.bootloader_config = Mock()
+        self.bootloader_config.get_boot_cmdline = Mock(
             return_value='boot_cmdline'
         )
-        kiwi.builder.disk.BootLoaderConfig.new = mock.MagicMock(
+        kiwi.builder.disk.BootLoaderConfig.new = MagicMock(
             return_value=self.bootloader_config
         )
-        kiwi.builder.disk.DiskSetup = mock.MagicMock(
+        kiwi.builder.disk.DiskSetup = MagicMock(
             return_value=self.disk_setup
         )
-        self.boot_image_task = mock.Mock()
+        self.boot_image_task = Mock()
         self.boot_image_task.boot_root_directory = 'boot_dir'
         self.boot_image_task.kernel_filename = 'kernel'
         self.boot_image_task.initrd_filename = 'initrd'
@@ -156,40 +148,40 @@ class TestDiskBuilder:
             kernel_name='linux.vmx',
             initrd_name='initrd.vmx'
         )
-        kiwi.builder.disk.BootImage.new = mock.Mock(
+        kiwi.builder.disk.BootImage.new = Mock(
             return_value=self.boot_image_task
         )
-        self.firmware = mock.Mock()
+        self.firmware = Mock()
         self.firmware.get_legacy_bios_partition_size.return_value = 0
         self.firmware.get_efi_partition_size.return_value = 0
         self.firmware.get_prep_partition_size.return_value = 0
-        self.firmware.efi_mode = mock.Mock(
+        self.firmware.efi_mode = Mock(
             return_value='efi'
         )
-        kiwi.builder.disk.FirmWare = mock.Mock(
+        kiwi.builder.disk.FirmWare = Mock(
             return_value=self.firmware
         )
-        self.setup = mock.Mock()
-        kiwi.builder.disk.SystemSetup = mock.Mock(
+        self.setup = Mock()
+        kiwi.builder.disk.SystemSetup = Mock(
             return_value=self.setup
         )
-        self.install_image = mock.Mock()
-        kiwi.builder.disk.InstallImageBuilder = mock.Mock(
+        self.install_image = Mock()
+        kiwi.builder.disk.InstallImageBuilder = Mock(
             return_value=self.install_image
         )
-        self.raid_root = mock.Mock()
+        self.raid_root = Mock()
         self.raid_root.get_device.return_value = MappedDevice(
-            '/dev/md0', mock.Mock()
+            '/dev/md0', Mock()
         )
-        kiwi.builder.disk.RaidDevice = mock.Mock(
+        kiwi.builder.disk.RaidDevice = Mock(
             return_value=self.raid_root
         )
-        self.luks_root = mock.Mock()
-        kiwi.builder.disk.LuksDevice = mock.Mock(
+        self.luks_root = Mock()
+        kiwi.builder.disk.LuksDevice = Mock(
             return_value=self.luks_root
         )
-        self.fstab = mock.Mock()
-        kiwi.builder.disk.Fstab = mock.Mock(
+        self.fstab = Mock()
+        kiwi.builder.disk.Fstab = Mock(
             return_value=self.fstab
         )
         self.disk_builder = DiskBuilder(
@@ -236,7 +228,7 @@ class TestDiskBuilder:
     def test_create_install_media(
         self, mock_wipe, mock_load, mock_path
     ):
-        result_instance = mock.Mock()
+        result_instance = Mock()
         mock_path.return_value = True
         self.disk_builder.install_iso = True
         self.disk_builder.install_pxe = True
@@ -248,7 +240,7 @@ class TestDiskBuilder:
 
     @patch('os.path.exists')
     def test_create_install_media_no_boot_instance_found(self, mock_path):
-        result_instance = mock.Mock()
+        result_instance = Mock()
         mock_path.return_value = False
         self.disk_builder.install_iso = True
         with raises(KiwiInstallMediaError):
@@ -257,7 +249,7 @@ class TestDiskBuilder:
     @patch('os.path.exists')
     @patch('pickle.load')
     def test_create_install_media_pickle_load_error(self, mock_load, mock_path):
-        result_instance = mock.Mock()
+        result_instance = Mock()
         mock_load.side_effect = Exception
         mock_path.return_value = True
         self.disk_builder.install_iso = True
@@ -274,7 +266,7 @@ class TestDiskBuilder:
     ):
         mock_path.return_value = True
         mock_rand.return_value = 15
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.initrd_system = 'kiwi'
@@ -406,12 +398,12 @@ class TestDiskBuilder:
         )
         mock_path.return_value = True
         mock_rand.return_value = 15
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.initrd_system = 'dracut'
         self.setup.script_exists.return_value = True
-        disk_system = mock.Mock()
+        disk_system = Mock()
         mock_SystemSetup.return_value = disk_system
 
         m_open = mock_open()
@@ -543,10 +535,10 @@ class TestDiskBuilder:
         mock_rand.return_value = 15
         self.disk_builder.root_filesystem_is_overlay = True
         self.disk_builder.volume_manager_name = None
-        squashfs = mock.Mock()
+        squashfs = Mock()
         mock_squashfs.return_value = squashfs
         mock_getsize.return_value = 1048576
-        tempfile = mock.Mock()
+        tempfile = Mock()
         tempfile.name = 'tempname'
         mock_temp.return_value = tempfile
         mock_exists.return_value = True
@@ -609,11 +601,11 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_xen_server_boot(
         self, mock_command, mock_fs
     ):
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.xen_server = True
-        self.firmware.efi_mode = mock.Mock(
+        self.firmware.efi_mode = Mock(
             return_value=False
         )
 
@@ -631,10 +623,10 @@ class TestDiskBuilder:
         self, mock_grub_dir, mock_command, mock_fs
     ):
         self.disk_builder.arch = 's390x'
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
-        self.firmware.efi_mode = mock.Mock(
+        self.firmware.efi_mode = Mock(
             return_value=False
         )
         self.disk_builder.bootloader = 'grub2_s390x_emu'
@@ -650,10 +642,10 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_secure_boot(
         self, mock_grub_dir, mock_command, mock_fs
     ):
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
-        self.firmware.efi_mode = mock.Mock(
+        self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
         with patch('builtins.open'):
@@ -668,7 +660,7 @@ class TestDiskBuilder:
     def test_create_disk_mdraid_root(
         self, mock_grub_dir, mock_command, mock_fs
     ):
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.mdraid = 'mirroring'
@@ -697,7 +689,7 @@ class TestDiskBuilder:
     def test_create_disk_luks_root(
         self, mock_grub_dir, mock_command, mock_fs
     ):
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.luks = 'passphrase'
@@ -733,18 +725,18 @@ class TestDiskBuilder:
         mock_volume_manager, mock_fs
     ):
         mock_exists.return_value = True
-        volume_manager = mock.Mock()
-        volume_manager.get_device = mock.Mock(
+        volume_manager = Mock()
+        volume_manager.get_device = Mock(
             return_value={
-                'root': MappedDevice('/dev/systemVG/LVRoot', mock.Mock()),
-                'swap': MappedDevice('/dev/systemVG/LVSwap', mock.Mock())
+                'root': MappedDevice('/dev/systemVG/LVRoot', Mock()),
+                'swap': MappedDevice('/dev/systemVG/LVSwap', Mock())
             }
         )
-        volume_manager.get_fstab = mock.Mock(
+        volume_manager.get_fstab = Mock(
             return_value=['fstab_volume_entries']
         )
         mock_volume_manager.return_value = volume_manager
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = 'lvm'
 
@@ -780,7 +772,7 @@ class TestDiskBuilder:
     def test_create_disk_hybrid_gpt_requested(
         self, mock_grub_dir, mock_command, mock_fs
     ):
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
@@ -797,7 +789,7 @@ class TestDiskBuilder:
     def test_create_disk_force_mbr_requested(
         self, mock_grub_dir, mock_command, mock_fs
     ):
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
@@ -812,8 +804,8 @@ class TestDiskBuilder:
     def test_create(
         self, mock_builder
     ):
-        result = mock.Mock()
-        builder = mock.Mock()
+        result = Mock()
+        builder = Mock()
         builder.create_disk.return_value = result
         builder.create_install_media.return_value = result
         mock_builder.return_value = builder
@@ -831,7 +823,7 @@ class TestDiskBuilder:
     def test_create_disk_spare_part_requested(
         self, mock_grub_dir, mock_command, mock_fs
     ):
-        filesystem = mock.Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
@@ -879,15 +871,15 @@ class TestDiskBuilder:
 
     @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.Partitioner')
-    @patch('kiwi.builder.disk.DiskFormat')
+    @patch('kiwi.builder.disk.DiskFormat.new')
     def test_append_unpartitioned_space(
         self, mock_diskformat, mock_partitioner, mock_loopdevice
     ):
-        loopdevice = mock.Mock()
+        loopdevice = Mock()
         mock_loopdevice.return_value = loopdevice
-        partitioner = mock.Mock()
+        partitioner = Mock()
         mock_partitioner.return_value = partitioner
-        disk_format = mock.Mock()
+        disk_format = Mock()
         mock_diskformat.return_value = disk_format
         self.disk_builder.unpartitioned_bytes = 1024
         self.disk_builder.append_unpartitioned_space()
@@ -899,9 +891,12 @@ class TestDiskBuilder:
 
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
-    def test_create_disk_format(self, mock_command, mock_fs):
-        result_instance = mock.Mock()
-        filesystem = mock.Mock()
+    @patch('kiwi.builder.disk.DiskFormat.new')
+    def test_create_disk_format(self, mock_DiskFormat, mock_command, mock_fs):
+        disk_subformat = Mock()
+        mock_DiskFormat.return_value = disk_subformat
+        result_instance = Mock()
+        filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.install_media = False
         self.disk_builder.image_format = 'vmdk'
@@ -909,4 +904,4 @@ class TestDiskBuilder:
         with patch('builtins.open'):
             self.disk_builder.create_disk_format(result_instance)
 
-        self.disk.subformat.create_image_format.assert_called_once_with()
+        disk_subformat.create_image_format.assert_called_once_with()

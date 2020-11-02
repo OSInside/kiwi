@@ -147,7 +147,7 @@ class ImageInfoTask(CliTask):
             repo_secret = xml_repo.get_password()
             repo_type = xml_repo.get_type()
             solver.add_repository(
-                SolverRepository(
+                SolverRepository.new(
                     Uri(repo_source, repo_type), repo_user, repo_secret
                 )
             )
