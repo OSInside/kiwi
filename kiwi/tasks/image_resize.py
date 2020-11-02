@@ -99,7 +99,7 @@ class ImageResizeTask(CliTask):
 
         disk_format = self.xml_state.build_type.get_format()
 
-        image_format = DiskFormat(
+        image_format = DiskFormat.new(
             disk_format or 'raw', self.xml_state, image_root,
             abs_target_dir_path
         )

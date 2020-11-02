@@ -548,7 +548,7 @@ class DiskBuilder:
         """
         if self.image_format:
             log.info('Creating %s Disk Format', self.image_format)
-            disk_format = DiskFormat(
+            disk_format = DiskFormat.new(
                 self.image_format, self.xml_state,
                 self.root_dir, self.target_dir
             )
@@ -566,7 +566,7 @@ class DiskBuilder:
                 'Expanding disk with %d bytes of unpartitioned space',
                 self.unpartitioned_bytes
             )
-            disk_format = DiskFormat(
+            disk_format = DiskFormat.new(
                 'raw', self.xml_state, self.root_dir, self.target_dir
             )
             disk_format.resize_raw_disk(self.unpartitioned_bytes, append=True)

@@ -15,67 +15,67 @@ class TestDiskFormat:
 
     def test_format_not_implemented(self):
         with raises(KiwiDiskFormatSetupError):
-            DiskFormat('foo', self.xml_state, 'root_dir', 'target_dir')
+            DiskFormat.new('foo', self.xml_state, 'root_dir', 'target_dir')
 
     def test_disk_format_vagrant_not_implemented(self):
         self.xml_state.get_build_type_vagrant_config_section = Mock(
             return_value=None
         )
         with raises(KiwiDiskFormatSetupError):
-            DiskFormat(
+            DiskFormat.new(
                 'vagrant', self.xml_state, 'root_dir', 'target_dir'
             )
 
-    @patch('kiwi.storage.subformat.DiskFormatQcow2')
+    @patch('kiwi.storage.subformat.qcow2.DiskFormatQcow2')
     def test_disk_format_qcow2(self, mock_qcow2):
-        DiskFormat('qcow2', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('qcow2', self.xml_state, 'root_dir', 'target_dir')
         mock_qcow2.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir', {}
         )
 
-    @patch('kiwi.storage.subformat.DiskFormatVdi')
+    @patch('kiwi.storage.subformat.vdi.DiskFormatVdi')
     def test_disk_format_vdi(self, mock_vdi):
-        DiskFormat('vdi', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('vdi', self.xml_state, 'root_dir', 'target_dir')
         mock_vdi.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir', {}
         )
 
-    @patch('kiwi.storage.subformat.DiskFormatVhd')
+    @patch('kiwi.storage.subformat.vhd.DiskFormatVhd')
     def test_disk_format_vhd(self, mock_vhd):
-        DiskFormat('vhd', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('vhd', self.xml_state, 'root_dir', 'target_dir')
         mock_vhd.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir', {}
         )
 
-    @patch('kiwi.storage.subformat.DiskFormatVhdx')
+    @patch('kiwi.storage.subformat.vhdx.DiskFormatVhdx')
     def test_disk_format_vhdx(self, mock_vhdx):
-        DiskFormat('vhdx', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('vhdx', self.xml_state, 'root_dir', 'target_dir')
         mock_vhdx.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir', {}
         )
 
-    @patch('kiwi.storage.subformat.DiskFormatVhdFixed')
+    @patch('kiwi.storage.subformat.vhdfixed.DiskFormatVhdFixed')
     def test_disk_format_vhdfixed(self, mock_vhdfixed):
         self.xml_state.build_type.get_vhdfixedtag = Mock(
             return_value='disk-tag'
         )
-        DiskFormat('vhd-fixed', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('vhd-fixed', self.xml_state, 'root_dir', 'target_dir')
         mock_vhdfixed.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir', {'--tag': 'disk-tag'}
         )
 
-    @patch('kiwi.storage.subformat.DiskFormatGce')
+    @patch('kiwi.storage.subformat.gce.DiskFormatGce')
     def test_disk_format_gce(self, mock_gce):
         self.xml_state.build_type.get_gcelicense = Mock(
             return_value='gce_license_tag'
         )
-        DiskFormat('gce', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('gce', self.xml_state, 'root_dir', 'target_dir')
         mock_gce.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir',
             {'--tag': 'gce_license_tag'}
         )
 
-    @patch('kiwi.storage.subformat.DiskFormatVmdk')
+    @patch('kiwi.storage.subformat.vmdk.DiskFormatVmdk')
     def test_disk_format_vmdk(self, mock_vmdk):
         vmdisk = Mock()
         vmdisk.get_controller = Mock(
@@ -87,13 +87,13 @@ class TestDiskFormat:
         self.xml_state.get_build_type_vmdisk_section = Mock(
             return_value=vmdisk
         )
-        DiskFormat('vmdk', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('vmdk', self.xml_state, 'root_dir', 'target_dir')
         mock_vmdk.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir',
             {'adapter_type=controller': None, 'subformat=disk-mode': None}
         )
 
-    @patch('kiwi.storage.subformat.DiskFormatOva')
+    @patch('kiwi.storage.subformat.ova.DiskFormatOva')
     def test_disk_format_ova(self, mock_ova):
         vmdisk = Mock()
         vmdisk.get_controller = Mock(
@@ -105,14 +105,14 @@ class TestDiskFormat:
         self.xml_state.get_build_type_vmdisk_section = Mock(
             return_value=vmdisk
         )
-        DiskFormat('ova', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('ova', self.xml_state, 'root_dir', 'target_dir')
         mock_ova.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir',
             {'adapter_type=controller': None, 'subformat=disk-mode': None}
         )
 
-    @patch('kiwi.storage.subformat.DiskFormatVagrantVirtualBox')
-    @patch('kiwi.storage.subformat.DiskFormatVagrantLibVirt')
+    @patch('kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVagrantVirtualBox')
+    @patch('kiwi.storage.subformat.vagrant_libvirt.DiskFormatVagrantLibVirt')
     def test_disk_format_vagrant_libvirt(
         self, mock_vagrant_libvirt, mock_vagrant_virt_box
     ):
@@ -127,7 +127,7 @@ class TestDiskFormat:
             self.xml_state.get_build_type_vagrant_config_section = Mock(
                 return_value=vagrant_config
             )
-            DiskFormat(
+            DiskFormat.new(
                 'vagrant', self.xml_state, 'root_dir', 'target_dir'
             )
             provider_mock.assert_called_once_with(
@@ -135,9 +135,9 @@ class TestDiskFormat:
                 {'vagrantconfig': vagrant_config}
             )
 
-    @patch('kiwi.storage.subformat.DiskFormatBase')
+    @patch('kiwi.storage.subformat.base.DiskFormatBase')
     def test_disk_format_base(self, mock_base):
-        DiskFormat('raw', self.xml_state, 'root_dir', 'target_dir')
+        DiskFormat.new('raw', self.xml_state, 'root_dir', 'target_dir')
         mock_base.assert_called_once_with(
             self.xml_state, 'root_dir', 'target_dir', {}
         )
