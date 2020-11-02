@@ -94,9 +94,11 @@ class PackageManagerPacman(PackageManagerBase):
         """
         self.exclude_requests.append(name)
 
-    def process_install_requests_bootstrap(self):
+    def process_install_requests_bootstrap(self, root_bind=None):
         """
         Process package install requests for bootstrap phase (no chroot)
+
+        :param object root_binf: unused
 
         :return: process results in command type
 

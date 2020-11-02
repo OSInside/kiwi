@@ -219,7 +219,7 @@ class SystemPrepare:
             bootstrap_products
         )
         process = CommandProcess(
-            command=manager.process_install_requests_bootstrap(),
+            command=manager.process_install_requests_bootstrap(self.root_bind),
             log_topic='bootstrap'
         )
         try:
@@ -237,7 +237,7 @@ class SystemPrepare:
                         reason=issue
                     )
                 )
-        manager.post_process_install_requests_bootstrap()
+        manager.post_process_install_requests_bootstrap(self.root_bind)
         # process archive installations
         if bootstrap_archives:
             try:

@@ -1,7 +1,5 @@
 import logging
-from mock import (
-    patch, call
-)
+from mock import patch
 from pytest import (
     raises, fixture
 )
@@ -70,102 +68,74 @@ class TestPackageManagerApt:
         with raises(KiwiDebootstrapError):
             self.manager.process_install_requests_bootstrap()
 
-    @patch('kiwi.command.Command.run')
-    @patch('os.path.exists')
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.package_manager.apt.os.path.exists')
+    @patch('kiwi.package_manager.apt.os.unlink')
     @patch('kiwi.package_manager.apt.Path.wipe')
     def test_process_install_requests_bootstrap_failed_debootstrap(
-        self, mock_wipe, mock_exists, mock_run
+        self, mock_wipe, mock_unlink, mock_exists, mock_call
     ):
         self.manager.request_package('apt-get')
-        mock_run.side_effect = Exception
+        mock_call.side_effect = Exception
         mock_exists.return_value = True
+        mock_root_bind = mock.Mock()
         with raises(KiwiDebootstrapError):
-            self.manager.process_install_requests_bootstrap()
+            self.manager.process_install_requests_bootstrap(mock_root_bind)
 
     @patch('kiwi.command.Command.call')
-    @patch('kiwi.command.Command.run')
-    @patch('os.path.exists')
-    @patch('kiwi.package_manager.apt.DataSync')
+    @patch('kiwi.package_manager.apt.os.unlink')
+    @patch('kiwi.package_manager.apt.os.path.exists')
     def test_process_install_requests_bootstrap(
-        self, mock_sync, mock_exists, mock_run, mock_call
+        self, mock_exists, mock_unlink, mock_call
     ):
         self.manager.request_package('apt-get')
         self.manager.request_package('vim')
-        data = mock.Mock()
-        mock_sync.return_value = data
+        call_result = mock.Mock()
+        call_result.process.communicate.return_value = ('stdout', 'stderr')
+        mock_call.return_value = call_result
+        mock_root_bind = mock.Mock()
         mock_exists.return_value = True
-        self.manager.process_install_requests_bootstrap()
-        mock_sync.assert_called_once_with(
-            'root-dir.debootstrap/', 'root-dir'
+        self.manager.process_install_requests_bootstrap(mock_root_bind)
+        mock_call.assert_called_once_with(
+            [
+                'debootstrap', '--keyring=trusted.gpg',
+                '--variant=minbase', '--include=vim',
+                '--components=main,restricted', 'xenial',
+                'root-dir', 'xenial_path'
+            ], ['env']
         )
-        data.sync_data.assert_called_once_with(
-            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace'],
-            exclude=['proc', 'sys', 'dev']
-        )
-        assert mock_run.call_args_list == [
-            call(
-                [
-                    'debootstrap', '--keyring=trusted.gpg',
-                    '--variant=minbase', '--components=main,restricted',
-                    'xenial', 'root-dir.debootstrap', 'xenial_path'
-                ], ['env']
-            ),
-            call(
-                ['rm', '-r', '-f', 'root-dir.debootstrap']
-            ),
-            call(
-                [
-                    'chroot', 'root-dir', 'apt-get',
-                    '-c', 'apt.conf', '-y', 'update'
-                ], ['env']
-            )
-        ]
-        mock_call.assert_called_once_with([
-            'chroot', 'root-dir', 'apt-get',
-            '-c', 'apt.conf', '-y', 'install', 'vim'],
-            ['env']
-        )
+        mock_unlink.assert_called_once_with('root-dir/dev/fd')
+        mock_root_bind.umount_kernel_file_systems.assert_called_once_with()
+
+    def test_post_process_install_requests_bootstrap(self):
+        mock_root_bind = mock.Mock()
+        self.manager.post_process_install_requests_bootstrap(mock_root_bind)
+        mock_root_bind.mount_kernel_file_systems.assert_called_once_with()
 
     @patch('kiwi.command.Command.call')
-    @patch('kiwi.command.Command.run')
-    @patch('os.path.exists')
-    @patch('kiwi.package_manager.apt.DataSync')
+    @patch('kiwi.package_manager.apt.os.unlink')
+    @patch('kiwi.package_manager.apt.os.path.exists')
     def test_process_install_requests_bootstrap_no_gpg_check(
-        self, mock_sync, mock_exists, mock_run, mock_call
+        self, mock_exists, mock_unlink, mock_call
     ):
         self.manager.request_package('apt-get')
         self.manager.request_package('vim')
-        data = mock.Mock()
-        mock_sync.return_value = data
+        call_result = mock.Mock()
+        call_result.process.communicate.return_value = ('stdout', 'stderr')
+        mock_root_bind = mock.Mock()
+        mock_call.return_value = call_result
         mock_exists.side_effect = lambda x: True if 'xenial' in x else False
-        self.manager.process_install_requests_bootstrap()
-        mock_sync.assert_called_once_with(
-            'root-dir.debootstrap/', 'root-dir'
+        self.manager.process_install_requests_bootstrap(mock_root_bind)
+        mock_call.assert_called_once_with(
+            [
+                'debootstrap', '--no-check-gpg',
+                '--variant=minbase', '--include=vim',
+                '--components=main,restricted', 'xenial',
+                'root-dir', 'xenial_path'
+            ], ['env']
         )
-        data.sync_data.assert_called_once_with(
-            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace'],
-            exclude=['proc', 'sys', 'dev']
-        )
-        assert mock_run.call_args_list == [
-            call(
-                [
-                    'debootstrap', '--no-check-gpg',
-                    '--variant=minbase', '--components=main,restricted',
-                    'xenial', 'root-dir.debootstrap', 'xenial_path'
-                ], ['env']
-            ),
-            call(
-                [
-                    'chroot', 'root-dir', 'apt-get',
-                    '-c', 'apt.conf', '-y', 'update'
-                ], ['env']
-            )
-        ]
-        mock_call.assert_called_once_with([
-            'chroot', 'root-dir', 'apt-get',
-            '-c', 'apt.conf', '-y', 'install', 'vim'],
-            ['env']
-        )
+        mock_unlink.assert_called_once_with('root-dir/dev/fd')
+        mock_root_bind.umount_kernel_file_systems.assert_called_once_with()
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
