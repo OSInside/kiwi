@@ -114,10 +114,9 @@ class ContainerImageOCI:
         :param string base_image: archive used as a base image
         """
         exclude_list = Defaults.get_exclude_list_for_root_data_sync()
-        exclude_list.append('boot')
-        exclude_list.append('dev')
-        exclude_list.append('sys')
-        exclude_list.append('proc')
+        exclude_list.append('dev/*')
+        exclude_list.append('sys/*')
+        exclude_list.append('proc/*')
 
         oci = OCI()
         if base_image:
