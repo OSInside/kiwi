@@ -94,6 +94,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.timeout = self.get_boot_timeout_seconds()
         self.timeout_style = \
             self.xml_state.get_build_type_bootloader_timeout_style()
+        self.displayname = self.xml_state.xml_data.get_displayname()
         self.serial_line_setup = \
             self.xml_state.get_build_type_bootloader_serial_line_setup()
         self.continue_on_timeout = self.get_continue_on_timeout()
@@ -594,12 +595,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_CMDLINE_LINUX_DEFAULT
         * GRUB_GFXMODE
         * GRUB_TERMINAL
+        * GRUB_DISTRIBUTOR
         """
         grub_default_entries = {
             'GRUB_TIMEOUT': self.timeout,
             'GRUB_GFXMODE': self.gfxmode,
             'GRUB_TERMINAL': '"{0}"'.format(self.terminal)
         }
+        if self.displayname:
+            grub_default_entries['GRUB_DISTRIBUTOR'] = '"{0}"'.format(
+                self.displayname
+            )
         if self.timeout_style:
             grub_default_entries['GRUB_TIMEOUT_STYLE'] = self.timeout_style
         if self.cmdline:
