@@ -716,7 +716,7 @@ class TestDiskBuilder:
         )
 
     @patch('kiwi.builder.disk.FileSystem.new')
-    @patch('kiwi.builder.disk.VolumeManager')
+    @patch('kiwi.builder.disk.VolumeManager.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')

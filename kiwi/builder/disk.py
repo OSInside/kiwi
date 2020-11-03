@@ -326,7 +326,7 @@ class DiskBuilder:
                 'resize_on_boot':
                     self.disk_resize_requested
             }
-            self.volume_manager = VolumeManager(
+            self.volume_manager = VolumeManager.new(
                 self.volume_manager_name, device_map,
                 self.root_dir + '/',
                 self.volumes,
