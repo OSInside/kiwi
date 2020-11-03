@@ -134,7 +134,7 @@ class TestContainerImageOCI:
         mock_oci.sync_rootfs.assert_called_once_with(
             'root_dir', [
                 'image', '.profile', '.kconfig', '.buildenv',
-                'var/cache/kiwi', 'boot', 'dev', 'sys', 'proc'
+                'var/cache/kiwi', 'dev/*', 'sys/*', 'proc/*'
             ]
         )
         mock_oci.repack.assert_called_once_with({
@@ -175,7 +175,7 @@ class TestContainerImageOCI:
         mock_oci.sync_rootfs.assert_called_once_with(
             'root_dir', [
                 'image', '.profile', '.kconfig', '.buildenv',
-                'var/cache/kiwi', 'boot', 'dev', 'sys', 'proc'
+                'var/cache/kiwi', 'dev/*', 'sys/*', 'proc/*'
             ]
         )
         mock_oci.repack.assert_called_once_with({
