@@ -16,11 +16,11 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" format="qcow2" firmware="uefi" kernelcmdline="plymouth.enable=0 console=ttyS0,115200 console=tty0 net.ifnames=0 swapaccount=1" bootpartition="false" bootkernel="custom" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true" btrfs_quota_groups="false" spare_part="5G" spare_part_mountpoint="/var" spare_part_fs="ext4" spare_part_is_last="true">
+        <type image="oem" filesystem="btrfs" format="qcow2" firmware="uefi" kernelcmdline="plymouth.enable=0 console=ttyS0 net.ifnames=0 swapaccount=1" bootpartition="false" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true" btrfs_quota_groups="false" spare_part="5G" spare_part_mountpoint="/var" spare_part_fs="ext4" spare_part_is_last="true">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" console="gfxterm"/>
+            <bootloader name="grub2" console="serial"/>
             <systemdisk>
                 <volume name="home"/>
                 <volume name="root"/>

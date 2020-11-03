@@ -7,11 +7,11 @@
         <specification>GCE test build</specification>
     </description>
     <preferences>
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0,38400n8 net.ifnames=0 NON_PERSISTENT_DEVICE_NAMES=1 dis_ucode_ldr" format="gce" gcelicense="1111111111111111111" firmware="efi">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 net.ifnames=0 NON_PERSISTENT_DEVICE_NAMES=1 dis_ucode_ldr" format="gce" gcelicense="1111111111111111111" firmware="efi">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" timeout="1"/>
+            <bootloader name="grub2" timeout="1" console="serial"/>
             <size unit="M">10240</size>
         </type>
         <version>1.0.17</version>

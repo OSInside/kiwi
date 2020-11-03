@@ -28,21 +28,21 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="libvirt">
-        <type image="oem" filesystem="ext4" format="vagrant" firmware="efi" kernelcmdline="net.ifnames=0">
+        <type image="oem" filesystem="ext4" format="vagrant" firmware="efi" kernelcmdline="net.ifnames=0 console=ttyS0">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" timeout="0"/>
+            <bootloader name="grub2" timeout="0" console="serial"/>
             <vagrantconfig provider="libvirt" virtualsize="42"/>
             <size unit="G">42</size>
         </type>
     </preferences>
     <preferences profiles="virtualbox">
-        <type image="oem" filesystem="ext4" format="vagrant" kernelcmdline="net.ifnames=0">
+        <type image="oem" filesystem="ext4" format="vagrant" kernelcmdline="net.ifnames=0 console=ttyS0">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" timeout="0"/>
+            <bootloader name="grub2" timeout="0" console="serial"/>
             <vagrantconfig provider="virtualbox" virtualbox_guest_additions_present="true" virtualsize="42"/>
             <size unit="G">42</size>
         </type>

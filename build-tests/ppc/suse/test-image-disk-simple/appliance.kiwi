@@ -14,9 +14,7 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <bootsplash-theme>bgrt</bootsplash-theme>
-        <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 splash" firmware="ofw" format="qcow2">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="ofw" format="qcow2">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>

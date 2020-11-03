@@ -18,13 +18,13 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext4" firmware="uefi" spare_part="500M" editbootconfig="custom_partitions_create.sh" editbootinstall="custom_partitions_setup.sh" installiso="true">
+        <type image="oem" filesystem="ext4" firmware="uefi" spare_part="500M" editbootconfig="custom_partitions_create.sh" editbootinstall="custom_partitions_setup.sh" installiso="true" kernelcmdline="console=ttyS0">
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>512</oem-swapsize>
                 <oem-device-filter>/dev/ram</oem-device-filter>
             </oemconfig>
-            <bootloader name="grub2"/>
+            <bootloader name="grub2" console="serial"/>
         </type>
     </preferences>
     <users>

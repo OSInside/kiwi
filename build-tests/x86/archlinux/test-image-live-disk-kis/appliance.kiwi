@@ -31,23 +31,25 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true" firmware="efi"/>
+        <type image="iso" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true" firmware="efi" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial"/>
+        </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="oem" primary="true" filesystem="ext4" firmware="efi">
+        <type image="oem" primary="true" filesystem="ext4" firmware="efi" kernelcmdline="console=ttyS0">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2"/>
+            <bootloader name="grub2" console="serial"/>
         </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" filesystem="ext4" installiso="true">
-            <bootloader name="grub2"/>
+        <type image="oem" filesystem="ext4" installiso="true" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial"/>
         </type>
     </preferences>
     <preferences profiles="KIS">
-        <type image="kis" filesystem="ext4"/>
+        <type image="kis" filesystem="ext4" kernelcmdline="console=ttyS0"/>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
