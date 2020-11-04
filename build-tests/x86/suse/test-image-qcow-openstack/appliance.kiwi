@@ -7,11 +7,11 @@
         <specification>SUSE Tumbleweed guest image for OpenStack</specification>
     </description>
     <preferences>
-        <type image="oem" filesystem="ext4" format="qcow2" kernelcmdline="console=tty1 console=ttyS0 net.ifnames=0">
+        <type image="oem" filesystem="ext4" format="qcow2" kernelcmdline="console=ttyS0 net.ifnames=0">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" timeout="1"/>
+            <bootloader name="grub2" timeout="1" console="serial gfxterm"/>
             <size unit="M">10240</size>
         </type>
         <version>0.3.10</version>

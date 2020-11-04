@@ -13,7 +13,7 @@
         <keytable>us</keytable>
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
-        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0,115200" firmware="efi" installpxe="true">
+        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installpxe="true">
             <bootloader name="grub2" console="serial"/>
             <oemconfig>
                 <oem-skip-verify>true</oem-skip-verify>

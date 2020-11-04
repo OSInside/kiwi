@@ -16,11 +16,11 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0 splash" firmware="uefi" format="vmdk">
+        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" format="vmdk">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2"/>
+            <bootloader name="grub2" console="serial"/>
             <systemdisk>
                 <volume name="home"/>
             </systemdisk>

@@ -20,16 +20,14 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <bootsplash-theme>bgrt</bootsplash-theme>
-        <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="PhysicalBSZ_4096">
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 splash" firmware="ofw" installiso="true" installboot="install" target_blocksize="4096">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="ofw" installiso="true" installboot="install" target_blocksize="4096">
             <bootloader name="grub2" console="serial"/>
         </type>
     </preferences>
     <preferences profiles="PhysicalBSZ_512">
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 splash" firmware="ofw" installiso="true" installboot="install">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="ofw" installiso="true" installboot="install">
             <bootloader name="grub2" console="serial"/>
         </type>
     </preferences>
