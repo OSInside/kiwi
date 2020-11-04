@@ -664,7 +664,9 @@ class TestBootLoaderConfigGrub2:
             file_handle_grubenv = \
                 mock_open_grubenv.return_value.__enter__.return_value
 
-            file_handle_grub.read.return_value = 'root=PARTUUID=xx'
+            file_handle_grub.read.return_value = \
+                'root=rootdev nomodeset console=ttyS0 console=tty0\n' \
+                'root=PARTUUID=xx'
             file_handle_grubenv.read.return_value = 'root=rootdev'
             file_handle_menu.read.return_value = 'options foo bar'
 
@@ -698,9 +700,17 @@ class TestBootLoaderConfigGrub2:
                     '    fi\n'
                     'fi\n'
                 ),
-                call('root=PARTUUID=xx'),
+                call(
+                    'root=rootdev nomodeset console=ttyS0 console=tty0'
+                    '\n'
+                    'root=PARTUUID=xx'
+                ),
                 # second write of grub.cfg, setting overlay root
-                call('root=overlay:UUID=ID')
+                call(
+                    'root=overlay:UUID=ID nomodeset console=ttyS0 console=tty0'
+                    '\n'
+                    'root=overlay:UUID=ID'
+                )
             ]
             file_handle_grubenv.write.assert_called_once_with(
                 'root=overlay:UUID=ID'

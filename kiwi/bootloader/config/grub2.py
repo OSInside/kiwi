@@ -1159,9 +1159,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     # grub mkconfig root= settings and replaces it with a
                     # correct value
                     # 1. root=LOCAL-KIWI-MAPPED-DEVICE
-                    # 2. root=.*(lazy)=ANY-LINUX-BY-ID-VALUE
+                    # 2. root=[a-zA-Z]=ANY-LINUX-BY-ID-VALUE
                     grub_config = re.sub(
-                        r'(root=.*?=[a-zA-Z0-9:\.-]+)|(root={0})'.format(
+                        r'(root=[a-zA-Z]+=[a-zA-Z0-9:\.-]+)|(root={0})'.format(
                             boot_options.get('root_device')
                         ),
                         '{0}'.format(self.root_reference),
