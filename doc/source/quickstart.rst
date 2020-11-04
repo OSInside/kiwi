@@ -44,7 +44,7 @@ command in order to build it:
 
 .. code:: bash
 
-    $ sudo kiwi-ng --type oem system build \
+    $ sudo kiwi-ng --profile=Disk --type oem system build \
         --description kiwi-descriptions/suse/x86_64/{exc_description} \
         --target-dir /tmp/myimage
 
