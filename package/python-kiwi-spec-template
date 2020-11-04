@@ -434,7 +434,7 @@ fi
 %{_bindir}/kiwi-ng-3*
 %{_bindir}/kiwicompat-3*
 %{python3_sitelib}/kiwi*
-%{_usr}/share/bash-completion/completions/kiwi-ng.sh
+%{_usr}/share/bash-completion/completions/kiwi-ng
 %{_defaultdocdir}/python-kiwi/LICENSE
 %{_defaultdocdir}/python-kiwi/README
 

@@ -47,7 +47,7 @@ install:
 	# completion
 	install -d -m 755 ${buildroot}usr/share/bash-completion/completions
 	$(python) helper/completion_generator.py \
-		> ${buildroot}usr/share/bash-completion/completions/kiwi-ng.sh
+		> ${buildroot}usr/share/bash-completion/completions/kiwi-ng
 	# kiwi default configuration
 	install -d -m 755 ${buildroot}etc
 	install -m 644 kiwi.yml ${buildroot}etc/kiwi.yml
