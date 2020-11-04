@@ -251,10 +251,12 @@ class PackageManagerZypper(PackageManagerBase):
             '.*Removing: ' + re.escape(package_name) + '.*', zypper_output
         )
 
-    def post_process_install_requests_bootstrap(self):
+    def post_process_install_requests_bootstrap(self, root_bind=None):
         """
         Move the rpm database to the place as it is expected by the
         rpm package installed during bootstrap phase
+
+        :param object root_bind: unused
         """
         rpmdb = RpmDataBase(self.root_dir)
         if rpmdb.has_rpm():

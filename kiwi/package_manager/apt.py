@@ -180,8 +180,8 @@ class PackageManagerApt(PackageManagerBase):
         Mounts the kernel file systems to the chroot environment is
         ready after the bootstrap procedure
 
-        :param object root_bind: instance of RootBind to manage kernel
-            file systems
+        :param object root_bind:
+            instance of RootBind to manage kernel file systems
         """
         root_bind.mount_kernel_file_systems()
 
