@@ -83,6 +83,12 @@
         <package name="dbus"/>
         <package name="btrfs-progs"/>
         <package name="xz-utils"/>
+        <package name="usrmerge"/>
+        <!--
+            mawk is included so OBS adds it as a build dependency,
+            however this is installed by debootstrap
+        -->
+        <package name="mawk"/>
     </packages>
     <packages type="image" profiles="Live">
         <package name="dracut-kiwi-live"/>
@@ -91,8 +97,5 @@
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
-    <packages type="bootstrap">
-        <package name="mawk"/>
-        <package name="usrmerge"/>
-    </packages>
+    <packages type="bootstrap"/>
 </image>
