@@ -72,7 +72,7 @@ sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication n
 
 # Remove the password for root
 # Note the string matches the password set in the config file
-sed -i 's/$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0/*/' /etc/shadow
+# sed -i 's/$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0/*/' /etc/shadow
 
 # Create the boto config file
 echo  '[Boto]
