@@ -91,7 +91,7 @@ class DiskFormatVmdk(DiskFormatBase):
             shasum=False
         )
 
-    def _create_vmware_settings_file(self):                 # noqa: C901
+    def _create_vmware_settings_file(self):
         """
         In order to run a vmdk image in VMware products a settings file is
         needed or the possibility to convert machine settings into an ovf

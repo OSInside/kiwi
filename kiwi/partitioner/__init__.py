@@ -38,7 +38,7 @@ class Partitioner:
     :param object storage_provider: Instance of class based on DeviceProvider
     :param int start_sector: sector number
     """
-    def __new__(self, table_type, storage_provider, start_sector=None):  # noqa: C901
+    def __new__(self, table_type, storage_provider, start_sector=None):
         host_architecture = Defaults.get_platform_name()
         if host_architecture == 'x86_64':
             if table_type == 'gpt':

@@ -224,7 +224,7 @@ class OCIBuildah(OCIBase):
         self.working_image = output.output.rstrip()
         self.working_container = None
 
-    @classmethod                                                # noqa:C901
+    @classmethod
     def _process_oci_config_to_arguments(self, oci_config):
         """
         Process the oci configuration dictionary into a list of arguments
