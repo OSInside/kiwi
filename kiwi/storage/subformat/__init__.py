@@ -41,7 +41,7 @@ class DiskFormat(metaclass=ABCMeta):
     @abstractmethod
     def new(
         name: str, xml_state: object, root_dir: str, target_dir: str
-    ):  # noqa: C901, E252
+    ):  # noqa: E252
         name_map = {
             'qcow2': 'Qcow2',
             'vdi': 'Vdi',

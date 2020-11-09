@@ -63,7 +63,7 @@ class DiskSetup:
         self.root_dir = root_dir
         self.xml_state = xml_state
 
-    def get_disksize_mbytes(self):  # noqa C901
+    def get_disksize_mbytes(self):
         """
         Precalculate disk size requirements in mbytes
 

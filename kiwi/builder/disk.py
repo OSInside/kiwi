@@ -203,7 +203,7 @@ class DiskBuilder:
 
         return result
 
-    def create_disk(self):  # noqa: C901
+    def create_disk(self):
         """
         Build a bootable raw disk image
 
@@ -725,7 +725,7 @@ class DiskBuilder:
             )
             self.system_boot = filesystem
 
-    def _build_and_map_disk_partitions(self, disksize_mbytes):  # noqa: C901
+    def _build_and_map_disk_partitions(self, disksize_mbytes):
         self.disk.wipe()
         disksize_used_mbytes = 0
         if self.firmware.legacy_bios_mode():

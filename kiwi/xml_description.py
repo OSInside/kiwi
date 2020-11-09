@@ -72,7 +72,7 @@ class XMLDescription:
         self.description_origin = description
         self.extension_data = {}
 
-    def load(self): # noqa C901
+    def load(self):
         """
         Read XML description, validate it against the schema
         and the schematron rules and pass it to the

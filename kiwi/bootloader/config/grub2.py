@@ -579,7 +579,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 log.debug(zipl_config)
                 zipl_config_file.write(zipl_config)
 
-    def _setup_default_grub(self):  # noqa: C901
+    def _setup_default_grub(self):
         """
         Create or update etc/default/grub by parameters required
         according to the root filesystem setup

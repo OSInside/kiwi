@@ -1198,7 +1198,7 @@ class XMLState:
 
         container_config_section.set_labels(labels)
 
-    def get_volumes(self):  # noqa C901
+    def get_volumes(self):
         """
         List of configured systemdisk volumes.
 
