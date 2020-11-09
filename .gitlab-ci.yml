@@ -36,12 +36,12 @@ unit_py37:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
   stage: test
   script:
-    - export PYTHON=python3.7
-    - tox -e unit_py3_7 "-n $(nproc)"
+    - export PYTHON=python3.8
+    - tox -e unit_py3_8 "-n $(nproc)"
   cache:
     key: "$CI_JOB_NAME"
     paths:
-      - .tox/3.7
+      - .tox/3.8
 
 build_doc:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$TUMBLEWEED_BUILD
