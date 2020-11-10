@@ -9,17 +9,8 @@ if [ "${root%%:*}" = "overlay" ] ; then
     overlayroot=${root}
 fi
 
+# Generate sysroot unit only if overlay is requested
 [ "${overlayroot%%:*}" = "overlay" ] || exit 0
-
-case "${overlayroot}" in
-    overlay:UUID=*|UUID=*) \
-        root="${root#overlay:}"
-        root="${root//\//\\x2f}"
-        root="block:/dev/disk/by-uuid/${root#UUID=}"
-        rootok=1 ;;
-esac
-
-[ "${rootok}" != "1" ] && exit 0
 
 GENERATOR_DIR="$2"
 [ -z "$GENERATOR_DIR" ] && exit 1
