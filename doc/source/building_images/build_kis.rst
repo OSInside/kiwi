@@ -64,7 +64,7 @@ build the image:
 
 .. code:: bash
 
-   $ sudo kiwi-ng --type kis system build \
+   $ sudo kiwi-ng --profile KIS system build \
        --description kiwi-descriptions/suse/x86_64/{exc_description} \
        --target-dir /tmp/myimage
 
