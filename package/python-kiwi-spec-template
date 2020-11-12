@@ -134,6 +134,10 @@ Recommends:     gnupg2
 Recommends:     dnf
 Recommends:     gpg2
 %endif
+%if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} >= 1550 || 0%{?sle_version} >= 150200
+Provides:       kiwi-packagemanager:microdnf
+Requires:       microdnf
+%endif
 %if 0%{?fedora} >= 26 || 0%{?suse_version}
 Requires:       zypper
 Provides:       kiwi-packagemanager:zypper
