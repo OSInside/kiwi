@@ -985,24 +985,6 @@ modified. The following attributes are mandatory:
 name="name":
   the UNIX username
 
-home="path":
-  The path to the user's home directory
-
-Additionally, the following optional attributes can be specified:
-
-groups="group_a,group_b":
-  A comma separated list of UNIX groups. The first element of the
-  list is used as the user's primary group. The remaining elements are
-  appended to the user's supplementary groups. When no groups are assigned
-  then the system's default primary group will be used.
-
-id="number":
-  The numeric user id of this account.
-
-pwdformat="plain|encrypted":
-  The format in which `password` is provided. The default if not
-  specified is `encrypted`.
-
 password="string"
   The password for this user account. It can be provided either
   in cleartext form or encrypted. An encrypted password can be created
@@ -1027,6 +1009,24 @@ password="string"
   with the groups attribute or belong to the default group as configured
   in the system. If specified the first entry in the groups list is used
   as the login group.
+
+Additionally, the following optional attributes can be specified:
+
+home="path":
+  The path to the user's home directory
+
+groups="group_a,group_b":
+  A comma separated list of UNIX groups. The first element of the
+  list is used as the user's primary group. The remaining elements are
+  appended to the user's supplementary groups. When no groups are assigned
+  then the system's default primary group will be used.
+
+id="number":
+  The numeric user id of this account.
+
+pwdformat="plain|encrypted":
+  The format in which `password` is provided. The default if not
+  specified is `encrypted`.
 
 .. _sec.profiles:
 

@@ -27,20 +27,6 @@ modified. The following attributes are mandatory:
 
 - `name`: the UNIX username
 
-- `home`: the path to the user's home directory
-
-Additionally, the following optional attributes can be specified:
-
-- `groups`: A comma separated list of UNIX groups. The first element of the
-  list is used as the user's primary group. The remaining elements are
-  appended to the user's supplementary groups. When no groups are assigned
-  then the system's default primary group will be used.
-
-- `id`: The numeric user id of this account.
-
-- `pwdformat`: The format in which `password` is provided, either `plain`
-  or `encrypted` (the latter is the default).
-
 - `password`: The password for this user account. It can be provided either
   in cleartext form (`pwdformat="plain"`) or in `crypt`'ed form
   (`pwdformat="encrypted"`). Plain passwords are discouraged, as everyone
@@ -51,3 +37,17 @@ Additionally, the following optional attributes can be specified:
   .. code:: bash
 
      $ openssl passwd -1 -salt 'xyz' YOUR_PASSWORD
+
+Additionally, the following optional attributes can be specified:
+
+- `home`: the path to the user's home directory
+
+- `groups`: A comma separated list of UNIX groups. The first element of the
+  list is used as the user's primary group. The remaining elements are
+  appended to the user's supplementary groups. When no groups are assigned
+  then the system's default primary group will be used.
+
+- `id`: The numeric user id of this account.
+
+- `pwdformat`: The format in which `password` is provided, either `plain`
+  or `encrypted` (the latter is the default).
