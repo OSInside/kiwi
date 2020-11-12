@@ -242,6 +242,20 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 config_file.replace(self.root_mount.mountpoint, '')
             ]
         )
+        if boot_options.get('root_device') != boot_options.get('boot_device'):
+            # Create a boot -> . link on the boot partition.
+            # The link is useful if the grub mkconfig command
+            # references all boot files from /boot/... even if
+            # an extra boot partition should cause it to read the
+            # data from the toplevel
+            bash_command = [
+                'cd', os.sep.join([self.root_mount.mountpoint, 'boot']), '&&',
+                'rm', '-f', 'boot', '&&',
+                'ln', '-s', '.', 'boot'
+            ]
+            Command.run(
+                ['bash', '-c', ' '.join(bash_command)]
+            )
 
         # Patch the written grub config file to actually work:
         # Unfortunately the grub tooling has several bugs and issues

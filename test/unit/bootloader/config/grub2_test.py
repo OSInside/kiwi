@@ -678,12 +678,20 @@ class TestBootLoaderConfigGrub2:
             mock_mount_system.assert_called_once_with(
                 'rootdev', 'bootdev', None, None
             )
-            mock_Command_run.assert_called_once_with(
-                [
-                    'chroot', self.bootloader.root_mount.mountpoint,
-                    'grub2-mkconfig', '-o', '/boot/grub2/grub.cfg'
-                ]
-            )
+            assert mock_Command_run.call_args_list == [
+                call(
+                    [
+                        'chroot', self.bootloader.root_mount.mountpoint,
+                        'grub2-mkconfig', '-o', '/boot/grub2/grub.cfg'
+                    ]
+                ),
+                call(
+                    [
+                        'bash', '-c',
+                        'cd root_mount_point/boot && rm -f boot && ln -s . boot'
+                    ]
+                )
+            ]
             mock_copy_grub_config_to_efi_path.assert_called_once_with(
                 'efi_mount_point', 'earlyboot.cfg'
             )
