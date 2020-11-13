@@ -193,10 +193,9 @@ class DiskSetup:
             return True
         if self.volume_manager == 'btrfs':
             return False
-        if self.filesystem == 'xfs':
-            return True
         if self.root_filesystem_is_overlay:
             return True
+        return False
 
     def get_boot_label(self):
         """
