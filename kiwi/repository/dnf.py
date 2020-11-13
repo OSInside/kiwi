@@ -88,7 +88,7 @@ class RepositoryDnf(RepositoryBase):
         )
 
         self.dnf_args = [
-            '-c', self.runtime_dnf_config_file.name, '-y'
+            '--config', self.runtime_dnf_config_file.name, '-y'
         ] + self.custom_args
 
         self.command_env = self._create_dnf_runtime_environment()

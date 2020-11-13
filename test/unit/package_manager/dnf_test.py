@@ -14,7 +14,7 @@ class TestPackageManagerDnf:
 
         repository.runtime_config = mock.Mock(
             return_value={
-                'dnf_args': ['-c', '/root-dir/dnf.conf', '-y'],
+                'dnf_args': ['--config', '/root-dir/dnf.conf', '-y'],
                 'command_env': ['env']
             }
         )
@@ -43,14 +43,14 @@ class TestPackageManagerDnf:
         self.manager.request_collection('collection')
         self.manager.process_install_requests_bootstrap()
         mock_run.assert_called_once_with(
-            ['dnf', '-c', '/root-dir/dnf.conf', '-y', 'makecache']
+            ['dnf', '--config', '/root-dir/dnf.conf', '-y', 'makecache']
         )
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'dnf -c /root-dir/dnf.conf -y '
+                'dnf --config /root-dir/dnf.conf -y '
                 '--installroot /root-dir install vim && '
-                'dnf -c /root-dir/dnf.conf -y '
+                'dnf --config /root-dir/dnf.conf -y '
                 '--installroot /root-dir group install '
                 '"collection"'
             ], ['env']
@@ -65,9 +65,9 @@ class TestPackageManagerDnf:
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'chroot /root-dir dnf -c /dnf.conf -y '
+                'chroot /root-dir dnf --config /dnf.conf -y '
                 '--exclude=skipme install vim && '
-                'chroot /root-dir dnf -c /dnf.conf -y '
+                'chroot /root-dir dnf --config /dnf.conf -y '
                 '--exclude=skipme group install '
                 '"collection"'
             ], ['env']
@@ -96,7 +96,7 @@ class TestPackageManagerDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'dnf',
-                '-c', '/dnf.conf', '-y', 'autoremove', 'vim'
+                '--config', '/dnf.conf', '-y', 'autoremove', 'vim'
             ],
             ['env']
         )
@@ -120,7 +120,7 @@ class TestPackageManagerDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'dnf',
-                '-c', '/dnf.conf', '-y', 'upgrade'
+                '--config', '/dnf.conf', '-y', 'upgrade'
             ], ['env']
         )
 
