@@ -21,6 +21,7 @@ import logging
 from kiwi.package_manager.zypper import PackageManagerZypper
 from kiwi.package_manager.apt import PackageManagerApt
 from kiwi.package_manager.dnf import PackageManagerDnf
+from kiwi.package_manager.microdnf import PackageManagerMicroDnf
 from kiwi.package_manager.pacman import PackageManagerPacman
 
 from kiwi.exceptions import (
@@ -49,6 +50,8 @@ class PackageManager:
             manager = PackageManagerZypper(repository, custom_args)
         elif package_manager == 'dnf' or package_manager == 'yum':
             manager = PackageManagerDnf(repository, custom_args)
+        elif package_manager == 'microdnf':
+            manager = PackageManagerMicroDnf(repository, custom_args)
         elif package_manager == 'apt-get':
             manager = PackageManagerApt(repository, custom_args)
         elif package_manager == 'pacman':

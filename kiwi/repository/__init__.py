@@ -40,7 +40,7 @@ class Repository:
     def __new__(self, root_bind, package_manager, custom_args=None):
         if package_manager == 'zypper':
             return RepositoryZypper(root_bind, custom_args)
-        elif package_manager == 'dnf' or package_manager == 'yum':
+        elif package_manager == 'dnf' or package_manager == 'yum' or package_manager == 'microdnf':
             return RepositoryDnf(root_bind, custom_args)
         elif package_manager == 'apt-get':
             return RepositoryApt(root_bind, custom_args)
