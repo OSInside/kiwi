@@ -42,13 +42,10 @@ class TestPackageManagerMicroDnf:
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.process_install_requests_bootstrap()
-        mock_run.assert_called_once_with(
-            ['microdnf', '-c', '/root-dir/dnf.conf', '-y', 'makecache']
-        )
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'microdnf -c /root-dir/dnf.conf -y '
+                'microdnf --refresh -c /root-dir/dnf.conf -y '
                 '--installroot /root-dir install vim'
             ], ['env']
         )

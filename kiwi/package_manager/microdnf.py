@@ -99,12 +99,9 @@ class PackageManagerMicroDnf(PackageManagerBase):
 
         :rtype: namedtuple
         """
-        Command.run(
-            ['microdnf'] + self.dnf_args + ['makecache']
-        )
         bash_command = [
             'microdnf'
-        ] + self.dnf_args + [
+        ] + ['--refresh'] + self.dnf_args + [
             '--installroot', self.root_dir
         ] + self.custom_args + ['install'] + self.package_requests
         self.cleanup_requests()
