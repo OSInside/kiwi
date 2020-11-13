@@ -14,7 +14,7 @@ class TestPackageManagerMicroDnf:
 
         repository.runtime_config = mock.Mock(
             return_value={
-                'dnf_args': ['-c', '/root-dir/dnf.conf', '-y'],
+                'dnf_args': ['--config', '/root-dir/dnf.conf', '-y'],
                 'command_env': ['env']
             }
         )
@@ -42,13 +42,10 @@ class TestPackageManagerMicroDnf:
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.process_install_requests_bootstrap()
-        mock_run.assert_called_once_with(
-            ['microdnf', '-c', '/root-dir/dnf.conf', '-y', 'makecache']
-        )
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'microdnf -c /root-dir/dnf.conf -y '
+                'microdnf --refresh --config /root-dir/dnf.conf -y '
                 '--installroot /root-dir install vim'
             ], ['env']
         )
@@ -62,7 +59,7 @@ class TestPackageManagerMicroDnf:
         mock_call.assert_called_once_with(
             [
                 'bash', '-c',
-                'chroot /root-dir microdnf -c /dnf.conf -y '
+                'chroot /root-dir microdnf --config /dnf.conf -y '
                 '--exclude=skipme install vim'
             ], ['env']
         )
@@ -90,7 +87,7 @@ class TestPackageManagerMicroDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'microdnf',
-                '-c', '/dnf.conf', '-y', 'remove', 'vim'
+                '--config', '/dnf.conf', '-y', 'remove', 'vim'
             ],
             ['env']
         )
@@ -114,7 +111,7 @@ class TestPackageManagerMicroDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'microdnf',
-                '-c', '/dnf.conf', '-y', 'upgrade'
+                '--config', '/dnf.conf', '-y', 'upgrade'
             ], ['env']
         )
 
