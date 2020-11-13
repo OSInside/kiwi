@@ -111,7 +111,7 @@ class TestDiskSetup:
     def test_need_boot_partition_xfs(self):
         self._init_bootpart_check()
         self.setup.filesystem = 'xfs'
-        assert self.setup.need_boot_partition() is True
+        assert self.setup.need_boot_partition() is False
 
     def test_boot_partition_size(self):
         self.setup.bootpart_requested = True
