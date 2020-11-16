@@ -93,7 +93,7 @@ system. As diskless client, a QEMU virtual machine is used.
 
    .. code:: bash
 
-       $ cp {exc_image_base_name}.x86_64-{exc_image_version}/srv/tftpboot/image
+       $ cp {exc_image_base_name}.x86_64-{exc_image_version} /srv/tftpboot/image
        $ cp {exc_image_base_name}.x86_64-{exc_image_version}.md5 /srv/tftpboot/image
 
 6. Adjust the PXE configuration file.

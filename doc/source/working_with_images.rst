@@ -27,3 +27,4 @@ Working with Images
    working_with_images/build_with_profiles
    working_with_images/build_in_buildservice
    working_with_images/legacy_netboot_root_filesystem
+   working_with_images/network_overlay_boot
