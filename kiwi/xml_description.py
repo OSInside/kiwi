@@ -31,6 +31,7 @@ from kiwi import xml_parse
 from kiwi.command import Command
 
 from kiwi.exceptions import (
+    KiwiCommandError,
     KiwiSchemaImportError,
     KiwiValidationError,
     KiwiDescriptionInvalid,
@@ -97,12 +98,13 @@ class XMLDescription:
         except Exception as issue:
             raise KiwiValidationError(issue)
         if not validation_rng:
-            self._get_relaxng_validation_details(
+            XMLDescription._get_relaxng_validation_details(
                 Defaults.get_schema_file(),
-                self.description
+                self.description,
+                relaxng.error_log
             )
         if not validation_schematron:
-            self._get_schematron_validation_details(
+            XMLDescription._get_schematron_validation_details(
                 schematron.validation_report
             )
         if not validation_rng or not validation_schematron:
@@ -166,8 +168,10 @@ class XMLDescription:
                         extension_file = NamedTemporaryFile()
                         with open(extension_file.name, 'w') as xml_data:
                             xml_data.write(xml_data_domtree.toprettyxml())
-                        self._get_relaxng_validation_details(
-                            extension_schema, extension_file.name
+                        XMLDescription._get_relaxng_validation_details(
+                            extension_schema,
+                            extension_file.name,
+                            extension_relaxng.error_log
                         )
                         raise KiwiExtensionError(
                             'Schema validation for extension XML data failed'
@@ -188,30 +192,34 @@ class XMLDescription:
         if namespace_name in self.extension_data:
             return self.extension_data[namespace_name]
 
-    def _get_relaxng_validation_details(self, schema_file, description_file):
+    @staticmethod
+    def _get_relaxng_validation_details(
+        schema_file, description_file, error_log
+    ):
         """
         Run jing program to validate description against the schema
 
         Jing provides detailed error information in case of a schema
-        validation failure
+        validation failure. If jing is not present the standard
+        error_log as provided from the raw XML libraries is used
         """
         try:
-            cmd = Command.run(
-                ['jing', schema_file, description_file],
-                raise_on_error=False
+            Command.run(
+                ['jing', schema_file, description_file]
             )
+        except KiwiCommandError as issue:
+            log.info('RelaxNG validation failed. See jing report:')
+            log.info('--> {0}'.format(issue))
         except KiwiCommandNotFound as issue:
-            log.info(
-                'For detailed schema validation report, please install: jing'
+            log.warning(issue)
+            log.warning(
+                'For detailed schema validation report, install: jing'
             )
-            log.info(
-                '{0}: {1}: {2}'.format('jing', type(issue).__name__, issue)
-            )
-            return
-        log.info('RelaxNG validation failed. See jing report:')
-        log.info('--> %s', cmd.output)
+            log.info('Showing only raw library error log:')
+            log.info('--> {0}'.format(error_log))
 
-    def _get_schematron_validation_details(self, validation_report):
+    @staticmethod
+    def _get_schematron_validation_details(validation_report):
         """
         Extract error message form the schematron validation report
 

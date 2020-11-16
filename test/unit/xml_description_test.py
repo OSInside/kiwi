@@ -8,6 +8,7 @@ from collections import namedtuple
 from kiwi.xml_description import XMLDescription
 
 from kiwi.exceptions import (
+    KiwiCommandError,
     KiwiSchemaImportError,
     KiwiValidationError,
     KiwiDescriptionInvalid,
@@ -203,14 +204,7 @@ class TestSchema:
 
         mock_relax.return_value = mock_rng_validate
         mock_schematron.return_value = mock_sch_validate
-        command_run = namedtuple(
-            'command', ['output', 'error', 'returncode']
-        )
-        mock_command.return_value = command_run(
-            output='jing output\n',
-            error='',
-            returncode=1
-        )
+        mock_command.side_effect = KiwiCommandError('jing output')
         with raises(KiwiDescriptionInvalid):
             self.description_from_file.load()
 
