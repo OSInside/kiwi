@@ -730,6 +730,7 @@ class k_packagemanager_content(object):
     ZYPPER='zypper'
     YUM='yum'
     DNF='dnf'
+    MICRODNF='microdnf'
     PACMAN='pacman'
 
 
