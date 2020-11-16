@@ -203,15 +203,15 @@ class PackageManagerMicroDnf(PackageManagerBase):
         """
         Setup package processing only for required packages
         """
-        if '--setopt=install_weak_deps=False' not in self.custom_args:
-            self.custom_args.append('--setopt=install_weak_deps=False')
+        if '--setopt=install_weak_deps=0' not in self.custom_args:
+            self.custom_args.append('--setopt=install_weak_deps=0')
 
     def process_plus_recommended(self):
         """
         Setup package processing to also include recommended dependencies.
         """
-        if '--setopt=install_weak_deps=False' in self.custom_args:
-            self.custom_args.remove('--setopt=install_weak_deps=False')
+        if '--setopt=install_weak_deps=0' in self.custom_args:
+            self.custom_args.remove('--setopt=install_weak_deps=0')
 
     def match_package_installed(self, package_name, dnf_output):
         """
