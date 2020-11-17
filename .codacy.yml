@@ -5,3 +5,4 @@ exclude_paths:
   - 'doc/**'
   - 'build-tests/**'
   - 'helper/**'
+  - '.github/**'
