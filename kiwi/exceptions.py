@@ -161,7 +161,7 @@ class KiwiCommandError(KiwiError):
     """
 
 
-class KiwiCommandNotFound(KiwiCommandError):
+class KiwiCommandNotFound(KiwiError):
     """
     Exception raised if any executable command cannot be found in
     the evironment PATH variable.
