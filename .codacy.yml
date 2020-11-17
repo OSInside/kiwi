@@ -2,3 +2,6 @@
 exclude_paths:
   - 'kiwi/xml_parse.py'
   - 'test/**'
+  - 'doc/**'
+  - 'build-tests/**'
+  - 'helper/**'
