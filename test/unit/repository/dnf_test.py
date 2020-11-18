@@ -33,6 +33,7 @@ class TestRepositoryDnf:
         assert runtime_dnf_config.set.call_args_list == [
             call('main', 'cachedir', '/shared-dir/dnf/cache'),
             call('main', 'reposdir', '/shared-dir/dnf/repos'),
+            call('main', 'varsdir', '/shared-dir/dnf/vars'),
             call('main', 'pluginconfpath', '/shared-dir/dnf/pluginconf'),
             call('main', 'keepcache', '1'),
             call('main', 'debuglevel', '2'),
@@ -70,6 +71,7 @@ class TestRepositoryDnf:
         assert runtime_dnf_config.set.call_args_list == [
             call('main', 'cachedir', '../data/var/cache/dnf'),
             call('main', 'reposdir', '../data/etc/yum.repos.d'),
+            call('main', 'varsdir', '../data/etc/dnf/vars'),
             call('main', 'pluginconfpath', '../data/etc/dnf/plugins'),
             call('main', 'keepcache', '1'),
             call('main', 'debuglevel', '2'),
