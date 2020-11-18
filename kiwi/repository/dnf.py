@@ -80,7 +80,8 @@ class RepositoryDnf(RepositoryBase):
         self.shared_dnf_dir = {
             'reposd-dir': manager_base + '/repos',
             'cache-dir': manager_base + '/cache',
-            'pluginconf-dir': manager_base + '/pluginconf'
+            'pluginconf-dir': manager_base + '/pluginconf',
+            'vars-dir': manager_base + '/vars'
         }
 
         self.runtime_dnf_config_file = NamedTemporaryFile(
@@ -132,6 +133,8 @@ class RepositoryDnf(RepositoryBase):
             self.root_dir + '/var/cache/dnf'
         self.shared_dnf_dir['pluginconf-dir'] = \
             self.root_dir + '/etc/dnf/plugins'
+        self.shared_dnf_dir['vars-dir'] = \
+            self.root_dir + '/etc/dnf/vars'
         self._create_runtime_config_parser()
         self._create_runtime_plugin_config_parser()
         self._write_runtime_config()

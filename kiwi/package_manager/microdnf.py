@@ -102,7 +102,16 @@ class PackageManagerMicroDnf(PackageManagerBase):
         bash_command = [
             'microdnf'
         ] + ['--refresh'] + self.dnf_args + [
-            '--installroot', self.root_dir
+            '--installroot', self.root_dir, '--noplugins',
+            '--setopt=cachedir={0}'.format(
+                self.repository.shared_dnf_dir['cache-dir']
+            ),
+            '--setopt=reposdir={0}'.format(
+                self.repository.shared_dnf_dir['reposd-dir']
+            ),
+            '--setopt=varsdir={0}'.format(
+                self.repository.shared_dnf_dir['vars-dir']
+            )
         ] + self.custom_args + ['install'] + self.package_requests
         self.cleanup_requests()
         return Command.call(

@@ -18,6 +18,12 @@ class TestPackageManagerMicroDnf:
                 'command_env': ['env']
             }
         )
+        repository.shared_dnf_dir = {
+            'reposd-dir': 'repos',
+            'cache-dir': 'cache',
+            'pluginconf-dir': 'pluginconf',
+            'vars-dir': 'vars'
+        }
         self.manager = PackageManagerMicroDnf(repository)
 
     def test_request_package(self):
@@ -46,7 +52,11 @@ class TestPackageManagerMicroDnf:
             [
                 'bash', '-c',
                 'microdnf --refresh --config /root-dir/dnf.conf -y '
-                '--installroot /root-dir install vim'
+                '--installroot /root-dir --noplugins '
+                '--setopt=cachedir=cache '
+                '--setopt=reposdir=repos '
+                '--setopt=varsdir=vars '
+                'install vim'
             ], ['env']
         )
 
