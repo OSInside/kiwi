@@ -288,6 +288,9 @@ class RepositoryDnf(RepositoryBase):
             'main', 'reposdir', self.shared_dnf_dir['reposd-dir']
         )
         self.runtime_dnf_config.set(
+            'main', 'varsdir', self.shared_dnf_dir['vars-dir']
+        )
+        self.runtime_dnf_config.set(
             'main', 'pluginconfpath', self.shared_dnf_dir['pluginconf-dir']
         )
         self.runtime_dnf_config.set(
