@@ -30,8 +30,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     fprintf(stderr, "      ");
-    r = read(0, buf, sizeof buf);
-    while(r > 0) {
+    while((r = read(0, buf, sizeof buf)) > 0) {
         ssize_t p = 0;
         ssize_t w = 0;
         while((w = write(1, buf + p, r - p)) >= 0) {
@@ -58,7 +57,6 @@ int main(int argc, char **argv) {
                 }
             }
         }
-        r = read(0, buf, sizeof buf);
     }
     fflush(stdout);
     return 0;
