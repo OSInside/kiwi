@@ -1,6 +1,6 @@
 from pytest import fixture
 from mock import (
-    patch, call
+    patch, call, mock_open
 )
 import mock
 
@@ -54,9 +54,18 @@ class TestRepositoryDnf:
 
     @patch('kiwi.repository.dnf.NamedTemporaryFile')
     @patch('kiwi.repository.dnf.Path.create')
-    def test_post_init_with_custom_args(self, mock_path, mock_temp):
-        with patch('builtins.open', create=True):
+    @patch('os.path.exists')
+    def test_post_init_with_custom_args(
+        self, mock_exists, mock_path, mock_temp
+    ):
+        mock_exists.return_value = True
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
             self.repo.post_init(['check_signatures'])
+            assert m_open.call_args_list == [
+                call(mock_temp.return_value.name, 'w'),
+                call('/shared-dir/dnf/pluginconf/priorities.conf', 'w')
+            ]
         assert self.repo.custom_args == []
         assert self.repo.gpg_check == '1'
 
@@ -131,7 +140,9 @@ class TestRepositoryDnf:
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
-    def test_add_repo_inside_buildservice(self, mock_exists, mock_buildservice, mock_config):
+    def test_add_repo_inside_buildservice(
+        self, mock_exists, mock_buildservice, mock_config
+    ):
         repo_config = mock.Mock()
         mock_buildservice.return_value = True
         mock_config.return_value = repo_config
@@ -188,7 +199,9 @@ class TestRepositoryDnf:
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
-    def test_add_repo_with_gpgchecks(self, mock_exists, mock_buildservice, mock_config):
+    def test_add_repo_with_gpgchecks(
+        self, mock_exists, mock_buildservice, mock_config
+    ):
         repo_config = mock.Mock()
         mock_buildservice.return_value = False
         mock_config.return_value = repo_config
