@@ -102,7 +102,8 @@ class PackageManagerMicroDnf(PackageManagerBase):
         bash_command = [
             'microdnf'
         ] + ['--refresh'] + self.dnf_args + [
-            '--installroot', self.root_dir, '--noplugins',
+            '--installroot', self.root_dir,
+            '--releasever=0', '--noplugins',
             '--setopt=cachedir={0}'.format(
                 self.repository.shared_dnf_dir['cache-dir']
             ),

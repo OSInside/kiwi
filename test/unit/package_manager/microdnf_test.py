@@ -52,7 +52,7 @@ class TestPackageManagerMicroDnf:
             [
                 'bash', '-c',
                 'microdnf --refresh --config /root-dir/dnf.conf -y '
-                '--installroot /root-dir --noplugins '
+                '--installroot /root-dir --releasever=0 --noplugins '
                 '--setopt=cachedir=cache '
                 '--setopt=reposdir=repos '
                 '--setopt=varsdir=vars '
