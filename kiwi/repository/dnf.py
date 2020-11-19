@@ -327,7 +327,8 @@ class RepositoryDnf(RepositoryBase):
     def _write_runtime_config(self):
         with open(self.runtime_dnf_config_file.name, 'w') as config:
             self.runtime_dnf_config.write(config)
-        dnf_plugin_config_file = \
-            self.shared_dnf_dir['pluginconf-dir'] + '/priorities.conf'
-        with open(dnf_plugin_config_file, 'w') as pluginconfig:
-            self.runtime_dnf_plugin_config.write(pluginconfig)
+        if os.path.exists(self.shared_dnf_dir['pluginconf-dir']):
+            dnf_plugin_config_file = \
+                self.shared_dnf_dir['pluginconf-dir'] + '/priorities.conf'
+            with open(dnf_plugin_config_file, 'w') as pluginconfig:
+                self.runtime_dnf_plugin_config.write(pluginconfig)
