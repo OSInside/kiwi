@@ -4,9 +4,8 @@ from pytest import (
     raises, fixture
 )
 from mock import (
-    patch, call
+    patch, call, Mock, MagicMock, ANY
 )
-import mock
 
 from kiwi.exceptions import (
     KiwiBootStrapPhaseFailed,
@@ -39,16 +38,16 @@ class TestSystemPrepare:
         self.description_dir = os.path.dirname(description.description_origin)
         self.xml = description.load()
 
-        self.manager = mock.MagicMock(
-            return_value=mock.MagicMock()
+        self.manager = MagicMock(
+            return_value=MagicMock()
         )
         self.manager.package_requests = ['foo']
         self.manager.collection_requests = ['foo']
         self.manager.product_requests = ['foo']
 
-        root_init = mock.MagicMock()
+        root_init = MagicMock()
         mock_root_init.return_value = root_init
-        root_bind = mock.MagicMock()
+        root_bind = MagicMock()
         root_bind.root_dir = 'root_dir'
         mock_root_bind.return_value = root_bind
         self.state = XMLState(
@@ -82,19 +81,19 @@ class TestSystemPrepare:
         )
         xml = description.load()
 
-        root_init = mock.MagicMock()
+        root_init = MagicMock()
         mock_root_init.return_value = root_init
-        root_import = mock.Mock()
-        root_import.sync_data = mock.Mock()
+        root_import = Mock()
+        root_import.sync_data = Mock()
         mock_root_import.return_value = root_import
-        root_bind = mock.MagicMock()
+        root_bind = MagicMock()
         root_bind.root_dir = 'root_dir'
         mock_root_bind.return_value = root_bind
         state = XMLState(
             xml, profiles=['containerFlavour'], build_type='docker'
         )
-        uri = mock.Mock()
-        get_derived_from_image_uri = mock.Mock(
+        uri = Mock()
+        get_derived_from_image_uri = Mock(
             return_value=uri
         )
         state.get_derived_from_image_uri = get_derived_from_image_uri
@@ -176,22 +175,22 @@ class TestSystemPrepare:
     ):
         mock_exists.return_value = True
         mock_package_manager.return_value = 'package-manager-name'
-        uri = mock.Mock()
+        uri = Mock()
         mock_uri.return_value = uri
-        self.system.root_bind = mock.Mock()
-        uri.is_remote = mock.Mock(
+        self.system.root_bind = Mock()
+        uri.is_remote = Mock(
             return_value=False
         )
-        uri.translate = mock.Mock(
+        uri.translate = Mock(
             return_value='uri'
         )
-        uri.alias = mock.Mock(
+        uri.alias = Mock(
             return_value='uri-alias'
         )
-        uri.credentials_file_name = mock.Mock(
+        uri.credentials_file_name = Mock(
             return_value='credentials-file'
         )
-        repo = mock.Mock()
+        repo = Mock()
         mock_repo.return_value = repo
 
         self.system.setup_repositories(
@@ -247,19 +246,19 @@ class TestSystemPrepare:
     ):
         mock_exists.return_value = False
         mock_package_manager.return_value = 'package-manager-name'
-        uri = mock.Mock()
+        uri = Mock()
         mock_uri.return_value = uri
-        self.system.root_bind = mock.Mock()
-        uri.is_remote = mock.Mock(
+        self.system.root_bind = Mock()
+        uri.is_remote = Mock(
             return_value=False
         )
-        uri.translate = mock.Mock(
+        uri.translate = Mock(
             return_value='uri'
         )
-        uri.alias = mock.Mock(
+        uri.alias = Mock(
             return_value='uri-alias'
         )
-        repo = mock.Mock()
+        repo = Mock()
         mock_repo.return_value = repo
         with self._caplog.at_level(logging.WARNING):
             self.system.setup_repositories()
@@ -272,8 +271,8 @@ class TestSystemPrepare:
         self, mock_exists, mock_tar, mock_poll, mock_collection_type
     ):
         mock_exists.return_value = True
-        tar = mock.Mock()
-        tar.extract = mock.Mock()
+        tar = Mock()
+        tar.extract = Mock()
         mock_tar.return_value = tar
         mock_collection_type.return_value = 'onlyRequired'
         self.system.install_bootstrap(self.manager)
@@ -329,8 +328,8 @@ class TestSystemPrepare:
         self, mock_exists, mock_tar, mock_poll, mock_collection_type
     ):
         mock_exists.return_value = True
-        tar = mock.Mock()
-        tar.extract = mock.Mock()
+        tar = Mock()
+        tar.extract = Mock()
         mock_tar.return_value = tar
         mock_collection_type.return_value = 'onlyRequired'
         self.system.install_system(self.manager)
@@ -376,14 +375,14 @@ class TestSystemPrepare:
             self.system.pinch_system(self.manager)
         self.manager.process_delete_requests.assert_called_once_with(False)
 
-    @patch('kiwi.package_manager.PackageManagerZypper.process_delete_requests')
+    @patch('kiwi.package_manager.zypper.PackageManagerZypper.process_delete_requests')
     @patch('kiwi.system.prepare.Repository')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_pinch_system_without_manager(
         self, mock_poll, mock_repo, mock_requests
     ):
         self.system.pinch_system()
-        mock_repo.assert_called_once_with(mock.ANY, 'zypper')
+        mock_repo.assert_called_once_with(ANY, 'zypper')
         mock_requests.assert_called_once_with(False)
 
     @patch('kiwi.system.prepare.CommandProcess.poll')
@@ -398,12 +397,13 @@ class TestSystemPrepare:
     @patch('kiwi.system.prepare.Repository')
     @patch('kiwi.system.prepare.PackageManager')
     def test_clean_package_manager_leftovers(self, mock_manager, mock_repo):
+        manager = Mock()
+        mock_manager.new.return_value = manager
         self.system.clean_package_manager_leftovers()
-        assert mock_repo.called
-        assert mock_manager.called
+        manager.clean_leftovers.assert_called_once_with()
 
     def test_destructor_raising(self):
-        self.system.root_bind = mock.Mock()
+        self.system.root_bind = Mock()
         self.system.root_bind.cleanup.side_effect = ValueError("nothing")
         with self._caplog.at_level(logging.INFO):
             del self.system

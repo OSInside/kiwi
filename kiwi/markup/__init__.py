@@ -40,7 +40,7 @@ class Markup(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(description: str, name: str = 'any'):
+    def new(description: str, name: str='any'):  # noqa: E252
         try:
             markup = Markup._load_markup_by_name(name, description)
             log.info('Support for multiple markup descriptions available')
