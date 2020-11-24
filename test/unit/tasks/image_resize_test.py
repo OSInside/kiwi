@@ -41,16 +41,12 @@ class TestImageResizeTask:
         self.firmware.get_partition_table_type = Mock(
             return_value='gpt'
         )
-        self.partitioner = Mock()
         self.loop_provider = Mock()
         kiwi.tasks.image_resize.FirmWare = Mock(
             return_value=self.firmware
         )
         kiwi.tasks.image_resize.LoopDevice = Mock(
             return_value=self.loop_provider
-        )
-        kiwi.tasks.image_resize.Partitioner = Mock(
-            return_value=self.partitioner
         )
 
         self.task = ImageResizeTask()
@@ -93,7 +89,10 @@ class TestImageResizeTask:
             self.task.process()
 
     @patch('kiwi.tasks.image_resize.DiskFormat.new')
-    def test_process_image_resize_gb(self, mock_DiskFormat):
+    @patch('kiwi.tasks.image_resize.Partitioner.new')
+    def test_process_image_resize_gb(self, mock_Partitioner, mock_DiskFormat):
+        partitioner = Mock()
+        mock_Partitioner.return_value = partitioner
         image_format = Mock()
         image_format.resize_raw_disk.return_value = True
         mock_DiskFormat.return_value = image_format
@@ -101,14 +100,17 @@ class TestImageResizeTask:
         self.task.command_args['resize'] = True
         self.task.process()
         self.loop_provider.create.assert_called_once_with(overwrite=False)
-        self.partitioner.resize_table.assert_called_once_with()
+        partitioner.resize_table.assert_called_once_with()
         image_format.resize_raw_disk.assert_called_once_with(
             42 * 1024 * 1024 * 1024
         )
         image_format.create_image_format.assert_called_once_with()
 
     @patch('kiwi.tasks.image_resize.DiskFormat.new')
-    def test_process_image_resize_mb(self, mock_DiskFormat):
+    @patch('kiwi.tasks.image_resize.Partitioner.new')
+    def test_process_image_resize_mb(self, mock_Partitioner, mock_DiskFormat):
+        partitioner = Mock()
+        mock_Partitioner.return_value = partitioner
         image_format = Mock()
         image_format.resize_raw_disk.return_value = True
         mock_DiskFormat.return_value = image_format
@@ -117,14 +119,19 @@ class TestImageResizeTask:
         self.task.command_args['--size'] = '42m'
         self.task.process()
         self.loop_provider.create.assert_called_once_with(overwrite=False)
-        self.partitioner.resize_table.assert_called_once_with()
+        partitioner.resize_table.assert_called_once_with()
         image_format.resize_raw_disk.assert_called_once_with(
             42 * 1024 * 1024
         )
         image_format.create_image_format.assert_called_once_with()
 
     @patch('kiwi.tasks.image_resize.DiskFormat.new')
-    def test_process_image_resize_bytes(self, mock_DiskFormat):
+    @patch('kiwi.tasks.image_resize.Partitioner.new')
+    def test_process_image_resize_bytes(
+        self, mock_Partitioner, mock_DiskFormat
+    ):
+        partitioner = Mock()
+        mock_Partitioner.return_value = partitioner
         image_format = Mock()
         image_format.resize_raw_disk.return_value = True
         mock_DiskFormat.return_value = image_format
@@ -133,14 +140,19 @@ class TestImageResizeTask:
         self.task.command_args['--size'] = '42'
         self.task.process()
         self.loop_provider.create.assert_called_once_with(overwrite=False)
-        self.partitioner.resize_table.assert_called_once_with()
+        partitioner.resize_table.assert_called_once_with()
         image_format.resize_raw_disk.assert_called_once_with(
             42
         )
         image_format.create_image_format.assert_called_once_with()
 
     @patch('kiwi.tasks.image_resize.DiskFormat.new')
-    def test_process_image_resize_not_needed(self, mock_DiskFormat):
+    @patch('kiwi.tasks.image_resize.Partitioner.new')
+    def test_process_image_resize_not_needed(
+        self, mock_Partitioner, mock_DiskFormat
+    ):
+        partitioner = Mock()
+        mock_Partitioner.return_value = partitioner
         image_format = Mock()
         image_format.resize_raw_disk.return_value = False
         mock_DiskFormat.return_value = image_format
@@ -150,7 +162,7 @@ class TestImageResizeTask:
         with self._caplog.at_level(logging.INFO):
             self.task.process()
             self.loop_provider.create.assert_called_once_with(overwrite=False)
-            self.partitioner.resize_table.assert_called_once_with()
+            partitioner.resize_table.assert_called_once_with()
             image_format.resize_raw_disk.assert_called_once_with(
                 42
             )

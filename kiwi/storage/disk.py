@@ -48,7 +48,7 @@ class Disk(DeviceProvider):
         self.partition_id_map = {}
         self.is_mapped = False
 
-        self.partitioner = Partitioner(
+        self.partitioner = Partitioner.new(
             table_type, storage_provider, start_sector
         )
 

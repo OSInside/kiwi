@@ -870,7 +870,7 @@ class TestDiskBuilder:
         )
 
     @patch('kiwi.builder.disk.LoopDevice')
-    @patch('kiwi.builder.disk.Partitioner')
+    @patch('kiwi.builder.disk.Partitioner.new')
     @patch('kiwi.builder.disk.DiskFormat.new')
     def test_append_unpartitioned_space(
         self, mock_diskformat, mock_partitioner, mock_loopdevice
