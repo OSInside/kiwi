@@ -124,9 +124,6 @@ Requires(postun): chkconfig
 Requires:       qemu-img
 Requires:       squashfs-tools
 Requires:       gdisk
-Requires:       dnf
-Provides:       kiwi-packagemanager:dnf
-Provides:       kiwi-packagemanager:yum
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends:     gnupg2
 %endif
@@ -139,6 +136,11 @@ Recommends:     gpg2
 %if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} >= 1550
 Provides:       kiwi-packagemanager:microdnf
 Requires:       microdnf
+%endif
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} >= 1550
+Requires:       dnf
+Provides:       kiwi-packagemanager:dnf
+Provides:       kiwi-packagemanager:yum
 %endif
 %if 0%{?fedora} >= 26 || 0%{?suse_version}
 Requires:       zypper
