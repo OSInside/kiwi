@@ -40,8 +40,8 @@ function boot_installed_system {
 if getargbool 0 rd.kiwi.ramdisk; then
     # For ramdisk deployment a kexec boot is not possible as it
     # will wipe the contents of the ramdisk. Therefore we prepare
-    # the switch_root from this deployment initrd. Also see the
-    # unit generator: dracut-kiwi-ramdisk-generator
+    # the switch_root from this deployment initrd. See
+    # kiwi-mount-ramdisk.sh mount hook for further details.
     image_target=$(get_selected_disk)
     kpartx -s -a "${image_target}"
 else
