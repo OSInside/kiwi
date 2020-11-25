@@ -15,29 +15,47 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import importlib
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
 import logging
 
 # project
-from kiwi.markup.any import MarkupAny
-from kiwi.markup.xml import MarkupXML
-
 from kiwi.exceptions import KiwiAnyMarkupPluginError
 
 log = logging.getLogger('kiwi')
 
 
-class Markup:
+class Markup(metaclass=ABCMeta):
     """
     **Markup factory**
 
     :param string description: path to description file
     :param string xml_content: description data as content string
     """
-    def __new__(self, description):
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
+
+    @staticmethod
+    def new(description: str, name: str='any'):  # noqa: E252
         try:
-            markup = MarkupAny(description)
+            markup = Markup._load_markup_by_name(name, description)
             log.info('Support for multiple markup descriptions available')
         except KiwiAnyMarkupPluginError:
-            markup = MarkupXML(description)
+            markup = Markup._load_markup_by_name('xml', description)
             log.info('Support for XML markup available')
         return markup
+
+    @staticmethod
+    def _load_markup_by_name(name, description):
+        name_map = {
+            'any': 'Any',
+            'xml': 'XML'
+        }
+        markup = importlib.import_module('kiwi.markup.{0}'.format(name))
+        return markup.__dict__['Markup{0}'.format(name_map[name])](
+            description
+        )

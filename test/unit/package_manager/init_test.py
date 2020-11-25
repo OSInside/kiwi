@@ -11,40 +11,40 @@ from kiwi.exceptions import KiwiPackageManagerSetupError
 class TestPackageManager:
     def test_package_manager_not_implemented(self):
         with raises(KiwiPackageManagerSetupError):
-            PackageManager('repository', 'ms-manager')
+            PackageManager.new('repository', 'ms-manager')
 
-    @patch('kiwi.package_manager.PackageManagerZypper')
+    @patch('kiwi.package_manager.zypper.PackageManagerZypper')
     def test_manager_zypper(self, mock_manager):
         repository = Mock()
-        PackageManager(repository, 'zypper')
+        PackageManager.new(repository, 'zypper')
         mock_manager.assert_called_once_with(repository, None)
 
-    @patch('kiwi.package_manager.PackageManagerDnf')
+    @patch('kiwi.package_manager.dnf.PackageManagerDnf')
     def test_manager_dnf(self, mock_manager):
         repository = Mock()
-        PackageManager(repository, 'dnf')
+        PackageManager.new(repository, 'dnf')
         mock_manager.assert_called_once_with(repository, None)
 
-    @patch('kiwi.package_manager.PackageManagerDnf')
+    @patch('kiwi.package_manager.dnf.PackageManagerDnf')
     def test_manager_yum(self, mock_manager):
         repository = Mock()
-        PackageManager(repository, 'yum')
+        PackageManager.new(repository, 'yum')
         mock_manager.assert_called_once_with(repository, None)
 
-    @patch('kiwi.package_manager.PackageManagerMicroDnf')
+    @patch('kiwi.package_manager.microdnf.PackageManagerMicroDnf')
     def test_manager_microdnf(self, mock_manager):
         repository = Mock()
-        PackageManager(repository, 'microdnf')
+        PackageManager.new(repository, 'microdnf')
         mock_manager.assert_called_once_with(repository, None)
 
-    @patch('kiwi.package_manager.PackageManagerApt')
+    @patch('kiwi.package_manager.apt.PackageManagerApt')
     def test_manager_apt(self, mock_manager):
         repository = Mock()
-        PackageManager(repository, 'apt-get')
+        PackageManager.new(repository, 'apt-get')
         mock_manager.assert_called_once_with(repository, None)
 
-    @patch('kiwi.package_manager.PackageManagerPacman')
+    @patch('kiwi.package_manager.pacman.PackageManagerPacman')
     def test_manager_pacman(self, mock_manager):
         repository = Mock()
-        PackageManager(repository, 'pacman')
+        PackageManager.new(repository, 'pacman')
         mock_manager.assert_called_once_with(repository, None)

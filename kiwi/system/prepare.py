@@ -177,7 +177,7 @@ class SystemPrepare:
                 repo.delete_repo_cache(repo_alias)
             self.uri_list.append(uri)
         repo.cleanup_unused_repos()
-        return PackageManager(
+        return PackageManager.new(
             repo, package_manager
         )
 
@@ -340,7 +340,7 @@ class SystemPrepare:
             try:
                 if manager is None:
                     package_manager = self.xml_state.get_package_manager()
-                    manager = PackageManager(
+                    manager = PackageManager.new(
                         Repository(self.root_bind, package_manager),
                         package_manager
                     )
@@ -459,7 +459,7 @@ class SystemPrepare:
         at run time such as macros
         """
         package_manager = self.xml_state.get_package_manager()
-        manager = PackageManager(
+        manager = PackageManager.new(
             Repository(self.root_bind, package_manager),
             package_manager
         )

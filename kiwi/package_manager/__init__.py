@@ -15,23 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import importlib
+from typing import List
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
 import logging
 
 # project
-from kiwi.package_manager.zypper import PackageManagerZypper
-from kiwi.package_manager.apt import PackageManagerApt
-from kiwi.package_manager.dnf import PackageManagerDnf
-from kiwi.package_manager.microdnf import PackageManagerMicroDnf
-from kiwi.package_manager.pacman import PackageManagerPacman
-
-from kiwi.exceptions import (
-    KiwiPackageManagerSetupError
-)
+from kiwi.exceptions import KiwiPackageManagerSetupError
 
 log = logging.getLogger('kiwi')
 
 
-class PackageManager:
+class PackageManager(metaclass=ABCMeta):
     """
     **Package manager factory**
 
@@ -45,24 +43,39 @@ class PackageManager:
 
     :rtype: PackageManagerBase subclass
     """
-    def __new__(self, repository, package_manager, custom_args=None):
-        if package_manager == 'zypper':
-            manager = PackageManagerZypper(repository, custom_args)
-        elif package_manager == 'dnf' or package_manager == 'yum':
-            manager = PackageManagerDnf(repository, custom_args)
-        elif package_manager == 'microdnf':
-            manager = PackageManagerMicroDnf(repository, custom_args)
-        elif package_manager == 'apt-get':
-            manager = PackageManagerApt(repository, custom_args)
-        elif package_manager == 'pacman':
-            manager = PackageManagerPacman(repository, custom_args)
-        else:
-            raise KiwiPackageManagerSetupError(
-                'Support for package manager %s not implemented' %
-                package_manager
-            )
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
 
+    @staticmethod
+    def new(
+        repository: object, package_manager_name: str,
+        custom_args: List=None  # noqa: E252
+    ):
+        name_map = {
+            'zypper': ['zypper', 'Zypper'],
+            'dnf': ['dnf', 'Dnf'],
+            'yum': ['dnf', 'Dnf'],
+            'microdnf': ['microdnf', 'MicroDnf'],
+            'pacman': ['pacman', 'Pacman'],
+            'apt-get': ['apt', 'Apt']
+        }
+        try:
+            (module_namespace, module_name) = name_map[package_manager_name]
+            package_manager = importlib.import_module(
+                'kiwi.package_manager.{0}'.format(module_namespace)
+            )
+            module_name = 'PackageManager{0}'.format(module_name)
+            manager = package_manager.__dict__[module_name](
+                repository, custom_args
+            )
+        except Exception as issue:
+            raise KiwiPackageManagerSetupError(
+                'Support for package manager {0} not implemented {1}'.format(
+                    package_manager_name, issue
+                )
+            )
         log.info(
-            'Using package manager backend: %s', package_manager
+            'Using package manager backend: {0}'.format(package_manager_name)
         )
         return manager
