@@ -9,34 +9,40 @@ from kiwi.exceptions import KiwiRepositorySetupError
 class TestRepository:
     def test_repository_manager_not_implemented(self):
         with raises(KiwiRepositorySetupError):
-            Repository('root_bind', 'ms-manager')
+            Repository.new('root_bind', 'ms-manager')
 
-    @patch('kiwi.repository.RepositoryZypper')
+    @patch('kiwi.repository.zypper.RepositoryZypper')
     def test_repository_zypper(self, mock_manager):
         root_bind = mock.Mock()
-        Repository(root_bind, 'zypper')
+        Repository.new(root_bind, 'zypper')
         mock_manager.assert_called_once_with(root_bind, None)
 
-    @patch('kiwi.repository.RepositoryDnf')
+    @patch('kiwi.repository.dnf.RepositoryDnf')
     def test_repository_dnf(self, mock_manager):
         root_bind = mock.Mock()
-        Repository(root_bind, 'dnf')
+        Repository.new(root_bind, 'dnf')
         mock_manager.assert_called_once_with(root_bind, None)
 
-    @patch('kiwi.repository.RepositoryDnf')
+    @patch('kiwi.repository.dnf.RepositoryDnf')
+    def test_repository_microdnf(self, mock_manager):
+        root_bind = mock.Mock()
+        Repository.new(root_bind, 'microdnf')
+        mock_manager.assert_called_once_with(root_bind, None)
+
+    @patch('kiwi.repository.dnf.RepositoryDnf')
     def test_repository_yum(self, mock_manager):
         root_bind = mock.Mock()
-        Repository(root_bind, 'yum')
+        Repository.new(root_bind, 'yum')
         mock_manager.assert_called_once_with(root_bind, None)
 
-    @patch('kiwi.repository.RepositoryApt')
+    @patch('kiwi.repository.apt.RepositoryApt')
     def test_repository_apt(self, mock_manager):
         root_bind = mock.Mock()
-        Repository(root_bind, 'apt-get')
+        Repository.new(root_bind, 'apt-get')
         mock_manager.assert_called_once_with(root_bind, None)
 
-    @patch('kiwi.repository.RepositoryPacman')
+    @patch('kiwi.repository.pacman.RepositoryPacman')
     def test_repository_pacman(self, mock_manager):
         root_bind = mock.Mock()
-        Repository(root_bind, 'pacman')
+        Repository.new(root_bind, 'pacman')
         mock_manager.assert_called_once_with(root_bind, None)

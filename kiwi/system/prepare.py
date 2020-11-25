@@ -122,7 +122,7 @@ class SystemPrepare:
             repository_options.append(
                 '_install_langs%{0}'.format(':'.join(rpm_locale_list))
             )
-        repo = Repository(
+        repo = Repository.new(
             self.root_bind, package_manager, repository_options
         )
         repo.setup_package_database_configuration()
@@ -341,7 +341,7 @@ class SystemPrepare:
                 if manager is None:
                     package_manager = self.xml_state.get_package_manager()
                     manager = PackageManager.new(
-                        Repository(self.root_bind, package_manager),
+                        Repository.new(self.root_bind, package_manager),
                         package_manager
                     )
                 self.delete_packages(
@@ -460,7 +460,7 @@ class SystemPrepare:
         """
         package_manager = self.xml_state.get_package_manager()
         manager = PackageManager.new(
-            Repository(self.root_bind, package_manager),
+            Repository.new(self.root_bind, package_manager),
             package_manager
         )
         manager.clean_leftovers()

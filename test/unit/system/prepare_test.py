@@ -164,7 +164,7 @@ class TestSystemPrepare:
         with raises(KiwiSystemDeletePackagesFailed):
             self.system.delete_packages(self.manager, ['package'])
 
-    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.Repository.new')
     @patch('kiwi.system.prepare.Uri')
     @patch('kiwi.system.prepare.PackageManager')
     @patch('kiwi.xml_state.XMLState.get_package_manager')
@@ -235,7 +235,7 @@ class TestSystemPrepare:
             ['key-file-a.asc', 'key-file-b.asc']
         )
 
-    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.Repository.new')
     @patch('kiwi.system.prepare.Uri')
     @patch('kiwi.system.prepare.PackageManager')
     @patch('kiwi.xml_state.XMLState.get_package_manager')
@@ -376,7 +376,7 @@ class TestSystemPrepare:
         self.manager.process_delete_requests.assert_called_once_with(False)
 
     @patch('kiwi.package_manager.zypper.PackageManagerZypper.process_delete_requests')
-    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.Repository.new')
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_pinch_system_without_manager(
         self, mock_poll, mock_repo, mock_requests
@@ -394,7 +394,7 @@ class TestSystemPrepare:
         self.system.__del__()
         self.system.root_bind.cleanup.assert_called_once_with()
 
-    @patch('kiwi.system.prepare.Repository')
+    @patch('kiwi.system.prepare.Repository.new')
     @patch('kiwi.system.prepare.PackageManager')
     def test_clean_package_manager_leftovers(self, mock_manager, mock_repo):
         manager = Mock()
