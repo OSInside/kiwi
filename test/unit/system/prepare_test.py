@@ -395,10 +395,10 @@ class TestSystemPrepare:
         self.system.root_bind.cleanup.assert_called_once_with()
 
     @patch('kiwi.system.prepare.Repository.new')
-    @patch('kiwi.system.prepare.PackageManager')
+    @patch('kiwi.system.prepare.PackageManager.new')
     def test_clean_package_manager_leftovers(self, mock_manager, mock_repo):
         manager = Mock()
-        mock_manager.new.return_value = manager
+        mock_manager.return_value = manager
         self.system.clean_package_manager_leftovers()
         manager.clean_leftovers.assert_called_once_with()
 
