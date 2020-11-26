@@ -137,7 +137,7 @@ class SystemSetup:
         root = RootInit(
             root_dir=self.root_dir, allow_existing=True
         )
-        repo = Repository(
+        repo = Repository.new(
             RootBind(root), self.xml_state.get_package_manager()
         )
         repo.use_default_location()

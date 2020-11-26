@@ -14,7 +14,7 @@ class TestDisk:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('kiwi.storage.disk.Partitioner')
+    @patch('kiwi.storage.disk.Partitioner.new')
     def setup(self, mock_partitioner):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'

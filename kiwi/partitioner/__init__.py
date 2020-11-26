@@ -15,22 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import importlib
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
 import logging
 
 # project
-from kiwi.defaults import Defaults
-from kiwi.partitioner.gpt import PartitionerGpt
-from kiwi.partitioner.msdos import PartitionerMsDos
-from kiwi.partitioner.dasd import PartitionerDasd
-
-from kiwi.exceptions import (
-    KiwiPartitionerSetupError
-)
+from kiwi.exceptions import KiwiPartitionerSetupError
 
 log = logging.getLogger('kiwi')
 
 
-class Partitioner:
+class Partitioner(metaclass=ABCMeta):
     """
     **Partitioner factory**
 
@@ -38,42 +36,36 @@ class Partitioner:
     :param object storage_provider: Instance of class based on DeviceProvider
     :param int start_sector: sector number
     """
-    def __new__(self, table_type, storage_provider, start_sector=None):
-        host_architecture = Defaults.get_platform_name()
-        if host_architecture == 'x86_64':
-            if table_type == 'gpt':
-                return PartitionerGpt(storage_provider, start_sector)
-            elif table_type == 'msdos':
-                return PartitionerMsDos(storage_provider, start_sector)
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
 
-        elif host_architecture == 'ix86':
-            if table_type == 'msdos':
-                return PartitionerMsDos(storage_provider, start_sector)
-
-        elif 'ppc64' in host_architecture:
-            if table_type == 'gpt':
-                return PartitionerGpt(storage_provider, start_sector)
-            elif table_type == 'msdos':
-                return PartitionerMsDos(storage_provider, start_sector)
-
-        elif 's390' in host_architecture:
-            if table_type == 'dasd':
-                if start_sector:
-                    log.warning(
-                        'disk_start_sector value is ignored '
-                        'for dasd partitions'
-                    )
-                return PartitionerDasd(storage_provider)
-            elif table_type == 'msdos':
-                return PartitionerMsDos(storage_provider, start_sector)
-
-        elif 'arm' in host_architecture or host_architecture == 'aarch64':
-            if table_type == 'gpt':
-                return PartitionerGpt(storage_provider, start_sector)
-            elif table_type == 'msdos':
-                return PartitionerMsDos(storage_provider, start_sector)
-
-        raise KiwiPartitionerSetupError(
-            'Support for partitioner on %s architecture not implemented' %
-            host_architecture
-        )
+    @staticmethod
+    def new(
+        table_type: str, storage_provider: object,
+        start_sector: int=None  # noqa: E252
+    ):
+        name_map = {
+            'msdos': 'MsDos',
+            'gpt': 'Gpt',
+            'dasd': 'Dasd'
+        }
+        try:
+            partitioner = importlib.import_module(
+                'kiwi.partitioner.{0}'.format(table_type)
+            )
+            module_name = 'Partitioner{0}'.format(name_map[table_type])
+            if table_type == 'dasd' and start_sector:
+                log.warning(
+                    'disk start_sector value is ignored for dasd partitions'
+                )
+                start_sector = None
+            return partitioner.__dict__[module_name](
+                storage_provider, start_sector
+            )
+        except Exception as issue:
+            raise KiwiPartitionerSetupError(
+                'Support for {0} partitioner not implemented: {1}'.format(
+                    table_type, issue
+                )
+            )

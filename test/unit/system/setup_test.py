@@ -1231,7 +1231,7 @@ class TestSystemSetup:
             ]
         )
 
-    @patch('kiwi.system.setup.Repository')
+    @patch('kiwi.system.setup.Repository.new')
     @patch('kiwi.system.setup.Uri')
     def test_import_repositories_marked_as_imageinclude(
         self, mock_uri, mock_repo

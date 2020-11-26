@@ -15,18 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
-from kiwi.repository.zypper import RepositoryZypper
-from kiwi.repository.apt import RepositoryApt
-from kiwi.repository.dnf import RepositoryDnf
-from kiwi.repository.pacman import RepositoryPacman
-
-from kiwi.exceptions import (
-    KiwiRepositorySetupError
+import importlib
+from typing import List
+from abc import (
+    ABCMeta,
+    abstractmethod
 )
 
+# project
+from kiwi.exceptions import KiwiRepositorySetupError
 
-class Repository:
+
+class Repository(metaclass=ABCMeta):
     """
     **Repository factory**
 
@@ -37,17 +37,34 @@ class Repository:
 
     :raises KiwiRepositorySetupError: if package_manager is not supported
     """
-    def __new__(self, root_bind, package_manager, custom_args=None):
-        if package_manager == 'zypper':
-            return RepositoryZypper(root_bind, custom_args)
-        elif package_manager == 'dnf' or package_manager == 'yum' or package_manager == 'microdnf':
-            return RepositoryDnf(root_bind, custom_args)
-        elif package_manager == 'apt-get':
-            return RepositoryApt(root_bind, custom_args)
-        elif package_manager == 'pacman':
-            return RepositoryPacman(root_bind, custom_args)
-        else:
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
+
+    @staticmethod
+    def new(
+        root_bind: object, package_manager: str,
+        custom_args: List=None  # noqa: E252
+    ):
+        name_map = {
+            'zypper': ['zypper', 'Zypper'],
+            'dnf': ['dnf', 'Dnf'],
+            'yum': ['dnf', 'Dnf'],
+            'microdnf': ['dnf', 'Dnf'],
+            'apt-get': ['apt', 'Apt'],
+            'pacman': ['pacman', 'Pacman']
+        }
+        try:
+            repository = importlib.import_module(
+                'kiwi.repository.{0}'.format(name_map[package_manager][0])
+            )
+            module_name = 'Repository{0}'.format(name_map[package_manager][1])
+            return repository.__dict__[module_name](
+                root_bind, custom_args
+            )
+        except Exception as issue:
             raise KiwiRepositorySetupError(
-                'Support for %s repository manager not implemented' %
-                package_manager
+                'Support for {0} repository not implemented: {1}'.format(
+                    package_manager, issue
+                )
             )
