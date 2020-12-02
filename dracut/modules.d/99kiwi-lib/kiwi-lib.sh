@@ -19,9 +19,34 @@ function get_root_map {
     echo "${root_map}"
 }
 
+function get_mapped_multipath_disk {
+    declare DEVICE_TIMEOUT=${DEVICE_TIMEOUT}
+    local disk_device=$1
+    local check=0
+    local limit=30
+    if [[ "${DEVICE_TIMEOUT}" =~ ^[0-9]+$ ]]; then
+        limit=$(((DEVICE_TIMEOUT + 1)/ 2))
+    fi
+    udev_pending &>/dev/null
+    while true;do
+        for wwn in $(multipath -l -v1 "${disk_device}");do
+            if [ -e "/dev/mapper/${wwn}" ];then
+                echo "/dev/mapper/${wwn}"
+                return
+            fi
+        done
+        if [ "${check}" -eq "${limit}" ]; then
+            die "Multipath map for ${disk_device} did not show up"
+        fi
+        check=$((check + 1))
+        sleep 2
+    done
+}
+
 function lookup_disk_device_from_root {
     declare root=${root}
     declare kiwi_RaidDev=${kiwi_RaidDev}
+    declare kiwi_oemmultipath_scan=${kiwi_oemmultipath_scan}
     local root_device=${root#block:}
     local disk_device
     local wwn
@@ -35,18 +60,10 @@ function lookup_disk_device_from_root {
         lsblk -p -n -r -s -o NAME,TYPE "${root_device}" |\
             grep -E "disk|raid" | cut -f1 -d ' '
     ); do
-        # Check if root_device is managed by multipath. If this
-        # is the case prefer the multipath mapped device because
-        # directly accessing the mapped devices is no longer
-        # possible
-        if type multipath &> /dev/null; then
-            for wwn in $(multipath -l -v1 "${disk_device}");do
-                if [ -e "/dev/mapper/${wwn}" ];then
-                    disk_device="/dev/mapper/${wwn}"
-                    echo "${disk_device}"
-                    return
-                fi
-            done
+        # If multipath is requested, set the disk_device to the
+        # multipath mapped device
+        if [ -n "${kiwi_oemmultipath_scan}" ];then
+            disk_device=$(get_mapped_multipath_disk "${disk_device}")
         fi
         # Check if root_device is managed by mdadm and that the md raid
         # is not created as part of the kiwi image building process. If
