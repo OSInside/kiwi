@@ -367,6 +367,7 @@ Requires:       buildah
 %endif
 Requires:       skopeo
 
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %description -n kiwi-host-setup-for-building-containers
 Host setup helper to pull in all packages required/useful on
 the build host to build container images e.g docker, wsl
@@ -448,6 +449,7 @@ Host setup helper to pull in all packages required/useful on
 the build host to handling image descriptions better. This also
 includes reading of image descriptions for different markup
 languages
+%endif
 
 %prep
 %setup -q -n kiwi-%{version}
@@ -563,6 +565,7 @@ fi
 %endif
 %endif
 
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 %files -n kiwi-host-setup-for-building-containers
 %defattr(-, root, root)
 
@@ -577,5 +580,6 @@ fi
 
 %files -n kiwi-host-setup-for-image-validation
 %defattr(-, root, root)
+%endif
 
 %changelog
