@@ -352,7 +352,7 @@ Group:          %{sysgroup}
 %description -n kiwi-man-pages
 Provides manual pages to describe the kiwi commands
 
-%package -n kiwi-host-setup-for-building-containers
+%package -n kiwi-systemdeps-containers
 Summary:        KIWI - host requirements for container images
 Group:          System/Management
 Obsoletes:      kiwi-image-docker-requires
@@ -368,11 +368,11 @@ Requires:       buildah
 Requires:       skopeo
 
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-%description -n kiwi-host-setup-for-building-containers
+%description -n kiwi-systemdeps-containers
 Host setup helper to pull in all packages required/useful on
 the build host to build container images e.g docker, wsl
 
-%package -n kiwi-host-setup-for-building-iso-media
+%package -n kiwi-systemdeps-iso-media
 Summary:        KIWI - host requirements for live and install iso images
 Group:          System/Management
 Obsoletes:      kiwi-image-iso-requires
@@ -387,11 +387,11 @@ Requires:       gfxboot
 %endif
 %endif
 
-%description -n kiwi-host-setup-for-building-iso-media
+%description -n kiwi-systemdeps-iso-media
 Host setup helper to pull in all packages required/useful on
 the build host to build live and install iso images.
 
-%package -n kiwi-host-setup-for-building-filesystem-images
+%package -n kiwi-systemdeps-filesystem-images
 Summary:        KIWI - host requirements for filesystems
 Group:          System/Management
 Obsoletes:      kiwi-image-pxe-requires
@@ -416,24 +416,24 @@ Requires:       squashfs-tools
 Requires:       squashfs
 %endif
 
-%description -n kiwi-host-setup-for-building-filesystem-images
+%description -n kiwi-systemdeps-filesystem-images
 Host setup helper to pull in all packages required/useful on
 the build host to build filesystem images
 
-%package -n kiwi-host-setup-for-building-disk-images
+%package -n kiwi-systemdeps-disk-images
 Summary:        KIWI - host requirements for disk images
 Obsoletes:      kiwi-image-oem-requires
 Obsoletes:      kiwi-image-vmx-requires
 Group:          System/Management
 Provides:       kiwi-image:oem
 Provides:       kiwi-image:vmx
-Requires:       kiwi-host-setup-for-building-filesystem-images
+Requires:       kiwi-systemdeps-filesystem-images
 
-%description -n kiwi-host-setup-for-building-disk-images
+%description -n kiwi-systemdeps-disk-images
 Host setup helper to pull in all packages required/useful on
 the build host to build disk images
 
-%package -n kiwi-host-setup-for-image-validation
+%package -n kiwi-systemdeps-image-validation
 Summary:        KIWI - host requirements for handling image descriptions better
 Group:          System/Management
 %if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} || 0%{?debian} || 0%{?ubuntu}
@@ -444,7 +444,7 @@ Requires:       python%{python3_pkgversion}-solv
 %endif
 Requires:       python%{python3_pkgversion}-anymarkup
 
-%description -n kiwi-host-setup-for-image-validation
+%description -n kiwi-systemdeps-image-validation
 Host setup helper to pull in all packages required/useful on
 the build host to handling image descriptions better. This also
 includes reading of image descriptions for different markup
@@ -566,19 +566,19 @@ fi
 %endif
 
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
-%files -n kiwi-host-setup-for-building-containers
+%files -n kiwi-systemdeps-containers
 %defattr(-, root, root)
 
-%files -n kiwi-host-setup-for-building-iso-media
+%files -n kiwi-systemdeps-iso-media
 %defattr(-, root, root)
 
-%files -n kiwi-host-setup-for-building-filesystem-images
+%files -n kiwi-systemdeps-filesystem-images
 %defattr(-, root, root)
 
-%files -n kiwi-host-setup-for-building-disk-images
+%files -n kiwi-systemdeps-disk-images
 %defattr(-, root, root)
 
-%files -n kiwi-host-setup-for-image-validation
+%files -n kiwi-systemdeps-image-validation
 %defattr(-, root, root)
 %endif
 
