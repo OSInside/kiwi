@@ -881,7 +881,7 @@ class XMLState:
     def get_oemconfig_oem_multipath_scan(self):
         """
         State value to activate multipath maps. Returns a boolean
-        value if specified or None
+        value if specified or False
 
         :return: Content of <oem-multipath-scan> section value
 
@@ -890,6 +890,7 @@ class XMLState:
         oemconfig = self.get_build_type_oemconfig_section()
         if oemconfig and oemconfig.get_oem_multipath_scan():
             return oemconfig.get_oem_multipath_scan()[0]
+        return False
 
     def get_oemconfig_swap_mbytes(self):
         """
