@@ -498,6 +498,17 @@ class TestXMLState:
         state = XMLState(xml_data)
         assert state.get_oemconfig_oem_resize() is False
 
+    def test_get_oemconfig_oem_multipath_scan(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'oem')
+        assert state.get_oemconfig_oem_multipath_scan() is False
+        description = XMLDescription(
+            '../data/example_disk_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.get_oemconfig_oem_multipath_scan() is False
+
     def test_get_oemconfig_swap_mbytes(self):
         xml_data = self.description.load()
         state = XMLState(xml_data, ['containerFlavour'], 'docker')
