@@ -151,7 +151,7 @@ Requires:       debootstrap
 Requires:       qemu-utils
 Requires:       squashfs-tools
 Requires:       gdisk
-Recommends:     gnupg
+Requires:       gnupg
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
