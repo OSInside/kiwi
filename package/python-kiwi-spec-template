@@ -69,9 +69,6 @@ BuildRequires:  shadow
 %if 0%{?debian} || 0%{?ubuntu}
 BuildRequires:  passwd
 %endif
-%if 0%{?fedora} || 0%{?rhel}
-BuildRequires:  chkconfig
-%endif
 
 %description
 The KIWI Image System provides an operating system image builder
@@ -118,9 +115,6 @@ Requires:       gptfdisk
 %ifarch x86_64
 Requires:       grub2-efi-x64
 %endif
-Requires:         chkconfig
-Requires(post):   chkconfig
-Requires(postun): chkconfig
 Requires:       qemu-img
 Requires:       squashfs-tools
 Requires:       gdisk
