@@ -50,6 +50,7 @@ function lookup_disk_device_from_root {
     local root_device=${root#block:}
     local disk_device
     local wwn
+    kiwi_oemmultipath_scan=$(bool "${kiwi_oemmultipath_scan}")
     if [ -z "${root_device}" ];then
         die "No root device found"
     fi
@@ -62,7 +63,7 @@ function lookup_disk_device_from_root {
     ); do
         # If multipath is requested, set the disk_device to the
         # multipath mapped device
-        if [ -n "${kiwi_oemmultipath_scan}" ];then
+        if [ "${kiwi_oemmultipath_scan}" = "true" ];then
             disk_device=$(get_mapped_multipath_disk "${disk_device}")
         fi
         # Check if root_device is managed by mdadm and that the md raid
