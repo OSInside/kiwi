@@ -251,17 +251,18 @@ class DiskBuilder:
         )
 
         # create the bootloader instance
-        self.bootloader_config = BootLoaderConfig.new(
-            self.bootloader, self.xml_state, root_dir=self.root_dir,
-            boot_dir=self.root_dir, custom_args={
-                'targetbase':
-                    self.loop_provider.get_device(),
-                'grub_directory_name':
-                    Defaults.get_grub_boot_directory_name(self.root_dir),
-                'boot_is_crypto':
-                    self.boot_is_crypto
-            }
-        )
+        if self.bootloader != 'custom':
+            self.bootloader_config = BootLoaderConfig.new(
+                self.bootloader, self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.root_dir, custom_args={
+                    'targetbase':
+                        self.loop_provider.get_device(),
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir),
+                    'boot_is_crypto':
+                        self.boot_is_crypto
+                }
+            )
 
         # create disk partitions and instance device map
         device_map = self._build_and_map_disk_partitions(disksize_mbytes)
@@ -1092,17 +1093,17 @@ class DiskBuilder:
                 {'system_volumes': self.system.get_volumes()}
             )
 
-        # create bootloader config prior bootloader installation
-        self.bootloader_config.setup_disk_image_config(
-            boot_options=custom_install_arguments
-        )
-        if 's390' in self.arch:
-            self.bootloader_config.write()
-
-        # cleanup bootloader config resources taken prior to next steps
-        del self.bootloader_config
-
         if self.bootloader != 'custom':
+            # create bootloader config prior bootloader installation
+            self.bootloader_config.setup_disk_image_config(
+                boot_options=custom_install_arguments
+            )
+            if 's390' in self.arch:
+                self.bootloader_config.write()
+
+            # cleanup bootloader config resources taken prior to next steps
+            del self.bootloader_config
+
             log.debug(
                 "custom arguments for bootloader installation %s",
                 custom_install_arguments
