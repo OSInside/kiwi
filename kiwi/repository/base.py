@@ -64,7 +64,7 @@ class RepositoryBase:
     def add_repo(
         self, name, uri, repo_type, prio, dist, components,
         user, secret, credentials_file, repo_gpgcheck, pkg_gpgcheck,
-        sourcetype
+        sourcetype, use_for_bootstrap=False
     ):
         """
         Add repository
@@ -83,6 +83,7 @@ class RepositoryBase:
         :param bool repo_gpgcheck: unused
         :param bool pkg_gpgcheck: unused
         :param str sourcetype: unused
+        :param bool use_for_bootstrap: unused
         """
         raise NotImplementedError
 

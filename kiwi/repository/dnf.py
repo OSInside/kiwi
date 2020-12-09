@@ -157,7 +157,7 @@ class RepositoryDnf(RepositoryBase):
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
         repo_gpgcheck=None, pkg_gpgcheck=None,
-        sourcetype=None
+        sourcetype=None, use_for_bootstrap=False
     ):
         """
         Add dnf repository
@@ -175,6 +175,7 @@ class RepositoryDnf(RepositoryBase):
         :param bool pkg_gpgcheck: enable package signature validation
         :param str sourcetype:
             source type, one of 'baseurl', 'metalink' or 'mirrorlist'
+        :param bool use_for_bootstrap: unused
         """
         repo_file = self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')

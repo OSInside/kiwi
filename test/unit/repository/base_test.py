@@ -22,8 +22,8 @@ class TestRepositoryBase:
     def test_add_repo(self):
         with raises(NotImplementedError):
             self.repo.add_repo(
-                'name', 'uri', 'type', 'prio', 'dist', ['components'],
-                'user', 'secret', 'credentials-file', False, False, False
+                'name', 'uri', 'type', 'prio', 'dist', ['components'], 'user',
+                'secret', 'credentials-file', False, False, False, False
             )
 
     def test_setup_package_database_configuration(self):

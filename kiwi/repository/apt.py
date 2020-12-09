@@ -69,6 +69,7 @@ class RepositoryApt(RepositoryBase):
 
         self.distribution = None
         self.distribution_path = None
+        self.debootstrap_repo_set = False
         self.repo_names = []
         self.components = []
 
@@ -135,7 +136,7 @@ class RepositoryApt(RepositoryBase):
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
         repo_gpgcheck=None, pkg_gpgcheck=None,
-        sourcetype=None
+        sourcetype=None, use_for_bootstrap=False
     ):
         """
         Add apt_get repository
@@ -152,6 +153,8 @@ class RepositoryApt(RepositoryBase):
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: unused
         :param str sourcetype: unused
+        :param bool use_for_bootstrap: use this repository for the
+            debootstrap call
         """
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']
@@ -185,8 +188,10 @@ class RepositoryApt(RepositoryBase):
             else:
                 # create a debian distributon repository setup for the
                 # specified distributon name and components
-                self.distribution = dist
-                self.distribution_path = uri
+                if not self.debootstrap_repo_set:
+                    self.distribution = dist
+                    self.distribution_path = uri
+                    self.debootstrap_repo_set = use_for_bootstrap
                 repo_line += ' {0} {1}\n'.format(dist, components)
             repo.write(repo_line)
         if prio:

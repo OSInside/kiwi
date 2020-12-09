@@ -768,6 +768,13 @@ sourcetype="baseurl|metalink|mirrorlist"
   list, the configured package manager needs to be setup appropriately.
   By default the source is expected to be a simple repository baseurl.
 
+use_for_bootstrap="true|false"
+  Used for Debian (apt) based repositories only. It specifies whether
+  this repository should be the one used for bootstrapping or not.
+  It is set to 'false' by default. Only a single repository is allowed
+  to be used for bootstrapping, if no repository is set for the bootstrap
+  the last one in the description XML is used.
+  
 <repository><source>
 ~~~~~~~~~~~~~~~~~~~~
 The location of a repository is specified by the path attribute of the
