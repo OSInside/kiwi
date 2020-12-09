@@ -204,6 +204,15 @@ suseSetupProductInformation
   and installs all product specific packages. This function fails
   when :command:`zypper` is not the appliances package manager.
 
+baseVagrantSetup
+  Configures the image to work as a vagrant box by performing the following
+  changes:
+  - add the ``vagrant`` user to :file:`/etc/sudoers` or
+    :file:`/etc/sudoers.d/vagrant`
+  - insert the insecure vagrant ssh key, apply recommended ssh settings and
+    start the ssh daemon
+  - create the default shared folder :file:`/vagrant`
+
 Debug {message}
   Helper function to print the supplied message if the variable DEBUG is
   set to 1 (it is off by default).
