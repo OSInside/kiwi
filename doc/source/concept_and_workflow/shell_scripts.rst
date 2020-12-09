@@ -206,7 +206,7 @@ suseSetupProductInformation
 
 Debug {message}
   Helper function to print the supplied message if the variable DEBUG is
-  set to 1.
+  set to 1 (it is off by default).
 
 Echo {echo commandline}
   Helper function to print a message to the controlling terminal.

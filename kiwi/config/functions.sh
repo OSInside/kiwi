@@ -490,7 +490,7 @@ function Debug {
     # /.../
     # print message if variable DEBUG is set to 1
     # -----
-    if test "${DEBUG}" = 1;then
+    if test "${DEBUG:-0}" = 1;then
         echo "+++++> (caller:${FUNCNAME[1]}:${FUNCNAME[2]} )  $*"
     fi
 }
