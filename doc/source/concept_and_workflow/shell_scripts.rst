@@ -86,8 +86,9 @@ Functions
 ^^^^^^^^^
 
 The :file:`.kconfig` file provides a common set of functions.  Functions
-specific to SUSE Linux begin with the name ``suse``, functions applicable
-to all Linux distributions start with the name ``base``.
+specific to SUSE Linux Enterprise and openSUSE begin with the name
+``suse``, functions applicable to all Linux distributions start with the
+name ``base``.
 
 The following list describes all functions provided by :file:`.kconfig`:
 
