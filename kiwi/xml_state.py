@@ -913,6 +913,28 @@ class XMLState:
                 else:
                     return Defaults.get_swapsize_mbytes()
 
+    def get_oemconfig_swap_name(self):
+        """
+        Return the swap space name
+
+        Operates on the value of oem-swapname and if set
+        returns the configured name or the default name: LVSwap
+
+        The name of the swap space is used only if the
+        image is configured to use the LVM volume manager.
+        In this case swap is a volume and the volume takes
+        a name. In any other case the given name will have
+        no effect.
+
+        :return: Content of <oem-swapname> section value or default
+
+        :rtype: str
+        """
+        oemconfig = self.get_build_type_oemconfig_section()
+        if oemconfig and oemconfig.get_oem_swapname():
+            return oemconfig.get_oem_swapname()[0]
+        return 'LVSwap'
+
     def get_build_type_containerconfig_section(self):
         """
         First containerconfig section from the build type section
@@ -1236,6 +1258,7 @@ class XMLState:
         volume_type_list = []
         systemdisk_section = self.get_build_type_system_disk_section()
         swap_mbytes = self.get_oemconfig_swap_mbytes()
+        swap_name = self.get_oemconfig_swap_name()
         if not systemdisk_section:
             return volume_type_list
 
@@ -1358,7 +1381,7 @@ class XMLState:
         if swap_mbytes and self.get_volume_management() == 'lvm':
             volume_type_list.append(
                 volume_type(
-                    name='LVSwap',
+                    name=swap_name,
                     size='size:{0}'.format(swap_mbytes),
                     fullsize=False,
                     mountpoint=None,

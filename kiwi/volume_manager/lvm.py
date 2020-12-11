@@ -75,8 +75,8 @@ class VolumeManagerLVM(VolumeManagerBase):
                 # root partition device from the disk. Therefore use
                 # the same key to put them on the same level
                 volume_name = 'root'
-            if volume_name == 'LVSwap':
-                # LVSwap volume device takes precedence over the
+            if self._is_swap_volume(volume_name):
+                # swap volume device takes precedence over the
                 # swap partition device from the disk. Therefore use
                 # the same key to put them on the same level
                 volume_name = 'swap'
@@ -176,7 +176,7 @@ class VolumeManagerLVM(VolumeManagerBase):
                 self.root_dir, volume
             )
             self._add_to_volume_map(volume.name)
-            if volume.name != 'LVSwap':
+            if volume.label != 'SWAP':
                 self._create_filesystem(
                     volume.name, volume.label, filesystem_name
                 )
@@ -346,6 +346,11 @@ class VolumeManagerLVM(VolumeManagerBase):
     def _is_root_volume(self, name):
         for volume in self.volumes:
             if name in volume.name and volume.is_root_volume:
+                return True
+
+    def _is_swap_volume(self, name):
+        for volume in self.volumes:
+            if name in volume.name and volume.label == 'SWAP':
                 return True
 
     def __del__(self):
