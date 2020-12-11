@@ -130,8 +130,7 @@ class RootInit:
             ('/proc/self/fd', '%s/dev/fd'),
             ('fd/2', '%s/dev/stderr'),
             ('fd/0', '%s/dev/stdin'),
-            ('fd/1', '%s/dev/stdout'),
-            ('/run', '%s/var/run')
+            ('fd/1', '%s/dev/stdout')
         )
         for src, target in base_system_links:
             os.symlink(src, target % root, )
