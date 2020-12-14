@@ -906,6 +906,18 @@ div {
 # common element <repository>
 #
 div {
+    sch:pattern [
+        abstract = "true"
+        id = "repo_type"
+        sch:rule [
+            context = "repository[@$attr]"
+            sch:assert [
+                test = "contains('$types', @type)"
+                "$attr attribute is only available for the following "
+                "repository types: $types"
+            ]
+        ]
+    ]
     k.repository.profiles.attribute = k.profiles.attribute
     k.repository.type.attribute =
         ## Type of repository
@@ -970,6 +982,25 @@ div {
         attribute sourcetype {
             "baseurl" | "metalink" | "mirrorlist"
         }
+    k.repository.use_for_bootstrap.attribute =
+        ## Specify whether this repository should be the one used for
+        ## bootstrapping or not. False by default. Only a single repository
+        ## is allowed to be used for bootstrapping. If none is set the
+        ## last one is picked.
+        attribute use_for_bootstrap { xsd:boolean }
+        >> sch:pattern [ id = "use_for_bootstrap" is-a = "repo_type"
+            sch:param [ name = "attr" value = "use_for_bootstrap" ]
+            sch:param [ name = "types" value = "apt-deb" ]
+        ]
+        >> sch:pattern [ id = "single_deboostrap_repo"
+            sch:rule [ context = "image"
+                sch:assert [ 
+                    test = "count(repository[@use_for_bootstrap='true'])<=1"
+                    "There can only be a single repository set for "
+                    "bootstrap ('use_for_bootstrap' attribute)"
+                ] 
+            ]
+        ]
     k.repository.attlist =
         k.repository.type.attribute? &
         k.repository.profiles.attribute? &
@@ -985,7 +1016,8 @@ div {
         k.repository.package_gpgcheck.attribute? &
         k.repository.priority.attribute? &
         k.repository.password.attribute? &
-        k.repository.username.attribute?
+        k.repository.username.attribute? &
+        k.repository.use_for_bootstrap.attribute?
     k.repository =
         ## The Name of the Repository
         element repository {

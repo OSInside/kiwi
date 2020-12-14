@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.6.10 (default, Jan 16 2020, 09:12:04) [GCC]
+# Python 3.6.12 (default, Dec 02 2020, 09:44:23) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/david/work/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2065,7 +2065,7 @@ class repository(k_source):
     """The Name of the Repository"""
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, priority=None, password=None, username=None):
+    def __init__(self, source=None, type_=None, profiles=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, priority=None, password=None, username=None, use_for_bootstrap=None):
         self.original_tagname_ = None
         super(repository, self).__init__(source, )
         self.type_ = _cast(None, type_)
@@ -2081,6 +2081,7 @@ class repository(k_source):
         self.priority = _cast(int, priority)
         self.password = _cast(None, password)
         self.username = _cast(None, username)
+        self.use_for_bootstrap = _cast(bool, use_for_bootstrap)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2118,6 +2119,8 @@ class repository(k_source):
     def set_password(self, password): self.password = password
     def get_username(self): return self.username
     def set_username(self, username): self.username = username
+    def get_use_for_bootstrap(self): return self.use_for_bootstrap
+    def set_use_for_bootstrap(self, use_for_bootstrap): self.use_for_bootstrap = use_for_bootstrap
     def hasContent_(self):
         if (
             super(repository, self).hasContent_()
@@ -2187,6 +2190,9 @@ class repository(k_source):
         if self.username is not None and 'username' not in already_processed:
             already_processed.add('username')
             outfile.write(' username=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.username), input_name='username')), ))
+        if self.use_for_bootstrap is not None and 'use_for_bootstrap' not in already_processed:
+            already_processed.add('use_for_bootstrap')
+            outfile.write(' use_for_bootstrap="%s"' % self.gds_format_boolean(self.use_for_bootstrap, input_name='use_for_bootstrap'))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='repository', fromsubclass_=False, pretty_print=True):
         super(repository, self).exportChildren(outfile, level, namespaceprefix_, name_, True, pretty_print=pretty_print)
     def build(self, node):
@@ -2274,6 +2280,15 @@ class repository(k_source):
         if value is not None and 'username' not in already_processed:
             already_processed.add('username')
             self.username = value
+        value = find_attr_value_('use_for_bootstrap', node)
+        if value is not None and 'use_for_bootstrap' not in already_processed:
+            already_processed.add('use_for_bootstrap')
+            if value in ('true', '1'):
+                self.use_for_bootstrap = True
+            elif value in ('false', '0'):
+                self.use_for_bootstrap = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         super(repository, self).buildAttributes(node, attrs, already_processed)
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         super(repository, self).buildChildren(child_, node, nodeName_, True)

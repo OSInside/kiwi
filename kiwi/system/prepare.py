@@ -140,6 +140,8 @@ class SystemPrepare:
             repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
             repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
             repo_sourcetype = xml_repo.get_sourcetype()
+            repo_use_for_bootstrap = \
+                True if xml_repo.get_use_for_bootstrap() else False
             log.info('Setting up repository %s', repo_source)
             log.info('--> Type: {0}'.format(repo_type))
             if repo_sourcetype:
@@ -171,7 +173,7 @@ class SystemPrepare:
                 repo_type, repo_priority, repo_dist, repo_components,
                 repo_user, repo_secret, uri.credentials_file_name(),
                 repo_repository_gpgcheck, repo_package_gpgcheck,
-                repo_sourcetype
+                repo_sourcetype, repo_use_for_bootstrap
             )
             if clear_cache:
                 repo.delete_repo_cache(repo_alias)

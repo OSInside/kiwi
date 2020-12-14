@@ -109,7 +109,7 @@ class RepositoryPacman(RepositoryBase):
         prio=None, dist=None, components=None,
         user=None, secret=None, credentials_file=None,
         repo_gpgcheck=None, pkg_gpgcheck=None,
-        sourcetype=None
+        sourcetype=None, use_for_bootstrap=False
     ):
         """
         Add pacman repository
@@ -126,6 +126,7 @@ class RepositoryPacman(RepositoryBase):
         :param bool repo_gpgcheck: enable database signature validation
         :param bool pkg_gpgcheck: enable package signature validation
         :param str sourcetype: unused
+        :param bool use_for_bootstrap: unused
         """
         repo_file = '{0}/{1}.repo'.format(
             self.shared_pacman_dir['repos-dir'], name

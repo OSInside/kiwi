@@ -1398,6 +1398,11 @@ definition can be composed by other existing profiles.</a:documentation>
     
   -->
   <div>
+    <sch:pattern abstract="true" id="repo_type">
+      <sch:rule context="repository[@$attr]">
+        <sch:assert test="contains('$types', @type)">$attr attribute is only available for the following repository types: $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.repository.profiles.attribute">
       <ref name="k.profiles.attribute"/>
     </define>
@@ -1502,6 +1507,24 @@ be a simple repository url</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.repository.use_for_bootstrap.attribute">
+      <attribute name="use_for_bootstrap">
+        <a:documentation>Specify whether this repository should be the one used for
+bootstrapping or not. False by default. Only a single repository
+is allowed to be used for bootstrapping. If none is set the
+last one is picked.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="use_for_bootstrap" is-a="repo_type">
+        <sch:param name="attr" value="use_for_bootstrap"/>
+        <sch:param name="types" value="apt-deb"/>
+      </sch:pattern>
+      <sch:pattern id="single_deboostrap_repo">
+        <sch:rule context="image">
+          <sch:assert test="count(repository[@use_for_bootstrap='true'])&lt;=1">There can only be a single repository set for bootstrap ('use_for_bootstrap' attribute)</sch:assert>
+        </sch:rule>
+      </sch:pattern>
+    </define>
     <define name="k.repository.attlist">
       <interleave>
         <optional>
@@ -1542,6 +1565,9 @@ be a simple repository url</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.username.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repository.use_for_bootstrap.attribute"/>
         </optional>
       </interleave>
     </define>
