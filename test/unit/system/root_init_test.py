@@ -96,8 +96,7 @@ class TestRootInit:
             call('/proc/self/fd', 'tmpdir/dev/fd'),
             call('fd/2', 'tmpdir/dev/stderr'),
             call('fd/0', 'tmpdir/dev/stdin'),
-            call('fd/1', 'tmpdir/dev/stdout'),
-            call('/run', 'tmpdir/var/run')
+            call('fd/1', 'tmpdir/dev/stdout')
         ]
         mock_data_sync.assert_called_once_with(
             'tmpdir/', 'root_dir'
