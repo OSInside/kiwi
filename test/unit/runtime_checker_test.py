@@ -296,6 +296,14 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_volume_label_used_with_lvm()
 
+    def test_check_swap_name_used_with_lvm(self):
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'oem'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_swap_name_used_with_lvm()
+
     def test_check_preferences_data_no_version(self):
         xml_state = XMLState(
             self.description.load(), ['docker'], 'docker'

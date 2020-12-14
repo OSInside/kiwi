@@ -1114,6 +1114,28 @@ partition in MB</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <oem-swapname>
+    
+  -->
+  <div>
+    <define name="k.oem-swapname.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-swapname">
+      <element name="oem-swapname">
+        <a:documentation>For oem images: Set the name of the swap space
+The name of the swap space is used only if the
+image is configured to use the LVM volume manager.
+In this case swap is a volume and the volume takes
+a name. In any other case the given name will have
+no effect.</a:documentation>
+        <ref name="k.oem-swapname.attlist"/>
+        <text/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-systemsize>
     
   -->
@@ -3980,6 +4002,9 @@ and setup the system disk.</a:documentation>
           </optional>
           <optional>
             <ref name="k.oem-swapsize"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-swapname"/>
           </optional>
           <optional>
             <ref name="k.oem-systemsize"/>

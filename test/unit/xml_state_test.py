@@ -516,6 +516,13 @@ class TestXMLState:
         state = XMLState(xml_data, ['vmxFlavour'], 'oem')
         assert state.get_oemconfig_swap_mbytes() == 42
 
+    def test_get_oemconfig_swap_name(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['containerFlavour'], 'docker')
+        assert state.get_oemconfig_swap_name() == 'LVSwap'
+        state = XMLState(xml_data, ['vmxFlavour'], 'oem')
+        assert state.get_oemconfig_swap_name() == 'swap'
+
     def test_get_oemconfig_swap_mbytes_default(self):
         description = XMLDescription(
             '../data/example_btrfs_config.xml'

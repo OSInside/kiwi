@@ -130,6 +130,7 @@
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-swap>true</oem-swap>
                 <oem-recovery>false</oem-recovery>
+                <oem-swapname>swap</oem-swapname>
             </oemconfig>
         </type>
         <type image="iso" mediacheck="true" firmware="bios"/>

@@ -138,10 +138,40 @@ class RuntimeChecker:
         volume_management = self.xml_state.get_volume_management()
         if volume_management != 'lvm':
             for volume in self.xml_state.get_volumes():
-                if volume.label and volume.name != 'LVSwap':
+                if volume.label and volume.label != 'SWAP':
                     raise KiwiRuntimeError(
                         message.format(volume_management)
                     )
+
+    def check_swap_name_used_with_lvm(self):
+        """
+        The optional oem-swapname is only effective if used together
+        with the LVM volume manager. A name for the swap space can
+        only be set if it is created as a LVM volume. In any other
+        case the name does not apply to the system
+        """
+        message = dedent('''\n
+             Specified swap space name: {0} will not be used
+
+             The specified oem-swapname is used without the LVM volume
+             manager. This means the swap space will be created as simple
+             partition for which no name assignment can take place.
+             The name specified in oem-swapname is used to give the
+             LVM swap volume a name. Outside of LVM the setting is
+             meaningless and should be removed.
+
+             Please delete the following setting from your image
+             description:
+
+             <oem-swapname>{0}</oem-swapname>
+        ''')
+        volume_management = self.xml_state.get_volume_management()
+        if volume_management != 'lvm':
+            oemconfig = self.xml_state.get_build_type_oemconfig_section()
+            if oemconfig and oemconfig.get_oem_swapname():
+                raise KiwiRuntimeError(
+                    message.format(oemconfig.get_oem_swapname()[0])
+                )
 
     def check_volume_setup_defines_reserved_labels(self):
         message = dedent('''\n
@@ -158,7 +188,11 @@ class RuntimeChecker:
         volume_management = self.xml_state.get_volume_management()
         if volume_management == 'lvm':
             for volume in self.xml_state.get_volumes():
-                if volume.name != 'LVSwap':
+                # A swap volume is created implicitly if oem-swap is
+                # requested. This volume detected via realpath set to
+                # swap is skipped from the reserved label check as it
+                # intentionally uses the reserved label named SWAP
+                if volume.realpath != 'swap':
                     if volume.label and volume.label in reserved_labels:
                         raise KiwiRuntimeError(
                             message.format(

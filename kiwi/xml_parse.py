@@ -5858,7 +5858,7 @@ class oemconfig(GeneratedsSuper):
     which are used to repartition and setup the system disk."""
     subclass = None
     superclass = None
-    def __init__(self, oem_boot_title=None, oem_bootwait=None, oem_resize=None, oem_resize_once=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
+    def __init__(self, oem_boot_title=None, oem_bootwait=None, oem_resize=None, oem_resize_once=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_swapname=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
         self.original_tagname_ = None
         if oem_boot_title is None:
             self.oem_boot_title = []
@@ -5956,6 +5956,10 @@ class oemconfig(GeneratedsSuper):
             self.oem_swapsize = []
         else:
             self.oem_swapsize = oem_swapsize
+        if oem_swapname is None:
+            self.oem_swapname = []
+        else:
+            self.oem_swapname = oem_swapname
         if oem_systemsize is None:
             self.oem_systemsize = []
         else:
@@ -6099,6 +6103,11 @@ class oemconfig(GeneratedsSuper):
     def add_oem_swapsize(self, value): self.oem_swapsize.append(value)
     def insert_oem_swapsize_at(self, index, value): self.oem_swapsize.insert(index, value)
     def replace_oem_swapsize_at(self, index, value): self.oem_swapsize[index] = value
+    def get_oem_swapname(self): return self.oem_swapname
+    def set_oem_swapname(self, oem_swapname): self.oem_swapname = oem_swapname
+    def add_oem_swapname(self, value): self.oem_swapname.append(value)
+    def insert_oem_swapname_at(self, index, value): self.oem_swapname.insert(index, value)
+    def replace_oem_swapname_at(self, index, value): self.oem_swapname[index] = value
     def get_oem_systemsize(self): return self.oem_systemsize
     def set_oem_systemsize(self, oem_systemsize): self.oem_systemsize = oem_systemsize
     def add_oem_systemsize(self, value): self.oem_systemsize.append(value)
@@ -6140,6 +6149,7 @@ class oemconfig(GeneratedsSuper):
             self.oem_skip_verify or
             self.oem_swap or
             self.oem_swapsize or
+            self.oem_swapname or
             self.oem_systemsize or
             self.oem_unattended or
             self.oem_unattended_id
@@ -6247,6 +6257,9 @@ class oemconfig(GeneratedsSuper):
         for oem_swapsize_ in self.oem_swapsize:
             showIndent(outfile, level, pretty_print)
             outfile.write('<oem-swapsize>%s</oem-swapsize>%s' % (self.gds_format_integer(oem_swapsize_, input_name='oem-swapsize'), eol_))
+        for oem_swapname_ in self.oem_swapname:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<oem-swapname>%s</oem-swapname>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_swapname_), input_name='oem-swapname')), eol_))
         for oem_systemsize_ in self.oem_systemsize:
             showIndent(outfile, level, pretty_print)
             outfile.write('<oem-systemsize>%s</oem-systemsize>%s' % (self.gds_format_integer(oem_systemsize_, input_name='oem-systemsize'), eol_))
@@ -6482,6 +6495,10 @@ class oemconfig(GeneratedsSuper):
                 raise_parse_error(child_, 'requires nonNegativeInteger')
             ival_ = self.gds_validate_integer(ival_, node, 'oem_swapsize')
             self.oem_swapsize.append(ival_)
+        elif nodeName_ == 'oem-swapname':
+            oem_swapname_ = child_.text
+            oem_swapname_ = self.gds_validate_string(oem_swapname_, node, 'oem_swapname')
+            self.oem_swapname.append(oem_swapname_)
         elif nodeName_ == 'oem-systemsize' and child_.text:
             sval_ = child_.text
             try:

@@ -726,6 +726,24 @@ div {
 }
 
 #==========================================
+# common element <oem-swapname>
+#
+div {
+    k.oem-swapname.attlist = empty
+    k.oem-swapname =
+        ## For oem images: Set the name of the swap space
+        ## The name of the swap space is used only if the
+        ## image is configured to use the LVM volume manager.
+        ## In this case swap is a volume and the volume takes
+        ## a name. In any other case the given name will have
+        ## no effect.
+        element oem-swapname {
+            k.oem-swapname.attlist,
+            text
+        }
+}
+
+#==========================================
 # common element <oem-systemsize>
 #
 div {
@@ -2614,6 +2632,7 @@ div {
             k.oem-skip-verify? &
             k.oem-swap? &
             k.oem-swapsize? &
+            k.oem-swapname? &
             k.oem-systemsize? &
             k.oem-unattended? &
             k.oem-unattended-id?

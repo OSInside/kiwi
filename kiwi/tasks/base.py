@@ -81,6 +81,7 @@ class CliTask:
             'check_volume_setup_defines_multiple_fullsize_volumes': [],
             'check_volume_setup_has_no_root_definition': [],
             'check_volume_label_used_with_lvm': [],
+            'check_swap_name_used_with_lvm': [],
             'check_xen_uniquely_setup_as_server_or_guest': [],
             'check_mediacheck_installed': [],
             'check_dracut_module_for_live_iso_in_package_list': [],

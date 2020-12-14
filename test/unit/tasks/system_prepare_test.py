@@ -110,6 +110,8 @@ class TestSystemPrepareTask:
         self.runtime_checker.\
             check_volume_label_used_with_lvm.assert_called_once_with()
         self.runtime_checker.\
+            check_swap_name_used_with_lvm.assert_called_once_with()
+        self.runtime_checker.\
             check_xen_uniquely_setup_as_server_or_guest.\
             assert_called_once_with()
         self.runtime_checker.\
