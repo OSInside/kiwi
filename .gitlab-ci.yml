@@ -100,7 +100,7 @@ rpm_source_package:
     - rm dist/python-kiwi.changes
     - >
       mock
-      --isolation=simple -r /etc/mock/fedora-30-x86_64.cfg
+      --isolation=simple -r /etc/mock/fedora-33-x86_64.cfg
       --buildsrpm --sources ./dist
       --resultdir $(pwd)/mock-result-srpm
       --spec ./python-kiwi.spec 2>&1 | tee srpm_build_out
@@ -111,7 +111,7 @@ rpm_source_package:
       - mock-result-srpm
     expire_in: 1 week
 
-rpm_fedora_30:
+rpm_fedora_33:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
   stage: packages
   script:
@@ -121,7 +121,7 @@ rpm_fedora_30:
       mock
       --isolation=simple
       --resultdir $(pwd)/mock-result-fedora
-      -r /etc/mock/fedora-30-x86_64.cfg $(basename $SRC_RPM)
+      -r /etc/mock/fedora-33-x86_64.cfg $(basename $SRC_RPM)
   artifacts:
     when: always
     paths:
