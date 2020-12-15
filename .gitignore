@@ -36,7 +36,7 @@ env/
 .env2/
 .env3/
 build/
-build_travis/
+build_gh_pages/
 develop-eggs/
 dist/
 downloads/

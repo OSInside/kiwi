@@ -199,10 +199,8 @@ Make and commit your changes.
 
     $ git commit -S -a
 
-Run the tests and code style checks. All of these are also performed by the
-`Travis CI <https://travis-ci.com/OSInside/kiwi>`_ and `GitLab CI
-<https://gitlab.com/schaefi/kiwi-ci/pipelines>`_ integration test systems
-when a pull request is created.
+Run the tests and code style checks. All of these are also performed by
+`GitLab CI <https://gitlab.com/kiwi3>`_ when a pull request is created.
 
 .. code:: shell-session
 

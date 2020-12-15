@@ -16,10 +16,10 @@ git config user.name "${user_name}"
 git config user.email "${user_mail}"
 
 # build kiwi documentation suitable for github pages
-tox -e doc_travis
+tox -e doc_gh_pages
 
 # preserve the new docs
-mv doc/build_travis /tmp
+mv doc/build_gh_pages /tmp
 
 # checkout current pages and wipe them completely
 git checkout "${target_branch}"
@@ -27,8 +27,8 @@ git clean -f .
 git rm -rf .
 
 # sync(move) the new docs to the right place in the git
-rsync -a /tmp/build_travis/ .
-rm -rf /tmp/build_travis
+rsync -a /tmp/build_gh_pages/ .
+rm -rf /tmp/build_gh_pages
 
 # add all doc sources
 git add .

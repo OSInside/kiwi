@@ -40,7 +40,7 @@ sphinx_rtd_theme
 sphinxcontrib-spelling
 pyenchant
 
-# for travis deployment tasks
+# for github pages deployment tasks
 travis-sphinx
 ghp-import
 
