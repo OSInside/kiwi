@@ -70,7 +70,8 @@ build_doc:
 build_suse_doc:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$TUMBLEWEED_BUILD
   stage: documentation
-  <<: *only-default
+  only:
+    - branches
   script:
     - tox -e doc_suse
   artifacts:
