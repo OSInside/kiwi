@@ -15,19 +15,40 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import importlib
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
+
 # project
-from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
-from kiwi.iso_tools.xorriso import IsoToolsXorrIso
+from kiwi.exceptions import KiwiIsoToolError
 from kiwi.runtime_config import RuntimeConfig
 
 
-class IsoTools:
+class IsoTools(metaclass=ABCMeta):
     """
     **IsoTools factory**
     """
-    def __new__(self, source_dir):
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
+
+    @staticmethod
+    def new(source_dir):
+        name_map = {
+            'xorriso': 'XorrIso',
+            'cdrtools': 'CdrTools'
+        }
         runtime_config = RuntimeConfig()
-        if runtime_config.get_iso_tool_category() == 'cdrtools':
-            return IsoToolsCdrTools(source_dir)
-        else:
-            return IsoToolsXorrIso(source_dir)
+        tool = runtime_config.get_iso_tool_category()
+        try:
+            iso_tool = importlib.import_module(
+                'kiwi.iso_tools.{}'.format(tool)
+            )
+            module_name = 'IsoTools{}'.format(name_map[tool])
+            return iso_tool.__dict__[module_name](source_dir)
+        except Exception:
+            raise KiwiIsoToolError(
+                'No support for {} tool available'.format(tool)
+            )
