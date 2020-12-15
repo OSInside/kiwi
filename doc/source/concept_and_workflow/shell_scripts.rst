@@ -208,10 +208,11 @@ suseSetupProductInformation
 baseVagrantSetup
   Configures the image to work as a vagrant box by performing the following
   changes:
-  - add the ``vagrant`` user to :file:`/etc/sudoers` or
-    :file:`/etc/sudoers.d/vagrant`
-  - insert the insecure vagrant ssh key, apply recommended ssh settings and
-    start the ssh daemon
+
+  - add the ``vagrant`` user to :file:`/etc/sudoers`
+    or :file:`/etc/sudoers.d/vagrant`
+  - insert the insecure vagrant ssh key, apply recommended
+    ssh settings and start the ssh daemon
   - create the default shared folder :file:`/vagrant`
 
 Debug {message}
