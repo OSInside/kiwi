@@ -46,3 +46,6 @@ ghp-import
 
 # for helper tools
 python-dateutil
+
+# for release
+twine
