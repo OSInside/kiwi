@@ -42,7 +42,7 @@ class TestRootImportOCI:
     @patch('kiwi.system.root_import.oci.OCI')
     def test_sync_data(self, mock_OCI, mock_path, mock_md5, mock_compress):
         oci = Mock()
-        mock_OCI.return_value = oci
+        mock_OCI.new.return_value = oci
         md5 = Mock()
         mock_md5.return_value = Mock()
 
@@ -52,7 +52,7 @@ class TestRootImportOCI:
 
         self.oci_import.sync_data()
 
-        mock_OCI.assert_called_once_with()
+        mock_OCI.new.assert_called_once_with()
 
         oci.unpack.assert_called_once_with()
         oci.import_rootfs.assert_called_once_with(
@@ -70,7 +70,7 @@ class TestRootImportOCI:
         self, mock_OCI, mock_path, mock_md5, mock_compress
     ):
         oci = Mock()
-        mock_OCI.return_value = oci
+        mock_OCI.new.return_value = oci
         md5 = Mock()
         mock_md5.return_value = Mock()
 
@@ -80,7 +80,7 @@ class TestRootImportOCI:
 
         self.oci_import.sync_data()
 
-        mock_OCI.assert_called_once_with()
+        mock_OCI.new.assert_called_once_with()
 
         oci.unpack.assert_called_once_with()
         oci.import_rootfs.assert_called_once_with(
@@ -100,7 +100,7 @@ class TestRootImportOCI:
     ):
         mock_exists.return_value = True
         oci = Mock()
-        mock_OCI.return_value = oci
+        mock_OCI.new.return_value = oci
         md5 = Mock()
         mock_md5.return_value = Mock()
         with patch.dict('os.environ', {'HOME': '../data'}):
@@ -111,7 +111,7 @@ class TestRootImportOCI:
 
         with self._caplog.at_level(logging.WARNING):
             oci_import.sync_data()
-            mock_OCI.assert_called_once_with()
+            mock_OCI.new.assert_called_once_with()
             oci.import_container_image.assert_called_once_with(
                 'docker:image:tag'
             )

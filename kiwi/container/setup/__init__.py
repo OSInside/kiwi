@@ -15,28 +15,40 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
-from kiwi.container.setup.docker import ContainerSetupDocker
-from kiwi.container.setup.oci import ContainerSetupOCI
-from kiwi.container.setup.appx import ContainerSetupAppx
+import importlib
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
 
+# project
 from kiwi.exceptions import (
     KiwiContainerSetupError
 )
 
 
-class ContainerSetup:
+class ContainerSetup(metaclass=ABCMeta):
     """
         container setup factory
     """
-    def __new__(self, name, root_dir, custom_args=None):
-        if name == 'docker':
-            return ContainerSetupDocker(root_dir, custom_args)
-        elif name == 'oci':
-            return ContainerSetupOCI(root_dir, custom_args)
-        elif name == 'appx':
-            return ContainerSetupAppx(root_dir, custom_args)
-        else:
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
+
+    @staticmethod
+    def new(name: str, root_dir: str, custom_args: dict = None):
+        name_map = {
+            'docker': 'Docker',
+            'oci': 'OCI',
+            'appx': 'Appx'
+        }
+        try:
+            container_setup = importlib.import_module(
+                'kiwi.container.setup.{}'.format(name)
+            )
+            module_name = 'ContainerSetup{}'.format(name_map[name])
+            return container_setup.__dict__[module_name](root_dir, custom_args)
+        except Exception:
             raise KiwiContainerSetupError(
                 'Support for {0} container not implemented'.format(name)
             )

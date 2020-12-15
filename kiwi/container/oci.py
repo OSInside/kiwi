@@ -118,7 +118,7 @@ class ContainerImageOCI:
         exclude_list.append('sys/*')
         exclude_list.append('proc/*')
 
-        oci = OCI()
+        oci = OCI.new()
         if base_image:
             oci.import_container_image(
                 'oci-archive:{0}:{1}'.format(
