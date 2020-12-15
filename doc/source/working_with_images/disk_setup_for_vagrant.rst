@@ -134,14 +134,14 @@ steps are required:
 6. Additional customizations:
 
    Additionally to ``baseVagrantSetup``, you might want to also ensure the
-  following:
+   following:
 
-  - If you have installed the Virtualbox guest additions into your box,
-    then also load the ``vboxsf`` kernel module.
-  - When building boxes for libvirt, then ensure that the default wired
-    networking interface is called ``eth0`` and uses DHCP. This is
-    necessary since libvirt uses ``dnsmasq`` to issue IPs to the VMs. This
-    step can be omitted for Virtualbox boxes.
+   - If you have installed the Virtualbox guest additions into your box,
+     then also load the ``vboxsf`` kernel module.
+   - When building boxes for libvirt, then ensure that the default wired
+     networking interface is called ``eth0`` and uses DHCP. This is
+     necessary since libvirt uses ``dnsmasq`` to issue IPs to the VMs. This
+     step can be omitted for Virtualbox boxes.
 
 An image built with the above setup creates a Vagrant box file with the
 extension :file:`.vagrant.libvirt.box` or
