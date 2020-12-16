@@ -15,16 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-# project
-from kiwi.container.oci import ContainerImageOCI
-from kiwi.container.appx import ContainerImageAppx
+import importlib
+from abc import (
+    ABCMeta,
+    abstractmethod
+)
 
 from kiwi.exceptions import (
     KiwiContainerImageSetupError
 )
 
 
-class ContainerImage:
+class ContainerImage(metaclass=ABCMeta):
     """
     **Container Image factory**
 
@@ -32,20 +34,29 @@ class ContainerImage:
     :param string root_dir: root directory path name
     :param dict custom_args: custom arguments
     """
-    def __new__(self, name, root_dir, custom_args=None):
-        if name == 'docker':
-            return ContainerImageOCI(
-                root_dir, 'docker-archive', custom_args=custom_args
+    @abstractmethod
+    def __init__(self) -> None:
+        return None  # pragma: no cover
+
+    @staticmethod
+    def new(name: str, root_dir: str, custom_args: dict = None):
+        name_map = {
+            'docker': 'OCI',
+            'oci': 'OCI',
+            'appx': 'Appx'
+        }
+        args_map = {
+            'docker': [root_dir, 'docker-archive', custom_args],
+            'oci': [root_dir, 'oci-archive', custom_args],
+            'appx': [root_dir, custom_args]
+        }
+        try:
+            container_image = importlib.import_module(
+                'kiwi.container.{}'.format('oci' if name == 'docker' else name)
             )
-        elif name == 'oci':
-            return ContainerImageOCI(
-                root_dir, 'oci-archive', custom_args=custom_args
-            )
-        elif name == 'appx':
-            return ContainerImageAppx(
-                root_dir, custom_args=custom_args
-            )
-        else:
+            module_name = 'ContainerImage{}'.format(name_map[name])
+            return container_image.__dict__[module_name](*args_map[name])
+        except Exception:
             raise KiwiContainerImageSetupError(
                 'Support for {0} container not implemented'.format(name)
             )

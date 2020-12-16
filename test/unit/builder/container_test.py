@@ -112,22 +112,22 @@ class TestContainerBuilder:
     @patch('kiwi.builder.container.ContainerImage')
     def test_create(self, mock_image, mock_setup):
         container_setup = mock.Mock()
-        mock_setup.return_value = container_setup
+        mock_setup.new.return_value = container_setup
         container_image = mock.Mock()
         container_image.create = mock.Mock(
             return_value='target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
         )
-        mock_image.return_value = container_image
+        mock_image.new.return_value = container_image
         self.setup.export_package_verification.return_value = '.verified'
         self.setup.export_package_changes.return_value = '.changes'
         self.setup.export_package_list.return_value = '.packages'
         self.container.base_image = None
         self.container.create()
-        mock_setup.assert_called_once_with(
+        mock_setup.new.assert_called_once_with(
             'docker', 'root_dir', self.container_config
         )
         container_setup.setup.assert_called_once_with()
-        mock_image.assert_called_once_with(
+        mock_image.new.assert_called_once_with(
             'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(
@@ -188,7 +188,7 @@ class TestContainerBuilder:
         container_image.create = mock.Mock(
             return_value='target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
         )
-        mock_image.return_value = container_image
+        mock_image.new.return_value = container_image
 
         container = ContainerBuilder(
             self.xml_state, 'target_dir', 'root_dir'
@@ -212,7 +212,7 @@ class TestContainerBuilder:
             'checksumvalue', 'root_dir/image/imported_root.md5'
         )
 
-        mock_image.assert_called_once_with(
+        mock_image.new.assert_called_once_with(
             'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(

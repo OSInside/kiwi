@@ -120,7 +120,7 @@ class TestContainerImageOCI:
     def test_create_oci_archive(self, mock_cache, mock_OCI):
         mock_cache.return_value = 'var/cache/kiwi'
         mock_oci = mock.Mock()
-        mock_OCI.return_value = mock_oci
+        mock_OCI.new.return_value = mock_oci
 
         self.oci.runtime_config.get_container_compression = mock.Mock(
             return_value=None
@@ -164,7 +164,7 @@ class TestContainerImageOCI:
     ):
         mock_cache.return_value = 'var/cache/kiwi'
         mock_oci = mock.Mock()
-        mock_OCI.return_value = mock_oci
+        mock_OCI.new.return_value = mock_oci
 
         self.oci.create('result.tar', 'root_dir/image/image_file')
 

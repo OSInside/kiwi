@@ -36,7 +36,7 @@ class TestFileSystemIsoFs:
         )
         iso = mock.Mock()
         iso.header_end_name = 'header_end'
-        mock_cdrtools.return_value = iso_tool
+        mock_cdrtools.new.return_value = iso_tool
         mock_iso.return_value = iso
         self.isofs.create_on_file('myimage', None)
 
@@ -75,7 +75,7 @@ class TestFileSystemIsoFs:
         )
         iso = mock.Mock()
         iso.header_end_name = 'header_end'
-        mock_cdrtools.return_value = iso_tool
+        mock_cdrtools.new.return_value = iso_tool
         mock_iso.return_value = iso
         self.isofs.custom_args['meta_data']['efi_mode'] = 'uefi'
         with self._caplog.at_level(logging.WARNING):

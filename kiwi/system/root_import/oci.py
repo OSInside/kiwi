@@ -55,7 +55,7 @@ class RootImportOCI(RootImportBase):
             log.warning('Bypassing base image URI to OCI tools')
             image_uri = self.unknown_uri
 
-        oci = OCI()
+        oci = OCI.new()
         oci.import_container_image(image_uri)
         oci.unpack()
         oci.import_rootfs(self.root_dir)
