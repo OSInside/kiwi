@@ -4333,10 +4333,18 @@ or plusRecommended</a:documentation>
     <define name="k.preferences.profiles.attribute">
       <ref name="k.profiles.attribute"/>
     </define>
+    <define name="k.preferences.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.preferences.attlist">
-      <optional>
-        <ref name="k.preferences.profiles.attribute"/>
-      </optional>
+      <interleave>
+        <optional>
+          <ref name="k.preferences.profiles.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.preferences.arch.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.preferences">
       <element name="preferences">

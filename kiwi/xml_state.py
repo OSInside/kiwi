@@ -59,15 +59,18 @@ class XMLState:
 
     def get_preferences_sections(self):
         """
-        All preferences sections for the selected profiles
+        All preferences sections for the selected profiles that match the
+        host architecture
 
         :return: list of <preferences> section reference(s)
 
         :rtype: list
         """
-        return self._profiled(
-            self.xml_data.get_preferences()
-        )
+        preferences_list = []
+        for preferences in self._profiled(self.xml_data.get_preferences()):
+            if self.preferences_matches_host_architecture(preferences):
+                preferences_list.append(preferences)
+        return preferences_list
 
     def get_description_section(self):
         """
@@ -296,6 +299,22 @@ class XMLState:
         :rtype: bool
         """
         return self._section_matches_host_architecture(profile)
+
+    def preferences_matches_host_architecture(self, preferences):
+        """
+        Tests if the given preferences section is applicable for the current host
+        architecture. If no architecture is specified within the section
+        it is considered as a match returning True.
+
+        Note: The XML section pointer must provide an arch attribute
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return self._section_matches_host_architecture(preferences)
 
     def get_package_sections(self, packages_sections):
         """

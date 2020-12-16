@@ -58,6 +58,17 @@ class TestXMLState:
         assert description.specification == \
             'Testing various configuration states'
 
+    @patch('platform.machine')
+    def test_get_preferences_by_architecture(self, mock_machine):
+        mock_machine.return_value = 'aarch64'
+        state = XMLState(
+            self.description.load()
+        )
+        preferences = state.get_preferences_sections()
+        assert len(preferences) == 3
+        assert preferences[2].get_arch() == 'aarch64'
+        assert state.get_build_type_name() == 'iso'
+
     def test_build_type_primary_selected(self):
         assert self.state.get_build_type_name() == 'oem'
 
