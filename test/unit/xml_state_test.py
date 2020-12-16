@@ -226,6 +226,7 @@ class TestXMLState:
     def test_get_build_type_vagrant_config_section(self):
         vagrant_config = self.state.get_build_type_vagrant_config_section()
         assert vagrant_config.get_provider() == 'libvirt'
+        assert self.boot_state.get_build_type_vagrant_config_section() is None
 
     def test_virtualbox_guest_additions_vagrant_config_section(self):
         assert not self.state.get_vagrant_config_virtualbox_guest_additions()
@@ -242,6 +243,7 @@ class TestXMLState:
 
     def test_get_build_type_vmdisk_section(self):
         assert self.state.get_build_type_vmdisk_section().get_id() == 0
+        assert self.boot_state.get_build_type_vmdisk_section() is None
 
     def test_get_build_type_vmnic_entries(self):
         assert self.state.get_build_type_vmnic_entries()[0].get_interface() \
@@ -250,6 +252,7 @@ class TestXMLState:
 
     def test_get_build_type_vmdvd_section(self):
         assert self.state.get_build_type_vmdvd_section().get_id() == 0
+        assert self.boot_state.get_build_type_vmdvd_section() is None
 
     def test_get_volume_management(self):
         assert self.state.get_volume_management() == 'lvm'
@@ -915,11 +918,13 @@ class TestXMLState:
 
     def test_get_locale(self):
         assert self.state.get_locale() == ['en_US', 'de_DE']
+        assert self.boot_state.get_locale() is None
 
     def test_get_rpm_locale(self):
         assert self.state.get_rpm_locale() == [
             'POSIX', 'C', 'C.UTF-8', 'en_US', 'de_DE'
         ]
+        assert self.boot_state.get_rpm_locale() is None
 
     def test_set_root_partition_uuid(self):
         assert self.state.get_root_partition_uuid() is None
@@ -949,6 +954,9 @@ class TestXMLState:
         mock_bootloader.return_value = [self.bootloader]
         assert self.state.get_build_type_bootloader_serial_line_setup() == \
             'some-serial'
+        mock_bootloader.return_value = [None]
+        assert self.state.get_build_type_bootloader_serial_line_setup() \
+            is None
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_timeout(self, mock_bootloader):
@@ -961,6 +969,9 @@ class TestXMLState:
         mock_bootloader.return_value = [self.bootloader]
         assert self.state.get_build_type_bootloader_timeout_style() == \
             'some-style'
+        mock_bootloader.return_value = [None]
+        assert self.state.get_build_type_bootloader_timeout_style() \
+            is None
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_targettype(self, mock_bootloader):

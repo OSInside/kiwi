@@ -223,13 +223,6 @@ class KiwiDebootstrapError(KiwiError):
     """
 
 
-class KiwiDescriptionConflict(KiwiError):
-    """
-    Exception raised if both, a description file and xml_content
-    is provided
-    """
-
-
 class KiwiDescriptionInvalid(KiwiError):
     """
     Exception raised if the XML description failed to validate

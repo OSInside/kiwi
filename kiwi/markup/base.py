@@ -15,14 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
 from tempfile import NamedTemporaryFile
 from lxml import etree
 
 # project
 from kiwi.defaults import Defaults
-
-from kiwi.exceptions import KiwiDescriptionInvalid
 
 
 class MarkupBase:
@@ -31,38 +28,26 @@ class MarkupBase:
 
     Attributes
 
-    :param string description: description path or content
+    :param str description: description path or content
     """
-    def __init__(self, description):
-        description_is_file = False
-        if os.path.exists(description):
-            description_is_file = True
-        try:
-            if description_is_file:
-                self.description = description
-            else:
-                self.description_temporary = NamedTemporaryFile()
-                with open(self.description_temporary.name, 'wb') as outfile:
-                    outfile.write(description)
-                self.description = self.description_temporary.name
-        except Exception as issue:
-            raise KiwiDescriptionInvalid(issue)
+    def __init__(self, description: str):
+        self.description = description
         self.post_init()
 
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
         """
         pass
 
-    def apply_xslt_stylesheets(self, description):
+    def apply_xslt_stylesheets(self, description: str) -> str:
         """
         Apply XSLT style sheet rules to an xml file
 
         The result of the XSLT processing is stored in a named
         temporary file and returned to the caller
 
-        :param string description: path to an XML description file
+        :param str description: path to an XML description file
         """
         xslt_transform = etree.XSLT(
             etree.parse(Defaults.get_xsl_stylesheet_file())
@@ -74,7 +59,7 @@ class MarkupBase:
             )
         return self.description_xslt_processed.name
 
-    def get_xml_description(self):
+    def get_xml_description(self) -> str:
         """
         Return XML description file name
 
@@ -82,7 +67,7 @@ class MarkupBase:
         """
         raise NotImplementedError
 
-    def get_yaml_description(self):
+    def get_yaml_description(self) -> str:
         """
         Return YAML description file name
 

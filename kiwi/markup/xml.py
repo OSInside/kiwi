@@ -25,7 +25,7 @@ class MarkupXML(MarkupBase):
     """
     **Implements plain XML markup handling**
     """
-    def get_xml_description(self):
+    def get_xml_description(self) -> str:
         """
         Return XML description file name
 
@@ -37,7 +37,7 @@ class MarkupXML(MarkupBase):
             self.description
         )
 
-    def get_yaml_description(self):
+    def get_yaml_description(self) -> str:
         """
         Conversion into YAML format not supported by base XML markup
         """

@@ -49,7 +49,7 @@ class ColorMessage:
             'bold': '\033[1m'
         }
 
-    def format_message(self, level, message):
+    def format_message(self, level: str, message: str) -> str:
         """
         Message formatter with support for embedded color sequences
 
@@ -63,8 +63,8 @@ class ColorMessage:
         The color of the message depends on the level and is defined
         in the ColorMessage constructor
 
-        :param int level: color level number
-        :param string message: text
+        :param str level: color level name
+        :param str message: text
 
         :return: color message with escape sequences
 
@@ -109,11 +109,11 @@ class ColorFormatter(logging.Formatter):
 
         ColorFormatter(message_format, '%H:%M:%S')
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: str, **kwargs: str):
         # can't do super(...) here because Formatter is an old school class
         logging.Formatter.__init__(self, *args, **kwargs)
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         """
         Creates a logging Formatter with support for color messages
 

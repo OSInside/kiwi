@@ -32,8 +32,7 @@ class Markup(metaclass=ABCMeta):
     """
     **Markup factory**
 
-    :param string description: path to description file
-    :param string xml_content: description data as content string
+    :param str description: path to description file
     """
     @abstractmethod
     def __init__(self) -> None:
