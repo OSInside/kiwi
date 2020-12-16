@@ -142,8 +142,9 @@ class Logger(logging.Logger):
         """
         return self.logfile
 
+    @staticmethod
     def progress(
-        self, current: int, total: int, prefix: str, bar_length: int = 40
+        current: int, total: int, prefix: str, bar_length: int = 40
     ) -> None:
         """
         Custom progress log information. progress information is
