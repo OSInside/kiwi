@@ -78,6 +78,8 @@ and cloud systems like Xen, KVM, VMware, EC2 and more.
 %package -n kiwi-systemdeps-core
 Summary:        KIWI - Core host system dependencies
 Group:          %{sysgroup}
+Provides:       kiwi-image-tbz-requires = %{version}-%{release}
+Obsoletes:      kiwi-image-tbz-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:tbz
 %endif
@@ -119,8 +121,10 @@ to run KIWI.
 %package -n kiwi-systemdeps-containers
 Summary:        KIWI - host requirements for container images
 Group:          %{sysgroup}
-Obsoletes:      kiwi-image-docker-requires
-Obsoletes:      kiwi-image-wsl-requires
+Provides:       kiwi-image-docker-requires = %{version}-%{release}
+Obsoletes:      kiwi-image-docker-requires < %{version}-%{release}
+Provides:       kiwi-image-wsl-requires = %{version}-%{release}
+Obsoletes:      kiwi-image-wsl-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:docker
 Provides:       kiwi-image:wsl
@@ -140,7 +144,8 @@ the build host to build container images e.g docker, wsl
 %package -n kiwi-systemdeps-iso-media
 Summary:        KIWI - host requirements for live and install iso images
 Group:          %{sysgroup}
-Obsoletes:      kiwi-image-iso-requires
+Provides:       kiwi-image-iso-requires = %{version}-%{release}
+Obsoletes:      kiwi-image-iso-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:iso
 %endif
@@ -195,7 +200,10 @@ the build host for configuring bootloaders on images.
 %package -n kiwi-systemdeps-filesystems
 Summary:        KIWI - host requirements for filesystems
 Group:          %{sysgroup}
-Obsoletes:      kiwi-filesystem-requires
+Provides:       kiwi-image-pxe-requires = %{version}-%{release}
+Obsoletes:      kiwi-image-pxe-requires < %{version}-%{release}
+Provides:       kiwi-filesystem-requires = %{version}-%{release}
+Obsoletes:      kiwi-filesystem-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:kis
@@ -236,8 +244,10 @@ the build host to build filesystem images
 %package -n kiwi-systemdeps-disk-images
 Summary:        KIWI - host requirements for disk images
 Group:          %{sysgroup}
-Obsoletes:      kiwi-image-oem-requires
-Obsoletes:      kiwi-image-vmx-requires
+Provides:       kiwi-image-oem-requires = %{version}-%{release}
+Obsoletes:      kiwi-image-oem-requires < %{version}-%{release}
+Provides:       kiwi-image-vmx-requires = %{version}-%{release}
+Obsoletes:      kiwi-image-vmx-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:oem
 Provides:       kiwi-image:vmx
