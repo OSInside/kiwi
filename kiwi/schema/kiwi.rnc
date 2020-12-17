@@ -2811,8 +2811,10 @@ div {
 #
 div {
     k.preferences.profiles.attribute = k.profiles.attribute
+    k.preferences.arch.attribute = k.arch.attribute
     k.preferences.attlist =
-        k.preferences.profiles.attribute?
+        k.preferences.profiles.attribute? &
+        k.preferences.arch.attribute?
     k.preferences =  
         ## Configuration Information Needed for Logical Extend
         ## All elements are optional since the combination of appropriate

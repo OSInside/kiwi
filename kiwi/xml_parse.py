@@ -7110,9 +7110,10 @@ class preferences(GeneratedsSuper):
     sections based on profiles combine to create on vaild definition"""
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, rpm_locale_filtering=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
+    def __init__(self, profiles=None, arch=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, rpm_locale_filtering=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
+        self.arch = _cast(None, arch)
         if bootsplash_theme is None:
             self.bootsplash_theme = []
         else:
@@ -7234,6 +7235,15 @@ class preferences(GeneratedsSuper):
     def replace_version_at(self, index, value): self.version[index] = value
     def get_profiles(self): return self.profiles
     def set_profiles(self, profiles): self.profiles = profiles
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
             self.bootsplash_theme or
@@ -7277,6 +7287,9 @@ class preferences(GeneratedsSuper):
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='preferences', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7329,6 +7342,12 @@ class preferences(GeneratedsSuper):
         if value is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             self.profiles = value
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'bootsplash-theme':
             bootsplash_theme_ = child_.text
