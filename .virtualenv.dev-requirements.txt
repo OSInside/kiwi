@@ -26,6 +26,7 @@ wheel
 
 # Python style guide checker
 flake8
+mypy
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS

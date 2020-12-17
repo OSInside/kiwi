@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import (
+    Dict, Optional
+)
 import logging
 import sys
 
@@ -35,12 +38,12 @@ class Logger(logging.Logger):
     """
     **Extended logging facility based on Python logging**
 
-    :param string name: name of the logger
+    :param str name: name of the logger
     """
-    def __init__(self, name):
+    def __init__(self, name: str):
         logging.Logger.__init__(self, name)
-        self.console_handlers = {}
-        self.logfile = None
+        self.console_handlers: Dict = {}
+        self.logfile: Optional[str] = None
         # log INFO to stdout
         self._add_stream_handler(
             'info',
@@ -68,7 +71,7 @@ class Logger(logging.Logger):
         )
         self.log_level = self.level
 
-    def getLogLevel(self):
+    def getLogLevel(self) -> int:
         """
         Return currently used log level
 
@@ -78,7 +81,7 @@ class Logger(logging.Logger):
         """
         return self.log_level
 
-    def setLogLevel(self, level):
+    def setLogLevel(self, level: int) -> None:
         """
         Set custom log level for all console handlers
 
@@ -88,7 +91,7 @@ class Logger(logging.Logger):
         for handler_type in self.console_handlers:
             self.console_handlers[handler_type].setLevel(level)
 
-    def set_color_format(self):
+    def set_color_format(self) -> None:
         """
         Set color format for all console handlers
         """
@@ -106,11 +109,11 @@ class Logger(logging.Logger):
                     ColorFormatter(message_format, '%H:%M:%S')
                 )
 
-    def set_logfile(self, filename):
+    def set_logfile(self, filename: str) -> None:
         """
         Set logfile handler
 
-        :param string filename: logfile file path
+        :param str filename: logfile file path
         """
         try:
             logfile = logging.FileHandler(
@@ -129,7 +132,7 @@ class Logger(logging.Logger):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def get_logfile(self):
+    def get_logfile(self) -> Optional[str]:
         """
         Return file path name of logfile
 
@@ -139,7 +142,10 @@ class Logger(logging.Logger):
         """
         return self.logfile
 
-    def progress(self, current, total, prefix, bar_length=40):
+    @staticmethod
+    def progress(
+        current: int, total: int, prefix: str, bar_length: int = 40
+    ) -> None:
         """
         Custom progress log information. progress information is
         intentionally only logged to stdout and will bypass any

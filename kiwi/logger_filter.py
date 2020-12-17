@@ -22,95 +22,91 @@ class LoggerSchedulerFilter(logging.Filter):
     """
     **Extended standard logging Filter**
     """
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         """
         Messages from apscheduler scheduler instances are filtered out
         They conflict with console progress information
 
         :param tuple record: logging message record
 
-        :return: record.name
+        :return: True|False
 
-        :rtype: str
+        :rtype: bool
         """
         ignorables = [
             'apscheduler.scheduler',
             'apscheduler.executors.default'
         ]
-        return record.name not in ignorables
+        return bool(record.name not in ignorables)
 
 
 class InfoFilter(logging.Filter):
     """
     **Extended standard logging Filter**
     """
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         """
-        Only messages with record level INFO and WARNING can pass
+        Only messages with record level INFO can pass
         for messages with another level an extra handler is used
 
         :param tuple record: logging message record
 
-        :return: record.name
+        :return: True|False
 
-        :rtype: str
+        :rtype: bool
         """
-        if record.levelno == logging.INFO:
-            return True
+        return True if record.levelno == logging.INFO else False
 
 
 class DebugFilter(logging.Filter):
     """
     **Extended standard debug logging Filter**
     """
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         """
         Only messages with record level DEBUG can pass
         for messages with another level an extra handler is used
 
         :param tuple record: logging message record
 
-        :return: record.name
+        :return: True|False
 
-        :rtype: str
+        :rtype: bool
         """
-        if record.levelno == logging.DEBUG:
-            return True
+        return True if record.levelno == logging.DEBUG else False
 
 
 class ErrorFilter(logging.Filter):
     """
     **Extended standard error logging Filter**
     """
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         """
         Only messages with record level DEBUG can pass
         for messages with another level an extra handler is used
 
         :param tuple record: logging message record
 
-        :return: record.name
+        :return: True|False
 
-        :rtype: str
+        :rtype: bool
         """
-        if record.levelno == logging.ERROR:
-            return True
+        return True if record.levelno == logging.ERROR else False
 
 
 class WarningFilter(logging.Filter):
     """
     **Extended standard warning logging Filter**
     """
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         """
         Only messages with record level WARNING can pass
         for messages with another level an extra handler is used
 
         :param tuple record: logging message record
 
-        :return: record.name
+        :return: True|False
 
-        :rtype: str
+        :rtype: bool
         """
-        if record.levelno == logging.WARNING:
-            return True
+        return True if record.levelno == logging.WARNING else False

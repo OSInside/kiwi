@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Any
 import importlib
 from tempfile import NamedTemporaryFile
 
@@ -31,7 +32,7 @@ class MarkupAny(MarkupBase):
     """
     **Implements markup handling for XML, YAML, JSON and INI**
     """
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Convert given description file into XML
 
@@ -39,7 +40,7 @@ class MarkupAny(MarkupBase):
         input format and can convert YAML, JSON and INI to XML
         """
         try:
-            self.anymarkup = importlib.import_module('anymarkup')
+            self.anymarkup: Any = importlib.import_module('anymarkup')
         except Exception as issue:
             raise KiwiAnyMarkupPluginError(issue)
         try:
@@ -53,25 +54,25 @@ class MarkupAny(MarkupBase):
         except Exception as issue:
             raise KiwiDescriptionInvalid(issue)
 
-    def get_xml_description(self):
+    def get_xml_description(self) -> str:
         """
         Return XML description file name
 
         :return: file path name
 
-        :rtype: string
+        :rtype: str
         """
         return self.apply_xslt_stylesheets(
             self.description_markup_processed.name
         )
 
-    def get_yaml_description(self):
+    def get_yaml_description(self) -> str:
         """
         Return YAML description file name
 
         :return: file path name
 
-        :rtype: string
+        :rtype: str
         """
         xml_description_xslt_transformed = self.apply_xslt_stylesheets(
             self.description_markup_processed.name

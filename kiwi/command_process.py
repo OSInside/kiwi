@@ -20,6 +20,7 @@ from collections import namedtuple
 
 # project
 from kiwi.utils.codec import Codec
+from kiwi.logger import Logger
 
 from kiwi.exceptions import KiwiCommandError
 
@@ -117,12 +118,12 @@ class CommandProcess:
         return self.command.get_error_code()
 
     def _init_progress(self):
-        log.progress(
+        Logger.progress(
             0, 100, '[ INFO    ]: Processing'
         )
 
     def _stop_progress(self):
-        log.progress(
+        Logger.progress(
             100, 100, '[ INFO    ]: Processing'
         )
 
@@ -134,7 +135,7 @@ class CommandProcess:
             if match_method(item, command_output):
                 self.items_processed += 1
                 if self.items_processed <= items_count:
-                    log.progress(
+                    Logger.progress(
                         self.items_processed, items_count,
                         '[ INFO    ]: Processing'
                     )

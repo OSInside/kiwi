@@ -88,7 +88,7 @@ class DataOutput:
         Show data in json output format with nice color highlighting
         """
         out_file = NamedTemporaryFile()
-        out_file.write(json.dumps(self.data, sort_keys=True))
+        out_file.write(json.dumps(self.data, sort_keys=True).encode())
         out_file.flush()
         pjson_cmd = ''.join(
             ['cat ', out_file.name, ' | pjson']

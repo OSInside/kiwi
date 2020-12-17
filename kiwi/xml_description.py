@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import (
+    Dict, Any
+)
 import os
 import logging
 from xml.dom import minidom
@@ -36,7 +39,6 @@ from kiwi.exceptions import (
     KiwiValidationError,
     KiwiDescriptionInvalid,
     KiwiDataStructureError,
-    KiwiDescriptionConflict,
     KiwiExtensionError,
     KiwiCommandNotFound
 )
@@ -58,22 +60,19 @@ class XMLDescription:
 
     Attributes
 
-    :param string description: path to description file
-    :param string derived_from: path to base description file
-    :param string xml_content: XML description data as content string
+    :param str description: path to description file
+    :param str derived_from: path to base description file
     """
-    def __init__(self, description=None, derived_from=None, xml_content=None):
-        if description and xml_content:
-            raise KiwiDescriptionConflict(
-                'description and xml_content are mutually exclusive'
-            )
-        self.markup = Markup.new(description or xml_content)
+    def __init__(
+        self, description: str = '', derived_from: str = None
+    ):
+        self.markup = Markup.new(description)
         self.description = self.markup.get_xml_description()
         self.derived_from = derived_from
         self.description_origin = description
-        self.extension_data = {}
+        self.extension_data: Dict = {}
 
-    def load(self):
+    def load(self) -> Any:
         """
         Read XML description, validate it against the schema
         and the schematron rules and pass it to the
@@ -179,18 +178,17 @@ class XMLDescription:
 
         return parse_result
 
-    def get_extension_xml_data(self, namespace_name):
+    def get_extension_xml_data(self, namespace_name: str) -> Any:
         """
         Return the xml etree parse result for the specified extension namespace
 
-        :param string namespace_name: name of the extension namespace
+        :param str namespace_name: name of the extension namespace
 
         :return: result of etree.parse
 
         :rtype: object
         """
-        if namespace_name in self.extension_data:
-            return self.extension_data[namespace_name]
+        return self.extension_data.get(namespace_name)
 
     @staticmethod
     def _get_relaxng_validation_details(
