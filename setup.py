@@ -44,6 +44,7 @@ class sdist(setuptools_sdist.sdist):
 
 config = {
     'name': 'kiwi',
+    'python_requires': '>=3.6',
     'description': 'KIWI - Appliance Builder (next generation)',
     'author': 'Marcus Schaefer',
     'url': 'https://osinside.github.io/kiwi',

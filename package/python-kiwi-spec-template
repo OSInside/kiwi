@@ -58,7 +58,7 @@ Source:         %{name}.tar.gz
 Source1:        %{name}-rpmlintrc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  gcc
-BuildRequires:  python%{python3_pkgversion}-%{develsuffix}
+BuildRequires:  python%{python3_pkgversion}-%{develsuffix} >= 3.6
 BuildRequires:  python%{python3_pkgversion}-setuptools
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  fdupes
@@ -158,7 +158,6 @@ Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
 %description -n kiwi-systemdeps-iso-media
 Host setup helper to pull in all packages required/useful on
 the build host to build live and install iso images.
-
 
 %package -n kiwi-systemdeps-bootloaders
 Summary:        KIWI - host requirements for configuring bootloaders
@@ -303,6 +302,7 @@ Group:          %{pygroup}
 Obsoletes:      python2-kiwi
 Conflicts:      python2-kiwi
 Conflicts:      kiwi-man-pages < %{version}
+Requires:       python%{python3_pkgversion} >= 3.6
 %if 0%{?ubuntu} || 0%{?debian}
 Requires:       python%{python3_pkgversion}-yaml
 %else
