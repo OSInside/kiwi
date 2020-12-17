@@ -20,6 +20,7 @@ from abc import (
     ABCMeta,
     abstractmethod
 )
+from typing import Dict
 
 from kiwi.exceptions import (
     KiwiContainerImageSetupError
@@ -39,7 +40,7 @@ class ContainerImage(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(name: str, root_dir: str, custom_args: dict = None):
+    def new(name: str, root_dir: str, custom_args: Dict=None):  # noqa: E252
         name_map = {
             'docker': 'OCI',
             'oci': 'OCI',

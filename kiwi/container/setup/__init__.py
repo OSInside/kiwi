@@ -20,6 +20,7 @@ from abc import (
     ABCMeta,
     abstractmethod
 )
+from typing import Dict
 
 # project
 from kiwi.exceptions import (
@@ -36,7 +37,7 @@ class ContainerSetup(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(name: str, root_dir: str, custom_args: dict = None):
+    def new(name: str, root_dir: str, custom_args: Dict=None):  # noqa: E252
         name_map = {
             'docker': 'Docker',
             'oci': 'OCI',
