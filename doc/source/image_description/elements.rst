@@ -75,7 +75,7 @@ Setup image type and layout.
 
 .. code:: xml
 
-   <preferences>
+   <preferences arch="arch">
      <version>1.2.3</version>
      <packagemanager name="zypper"/>
      <type image="tbz"/>
@@ -83,7 +83,10 @@ Setup image type and layout.
 
 The mandatory preferences section contains information about the
 supported image type(s), the used package manager, the version of this
-image, and further optional elements.
+image, and further optional elements. The preferences section can
+be configured to apply only for a certain architecture. In this
+case specify the `arch` attribute with a value as it is reported
+by :command:`uname -m`
 
 <preferences><version>
 ~~~~~~~~~~~~~~~~~~~~~~
