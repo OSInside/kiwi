@@ -44,7 +44,7 @@
 
 Name:           python-kiwi
 Version:        %%VERSION
-Provides:       kiwi-schema = 7.2
+Provides:       kiwi-schema = 7.3
 Release:        0
 Url:            https://github.com/OSInside/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
@@ -69,64 +69,21 @@ BuildRequires:  shadow
 %if 0%{?debian} || 0%{?ubuntu}
 BuildRequires:  passwd
 %endif
-%if 0%{?fedora} || 0%{?rhel}
-BuildRequires:  chkconfig
-%endif
 
 %description
 The KIWI Image System provides an operating system image builder
 for Linux supported hardware platforms as well as for virtualization
 and cloud systems like Xen, KVM, VMware, EC2 and more.
 
-# python3-kiwi
-%package -n python%{python3_pkgversion}-kiwi
-Summary:        KIWI - Appliance Builder Next Generation
-Group:          Development/Languages/Python
-Obsoletes:      python2-kiwi
-Conflicts:      python2-kiwi
-Conflicts:      kiwi-man-pages < %{version}
-%if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} || 0%{?debian} || 0%{?ubuntu}
-Recommends:     jing
-%endif
-%if 0%{?ubuntu} || 0%{?debian}
-Requires:       python%{python3_pkgversion}-yaml
-%else
-Requires:       python%{python3_pkgversion}-PyYAML
-%endif
-Requires:       python%{python3_pkgversion}-docopt
-Requires:       python%{python3_pkgversion}-lxml
-Requires:       python%{python3_pkgversion}-requests
-Requires:       python%{python3_pkgversion}-setuptools
-%if (0%{?suse_version} && 0%{?suse_version} < 1550)
-Requires:       python%{python3_pkgversion}-xattr
-%else
-Requires:       python%{python3_pkgversion}-pyxattr
+%package -n kiwi-systemdeps-core
+Summary:        KIWI - Core host system dependencies
+Group:          %{sysgroup}
+%if "%{_vendor}" != "debbuild"
+Provides:       kiwi-image:tbz
 %endif
 # tools used by kiwi
-%if 0%{?suse_version}
-%ifarch x86_64
-Requires:       grub2-x86_64-efi
-%endif
-%ifarch %{ix86} x86_64
-Recommends:     gfxboot
-%endif
-Requires:       qemu-tools
-Requires:       squashfs
-Requires:       gptfdisk
-%endif
-%if 0%{?fedora} || 0%{?rhel}
-%ifarch x86_64
-Requires:       grub2-efi-x64
-%endif
-Requires:         chkconfig
-Requires(post):   chkconfig
-Requires(postun): chkconfig
-Requires:       qemu-img
-Requires:       squashfs-tools
-Requires:       gdisk
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends:     gnupg2
-%endif
 %endif
 %if 0%{?suse_version}
 # If it's available, let's pull it in
@@ -148,22 +105,77 @@ Provides:       kiwi-packagemanager:zypper
 %endif
 %if 0%{?debian} || 0%{?ubuntu}
 Requires:       debootstrap
-Requires:       qemu-utils
-Requires:       squashfs-tools
-Requires:       gdisk
-Recommends:     gnupg
+Requires:       gnupg
 %endif
-Requires:       dosfstools
-Requires:       e2fsprogs
-Requires:       xorriso
-Requires:       grub2
 Requires:       kiwi-tools
-Requires:       lvm2
 Requires:       mtools
-Requires:       parted
-Requires:       kpartx
 Requires:       rsync
 Requires:       tar >= 1.2.7
+
+%description -n kiwi-systemdeps-core
+This metapackage installs the necessary system dependencies
+to run KIWI.
+
+%package -n kiwi-systemdeps-containers
+Summary:        KIWI - host requirements for container images
+Group:          %{sysgroup}
+Obsoletes:      kiwi-image-docker-requires
+Obsoletes:      kiwi-image-wsl-requires
+%if "%{_vendor}" != "debbuild"
+Provides:       kiwi-image:docker
+Provides:       kiwi-image:wsl
+%endif
+%if 0%{?suse_version}
+Requires:       umoci
+Requires:       fb-util-for-appx
+%else
+Requires:       buildah
+%endif
+Requires:       skopeo
+
+%description -n kiwi-systemdeps-containers
+Host setup helper to pull in all packages required/useful on
+the build host to build container images e.g docker, wsl
+
+%package -n kiwi-systemdeps-iso-media
+Summary:        KIWI - host requirements for live and install iso images
+Group:          %{sysgroup}
+Obsoletes:      kiwi-image-iso-requires
+%if "%{_vendor}" != "debbuild"
+Provides:       kiwi-image:iso
+%endif
+%if 0%{?suse_version}
+Requires:       checkmedia
+%endif
+Requires:       xorriso
+%ifarch %{ix86} x86_64
+Requires:       syslinux
+%endif
+Requires:       kiwi-systemdeps-core = %{version}-%{release}
+Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
+Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
+
+%description -n kiwi-systemdeps-iso-media
+Host setup helper to pull in all packages required/useful on
+the build host to build live and install iso images.
+
+
+%package -n kiwi-systemdeps-bootloaders
+Summary:        KIWI - host requirements for configuring bootloaders
+%if 0%{?suse_version}
+%ifarch x86_64
+Requires:       grub2-x86_64-efi
+%endif
+%ifarch %{ix86} x86_64
+Recommends:     gfxboot
+%endif
+%endif
+%if 0%{?fedora} || 0%{?rhel}
+%ifarch x86_64
+Requires:       grub2-efi-x64
+%endif
+%endif
+Requires:       grub2
 %ifarch %arm aarch64
 %if 0%{?fedora} || 0%{?rhel}
 Requires:       uboot-tools
@@ -175,8 +187,149 @@ Requires:       u-boot-tools
 %ifarch s390 s390x
 Requires:       s390-tools
 %endif
+Requires:       kiwi-systemdeps-core = %{version}-%{release}
+
+%description -n kiwi-systemdeps-bootloaders
+Host setup helper to pull in all packages required/useful on
+the build host for configuring bootloaders on images.
+
+%package -n kiwi-systemdeps-filesystems
+Summary:        KIWI - host requirements for filesystems
+Group:          %{sysgroup}
+Obsoletes:      kiwi-filesystem-requires
+%if "%{_vendor}" != "debbuild"
+Provides:       kiwi-image:pxe
+Provides:       kiwi-image:kis
+%if ! 0%{?el8}
+Provides:       kiwi-filesystem:btrfs
+%endif
+Provides:       kiwi-filesystem:ext3
+Provides:       kiwi-filesystem:ext4
+Provides:       kiwi-filesystem:squashfs
+Provides:       kiwi-filesystem:xfs
+%endif
+Requires:       dosfstools
+Requires:       e2fsprogs
+Requires:       xfsprogs
+%if 0%{?suse_version}
+Requires:       btrfsprogs
+%else
+%if ! 0%{?el8}
+Requires:       btrfs-progs
+%endif
+%endif
+%if 0%{?suse_version}
+Requires:       gptfdisk
+Requires:       squashfs
+%else
+Requires:       gdisk
+Requires:       squashfs-tools
+%endif
+Requires:       lvm2
+Requires:       parted
+Requires:       kpartx
+Requires:       kiwi-systemdeps-core = %{version}-%{release}
+
+%description -n kiwi-systemdeps-filesystems
+Host setup helper to pull in all packages required/useful on
+the build host to build filesystem images
+
+%package -n kiwi-systemdeps-disk-images
+Summary:        KIWI - host requirements for disk images
+Group:          %{sysgroup}
+Obsoletes:      kiwi-image-oem-requires
+Obsoletes:      kiwi-image-vmx-requires
+%if "%{_vendor}" != "debbuild"
+Provides:       kiwi-image:oem
+Provides:       kiwi-image:vmx
+%endif
+%if "%{_vendor}" == "debbuild"
+Requires:       qemu-utils
+%else
+%if 0%{?suse_version}
+Requires:       qemu-tools
+%else
+Requires:       qemu-img
+%endif
+%endif
+Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
+Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
+
+%description -n kiwi-systemdeps-disk-images
+Host setup helper to pull in all packages required/useful on
+the build host to build disk images
+
+%package -n kiwi-systemdeps-image-validation
+Summary:        KIWI - host requirements for handling image descriptions better
+Group:          %{sysgroup}
+%if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} || 0%{?debian} || 0%{?ubuntu}
+Recommends:     jing
+%endif
+%if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version}
+Requires:       python%{python3_pkgversion}-solv
+%endif
+Requires:       python%{python3_pkgversion}-anymarkup
+
+%description -n kiwi-systemdeps-image-validation
+Host setup helper to pull in all packages required/useful on
+the build host to handling image descriptions better. This also
+includes reading of image descriptions for different markup
+languages
+
+%package -n kiwi-systemdeps
+Summary:        KIWI - Host system dependencies
+Group:          %{sysgroup}
+Requires:       kiwi-systemdeps-core = %{version}-%{release}
+Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
+# None of the container build tools are available in Debian/Ubuntu
+Requires:       kiwi-systemdeps-containers = %{version}-%{release}
+%endif
+Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
+Requires:       kiwi-systemdeps-disk-images = %{version}-%{release}
+Requires:       kiwi-systemdeps-iso-media = %{version}-%{release}
+%if 0%{?fedora} || 0%{?suse_version}
+Requires:       kiwi-systemdeps-image-validation = %{version}-%{release}
+%endif
+
+%description -n kiwi-systemdeps
+Host setup helper to pull in all packages required/useful to
+leverage all functionality in KIWI.
+
+# python3-kiwi
+%package -n python%{python3_pkgversion}-kiwi
+Summary:        KIWI - Appliance Builder Next Generation
+Group:          %{pygroup}
+Obsoletes:      python2-kiwi
+Conflicts:      python2-kiwi
+Conflicts:      kiwi-man-pages < %{version}
+%if 0%{?ubuntu} || 0%{?debian}
+Requires:       python%{python3_pkgversion}-yaml
+%else
+Requires:       python%{python3_pkgversion}-PyYAML
+%endif
+Requires:       python%{python3_pkgversion}-docopt
+Requires:       python%{python3_pkgversion}-lxml
+Requires:       python%{python3_pkgversion}-requests
+Requires:       python%{python3_pkgversion}-setuptools
+%if (0%{?suse_version} && 0%{?suse_version} < 1550)
+Requires:       python%{python3_pkgversion}-xattr
+%else
+Requires:       python%{python3_pkgversion}-pyxattr
+%endif
 %if ! (0%{?rhel} && 0%{?rhel} < 8)
 Recommends:     kiwi-man-pages
+%endif
+%if "%{_vendor}" == "debbuild"
+# Avoid issues with not being able to use magic Provides
+Requires:       kiwi-systemdeps = %{version}-%{release}
+%else
+# Only require core dependencies, and allow OBS to pull the rest through magic Provides
+Requires:       kiwi-systemdeps-core = %{version}-%{release}
+%if ! 0%{?el7}
+# Retain default expectation for local installations
+Recommends:     kiwi-systemdeps = %{version}-%{release}
+%endif
 %endif
 
 %description -n python%{python3_pkgversion}-kiwi
@@ -433,6 +586,30 @@ if ! /usr/bin/getent passwd tftp >/dev/null; then
 fi
 %endif
 %endif
+
+%files -n kiwi-systemdeps-core
+# Empty metapackage
+
+%files -n kiwi-systemdeps-bootloaders
+# Empty metapackage
+
+%files -n kiwi-systemdeps-containers
+# Empty metapackage
+
+%files -n kiwi-systemdeps-iso-media
+# Empty metapackage
+
+%files -n kiwi-systemdeps-filesystems
+# Empty metapackage
+
+%files -n kiwi-systemdeps-disk-images
+# Empty metapackage
+
+%files -n kiwi-systemdeps-image-validation
+# Empty metapackage
+
+%files -n kiwi-systemdeps
+# Empty metapackage
 
 %files -n python%{python3_pkgversion}-kiwi
 %dir %{_defaultdocdir}/python-kiwi
