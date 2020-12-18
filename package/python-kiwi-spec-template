@@ -127,7 +127,7 @@ Provides:       kiwi-image-wsl-requires = %{version}-%{release}
 Obsoletes:      kiwi-image-wsl-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:docker
-Provides:       kiwi-image:wsl
+Provides:       kiwi-image:appx
 %endif
 %if 0%{?suse_version}
 Requires:       umoci
