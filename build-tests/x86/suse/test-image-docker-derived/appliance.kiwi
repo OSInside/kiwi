@@ -19,9 +19,5 @@
     </repository>
     <packages type="image">
         <package name="python3-kiwi"/>
-        <package name="kiwi-image-docker-requires"/>
-        <package name="kiwi-image-iso-requires"/>
-        <package name="kiwi-image-oem-requires"/>
-        <package name="kiwi-image-pxe-requires"/>
     </packages>
 </image>
