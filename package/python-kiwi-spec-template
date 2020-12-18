@@ -277,7 +277,9 @@ Recommends:     jing
 %if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version}
 Requires:       python%{python3_pkgversion}-solv
 %endif
-Requires:       python%{python3_pkgversion}-anymarkup
+%if ! (0%{?rhel} && 0%{?rhel} < 8)
+Recommends:     python%{python3_pkgversion}-anymarkup
+%endif
 
 %description -n kiwi-systemdeps-image-validation
 Host setup helper to pull in all packages required/useful on
