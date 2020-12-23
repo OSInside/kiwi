@@ -163,9 +163,14 @@ class TestRepositoryDnf:
             )
 
     @patch('kiwi.repository.dnf.RpmDataBase')
-    def test_setup_package_database_configuration(self, mock_RpmDataBase):
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.dnf.Path.create')
+    def test_setup_package_database_configuration(
+        self, mock_Path_create, mock_Command_run, mock_RpmDataBase
+    ):
         rpmdb = mock.Mock()
         rpmdb.has_rpm.return_value = False
+        rpmdb.rpmdb_host.expand_query.return_value = '/usr/lib/sysimage/rpm'
         mock_RpmDataBase.return_value = rpmdb
         self.repo.setup_package_database_configuration()
         assert mock_RpmDataBase.call_args_list == [
@@ -177,13 +182,23 @@ class TestRepositoryDnf:
         )
         rpmdb.write_config.assert_called_once_with()
         rpmdb.set_database_to_host_path.assert_called_once_with()
+        mock_Path_create.assert_called_once_with('../data/var/lib')
+        mock_Command_run.assert_called_once_with(
+            [
+                'ln', '-s', '--no-target-directory',
+                '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
+            ], raise_on_error=False
+        )
 
     @patch('kiwi.repository.dnf.RpmDataBase')
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.dnf.Path.create')
     def test_setup_package_database_configuration_bootstrapped_system(
-        self, mock_RpmDataBase
+        self, mock_Path_create, mock_Command_run, mock_RpmDataBase
     ):
         rpmdb = mock.Mock()
         rpmdb.has_rpm.return_value = True
+        rpmdb.rpmdb_host.expand_query.return_value = '/usr/lib/sysimage/rpm'
         mock_RpmDataBase.return_value = rpmdb
         self.repo.setup_package_database_configuration()
         assert mock_RpmDataBase.call_args_list == [
@@ -195,6 +210,13 @@ class TestRepositoryDnf:
         )
         rpmdb.write_config.assert_called_once_with()
         rpmdb.link_database_to_host_path.assert_called_once_with()
+        mock_Path_create.assert_called_once_with('../data/var/lib')
+        mock_Command_run.assert_called_once_with(
+            [
+                'ln', '-s', '--no-target-directory',
+                '../../usr/lib/sysimage/rpm', '../data/var/lib/rpm'
+            ], raise_on_error=False
+        )
 
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
