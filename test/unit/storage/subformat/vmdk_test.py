@@ -102,9 +102,8 @@ class TestDiskFormatVmdk:
             {'option': 'value', 'adapter_type=pvscsi': None}
         )
         assert self.disk_format.options == [
-            '-o', 'adapter_type=lsilogic', '-o', 'option=value'
+            '-o', 'adapter_type=pvscsi', '-o', 'option=value'
         ]
-        assert self.disk_format.patch_header_for_pvscsi is True
 
     def test_store_to_result(self):
         result = Mock()
@@ -171,25 +170,4 @@ class TestDiskFormatVmdk:
         )
         assert m_open.return_value.write.call_args_list[2] == call(
             'custom entry 2' + os.linesep
-        )
-
-    @patch('kiwi.storage.subformat.vmdk.Command.run')
-    @patch('os.path.exists')
-    def test_create_image_format_pvscsi_adapter(
-        self, mock_exists, mock_command
-    ):
-        self.disk_format.patch_header_for_pvscsi = True
-
-        m_open = mock_open(read_data=b'ddb.adapterType = "lsilogic"')
-        with patch('builtins.open', m_open, create=True):
-            self.disk_format.create_image_format()
-
-        assert m_open.call_args_list[0:2] == [
-            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'rb'),
-            call('target_dir/some-disk-image.x86_64-1.2.3.vmdk', 'r+b')
-        ]
-        assert m_open.return_value.seek.called_once_with(512, 0)
-        assert m_open.return_value.read.called_once_with(1024)
-        assert m_open.return_value.write.call_args_list[0] == call(
-            b'ddb.adapterType = "pvscsi"'
         )
