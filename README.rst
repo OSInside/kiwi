@@ -7,7 +7,7 @@ KIWI - Next Generation
    :target: https://www.codacy.com/app/Appliances/kiwi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OSInside/kiwi&amp;utm_campaign=Badge_Grade
 .. |Doc| replace:: `Documentation <https://osinside.github.io/kiwi/>`__
 .. |Installation| replace:: `Installation <https://osinside.github.io/kiwi/installation.html>`__
-.. |Contributing| replace:: `Contributing <https://osinside.github.io/kiwi/development.html>`__
+.. |Contributing| replace:: `Contributing <https://osinside.github.io/kiwi/contributing.html>`__
 .. |Donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif
    :target: https://www.paypal.me/SchaeferMarcus
 
