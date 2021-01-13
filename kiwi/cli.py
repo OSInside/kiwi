@@ -60,7 +60,7 @@ global options for services: image, system
         specify an alternative shared cache directory. The directory
         is shared via bind mount between the build host and image
         root system and contains information about package repositories
-        and their cache and meta data. [default: /var/cache/kiwi]
+        and their cache and meta data.
     --type=<build_type>
         image build type. If not set the default XML specified
         build type will be used
@@ -81,6 +81,7 @@ from kiwi.exceptions import (
 from kiwi.path import Path
 from kiwi.version import __version__
 from kiwi.help import Help
+from kiwi.defaults import Defaults
 
 log = logging.getLogger('kiwi')
 
@@ -206,6 +207,10 @@ class Cli:
                         'vmx type is now a subset of oem, --type set to oem'
                     )
                     value = 'oem'
+                if arg == '--shared-cache-dir' and not value:
+                    value = os.sep + Defaults.get_shared_cache_location()
+                if arg == '--shared-cache-dir' and value:
+                    Defaults.set_shared_cache_location(value)
                 result[arg] = value
         return result
 

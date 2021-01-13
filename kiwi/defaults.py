@@ -38,6 +38,7 @@ EDIT_BOOT_CONFIG_SCRIPT = 'edit_boot_config.sh'
 EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
 IMAGE_METADATA_DIR = 'image'
 ROOT_VOLUME_NAME = 'LVRoot'
+SHARED_CACHE_DIR = '/var/cache/kiwi'
 
 
 class Defaults:
@@ -182,6 +183,16 @@ class Defaults:
         return '/var/tmp/kiwi/satsolver'
 
     @staticmethod
+    def set_shared_cache_location(location):
+        """
+        Sets the shared cache location once
+
+        :param str location: a location path
+        """
+        global SHARED_CACHE_DIR
+        SHARED_CACHE_DIR = location
+
+    @staticmethod
     def get_shared_cache_location():
         """
         Provides the shared cache location
@@ -196,9 +207,8 @@ class Defaults:
 
         :rtype: str
         """
-        from .cli import Cli
         return os.path.abspath(os.path.normpath(
-            Cli().get_global_args().get('--shared-cache-dir')
+            SHARED_CACHE_DIR
         )).lstrip(os.sep)
 
     @staticmethod

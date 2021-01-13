@@ -44,15 +44,6 @@ class TestDefaults:
     def test_get_default_shared_cache_location(self):
         assert Defaults.get_shared_cache_location() == 'var/cache/kiwi'
 
-    def test_get_custom_shared_cache_location(self):
-        sys.argv = [
-            sys.argv[0],
-            '--shared-cache-dir', '/my/cachedir',
-            'system', 'prepare',
-            '--description', 'description', '--root', 'directory'
-        ]
-        assert Defaults.get_shared_cache_location() == 'my/cachedir'
-
     @patch('kiwi.defaults.Path.which')
     def test_get_grub_boot_directory_name(self, mock_which):
         mock_which.return_value = 'grub2-install-was-found'
