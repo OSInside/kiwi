@@ -210,6 +210,7 @@ Provides:       kiwi-image:kis
 %if ! 0%{?el8}
 Provides:       kiwi-filesystem:btrfs
 %endif
+Provides:       kiwi-filesystem:ext2
 Provides:       kiwi-filesystem:ext3
 Provides:       kiwi-filesystem:ext4
 Provides:       kiwi-filesystem:squashfs
