@@ -616,15 +616,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'GRUB_GFXMODE': self.gfxmode,
             'GRUB_TERMINAL': '"{0}"'.format(self.terminal)
         }
+        grub_final_cmdline = re.sub(
+            r'root=.* |root=.*$', '', self.cmdline
+        ).strip()
         if self.displayname:
             grub_default_entries['GRUB_DISTRIBUTOR'] = '"{0}"'.format(
                 self.displayname
             )
         if self.timeout_style:
             grub_default_entries['GRUB_TIMEOUT_STYLE'] = self.timeout_style
-        if self.cmdline:
+        if grub_final_cmdline:
             grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
-                re.sub(r'root=.* |root=.*$', '', self.cmdline).strip()
+                grub_final_cmdline
             )
         if self.terminal and 'serial' in self.terminal and \
            self.serial_line_setup:
