@@ -18,6 +18,7 @@
 import os
 from collections import namedtuple
 import hashlib
+import encodings.ascii
 
 # project
 from kiwi.command import Command
@@ -58,7 +59,7 @@ class Checksum:
         """
         if not os.path.exists(filename):
             return False
-        with open(filename) as checksum_file:
+        with open(filename, encoding=encodings.ascii) as checksum_file:
             checksum_from_file = checksum_file.read()
             # checksum is expected to be stored in the first field
             # separated by space, other information might contain
