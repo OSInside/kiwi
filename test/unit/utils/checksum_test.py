@@ -1,4 +1,5 @@
 from builtins import bytes
+import encodings.ascii
 from mock import (
     patch, call, Mock, mock_open
 )
@@ -42,7 +43,9 @@ class TestChecksum:
         with patch('builtins.open', self.m_open, create=True):
             assert self.checksum.matches('sum', 'some-file') is True
 
-        self.m_open.assert_called_once_with('some-file')
+        self.m_open.assert_called_once_with(
+            'some-file', encoding=encodings.ascii
+        )
 
         with patch('builtins.open', self.m_open, create=True):
             assert self.checksum.matches('foo', 'some-file') is False
@@ -75,9 +78,9 @@ class TestChecksum:
             self.checksum.md5('outfile')
 
         assert self.m_open.call_args_list == [
-            call('some-file', 'rb'),
-            call('some-file-uncompressed', 'rb'),
-            call('outfile', 'w')
+            call('some-file', encoding=encodings.ascii, mode='rb'),
+            call('some-file-uncompressed', encoding=encodings.ascii, mode='rb'),
+            call('outfile', encoding=encodings.ascii, mode='w')
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192 163968 8192\n'
@@ -108,8 +111,8 @@ class TestChecksum:
             self.checksum.md5('outfile')
 
         assert self.m_open.call_args_list == [
-            call('some-file', 'rb'),
-            call('outfile', 'w')
+            call('some-file', encoding=encodings.ascii, mode='rb'),
+            call('outfile', encoding=encodings.ascii, mode='w')
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192\n'
@@ -140,8 +143,8 @@ class TestChecksum:
             self.checksum.sha256('outfile')
 
         assert self.m_open.call_args_list == [
-            call('some-file', 'rb'),
-            call('outfile', 'w')
+            call('some-file', encoding=encodings.ascii, mode='rb'),
+            call('outfile', encoding=encodings.ascii, mode='w')
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192\n'
