@@ -127,7 +127,9 @@ class Checksum:
             blocks = self._block_list(
                 os.path.getsize(self.source_filename)
             )
-        with open(filename, 'w') as checksum_file:
+        with open(
+            filename, encoding=encodings.ascii, mode='w'
+        ) as checksum_file:
             if compressed_blocks:
                 checksum_file.write(
                     '%s %s %s %s %s\n' % (
@@ -151,7 +153,7 @@ class Checksum:
         :param int digest_blocks: Number of blocks processed at a time
         """
         chunk_size = digest_blocks * digest.block_size
-        with open(filename, 'rb') as source:
+        with open(filename, encoding=encodings.ascii, mode='rb') as source:
             for chunk in iter(lambda: source.read(chunk_size), b''):
                 digest.update(chunk)
         return digest.hexdigest()
