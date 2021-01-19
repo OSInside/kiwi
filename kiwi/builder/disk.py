@@ -251,17 +251,18 @@ class DiskBuilder:
         )
 
         # create the bootloader instance
-        self.bootloader_config = BootLoaderConfig.new(
-            self.bootloader, self.xml_state, root_dir=self.root_dir,
-            boot_dir=self.root_dir, custom_args={
-                'targetbase':
-                    self.loop_provider.get_device(),
-                'grub_directory_name':
-                    Defaults.get_grub_boot_directory_name(self.root_dir),
-                'boot_is_crypto':
-                    self.boot_is_crypto
-            }
-        )
+        if self.bootloader != 'custom':
+            self.bootloader_config = BootLoaderConfig.new(
+                self.bootloader, self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.root_dir, custom_args={
+                    'targetbase':
+                        self.loop_provider.get_device(),
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir),
+                    'boot_is_crypto':
+                        self.boot_is_crypto
+                }
+            )
 
         # create disk partitions and instance device map
         device_map = self._build_and_map_disk_partitions(disksize_mbytes)
@@ -425,45 +426,7 @@ class DiskBuilder:
         self._setup_selinux_file_contexts()
 
         # syncing system data to disk image
-        log.info('Syncing system to image')
-        if self.system_spare:
-            self.system_spare.sync_data()
-
-        if self.system_efi:
-            log.info('--> Syncing EFI boot data to EFI partition')
-            self.system_efi.sync_data()
-
-        if self.system_boot:
-            log.info('--> Syncing boot data at extra partition')
-            self.system_boot.sync_data(
-                self._get_exclude_list_for_boot_data_sync()
-            )
-
-        log.info('--> Syncing root filesystem data')
-        if self.root_filesystem_is_overlay:
-            squashed_root_file = NamedTemporaryFile()
-            squashed_root = FileSystemSquashFs(
-                device_provider=None, root_dir=self.root_dir,
-                custom_args={
-                    'compression':
-                        self.xml_state.build_type.get_squashfscompression()
-                }
-            )
-            squashed_root.create_on_file(
-                filename=squashed_root_file.name,
-                exclude=self._get_exclude_list_for_root_data_sync(device_map)
-            )
-            Command.run(
-                [
-                    'dd',
-                    'if=%s' % squashed_root_file.name,
-                    'of=%s' % device_map['readonly'].get_device()
-                ]
-            )
-        else:
-            self.system.sync_data(
-                self._get_exclude_list_for_root_data_sync(device_map)
-            )
+        self._sync_system_to_image(device_map)
 
         # run post sync script hook
         if self.system_setup.script_exists(
@@ -1055,6 +1018,47 @@ class DiskBuilder:
             self.requested_filesystem, boot_partition_id
         )
 
+    def _sync_system_to_image(self, device_map):
+        log.info('Syncing system to image')
+        if self.system_spare:
+            self.system_spare.sync_data()
+
+        if self.system_efi:
+            log.info('--> Syncing EFI boot data to EFI partition')
+            self.system_efi.sync_data()
+
+        if self.system_boot:
+            log.info('--> Syncing boot data at extra partition')
+            self.system_boot.sync_data(
+                self._get_exclude_list_for_boot_data_sync()
+            )
+
+        log.info('--> Syncing root filesystem data')
+        if self.root_filesystem_is_overlay:
+            squashed_root_file = NamedTemporaryFile()
+            squashed_root = FileSystemSquashFs(
+                device_provider=None, root_dir=self.root_dir,
+                custom_args={
+                    'compression':
+                        self.xml_state.build_type.get_squashfscompression()
+                }
+            )
+            squashed_root.create_on_file(
+                filename=squashed_root_file.name,
+                exclude=self._get_exclude_list_for_root_data_sync(device_map)
+            )
+            Command.run(
+                [
+                    'dd',
+                    'if=%s' % squashed_root_file.name,
+                    'of=%s' % device_map['readonly'].get_device()
+                ]
+            )
+        else:
+            self.system.sync_data(
+                self._get_exclude_list_for_root_data_sync(device_map)
+            )
+
     def _install_bootloader(self, device_map):
         root_device = device_map['root']
         boot_device = root_device
@@ -1089,17 +1093,17 @@ class DiskBuilder:
                 {'system_volumes': self.system.get_volumes()}
             )
 
-        # create bootloader config prior bootloader installation
-        self.bootloader_config.setup_disk_image_config(
-            boot_options=custom_install_arguments
-        )
-        if 's390' in self.arch:
-            self.bootloader_config.write()
-
-        # cleanup bootloader config resources taken prior to next steps
-        del self.bootloader_config
-
         if self.bootloader != 'custom':
+            # create bootloader config prior bootloader installation
+            self.bootloader_config.setup_disk_image_config(
+                boot_options=custom_install_arguments
+            )
+            if 's390' in self.arch:
+                self.bootloader_config.write()
+
+            # cleanup bootloader config resources taken prior to next steps
+            del self.bootloader_config
+
             log.debug(
                 "custom arguments for bootloader installation %s",
                 custom_install_arguments
