@@ -71,7 +71,7 @@ class CliTask:
 
         # initialize generic runtime check dicts
         self.checks_before_command_args = {
-            'check_minimal_required_preferences': [],
+            'check_image_version_provided': [],
             'check_efi_mode_for_disk_overlay_correctly_setup': [],
             'check_initrd_selection_required': [],
             'check_boot_description_exists': [],

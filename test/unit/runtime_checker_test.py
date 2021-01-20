@@ -310,15 +310,7 @@ class TestRuntimeChecker:
         )
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
-            runtime_checker.check_minimal_required_preferences()
-
-    def test_check_preferences_data_no_packagemanager(self):
-        xml_state = XMLState(
-            self.description.load(), ['xenDom0Flavour'], 'oem'
-        )
-        runtime_checker = RuntimeChecker(xml_state)
-        with raises(KiwiRuntimeError):
-            runtime_checker.check_minimal_required_preferences()
+            runtime_checker.check_image_version_provided()
 
     @patch('platform.machine')
     def test_check_architecture_supports_iso_firmware_setup(

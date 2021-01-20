@@ -97,6 +97,11 @@ class TestXMLState:
     def test_get_package_manager(self):
         assert self.state.get_package_manager() == 'zypper'
 
+    @patch('kiwi.xml_state.XMLState.get_preferences_sections')
+    def test_get_default_package_manager(self, mock_preferences):
+        mock_preferences.return_value = []
+        assert self.state.get_package_manager() == 'dnf'
+
     def test_get_image_version(self):
         assert self.state.get_image_version() == '1.13.2'
 

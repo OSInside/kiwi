@@ -18,9 +18,11 @@
 import os
 import logging
 import collections
+from typing import Dict
 from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.xml_state import XMLState
 from kiwi.system.shell import Shell
 from kiwi.defaults import Defaults
 
@@ -29,17 +31,13 @@ log = logging.getLogger('kiwi')
 
 class Profile:
     """
-    **Create bash readable .profile environment from the XML
-    description**
-
-    The information is used by the kiwi first boot code.
+    **Create bash readable .profile environment from the XML description**
 
     :param object xml_state: instance of :class`XMLState`
-    :param dict dot_profile: profile dictionary
     """
-    def __init__(self, xml_state):
+    def __init__(self, xml_state: XMLState):
         self.xml_state = xml_state
-        self.dot_profile = {}
+        self.dot_profile: Dict = {}
 
         self._image_names_to_profile()
         self._profile_names_to_profile()
@@ -53,7 +51,7 @@ class Profile:
         self._drivers_to_profile()
         self._root_partition_uuid_to_profile()
 
-    def get_settings(self):
+    def get_settings(self) -> Dict:
         """
         Return all profile elements that has a value
         """
@@ -64,7 +62,7 @@ class Profile:
             sorted(profile.items())
         )
 
-    def add(self, key, value):
+    def add(self, key: str, value: str) -> None:
         """
         Add key/value pair to profile dictionary
 
@@ -73,11 +71,11 @@ class Profile:
         """
         self.dot_profile[key] = value
 
-    def delete(self, key):
+    def delete(self, key: str) -> None:
         if key in self.dot_profile:
             del self.dot_profile[key]
 
-    def create(self, filename):
+    def create(self, filename: str) -> None:
         """
         Create bash quoted profile
 

@@ -267,7 +267,7 @@ class XMLState:
                 return check_signatures[0]
         return False
 
-    def get_package_manager(self) -> Optional[str]:
+    def get_package_manager(self) -> str:
         """
         Get configured package manager from selected preferences section
 
@@ -279,7 +279,7 @@ class XMLState:
             package_manager = preferences.get_packagemanager()
             if package_manager:
                 return package_manager[0]
-        return None
+        return Defaults.get_default_package_manager()
 
     def get_packages_sections(self, section_types: List) -> List:
         """
