@@ -21,6 +21,9 @@ from tempfile import mkdtemp
 from urllib.parse import urlparse
 import requests
 import hashlib
+from typing import (
+    List, Dict
+)
 
 # project
 from kiwi.mount_manager import MountManager
@@ -50,13 +53,13 @@ class Uri:
     :param dict remote_uri_types: dictionary of remote uri type names
     :param dict local_uri_type: dictionary of local uri type names
     """
-    def __init__(self, uri, repo_type=None):
+    def __init__(self, uri: str, repo_type: Dict = None):
         self.runtime_config = RuntimeConfig()
         self.repo_type = repo_type
         self.uri = uri if not uri.startswith(os.sep) else ''.join(
             [Defaults.get_default_uri_type(), uri]
         )
-        self.mount_stack = []
+        self.mount_stack: List[str] = []
 
         self.remote_uri_types = {
             'http': True,
@@ -71,7 +74,7 @@ class Uri:
             'obsrepositories': True
         }
 
-    def translate(self, check_build_environment=True):
+    def translate(self, check_build_environment: bool = True) -> str:
         """
         Translate repository location according to their URI type
 
@@ -86,6 +89,8 @@ class Uri:
             should depend on the environment the build is called in. As of
             today this only effects the translation result if the image
             build happens inside of the Open Build Service
+
+        :return: translated repository location
 
         :rtype: str
         """
@@ -137,7 +142,7 @@ class Uri:
                 'URI schema %s not supported' % self.uri
             )
 
-    def credentials_file_name(self):
+    def credentials_file_name(self) -> str:
         """
         Filename to store repository credentials
 
@@ -156,7 +161,7 @@ class Uri:
 
         return query['credentials']
 
-    def alias(self):
+    def alias(self) -> str:
         """
         Create hexdigest from URI as alias
 
@@ -171,11 +176,11 @@ class Uri:
         """
         return hashlib.md5(self.uri.encode()).hexdigest()
 
-    def is_remote(self):
+    def is_remote(self) -> bool:
         """
         Check if URI is a remote or local location
 
-        :return: True or False
+        :return: True|False
 
         :rtype: bool
         """
@@ -195,11 +200,11 @@ class Uri:
                 'URI type %s unknown' % uri.scheme
             )
 
-    def is_public(self):
+    def is_public(self) -> bool:
         """
         Check if URI is considered to be publicly reachable
 
-        :return: True or False
+        :return: True|False
 
         :rtype: bool
         """
@@ -217,7 +222,7 @@ class Uri:
             # unknown uri type considered not public
             return False
 
-    def get_fragment(self):
+    def get_fragment(self) -> str:
         """
         Returns the fragment part of the URI.
 

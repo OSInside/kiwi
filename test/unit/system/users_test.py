@@ -9,7 +9,7 @@ class TestUsers:
 
     @patch('kiwi.system.users.Command.run')
     def test_user_exists(self, mock_command):
-        self.users.user_exists('user')
+        assert self.users.user_exists('user') is True
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'grep', '-q', '^user:', '/etc/passwd']
         )
@@ -22,35 +22,36 @@ class TestUsers:
 
     @patch('kiwi.system.users.Command.run')
     def test_group_exists(self, mock_command):
-        self.users.group_exists('group')
+        assert self.users.group_exists('group') is True
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'grep', '-q', '^group:', '/etc/group']
         )
 
     @patch('kiwi.system.users.Command.run')
     def test_group_add(self, mock_command):
-        self.users.group_add('group', ['--option', 'value'])
+        assert self.users.group_add('group', ['--option', 'value']) is None
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'groupadd', '--option', 'value', 'group']
         )
 
     @patch('kiwi.system.users.Command.run')
     def test_user_add(self, mock_command):
-        self.users.user_add('user', ['--option', 'value'])
+        assert self.users.user_add('user', ['--option', 'value']) is None
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'useradd', '--option', 'value', 'user']
         )
 
     @patch('kiwi.system.users.Command.run')
     def test_user_modify(self, mock_command):
-        self.users.user_modify('user', ['--option', 'value'])
+        assert self.users.user_modify('user', ['--option', 'value']) is None
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'usermod', '--option', 'value', 'user']
         )
 
     @patch('kiwi.system.users.Command.run')
     def test_setup_home_for_user(self, mock_command):
-        self.users.setup_home_for_user('user', 'group', '/home/path')
+        assert self.users.setup_home_for_user('user', 'group', '/home/path') \
+            is None
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'chown', '-R', 'user:group', '/home/path']
         )

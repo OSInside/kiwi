@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import List
+
+# project
 from kiwi.command import Command
 
 
@@ -24,32 +27,34 @@ class Users:
 
     :param str root_dir: root directory path name
     """
-    def __init__(self, root_dir):
+    def __init__(self, root_dir: str):
         self.root_dir = root_dir
 
-    def user_exists(self, user_name):
+    def user_exists(self, user_name: str) -> bool:
         """
         Check if user exists
 
         :param str user_name: user name
 
+        :return: True|False
+
         :rtype: bool
         """
         return self._search_for(user_name, '/etc/passwd')
 
-    def group_exists(self, group_name):
+    def group_exists(self, group_name: str) -> bool:
         """
         Check if group exists
 
         :param str group_name: group name
 
-        :return: True or False
+        :return: True|False
 
         :rtype: bool
         """
         return self._search_for(group_name, '/etc/group')
 
-    def group_add(self, group_name, options):
+    def group_add(self, group_name: str, options: List[str]) -> None:
         """
         Add group with options
 
@@ -60,7 +65,7 @@ class Users:
             ['chroot', self.root_dir, 'groupadd'] + options + [group_name]
         )
 
-    def user_add(self, user_name, options):
+    def user_add(self, user_name: str, options: List[str]) -> None:
         """
         Add user with options
 
@@ -71,7 +76,7 @@ class Users:
             ['chroot', self.root_dir, 'useradd'] + options + [user_name]
         )
 
-    def user_modify(self, user_name, options):
+    def user_modify(self, user_name: str, options: List[str]) -> None:
         """
         Modify user with options
 
@@ -82,7 +87,9 @@ class Users:
             ['chroot', self.root_dir, 'usermod'] + options + [user_name]
         )
 
-    def setup_home_for_user(self, user_name, group_name, home_path):
+    def setup_home_for_user(
+        self, user_name: str, group_name: str, home_path: str
+    ) -> None:
         """
         Setup user home directory
 
