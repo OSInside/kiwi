@@ -58,6 +58,10 @@ class VolumeManagerLVM(VolumeManagerBase):
         else:
             self.mount_options = 'defaults'
 
+        self.lvm_tool_options = [
+            '--config', 'devices/external_device_info_source=none'
+        ]
+
     def get_device(self):
         """
         Dictionary of MappedDevice instances per volume
@@ -105,15 +109,22 @@ class VolumeManagerLVM(VolumeManagerBase):
             'Creating volume group %s', volume_group_name
         )
         Command.run(
-            command=['vgremove', '--force', volume_group_name],
-            raise_on_error=False
+            command=['vgremove'] + self.lvm_tool_options + [
+                '--force', volume_group_name
+            ], raise_on_error=False
         )
-        Command.run(['pvcreate', self.device])
-        Command.run(['vgcreate', volume_group_name, self.device])
+        Command.run(
+            ['pvcreate'] + self.lvm_tool_options + [self.device]
+        )
+        Command.run(
+            ['vgcreate'] + self.lvm_tool_options + [
+                volume_group_name, self.device
+            ]
+        )
         self.volume_group = volume_group_name
 
     @staticmethod
-    def _create_volume_no_zero(lvcreate_args):
+    def _create_volume_no_zero(lvm_tool_options, lvcreate_args):
         """
         Create an LV using specified arguments to lvcreate
 
@@ -135,13 +146,13 @@ class VolumeManagerLVM(VolumeManagerBase):
             '--> running "lvcreate -Zn %s"', " ".join(lvcreate_args)
         )
         Command.run(
-            ['lvcreate', '-Zn'] + lvcreate_args
+            ['lvcreate'] + lvm_tool_options + ['-Zn'] + lvcreate_args
         )
         log.debug(
             '--> running "vgscan --mknodes" to create missing nodes'
         )
         Command.run(
-            ['vgscan', '--mknodes']
+            ['vgscan'] + lvm_tool_options + ['--mknodes']
         )
 
     def create_volumes(self, filesystem_name):
@@ -167,7 +178,7 @@ class VolumeManagerLVM(VolumeManagerBase):
                 '--> volume %s with %s MB', volume.name, volume_mbsize
             )
             self._create_volume_no_zero(
-                [
+                self.lvm_tool_options, [
                     '-L', format(volume_mbsize), '-n',
                     volume.name, self.volume_group
                 ]
@@ -188,7 +199,7 @@ class VolumeManagerLVM(VolumeManagerBase):
             full_size_volume = canonical_volume_list.full_size_volume
             log.info('--> fullsize volume %s', full_size_volume.name)
             self._create_volume_no_zero(
-                [
+                self.lvm_tool_options, [
                     '-l', '+100%FREE', '-n',
                     full_size_volume.name, self.volume_group
                 ]
@@ -359,7 +370,11 @@ class VolumeManagerLVM(VolumeManagerBase):
             if self.umount_volumes():
                 Path.wipe(self.mountpoint)
                 try:
-                    Command.run(['vgchange', '-an', self.volume_group])
+                    Command.run(
+                        ['vgchange'] + self.lvm_tool_options + [
+                            '-an', self.volume_group
+                        ]
+                    )
                 except Exception:
                     log.warning(
                         'volume group %s still busy', self.volume_group

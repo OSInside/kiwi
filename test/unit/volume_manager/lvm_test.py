@@ -115,25 +115,27 @@ class TestVolumeManagerLVM:
         mock_command.return_value = command
         self.volume_manager.setup('volume_group')
         call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == \
-            call([
-                'vgs', '--noheadings', '--select', 'vg_name=volume_group'
-            ])
+        assert mock_command.call_args_list[0] == call(
+            ['vgs', '--noheadings', '--select', 'vg_name=volume_group']
+        )
         call = mock_command.call_args_list[1]
-        assert mock_command.call_args_list[1] == \
-            call(
-                command=['vgremove', '--force', 'volume_group'],
-                raise_on_error=False)
+        assert mock_command.call_args_list[1] == call(
+            command=['vgremove'] + self.volume_manager.lvm_tool_options + [
+                '--force', 'volume_group'
+            ], raise_on_error=False
+        )
         call = mock_command.call_args_list[2]
-        assert mock_command.call_args_list[2] == \
-            call([
-                'pvcreate', '/dev/storage'
-            ])
+        assert mock_command.call_args_list[2] == call(
+            ['pvcreate'] + self.volume_manager.lvm_tool_options + [
+                '/dev/storage'
+            ]
+        )
         call = mock_command.call_args_list[3]
-        assert mock_command.call_args_list[3] == \
-            call([
-                'vgcreate', 'volume_group', '/dev/storage'
-            ])
+        assert mock_command.call_args_list[3] == call(
+            ['vgcreate'] + self.volume_manager.lvm_tool_options + [
+                'volume_group', '/dev/storage'
+            ]
+        )
         assert self.volume_manager.volume_group == 'volume_group'
         self.volume_manager.volume_group = None
 
@@ -217,49 +219,57 @@ class TestVolumeManagerLVM:
         ]
         assert mock_command.call_args_list == [
             call(
-                [
-                    'lvcreate', '-Zn', '-L', '100', '-n', 'LVSwap',
+                ['lvcreate'] + self.volume_manager.lvm_tool_options + [
+                    '-Zn', '-L', '100', '-n', 'LVSwap', 'volume_group'
+                ]
+            ),
+            call(
+                ['vgscan'] + self.volume_manager.lvm_tool_options + [
+                    '--mknodes'
+                ]
+            ),
+            call(
+                ['lvcreate'] + self.volume_manager.lvm_tool_options + [
+                    '-Zn', '-L', format(root_size), '-n', 'LVRoot',
                     'volume_group'
                 ]
             ),
             call(
-                ['vgscan', '--mknodes']
+                ['vgscan'] + self.volume_manager.lvm_tool_options + [
+                    '--mknodes'
+                ]
             ),
             call(
-                [
-                    'lvcreate', '-Zn', '-L', format(root_size), '-n', 'LVRoot',
+                ['lvcreate'] + self.volume_manager.lvm_tool_options + [
+                    '-Zn', '-L', format(myvol_size), '-n', 'myvol',
                     'volume_group'
                 ]
             ),
             call(
-                ['vgscan', '--mknodes']
+                ['vgscan'] + self.volume_manager.lvm_tool_options + [
+                    '--mknodes'
+                ]
             ),
             call(
-                [
-                    'lvcreate', '-Zn', '-L', format(myvol_size), '-n', 'myvol',
+                ['lvcreate'] + self.volume_manager.lvm_tool_options + [
+                    '-Zn', '-L', format(etc_size), '-n', 'LVetc',
                     'volume_group'
                 ]
             ),
             call(
-                ['vgscan', '--mknodes']
-            ),
-            call(
-                [
-                    'lvcreate', '-Zn', '-L', format(etc_size), '-n', 'LVetc',
-                    'volume_group'
+                ['vgscan'] + self.volume_manager.lvm_tool_options + [
+                    '--mknodes'
                 ]
             ),
             call(
-                ['vgscan', '--mknodes']
-            ),
-            call(
-                [
-                    'lvcreate', '-Zn', '-l', '+100%FREE', '-n', 'LVhome',
-                    'volume_group'
+                ['lvcreate'] + self.volume_manager.lvm_tool_options + [
+                    '-Zn', '-l', '+100%FREE', '-n', 'LVhome', 'volume_group'
                 ]
             ),
             call(
-                ['vgscan', '--mknodes']
+                ['vgscan'] + self.volume_manager.lvm_tool_options + [
+                    '--mknodes'
+                ]
             )
         ]
         assert mock_fs.call_args_list == [
@@ -367,6 +377,8 @@ class TestVolumeManagerLVM:
             mock_umount_volumes.assert_called_once_with()
             mock_wipe.assert_called_once_with('tmpdir')
             mock_command.assert_called_once_with(
-                ['vgchange', '-an', 'volume_group']
+                ['vgchange'] + self.volume_manager.lvm_tool_options + [
+                    '-an', 'volume_group'
+                ]
             )
             self.volume_manager.volume_group = None
