@@ -1536,6 +1536,18 @@ class Defaults:
         return 'macros.kiwi-image-config'
 
     @staticmethod
+    def get_default_package_manager() -> str:
+        """
+        Returns the default package manager name if none
+        is configured in the image description
+
+        :return: package manager name
+
+        :rtype: str
+        """
+        return 'dnf'
+
+    @staticmethod
     def get_default_packager_tool(package_manager):
         """
         Provides the packager tool according to the package manager

@@ -23,6 +23,7 @@ from abc import (
 )
 
 # project
+from kiwi.system.uri import Uri
 from kiwi.exceptions import KiwiRootImportError
 
 log = logging.getLogger('kiwi')
@@ -38,7 +39,7 @@ class RootImport(metaclass=ABCMeta):
         root directory path name
 
     * :attr:`image_uri`
-        a uri to an image containing a the root system
+        an instance of :class:`Uri` to an image containing a the root system
 
     * :attr:`image_type`
         type of the image to import
@@ -47,7 +48,8 @@ class RootImport(metaclass=ABCMeta):
     def __init__(self) -> None:
         return None  # pragma: no cover
 
-    def new(root_dir: str, image_uri: str, image_type: str):
+    @staticmethod
+    def new(root_dir: str, image_uri: Uri, image_type: str):
         name_map = {
             'docker': 'OCI',
             'oci': 'OCI'

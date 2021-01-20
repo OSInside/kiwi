@@ -796,22 +796,11 @@ class RuntimeChecker:
                     message_tool_not_found.format(name=tool)
                 )
 
-    def check_minimal_required_preferences(self):
+    def check_image_version_provided(self):
         """
-        Kiwi requires some of the elements of the `preferences` element
-        to be present at least in one of the preferences section. This
-        runtime check validates <version> and <packagemanager> are
-        provided.
+        Kiwi requires a <version> element to be specified as part
+        of at least one <preferences> section.
         """
-        message_missing_package_manager = dedent('''\n
-            No package manager is defined in any of the <preferences>
-            sections. Please add
-
-                <packagemanager>desired_package_manager<packagemanager/>
-
-            inside the <preferences> section.
-        ''')
-
         message_missing_version = dedent('''\n
             No version is defined in any of the <preferences>
             sections. Please add
@@ -820,9 +809,6 @@ class RuntimeChecker:
 
             inside the <preferences> section.
         ''')
-
-        if not self.xml_state.get_package_manager():
-            raise KiwiRuntimeError(message_missing_package_manager)
 
         if not self.xml_state.get_image_version():
             raise KiwiRuntimeError(message_missing_version)

@@ -22,10 +22,15 @@ import copy
 from collections import OrderedDict
 from collections import namedtuple
 from tempfile import NamedTemporaryFile
+from typing import (
+    Any, Optional
+)
 
 # project
 import kiwi.defaults as defaults
 
+from kiwi.utils.fstab import Fstab
+from kiwi.xml_state import XMLState
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.mount_manager import MountManager
 from kiwi.system.uri import Uri
@@ -50,7 +55,7 @@ from kiwi.exceptions import (
     KiwiScriptFailed
 )
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class SystemSetup:
@@ -62,18 +67,11 @@ class SystemSetup:
     a minimal work environment inside of the image according to
     the desired image type.
 
-    :param str arch: Defaults.get_platform_name
     :param object xml_state: instance of :class:`XMLState`
-    :param str description_dir: path to image description directory
-    :param derived_description_dir: path to derived_description_dir
-        boot image descriptions inherits data from the system image
-        description, thus they are derived from another image
-        description directory which is needed to e.g find system
-        image archives, overlay files
     :param str root_dir: root directory path name
     """
 
-    def __init__(self, xml_state, root_dir):
+    def __init__(self, xml_state: XMLState, root_dir: str):
         self.runtime_config = RuntimeConfig()
         self.arch = Defaults.get_platform_name()
         self.xml_state = xml_state
@@ -85,7 +83,7 @@ class SystemSetup:
         self._preferences_lookup()
         self._oemconfig_lookup()
 
-    def import_description(self):
+    def import_description(self) -> None:
         """
         Import XML descriptions, custom scripts, archives and
         script helper methods
@@ -108,13 +106,15 @@ class SystemSetup:
         self._import_custom_archives()
         self._import_cdroot_archive()
 
-    def script_exists(self, name):
+    def script_exists(self, name: str) -> bool:
         """
         Check if provided script base name exists in the image description
+
+        :param str name: script base name
         """
         return os.path.exists(os.path.join(self.description_dir, name))
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """
         Delete all traces of a kiwi description which are not
         required in the later image
@@ -126,7 +126,7 @@ class SystemSetup:
             ]
         )
 
-    def import_repositories_marked_as_imageinclude(self):
+    def import_repositories_marked_as_imageinclude(self) -> None:
         """
         Those <repository> sections which are marked with the
         imageinclude attribute should be permanently added to
@@ -171,7 +171,7 @@ class SystemSetup:
                 repo_sourcetype
             )
 
-    def import_cdroot_files(self, target_dir):
+    def import_cdroot_files(self, target_dir: str) -> None:
         """
         Copy cdroot files from the image description to the
         specified target directory. Supported is a tar
@@ -191,8 +191,8 @@ class SystemSetup:
             break
 
     def import_overlay_files(
-        self, follow_links=False, preserve_owner_group=False
-    ):
+        self, follow_links: bool = False, preserve_owner_group: bool = False
+    ) -> None:
         """
         Copy overlay files from the image description to
         the image root tree. Supported are a root/ directory
@@ -234,7 +234,7 @@ class SystemSetup:
                     profile
                 )
 
-    def setup_machine_id(self):
+    def setup_machine_id(self) -> None:
         """
         Setup systemd machine id
 
@@ -259,7 +259,7 @@ class SystemSetup:
             with open(machine_id, 'w'):
                 pass
 
-    def setup_permissions(self):
+    def setup_permissions(self) -> None:
         """
         Check and Fix permissions using chkstat
 
@@ -288,7 +288,7 @@ class SystemSetup:
                 'chkstat not found in image. File Permissions Check skipped'
             )
 
-    def setup_keyboard_map(self):
+    def setup_keyboard_map(self) -> None:
         """
         Setup console keyboard
         """
@@ -318,7 +318,7 @@ class SystemSetup:
                     'systemd-firstboot or etc/sysconfig/keyboard found'
                 )
 
-    def setup_locale(self):
+    def setup_locale(self) -> None:
         """
         Setup UTF8 system wide locale
         """
@@ -342,7 +342,7 @@ class SystemSetup:
                     '--locale=' + locale
                 ])
 
-    def setup_timezone(self):
+    def setup_timezone(self) -> None:
         """
         Setup timezone symlink
         """
@@ -366,7 +366,7 @@ class SystemSetup:
                     'ln', '-s', '-f', zoneinfo, '/etc/localtime'
                 ])
 
-    def setup_groups(self):
+    def setup_groups(self) -> None:
         """
         Add groups for configured users
         """
@@ -378,7 +378,7 @@ class SystemSetup:
                     log.info('Adding group {0}'.format(group))
                     system_users.group_add(group, [])
 
-    def setup_users(self):
+    def setup_users(self) -> None:
         """
         Add/Modify configured users
         """
@@ -427,7 +427,7 @@ class SystemSetup:
                         home_path
                     )
 
-    def setup_plymouth_splash(self):
+    def setup_plymouth_splash(self) -> None:
         """
         Setup the KIWI configured splash theme as default
 
@@ -446,7 +446,7 @@ class SystemSetup:
                         ['chroot', self.root_dir, theme_setup, splash_theme]
                     )
 
-    def import_image_identifier(self):
+    def import_image_identifier(self) -> None:
         """
         Create etc/ImageID identifier file
         """
@@ -461,7 +461,7 @@ class SystemSetup:
             with open(image_id_file, 'w') as identifier:
                 identifier.write('{0}{1}'.format(image_id, os.linesep))
 
-    def set_selinux_file_contexts(self, security_context_file):
+    def set_selinux_file_contexts(self, security_context_file: str) -> None:
         """
         Initialize the security context fields (extended attributes)
         on the files matching the security_context_file
@@ -476,7 +476,7 @@ class SystemSetup:
             ]
         )
 
-    def export_modprobe_setup(self, target_root_dir):
+    def export_modprobe_setup(self, target_root_dir: str) -> None:
         """
         Export etc/modprobe.d to given root_dir
 
@@ -493,19 +493,20 @@ class SystemSetup:
                 options=['-a']
             )
 
-    def export_package_list(self, target_dir):
+    def export_package_list(self, target_dir: str) -> Optional[str]:
         """
         Export image package list as metadata reference
         used by the open buildservice
 
         :param str target_dir: path name
         """
+        image_version = self.xml_state.get_image_version() or 'unspecified'
         filename = ''.join(
             [
                 target_dir, '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + self.arch,
-                '-' + self.xml_state.get_image_version(),
+                '-' + image_version,
                 '.packages'
             ]
         )
@@ -521,21 +522,23 @@ class SystemSetup:
         elif packager == 'pacman':
             self._export_pacman_package_list(filename)
             return filename
+        return None
 
-    def export_package_changes(self, target_dir):
+    def export_package_changes(self, target_dir: str) -> Optional[str]:
         """
         Export image package changelog for comparision of
         actual changes of the installed packages
 
         :param str target_dir: path name
         """
+        image_version = self.xml_state.get_image_version() or 'unspecified'
         if self.runtime_config.get_package_changes():
             filename = ''.join(
                 [
                     target_dir, '/',
                     self.xml_state.xml_data.get_name(),
                     '.' + self.arch,
-                    '-' + self.xml_state.get_image_version(),
+                    '-' + image_version,
                     '.changes'
                 ]
             )
@@ -548,20 +551,22 @@ class SystemSetup:
             elif packager == 'dpkg':
                 self._export_deb_package_changes(filename)
                 return filename
+        return None
 
-    def export_package_verification(self, target_dir):
+    def export_package_verification(self, target_dir: str) -> Optional[str]:
         """
         Export package verification result as metadata reference
         used by the open buildservice
 
         :param str target_dir: path name
         """
+        image_version = self.xml_state.get_image_version() or 'unspecified'
         filename = ''.join(
             [
                 target_dir, '/',
                 self.xml_state.xml_data.get_name(),
                 '.' + self.arch,
-                '-' + self.xml_state.get_image_version(),
+                '-' + image_version,
                 '.verified'
             ]
         )
@@ -574,8 +579,9 @@ class SystemSetup:
         elif packager == 'dpkg':
             self._export_deb_package_verification(filename)
             return filename
+        return None
 
-    def call_disk_script(self):
+    def call_disk_script(self) -> None:
         """
         Call disk.sh script chrooted
         """
@@ -583,7 +589,7 @@ class SystemSetup:
             defaults.POST_DISK_SYNC_SCRIPT
         )
 
-    def call_config_script(self):
+    def call_config_script(self) -> None:
         """
         Call config.sh script chrooted
         """
@@ -591,7 +597,7 @@ class SystemSetup:
             defaults.POST_PREPARE_SCRIPT
         )
 
-    def call_image_script(self):
+    def call_image_script(self) -> None:
         """
         Call images.sh script chrooted
         """
@@ -600,8 +606,8 @@ class SystemSetup:
         )
 
     def call_edit_boot_config_script(
-        self, filesystem, boot_part_id, working_directory=None
-    ):
+        self, filesystem: str, boot_part_id: int, working_directory: str = None
+    ) -> None:
         """
         Call configured editbootconfig script _NON_ chrooted
 
@@ -619,8 +625,9 @@ class SystemSetup:
         )
 
     def call_edit_boot_install_script(
-        self, diskname, boot_device_node, working_directory=None
-    ):
+        self, diskname: str, boot_device_node: str,
+        working_directory: str = None
+    ) -> None:
         """
         Call configured editbootinstall script _NON_ chrooted
 
@@ -637,7 +644,7 @@ class SystemSetup:
             working_directory=working_directory
         )
 
-    def create_fstab(self, fstab):
+    def create_fstab(self, fstab: Fstab) -> None:
         """
         Create etc/fstab from given Fstab object
 
@@ -660,7 +667,7 @@ class SystemSetup:
            file in the image rootfs. Once called the fstab.script
            file will be deleted
 
-        :param list fstab: instance of Fstab
+        :param object fstab: instance of Fstab
         """
         fstab_file = self.root_dir + '/etc/fstab'
         fstab_append_file = self.root_dir + '/etc/fstab.append'
@@ -670,9 +677,9 @@ class SystemSetup:
         fstab.export(fstab_file)
 
         if os.path.exists(fstab_append_file):
-            with open(fstab_file, 'a') as fstab:
+            with open(fstab_file, 'a') as fstab_io:
                 with open(fstab_append_file, 'r') as append:
-                    fstab.write(append.read())
+                    fstab_io.write(append.read())
                 Path.wipe(fstab_append_file)
 
         if os.path.exists(fstab_patch_file):
@@ -687,7 +694,7 @@ class SystemSetup:
             )
             Path.wipe(fstab_script_file)
 
-    def create_init_link_from_linuxrc(self):
+    def create_init_link_from_linuxrc(self) -> None:
         """
         kiwi boot images provides the linuxrc script, however the kernel
         also expects an init executable to be present. This method creates
@@ -697,7 +704,7 @@ class SystemSetup:
             ['ln', self.root_dir + '/linuxrc', self.root_dir + '/init']
         )
 
-    def create_recovery_archive(self):
+    def create_recovery_archive(self) -> None:
         """
         Create a compressed recovery archive from the root tree
         for use with kiwi's recvoery system. The method creates
