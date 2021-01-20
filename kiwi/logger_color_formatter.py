@@ -109,10 +109,6 @@ class ColorFormatter(logging.Formatter):
 
         ColorFormatter(message_format, '%H:%M:%S')
     """
-    def __init__(self, *args: str, **kwargs: str):
-        # can't do super(...) here because Formatter is an old school class
-        logging.Formatter.__init__(self, *args, **kwargs)
-
     def format(self, record: logging.LogRecord) -> str:
         """
         Creates a logging Formatter with support for color messages
