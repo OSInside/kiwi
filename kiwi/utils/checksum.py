@@ -18,7 +18,7 @@
 import os
 from collections import namedtuple
 import hashlib
-import encodings.ascii
+import encodings.ascii as encoding
 
 # project
 from kiwi.command import Command
@@ -43,6 +43,7 @@ class Checksum:
             )
         self.source_filename = source_filename
         self.checksum_filename = None
+        self.ascii = encoding.getregentry().name
 
     def matches(self, checksum, filename):
         """
@@ -59,7 +60,7 @@ class Checksum:
         """
         if not os.path.exists(filename):
             return False
-        with open(filename, encoding=encodings.ascii) as checksum_file:
+        with open(filename, encoding=self.ascii) as checksum_file:
             checksum_from_file = checksum_file.read()
             # checksum is expected to be stored in the first field
             # separated by space, other information might contain
@@ -127,9 +128,7 @@ class Checksum:
             blocks = self._block_list(
                 os.path.getsize(self.source_filename)
             )
-        with open(
-            filename, encoding=encodings.ascii, mode='w'
-        ) as checksum_file:
+        with open(filename, encoding=self.ascii, mode='w') as checksum_file:
             if compressed_blocks:
                 checksum_file.write(
                     '%s %s %s %s %s\n' % (
@@ -153,7 +152,7 @@ class Checksum:
         :param int digest_blocks: Number of blocks processed at a time
         """
         chunk_size = digest_blocks * digest.block_size
-        with open(filename, encoding=encodings.ascii, mode='rb') as source:
+        with open(filename, 'rb') as source:
             for chunk in iter(lambda: source.read(chunk_size), b''):
                 digest.update(chunk)
         return digest.hexdigest()

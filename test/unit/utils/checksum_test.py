@@ -1,5 +1,5 @@
 from builtins import bytes
-import encodings.ascii
+import encodings.ascii as encoding
 from mock import (
     patch, call, Mock, mock_open
 )
@@ -13,6 +13,7 @@ from kiwi.exceptions import KiwiFileNotFound
 class TestChecksum:
     @patch('os.path.exists')
     def setup(self, mock_exists):
+        self.ascii = encoding.getregentry().name
         read_results = [bytes(b''), bytes(b'data'), bytes(b''), bytes(b'data')]
 
         def side_effect(arg):
@@ -44,7 +45,7 @@ class TestChecksum:
             assert self.checksum.matches('sum', 'some-file') is True
 
         self.m_open.assert_called_once_with(
-            'some-file', encoding=encodings.ascii
+            'some-file', encoding=self.ascii
         )
 
         with patch('builtins.open', self.m_open, create=True):
@@ -78,9 +79,9 @@ class TestChecksum:
             self.checksum.md5('outfile')
 
         assert self.m_open.call_args_list == [
-            call('some-file', encoding=encodings.ascii, mode='rb'),
-            call('some-file-uncompressed', encoding=encodings.ascii, mode='rb'),
-            call('outfile', encoding=encodings.ascii, mode='w')
+            call('some-file', 'rb'),
+            call('some-file-uncompressed', 'rb'),
+            call('outfile', encoding=self.ascii, mode='w')
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192 163968 8192\n'
@@ -111,8 +112,8 @@ class TestChecksum:
             self.checksum.md5('outfile')
 
         assert self.m_open.call_args_list == [
-            call('some-file', encoding=encodings.ascii, mode='rb'),
-            call('outfile', encoding=encodings.ascii, mode='w')
+            call('some-file', 'rb'),
+            call('outfile', encoding=self.ascii, mode='w')
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192\n'
@@ -143,8 +144,8 @@ class TestChecksum:
             self.checksum.sha256('outfile')
 
         assert self.m_open.call_args_list == [
-            call('some-file', encoding=encodings.ascii, mode='rb'),
-            call('outfile', encoding=encodings.ascii, mode='w')
+            call('some-file', 'rb'),
+            call('outfile', encoding=self.ascii, mode='w')
         ]
         self.m_open.return_value.write.assert_called_once_with(
             'sum 163968 8192\n'
