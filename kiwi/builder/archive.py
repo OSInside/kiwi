@@ -85,7 +85,7 @@ class ArchiveBuilder:
                 self.root_dir, xz_options=self.xz_options,
                 exclude=Defaults.get_exclude_list_for_root_data_sync()
             )
-            self.result.verify_image_size(
+            Result.verify_image_size(
                 self.runtime_config.get_max_size_constraint(),
                 self.filename
             )

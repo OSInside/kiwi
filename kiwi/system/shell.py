@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from tempfile import NamedTemporaryFile
-from typing import Optional, Any
+from typing import Optional, Any, List
 from collections.abc import Iterable
 
 # project
@@ -31,7 +31,7 @@ class Shell:
     **Special character handling for shell evaluated code**
     """
     @staticmethod
-    def quote(message):
+    def quote(message: str) -> str:
         """
         Quote characters which have a special meaning for bash
         but should be used as normal characters. actually I had
@@ -52,16 +52,16 @@ class Shell:
         return message
 
     @staticmethod
-    def quote_key_value_file(filename):
+    def quote_key_value_file(filename: str) -> List[str]:
         """
         Quote given input file which has to be of the form
         key=value to be able to become sourced by the shell
 
         :param str filename: file path name
 
-        :return: quoted text
+        :return: list of quoted text
 
-        :rtype: str
+        :rtype: List[str]
         """
         temp_copy = NamedTemporaryFile()
         Command.run(['cp', filename, temp_copy.name])
@@ -70,7 +70,7 @@ class Shell:
             return quoted.read().splitlines()
 
     @staticmethod
-    def run_common_function(name, parameters):
+    def run_common_function(name: str, parameters: List[str]) -> None:
         """
         Run a function implemented in config/functions.sh
 
@@ -109,11 +109,11 @@ class Shell:
             return ''
         if isinstance(value, bool):
             return format(value).lower()
-        elif isinstance(value, str):
+        if isinstance(value, str):
             return value
-        elif isinstance(value, bytes):
+        if isinstance(value, bytes):
             return format(value.decode())
-        elif isinstance(value, Iterable):
+        if isinstance(value, Iterable):
             # we will have a hard time to turn an iterable (list, dict ...)
             # into a useful string
             raise KiwiShellVariableValueError(

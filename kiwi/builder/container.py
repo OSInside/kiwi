@@ -136,7 +136,7 @@ class ContainerBuilder:
         self.filename = container_image.create(
             self.filename, self.base_image
         )
-        self.result.verify_image_size(
+        Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(),
             self.filename
         )

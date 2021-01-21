@@ -22,18 +22,19 @@ class TestResult:
         self.result = Result(self.xml_state)
 
     def test_add(self):
-        self.result.add('foo', 'bar')
+        assert self.result.add('foo', 'bar') is None
         result = self.result.get_results()
+        assert isinstance(result, dict)
         assert result['foo'].filename == 'bar'
         assert result['foo'].use_for_bundle is True
         assert result['foo'].compress is False
 
     def test_print_results_no_data(self):
-        self.result.print_results()
+        assert self.result.print_results() is None
         assert not self._caplog.text
 
     def test_print_results_data(self):
-        self.result.add('foo', 'bar')
+        assert self.result.add('foo', 'bar') is None
         with self._caplog.at_level(logging.INFO):
             self.result.print_results()
 
@@ -42,7 +43,7 @@ class TestResult:
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
-            self.result.dump('kiwi.result')
+            assert self.result.dump('kiwi.result') is None
 
         m_open.assert_called_once_with(
             'kiwi.result', 'wb'
@@ -64,8 +65,9 @@ class TestResult:
         mock_exists.return_value = True
 
         m_open = mock_open()
+        mock_pickle_load.return_value = Result
         with patch('builtins.open', m_open, create=True):
-            Result.load('kiwi.result')
+            assert Result.load('kiwi.result') is Result
 
         m_open.assert_called_once_with(
             'kiwi.result', 'rb'
@@ -91,7 +93,7 @@ class TestResult:
     @patch('os.path.getsize')
     def test_build_constraint(self, mock_getsize):
         mock_getsize.return_value = 524288000
-        self.result.verify_image_size(524288000, 'foo')
+        assert self.result.verify_image_size(524288000, 'foo') is None
 
     @patch('os.path.getsize')
     def test_build_constraint_failure(self, mock_getsize):

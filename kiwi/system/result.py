@@ -15,12 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from collections import namedtuple
 import logging
 import pickle
 import os
+from typing import (
+    Dict, NamedTuple, TypeVar
+)
 
 # project
+from kiwi.xml_state import XMLState
 from kiwi.exceptions import (
     KiwiResultError
 )
@@ -28,32 +31,39 @@ from kiwi.exceptions import (
 log = logging.getLogger('kiwi')
 
 # must be global to allow pickle to find it
-result_file_type = namedtuple(
-    'result_file_type', ['filename', 'use_for_bundle', 'compress', 'shasum']
+result_file_type = NamedTuple(
+    'result_file_type', [
+        ('filename', str),
+        ('use_for_bundle', bool),
+        ('compress', bool),
+        ('shasum', bool)
+    ]
 )
+result_type = TypeVar('result_type', bound='Result')
 
 
 class Result:
     """
     **Collect image building results**
 
-    :param list result_files: list of result files
+    :param dict result_files: dict of result files
     :param object class_version: :class:`Result` class version
     :param object xml_state: instance of :class:`XMLState`
     """
-    def __init__(self, xml_state):
-        self.result_files = {}
+    def __init__(self, xml_state: XMLState):
+        self.result_files: Dict[str, result_file_type] = {}
 
         # Instances of this class are stored as result reference.
         # In order to handle class format changes any instance
         # provides a version information
-        self.class_version = 1
+        self.class_version: int = 1
 
         self.xml_state = xml_state
 
     def add(
-        self, key, filename, use_for_bundle=True, compress=False, shasum=True
-    ):
+        self, key: str, filename: str, use_for_bundle: bool = True,
+        compress: bool = False, shasum: bool = True
+    ) -> None:
         """
         Add result tuple to result_files list
 
@@ -71,13 +81,13 @@ class Result:
                 shasum=shasum
             )
 
-    def get_results(self):
+    def get_results(self) -> Dict[str, result_file_type]:
         """
         Current list of result tuples
         """
         return self.result_files
 
-    def print_results(self):
+    def print_results(self) -> None:
         """
         Print results human readable
         """
@@ -86,7 +96,7 @@ class Result:
             for key, value in sorted(list(self.result_files.items())):
                 log.info('--> %s: %s', key, value.filename)
 
-    def dump(self, filename):
+    def dump(self, filename: str) -> None:
         """
         Picke dump this instance to a file
 
@@ -104,7 +114,7 @@ class Result:
             )
 
     @staticmethod
-    def load(filename):
+    def load(filename: str) -> result_type:
         """
         Load pickle dumped filename into a Result instance
 
@@ -125,7 +135,8 @@ class Result:
                 'Failed to pickle load results: %s' % type(e).__name__
             )
 
-    def verify_image_size(self, size_limit, filename):
+    @staticmethod
+    def verify_image_size(size_limit: int, filename: str) -> None:
         """
         Verifies the given image file does not exceed the size limit.
         Throws an exception if the limit is exceeded. If the size limit

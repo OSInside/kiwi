@@ -116,7 +116,7 @@ class FileSystemBuilder:
             self._operate_on_loop()
         else:
             self._operate_on_file()
-        self.result.verify_image_size(
+        Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(),
             self.filename
         )

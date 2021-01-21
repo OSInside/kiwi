@@ -218,7 +218,7 @@ class KisBuilder:
                 self.target_dir, xz_options=self.xz_options
             )
 
-        self.result.verify_image_size(
+        Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(),
             self.archive_name
         )
