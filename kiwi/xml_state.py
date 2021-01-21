@@ -1012,7 +1012,7 @@ class XMLState:
             return container_config_sections[0]
         return None
 
-    def get_installinitrd_modules(self, action: str) -> List[str]:
+    def get_installmedia_initrd_modules(self, action: str) -> List[str]:
         """
         Gets the list of modules to append in installation initrds
 
@@ -1021,10 +1021,13 @@ class XMLState:
         :rtype: list
         """
         modules = []
-        installinitrd_sections = self.build_type.get_installinitrd()
-        for installinitrd_section in installinitrd_sections:
-            if installinitrd_section.get_action() == action:
-                for module in installinitrd_section.get_dracut():
+        installmedia = self.build_type.get_installmedia()
+        if not installmedia:
+            return modules
+        initrd_sections = installmedia[0].get_initrd()
+        for initrd_section in initrd_sections:
+            if initrd_section.get_action() == action:
+                for module in initrd_section.get_dracut():
                     modules.append(module.get_module())
         return modules
 

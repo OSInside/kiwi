@@ -75,7 +75,7 @@ class TestInstallImageBuilder:
         self.xml_state.get_oemconfig_oem_multipath_scan = mock.Mock(
             return_value=False
         )
-        self.xml_state.get_installinitrd_modules = mock.Mock(
+        self.xml_state.get_installmedia_initrd_modules = mock.Mock(
             return_value=['module1', 'module2']
         )
         self.boot_image_task = mock.Mock()

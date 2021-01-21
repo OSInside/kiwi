@@ -73,9 +73,11 @@
                 <oem-recovery>false</oem-recovery>
             </oemconfig>
             <vagrantconfig provider="libvirt" virtualsize="42"/>
-            <installinitrd action="add">
-                <dracut module="network-legacy"/>
-            </installinitrd>
+            <installmedia>
+                 <initrd action="add">
+                    <dracut module="network-legacy"/>
+                </initrd>
+            </installmedia>
         </type>
     </preferences>
     <preferences profiles="ec2Flavour">
