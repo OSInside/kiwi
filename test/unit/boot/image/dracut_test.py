@@ -50,14 +50,14 @@ class TestBootImageKiwi:
 
     def test_include_module(self):
         self.boot_image.include_module('foobar')
-        assert self.boot_image.modules == ['foobar']
-        assert self.boot_image.install_modules == []
+        assert self.boot_image.add_modules == ['foobar']
+        assert self.boot_image.add_install_modules == []
 
         self.boot_image.include_module('module', install_media=True)
         self.boot_image.include_module('foobar')
         self.boot_image.include_module('not_available')
-        assert self.boot_image.modules == ['foobar']
-        assert self.boot_image.install_modules == ['module']
+        assert self.boot_image.add_modules == ['foobar']
+        assert self.boot_image.add_install_modules == ['module']
 
     def test_omit_module(self):
         self.boot_image.omit_module('foobar')
@@ -68,6 +68,17 @@ class TestBootImageKiwi:
         self.boot_image.omit_module('foobar')
         assert self.boot_image.omit_modules == ['foobar']
         assert self.boot_image.omit_install_modules == ['module']
+
+    def test_set_static_modules(self):
+        modules = ['foobar', 'module']
+        install_modules = ['foo']
+        self.boot_image.set_static_modules(modules)
+        assert self.boot_image.modules == modules
+        assert self.boot_image.install_modules == []
+
+        self.boot_image.set_static_modules(install_modules, install_media=True)
+        assert self.boot_image.modules == modules
+        assert self.boot_image.install_modules == install_modules
 
     def test_write_system_config_file(self):
         with patch('builtins.open', create=True) as mock_write:

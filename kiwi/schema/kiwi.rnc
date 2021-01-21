@@ -1882,7 +1882,8 @@ div {
             k.oemconfig? &
             k.size? &
             k.systemdisk? &
-            k.vagrantconfig*
+            k.vagrantconfig* &
+            k.installinitrd*
         }
 }
 
@@ -2692,6 +2693,42 @@ div {
         ## configuration options which are used inside a vagrant box
         element vagrantconfig {
             k.vagrantconfig.attlist
+        }
+}
+
+#==========================================
+# main block: <installinitrd>
+#
+div {
+    k.installinitrd.action.attribute =
+        ## Sets weather the dracut modules list are meant to be appended,
+        ## omitted or they define the static list of modules for the
+        ## installation initrd.
+        attribute action { "omit" | "add" | "set" }
+    k.installinitrd.attlist =
+        k.installinitrd.action.attribute
+    k.installinitrd =
+        ## The installinitrd element defines the dracut modules configuration
+        ## for the installation ISO or PXE image of OEM images.
+        element installinitrd {
+            k.installinitrd.attlist &
+            k.dracut*
+        }
+}
+
+#==========================================
+# main block: <dracut>
+#
+div {
+    k.dracut.module.attribute = 
+        ## A module name
+        attribute module { text }
+    k.dracut.attlist =
+        k.dracut.module.attribute
+    k.dracut =
+        ## A dracut module
+        element dracut {
+            k.dracut.attlist
         }
 }
 

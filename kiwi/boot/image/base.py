@@ -120,6 +120,18 @@ class BootImageBase:
         """
         pass
 
+    def set_static_modules(self, modules, install_media=False):
+        """
+        Set static modules list for boot image
+
+        For kiwi boot no modules configuration is required. Thus in
+        such a case this method is a noop.
+
+        :param list modules: list of modules to include
+        :param bool install_media: lists the modules for install initrds
+        """
+        pass
+
     def write_system_config_file(
         self, config, config_file=None
     ):

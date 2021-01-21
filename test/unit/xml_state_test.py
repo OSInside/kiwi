@@ -978,3 +978,8 @@ class TestXMLState:
         mock_bootloader.return_value = [self.bootloader]
         assert self.state.get_build_type_bootloader_targettype() == \
             'some-target'
+
+    def test_get_installintrd_modules(self):
+        self.state.get_installinitrd_modules('add') == ['network-legacy']
+        self.state.get_installinitrd_modules('set') == []
+        self.state.get_installinitrd_modules('omit') == []

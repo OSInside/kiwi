@@ -388,6 +388,14 @@ class InstallImageBuilder:
                 self.boot_image_task.omit_module(
                     'multipath', install_media=True
                 )
+            for module in self.xml_state.get_installinitrd_modules('add'):
+                self.boot_image_task.include_module(module, install_media=True)
+            for module in self.xml_state.get_installinitrd_modules('omit'):
+                self.boot_image_task.omit_module(module, install_media=True)
+            self.boot_image_task.set_static_modules(
+                self.xml_state.get_installinitrd_modules('set'),
+                install_media=True
+            )
         self.boot_image_task.create_initrd(
             self.mbrid, 'initrd_kiwi_install',
             install_initrd=True
@@ -430,6 +438,14 @@ class InstallImageBuilder:
                 self.boot_image_task.omit_module(
                     'multipath', install_media=True
                 )
+            for module in self.xml_state.get_installinitrd_modules('add'):
+                self.boot_image_task.include_module(module, install_media=True)
+            for module in self.xml_state.get_installinitrd_modules('omit'):
+                self.boot_image_task.omit_module(module, install_media=True)
+            self.boot_image_task.set_static_modules(
+                self.xml_state.get_installinitrd_modules('set'),
+                install_media=True
+            )
             self._add_system_image_boot_options_to_boot_image()
         self.boot_image_task.create_initrd(
             self.mbrid, 'initrd_kiwi_install',

@@ -2844,6 +2844,9 @@ default.</a:documentation>
           <zeroOrMore>
             <ref name="k.vagrantconfig"/>
           </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.installinitrd"/>
+          </zeroOrMore>
         </interleave>
       </element>
     </define>
@@ -4092,6 +4095,61 @@ If not specified the image name is used</a:documentation>
         <a:documentation>The vagrantconfig element specifies the Vagrant meta
 configuration options which are used inside a vagrant box</a:documentation>
         <ref name="k.vagrantconfig.attlist"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <installinitrd>
+    
+  -->
+  <div>
+    <define name="k.installinitrd.action.attribute">
+      <attribute name="action">
+        <a:documentation>Sets weather the dracut modules list are meant to be appended,
+omitted or they define the static list of modules for the
+installation initrd.</a:documentation>
+        <choice>
+          <value>omit</value>
+          <value>add</value>
+          <value>set</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.installinitrd.attlist">
+      <ref name="k.installinitrd.action.attribute"/>
+    </define>
+    <define name="k.installinitrd">
+      <element name="installinitrd">
+        <a:documentation>The installinitrd element defines the dracut modules configuration
+for the installation ISO or PXE image of OEM images.</a:documentation>
+        <interleave>
+          <ref name="k.installinitrd.attlist"/>
+          <zeroOrMore>
+            <ref name="k.dracut"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <dracut>
+    
+  -->
+  <div>
+    <define name="k.dracut.module.attribute">
+      <attribute name="module">
+        <a:documentation>A module name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.dracut.attlist">
+      <ref name="k.dracut.module.attribute"/>
+    </define>
+    <define name="k.dracut">
+      <element name="dracut">
+        <a:documentation>A dracut module</a:documentation>
+        <ref name="k.dracut.attlist"/>
       </element>
     </define>
   </div>
