@@ -23,7 +23,7 @@ class TestSystemSize:
 
     @patch('kiwi.system.size.Command.run')
     def test_accumulate_mbyte_file_sizes(self, mock_command):
-        self.size.accumulate_mbyte_file_sizes(['/foo'])
+        assert isinstance(self.size.accumulate_mbyte_file_sizes(['/foo']), int)
         mock_command.assert_called_once_with(
             [
                 'du', '-s', '--apparent-size', '--block-size', '1',
@@ -36,7 +36,7 @@ class TestSystemSize:
 
     @patch('kiwi.system.size.Command.run')
     def test_accumulate_files(self, mock_command):
-        self.size.accumulate_files()
+        assert isinstance(self.size.accumulate_files(), int)
         mock_command.assert_called_once_with(
             ['bash', '-c', 'find directory | wc -l']
         )
