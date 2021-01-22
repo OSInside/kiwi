@@ -88,7 +88,7 @@ class TestRootBind:
         mock_exists.return_value = True
         shared_mount = Mock()
         mock_mount.return_value = shared_mount
-        self.bind_root.mount_kernel_file_systems()
+        assert self.bind_root.mount_kernel_file_systems() is None
         mock_mount.assert_called_once_with(
             device='/proc', mountpoint='root-dir/proc'
         )
@@ -98,7 +98,7 @@ class TestRootBind:
     def test_umount_kernel_file_systems(self, mock_mount):
         self.mount_manager.device = '/proc'
         self.mount_manager.is_mounted = Mock(return_value=True)
-        self.bind_root.umount_kernel_file_systems()
+        assert self.bind_root.umount_kernel_file_systems() is None
         self.mount_manager.umount_lazy.assert_called_once_with()
         assert self.bind_root.mount_stack == []
 
@@ -107,7 +107,7 @@ class TestRootBind:
         self.mount_manager.device = '/proc'
         self.mount_manager.is_mounted = Mock(return_value=True)
         self.mount_manager.umount_lazy = Mock(side_effect=Exception)
-        self.bind_root.umount_kernel_file_systems()
+        assert self.bind_root.umount_kernel_file_systems() is None
         self.mount_manager.umount_lazy.assert_called_once_with()
         assert self.bind_root.mount_stack == [self.mount_manager]
 
@@ -116,7 +116,7 @@ class TestRootBind:
     def test_mount_shared_directory(self, mock_path, mock_mount):
         shared_mount = Mock()
         mock_mount.return_value = shared_mount
-        self.bind_root.mount_shared_directory()
+        assert self.bind_root.mount_shared_directory() is None
         mock_path.call_args_list = [
             call('root-dir/var/cache/kiwi'),
             call('/var/cache/kiwi')
@@ -137,7 +137,7 @@ class TestRootBind:
         mock_exists.return_value = True
 
         with patch('builtins.open') as m_open:
-            self.bind_root.setup_intermediate_config()
+            assert self.bind_root.setup_intermediate_config() is None
             m_open.assert_called_once_with(
                 'root-dir/etc/sysconfig/proxy.sha', 'w'
             )
@@ -152,6 +152,7 @@ class TestRootBind:
         ]
         checksum.sha256.assert_called_once_with()
 
+    @patch('textwrap.dedent')
     @patch('kiwi.system.root_bind.Checksum')
     @patch('kiwi.system.root_bind.MountManager.is_mounted')
     @patch('kiwi.system.root_bind.Command.run')
@@ -162,7 +163,7 @@ class TestRootBind:
     def test_cleanup(
         self, mock_move, mock_exists, mock_islink,
         mock_remove_hierarchy, mock_command, mock_is_mounted,
-        mock_Checksum
+        mock_Checksum, mock_dedent
     ):
         checksum = Mock()
         checksum.matches.return_value = False
@@ -176,7 +177,7 @@ class TestRootBind:
         mock_exists.side_effect = exists_side_effect
         mock_islink.return_value = True
         with self._caplog.at_level(logging.WARNING):
-            self.bind_root.cleanup()
+            assert self.bind_root.cleanup() is None
             self.mount_manager.umount_lazy.assert_called_once_with()
             mock_remove_hierarchy.assert_called_once_with(
                 root='root-dir', path='/mountpoint'
@@ -232,5 +233,5 @@ class TestRootBind:
         self.mount_manager.is_mounted.return_value = False
         self.mount_manager.mountpoint = '/mountpoint'
         with self._caplog.at_level(logging.WARNING):
-            self.bind_root.cleanup()
+            assert self.bind_root.cleanup() is None
             assert 'Path /mountpoint not a mountpoint' in self._caplog.text

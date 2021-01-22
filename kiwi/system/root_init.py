@@ -41,20 +41,20 @@ class RootInit:
 
     :param str root_dir: root directory path name
     """
-    def __init__(self, root_dir, allow_existing=False):
+    def __init__(self, root_dir: str, allow_existing: bool = False):
         if not allow_existing and os.path.exists(root_dir):
             raise KiwiRootDirExists(
                 'Root directory %s already exists' % root_dir
             )
         self.root_dir = root_dir
 
-    def delete(self):
+    def delete(self) -> None:
         """
         Force delete root directory and its contents
         """
         Path.wipe(self.root_dir)
 
-    def create(self):
+    def create(self) -> None:
         """
         Create new system root directory
 

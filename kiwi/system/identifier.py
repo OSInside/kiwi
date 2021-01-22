@@ -18,6 +18,9 @@
 import random
 import struct
 
+# project
+from kiwi.storage.device_provider import DeviceProvider
+
 
 class SystemIdentifier:
     """
@@ -30,7 +33,7 @@ class SystemIdentifier:
     def __init__(self):
         self.image_id = None
 
-    def get_id(self):
+    def get_id(self) -> str:
         """
         Current hex identifier
 
@@ -40,7 +43,7 @@ class SystemIdentifier:
         """
         return self.image_id
 
-    def calculate_id(self):
+    def calculate_id(self) -> None:
         """
         Calculate random hex id
 
@@ -50,7 +53,7 @@ class SystemIdentifier:
             self._rand(), self._rand(), self._rand(), self._rand()
         )
 
-    def write(self, filename):
+    def write(self, filename: str) -> None:
         """
         Write current hex identifier to file
 
@@ -59,7 +62,7 @@ class SystemIdentifier:
         with open(filename, 'w') as identifier:
             identifier.write('%s\n' % self.image_id)
 
-    def write_to_disk(self, device_provider):
+    def write_to_disk(self, device_provider: DeviceProvider) -> None:
         """
         Write current hex identifier to MBR at offset 0x1b8 on disk
 

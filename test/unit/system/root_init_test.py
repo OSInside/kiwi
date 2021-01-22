@@ -73,7 +73,7 @@ class TestRootInit:
         mock_path.return_value = False
         mock_temp.return_value = 'tmpdir'
         root = RootInit('root_dir', True)
-        root.create()
+        assert root.create() is None
         assert mock_makedirs.call_args_list == [
             call('tmpdir/var/cache/kiwi'),
             call('tmpdir/dev/pts'),
@@ -118,7 +118,7 @@ class TestRootInit:
     def test_delete(self, mock_path, mock_wipe):
         mock_path.return_value = False
         root = RootInit('root_dir')
-        root.delete()
+        assert root.delete() is None
         mock_wipe.assert_called_once_with('root_dir')
 
     def teardown(self):

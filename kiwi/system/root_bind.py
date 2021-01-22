@@ -18,7 +18,8 @@
 import os
 import logging
 import shutil
-from textwrap import dedent
+import textwrap
+from typing import List
 
 # project
 from kiwi.command import Command
@@ -26,6 +27,7 @@ from kiwi.defaults import Defaults
 from kiwi.path import Path
 from kiwi.mount_manager import MountManager
 from kiwi.utils.checksum import Checksum
+from kiwi.system.root_init import RootInit
 
 from kiwi.exceptions import (
     KiwiMountKernelFileSystemsError,
@@ -50,11 +52,11 @@ class RootBind:
     :param str shared_location: shared directory between image root and
         build system root
     """
-    def __init__(self, root_init):
+    def __init__(self, root_init: RootInit):
         self.root_dir = root_init.root_dir
-        self.cleanup_files = []
-        self.mount_stack = []
-        self.dir_stack = []
+        self.cleanup_files: List[str] = []
+        self.mount_stack: List[MountManager] = []
+        self.dir_stack: List[str] = []
         # need resolv.conf/hosts for chroot name resolution
         # need /etc/sysconfig/proxy for chroot proxy usage
         self.config_files = [
@@ -72,7 +74,7 @@ class RootBind:
         # share the following directory with the host
         self.shared_location = '/' + Defaults.get_shared_cache_location()
 
-    def mount_kernel_file_systems(self):
+    def mount_kernel_file_systems(self) -> None:
         """
         Bind mount kernel filesystems
 
@@ -98,7 +100,7 @@ class RootBind:
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def umount_kernel_file_systems(self):
+    def umount_kernel_file_systems(self) -> None:
         """
         Umount kernel filesystems
 
@@ -111,7 +113,7 @@ class RootBind:
         ]
         self._cleanup_mounts(umounts)
 
-    def mount_shared_directory(self, host_dir=None):
+    def mount_shared_directory(self, host_dir: str = None) -> None:
         """
         Bind mount shared location
 
@@ -126,7 +128,7 @@ class RootBind:
 
         :raises KiwiMountSharedDirectoryError: if mount fails
         """
-        if not host_dir:
+        if host_dir is None:
             host_dir = self.shared_location
         try:
             Path.create(self.root_dir + host_dir)
@@ -143,7 +145,7 @@ class RootBind:
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def setup_intermediate_config(self):
+    def setup_intermediate_config(self) -> None:
         """
         Create intermediate config files
 
@@ -176,7 +178,7 @@ class RootBind:
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """
         Cleanup mounted locations, directories and intermediate config files
         """
@@ -197,7 +199,7 @@ class RootBind:
 
             checksum = Checksum(config_file)
             if not checksum.matches(checksum.sha256(), shasum_file):
-                message = dedent('''\n
+                message = textwrap.dedent('''\n
                     Modifications to intermediate config file detected
 
                     The file: {0}
