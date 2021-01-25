@@ -819,16 +819,21 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         module_path = self._get_efi_modules_path(lookup_path)
         if os.path.exists(module_path + '/linuxefi.mod'):
             module_list.append('linuxefi')
-        Command.run(
+        mkimage_call = Command.run(
             [
-                self._get_grub2_mkimage_tool() or 'grub2-mkimage',
+                'chroot', self.root_dir,
+                os.path.basename(
+                    self._get_grub2_mkimage_tool()
+                ) or 'grub2-mkimage',
                 '-O', Defaults.get_efi_module_directory_name(self.arch),
-                '-o', self._get_efi_image_name(),
-                '-c', early_boot_script,
+                '-o', self._get_efi_image_name().replace(self.boot_dir, ''),
+                '-c', early_boot_script.replace(self.boot_dir, ''),
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
-                '-d', module_path
+                '-d', module_path.replace(self.boot_dir, '')
             ] + module_list
         )
+        log.debug(mkimage_call.output)
+        log.debug(mkimage_call.error)
 
     def _create_efi_config_search(self, uuid=None, mbrid=None):
         efi_boot_config = self.efi_boot_path + '/grub.cfg'
@@ -849,16 +854,25 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self._create_early_boot_script_for_mbrid_search(
             early_boot_script, mbrid
         )
-        Command.run(
+        mkimage_call = Command.run(
             [
-                self._get_grub2_mkimage_tool() or 'grub2-mkimage',
+                'chroot', self.root_dir,
+                os.path.basename(
+                    self._get_grub2_mkimage_tool()
+                ) or 'grub2-mkimage',
                 '-O', Defaults.get_bios_module_directory_name(),
-                '-o', self._get_bios_image_name(lookup_path),
-                '-c', early_boot_script,
+                '-o', self._get_bios_image_name(
+                    lookup_path
+                ).replace(self.boot_dir, ''),
+                '-c', early_boot_script.replace(self.boot_dir, ''),
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
-                '-d', self._get_bios_modules_path(lookup_path)
+                '-d', self._get_bios_modules_path(
+                    lookup_path
+                ).replace(self.boot_dir, '')
             ] + Defaults.get_grub_bios_modules(multiboot=self.xen_guest)
         )
+        log.debug(mkimage_call.output)
+        log.debug(mkimage_call.error)
 
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:
@@ -919,8 +933,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _get_grub2_mkimage_tool(self):
         for grub_mkimage_tool in ['grub2-mkimage', 'grub-mkimage']:
-            if Path.which(grub_mkimage_tool):
-                return grub_mkimage_tool
+            grub_mkimage_file_path = Path.which(
+                grub_mkimage_tool, root_dir=self.root_dir
+            )
+            if grub_mkimage_file_path:
+                return grub_mkimage_file_path
 
     def _get_grub2_mkconfig_tool(self):
         for grub_mkconfig_tool in ['grub2-mkconfig', 'grub-mkconfig']:
