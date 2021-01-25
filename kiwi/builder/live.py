@@ -281,7 +281,7 @@ class LiveImageBuilder:
         if self.xml_state.build_type.get_mediacheck() is True:
             Iso.set_media_tag(self.isoname)
 
-        self.result.verify_image_size(
+        Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(),
             self.isoname
         )

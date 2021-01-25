@@ -15,14 +15,30 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
 import re
-from collections import namedtuple
+import os
+from typing import (
+    NamedTuple, Optional
+)
 
 # project
 from kiwi.command import Command
 
 from kiwi.exceptions import KiwiKernelLookupError
+
+kernel_type = NamedTuple(
+    'kernel_type', [
+        ('name', str),
+        ('filename', str),
+        ('version', str)
+    ]
+)
+xen_hypervisor_type = NamedTuple(
+    'xen_hypervisor_type', [
+        ('filename', str),
+        ('name', str)
+    ]
+)
 
 
 class Kernel:
@@ -35,11 +51,13 @@ class Kernel:
         file so that we do not have to search for many different
         names in this code
     """
-    def __init__(self, root_dir):
+    def __init__(self, root_dir: str):
         self.root_dir = root_dir
         self.kernel_names = self._setup_kernel_names_for_lookup()
 
-    def get_kernel(self, raise_on_not_found=False):
+    def get_kernel(
+        self, raise_on_not_found: bool = False
+    ) -> Optional[kernel_type]:
         """
         Lookup kernel files and provide filename and version
 
@@ -50,7 +68,7 @@ class Kernel:
             and kernel is not found
         :return: tuple with filename, kernelname and version
 
-        :rtype: namedtuple
+        :rtype: tuple|None
         """
         for kernel_name in self.kernel_names:
             kernel_file = os.sep.join(
@@ -62,15 +80,11 @@ class Kernel:
                 )
                 if version_match:
                     version = version_match.group(1)
-                    kernel = namedtuple(
-                        'kernel', ['name', 'filename', 'version']
-                    )
-                    return kernel(
+                    return kernel_type(
                         name=os.path.basename(os.path.realpath(kernel_file)),
                         filename=kernel_file,
                         version=version
                     )
-
         if raise_on_not_found:
             raise KiwiKernelLookupError(
                 'No kernel found in {0}, searched for {1}'.format(
@@ -78,26 +92,25 @@ class Kernel:
                     ','.join(self.kernel_names)
                 )
             )
+        return None
 
-    def get_xen_hypervisor(self):
+    def get_xen_hypervisor(self) -> Optional[xen_hypervisor_type]:
         """
         Lookup xen hypervisor and provide filename and hypervisor name
 
         :return: tuple with filename and hypervisor name
 
-        :rtype: namedtuple
+        :rtype: tuple|None
         """
         xen_hypervisor = self.root_dir + '/boot/xen.gz'
         if os.path.exists(xen_hypervisor):
-            xen = namedtuple(
-                'xen', ['filename', 'name']
-            )
-            return xen(
+            return xen_hypervisor_type(
                 filename=xen_hypervisor,
                 name='xen.gz'
             )
+        return None
 
-    def copy_kernel(self, target_dir, file_name=None):
+    def copy_kernel(self, target_dir: str, file_name: str = None) -> None:
         """
         Copy kernel to specified target
 
@@ -116,7 +129,9 @@ class Kernel:
             )
             Command.run(['cp', kernel.filename, target_file])
 
-    def copy_xen_hypervisor(self, target_dir, file_name=None):
+    def copy_xen_hypervisor(
+        self, target_dir: str, file_name: str = None
+    ) -> None:
         """
         Copy xen hypervisor to specified target
 

@@ -452,7 +452,7 @@ class DiskBuilder:
                 self.target_dir + '/boot_image.pickledump'
             )
 
-        self.result.verify_image_size(
+        Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(),
             self.diskname
         )
