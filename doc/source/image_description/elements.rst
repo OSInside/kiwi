@@ -672,6 +672,12 @@ Used to customize the virtual machine configuration which describes
 the components of an emulated hardware.
 For details see: :ref:`disk-the-machine-element`
 
+<preferences><type><installmedia>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used to customize the installation media images created for oem images
+deployment.
+For details see: :ref:`installmedia_customize`
+
 .. _sec.repository:
 
 <repository>
