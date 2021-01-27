@@ -144,8 +144,9 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('os.path.exists')
     @patch('platform.machine')
+    @patch('shutil.copy')
     def test_setup_install_boot_images_raises_no_efigrub(
-        self, mock_machine, mock_exists, mock_Path_which,
+        self, mock_shutil_copy, mock_machine, mock_exists, mock_Path_which,
         mock_sync, mock_command, mock_grub, mock_shim
     ):
         self.firmware.efi_mode = Mock(
@@ -162,6 +163,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/usr/lib/grub/themes/some-theme'] = False
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
@@ -1430,9 +1432,10 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('os.path.exists')
     @patch('platform.machine')
+    @patch('shutil.copy')
     def test_setup_install_boot_images_efi(
-        self, mock_machine, mock_exists, mock_sync, mock_Path_which,
-        mock_command, mock_get_grub_bios_core_loader,
+        self, mock_shutil_copy, mock_machine, mock_exists, mock_sync,
+        mock_Path_which, mock_command, mock_get_grub_bios_core_loader,
         mock_get_unsigned_grub_loader, mock_get_boot_path
     ):
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
@@ -1448,6 +1451,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi/linuxefi.mod'] = \
             True
@@ -1783,8 +1787,9 @@ class TestBootLoaderConfigGrub2:
     @patch('os.path.exists')
     @patch('platform.machine')
     @patch('kiwi.defaults.Defaults.get_grub_path')
+    @patch('shutil.copy')
     def test_setup_install_boot_images_with_theme_not_existing(
-        self, mock_get_grub_path, mock_machine,
+        self, mock_shutil_copy, mock_get_grub_path, mock_machine,
         mock_exists, mock_sync, mock_Path_which, mock_command
     ):
         mock_Path_which.return_value = '/path/to/grub2-mkimage'

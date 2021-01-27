@@ -854,6 +854,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self._create_early_boot_script_for_mbrid_search(
             early_boot_script, mbrid
         )
+        shutil.copy(
+            early_boot_script, os.sep.join(
+                [self.root_dir, 'boot', self.boot_directory_name]
+            )
+        )
         mkimage_call = Command.run(
             [
                 'chroot', self.root_dir,
@@ -861,14 +866,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     self._get_grub2_mkimage_tool()
                 ) or 'grub2-mkimage',
                 '-O', Defaults.get_bios_module_directory_name(),
-                '-o', self._get_bios_image_name(
-                    lookup_path
-                ).replace(self.boot_dir, ''),
+                '-o', self._get_bios_image_name(os.sep),
                 '-c', early_boot_script.replace(self.boot_dir, ''),
-                '-p', self.get_boot_path() + '/' + self.boot_directory_name,
-                '-d', self._get_bios_modules_path(
-                    lookup_path
-                ).replace(self.boot_dir, '')
+                '-p', os.sep.join(
+                    [self.get_boot_path(), self.boot_directory_name]
+                ),
+                '-d', self._get_bios_modules_path(os.sep)
             ] + Defaults.get_grub_bios_modules(multiboot=self.xen_guest)
         )
         log.debug(mkimage_call.output)
