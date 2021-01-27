@@ -558,8 +558,8 @@ class Defaults:
         lookup_list = []
         for grub_name in ['grub2', 'grub']:
             for install_dir in install_dirs:
-                grub_path = os.sep.join(
-                    [root_path, install_dir, grub_name, filename]
+                grub_path = os.path.join(
+                    root_path, install_dir, grub_name, filename
                 )
                 if os.path.exists(grub_path):
                     return grub_path
