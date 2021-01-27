@@ -389,3 +389,28 @@ oemconfig.oem-unattended Element
   automatically without requiring user interaction. If multiple
   possible target devices are discovered the image is deployed to
   the first device. ``kiwi_oemunattended`` in the initrd
+
+.. _installmedia_customize:
+
+Installation Media Customization
+--------------------------------
+
+The installation media created for OEM network or CD/DVD deployments can
+be customized with the `installmedia` section which is a child section of the `type`
+element as it appears in the following example:
+
+.. code:: xml
+
+   <installmedia>
+     <initrd action="omit">
+       <dracut module="network-legacy"/>
+     </initrd>
+   </installmedia>
+
+The `installmedia` is only available for OEM image types that includes the
+request to create an installation media.
+
+The `initrd` child element of `installmedia` lists dracut modules, they
+can be omitted, added or staticaly set the list of included ones. This is
+specified with the `action` attribute and can take `action="omit"`,
+`action="add"` or `action="set"` values. 

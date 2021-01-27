@@ -2583,7 +2583,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, vagrantconfig=None, installmedia=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2674,6 +2674,10 @@ class type_(GeneratedsSuper):
             self.vagrantconfig = []
         else:
             self.vagrantconfig = vagrantconfig
+        if installmedia is None:
+            self.installmedia = []
+        else:
+            self.installmedia = installmedia
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2720,6 +2724,11 @@ class type_(GeneratedsSuper):
     def add_vagrantconfig(self, value): self.vagrantconfig.append(value)
     def insert_vagrantconfig_at(self, index, value): self.vagrantconfig.insert(index, value)
     def replace_vagrantconfig_at(self, index, value): self.vagrantconfig[index] = value
+    def get_installmedia(self): return self.installmedia
+    def set_installmedia(self, installmedia): self.installmedia = installmedia
+    def add_installmedia(self, value): self.installmedia.append(value)
+    def insert_installmedia_at(self, index, value): self.installmedia.insert(index, value)
+    def replace_installmedia_at(self, index, value): self.installmedia[index] = value
     def get_boot(self): return self.boot
     def set_boot(self, boot): self.boot = boot
     def get_bootfilesystem(self): return self.bootfilesystem
@@ -2878,7 +2887,8 @@ class type_(GeneratedsSuper):
             self.oemconfig or
             self.size or
             self.systemdisk or
-            self.vagrantconfig
+            self.vagrantconfig or
+            self.installmedia
         ):
             return True
         else:
@@ -3107,6 +3117,8 @@ class type_(GeneratedsSuper):
             systemdisk_.export(outfile, level, namespaceprefix_, name_='systemdisk', pretty_print=pretty_print)
         for vagrantconfig_ in self.vagrantconfig:
             vagrantconfig_.export(outfile, level, namespaceprefix_, name_='vagrantconfig', pretty_print=pretty_print)
+        for installmedia_ in self.installmedia:
+            installmedia_.export(outfile, level, namespaceprefix_, name_='installmedia', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3541,6 +3553,11 @@ class type_(GeneratedsSuper):
             obj_.build(child_)
             self.vagrantconfig.append(obj_)
             obj_.original_tagname_ = 'vagrantconfig'
+        elif nodeName_ == 'installmedia':
+            obj_ = installmedia.factory()
+            obj_.build(child_)
+            self.installmedia.append(obj_)
+            obj_.original_tagname_ = 'installmedia'
 # end class type_
 
 
@@ -6648,6 +6665,249 @@ class vagrantconfig(GeneratedsSuper):
 # end class vagrantconfig
 
 
+class installmedia(GeneratedsSuper):
+    """The installmedia element defined the configuration parameters for
+    the installation media of OEM images."""
+    subclass = None
+    superclass = None
+    def __init__(self, initrd=None):
+        self.original_tagname_ = None
+        if initrd is None:
+            self.initrd = []
+        else:
+            self.initrd = initrd
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, installmedia)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if installmedia.subclass:
+            return installmedia.subclass(*args_, **kwargs_)
+        else:
+            return installmedia(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_initrd(self): return self.initrd
+    def set_initrd(self, initrd): self.initrd = initrd
+    def add_initrd(self, value): self.initrd.append(value)
+    def insert_initrd_at(self, index, value): self.initrd.insert(index, value)
+    def replace_initrd_at(self, index, value): self.initrd[index] = value
+    def hasContent_(self):
+        if (
+            self.initrd
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='installmedia', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('installmedia')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='installmedia')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='installmedia', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='installmedia'):
+        pass
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='installmedia', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for initrd_ in self.initrd:
+            initrd_.export(outfile, level, namespaceprefix_, name_='initrd', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'initrd':
+            obj_ = initrd.factory()
+            obj_.build(child_)
+            self.initrd.append(obj_)
+            obj_.original_tagname_ = 'initrd'
+# end class installmedia
+
+
+class initrd(GeneratedsSuper):
+    """The initrd element defines the dracut modules configuration for the
+    installation media."""
+    subclass = None
+    superclass = None
+    def __init__(self, action=None, dracut=None):
+        self.original_tagname_ = None
+        self.action = _cast(None, action)
+        if dracut is None:
+            self.dracut = []
+        else:
+            self.dracut = dracut
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, initrd)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if initrd.subclass:
+            return initrd.subclass(*args_, **kwargs_)
+        else:
+            return initrd(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_dracut(self): return self.dracut
+    def set_dracut(self, dracut): self.dracut = dracut
+    def add_dracut(self, value): self.dracut.append(value)
+    def insert_dracut_at(self, index, value): self.dracut.insert(index, value)
+    def replace_dracut_at(self, index, value): self.dracut[index] = value
+    def get_action(self): return self.action
+    def set_action(self, action): self.action = action
+    def hasContent_(self):
+        if (
+            self.dracut
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='initrd', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('initrd')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='initrd')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='initrd', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='initrd'):
+        if self.action is not None and 'action' not in already_processed:
+            already_processed.add('action')
+            outfile.write(' action=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.action), input_name='action')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='initrd', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for dracut_ in self.dracut:
+            dracut_.export(outfile, level, namespaceprefix_, name_='dracut', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('action', node)
+        if value is not None and 'action' not in already_processed:
+            already_processed.add('action')
+            self.action = value
+            self.action = ' '.join(self.action.split())
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'dracut':
+            obj_ = dracut.factory()
+            obj_.build(child_)
+            self.dracut.append(obj_)
+            obj_.original_tagname_ = 'dracut'
+# end class initrd
+
+
+class dracut(GeneratedsSuper):
+    """A dracut module"""
+    subclass = None
+    superclass = None
+    def __init__(self, module=None):
+        self.original_tagname_ = None
+        self.module = _cast(None, module)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, dracut)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if dracut.subclass:
+            return dracut.subclass(*args_, **kwargs_)
+        else:
+            return dracut(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_module(self): return self.module
+    def set_module(self, module): self.module = module
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='dracut', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('dracut')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='dracut')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='dracut', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='dracut'):
+        if self.module is not None and 'module' not in already_processed:
+            already_processed.add('module')
+            outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='dracut', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('module', node)
+        if value is not None and 'module' not in already_processed:
+            already_processed.add('module')
+            self.module = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class dracut
+
+
 class machine(GeneratedsSuper):
     """The machine element specifies VM guest configuration options which
     are used by the virtual machine when running the image."""
@@ -7731,6 +7991,7 @@ __all__ = [
     "bootloader",
     "containerconfig",
     "description",
+    "dracut",
     "drivers",
     "entrypoint",
     "env",
@@ -7741,6 +8002,8 @@ __all__ = [
     "history",
     "ignore",
     "image",
+    "initrd",
+    "installmedia",
     "k_source",
     "label",
     "labels",

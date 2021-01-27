@@ -75,6 +75,9 @@ class TestInstallImageBuilder:
         self.xml_state.get_oemconfig_oem_multipath_scan = mock.Mock(
             return_value=False
         )
+        self.xml_state.get_installmedia_initrd_modules = mock.Mock(
+            return_value=['module1', 'module2']
+        )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
@@ -215,8 +218,13 @@ class TestInstallImageBuilder:
         self.boot_image_task.include_module.assert_any_call(
             'kiwi-dump-reboot', install_media=True
         )
-        self.boot_image_task.omit_module.assert_called_once_with(
-            'multipath', install_media=True
+        self.boot_image_task.omit_module.call_args_list == [
+            call('multipath', install_media=True),
+            call('module1', install_media=True),
+            call('module2', install_media=True),
+        ]
+        self.boot_image_task.set_static_modules.assert_called_once_with(
+            ['module1', 'module2'], install_media=True
         )
 
         self.boot_image_task.include_file.assert_called_once_with(
@@ -410,8 +418,13 @@ class TestInstallImageBuilder:
         self.boot_image_task.include_module.assert_any_call(
             'kiwi-dump-reboot', install_media=True
         )
-        self.boot_image_task.omit_module.assert_called_once_with(
-            'multipath', install_media=True
+        self.boot_image_task.omit_module.call_args_list == [
+            call('multipath', install_media=True),
+            call('module1', install_media=True),
+            call('module2', install_media=True),
+        ]
+        self.boot_image_task.set_static_modules.assert_called_once_with(
+            ['module1', 'module2'], install_media=True
         )
 
     @patch('kiwi.builder.install.Path.wipe')

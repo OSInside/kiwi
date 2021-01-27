@@ -1012,6 +1012,25 @@ class XMLState:
             return container_config_sections[0]
         return None
 
+    def get_installmedia_initrd_modules(self, action: str) -> List[str]:
+        """
+        Gets the list of modules to append in installation initrds
+
+        :return: a list of dracut module names
+
+        :rtype: list
+        """
+        modules = []
+        installmedia = self.build_type.get_installmedia()
+        if not installmedia:
+            return modules
+        initrd_sections = installmedia[0].get_initrd()
+        for initrd_section in initrd_sections:
+            if initrd_section.get_action() == action:
+                for module in initrd_section.get_dracut():
+                    modules.append(module.get_module())
+        return modules
+
     def get_build_type_size(
         self, include_unpartitioned: bool = False
     ) -> Optional[size_type]:

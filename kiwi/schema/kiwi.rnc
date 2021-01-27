@@ -1882,7 +1882,8 @@ div {
             k.oemconfig? &
             k.size? &
             k.systemdisk? &
-            k.vagrantconfig*
+            k.vagrantconfig* &
+            k.installmedia?
         }
 }
 
@@ -2692,6 +2693,67 @@ div {
         ## configuration options which are used inside a vagrant box
         element vagrantconfig {
             k.vagrantconfig.attlist
+        }
+}
+
+#==========================================
+# main block: <installmedia>
+#
+div {
+    sch:pattern [
+        id = "installation_media"
+        sch:rule [
+            context = "installmedia"
+            sch:assert [
+                test = "../@installiso='true' or ../@installpxe='true'"
+                "installmedia is only available for the oem type "~
+                "with 'installiso' or 'installpxe' set to 'true'"
+            ]
+        ]
+    ]
+    k.installmedia.attlist = empty
+    k.installmedia =
+        ## The installmedia element defined the configuration parameters
+        ## for the installation media of OEM images.
+        element installmedia {
+            k.installmedia.attlist &
+            k.initrd*
+        }
+}
+
+#==========================================
+# main block: <initrd>
+#
+div {
+    k.initrd.action.attribute =
+        ## Sets weather the dracut modules list are meant to be appended,
+        ## omitted or they define the static list of modules for the
+        ## installation initrd.
+        attribute action { "omit" | "add" | "set" }
+    k.initrd.attlist =
+        k.initrd.action.attribute
+    k.initrd =
+        ## The initrd element defines the dracut modules configuration
+        ## for the installation media.
+        element initrd {
+            k.initrd.attlist &
+            k.dracut*
+        }
+}
+
+#==========================================
+# main block: <dracut>
+#
+div {
+    k.dracut.module.attribute = 
+        ## A module name
+        attribute module { text }
+    k.dracut.attlist =
+        k.dracut.module.attribute
+    k.dracut =
+        ## A dracut module
+        element dracut {
+            k.dracut.attlist
         }
 }
 

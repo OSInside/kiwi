@@ -51,6 +51,8 @@ class BootImageDracut(BootImageBase):
         self.included_files_install = []
         self.modules = []
         self.install_modules = []
+        self.add_modules = []
+        self.add_install_modules = []
         self.omit_modules = []
         self.omit_install_modules = []
         self.available_modules = self._get_modules()
@@ -76,10 +78,10 @@ class BootImageDracut(BootImageBase):
         """
         warn_msg = 'module "{0}" not included in initrd'.format(module)
         if self._module_available(module):
-            if install_media and module not in self.install_modules:
-                self.install_modules.append(module)
-            elif module not in self.modules:
-                self.modules.append(module)
+            if install_media and module not in self.add_install_modules:
+                self.add_install_modules.append(module)
+            elif module not in self.add_modules:
+                self.add_modules.append(module)
         else:
             log.warning(warn_msg)
 
@@ -94,6 +96,18 @@ class BootImageDracut(BootImageBase):
             self.omit_install_modules.append(module)
         elif module not in self.omit_modules:
             self.omit_modules.append(module)
+
+    def set_static_modules(self, modules, install_media=False):
+        """
+        Set static dracut modules list for boot image
+
+        :param list modules: list of the modules to include
+        :param bool install_media: lists the modules for install initrds
+        """
+        if install_media:
+            self.install_modules = modules
+        else:
+            self.modules = modules
 
     def write_system_config_file(self, config, config_file=None):
         """
@@ -166,9 +180,12 @@ class BootImageDracut(BootImageBase):
             if install_initrd:
                 included_files = self.included_files_install
                 modules_args = [
-                    '--add', ' {0} '.format(' '.join(self.install_modules))
+                    '--modules', ' {0} '.format(' '.join(self.install_modules))
                 ] if self.install_modules else []
-                omit_modules_args = [
+                modules_args += [
+                    '--add', ' {0} '.format(' '.join(self.add_install_modules))
+                ] if self.add_install_modules else []
+                modules_args += [
                     '--omit', ' {0} '.format(
                         ' '.join(self.omit_install_modules)
                     )
@@ -176,14 +193,16 @@ class BootImageDracut(BootImageBase):
             else:
                 included_files = self.included_files
                 modules_args = [
-                    '--add', ' {0} '.format(' '.join(self.modules))
+                    '--modules', ' {0} '.format(' '.join(self.modules))
                 ] if self.modules else []
-                omit_modules_args = [
+                modules_args += [
+                    '--add', ' {0} '.format(' '.join(self.add_modules))
+                ] if self.add_modules else []
+                modules_args += [
                     '--omit', ' {0} '.format(' '.join(self.omit_modules))
                 ] if self.omit_modules else []
             dracut_initrd_basename += '.xz'
-            options = self.dracut_options + modules_args +\
-                omit_modules_args + included_files
+            options = self.dracut_options + modules_args + included_files
             dracut_call = Command.run(
                 [
                     'chroot', self.boot_root_directory,

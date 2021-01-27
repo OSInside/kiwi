@@ -2844,6 +2844,9 @@ default.</a:documentation>
           <zeroOrMore>
             <ref name="k.vagrantconfig"/>
           </zeroOrMore>
+          <optional>
+            <ref name="k.installmedia"/>
+          </optional>
         </interleave>
       </element>
     </define>
@@ -4092,6 +4095,88 @@ If not specified the image name is used</a:documentation>
         <a:documentation>The vagrantconfig element specifies the Vagrant meta
 configuration options which are used inside a vagrant box</a:documentation>
         <ref name="k.vagrantconfig.attlist"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <installmedia>
+    
+  -->
+  <div>
+    <sch:pattern id="installation_media">
+      <sch:rule context="installmedia">
+        <sch:assert test="../@installiso='true' or ../@installpxe='true'">installmedia is only available for the oem type with 'installiso' or 'installpxe' set to 'true'</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <define name="k.installmedia.attlist">
+      <empty/>
+    </define>
+    <define name="k.installmedia">
+      <element name="installmedia">
+        <a:documentation>The installmedia element defined the configuration parameters
+for the installation media of OEM images.</a:documentation>
+        <interleave>
+          <ref name="k.installmedia.attlist"/>
+          <zeroOrMore>
+            <ref name="k.initrd"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <initrd>
+    
+  -->
+  <div>
+    <define name="k.initrd.action.attribute">
+      <attribute name="action">
+        <a:documentation>Sets weather the dracut modules list are meant to be appended,
+omitted or they define the static list of modules for the
+installation initrd.</a:documentation>
+        <choice>
+          <value>omit</value>
+          <value>add</value>
+          <value>set</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.initrd.attlist">
+      <ref name="k.initrd.action.attribute"/>
+    </define>
+    <define name="k.initrd">
+      <element name="initrd">
+        <a:documentation>The initrd element defines the dracut modules configuration
+for the installation media.</a:documentation>
+        <interleave>
+          <ref name="k.initrd.attlist"/>
+          <zeroOrMore>
+            <ref name="k.dracut"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <dracut>
+    
+  -->
+  <div>
+    <define name="k.dracut.module.attribute">
+      <attribute name="module">
+        <a:documentation>A module name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.dracut.attlist">
+      <ref name="k.dracut.module.attribute"/>
+    </define>
+    <define name="k.dracut">
+      <element name="dracut">
+        <a:documentation>A dracut module</a:documentation>
+        <ref name="k.dracut.attlist"/>
       </element>
     </define>
   </div>
