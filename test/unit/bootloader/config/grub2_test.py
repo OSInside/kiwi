@@ -1457,6 +1457,11 @@ class TestBootLoaderConfigGrub2:
             True
         self.os_exists['root_dir/boot/efi/'] = False
 
+        self.os_exists['lookup_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['lookup_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['lookup_dir/usr/share/grub2/unicode.pf2'] = True
+        self.os_exists['lookup_dir/boot/efi/'] = False
+
         def side_effect(arg):
             return self.os_exists[arg]
 
@@ -1465,7 +1470,9 @@ class TestBootLoaderConfigGrub2:
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
-            self.bootloader.setup_install_boot_images(self.mbrid)
+            self.bootloader.setup_install_boot_images(
+                mbrid=self.mbrid, lookup_path="lookup_dir"
+            )
 
             assert mock_open.call_args_list == [
                 call('root_dir/boot/grub2/earlyboot.cfg', 'w'),
@@ -1485,7 +1492,7 @@ class TestBootLoaderConfigGrub2:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'cp', 'root_dir/usr/share/grub2/unicode.pf2',
+                    'cp', 'lookup_dir/usr/share/grub2/unicode.pf2',
                     'root_dir/boot/grub2/fonts'
                 ]
             ),
@@ -1510,17 +1517,17 @@ class TestBootLoaderConfigGrub2:
             ),
             call(
                 [
-                    'bash', '-c', 'cat root_dir/usr/share/grub2/i386-pc/'
-                    'cdboot.img root_dir/usr/share/grub2/i386-pc/core.img > '
-                    'root_dir/usr/share/grub2/i386-pc/eltorito.img'
+                    'bash', '-c', 'cat lookup_dir/usr/share/grub2/i386-pc/'
+                    'cdboot.img lookup_dir/usr/share/grub2/i386-pc/core.img > '
+                    'lookup_dir/usr/share/grub2/i386-pc/eltorito.img'
                 ]
             ),
             call(
                 [
                     'chroot', 'root_dir', 'grub2-mkimage',
                     '-O', 'x86_64-efi',
-                    '-o', '/EFI/BOOT/bootx64.efi',
-                    '-c', '/EFI/BOOT/earlyboot.cfg',
+                    '-o', '/boot/efi/EFI/BOOT/bootx64.efi',
+                    '-c', '/boot/efi/EFI/BOOT/earlyboot.cfg',
                     '-p', '/boot/grub2',
                     '-d', '/usr/share/grub2/x86_64-efi',
                     'ext2', 'iso9660', 'linux', 'echo', 'configfile',
@@ -1536,11 +1543,11 @@ class TestBootLoaderConfigGrub2:
         ]
         assert mock_sync.call_args_list == [
             call(
-                'root_dir/usr/share/grub2/i386-pc/',
+                'lookup_dir/usr/share/grub2/i386-pc/',
                 'root_dir/boot/grub2/i386-pc'
             ),
             call(
-                'root_dir/usr/share/grub2/x86_64-efi/',
+                'lookup_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
             )
         ]
@@ -1548,7 +1555,16 @@ class TestBootLoaderConfigGrub2:
             call(exclude=['*.module'], options=['-a']),
             call(exclude=['*.module'], options=['-a'])
         ]
-
+        assert mock_shutil_copy.call_args_list == [
+            call(
+                'root_dir/boot/grub2/earlyboot.cfg',
+                'root_dir/boot/grub2'
+            ),
+            call(
+                'root_dir/usr/share/grub2/i386-pc/core.img',
+                'lookup_dir/usr/share/grub2/i386-pc/core.img'
+            )
+        ]
         mock_get_unsigned_grub_loader.return_value = 'custom_grub_image'
         mock_get_grub_bios_core_loader.return_value = 'custom_bios_grub_image'
         mock_command.reset_mock()

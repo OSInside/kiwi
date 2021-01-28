@@ -816,7 +816,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 early_boot_script, mbrid
             )
         module_list = Defaults.get_grub_efi_modules(multiboot=self.xen_guest)
-        module_path = self._get_efi_modules_path(lookup_path)
+        module_path = self._get_efi_modules_path(self.root_dir)
         if os.path.exists(module_path + '/linuxefi.mod'):
             module_list.append('linuxefi')
         mkimage_call = Command.run(
@@ -826,14 +826,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     self._get_grub2_mkimage_tool()
                 ) or 'grub2-mkimage',
                 '-O', Defaults.get_efi_module_directory_name(self.arch),
-                '-o', self._get_efi_image_name().replace(self.boot_dir, ''),
-                '-c', early_boot_script.replace(self.boot_dir, ''),
+                '-o', ''.join(
+                    [
+                        '/boot/efi/EFI/BOOT/',
+                        Defaults.get_efi_image_name(self.arch)
+                    ]
+                ),
+                '-c', '/boot/efi/EFI/BOOT/earlyboot.cfg',
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
-                '-d', module_path.replace(self.boot_dir, '')
+                '-d', module_path.replace(self.root_dir, '')
             ] + module_list
         )
         log.debug(mkimage_call.output)
-        log.debug(mkimage_call.error)
 
     def _create_efi_config_search(self, uuid=None, mbrid=None):
         efi_boot_config = self.efi_boot_path + '/grub.cfg'
@@ -875,7 +879,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ] + Defaults.get_grub_bios_modules(multiboot=self.xen_guest)
         )
         log.debug(mkimage_call.output)
-        log.debug(mkimage_call.error)
+
+        # The following copy is needed for images that uses the
+        # custom boot image feature. In this mode the boot image(initrd)
+        # root tree is different from the system root tree
+        # and it's needed to copy the generated grub image there
+        bios_image_root_file = self._get_bios_image_name(self.root_dir)
+        bios_image_media_file = bios_image_root_file.replace(
+            self.root_dir, lookup_path
+        )
+        if (bios_image_root_file != bios_image_media_file):
+            Path.create(os.path.dirname(bios_image_media_file))
+            shutil.copy(bios_image_root_file, bios_image_media_file)
 
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:
