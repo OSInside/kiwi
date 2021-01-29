@@ -1563,6 +1563,14 @@ class TestBootLoaderConfigGrub2:
             call(
                 'root_dir/usr/share/grub2/i386-pc/core.img',
                 'lookup_dir/usr/share/grub2/i386-pc/core.img'
+            ),
+            call(
+                'root_dir/EFI/BOOT/earlyboot.cfg',
+                'root_dir/boot/efi/EFI/BOOT/earlyboot.cfg'
+            ),
+            call(
+                'root_dir/boot/efi/EFI/BOOT/bootx64.efi',
+                'root_dir/EFI/BOOT/bootx64.efi'
             )
         ]
         mock_get_unsigned_grub_loader.return_value = 'custom_grub_image'

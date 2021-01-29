@@ -815,10 +815,25 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_early_boot_script_for_mbrid_search(
                 early_boot_script, mbrid
             )
+        root_efi_path = '/boot/efi/EFI/BOOT/'
+        root_efi_image = root_efi_path + Defaults.get_efi_image_name(self.arch)
+
+        Path.create(self.root_dir + root_efi_path)
+
         module_list = Defaults.get_grub_efi_modules(multiboot=self.xen_guest)
         module_path = self._get_efi_modules_path(self.root_dir)
         if os.path.exists(module_path + '/linuxefi.mod'):
             module_list.append('linuxefi')
+
+        early_boot_script_on_media = \
+            self.root_dir + root_efi_path + 'earlyboot.cfg'
+        if early_boot_script != early_boot_script_on_media:
+            log.debug(
+                f'Copy earlyboot to media path: {early_boot_script_on_media}'
+            )
+            shutil.copy(
+                early_boot_script, early_boot_script_on_media
+            )
         mkimage_call = Command.run(
             [
                 'chroot', self.root_dir,
@@ -826,18 +841,27 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     self._get_grub2_mkimage_tool()
                 ) or 'grub2-mkimage',
                 '-O', Defaults.get_efi_module_directory_name(self.arch),
-                '-o', ''.join(
-                    [
-                        '/boot/efi/EFI/BOOT/',
-                        Defaults.get_efi_image_name(self.arch)
-                    ]
-                ),
-                '-c', '/boot/efi/EFI/BOOT/earlyboot.cfg',
+                '-o', root_efi_image,
+                '-c', root_efi_path + 'earlyboot.cfg',
                 '-p', self.get_boot_path() + '/' + self.boot_directory_name,
                 '-d', module_path.replace(self.root_dir, '')
             ] + module_list
         )
         log.debug(mkimage_call.output)
+
+        # Copy generated EFI image to the media directory if this
+        # is different from the system root directory, e.g the case
+        # for live image builds or when using a custom kiwi initrd
+        efi_image_root_file = self.root_dir + root_efi_image
+        efi_image_media_file = os.sep.join(
+            [self.efi_boot_path, os.path.basename(efi_image_root_file)]
+        )
+        if (efi_image_root_file != efi_image_media_file):
+            log.debug(
+                f'Copy grub image to media path: {efi_image_media_file}'
+            )
+            Path.create(os.path.dirname(efi_image_media_file))
+            shutil.copy(efi_image_root_file, efi_image_media_file)
 
     def _create_efi_config_search(self, uuid=None, mbrid=None):
         efi_boot_config = self.efi_boot_path + '/grub.cfg'
@@ -858,11 +882,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self._create_early_boot_script_for_mbrid_search(
             early_boot_script, mbrid
         )
-        shutil.copy(
-            early_boot_script, os.sep.join(
-                [self.root_dir, 'boot', self.boot_directory_name]
-            )
+        early_boot_script_on_media = os.sep.join(
+            [self.root_dir, 'boot', self.boot_directory_name]
         )
+        if early_boot_script != early_boot_script_on_media:
+            log.debug(
+                f'Copy earlyboot to media path: {early_boot_script_on_media}'
+            )
+            shutil.copy(
+                early_boot_script, early_boot_script_on_media
+            )
         mkimage_call = Command.run(
             [
                 'chroot', self.root_dir,
@@ -880,15 +909,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         log.debug(mkimage_call.output)
 
-        # The following copy is needed for images that uses the
-        # custom boot image feature. In this mode the boot image(initrd)
-        # root tree is different from the system root tree
-        # and it's needed to copy the generated grub image there
+        # Copy generated EFI image to the media directory if this
+        # is different from the system root directory, e.g the case
+        # for live image builds or when using a custom kiwi initrd
         bios_image_root_file = self._get_bios_image_name(self.root_dir)
         bios_image_media_file = bios_image_root_file.replace(
             self.root_dir, lookup_path
         )
         if (bios_image_root_file != bios_image_media_file):
+            log.debug(
+                f'Copy grub image to media path: {bios_image_media_file}'
+            )
             Path.create(os.path.dirname(bios_image_media_file))
             shutil.copy(bios_image_root_file, bios_image_media_file)
 
