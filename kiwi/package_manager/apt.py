@@ -139,8 +139,13 @@ class PackageManagerApt(PackageManagerBase):
         # chroot environment, thus we need to umount the kernel file systems
         # before calling debootstrap and remount them afterwards.
         root_bind.umount_kernel_file_systems()
-        # debootsrap will create its own dev/fd device
-        os.unlink(os.path.normpath(os.sep.join([self.root_dir, 'dev/fd'])))
+        # debootsrap will create its own dev/fd devices
+        debootstrap_device_node_conflicts = [
+            'dev/fd',
+            'dev/pts'
+        ]
+        for node in debootstrap_device_node_conflicts:
+            os.unlink(os.path.normpath(os.sep.join([self.root_dir, node])))
 
         if 'apt-get' in self.package_requests:
             # debootstrap takes care to install apt-get
