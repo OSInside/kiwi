@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+from lxml import etree
+import requests
+from requests.auth import HTTPBasicAuth
 from typing import (
     List, Optional, Any, Dict
 )
@@ -24,19 +28,24 @@ import copy
 import platform
 from collections import namedtuple
 from textwrap import dedent
+from tempfile import NamedTemporaryFile
 
 # project
 import kiwi.defaults as defaults
 
 from kiwi import xml_parse
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.system.uri import Uri
 from kiwi.defaults import Defaults
 from kiwi.utils.size import StringToSize
+from kiwi.solver.repository import SolverRepository
 
 from kiwi.exceptions import (
     KiwiProfileNotFound,
     KiwiTypeNotFound,
-    KiwiDistributionNameError
+    KiwiDistributionNameError,
+    KiwiUriOpenError,
+    KiwiOBSBuildInfoError
 )
 
 log = logging.getLogger('kiwi')
@@ -1020,7 +1029,7 @@ class XMLState:
 
         :rtype: list
         """
-        modules = []
+        modules: List[str] = []
         installmedia = self.build_type.get_installmedia()
         if not installmedia:
             return modules
@@ -1622,6 +1631,71 @@ class XMLState:
             ]
         )
 
+    def add_obs_repositories(
+        self, user: str, password: str, project: str, name: str,
+        profile: str, arch: str, repo: str
+    ) -> None:
+        """
+        Add repositories from the given obs project
+
+        :param str user: OBS account user name
+        :param str password: OBS account password
+        :param str project: OBS project path
+        :param str name: OBS image package name
+        :param str profile: OBS image multibuild profile name
+        :param str arch: OBS architecture
+        :param str repo: OBS image package build repository name
+        """
+        project_name = name if not profile else f'{name}:{profile}'
+        runtime_config = RuntimeConfig()
+        try:
+            buildinfo_link = os.sep.join(
+                [
+                    runtime_config.get_obs_api_server_url(),
+                    project, repo or 'images', arch or 'x86_64',
+                    project_name, '_buildinfo'
+                ]
+            )
+            request = requests.get(
+                buildinfo_link, auth=HTTPBasicAuth(user, password)
+            )
+            request.raise_for_status()
+        except Exception as issue:
+            raise KiwiUriOpenError(
+                f'{type(issue).__name__}: {issue}'
+            )
+
+        buildinfo_download = NamedTemporaryFile()
+        with open(buildinfo_download.name, 'wb') as buildinfo:
+            buildinfo.write(request.content)
+
+        buildinfo_xml_tree = etree.parse(buildinfo_download.name)
+        repo_paths = buildinfo_xml_tree.getroot().xpath(
+            '/buildinfo/path'
+        )
+        if not repo_paths:
+            raise KiwiOBSBuildInfoError(
+                f'OBS buildinfo for {project_name} has no repo paths'
+            )
+        for repo_path in repo_paths:
+            repo_url = repo_path.get('url')
+            if repo_url:
+                repo_check = SolverRepository.new(Uri(repo_url, 'rpm-md'))
+                use_repo = True
+                try:
+                    repo_check.timestamp()
+                except Exception as issue:
+                    # we will support real rpm-md repos only. The check for
+                    # the timestamp of the primary repodata object is an
+                    # indicator If the repo can be used, if not the repo
+                    # will be ignored.
+                    log.debug(
+                        f'Repo: {repo_url} is not a valid rpm-md type: {issue}'
+                    )
+                    use_repo = False
+                if use_repo:
+                    self.add_repository(repo_url, 'rpm-md')
+
     def set_repository(
         self, repo_source: str, repo_type: str, repo_alias: str,
         repo_prio: str, repo_imageinclude: bool = False,
@@ -1654,8 +1728,8 @@ class XMLState:
                 repository.set_package_gpgcheck(repo_package_gpgcheck)
 
     def add_repository(
-        self, repo_source: str, repo_type: str, repo_alias: str,
-        repo_prio: str, repo_imageinclude: bool = False,
+        self, repo_source: str, repo_type: str, repo_alias: str = None,
+        repo_prio: str = '', repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None
     ) -> None:
         """

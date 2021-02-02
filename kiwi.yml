@@ -14,6 +14,8 @@
 #obs:
 #  # Specify the URL of the Open BuildService download server
 #  - download_url: http://download.opensuse.org/repositories
+#  # Specify the URL of the Open BuildService API server
+#  - api_url: https://api.opensuse.org/build
 #  # Specify if the BuildService download server is public or private.
 #  # This information is used to verify if the request to populate
 #  # the repositories via the imageinclude attribute is possible

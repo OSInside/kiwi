@@ -86,6 +86,7 @@ class TestSystemBuildTask:
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--target-dir'] = 'some-target'
         self.task.command_args['--set-repo'] = None
+        self.task.command_args['--set-obs-repos'] = None
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--add-package'] = []
         self.task.command_args['--add-bootstrap-package'] = []
@@ -256,6 +257,20 @@ class TestSystemBuildTask:
         self.task.process()
         mock_set_derived_from_uri.assert_called_once_with(
             'file:///new'
+        )
+
+    @patch('kiwi.xml_state.XMLState.add_obs_repositories')
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_build_prepare_stage_set_obs_repos(
+        self, mock_log, mock_add_obs_repos
+    ):
+        self._init_command_args()
+        self.task.command_args['--set-obs-repos'] = \
+            'bob,pwd,Virtualization:Appliances:SelfContained:suse,box,Kernel'
+        self.task.process()
+        mock_add_obs_repos.assert_called_once_with(
+            'bob', 'pwd', 'Virtualization:Appliances:SelfContained:suse',
+            'box', 'Kernel', None, None
         )
 
     @patch('kiwi.xml_state.XMLState.set_repository')

@@ -49,6 +49,7 @@ class TestCli:
             '--ignore-repos-used-for-build': False,
             '--clear-cache': False,
             '--root': 'directory',
+            '--set-obs-repos': None,
             '--set-repo': None,
             '--add-package': [],
             '--add-bootstrap-package': [],

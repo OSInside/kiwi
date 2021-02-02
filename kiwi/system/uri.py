@@ -21,9 +21,7 @@ from tempfile import mkdtemp
 from urllib.parse import urlparse
 import requests
 import hashlib
-from typing import (
-    List, Dict
-)
+from typing import List
 
 # project
 from kiwi.mount_manager import MountManager
@@ -53,7 +51,7 @@ class Uri:
     :param dict remote_uri_types: dictionary of remote uri type names
     :param dict local_uri_type: dictionary of local uri type names
     """
-    def __init__(self, uri: str, repo_type: Dict = None):
+    def __init__(self, uri: str, repo_type: str = 'rpm-md'):
         self.runtime_config = RuntimeConfig()
         self.repo_type = repo_type
         self.uri = uri if not uri.startswith(os.sep) else ''.join(

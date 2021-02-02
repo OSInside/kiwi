@@ -67,9 +67,17 @@ class TestRuntimeConfig:
         assert self.runtime_config.get_obs_download_server_url() == \
             'http://example.com'
 
+    def test_get_obs_api_server_url(self):
+        assert self.runtime_config.get_obs_api_server_url() == \
+            'http://example.com'
+
     def test_get_obs_download_server_url_default(self):
         assert self.default_runtime_config.get_obs_download_server_url() == \
             Defaults.get_obs_download_server_url()
+
+    def test_get_obs_api_server_url_default(self):
+        assert self.default_runtime_config.get_obs_api_server_url() == \
+            Defaults.get_obs_api_server_url()
 
     def test_get_container_compression(self):
         assert self.runtime_config.get_container_compression() is None

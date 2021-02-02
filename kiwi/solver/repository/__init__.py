@@ -23,6 +23,7 @@ from abc import (
 
 # project
 from kiwi.exceptions import KiwiSolverRepositorySetupError
+from kiwi.system.uri import Uri
 
 
 class SolverRepository(metaclass=ABCMeta):
@@ -36,7 +37,7 @@ class SolverRepository(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(uri: object, user: str=None, secret: str=None):  # noqa: E252
+    def new(uri: Uri, user: str=None, secret: str=None):  # noqa: E252
         name_map = {
             'yast2': ['SolverRepositorySUSE', 'suse'],
             'rpm-md': ['SolverRepositoryRpmMd', 'rpm_md'],

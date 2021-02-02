@@ -1,7 +1,7 @@
 import logging
 from collections import namedtuple
 from mock import (
-    patch, Mock
+    patch, Mock, MagicMock
 )
 from pytest import (
     raises, fixture
@@ -13,7 +13,9 @@ from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import (
     KiwiTypeNotFound,
     KiwiDistributionNameError,
-    KiwiProfileNotFound
+    KiwiProfileNotFound,
+    KiwiUriOpenError,
+    KiwiOBSBuildInfoError
 )
 
 
@@ -190,6 +192,80 @@ class TestXMLState:
 
     def test_get_bootstrap_collection_type(self):
         assert self.state.get_bootstrap_collection_type() == 'onlyRequired'
+
+    # TODO
+    @patch('requests.get')
+    @patch('kiwi.xml_state.HTTPBasicAuth')
+    @patch('kiwi.xml_state.NamedTemporaryFile')
+    @patch('kiwi.xml_state.etree')
+    @patch('kiwi.xml_state.SolverRepository.new')
+    @patch('kiwi.xml_state.XMLState.add_repository')
+    def test_add_obs_repositories(
+        self, mock_add_repository, mock_SolverRepository_new,
+        mock_etree, mock_NamedTemporaryFile, mock_HTTPBasicAuth,
+        mock_requests_get
+    ):
+        # check Exception on request
+        mock_requests_get.side_effect = Exception
+        with raises(KiwiUriOpenError):
+            self.state.add_obs_repositories(
+                'bob', 'secret',
+                'Virtualization:Appliances:SelfContained:suse',
+                'box', 'Kernel', None, None
+            )
+
+        # check Exception on valid request but unexpected content
+        mock_requests_get.side_effect = None
+        xml_root = MagicMock()
+        xml_root.xpath.return_value = []
+        buildinfo_xml_tree = MagicMock()
+        buildinfo_xml_tree.getroot.return_value = xml_root
+        mock_etree.parse.return_value = buildinfo_xml_tree
+        with patch('builtins.open', create=True):
+            with raises(KiwiOBSBuildInfoError):
+                self.state.add_obs_repositories(
+                    'bob', 'secret',
+                    'Virtualization:Appliances:SelfContained:suse',
+                    'box', 'Kernel', None, None
+                )
+
+        # check on invalid rpm-md repo, timestamp raises
+        repo_path = Mock()
+        repo_path.get.return_value = 'some-repo-url'
+        xml_root.xpath.return_value = [
+            repo_path
+        ]
+        repo_check = Mock()
+        repo_check.timestamp.side_effect = Exception
+        mock_SolverRepository_new.return_value = repo_check
+        with patch('builtins.open', create=True):
+            self.state.add_obs_repositories(
+                'bob', 'secret',
+                'Virtualization:Appliances:SelfContained:suse',
+                'box', 'Kernel', None, None
+            )
+            assert not mock_add_repository.called
+
+        # check on valid processing of one repo
+        repo_check.timestamp.side_effect = None
+        mock_requests_get.reset_mock()
+        mock_HTTPBasicAuth.reset_mock()
+        with patch('builtins.open', create=True):
+            self.state.add_obs_repositories(
+                'bob', 'secret',
+                'Virtualization:Appliances:SelfContained:suse',
+                'box', 'Kernel', None, None
+            )
+            mock_HTTPBasicAuth.assert_called_once_with('bob', 'secret')
+            mock_requests_get.assert_called_once_with(
+                'https://api.opensuse.org/build/'
+                'Virtualization:Appliances:SelfContained:suse/'
+                'images/x86_64/box:Kernel/_buildinfo',
+                auth=mock_HTTPBasicAuth.return_value
+            )
+            mock_add_repository.assert_called_once_with(
+                'some-repo-url', 'rpm-md'
+            )
 
     def test_set_repository(self):
         self.state.set_repository('repo', 'type', 'alias', 1, True, False)

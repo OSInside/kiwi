@@ -22,6 +22,7 @@ usage: kiwi-ng system prepare -h | --help
            [--clear-cache]
            [--ignore-repos]
            [--ignore-repos-used-for-build]
+           [--set-obs-repos=<user,password,project,name,profile,arch,repo>]
            [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
            [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
            [--add-package=<name>...]
@@ -79,6 +80,9 @@ options:
         add a container label in the container configuration metadata. It
         overwrites the label with the provided key-value pair in case it was
         already defined in the XML description
+    --set-obs-repos=<user,password,project,name,profile,arch,repo>
+        overwrite the repo setup with the list of repositories provided
+        from the given Open Build Service project
     --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
         overwrite the first XML listed repository source, type, alias,
         priority, the imageinclude flag and the package_gpgcheck flag
@@ -137,6 +141,12 @@ class SystemPrepareTask(CliTask):
             self.xml_state.delete_repository_sections()
         elif self.command_args['--ignore-repos-used-for-build']:
             self.xml_state.delete_repository_sections_used_for_build()
+
+        if self.command_args['--set-obs-repos']:
+            self.xml_state.delete_repository_sections()
+            self.xml_state.add_obs_repositories(
+                *self.septuple_token(self.command_args['--set-obs-repos'])
+            )
 
         if self.command_args['--set-repo']:
             self.xml_state.set_repository(
