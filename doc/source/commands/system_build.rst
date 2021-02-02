@@ -27,6 +27,9 @@ SYNOPSIS
        [--set-container-tag=<name>]
        [--add-container-label=<label>...]
        [--signing-key=<key-file>...]
+   kiwi-ng system build --obs-image=<path> --obs-user=<name> --target-dir=<directory>
+       [--obs-arch=<arch>]
+       [--obs-repo=<repo>]
    kiwi-ng system build help
 
 .. _db_kiwi_system_build_desc:
@@ -109,6 +112,33 @@ OPTIONS
   Works the same way as --ignore-repos except that repository
   configurations which has the imageonly attribute set to true
   will not be ignored.
+
+--obs-image=<project_package_path>
+
+  Image location for an image description in the Open Build Service.
+  The specification consists out of the project and package name
+  specified like a storage path, e.g `OBS:project:name/package`
+
+--obs-user=<name>
+
+  Open Build Service account user name. KIWI will ask for the
+  user credentials which blocks stdin until entered
+
+--obs-arch=<arch>
+
+  Optional architecture reference for the specifified `--obs-image`
+  image. This defaults to `x86_64`
+
+--obs-repo=<repo>
+
+  Optional repository name. In OBS a package build is connected
+  to a repository name. This repository name groups a collection
+  of software repositories to be used for the package build
+  process. If the package build is a KIWI image build this
+  repository name defaults to `images`. As the name can be
+  set to any custom name, it's only required to specify the
+  used repository name if another than the OBS default
+  name is used.
 
 --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
 

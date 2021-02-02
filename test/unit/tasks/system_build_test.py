@@ -58,6 +58,16 @@ class TestSystemBuildTask:
             return_value=self.setup
         )
 
+        self.credentials = mock.Mock()
+        kiwi.tasks.base.Credentials = mock.Mock(
+            return_value=self.credentials
+        )
+
+        self.obs = mock.Mock()
+        kiwi.tasks.system_build.OBS = mock.Mock(
+            return_value=self.obs
+        )
+
         self.profile = mock.Mock()
         self.profile.dot_profile = dict()
         kiwi.tasks.system_build.Profile = mock.Mock(
@@ -97,6 +107,10 @@ class TestSystemBuildTask:
         self.task.command_args['--add-container-label'] = []
         self.task.command_args['--clear-cache'] = False
         self.task.command_args['--signing-key'] = None
+        self.task.command_args['--obs-image'] = None
+        self.task.command_args['--obs-user'] = None
+        self.task.command_args['--obs-arch'] = None
+        self.task.command_args['--obs-repo'] = None
 
     @patch('kiwi.logger.Logger.set_logfile')
     def test_process_system_build(self, mock_log):
@@ -184,6 +198,20 @@ class TestSystemBuildTask:
         self.result.print_results.assert_called_once_with()
         self.result.dump.assert_called_once_with(
             os.sep.join([self.abs_target_dir, 'kiwi.result'])
+        )
+
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_build_obs_image(self, mock_log):
+        self._init_command_args()
+        self.task.command_args['--obs-image'] = 'OBS:Image/package'
+        self.task.command_args['--obs-user'] = 'user'
+        self.obs.fetch_obs_image.return_value = '../data/description'
+        self.task.process()
+        self.obs.fetch_obs_image.assert_called_once_with(
+            'some-target/obs_source'
+        )
+        self.obs.add_obs_repositories.assert_called_once_with(
+            self.task.xml_state
         )
 
     @patch('kiwi.logger.Logger.set_logfile')

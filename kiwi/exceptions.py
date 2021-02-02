@@ -802,3 +802,25 @@ class KiwiShellVariableValueError(KiwiError):
     Exception raised if a given python value cannot be converted
     into a string representation for use in shell scripts
     """
+
+
+class KiwiOBSBuildInfoError(KiwiError):
+    """
+    Exception raised if the OBS buildinfo request did not provide
+    the expected information
+    """
+
+
+class KiwiOBSProjectError(KiwiError):
+    """
+    Exception raised if the given OBS project/package path is
+    not a path with two elements separated by the linux path
+    delimiter(/)
+    """
+
+
+class KiwiOBSSourceError(KiwiError):
+    """
+    Exception raised if the OBS image sources cannot be used
+    for building the image
+    """

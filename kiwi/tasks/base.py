@@ -22,6 +22,7 @@ from operator import attrgetter
 
 # project
 from kiwi.cli import Cli
+from kiwi.credentials import Credentials
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
@@ -50,6 +51,9 @@ class CliTask:
     """
     def __init__(self, should_perform_task_setup=True):
         self.cli = Cli()
+
+        # initialize credentials manager
+        self.credentials = Credentials()
 
         # initialize runtime checker
         self.runtime_checker = None

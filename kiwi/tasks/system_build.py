@@ -31,6 +31,9 @@ usage: kiwi-ng system build -h | --help
            [--set-container-tag=<name>]
            [--add-container-label=<label>...]
            [--signing-key=<key-file>...]
+       kiwi-ng system build --obs-image=<path> --obs-user=<name> --target-dir=<directory>
+           [--obs-arch=<arch>]
+           [--obs-repo=<repo>]
        kiwi-ng system build help
 
 commands:
@@ -84,6 +87,19 @@ options:
         priority, the imageinclude flag and the package_gpgcheck flag
     --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
+    --obs-image=<project_package_path>
+        image location for an image description in the Open Build Service
+        The specification consists out of the project and package name
+        specified like a storage path.
+    --obs-user=<name>
+        Open Build Service account user name. KIWI will ask for the
+        user credentials which blocks stdin until entered
+    --obs-arch=<arch>
+        architecture reference for the specifified Open Build Service image
+        This defaults to: 'x86_64'
+    --obs-repo=<repo>
+        repository reference for the specifified Open Build Service image
+        This defaults to: 'images'
     --target-dir=<directory>
         the target directory to store the system image file(s)
 """
@@ -100,6 +116,7 @@ from kiwi.system.profile import Profile
 from kiwi.defaults import Defaults
 from kiwi.privileges import Privileges
 from kiwi.path import Path
+from kiwi.obs import OBS
 
 log = logging.getLogger('kiwi')
 
@@ -136,6 +153,21 @@ class SystemBuildTask(CliTask):
                 os.sep.join([abs_target_dir_path, 'build', 'image-root.log'])
             )
 
+        if self.command_args['--obs-image']:
+            self.obs = OBS(
+                self.command_args['--obs-image'],
+                self.command_args['--obs-user'],
+                self.credentials.get_obs_credentials(
+                    self.command_args['--obs-user']
+                ),
+                self.global_args['--profile'],
+                self.command_args['--obs-arch'],
+                self.command_args['--obs-repo']
+            )
+            self.command_args['--description'] = self.obs.fetch_obs_image(
+                os.sep.join([self.command_args['--target-dir'], 'obs_source'])
+            )
+
         self.load_xml_description(
             self.command_args['--description']
         )
@@ -148,6 +180,9 @@ class SystemBuildTask(CliTask):
             }
         )
         self.run_checks(build_checks)
+
+        if self.command_args['--obs-image']:
+            self.obs.add_obs_repositories(self.xml_state)
 
         if self.command_args['--ignore-repos']:
             self.xml_state.delete_repository_sections()
