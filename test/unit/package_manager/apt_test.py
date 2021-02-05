@@ -1,9 +1,10 @@
 import logging
-from mock import patch
+from mock import (
+    patch, call, Mock
+)
 from pytest import (
     raises, fixture
 )
-import mock
 
 from kiwi.package_manager.apt import PackageManagerApt
 
@@ -19,14 +20,14 @@ class TestPackageManagerApt:
         self._caplog = caplog
 
     def setup(self):
-        repository = mock.Mock()
+        repository = Mock()
         repository.root_dir = 'root-dir'
         repository.signing_keys = ['key-file.asc']
         repository.keyring = 'trusted.gpg'
         repository.unauthenticated = 'false'
         repository.components = ['main', 'restricted']
 
-        repository.runtime_config = mock.Mock(
+        repository.runtime_config = Mock(
             return_value={
                 'apt_get_args': ['-c', 'apt.conf', '-y'],
                 'command_env': ['env'],
@@ -78,7 +79,7 @@ class TestPackageManagerApt:
         self.manager.request_package('apt-get')
         mock_call.side_effect = Exception
         mock_exists.return_value = True
-        mock_root_bind = mock.Mock()
+        mock_root_bind = Mock()
         with raises(KiwiDebootstrapError):
             self.manager.process_install_requests_bootstrap(mock_root_bind)
 
@@ -90,10 +91,10 @@ class TestPackageManagerApt:
     ):
         self.manager.request_package('apt-get')
         self.manager.request_package('vim')
-        call_result = mock.Mock()
+        call_result = Mock()
         call_result.process.communicate.return_value = ('stdout', 'stderr')
         mock_call.return_value = call_result
-        mock_root_bind = mock.Mock()
+        mock_root_bind = Mock()
         mock_exists.return_value = True
         self.manager.process_install_requests_bootstrap(mock_root_bind)
         mock_call.assert_called_once_with(
@@ -104,11 +105,14 @@ class TestPackageManagerApt:
                 'root-dir', 'xenial_path'
             ], ['env']
         )
-        mock_unlink.assert_called_once_with('root-dir/dev/fd')
+        assert mock_unlink.call_args_list == [
+            call('root-dir/dev/fd'),
+            call('root-dir/dev/pts')
+        ]
         mock_root_bind.umount_kernel_file_systems.assert_called_once_with()
 
     def test_post_process_install_requests_bootstrap(self):
-        mock_root_bind = mock.Mock()
+        mock_root_bind = Mock()
         self.manager.post_process_install_requests_bootstrap(mock_root_bind)
         mock_root_bind.mount_kernel_file_systems.assert_called_once_with()
 
@@ -120,9 +124,9 @@ class TestPackageManagerApt:
     ):
         self.manager.request_package('apt-get')
         self.manager.request_package('vim')
-        call_result = mock.Mock()
+        call_result = Mock()
         call_result.process.communicate.return_value = ('stdout', 'stderr')
-        mock_root_bind = mock.Mock()
+        mock_root_bind = Mock()
         mock_call.return_value = call_result
         mock_exists.side_effect = lambda x: True if 'xenial' in x else False
         self.manager.process_install_requests_bootstrap(mock_root_bind)
@@ -134,7 +138,10 @@ class TestPackageManagerApt:
                 'root-dir', 'xenial_path'
             ], ['env']
         )
-        mock_unlink.assert_called_once_with('root-dir/dev/fd')
+        assert mock_unlink.call_args_list == [
+            call('root-dir/dev/fd'),
+            call('root-dir/dev/pts')
+        ]
         mock_root_bind.umount_kernel_file_systems.assert_called_once_with()
 
     @patch('kiwi.command.Command.call')
