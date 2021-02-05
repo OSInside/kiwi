@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import platform
 from base64 import b64encode
 from urllib.request import urlopen
 from urllib.request import Request
@@ -137,10 +138,58 @@ class SolverRepositoryBase:
             location = urlopen(request)
         except Exception as e:
             raise KiwiUriOpenError(
-                '{0}: {1} {2}'.format(type(e).__name__, format(e), download_link)
+                f'{type(e).__name__}: {e} {download_link}'
             )
         with open(target, 'wb') as target_file:
             target_file.write(location.read())
+
+    def get_repo_type(self):
+        try:
+            if self._get_repomd_xml():
+                return 'rpm-md'
+        except KiwiUriOpenError:
+            pass
+        try:
+            if self._get_deb_packages():
+                return 'deb'
+        except KiwiUriOpenError:
+            pass
+        try:
+            if self._get_pacman_packages():
+                return 'pacman'
+        except KiwiUriOpenError:
+            pass
+        return None
+
+    def _get_pacman_packages(self):
+        """
+        Download Arch repository listing for the current architecture
+
+        :return: html directory listing
+
+        :rtype: str
+        """
+        dir_listing_download = NamedTemporaryFile()
+        self.download_from_repository(
+            platform.machine(), dir_listing_download.name
+        )
+        if os.path.isfile(dir_listing_download.name):
+            with open(dir_listing_download.name) as listing:
+                return listing.read()
+
+    def _get_deb_packages(self):
+        """
+        Download Packages file from an apt repository
+
+        :return: Contents of Packages file
+
+        :rtype: str
+        """
+        packages_download = NamedTemporaryFile()
+        self.download_from_repository('Packages', packages_download.name)
+        if os.path.isfile(packages_download.name):
+            with open(packages_download.name) as packages:
+                return packages.read()
 
     def _get_repomd_xml(self, lookup_path='repodata'):
         """
