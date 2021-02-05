@@ -21,9 +21,7 @@ from tempfile import mkdtemp
 from urllib.parse import urlparse
 import requests
 import hashlib
-from typing import (
-    List, Dict
-)
+from typing import List
 
 # project
 from kiwi.mount_manager import MountManager
@@ -42,18 +40,19 @@ log = logging.getLogger('kiwi')
 
 class Uri:
     """
-    **Normalize url types available in a kiwi configuration into
-    standard mime types**
+    **Normalize url types**
 
-    :param str repo_type: repository type name. Only needed if the uri
-        is not enough to determine the repository type
-        e.g for yast2 vs. rpm-md obs repositories
-    :param str uri: URI, repository location, file
-    :param list mount_stack: list of mounted locations
-    :param dict remote_uri_types: dictionary of remote uri type names
-    :param dict local_uri_type: dictionary of local uri type names
+    Allow to translate the available KIWI repo source types
+    into standard mime types
+
+    :param str uri: URI, remote or local repository location
+    :param str repo_type:
+        repository type name, defaults to 'rpm-md' and is only
+        effectively used when building inside of the open
+        build service which maps local repositories to a
+        specific environment
     """
-    def __init__(self, uri: str, repo_type: Dict = None):
+    def __init__(self, uri: str, repo_type: str = 'rpm-md'):
         self.runtime_config = RuntimeConfig()
         self.repo_type = repo_type
         self.uri = uri if not uri.startswith(os.sep) else ''.join(
