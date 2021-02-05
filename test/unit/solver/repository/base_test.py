@@ -52,6 +52,7 @@ class TestSolverRepositoryBase:
     ):
         mock_get_repomd_xml.side_effect = KiwiUriOpenError('error')
         mock_get_deb_packages.side_effect = KiwiUriOpenError('error')
+        mock_get_pacman_packages.return_value = '"some_repo.db.sig"'
         assert self.solver.get_repo_type() == 'pacman'
 
     def test__setup_repository_metadata(self):

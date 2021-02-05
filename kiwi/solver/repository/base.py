@@ -155,7 +155,8 @@ class SolverRepositoryBase:
         except KiwiUriOpenError:
             pass
         try:
-            if self._get_pacman_packages():
+            repo_listing = self._get_pacman_packages()
+            if '.db.sig\"' in repo_listing:
                 return 'pacman'
         except KiwiUriOpenError:
             pass
