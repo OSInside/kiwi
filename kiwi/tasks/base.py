@@ -178,15 +178,13 @@ class CliTask:
         Make sure to provide a common result for option values which
         separates the information in a comma separated list of values
 
+        :param str option: comma separated option string
+
         :return: common option value representation
-        :rtype: str
+
+        :rtype: list
         """
-        tokens = option.split(',', 3)
-        return [
-            self._pop_token(tokens) if len(tokens) else None for _ in range(
-                0, 4
-            )
-        ]
+        return self._ntuple_token(option, 4)
 
     def sextuple_token(self, option):
         """
@@ -195,15 +193,13 @@ class CliTask:
         Make sure to provide a common result for option values which
         separates the information in a comma separated list of values
 
+        :param str option: comma separated option string
+
         :return: common option value representation
-        :rtype: str
+
+        :rtype: list
         """
-        tokens = option.split(',', 5)
-        return [
-            self._pop_token(tokens) if len(tokens) else None for _ in range(
-                0, 6
-            )
-        ]
+        return self._ntuple_token(option, 6)
 
     def run_checks(self, checks):
         """
@@ -229,3 +225,24 @@ class CliTask:
             return False
         else:
             return token
+
+    def _ntuple_token(self, option, tuple_count):
+        """
+        Helper method for commandline options of the form --option a,b,c,d,e,f
+
+        Make sure to provide a common result for option values which
+        separates the information in a comma separated list of values
+
+        :param str option: comma separated option string
+        :param int tuple_count: divide into tuple_count tuples
+
+        :return: common option value representation
+
+        :rtype: list
+        """
+        tokens = option.split(',', tuple_count - 1)
+        return [
+            self._pop_token(tokens) if len(tokens) else None for _ in range(
+                0, tuple_count
+            )
+        ]
