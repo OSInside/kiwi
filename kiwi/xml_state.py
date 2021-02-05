@@ -1020,7 +1020,7 @@ class XMLState:
 
         :rtype: list
         """
-        modules = []
+        modules: List[str] = []
         installmedia = self.build_type.get_installmedia()
         if not installmedia:
             return modules
@@ -1654,8 +1654,8 @@ class XMLState:
                 repository.set_package_gpgcheck(repo_package_gpgcheck)
 
     def add_repository(
-        self, repo_source: str, repo_type: str, repo_alias: str,
-        repo_prio: str, repo_imageinclude: bool = False,
+        self, repo_source: str, repo_type: str, repo_alias: str = None,
+        repo_prio: str = '', repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None
     ) -> None:
         """
