@@ -23,6 +23,9 @@ SYNOPSIS
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
        [--delete-package=<name>...]
+       [--set-container-derived-from=<uri>]
+       [--set-container-tag=<name>]
+       [--add-container-label=<label>...]
        [--signing-key=<key-file>...]
    kiwi-ng system build help
 
@@ -47,6 +50,12 @@ OPTIONS
 
   specify package to install as part of the early kiwi bootstrap phase.
   The option can be specified multiple times
+
+--add-container-label=<name=value>
+
+  add a container label in the container configuration metadata. It
+  overwrites the label with the provided key-value pair in case it was
+  already defined in the XML description
 
 --add-package=<name>
 
@@ -139,6 +148,18 @@ OPTIONS
 
     Set to either **true** or **false** to specify if this repository
     should validate the package signatures.
+
+--set-container-derived-from=<uri>
+
+    overwrite the source location of the base container for the selected
+    image type. The setting is only effective if the configured image type
+    is setup with an initial derived_from reference
+
+--set-container-tag=<name>
+
+    overwrite the container tag in the container configuration.
+    The setting is only effective if the container configuraiton
+    provides an initial tag value
 
 --signing-key=<key-file>
 
