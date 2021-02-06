@@ -16,9 +16,11 @@ SYNOPSIS
            [--logfile=<filename>]
            [--debug]
            [--color-output]
+           [--config=<configfile>]
        image <command> [<args>...]
    kiwi-ng [--debug]
            [--color-output]
+           [--config=<configfile>]
        result <command> [<args>...]
    kiwi-ng [--profile=<name>...]
            [--shared-cache-dir=<directory>]
@@ -26,6 +28,7 @@ SYNOPSIS
            [--logfile=<filename>]
            [--debug]
            [--color-output]
+           [--config=<configfile>]
        system <command> [<args>...]
    kiwi-ng compat <legacy_args>...
    kiwi-ng -v | --version
@@ -81,6 +84,12 @@ GLOBAL OPTIONS
   those escape characters. Error messages appear red, warning
   messages yellow and debugging information will be printed light
   grey.
+
+--config=<configfile>
+
+  Use specified runtime configuration file. If not specified the
+  runtime configuration is looked up at :file:`~/.config/kiwi/config.yml`
+  or :file:`/etc/kiwi.yml`
 
 --debug
 

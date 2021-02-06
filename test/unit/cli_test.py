@@ -38,7 +38,8 @@ class TestCli:
             'result': False,
             '--profile': [],
             '--shared-cache-dir': '/var/cache/kiwi',
-            '--help': False
+            '--help': False,
+            '--config': None
         }
         self.command_args = {
             '--add-repo': [],

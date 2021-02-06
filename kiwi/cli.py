@@ -22,9 +22,11 @@ usage: kiwi-ng -h | --help
                [--logfile=<filename>]
                [--debug]
                [--color-output]
+               [--config=<configfile>]
            image <command> [<args>...]
        kiwi-ng [--debug]
                [--color-output]
+               [--config=<configfile>]
            result <command> [<args>...]
        kiwi-ng [--profile=<name>...]
                [--shared-cache-dir=<directory>]
@@ -32,6 +34,7 @@ usage: kiwi-ng -h | --help
                [--logfile=<filename>]
                [--debug]
                [--color-output]
+               [--config=<configfile>]
            system <command> [<args>...]
        kiwi-ng compat <legacy_args>...
        kiwi-ng --compat <legacy_args>...
@@ -41,6 +44,10 @@ usage: kiwi-ng -h | --help
 global options:
     --color-output
         use colors for warning and error messages
+    --config=<configfile>
+        use specified runtime configuration file. If
+        not specified the runtime configuration is looked
+        up at ~/.config/kiwi/config.yml or /etc/kiwi.yml
     --debug
         print debug information
     -v --version

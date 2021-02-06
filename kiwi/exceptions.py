@@ -564,6 +564,13 @@ class KiwiRpmDirNotRemoteError(KiwiError):
     """
 
 
+class KiwiRuntimeConfigFileError(KiwiError):
+    """
+    Exception raised if the provided custom runtime config
+    file could not be found
+    """
+
+
 class KiwiRuntimeConfigFormatError(KiwiError):
     """
     Exception raised if the expected format in the yaml KIWI

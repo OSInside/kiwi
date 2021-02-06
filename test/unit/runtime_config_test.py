@@ -1,5 +1,7 @@
 import logging
-from mock import patch
+from mock import (
+    patch, Mock
+)
 from pytest import (
     raises, fixture
 )
@@ -7,7 +9,10 @@ from pytest import (
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 
-from kiwi.exceptions import KiwiRuntimeConfigFormatError
+from kiwi.exceptions import (
+    KiwiRuntimeConfigFormatError,
+    KiwiRuntimeConfigFileError
+)
 
 
 class TestRuntimeConfig:
@@ -15,7 +20,11 @@ class TestRuntimeConfig:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    def setup(self):
+    @patch('kiwi.runtime_config.Cli')
+    def setup(self, mock_Cli):
+        cli = Mock()
+        cli.get_global_args.return_value = {}
+        mock_Cli.return_value = cli
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.runtime_config = RuntimeConfig()
 
@@ -25,9 +34,19 @@ class TestRuntimeConfig:
         with patch('os.path.exists', return_value=False):
             self.default_runtime_config = RuntimeConfig()
 
+        cli.get_global_args.return_value = {
+            '--config': '../data/kiwi.yml'
+        }
+        with patch('os.path.isfile', return_value=False):
+            with raises(KiwiRuntimeConfigFileError):
+                RuntimeConfig()
+
     @patch('os.path.exists')
     @patch('yaml.safe_load')
-    def test_reading_system_wide_config_file(self, mock_yaml, mock_exists):
+    @patch('kiwi.runtime_config.Cli')
+    def test_reading_system_wide_config_file(
+        self, mock_Cli, mock_yaml, mock_exists
+    ):
         exists_call_results = [True, False]
 
         def os_path_exists(config):
@@ -35,7 +54,7 @@ class TestRuntimeConfig:
 
         mock_exists.side_effect = os_path_exists
         with patch('builtins.open') as m_open:
-            self.runtime_config = RuntimeConfig()
+            RuntimeConfig()
             m_open.assert_called_once_with('/etc/kiwi.yml', 'r')
 
     def test_invalid_yaml_format(self):

@@ -20,10 +20,12 @@ import logging
 import yaml
 
 # project
+from kiwi.cli import Cli
 from kiwi.defaults import Defaults
 from kiwi.utils.size import StringToSize
 from kiwi.exceptions import (
-    KiwiRuntimeConfigFormatError
+    KiwiRuntimeConfigFormatError,
+    KiwiRuntimeConfigFileError
 )
 
 log = logging.getLogger('kiwi')
@@ -33,18 +35,28 @@ class RuntimeConfig:
     """
     **Implements reading of runtime configuration file:**
 
-    1. ~/.config/kiwi/config.yml
-    2. /etc/kiwi.yml
+    1. Check for --config provided from the CLI
+    2. ~/.config/kiwi/config.yml
+    3. /etc/kiwi.yml
 
     The KIWI runtime configuration file is a yaml formatted file
     containing information to control the behavior of the tools
     used by KIWI.
     """
     def __init__(self):
+        self.cli = Cli()
         self.config_data = None
 
         config_file = None
-        if self._home_path():
+        custom_config_file = self.cli.get_global_args().get('--config')
+
+        if custom_config_file:
+            config_file = custom_config_file
+            if not os.path.isfile(config_file):
+                raise KiwiRuntimeConfigFileError(
+                    f'Custom config file {config_file!r} not found'
+                )
+        elif self._home_path():
             config_file = os.sep.join(
                 [self._home_path(), '.config', 'kiwi', 'config.yml']
             )
