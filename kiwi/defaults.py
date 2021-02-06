@@ -170,6 +170,18 @@ class Defaults:
         return 'http://download.opensuse.org/repositories'
 
     @staticmethod
+    def get_obs_api_server_url():
+        """
+        Provides the default API server url to access the
+        public open buildservice API
+
+        :return: url path
+
+        :rtype: str
+        """
+        return 'https://api.opensuse.org'
+
+    @staticmethod
     def get_solvable_location():
         """
         Provides the directory to store SAT solvables for repositories.

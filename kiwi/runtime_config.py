@@ -87,6 +87,26 @@ class RuntimeConfig:
         return obs_download_server_url if obs_download_server_url else \
             Defaults.get_obs_download_server_url()
 
+    def get_obs_api_server_url(self):
+        """
+        Return URL of buildservice API server in:
+
+        obs:
+          - api_url: ...
+
+        if no configuration exists the API server from
+        the Defaults class is returned
+
+        :return: URL type data
+
+        :rtype: str
+        """
+        obs_api_server_url = self._get_attribute(
+            element='obs', attribute='api_url'
+        )
+        return obs_api_server_url if obs_api_server_url else \
+            Defaults.get_obs_api_server_url()
+
     def is_obs_public(self):
         """
         Check if the buildservice configuration is public or private in:

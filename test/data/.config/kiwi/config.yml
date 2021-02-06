@@ -6,6 +6,7 @@ bundle:
 
 obs:
   - download_url: http://example.com
+  - api_url: https://api.example.com
   - public: true
 
 iso:
