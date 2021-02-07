@@ -20,6 +20,13 @@ class TestKisBuilder:
     @patch('kiwi.builder.kis.BootImage')
     def setup(self, mock_boot, mock_filesystem):
         self.setup = Mock()
+        self.runtime_config = Mock()
+        self.runtime_config.get_max_size_constraint = Mock(
+            return_value=None
+        )
+        kiwi.builder.kis.RuntimeConfig = Mock(
+            return_value=self.runtime_config
+        )
         kiwi.builder.kis.SystemSetup = Mock(
             return_value=self.setup
         )

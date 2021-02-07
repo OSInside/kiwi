@@ -6,6 +6,8 @@ from mock import (
 
 import mock
 
+import kiwi
+
 from kiwi.container.oci import ContainerImageOCI
 from kiwi.version import __version__
 
@@ -16,9 +18,15 @@ class TestContainerImageOCI:
         self._caplog = caplog
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
-    @patch('kiwi.container.oci.RuntimeConfig')
-    def setup(self, mock_RuntimeConfig, mock_cmd_caps):
+    def setup(self, mock_cmd_caps):
         mock_cmd_caps.return_value = True
+        self.runtime_config = mock.Mock()
+        self.runtime_config.get_container_compression = mock.Mock(
+            return_value=None
+        )
+        kiwi.container.oci.RuntimeConfig = mock.Mock(
+            return_value=self.runtime_config
+        )
         self.oci = ContainerImageOCI(
             'root_dir', 'docker-archive', {
                 'container_name': 'foo/bar',
@@ -122,10 +130,6 @@ class TestContainerImageOCI:
         mock_oci = mock.Mock()
         mock_OCI.new.return_value = mock_oci
 
-        self.oci.runtime_config.get_container_compression = mock.Mock(
-            return_value=None
-        )
-
         self.oci.archive_transport = 'oci-archive'
         self.oci.create('result.tar', None)
 
@@ -165,6 +169,8 @@ class TestContainerImageOCI:
         mock_cache.return_value = 'var/cache/kiwi'
         mock_oci = mock.Mock()
         mock_OCI.new.return_value = mock_oci
+
+        self.runtime_config.get_container_compression.return_value = 'xz'
 
         self.oci.create('result.tar', 'root_dir/image/image_file')
 

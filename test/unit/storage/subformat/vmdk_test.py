@@ -4,6 +4,8 @@ from mock import (
 )
 from pytest import raises
 
+import kiwi
+
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 
 from kiwi.exceptions import KiwiTemplateError
@@ -92,7 +94,11 @@ class TestDiskFormatVmdk:
         self.disk_setup.get_id = Mock(
             return_value='0'
         )
-
+        self.runtime_config = Mock()
+        self.runtime_config.get_bundle_compression.return_value = True
+        kiwi.storage.subformat.base.RuntimeConfig = Mock(
+            return_value=self.runtime_config
+        )
         self.disk_format = DiskFormatVmdk(
             self.xml_state, 'root_dir', 'target_dir'
         )

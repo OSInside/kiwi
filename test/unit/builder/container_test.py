@@ -5,7 +5,6 @@ from pytest import raises
 import mock
 import kiwi
 
-from kiwi.system.uri import Uri
 from kiwi.builder.container import ContainerBuilder
 from kiwi.exceptions import KiwiContainerBuilderError
 
@@ -14,11 +13,16 @@ class TestContainerBuilder:
     @patch('platform.machine')
     @patch('os.path.exists')
     def setup(self, mock_exists, mock_machine):
+        self.runtime_config = mock.Mock()
+        self.runtime_config.get_max_size_constraint = mock.Mock(
+            return_value=None
+        )
+        kiwi.builder.container.RuntimeConfig = mock.Mock(
+            return_value=self.runtime_config
+        )
         mock_machine.return_value = 'x86_64'
-        with patch.dict('os.environ', {'HOME': '../data'}):
-            self.uri = Uri('file:///image_file.tar.xz')
         self.xml_state = mock.Mock()
-        self.xml_state.get_derived_from_image_uri.return_value = self.uri
+        self.xml_state.get_derived_from_image_uri.return_value = mock.Mock()
         self.container_config = {
             'container_name': 'my-container',
             'entry_command': ["--config.cmd='/bin/bash'"]

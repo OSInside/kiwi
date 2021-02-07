@@ -30,6 +30,8 @@ from kiwi.exceptions import (
 
 log = logging.getLogger('kiwi')
 
+RUNTIME_CONFIG = None
+
 
 class RuntimeConfig:
     """
@@ -42,30 +44,35 @@ class RuntimeConfig:
     The KIWI runtime configuration file is a yaml formatted file
     containing information to control the behavior of the tools
     used by KIWI.
+
+    :param bool reread: reread runtime config
     """
-    def __init__(self):
-        self.cli = Cli()
-        self.config_data = None
+    def __init__(self, reread=False):
+        global RUNTIME_CONFIG
 
-        config_file = None
-        custom_config_file = self.cli.get_global_args().get('--config')
+        if not RUNTIME_CONFIG or reread:
+            cli = Cli()
+            config_file = None
+            custom_config_file = cli.get_global_args().get('--config')
 
-        if custom_config_file:
-            config_file = custom_config_file
-            if not os.path.isfile(config_file):
-                raise KiwiRuntimeConfigFileError(
-                    f'Custom config file {config_file!r} not found'
+            if custom_config_file:
+                config_file = custom_config_file
+                if not os.path.isfile(config_file):
+                    raise KiwiRuntimeConfigFileError(
+                        f'Custom config file {config_file!r} not found'
+                    )
+            elif self._home_path():
+                config_file = os.sep.join(
+                    [self._home_path(), '.config', 'kiwi', 'config.yml']
                 )
-        elif self._home_path():
-            config_file = os.sep.join(
-                [self._home_path(), '.config', 'kiwi', 'config.yml']
-            )
-        if not config_file or not os.path.exists(config_file):
-            config_file = '/etc/kiwi.yml'
-        if os.path.exists(config_file):
-            log.info('Reading runtime config file: {0}'.format(config_file))
-            with open(config_file, 'r') as config:
-                self.config_data = yaml.safe_load(config)
+            if not config_file or not os.path.exists(config_file):
+                config_file = '/etc/kiwi.yml'
+            if os.path.exists(config_file):
+                log.info(
+                    f'Reading runtime config file: {config_file!r}'
+                )
+                with open(config_file, 'r') as config:
+                    RUNTIME_CONFIG = yaml.safe_load(config)
 
     def get_obs_download_server_url(self):
         """
@@ -323,17 +330,15 @@ class RuntimeConfig:
         return disabled_checks or ''
 
     def _get_attribute(self, element, attribute):
-        if self.config_data:
+        if RUNTIME_CONFIG:
             try:
-                if element in self.config_data:
-                    for attribute_dict in self.config_data[element]:
+                if element in RUNTIME_CONFIG:
+                    for attribute_dict in RUNTIME_CONFIG[element]:
                         if attribute in attribute_dict:
                             return attribute_dict[attribute]
-            except Exception as e:
+            except Exception as issue:
                 raise KiwiRuntimeConfigFormatError(
-                    '{error_type}: {error_text}'.format(
-                        error_type=type(e).__name__, error_text=format(e)
-                    )
+                    f'{type(issue).__name__}: {issue}'
                 )
 
     def _home_path(self):

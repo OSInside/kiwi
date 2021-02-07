@@ -3,6 +3,8 @@ from mock import (
     patch, Mock, call, mock_open
 )
 
+import kiwi
+
 from kiwi.storage.subformat.vagrant_libvirt import DiskFormatVagrantLibVirt
 
 
@@ -23,6 +25,11 @@ class TestDiskFormatVagrantLibVirt:
         )
         self.vagrantconfig.get_virtualsize = Mock(
             return_value=42
+        )
+        self.runtime_config = Mock()
+        self.runtime_config.get_bundle_compression.return_value = False
+        kiwi.storage.subformat.base.RuntimeConfig = Mock(
+            return_value=self.runtime_config
         )
         self.disk_format = DiskFormatVagrantLibVirt(
             self.xml_state, 'root_dir', 'target_dir',

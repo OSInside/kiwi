@@ -2,6 +2,7 @@ from mock import (
     patch, call, mock_open
 )
 import mock
+import kiwi
 
 from kiwi.storage.subformat.gce import DiskFormatGce
 
@@ -16,6 +17,11 @@ class TestDiskFormatGce:
         self.xml_state.xml_data = xml_data
         self.xml_state.get_image_version = mock.Mock(
             return_value='0.8.15'
+        )
+        self.runtime_config = mock.Mock()
+        self.runtime_config.get_bundle_compression.return_value = True
+        kiwi.storage.subformat.base.RuntimeConfig = mock.Mock(
+            return_value=self.runtime_config
         )
         self.disk_format = DiskFormatGce(
             self.xml_state, 'root_dir', 'target_dir'

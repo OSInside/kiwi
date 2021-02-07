@@ -1,6 +1,8 @@
 import logging
 import os
-from mock import patch
+from mock import (
+    patch, Mock
+)
 from pytest import (
     raises, fixture
 )
@@ -8,6 +10,8 @@ import hashlib
 import mock
 
 from kiwi.system.uri import Uri
+
+import kiwi
 
 from kiwi.exceptions import (
     KiwiUriStyleUnknown,
@@ -24,9 +28,12 @@ class TestUri:
     def setup(self):
         self.mock_mkdtemp = mock.Mock()
         self.mock_manager = mock.Mock()
-        self.runtime_config = mock.Mock()
+        self.runtime_config = Mock()
         self.runtime_config.get_obs_download_server_url = mock.Mock(
             return_value='obs_server'
+        )
+        kiwi.system.uri.RuntimeConfig = Mock(
+            return_value=self.runtime_config
         )
 
     def test_is_remote_raises_style_error(self):

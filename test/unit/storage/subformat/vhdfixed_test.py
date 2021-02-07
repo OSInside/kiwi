@@ -5,6 +5,8 @@ from mock import (
 )
 from pytest import raises
 
+import kiwi
+
 from kiwi.storage.subformat.vhdfixed import DiskFormatVhdFixed
 
 from kiwi.exceptions import KiwiVhdTagError
@@ -22,6 +24,11 @@ class TestDiskFormatVhdFixed:
         self.xml_state.xml_data = xml_data
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
+        )
+        self.runtime_config = Mock()
+        self.runtime_config.get_bundle_compression.return_value = True
+        kiwi.storage.subformat.base.RuntimeConfig = Mock(
+            return_value=self.runtime_config
         )
         self.disk_format = DiskFormatVhdFixed(
             self.xml_state, 'root_dir', 'target_dir', {'force_size': None}

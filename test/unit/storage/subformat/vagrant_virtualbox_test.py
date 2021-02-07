@@ -1,7 +1,7 @@
 from mock import (
     call, patch, Mock, MagicMock, mock_open
 )
-
+import kiwi
 from textwrap import dedent
 from collections import namedtuple
 
@@ -34,6 +34,11 @@ class TestDiskFormatVagrantVirtualBox:
         )
         self.vagrantconfig.get_embedded_vagrantfile = Mock(
             return_value=None
+        )
+        self.runtime_config = Mock()
+        self.runtime_config.get_bundle_compression.return_value = False
+        kiwi.storage.subformat.base.RuntimeConfig = Mock(
+            return_value=self.runtime_config
         )
         self.disk_format = DiskFormatVagrantVirtualBox(
             self.xml_state, 'root_dir', 'target_dir',

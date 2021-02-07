@@ -1,0 +1,5 @@
+bundle:
+  - has_package_changes: true
+
+container:
+  - compress: xz
