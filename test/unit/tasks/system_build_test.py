@@ -109,6 +109,7 @@ class TestSystemBuildTask:
         self.task.command_args['--signing-key'] = None
         self.task.command_args['--obs-image'] = None
         self.task.command_args['--obs-user'] = None
+        self.task.command_args['--obs-ssl-no-verify'] = None
         self.task.command_args['--obs-arch'] = None
         self.task.command_args['--obs-repo'] = None
 

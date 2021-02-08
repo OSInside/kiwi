@@ -46,7 +46,7 @@ class OBS:
     """
     def __init__(
         self, image_path: str, user: str, password: str,
-        profiles: List[str], arch: str, repo: str
+        ssl_verify: bool, profiles: List[str], arch: str, repo: str
     ):
         """
         Initialize OBS API access for a given project and package
@@ -68,6 +68,7 @@ class OBS:
         self.user = user
         self.profile = profiles[0] if profiles else None
         self.password = password
+        self.ssl_verify = ssl_verify or True
         self.arch = arch or 'x86_64'
         self.repo = repo or 'images'
         self.api_server = runtime_config.get_obs_api_server_url()
@@ -197,7 +198,8 @@ class OBS:
     def _create_request(self, url):
         try:
             request = requests.get(
-                url, auth=HTTPBasicAuth(self.user, self.password)
+                url, auth=HTTPBasicAuth(self.user, self.password),
+                verify=self.ssl_verify
             )
             request.raise_for_status()
         except Exception as issue:

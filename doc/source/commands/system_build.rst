@@ -30,6 +30,7 @@ SYNOPSIS
    kiwi-ng system build --obs-image=<path> --obs-user=<name> --target-dir=<directory>
        [--obs-arch=<arch>]
        [--obs-repo=<repo>]
+       [--obs-ssl-no-verify]
    kiwi-ng system build help
 
 .. _db_kiwi_system_build_desc:
@@ -139,6 +140,10 @@ OPTIONS
   set to any custom name, it's only required to specify the
   used repository name if another than the OBS default
   name is used.
+
+--obs-ssl-no-verify
+
+  Dont't verify SSL server certificate when connecting to OBS
 
 --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
 

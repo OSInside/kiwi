@@ -30,13 +30,13 @@ class TestOBS:
         mock_RuntimeConfig.return_value = runtime_config
         self.obs = OBS(
             'Virtualization:Appliances:SelfContained:suse/box',
-            'bob', 'secret', ['Kernel'], None, None
+            'bob', 'secret', None, ['Kernel'], None, None
         )
 
     @patch('kiwi.obs.RuntimeConfig')
     def test_init_raises_invalid_project_path(self, mock_RuntimeConfig):
         with raises(KiwiOBSProjectError):
-            self.obs = OBS('OBS:Project', 'user', 'pwd', None, None, None)
+            self.obs = OBS('OBS:Project', 'user', 'pwd', True, None, None, None)
 
     @patch.object(OBS, '_delete_obsrepositories_placeholder_repo')
     @patch.object(OBS, '_create_request')
@@ -177,8 +177,12 @@ class TestOBS:
                     'https://api.opensuse.org/build/Virtualization:'
                     'Appliances:SelfContained:suse/images/x86_64/'
                     'box:Kernel/_buildinfo',
-                    auth=mock_HTTPBasicAuth.return_value),
-                call(repo_uri.translate.return_value)
+                    auth=mock_HTTPBasicAuth.return_value,
+                    verify=True
+                ),
+                call(
+                    repo_uri.translate.return_value
+                )
             ]
 
             # ascending priority starting at 1

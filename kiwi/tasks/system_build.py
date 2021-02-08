@@ -34,6 +34,7 @@ usage: kiwi-ng system build -h | --help
        kiwi-ng system build --obs-image=<path> --obs-user=<name> --target-dir=<directory>
            [--obs-arch=<arch>]
            [--obs-repo=<repo>]
+           [--obs-ssl-no-verify]
        kiwi-ng system build help
 
 commands:
@@ -100,6 +101,8 @@ options:
     --obs-repo=<repo>
         repository reference for the specifified Open Build Service image
         This defaults to: 'images'
+    --obs-ssl-no-verify
+        dont't verify SSL server certificate when connecting to OBS
     --target-dir=<directory>
         the target directory to store the system image file(s)
 """
@@ -154,12 +157,16 @@ class SystemBuildTask(CliTask):
             )
 
         if self.command_args['--obs-image']:
+            ssl_verify = bool(
+                self.command_args['--obs-ssl-no-verify']
+            )
             self.obs = OBS(
                 self.command_args['--obs-image'],
                 self.command_args['--obs-user'],
                 self.credentials.get_obs_credentials(
                     self.command_args['--obs-user']
                 ),
+                ssl_verify,
                 self.global_args['--profile'],
                 self.command_args['--obs-arch'],
                 self.command_args['--obs-repo']
