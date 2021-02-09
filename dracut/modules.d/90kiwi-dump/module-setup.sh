@@ -30,7 +30,6 @@ install() {
 
     inst_hook cmdline 30 "${moddir}/parse-kiwi-install.sh"
     inst_hook pre-mount 30 "${moddir}/kiwi-dump-image.sh"
-    inst_hook mount 30 "${moddir}/kiwi-mount-ramdisk.sh" 
 
     inst_rules 60-cdrom_id.rules
     dracut_need_initqueue

@@ -33,17 +33,32 @@ function boot_installed_system {
     fi
 }
 
+function mount_ramdisk_system {
+    local root_dev
+    local boot_options
+    boot_options="/config.bootoptions"
+    if [ ! -e "${boot_options}" ]; then
+        die "Missing ${boot_options} file"
+    fi
+    kpartx -s -a "$(get_selected_disk)"
+    root_dev=$(
+        while read -r -d ' ' opt; do echo "${opt}";done < "${boot_options}" |\
+        grep root= | cut -f2- -d=
+    )
+    if [ -z "${root_dev}" ]; then
+        die "'root=' argument not found in ${boot_options}"
+    fi
+    mount --options defaults "${root_dev}" /sysroot
+}
+
 #======================================
 # Reboot into system
 #--------------------------------------
-
 if getargbool 0 rd.kiwi.ramdisk; then
     # For ramdisk deployment a kexec boot is not possible as it
     # will wipe the contents of the ramdisk. Therefore we prepare
-    # the switch_root from this deployment initrd. See
-    # kiwi-mount-ramdisk.sh mount hook for further details.
-    image_target=$(get_selected_disk)
-    kpartx -s -a "${image_target}"
+    # the switch_root from this deployment initrd.
+    mount_ramdisk_system
 else
     # Standard deployment will use kexec to activate and boot the
     # deployed system
