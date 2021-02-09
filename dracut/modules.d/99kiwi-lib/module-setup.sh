@@ -22,8 +22,9 @@ install() {
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \
         mdadm cryptsetup dialog \
-        pv curl xz dolly\
+        pv curl xz \
         dmsetup
+    inst_multiple -o dolly
     if [[ "$(uname -m)" =~ s390 ]];then
         inst_multiple fdasd
     fi
