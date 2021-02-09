@@ -11,12 +11,21 @@ function fetch_file {
     local fetch_info=/tmp/fetch.info
     local fetch
     local curl_options
+    local dolly_options
     curl_options=$(getarg rd.kiwi.install.pxe.curl_options=)
+    dolly_options=$(getarg rd.kiwi.install.pxe.dolly_options=)
     if [ -n "${curl_options}" ]; then
         curl_options=$(str_replace "${curl_options}" "," " ")
         fetch="curl ${curl_options} -f ${source_url}"
     else
         fetch="curl -f ${source_url}"
+    fi
+    if [ -n "${dolly_options}" ]; then
+        dolly_options=$(str_replace "${dolly_options}" "," " ")
+        fetch="dolly ${dolly_options} -f ${source_url}"
+    fi
+    if _is_dolly "${source_url}";then
+        fetch="dolly"
     fi
     if _is_compressed "${source_url}";then
         fetch="${fetch} | xz -d"
@@ -72,4 +81,9 @@ function uri_fragment {
 function _is_compressed {
     local source_url=$1
     [[ ${source_url} =~ .xz$ ]]
+}
+
+function _is_dolly {
+    local source_url=$1
+    [[ ${source_url} =~ ^dolly ]]
 }

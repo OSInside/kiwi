@@ -24,6 +24,7 @@ install() {
         mdadm cryptsetup dialog \
         pv curl xz \
         dmsetup
+    inst_multiple -o dolly
     if [[ "$(uname -m)" =~ s390 ]];then
         inst_multiple fdasd
     fi
