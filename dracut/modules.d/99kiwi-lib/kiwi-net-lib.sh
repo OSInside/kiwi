@@ -84,6 +84,6 @@ function _is_compressed {
 }
 
 function _is_dolly {
-  local source_url=$1
-  [[ ${source_url} =~ ^dolly ]]
+    local source_url=$1
+    [[ ${source_url} =~ ^dolly ]]
 }
