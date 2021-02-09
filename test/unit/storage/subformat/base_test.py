@@ -5,6 +5,8 @@ from pytest import raises
 
 from kiwi.storage.subformat.base import DiskFormatBase
 
+import kiwi
+
 from kiwi.exceptions import (
     KiwiFormatSetupError,
     KiwiResizeRawDiskError
@@ -23,6 +25,11 @@ class TestDiskFormatBase:
         self.xml_state.xml_data = xml_data
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
+        )
+        self.runtime_config = Mock()
+        self.runtime_config.get_bundle_compression.return_value = True
+        kiwi.storage.subformat.base.RuntimeConfig = Mock(
+            return_value=self.runtime_config
         )
         self.disk_format = DiskFormatBase(
             self.xml_state, 'root_dir', 'target_dir'

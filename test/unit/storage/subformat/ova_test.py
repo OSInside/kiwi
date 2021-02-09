@@ -5,6 +5,8 @@ from pytest import raises
 
 from kiwi.storage.subformat.ova import DiskFormatOva
 
+import kiwi
+
 from kiwi.exceptions import (
     KiwiCommandNotFound,
     KiwiFormatSetupError
@@ -54,6 +56,12 @@ class TestDiskFormatOva:
 
         self.machine_setup.get_ovftype = Mock(
             return_value='vmware'
+        )
+
+        self.runtime_config = Mock()
+        self.runtime_config.get_bundle_compression.return_value = False
+        kiwi.storage.subformat.base.RuntimeConfig = Mock(
+            return_value=self.runtime_config
         )
 
         self.disk_format = DiskFormatOva(

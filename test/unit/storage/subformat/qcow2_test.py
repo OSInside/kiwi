@@ -2,6 +2,8 @@ from mock import (
     patch, Mock, call
 )
 
+import kiwi
+
 from kiwi.storage.subformat.qcow2 import DiskFormatQcow2
 
 
@@ -17,6 +19,11 @@ class TestDiskFormatQcow2:
         self.xml_state.xml_data = xml_data
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
+        )
+        self.runtime_config = Mock()
+        self.runtime_config.get_bundle_compression.return_value = False
+        kiwi.storage.subformat.base.RuntimeConfig = Mock(
+            return_value=self.runtime_config
         )
         self.disk_format = DiskFormatQcow2(
             self.xml_state, 'root_dir', 'target_dir'
