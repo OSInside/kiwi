@@ -98,7 +98,7 @@ class PackageManagerPacman(PackageManagerBase):
         """
         Process package install requests for bootstrap phase (no chroot)
 
-        :param object root_binf: unused
+        :param object root_bind: unused
 
         :return: process results in command type
 
