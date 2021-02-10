@@ -32,8 +32,8 @@ class RepositoryPacman(RepositoryBase):
     :param str shared_pacman_dir: shared directory between image root
         and build system root
     :param str runtime_pacman_config_file: pacman runtime config file name
-    :param list pacman_args: zypper caller args plus additional custom args
-    :param dict command_env: customized os.environ for zypper
+    :param list pacman_args: pacman caller args plus additional custom args
+    :param dict command_env: customized os.environ for pacman
     """
     def post_init(self, custom_args=None):
         """
@@ -151,7 +151,7 @@ class RepositoryPacman(RepositoryBase):
 
     def import_trusted_keys(self, signing_keys):
         """
-        zypper runtime configuration and environment
+        pacman runtime configuration and environment
         """
         for signing_key in signing_keys:
             if os.path.exists(signing_key):
