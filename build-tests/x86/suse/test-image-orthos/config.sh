@@ -32,11 +32,6 @@ echo "Configure image: [$kiwi_iname]..."
 suseSetupProduct
 
 #======================================
-# Add missing gpg keys to rpm
-#--------------------------------------
-suseImportBuildKey
-
-#======================================
 # Set hostname via dhcp
 #--------------------------------------
 sed -i 's/DHCLIENT_SET_HOSTNAME="no"/DHCLIENT_SET_HOSTNAME="yes"/g' /etc/sysconfig/network/dhcp
@@ -51,8 +46,3 @@ suseInsertService network
 # Setup default target, multi-user
 #--------------------------------------
 baseSetRunlevel 3
-
-#======================================
-# Add repo
-#--------------------------------------
-zypper ar --refresh http://download.opensuse.org/factory/repo/oss factory

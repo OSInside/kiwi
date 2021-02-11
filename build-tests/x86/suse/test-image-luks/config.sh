@@ -46,8 +46,3 @@ baseSetRunlevel 3
 #------------------------------------------
 rm -rf /usr/share/doc/packages/*
 rm -rf /usr/share/doc/manual/*
-
-#======================================
-# SuSEconfig
-#--------------------------------------
-suseConfig

@@ -4,7 +4,7 @@
     <description type="system">
         <author>KIWI Team</author>
         <contact>kiwi-images@googlegroups.com</contact>
-        <specification>SUSE Tumbleweed guest image for OpenStack</specification>
+        <specification>SUSE guest image for OpenStack</specification>
     </description>
     <preferences>
         <type image="oem" filesystem="ext4" format="qcow2" kernelcmdline="console=ttyS0 net.ifnames=0">

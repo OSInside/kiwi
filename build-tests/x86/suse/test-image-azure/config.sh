@@ -31,11 +31,6 @@ echo "Configure image: [$kiwi_iname]..."
 #--------------------------------------
 suseSetupProduct
 
-#======================================
-# Setup the build keys
-#--------------------------------------
-suseImportBuildKey
-
 #=========================================
 # Set sysconfig options
 #-----------------------------------------
@@ -105,10 +100,3 @@ suseRemoveService boot.md
 suseRemoveService display-manager
 suseRemoveService kbd
 suseRemoveService smartd
-
-#======================================
-# Umount kernel filesystems
-#--------------------------------------
-baseCleanMount
-
-exit 0

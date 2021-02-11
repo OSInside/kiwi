@@ -32,11 +32,6 @@ echo "Configure image: [$kiwi_iname]..."
 suseSetupProduct
 
 #======================================
-# Add missing gpg keys to rpm
-#--------------------------------------
-suseImportBuildKey
-
-#======================================
 # Activate services
 #--------------------------------------
 suseInsertService sshd
@@ -51,16 +46,8 @@ baseSetRunlevel 3
 #------------------------------------------
 rm -rf /usr/share/doc/packages/*
 rm -rf /usr/share/doc/manual/*
-rm -rf /opt/kde*
-
-#======================================
-# SuSEconfig
-#--------------------------------------
-suseConfig
 
 #======================================
 # Remove yast if not in use
 #--------------------------------------
 suseRemoveYaST
-
-exit 0

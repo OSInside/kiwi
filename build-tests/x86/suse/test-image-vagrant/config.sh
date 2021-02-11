@@ -35,11 +35,6 @@ echo "Configure image: [$kiwi_iname]..."
 suseSetupProduct
 
 #======================================
-# Add missing gpg keys to rpm
-#--------------------------------------
-suseImportBuildKey
-
-#======================================
 # Disable recommends
 #--------------------------------------
 sed -i 's/.*solver.onlyRequires.*/solver.onlyRequires = true/g' \

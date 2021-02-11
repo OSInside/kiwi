@@ -27,19 +27,9 @@ test -f /.profile && . /.profile
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Mount system filesystems
-#--------------------------------------
-baseMount
-
-#======================================
 # Setup baseproduct link
 #--------------------------------------
 suseSetupProduct
-
-#======================================
-# Add missing gpg keys to rpm
-#--------------------------------------
-suseImportBuildKey
 
 #======================================
 # Activate services
@@ -59,25 +49,6 @@ rm -rf /usr/share/doc/manual/*
 rm -rf /opt/kde*
 
 #======================================
-# SuSEconfig
-#--------------------------------------
-suseConfig
-
-#======================================
-# Add leap repo
-#--------------------------------------
-baseRepo="http://download.opensuse.org/distribution/leap/42.1-Current/repo/oss"
-baseName="leap-42.1"
-zypper ar $baseRepo $baseName
-
-#======================================
 # Remove yast if not in use
 #--------------------------------------
 suseRemoveYaST
-
-#======================================
-# Umount kernel filesystems
-#--------------------------------------
-baseCleanMount
-
-exit 0

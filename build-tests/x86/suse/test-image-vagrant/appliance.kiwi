@@ -9,7 +9,7 @@
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>
-            openSUSE Tumbleweed
+            SUSE vagrant box
         </specification>
     </description>
     <profiles>

@@ -4,7 +4,7 @@
     <description type="system">
         <author>David Cassany</author>
         <contact>dcassany@suse.de</contact>
-        <specification>Builder image based on Tumbleweed</specification>
+        <specification>SUSE derived docker container</specification>
     </description>
     <preferences>
         <type image="docker" derived_from="obs://openSUSE:Containers:Tumbleweed/containers/opensuse/tumbleweed#latest">

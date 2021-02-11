@@ -72,10 +72,3 @@ suseInsertService haveged
 # Deactivate services
 #--------------------------------------
 suseRemoveService kbd
-
-#======================================
-# Umount kernel filesystems
-#--------------------------------------
-baseCleanMount
-
-exit 0

@@ -24,19 +24,9 @@ test -f /.profile && . /.profile
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Mount system filesystems
-#--------------------------------------
-baseMount
-
-#======================================
 # Setup baseproduct link
 #--------------------------------------
 suseSetupProduct
-
-#======================================
-# Add missing gpg keys to rpm
-#--------------------------------------
-suseImportBuildKey
 
 #======================================
 # Activate services
@@ -52,10 +42,3 @@ baseSetRunlevel 3
 # Remove yast if not in use
 #--------------------------------------
 suseRemoveYaST
-
-#======================================
-# Umount kernel filesystems
-#--------------------------------------
-baseCleanMount
-
-exit 0

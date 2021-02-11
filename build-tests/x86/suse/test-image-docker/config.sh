@@ -31,11 +31,4 @@ echo "Configure image: [$kiwi_iname]..."
 #--------------------------------------
 /usr/sbin/sshd-gen-keys-start
 
-#======================================
-# Umount kernel filesystems
-#--------------------------------------
-baseCleanMount
-
 (cd /usr/share/locale && find -name "*.mo" | xargs rm)
-
-exit 0
