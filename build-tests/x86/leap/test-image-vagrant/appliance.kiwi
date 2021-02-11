@@ -93,6 +93,6 @@
         <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
         <package name="openSUSE-release"/>
-        <package name="openSUSE-release-appliance-vagrant"/>
+        <package name="openSUSE-release-appliance-custom"/>
     </packages>
 </image>
