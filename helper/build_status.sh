@@ -10,6 +10,7 @@ for project in \
     Virtualization:Appliances:Images:Testing_x86:centos \
     Virtualization:Appliances:Images:Testing_x86:fedora \
     Virtualization:Appliances:Images:Testing_x86:ubuntu \
+    Virtualization:Appliances:Images:Testing_x86:debian \
     Virtualization:Appliances:Images:Testing_s390:suse \
     Virtualization:Appliances:Images:Testing_s390:sle15 \
     Virtualization:Appliances:Images:Testing_arm:suse \
