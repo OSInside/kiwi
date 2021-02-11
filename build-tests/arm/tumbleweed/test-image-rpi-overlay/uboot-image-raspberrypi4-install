@@ -1,0 +1,655 @@
+#!/bin/bash
+#
+# U-Boot injection script.
+#
+# This script installs U-Boot SPL, MLO, BL1, IMX, whatever images into
+# the target image during setup time as well as on first boot.
+#
+# It also serves as our generic hook into things we need to do to fix
+# up the build.
+
+set -x
+
+diskname=$1
+bootdev=$2
+p_number=${bootdev: -1}
+loopname="${bootdev%*p$p_number}"
+loopdev=/dev/${loopname#/dev/mapper/*}
+flavor=raspberrypi4
+is_firstboot=
+
+if [ "$is_firstboot" ]; then
+    # We're not inside the image build, but in the first boot of an
+    # installed system
+
+    diskname=$(df / --output=source | tail -n1 | sed 's/[0-9]*$//;s/p$//')
+    is_firstboot=1
+    if [ -d /boot/efi ]; then
+        is_efi=1
+    fi
+
+    cd /
+
+    # During firstboot, gdisk is available at /usr/sbin.
+    export PATH="$PATH:/usr/sbin/"
+else
+    # We don't have gdisk in the build system, so point to the rootfs binary
+    export PATH="$PATH:/usr/src/packages/KIWIROOT-oem/usr/sbin/"
+
+    # old KIWI places EFI in the root dir, KIWI-ng uses the final location
+    # below boot/efi/
+    if [[ -d EFI || -d "boot/efi/EFI" ]]; then
+        # We're on an EFI build, so kiwi doesn't copy u-boot over.
+        # This is a hack to chdir into the obs-build dir to find
+        # our u-boot binaries nevertheless.
+        pushd /usr/src/packages/KIWIROOT-oem/
+        is_efi=1
+    fi
+fi
+
+#==========================================
+# Convert GPT to MBR if necessary
+# TODO: remove me from here once new kiwi landed in TW and use efiparttable XML attribute instead
+#------------------------------------------
+if [ "$is_efi" ]; then
+    # Some systems can not deal with GPT partition tables, so for
+    # those we convert the GPT to MBR
+    force_mbr=
+
+    if [ -f "boot/vc/bootcode.bin" ]; then
+        # The RPi firmware can only read MBR
+        force_mbr=1
+    fi
+
+    if [ -f "boot/imx6-spl.bin" -o -f "boot/u-boot.imx" -o -f "boot/u-boot-dtb.imx" ]; then
+        # SPL goes at sector 2, overlapping GPT
+        force_mbr=1
+    fi
+
+    if [ -f "boot/arndale-bl1.img" -o \
+        -f "boot/bl1.bin.hardkernel" -o \
+        -f "boot/E4412_S.bl1.HardKernel.bin" ]; then
+        # BL1 goes at sector 1, overlapping GPT
+        force_mbr=1
+    fi
+
+    if [[ "$flavor" = "nanopik2" ]]; then
+        # BL2 goes at sector 1, overlapping GPT
+        force_mbr=1
+    fi
+
+    if [ -f "boot/u-boot-spl.kwb" ]; then
+        # SPL goes at sector 1, overlapping GPT
+        force_mbr=1
+    fi
+
+    if [ -f "boot/efi/boot.bin" ]; then
+        # ZynqMP / Zynq can only read from MBR
+        force_mbr=1
+    fi
+
+    if [ "$force_mbr" ]; then
+        # The target system doesn't support GPT, so let's move it to
+        # MBR partition layout instead.
+        #
+        # Also make sure to set the ESP partition to type 0xc so that
+        # broken firmware (Rpi) detects it as FAT.
+
+        # Use tabs, "<<-" strips tabs, but no other whitespace!
+        cat > gdisk.tmp <<-'EOF'
+			x
+			r
+			g
+			t
+			1
+			c
+			w
+			y
+		EOF
+        losetup /dev/loop3 $diskname
+        dd if=/dev/loop3 of=mbrid.bin bs=1 skip=440 count=4
+        gdisk /dev/loop3 < gdisk.tmp
+        dd of=/dev/loop3 if=mbrid.bin bs=1 seek=440 count=4
+        losetup -d /dev/loop3
+        rm -f mbrid.bin
+        rm -f gdisk.tmp
+    fi
+fi
+
+#==========================================
+# adjust Raspberry Pi partition table
+#------------------------------------------
+if [ -f "boot/vc/bootcode.bin" -a ! "$is_efi" ]; then
+	echo -n > gdisk.tmp
+	if [ ! "$is_firstboot" ]; then
+		# Set the name of the first partition to "vcboot" and mark
+		# the 1st and 2nd partitions as bootable (checked by RPi loader and U-Boot)
+		cat >> gdisk.tmp <<-'EOF'
+			c
+			1
+			vcboot
+			x
+			a
+			1
+			2
+			64
+			a
+			2
+			2
+			64
+			m
+		EOF
+	else
+		# Mark the 1st partition as (legacy) bootable (checked by RPi loader), since repartion removed it
+		cat >> gdisk.tmp <<-'EOF'
+			x
+			a
+			1
+			2
+			64
+			m
+		EOF
+	fi
+
+	# Convert GPT to hybrid GPT
+	cat >> gdisk.tmp <<-'EOF'
+		x
+		r
+		h
+		1 2 3
+		n
+		c
+		n
+		82
+		y
+		83
+		n
+		w
+		y
+	EOF
+
+	if [ "$is_firstboot" ]; then
+		gdisk /dev/mmcblk0 < gdisk.tmp
+	else
+		gdisk /dev/loop0 < gdisk.tmp
+	fi
+	rm -f gdisk.tmp
+fi
+
+#==========================================
+# set certain dirs as nocow
+#------------------------------------------
+function nocow() {
+    [ -d $1 ] && chattr -R +C $i
+}
+
+for i in var/lib/mariadb var/lib/mysql var/lib/pgsql var/lib/libvirt/images var/log/journal; do
+    nocow $i
+done
+
+#==========================================
+# copy Raspberry Pi firmware to EFI partition
+#------------------------------------------
+if [ -f "boot/vc/bootcode.bin" -a "$is_efi" -a ! "$is_firstboot" ]; then
+	echo "RPi EFI system, installing firmware on ESP"
+	LINE=$(kpartx -asv $diskname | head -n1)
+	PART=$(echo "$LINE" | awk '{print $3}')
+	mkdir -p ./mnt-pi
+	mount /dev/mapper/$PART ./mnt-pi
+	( cd boot/vc; tar c . ) | ( cd ./mnt-pi/; tar x )
+	umount ./mnt-pi
+	rmdir ./mnt-pi
+	# "kpartx -dv $diskname" does not work if $diskname
+	# is longer than 64 characters
+	LOOPDEV=$(echo "/dev/$PART" | sed 's/p[0-9][0-9]*$//')
+	kpartx -dv $LOOPDEV
+	losetup -d $LOOPDEV
+fi
+
+#==========================================
+# install MLO as raw
+#------------------------------------------
+if [ -f "boot/MLO" ];then
+    echo "Installing MLO (SPL)..."
+    opt="count=1 seek=1 conv=notrunc"
+    if ! dd if=boot/MLO of=$diskname bs=128k $opt; then
+        echo "Couldn't install MLO on $diskname"
+        exit 1
+    fi
+
+    echo "Installing U-Boot..."
+    opt="seek=1 conv=notrunc"
+    if ! dd if=boot/u-boot.img of=$diskname bs=384k $opt; then
+        echo "Couldn't install U-Boot on $diskname"
+        exit 1
+    fi
+
+    # /.../
+    # To avoid any issues when parted leaves x86 boot code
+    # in the MBR we better clear that part of the image
+    # ----
+    dd if=/dev/zero of=$diskname bs=440 count=1 conv=notrunc
+fi
+
+
+#==========================================
+# install Odroid (exynos4) BL* & u-boot as raw
+#------------------------------------------
+if [ -f "boot/E4412_S.bl1.HardKernel.bin" ];then
+        echo "Installing BL1..."
+        if ! dd if=boot/E4412_S.bl1.HardKernel.bin of=$diskname seek=1 conv=notrunc; then
+                echo "Couldn't install BL1 on $diskname"
+                exit 1
+        fi
+        echo "Installing BL2..."
+        if ! dd if=boot/bl2.signed.bin of=$diskname seek=31 conv=notrunc; then
+                echo "Couldn't install BL2 on $diskname"
+                exit 1
+        fi
+        echo "Installing U-Boot..."
+        if ! dd if=boot/u-boot.bin of=$diskname seek=63 conv=notrunc; then
+                echo "Couldn't install u-boot on $diskname"
+                exit 1
+        fi
+        if ! dd if=boot/E4412_S.tzsw.signed.bin of=$diskname seek=2111 conv=notrunc; then
+                echo "Couldn't install TrustZone S/W on $diskname"
+                exit 1
+        fi
+fi
+
+#==========================================
+# install Odroid-X3 (exynos5) BL* & u-boot as raw
+# Careful: Odroid-C2 also has bl1.bin.hardkernel
+# TODO: Use image names instead of filename
+#------------------------------------------
+if [[ -f "boot/bl1.bin.hardkernel" && -f "boot/bl2.bin.hardkernel" ]]; then
+    echo "Installing BL1..."
+    if ! dd if=boot/bl1.bin.hardkernel of=$diskname seek=1 conv=notrunc; then
+        echo "Couldn't install BL1 on $diskname"
+        exit 1
+    fi
+    echo "Installing BL2..."
+    if ! dd if=boot/bl2.bin.hardkernel of=$diskname seek=31 conv=notrunc; then
+        echo "Couldn't install BL2 on $diskname"
+        exit 1
+    fi
+    echo "Installing U-Boot..."
+    if ! dd if=boot/u-boot.bin of=$diskname seek=63 conv=notrunc; then
+        echo "Couldn't install u-boot on $diskname"
+        exit 1
+    fi
+    if ! dd if=boot/tzsw.bin.hardkernel of=$diskname seek=719 conv=notrunc; then
+        echo "Couldn't install TrustZone S/W on $diskname"
+        exit 1
+    fi
+fi
+
+#==========================================
+# install Arndale SPL & U-Boot as raw
+#------------------------------------------
+if [[ -f "boot/smdk5250-spl.bin" || -f "boot/arndale-spl.bin" ]];then
+    echo "Installing BL1..."
+    if ! dd if=boot/arndale-bl1.img of=$diskname seek=1 conv=notrunc; then
+        echo "Couldn't install BL1 on $diskname"
+        exit 1
+    fi
+    echo "Installing SPL..."
+    # Get SPL name (depends on U-Boot version)
+    SPL_FILE=$(ls boot/*-spl.bin);
+    if ! dd if=$SPL_FILE of=$diskname seek=17 conv=notrunc; then
+        echo "Couldn't install SPL ($SPL_FILE) on $diskname"
+        exit 1
+    fi
+    echo "Installing U-Boot..."
+    if ! dd if=boot/u-boot.bin of=$diskname seek=49 conv=notrunc; then
+        echo "Couldn't install u-boot on $diskname"
+        exit 1
+    fi
+fi
+
+#==========================================
+# install sunXi/SoCFPGA SPL & U-Boot as raw
+#------------------------------------------
+if [[ -f "boot/sunxi-spl.bin" || -f "boot/u-boot-sunxi-with-spl.bin" || -f "boot/u-boot-with-spl.sfp" ]]; then
+    if [ "$is_efi" ]; then
+        # The GPT spans the first 33 sectors, but we need to write our
+        # at sector 16. Shrink the GPT to only span 5 sectors
+        # (16 partitions) to give us some space.
+        echo -e 'x\ns\n16\nw\ny' > gdisk.tmp
+        losetup /dev/loop3 $diskname
+        dd if=/dev/loop3 of=mbrid.bin bs=1 skip=440 count=4
+        gdisk /dev/loop3 < gdisk.tmp
+        dd of=/dev/loop3 if=mbrid.bin bs=1 seek=440 count=4
+        losetup -d /dev/loop3
+        rm -f mbrid.bin
+        rm -f gdisk.tmp
+    fi
+    if [ -f "boot/u-boot-sunxi-with-spl.bin" ]; then
+        echo "Installing All-in-one U-Boot/SPL..."
+        if ! dd if=boot/u-boot-sunxi-with-spl.bin of=$diskname bs=1024 seek=8 conv=notrunc; then
+            echo "Couldn't install SPL on $diskname"
+            exit 1
+        fi
+    elif [ -f "boot/u-boot-with-spl.sfp" ]; then
+        echo "Installing All-in-one U-Boot/SPL..."
+        if ! dd if=boot/u-boot-with-spl.sfp of=$diskname bs=64k skip=1 seek=1 conv=notrunc; then
+            echo "Couldn't install SPL on $diskname"
+            exit 1
+        fi
+    else
+        echo "Installing SPL..."
+        if ! dd if=boot/sunxi-spl.bin of=$diskname bs=1024 seek=8 conv=notrunc; then
+            echo "Couldn't install SPL on $diskname"
+            exit 1
+        fi
+        echo "Installing U-Boot..."
+        if ! dd if=boot/u-boot.img of=$diskname bs=1024 seek=40 conv=notrunc; then
+            echo "Couldn't install U-Boot on $diskname"
+            exit 1
+        fi
+    fi
+fi
+
+#==========================================
+# install Chromebook u-boot as boot kernel
+# And do the required magic!
+#------------------------------------------
+if [ "$flavor" = "chromebook" ]; then
+    if [ ! "$is_firstboot" ]; then
+        pushd /usr/src/packages/KIWIROOT-oem/
+        echo "console=tty1 debug verbose" > /tmp/config
+        echo "blah" > /tmp/dummy.txt # Dummy file to make new 'vbutil_kernel' tool happy
+        ./usr/bin/vbutil_kernel --pack /tmp/newkern \
+            --keyblock ./usr/share/vboot/devkeys/kernel.keyblock \
+            --version 1 \
+            --signprivate ./usr/share/vboot/devkeys/kernel_data_key.vbprivk \
+            --config=/tmp/config --vmlinuz boot/u-boot.img --arch arm \
+            --bootloader /tmp/dummy.txt
+        LINE=$(kpartx -asv $diskname | head -n1)
+        PART=$(echo "$LINE" | awk '{print $3}')
+        PART=$(echo "$PART" | sed 's/p[0-9][0-9]*$/p2/') # Copy on p2 since p1 is EFI
+        dd if=/tmp/newkern of=/dev/mapper/$PART
+        # "kpartx -dv $diskname" does not work if $diskname is longer than 64 characters
+        LOOPDEV=$(echo "/dev/$PART" | sed 's/p[0-9][0-9]*$//')
+        kpartx -dv $LOOPDEV
+        losetup -d $LOOPDEV
+    fi
+    # For build and after reaprtition occured on 1st boot:
+    # Enable bootflag on partition 3 (u-boot now looks for bootscripts on bootable partitions only)
+    parted $diskname set 3 boot on
+    # CGPT magic
+    ./usr/bin/cgpt add -t kernel -i 2 -S 1 -T 5 -P 10 -l U-BOOT $diskname
+    popd
+fi
+
+#==========================================
+# install i.MX 5/6 U-Boot as raw
+#------------------------------------------
+if [ -f "boot/u-boot.imx" -o -f "boot/u-boot-dtb.imx" ]; then
+    if [ ! "$is_firstboot" ]; then
+        pushd /usr/src/packages/KIWIROOT-oem/
+    else
+        pushd /
+    fi
+    imx_file=`ls boot/u-boot*.imx | head -n 1`
+    echo "Installing U-Boot: $imx_file..."
+    if ! dd if=$imx_file of=$diskname bs=512 seek=2 conv=notrunc; then
+        echo "Couldn't install U-Boot on $diskname"
+        exit 1
+    fi
+    popd
+fi
+
+#==========================================
+# install i.MX 6 SPL & U-Boot as raw
+#------------------------------------------
+if [[ -f "boot/imx6-spl.bin" ]]; then
+    echo "Installing SPL..."
+    if ! dd if=boot/imx6-spl.bin of=$diskname bs=1024 seek=1 conv=notrunc; then
+        echo "Couldn't install SPL on $diskname"
+        exit 1
+    fi
+    echo "Installing U-Boot..."
+    if ! dd if=boot/u-boot.img of=$diskname bs=1024 seek=69 conv=notrunc; then
+        echo "Couldn't install U-Boot on $diskname"
+        exit 1
+    fi
+fi
+
+#==========================================
+# install Marvell SPL as raw
+#------------------------------------------
+if [ -f "boot/u-boot-spl.kwb" ]; then
+    echo "Installing SPL..."
+    if ! dd if=boot/u-boot-spl.kwb of=$diskname bs=512 seek=1 conv=notrunc; then
+        echo "Couldn't install SPL on $diskname"
+        exit 1
+    fi
+fi
+
+#==========================================
+# install Rockchip 32-bit SPL as raw
+#------------------------------------------
+if [[ -f "boot/u-boot-spl.rksd" ]]; then
+    if [[ -f "boot/u-boot.bin" ]]; then
+        cat boot/u-boot-spl.rksd boot/u-boot.bin > u-boot.tmp
+        echo "Installing SPL + U-Boot..."
+        if ! dd if=u-boot.tmp of=$diskname bs=512 seek=64 conv=notrunc; then
+            echo "Couldn't install U-Boot on $diskname"
+            exit 1
+        fi
+        rm u-boot.tmp
+    else
+        echo "Installing SPL..."
+        if ! dd if=boot/u-boot-spl.rksd of=$diskname bs=512 seek=64 conv=notrunc; then
+            echo "Couldn't install SPL on $diskname"
+            exit 1
+        fi
+        echo "Installing U-Boot..."
+        if ! dd if=boot/u-boot.img of=$diskname bs=512 seek=256 conv=notrunc; then
+            echo "Couldn't install U-Boot on $diskname"
+            exit 1
+        fi
+    fi
+fi
+
+#==========================================
+# install Rockchip TPL/SPL + ITB as raw
+#   (RK3328, RK3399 platforms)
+#------------------------------------------
+if [[ -f "boot/idbloader.img" && -f "boot/u-boot.itb" ]]; then
+    echo "Installing idbloader.img..."
+    dd if=boot/idbloader.img of=$diskname bs=512 seek=64 conv=notrunc;
+    echo "Installing u-boot.itb..."
+    dd if=boot/u-boot.itb of=$diskname bs=512 seek=16384 conv=notrunc;
+fi
+
+#==========================================
+# install Odroid-C2 SPL as raw
+#------------------------------------------
+if [ "$flavor" = "odroidc2" ]; then
+    echo "Installing BL1 (1/2)..."
+    if ! dd if=boot/bl1.bin.hardkernel of=$diskname bs=1 count=442 conv=notrunc; then
+        echo "Couldn't install BL1 on $diskname"
+        exit 1
+    fi
+    echo "Installing BL1 (2/2)..."
+    if ! dd if=boot/bl1.bin.hardkernel of=$diskname bs=512 skip=1 seek=1 conv=notrunc; then
+        echo "Couldn't install BL1 on $diskname"
+        exit 1
+    fi
+    echo "Installing U-Boot..."
+    if ! dd if=boot/u-boot.odroidc2 of=$diskname bs=512 seek=97 conv=notrunc; then
+        echo "Couldn't install U-Boot on $diskname"
+        exit 1
+    fi
+fi
+
+#==========================================
+# install Zynq to the first MBR partition
+#------------------------------------------
+if [ "$flavor" = "zturn" ]; then
+    LINE=$(kpartx -asv $diskname | head -n1)
+    PART=$(echo "$LINE" | awk '{print $3}')
+    mkdir ./mnt-tmp
+    mount /dev/mapper/$PART ./mnt-tmp
+    for t in boot.bin u-boot.img; do
+        install -D -v boot/$t mnt-tmp/$t
+    done
+    umount ./mnt-tmp
+    rmdir ./mnt-tmp
+fi
+
+# End of EFI changed directory scope
+if [ -z "$is_firstboot" -a -n "$is_efi" ]; then
+    popd
+fi
+
+if [ "$is_firstboot" ]; then
+    for file in /etc/sysconfig/bootloader /etc/default/grub; do
+        # Make 2nd boot quieter since we already succeeded booting :-)
+        [ -e "$file" ] && sed -i -e 's/loglevel=3/quiet/' $file
+    done
+
+    # Fix up grub2 efi installation on 32bit arm (shouldn't hurt elsewhere)
+    if grep -q boot/efi /etc/fstab; then
+        mkdir -p /boot/efi
+        mount /boot/efi
+        /sbin/update-bootloader --reinit
+    fi
+else
+    # Install a startup.nsh file so we boot automatically via the EFI shell
+    if [ -f boot/grub2/*efi/grub.efi -o -f ./EFI/BOOT/boot*.efi ];then
+        echo "EFI system, installing startup.nsh"
+        LINE=$(kpartx -asv $diskname | head -n1)
+        PART=$(echo "$LINE" | awk '{print $3}')
+	mkdir ./mnt-tmp
+        mount /dev/mapper/$PART ./mnt-tmp
+        if [ -f boot/grub2/arm-efi/grub.efi ]; then
+            echo "bootarm" > mnt-tmp/startup.nsh
+        else
+            echo "bootaa64" > mnt-tmp/startup.nsh
+        fi
+        umount ./mnt-tmp
+        rmdir ./mnt-tmp
+        # "kpartx -dv $diskname" does not work if $diskname
+        # is longer than 64 characters
+        LOOPDEV=$(echo "/dev/$PART" | sed 's/p[0-9][0-9]*$//')
+        kpartx -dv $LOOPDEV
+        losetup -d $LOOPDEV
+    fi
+fi
+
+#==========================================
+# install DTBs on boot partition
+#------------------------------------------
+if [ -z "$is_firstboot" ]; then
+    if [ -e /usr/src/packages/KIWIROOT-oem/boot/dtb -a -n $bootdev ];then
+        echo "System uses device trees, installing to boot partition"
+        bootpart=$(echo $bootdev | sed 's/.*loop[0-9][0-9]*p/p/')
+        bootloop=$(kpartx -asv $diskname | awk '{print $3}' | grep "loop.*"$bootpart )
+        mkdir ./mnt-tmp
+        mount /dev/mapper/$bootloop ./mnt-tmp
+        # KIWI copies dtb on non-EFI systems; check and skip
+        if [ -e ./mnt-tmp/dtb ]; then
+            echo "DTBs already in place"
+        # In case bootdev and rootdev are the same, the dtbs will be already
+        # located in the rootdev below /boot/
+        elif [ ! \( -e ./mnt-tmp/boot -a -e ./mnt-tmp/boot/dtb \) ];then
+            cp -a /usr/src/packages/KIWIROOT-oem/boot/dtb* ./mnt-tmp/
+        fi
+        umount ./mnt-tmp
+        loop=$(echo "/dev/$bootloop" | sed 's/p[0-9][0-9]*$//')
+        kpartx -dv $loop
+        losetup -d $loop
+    fi
+fi
+
+#==========================================
+# Install boot.scr where needed
+#------------------------------------------
+if [ -e boot/boot.scr ]; then
+	# We need to use standalone u-boot, but kiwi only support EFI/Grub2
+	# So, use EFI layout for kiwi, but then copy boot.scr on partition #1 (EFI)
+	# to boot with standalone u-boot instead of bootefi (since some boards do not support it).
+	echo "Copy boot.scr on EFI boot partition"
+	# p1 is pseudo-EFI partition, p2 is rootfs (with boot/ folder)
+	BOOTPART=$(echo "$bootdev" | sed 's/p[0-9][0-9]*$/p1/')
+	mkdir ./mnt-boot
+	mount $BOOTPART ./mnt-boot
+
+	# Copy boot script
+	cp boot/boot.scr ./mnt-boot/
+
+	umount ./mnt-boot
+	rmdir ./mnt-boot
+fi
+
+#==========================================
+# Sabrelite autoboot with SPI flashed u-boot
+#------------------------------------------
+if [ "$flavor" = "sabrelite" ]; then
+	# Sabrelite has a built-in u-boot which looks for 6x_bootscript
+	# add one which will chain load our u-boot (on mmc0 or mmc1 only)
+	sabrelite_conf=mnt-boot/6x_bootscript.txt
+	sabrelite_binconf=mnt-boot/6x_bootscript
+	
+	BOOTPART=$(echo "$bootdev" | sed 's/p[0-9][0-9]*$/p1/')
+	mkdir ./mnt-boot
+	mount $BOOTPART ./mnt-boot
+	
+	cat >> $sabrelite_conf <<-"EOF"
+setenv boot_on_sd3 'mw.l 0x020d8040 0x3040 && mw.l 0x020d8044 0x10000000 && reset'
+setenv boot_on_usd4 'mw.l 0x020d8040 0x3840 && mw.l 0x020d8044 0x10000000 && reset'
+if itest.s "xmmc" == "x$dtype"; then
+	if itest 0 == ${disk}; then
+		run boot_on_sd3
+	else
+		run boot_on_usd4
+	fi
+fi
+EOF
+	mkopts="-A arm -O linux -a 0 -e 0 -T script -C none";
+	if ! mkimage $mkopts -n 'Boot-Script' -d $sabrelite_conf $sabrelite_binconf;then
+		echo "Failed to create 6x_bootscript image"
+	fi
+	umount ./mnt-boot
+	rmdir ./mnt-boot
+fi
+
+
+if ! [ "$is_firstboot" ]; then
+    if [ "$flavor" = "socfpgade0nanosoc" ]; then
+        echo "install FPGA loader support at boot"
+        LINE=$(kpartx -asv $diskname | head -n1)
+        PART=$(echo "$LINE" | awk '{print $3}')
+        mkdir ./mnt-tmp
+        mount /dev/mapper/$PART ./mnt-tmp
+
+        fpga_conf=mnt-tmp/boot.script
+        fpga_binconf=mnt-tmp/boot.scr
+        cat >> $fpga_conf <<-"EOF"
+echo "Disable watchdog"
+mw.l 0xffd05014 0x00000040
+setenv fpga_bitfiles 'fpga.rbf atlas_soc_ghrd.rbf'
+setenv fpga_part 1
+setenv devtype mmc
+setenv devnum 0
+setenv load_fpga_bitfile 'load ${devtype} ${devnum}:${fpga_part} ${loadaddr} ${fpga_bitfile}; fpga load 0 ${loadaddr} ${filesize}; bridge enable'
+setenv scan_mmc_for_fpgafile 'for fpga_bitfile in ${fpga_bitfiles}; do if test -e ${devtype} ${devnum}:${fpga_part} ${fpga_bitfile}; then echo Found FPGA bitfile ${fpga_bitfile}; run load_fpga_bitfile; fi; done'
+run scan_mmc_for_fpgafile
+echo "nothing else to do, continue boot ..."
+EOF
+        mkopts="-A arm -O linux -a 0 -e 0 -T script -C none";
+        if ! mkimage $mkopts -n 'Boot-Script' -d $fpga_conf $fpga_binconf;then
+            echo "Failed to create FPGA uboot script image"
+        fi
+        umount ./mnt-tmp
+        rmdir ./mnt-tmp
+        # "kpartx -dv $diskname" does not work if $diskname
+        # is longer than 64 characters
+        LOOPDEV=$(echo "/dev/$PART" | sed 's/p[0-9][0-9]*$//')
+        kpartx -dv $LOOPDEV
+        losetup -d $LOOPDEV
+    fi
+fi

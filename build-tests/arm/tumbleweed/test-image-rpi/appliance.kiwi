@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.3" name="kiwi-test-image-rpi">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>Disk image for RaspberryPi test build</specification>
+    </description>
+    <preferences>
+        <version>1.15.0</version>
+        <packagemanager>zypper</packagemanager>
+        <bootsplash-theme>openSUSE</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <type image="oem" filesystem="btrfs" fsmountoptions="noatime,compress=lzo" firmware="efi" kernelcmdline="plymouth.enable=0 swiotlb=512 cma=64M console=ttyS0" bootpartition="false" devicepersistency="by-label" btrfs_root_is_snapshot="true" efipartsize="16" editbootinstall="editbootinstall_rpi.sh">
+            <bootloader name="grub2" console="serial"/>
+            <systemdisk name="RaspberryPi">
+                <volume name="home"/>
+                <volume name="root"/>
+                <volume name="tmp"/>
+                <volume name="opt"/>
+                <volume name="srv"/>
+                <volume name="boot/grub2/arm64-efi" mountpoint="boot/grub2/arm64-efi"/>
+                <volume name="usr/local"/>
+                <volume name="var" copy_on_write="false"/>
+            </systemdisk>
+            <oemconfig>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>500</oem-swapsize>
+                <oem-skip-verify>true</oem-skip-verify>
+            </oemconfig>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+        <package name="acl"/>
+        <package name="btrfsprogs"/>
+        <package name="btrfsmaintenance"/>
+        <package name="cron"/>
+        <package name="dracut"/>
+        <package name="fipscheck"/>
+        <package name="group(mail)"/>
+        <package name="group(wheel)"/>
+        <package name="grub2-branding-openSUSE"/>
+        <package name="iputils"/>
+        <package name="zypper-lifecycle-plugin"/>
+        <package name="vim"/>
+        <package name="grub2"/>
+        <package name="grub2-arm64-efi" arch="aarch64"/>
+        <package name="haveged"/>
+        <package name="less"/>
+        <package name="tar"/>
+        <package name="parted"/>
+        <package name="rollback-helper"/>
+        <package name="snapper"/>
+        <package name="SUSEConnect"/>
+        <package name="firewalld"/>
+        <package name="systemd"/>
+        <package name="systemd-sysvinit"/>
+        <package name="timezone"/>
+        <package name="wicked"/>
+        <package name="iproute2"/>
+        <package name="openssh"/>
+        <package name="rsync"/>
+        <package name="salt-minion"/>
+        <package name="dialog"/>
+        <package name="grub2-snapper-plugin"/>
+        <package name="snapper-zypp-plugin"/>
+        <package name="raspberrypi-firmware" arch="aarch64"/>
+        <package name="raspberrypi-firmware-config" arch="aarch64"/>
+        <package name="raspberrypi-firmware-dt" arch="aarch64"/>
+        <package name="u-boot-rpi3" arch="aarch64"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="kernel-default"/>
+        <package name="ntp"/>
+        <package name="bcm43xx-firmware"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="ca-certificates"/>
+        <package name="openSUSE-release"/>
+    </packages>
+</image>
