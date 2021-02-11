@@ -7,7 +7,7 @@
         <specification>live iso test build</specification>
     </description>
     <preferences>
-        <version>1.30.2</version>
+        <version>1.33.2</version>
         <packagemanager>dnf</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
         <bootloader-theme>breeze</bootloader-theme>
@@ -25,13 +25,13 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
-        <source path="obs://Virtualization:Appliances:Staging/Fedora_30"/>
+        <source path="obs://Virtualization:Appliances:Staging/Fedora_33"/>
     </repository>
-    <repository type="rpm-md" alias="Fedora30Update">
-        <source path="obs://Fedora:30/update"/>
+    <repository type="rpm-md" alias="Fedora_33">
+        <source path="obs://Fedora:33/standard"/>
     </repository>
-    <repository type="rpm-md" alias="Fedora30">
-        <source path="obs://Fedora:30/standard"/>
+    <repository type="rpm-md" alias="Fedora_EPEL">
+        <source path="obs://Fedora:EPEL:8/standard"/>
     </repository>
     <packages type="image">
         <package name="grub2"/>
