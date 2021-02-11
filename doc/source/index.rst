@@ -33,10 +33,10 @@
    * `GitHub Sources <https://github.com/OSInside/kiwi>`__
    * `GitHub Releases <https://github.com/OSInside/kiwi/releases>`__
    * `RPM Packages <http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
-   * `Build Tests SUSE(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:suse>`__
-   * `Build Tests SUSE(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:suse>`__
-   * `Build Tests SUSE(s390) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_s390:suse>`__
-   * `Build Tests SUSE(ppc64le) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_ppc:suse>`__
+   * `Build Tests TumbleWeed(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed>`__
+   * `Build Tests TumbleWeed(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:tumbleweed>`__
+   * `Build Tests TumbleWeed(s390) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_s390:tumbleweed>`__
+   * `Build Tests TumbleWeed(ppc64le) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_ppc:tumbleweed>`__
 
    * `Build Tests Fedora(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:fedora>`__
    * `Build Tests Fedora(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:fedora>`__
@@ -45,6 +45,8 @@
    * `Build Tests CentOS(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:centos>`__
 
    * `Build Tests Ubuntu(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:ubuntu>`__
+
+   * `Build Tests Ubuntu(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:debian>`__
 
    * `Build Tests ArchLinux(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:archlinux>`__
 
