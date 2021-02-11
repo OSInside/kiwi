@@ -57,7 +57,7 @@
         <source path="obs://Debian:10/standard"/>
     </repository>
     <repository type="apt-deb" repository_gpgcheck="false">
-        <source path="obs://Virtualization:Appliances:Builder/Debian_10"/>
+        <source path="obs://Virtualization:Appliances:Staging/Debian_10"/>
     </repository>
     <packages type="image">
         <package name="grub-theme-starfield"/>
