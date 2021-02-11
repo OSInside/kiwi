@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.3" name="kiwi-test-image-docker-derived">
+    <description type="system">
+        <author>David Cassany</author>
+        <contact>dcassany@suse.de</contact>
+        <specification>SUSE derived docker container</specification>
+    </description>
+    <preferences>
+        <type image="docker" derived_from="obs://openSUSE:Containers:Tumbleweed/containers/opensuse/tumbleweed#latest">
+            <containerconfig name="builder" tag="1.0" additionaltags="latest"/>
+        </type>
+        <version>1.0</version>
+        <packagemanager>zypper</packagemanager>
+        <rpm-excludedocs>true</rpm-excludedocs>
+    </preferences>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="python3-kiwi"/>
+    </packages>
+</image>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+<!-- OBS-ExclusiveArch: x86_64 -->
+
+<image schemaversion="7.3" name="kiwi-test-image-vagrant">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            SUSE vagrant box
+        </specification>
+    </description>
+    <profiles>
+        <profile name="libvirt" description="Vagrant Box for Libvirt"/>
+        <profile name="virtualbox" description="Vagrant Box for VirtualBox"/>
+    </profiles>
+    <preferences>
+        <version>1.0</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <bootsplash-theme>openSUSE</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences profiles="libvirt">
+        <type image="oem" filesystem="ext4" format="vagrant" firmware="efi" kernelcmdline="net.ifnames=0 console=ttyS0">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" timeout="0" console="serial"/>
+            <vagrantconfig provider="libvirt" virtualsize="42"/>
+            <size unit="G">42</size>
+        </type>
+    </preferences>
+    <preferences profiles="virtualbox">
+        <type image="oem" filesystem="ext4" format="vagrant" kernelcmdline="net.ifnames=0 console=ttyS0">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" timeout="0" console="serial"/>
+            <vagrantconfig provider="virtualbox" virtualbox_guest_additions_present="true" virtualsize="42"/>
+            <size unit="G">42</size>
+        </type>
+    </preferences>
+    <users>
+        <user password="vagrant" home="/root" name="root" groups="root" pwdformat="plain"/>
+        <user password="vagrant" home="/home/vagrant" name="vagrant" groups="vagrant" pwdformat="plain"/>
+    </users>
+    <repository>
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="bindfs"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="curl"/>
+        <package name="iputils"/>
+        <package name="vim"/>
+        <package name="grub2"/>
+        <package name="grub2-x86_64-efi"/>
+        <package name="tar"/>
+        <package name="openssh"/>
+        <package name="iproute2"/>
+        <package name="less"/>
+        <package name="bash-completion"/>
+        <package name="which"/>
+        <package name="shim"/>
+        <package name="sudo"/>
+        <package name="systemd"/>
+        <package name="openSUSE-build-key"/>
+        <package name="kernel-default"/>
+        <package name="timezone"/>
+        <package name="keyutils"/>
+        <package name="wicked"/>
+        <package name="dmraid"/>
+        <package name="haveged"/>
+        <package name="rsync"/>
+    </packages>
+    <packages type="image" profiles="virtualbox">
+        <package name="virtualbox-guest-tools"/>
+        <package name="virtualbox-guest-x11"/>
+        <package name="virtualbox-kmp-default"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="openSUSE-release"/>
+        <package name="openSUSE-release-appliance-vagrant"/>
+    </packages>
+</image>
