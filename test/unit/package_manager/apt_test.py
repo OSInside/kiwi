@@ -71,10 +71,9 @@ class TestPackageManagerApt:
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.package_manager.apt.os.path.exists')
-    @patch('kiwi.package_manager.apt.os.unlink')
     @patch('kiwi.package_manager.apt.Path.wipe')
     def test_process_install_requests_bootstrap_failed_debootstrap(
-        self, mock_wipe, mock_unlink, mock_exists, mock_call
+        self, mock_wipe, mock_exists, mock_call
     ):
         self.manager.request_package('apt-get')
         mock_call.side_effect = Exception
@@ -84,10 +83,10 @@ class TestPackageManagerApt:
             self.manager.process_install_requests_bootstrap(mock_root_bind)
 
     @patch('kiwi.command.Command.call')
-    @patch('kiwi.package_manager.apt.os.unlink')
+    @patch('kiwi.package_manager.apt.Path.wipe')
     @patch('kiwi.package_manager.apt.os.path.exists')
     def test_process_install_requests_bootstrap(
-        self, mock_exists, mock_unlink, mock_call
+        self, mock_exists, mock_wipe, mock_call
     ):
         self.manager.request_package('apt-get')
         self.manager.request_package('vim')
@@ -105,7 +104,7 @@ class TestPackageManagerApt:
                 'root-dir', 'xenial_path'
             ], ['env']
         )
-        assert mock_unlink.call_args_list == [
+        assert mock_wipe.call_args_list == [
             call('root-dir/dev/fd'),
             call('root-dir/dev/pts')
         ]
@@ -117,10 +116,10 @@ class TestPackageManagerApt:
         mock_root_bind.mount_kernel_file_systems.assert_called_once_with()
 
     @patch('kiwi.command.Command.call')
-    @patch('kiwi.package_manager.apt.os.unlink')
+    @patch('kiwi.package_manager.apt.Path.wipe')
     @patch('kiwi.package_manager.apt.os.path.exists')
     def test_process_install_requests_bootstrap_no_gpg_check(
-        self, mock_exists, mock_unlink, mock_call
+        self, mock_exists, mock_wipe, mock_call
     ):
         self.manager.request_package('apt-get')
         self.manager.request_package('vim')
@@ -138,7 +137,7 @@ class TestPackageManagerApt:
                 'root-dir', 'xenial_path'
             ], ['env']
         )
-        assert mock_unlink.call_args_list == [
+        assert mock_wipe.call_args_list == [
             call('root-dir/dev/fd'),
             call('root-dir/dev/pts')
         ]

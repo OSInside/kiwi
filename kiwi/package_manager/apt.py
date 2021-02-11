@@ -145,7 +145,7 @@ class PackageManagerApt(PackageManagerBase):
             'dev/pts'
         ]
         for node in debootstrap_device_node_conflicts:
-            os.unlink(os.path.normpath(os.sep.join([self.root_dir, node])))
+            Path.wipe(os.path.normpath(os.sep.join([self.root_dir, node])))
 
         if 'apt-get' in self.package_requests:
             # debootstrap takes care to install apt-get
