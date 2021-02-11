@@ -883,11 +883,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             early_boot_script, mbrid
         )
         early_boot_script_on_media = os.sep.join(
-            [self.root_dir, 'boot', self.boot_directory_name]
+            [self.root_dir, 'boot', self.boot_directory_name, 'earlyboot.cfg']
         )
         if early_boot_script != early_boot_script_on_media:
             log.debug(
                 f'Copy earlyboot to media path: {early_boot_script_on_media}'
+            )
+            Path.create(
+                os.path.dirname(early_boot_script_on_media)
             )
             shutil.copy(
                 early_boot_script, early_boot_script_on_media
