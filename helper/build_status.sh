@@ -15,7 +15,6 @@ for project in \
     Virtualization:Appliances:Images:Testing_s390:sle15 \
     Virtualization:Appliances:Images:Testing_arm:tumbleweed \
     Virtualization:Appliances:Images:Testing_arm:fedora \
-    Virtualization:Appliances:Images:Testing_ppc:suse \
     Virtualization:Appliances:Images:Testing_ppc:tumbleweed \
     Virtualization:Appliances:Images:Testing_ppc:sle15 \
     Virtualization:Appliances:Images:Testing_ppc:fedora \
