@@ -1,0 +1,14 @@
+[Unit]
+Description=Run finalizing script at first boot
+Requires=network.target
+Requires=network.service
+After=network.target
+Requires=network.service
+ConditionPathExists=/var/lib/firstboot/runme_at_boot
+
+[Service]
+ExecStart=/usr/local/bin/firstboot.sh
+
+[Install]
+WantedBy=multi-user.target 
+

@@ -1,0 +1,5 @@
+BOOTPROTO='dhcp'
+DHCLIENT6_MODE='managed'
+MTU=''
+REMOTE_IPADDR=''
+STARTMODE='onboot'

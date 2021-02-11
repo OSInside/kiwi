@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.3" name="kiwi-test-image-tbz">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>Simple tar archive build, bootstrap only</specification>
+    </description>
+    <preferences>
+        <version>1.15.1</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="tbz"/>
+    </preferences>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="bootstrap">
+        <package name="vim"/>
+        <package name="bash"/>
+        <package name="openSUSE-release"/>
+    </packages>
+</image>

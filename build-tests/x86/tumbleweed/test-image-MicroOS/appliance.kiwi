@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.3" name="kiwi-test-image-MicroOS">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>MicroOS disk test build</specification>
+    </description>
+    <preferences>
+        <version>16.0.0</version>
+        <packagemanager>zypper</packagemanager>
+        <bootloader-theme>openSUSE</bootloader-theme>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <locale>en_US</locale>
+        <type image="oem" filesystem="btrfs" firmware="uefi" installiso="true" kernelcmdline="quiet systemd.show_status=yes console=ttyS0,115200 console=tty0 net.ifnames=0 \$ignition_firstboot ignition.platform.id=qemu" bootpartition="false" bootkernel="custom" devicepersistency="by-uuid" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true" btrfs_quota_groups="true" format="qcow2" spare_part="5G" spare_part_mountpoint="/var" spare_part_fs="btrfs" spare_part_is_last="true" spare_part_fs_attributes="no-copy-on-write">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" console="serial"/>
+            <systemdisk>
+                <volume name="home"/>
+                <volume name="root"/>
+                <volume name="tmp"/>
+                <volume name="opt"/>
+                <volume name="srv"/>
+                <volume name="boot/grub2/i386-pc"/>
+                <volume name="boot/grub2/x86_64-efi" mountpoint="boot/grub2/x86_64-efi"/>
+                <volume name="boot/writable"/>
+                <volume name="usr/local"/>
+            </systemdisk>
+            <size unit="G">20</size>
+            <installmedia>
+                <initrd action="omit">
+                    <dracut module="combustion"/>
+                    <dracut module="ignition"/>
+                </initrd>
+            </installmedia>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="live-add-yast-repos"/>
+        <package name="patterns-microos-basesystem"/>
+        <package name="patterns-base-bootloader"/>
+        <package name="patterns-microos-defaults"/>
+        <package name="kernel-default"/>
+        <package name="ignition-dracut"/>
+        <package name="combustion"/>
+        <package name="growpart-generator"/>
+        <package name="xen-tools-domU" arch="x86_64"/>
+        <package name="qemu-guest-agent"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="coreutils"/>
+        <package name="gzip"/>
+        <package name="gawk"/>
+        <package name="openssl"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale-base"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="MicroOS-release-dvd"/>
+    </packages>
+</image>

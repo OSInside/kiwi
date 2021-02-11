@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.3" name="kiwi-test-image-orthos">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.de</contact>
+        <specification>Factory image for Orthos</specification>
+    </description>
+    <preferences>
+        <version>1.13.1</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installpxe="true">
+            <bootloader name="grub2" console="serial"/>
+            <oemconfig>
+                <oem-skip-verify>true</oem-skip-verify>
+                <oem-unattended>true</oem-unattended>
+                <oem-swap>false</oem-swap>
+            </oemconfig>
+            <size unit="G">2</size>
+        </type>
+    </preferences>
+    <users>
+        <user name="root" password="linux" pwdformat="plain" home="/root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image" patternType="plusRecommended">
+        <package name="patterns-openSUSE-base"/>
+        <package name="filesystem"/>
+        <package name="kernel-default"/>
+        <package name="iputils"/>
+        <package name="grub2"/>
+        <package name="grub2-i386-pc"/>
+        <package name="grub2-x86_64-efi"/>
+        <package name="syslinux"/>
+        <package name="tar"/>
+        <package name="dracut"/>
+        <package name="wicked"/>
+        <package name="iproute2"/>
+        <package name="openssh"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="openSUSE-release-ftp"/>
+        <package name="openSUSE-release"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="filesystem"/>
+        <package name="udev"/>
+    </packages>
+</image>
