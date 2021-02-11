@@ -1,2 +1,0 @@
-# Mount the ephemeral storage
-/dev/vda1  /       ext4    defaults        1 1

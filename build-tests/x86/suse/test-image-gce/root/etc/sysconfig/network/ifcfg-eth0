@@ -1,4 +1,0 @@
-BOOTPROTO='dhcp4'
-MTU=''
-REMOTE_IPADDR=''
-STARTMODE='onboot'
