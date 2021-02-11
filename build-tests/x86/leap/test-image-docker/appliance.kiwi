@@ -27,7 +27,6 @@
         <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
-        <package name="grub"/>
         <package name="grub2"/>
         <package name="ncurses-utils"/>
         <package name="patterns-openSUSE-base"/>
