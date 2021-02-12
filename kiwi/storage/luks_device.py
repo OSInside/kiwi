@@ -18,6 +18,7 @@
 import os
 import logging
 from tempfile import NamedTemporaryFile
+from typing import Optional
 
 # project
 from kiwi.command import Command
@@ -38,14 +39,14 @@ class LuksDevice(DeviceProvider):
 
     :param object storage_provider: Instance of class based on DeviceProvider
     """
-    def __init__(self, storage_provider):
+    def __init__(self, storage_provider: DeviceProvider):
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
         # the correct destructor order when the device should be released.
         self.storage_provider = storage_provider
 
-        self.luks_device = None
-        self.luks_keyfile = None
+        self.luks_device: Optional[str] = None
+        self.luks_keyfile: Optional[str] = None
         self.luks_name = 'luksRoot'
 
         self.option_map = {
@@ -56,7 +57,7 @@ class LuksDevice(DeviceProvider):
             ]
         }
 
-    def get_device(self):
+    def get_device(self) -> Optional[MappedDevice]:
         """
         Instance of MappedDevice providing the luks device
 
@@ -68,9 +69,11 @@ class LuksDevice(DeviceProvider):
             return MappedDevice(
                 device=self.luks_device, device_provider=self
             )
+        return None
 
     def create_crypto_luks(
-        self, passphrase, os=None, options=None, keyfile=None
+        self, passphrase: str, os: str = None,
+        options: list = None, keyfile: str = None
     ):
         """
         Create luks device. Please note the passphrase is readable
@@ -140,7 +143,7 @@ class LuksDevice(DeviceProvider):
         )
         self.luks_device = '/dev/mapper/' + self.luks_name
 
-    def create_crypttab(self, filename):
+    def create_crypttab(self, filename: str):
         """
         Create crypttab, setting the UUID of the storage device
 
@@ -163,7 +166,7 @@ class LuksDevice(DeviceProvider):
                     )
                 )
 
-    def is_loop(self):
+    def is_loop(self) -> bool:
         """
         Check if storage provider is loop based
 
@@ -176,7 +179,7 @@ class LuksDevice(DeviceProvider):
         return self.storage_provider.is_loop()
 
     @staticmethod
-    def create_random_keyfile(filename):
+    def create_random_keyfile(filename: str):
         """
         Create keyfile with random data
 

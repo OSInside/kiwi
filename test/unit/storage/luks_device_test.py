@@ -40,6 +40,12 @@ class TestLuksDevice:
         assert self.luks.get_device().get_device() == '/dev/mapper/luksRoot'
         self.luks.luks_device = None
 
+    @patch('os.path.exists')
+    def test_get_device_none(self, mock_path):
+        mock_path.return_value = True
+        self.luks.luks_device = None
+        assert self.luks.get_device() is None
+
     @patch('kiwi.storage.luks_device.Command.run')
     @patch('kiwi.storage.luks_device.NamedTemporaryFile')
     def test_create_crypto_luks(self, mock_tmpfile, mock_command):
