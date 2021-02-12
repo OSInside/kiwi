@@ -20,6 +20,9 @@ Building in a Self-Contained Environment
    * run more than one build process at the same time on the
      same host.
 
+   * run a build process for a different target architecture
+     compared to the host architecture (Cross Arch Image Build)
+
    This document describes how to perform the build process in
    a self contained environment using fast booting virtual
    machines to address the issues listed above.
@@ -66,7 +69,7 @@ shown in the following example:
 
 .. code:: bash
 
-   $ kiwi-ng --type iso system boxbuild --box suse -- \
+   $ kiwi-ng --type iso system boxbuild --box leap -- \
          --description kiwi-descriptions/suse/x86_64/{exc_description} \
          --target-dir /tmp/myimage
 
