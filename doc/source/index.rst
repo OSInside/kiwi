@@ -38,6 +38,10 @@
    * `Build Tests TumbleWeed(s390) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_s390:tumbleweed>`__
    * `Build Tests TumbleWeed(ppc64le) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_ppc:tumbleweed>`__
 
+   * `Build Tests RawHide(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:rawhide>`__
+
+   * `Build Tests Leap(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:leap>`__
+
    * `Build Tests Fedora(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:fedora>`__
    * `Build Tests Fedora(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:fedora>`__
    * `Build Tests Fedora(ppc64le) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_ppc:fedora>`__
@@ -46,7 +50,7 @@
 
    * `Build Tests Ubuntu(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:ubuntu>`__
 
-   * `Build Tests Ubuntu(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:debian>`__
+   * `Build Tests Debian(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:debian>`__
 
    * `Build Tests ArchLinux(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:archlinux>`__
 
