@@ -50,7 +50,7 @@ class RuntimeConfig:
     def __init__(self, reread=False):
         global RUNTIME_CONFIG
 
-        if not RUNTIME_CONFIG or reread:
+        if RUNTIME_CONFIG is None or reread:
             cli = Cli()
             config_file = None
             custom_config_file = cli.get_global_args().get('--config')
@@ -72,7 +72,7 @@ class RuntimeConfig:
                     f'Reading runtime config file: {config_file!r}'
                 )
                 with open(config_file, 'r') as config:
-                    RUNTIME_CONFIG = yaml.safe_load(config)
+                    RUNTIME_CONFIG = yaml.safe_load(config) or {}
 
     def get_obs_download_server_url(self):
         """
