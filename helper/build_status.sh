@@ -2,7 +2,7 @@
 
 for project in \
     Virtualization:Appliances:SelfContained:fedora \
-    Virtualization:Appliances:SelfContained:suse \
+    Virtualization:Appliances:SelfContained:tumbleweed \
     Virtualization:Appliances:SelfContained:leap \
     Virtualization:Appliances:SelfContained:ubuntu \
     Virtualization:Appliances:SelfContained:universal \
