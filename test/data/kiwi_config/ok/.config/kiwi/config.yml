@@ -8,6 +8,8 @@ obs:
   - download_url: http://example.com
   - api_url: https://api.example.com
   - public: true
+  - user:
+      - user_name: user_credentials
 
 iso:
   - tool_category: cdrtools

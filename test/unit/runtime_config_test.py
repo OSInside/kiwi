@@ -84,6 +84,9 @@ class TestRuntimeConfig:
             'check_dracut_module_for_oem_install_in_package_list',
             'check_container_tool_chain_installed'
         ]
+        assert runtime_config.get_obs_api_credentials() == [
+            {'user_name': 'user_credentials'}
+        ]
 
     @patch('kiwi.runtime_config.Cli')
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')

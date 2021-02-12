@@ -114,6 +114,22 @@ class RuntimeConfig:
         return obs_api_server_url if obs_api_server_url else \
             Defaults.get_obs_api_server_url()
 
+    def get_obs_api_credentials(self):
+        """
+        Return OBS API credentials if configured:
+
+        obs:
+          - user:
+              - user_name: user_credentials
+
+        :return: List of Dicts with credentials per user
+
+        :rtype: list
+        """
+        obs_users = self._get_attribute(element='obs', attribute='user') or []
+        if obs_users:
+            return obs_users
+
     def is_obs_public(self):
         """
         Check if the buildservice configuration is public or private in:
