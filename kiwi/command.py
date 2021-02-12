@@ -32,7 +32,7 @@ from kiwi.exceptions import (
 log = logging.getLogger('kiwi')
 
 command_type = namedtuple(
-    'command', ['output', 'error', 'returncode']
+    'command_type', ['output', 'error', 'returncode']
 )
 
 

@@ -16,13 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from typing import (
-    List, Optional, Any, Dict
+    List, Optional, Any, Dict, NamedTuple
 )
 import re
 import logging
 import copy
 import platform
-from collections import namedtuple
 from textwrap import dedent
 
 # project
@@ -41,28 +40,38 @@ from kiwi.exceptions import (
 
 log = logging.getLogger('kiwi')
 
-description_type = namedtuple(
-    'description_type', ['author', 'contact', 'specification']
+description_type = NamedTuple(
+    'description_type', [
+        ('author', str),
+        ('contact', str),
+        ('specification', str)
+    ]
 )
 
-package_type = namedtuple(
-    'package_type', ['packages_section', 'package_section']
+package_type = NamedTuple(
+    'package_type', [
+        ('packages_section', xml_parse.packages),
+        ('package_section', xml_parse.package)
+    ]
 )
 
-size_type = namedtuple(
-    'size_type', ['mbytes', 'additive']
+size_type = NamedTuple(
+    'size_type', [
+        ('mbytes', int),
+        ('additive', str)
+    ]
 )
 
-volume_type = namedtuple(
+volume_type = NamedTuple(
     'volume_type', [
-        'name',
-        'size',
-        'realpath',
-        'mountpoint',
-        'fullsize',
-        'label',
-        'attributes',
-        'is_root_volume'
+        ('name', str),
+        ('size', str),
+        ('realpath', str),
+        ('mountpoint', Optional[str]),
+        ('fullsize', bool),
+        ('label', Optional[str]),
+        ('attributes', list),
+        ('is_root_volume', bool)
     ]
 )
 
