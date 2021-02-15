@@ -24,7 +24,7 @@ class FileSystemXfs(FileSystemBase):
     """
     **Implements creation of xfs filesystem**
     """
-    def create_on_device(self, label=None):
+    def create_on_device(self, label: str = None):
         """
         Create xfs filesystem on block device
 

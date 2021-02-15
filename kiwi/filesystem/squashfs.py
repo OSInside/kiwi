@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import List
+
 # project
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
@@ -25,7 +27,9 @@ class FileSystemSquashFs(FileSystemBase):
     """
     **Implements creation of squashfs filesystem**
     """
-    def create_on_file(self, filename, label=None, exclude=None):
+    def create_on_file(
+        self, filename, label: str = None, exclude: List[str] = None
+    ):
         """
         Create squashfs filesystem from data tree
 

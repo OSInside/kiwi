@@ -24,7 +24,7 @@ class FileSystemFat32(FileSystemBase):
     """
     **Implements creation of fat16 filesystem**
     """
-    def create_on_device(self, label=None):
+    def create_on_device(self, label: str = None):
         """
         Create fat32 filesystem on block device
 

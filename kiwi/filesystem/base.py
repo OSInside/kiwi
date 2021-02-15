@@ -18,12 +18,16 @@
 import os
 import logging
 import copy
+from typing import (
+    Dict, List, Optional
+)
 
 # project
 from kiwi.defaults import Defaults
 from kiwi.utils.sync import DataSync
 from kiwi.mount_manager import MountManager
 from kiwi.command import Command
+from kiwi.storage.device_provider import DeviceProvider
 
 from kiwi.exceptions import (
     KiwiFileSystemSyncError
@@ -43,7 +47,10 @@ class FileSystemBase:
     :param string root_dir: root directory path name
     :param dict custom_args: custom filesystem arguments
     """
-    def __init__(self, device_provider, root_dir=None, custom_args=None):
+    def __init__(
+        self, device_provider: DeviceProvider,
+        root_dir: str = None, custom_args: Dict = None
+    ):
         # filesystems created with a block device stores the mountpoint
         # here. The file name of the file containing the filesystem is
         # stored in the device_provider if the filesystem is represented
@@ -65,7 +72,7 @@ class FileSystemBase:
         self.custom_args = {}
         self.post_init(custom_args)
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Dict):
         """
         Post initialization method
 
@@ -99,7 +106,7 @@ class FileSystemBase:
         if not self.custom_args.get('fs_attributes'):
             self.custom_args['fs_attributes'] = []
 
-    def create_on_device(self, label=None):
+    def create_on_device(self, label: str = None):
         """
         Create filesystem on block device
 
@@ -110,7 +117,9 @@ class FileSystemBase:
         """
         raise NotImplementedError
 
-    def create_on_file(self, filename, label=None, exclude=None):
+    def create_on_file(
+        self, filename: str, label: str = None, exclude: List[str] = None
+    ):
         """
         Create filesystem from root data tree
 
@@ -123,7 +132,7 @@ class FileSystemBase:
         """
         raise NotImplementedError
 
-    def get_mountpoint(self):
+    def get_mountpoint(self) -> Optional[str]:
         """
         Provides mount point directory
 
@@ -136,7 +145,7 @@ class FileSystemBase:
         if self.filesystem_mount:
             return self.filesystem_mount.mountpoint
 
-    def sync_data(self, exclude=None):
+    def sync_data(self, exclude: List[str] = None):
         """
         Copy root data tree into filesystem
 

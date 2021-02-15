@@ -24,7 +24,7 @@ class FileSystemExt2(FileSystemBase):
     """
     **Implements creation of ext2 filesystem**
     """
-    def create_on_device(self, label=None):
+    def create_on_device(self, label: str = None):
         """
         Create ext2 filesystem on block device
 

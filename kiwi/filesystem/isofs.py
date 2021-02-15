@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from typing import List
 from textwrap import dedent
 
 # project
@@ -31,7 +32,9 @@ class FileSystemIsoFs(FileSystemBase):
     """
     **Implements creation of iso filesystem**
     """
-    def create_on_file(self, filename, label=None, exclude=None):
+    def create_on_file(
+        self, filename: str, label: str = None, exclude: List[str] = None
+    ):
         """
         Create iso filesystem from data tree
 
@@ -40,7 +43,7 @@ class FileSystemIsoFs(FileSystemBase):
 
         :param string filename: result file path name
         :param string label: unused
-        :param string exclude: unused
+        :param list exclude: unused
         """
         meta_data = self.custom_args['meta_data']
         efi_mode = meta_data.get('efi_mode')

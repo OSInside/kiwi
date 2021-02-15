@@ -16,6 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from tempfile import mkdtemp
+from typing import (
+    Dict, List
+)
 import logging
 
 # project
@@ -33,7 +36,7 @@ class FileSystemClicFs(FileSystemBase):
     """
     **Implements creation of clicfs filesystem**
     """
-    def post_init(self, custom_args=None):
+    def post_init(self, custom_args: Dict = None):
         """
         Post initialization method
 
@@ -44,7 +47,9 @@ class FileSystemClicFs(FileSystemBase):
         """
         self.container_dir = None
 
-    def create_on_file(self, filename, label=None, exclude=None):
+    def create_on_file(
+        self, filename: str, label: str = None, exclude: List[str] = None
+    ):
         """
         Create clicfs filesystem from data tree
 
