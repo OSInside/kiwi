@@ -245,6 +245,7 @@ Requires:       squashfs-tools
 Requires:       lvm2
 Requires:       parted
 Requires:       kpartx
+Requires:       cryptsetup
 Requires:       kiwi-systemdeps-core = %{version}-%{release}
 
 %description -n kiwi-systemdeps-filesystems
