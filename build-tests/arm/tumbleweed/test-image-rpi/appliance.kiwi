@@ -89,6 +89,7 @@
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
         <package name="openSUSE-release"/>
     </packages>
 </image>
