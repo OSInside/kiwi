@@ -8,8 +8,10 @@ settings that do not belong into the image description but which are
 persistent and would be unsuitable for command line parameters.
 
 The runtime configuration file must adhere to the `YAML
-<https://yaml.org/>`_ syntax. {kiwi} searches for the runtime configuration
-file in the following locations:
+<https://yaml.org/>`_ syntax and can be provided via the global
+`--config` option at call time of {kiwi}. If no config file is
+provided at the commandline, {kiwi} searches for the runtime
+configuration file in the following locations:
 
 1. :file:`~/.config/kiwi/config.yml`
 
