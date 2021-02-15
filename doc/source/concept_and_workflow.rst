@@ -9,6 +9,7 @@ Concept and Workflow
 .. toctree::
    :maxdepth: 1
 
+   concept_and_workflow/systemdeps.rst
    concept_and_workflow/repository_setup
    concept_and_workflow/packages
    concept_and_workflow/profiles
