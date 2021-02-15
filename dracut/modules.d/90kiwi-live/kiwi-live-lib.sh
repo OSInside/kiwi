@@ -224,7 +224,7 @@ function preparePersistentOverlayDiskBoot {
             return 1
         fi
         local write_partition
-        write_partition=$(lsblk "${isodiskdev}" -p -r -n -o NAME | tail -n1)
+        write_partition=$(lsblk "${isodiskdev}" -p -l -n -o NAME | tail -n1)
         if ! mkfs."${cow_filesystem}" -L cow "${write_partition}"; then
             return 1
         fi
