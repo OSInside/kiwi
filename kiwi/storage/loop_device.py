@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from typing import Optional
 
 # project
 from kiwi.command import Command
@@ -38,7 +39,10 @@ class LoopDevice(DeviceProvider):
     :param int filesize_mbytes: size of the loop file
     :param int blocksize_bytes: blocksize used in loop driver
     """
-    def __init__(self, filename, filesize_mbytes=None, blocksize_bytes=None):
+    def __init__(
+        self, filename: str, filesize_mbytes: int = None,
+        blocksize_bytes: int = None
+    ):
         self.node_name = None
         if not os.path.exists(filename) and not filesize_mbytes:
             raise KiwiLoopSetupError(
@@ -48,7 +52,7 @@ class LoopDevice(DeviceProvider):
         self.filesize_mbytes = filesize_mbytes
         self.blocksize_bytes = blocksize_bytes
 
-    def get_device(self):
+    def get_device(self) -> Optional[str]:
         """
         Device node name
 
@@ -58,7 +62,7 @@ class LoopDevice(DeviceProvider):
         """
         return self.node_name
 
-    def is_loop(self):
+    def is_loop(self) -> bool:
         """
         Always True
 
@@ -68,7 +72,7 @@ class LoopDevice(DeviceProvider):
         """
         return True
 
-    def create(self, overwrite=True):
+    def create(self, overwrite: bool = True):
         """
         Setup a loop device of the blocksize given in the constructor
         The file to loop is created with the size specified in the

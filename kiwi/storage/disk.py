@@ -18,6 +18,7 @@
 import os
 import logging
 from collections import OrderedDict
+from typing import Dict
 from tempfile import NamedTemporaryFile
 
 # project
@@ -37,15 +38,18 @@ class Disk(DeviceProvider):
     :param object storage_provider: Instance of class based on DeviceProvider
     :param int start_sector: sector number
     """
-    def __init__(self, table_type, storage_provider, start_sector=None):
+    def __init__(
+        self, table_type: str, storage_provider: DeviceProvider,
+        start_sector: int = None
+    ):
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
         # the correct destructor order when the device should be released.
         self.storage_provider = storage_provider
 
-        self.partition_map = {}
-        self.public_partition_id_map = {}
-        self.partition_id_map = {}
+        self.partition_map: Dict[str, str] = {}
+        self.public_partition_id_map: Dict[str, str] = {}
+        self.partition_id_map: Dict[str, str] = {}
         self.is_mapped = False
 
         self.partitioner = Partitioner.new(
@@ -54,7 +58,7 @@ class Disk(DeviceProvider):
 
         self.table_type = table_type
 
-    def get_device(self):
+    def get_device(self) -> Dict[str, MappedDevice]:
         """
         Names of partition devices
 
@@ -71,7 +75,7 @@ class Disk(DeviceProvider):
             )
         return device_map
 
-    def is_loop(self):
+    def is_loop(self) -> bool:
         """
         Check if storage provider is loop based
 
@@ -84,7 +88,7 @@ class Disk(DeviceProvider):
         """
         return self.storage_provider.is_loop()
 
-    def create_root_partition(self, mbsize):
+    def create_root_partition(self, mbsize: int):
         """
         Create root partition
 
@@ -101,7 +105,7 @@ class Disk(DeviceProvider):
         if 'kiwi_BootPart' not in self.public_partition_id_map:
             self._add_to_public_id_map('kiwi_BootPart')
 
-    def create_root_lvm_partition(self, mbsize):
+    def create_root_lvm_partition(self, mbsize: int):
         """
         Create root partition for use with LVM
 
@@ -113,7 +117,7 @@ class Disk(DeviceProvider):
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
 
-    def create_root_raid_partition(self, mbsize):
+    def create_root_raid_partition(self, mbsize: int):
         """
         Create root partition for use with MD Raid
 
@@ -128,7 +132,7 @@ class Disk(DeviceProvider):
         self._add_to_public_id_map('kiwi_RootPart')
         self._add_to_public_id_map('kiwi_RaidPart')
 
-    def create_root_readonly_partition(self, mbsize):
+    def create_root_readonly_partition(self, mbsize: int):
         """
         Create root readonly partition for use with overlayfs
 
@@ -143,7 +147,7 @@ class Disk(DeviceProvider):
         self._add_to_map('readonly')
         self._add_to_public_id_map('kiwi_ROPart')
 
-    def create_boot_partition(self, mbsize):
+    def create_boot_partition(self, mbsize: int):
         """
         Create boot partition
 
@@ -155,7 +159,7 @@ class Disk(DeviceProvider):
         self._add_to_map('boot')
         self._add_to_public_id_map('kiwi_BootPart')
 
-    def create_prep_partition(self, mbsize):
+    def create_prep_partition(self, mbsize: int):
         """
         Create prep partition
 
@@ -167,7 +171,7 @@ class Disk(DeviceProvider):
         self._add_to_map('prep')
         self._add_to_public_id_map('kiwi_PrepPart')
 
-    def create_spare_partition(self, mbsize):
+    def create_spare_partition(self, mbsize: int):
         """
         Create spare partition for custom use
 
@@ -179,7 +183,7 @@ class Disk(DeviceProvider):
         self._add_to_map('spare')
         self._add_to_public_id_map('kiwi_SparePart')
 
-    def create_swap_partition(self, mbsize):
+    def create_swap_partition(self, mbsize: int):
         """
         Create swap partition
 
@@ -191,7 +195,7 @@ class Disk(DeviceProvider):
         self._add_to_map('swap')
         self._add_to_public_id_map('kiwi_SwapPart')
 
-    def create_efi_csm_partition(self, mbsize):
+    def create_efi_csm_partition(self, mbsize: int):
         """
         Create EFI bios grub partition
 
@@ -203,7 +207,7 @@ class Disk(DeviceProvider):
         self._add_to_map('efi_csm')
         self._add_to_public_id_map('kiwi_BiosGrub')
 
-    def create_efi_partition(self, mbsize):
+    def create_efi_partition(self, mbsize: int):
         """
         Create EFI partition
 
@@ -300,7 +304,7 @@ class Disk(DeviceProvider):
                 ['partprobe', self.storage_provider.get_device()]
             )
 
-    def get_public_partition_id_map(self):
+    def get_public_partition_id_map(self) -> Dict[str, str]:
         """
         Populated partition name to number map
         """

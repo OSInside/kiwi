@@ -31,7 +31,7 @@ class MappedDevice(DeviceProvider):
     :param object device_provider: Instance of class based on DeviceProvider
     :param string device: Device node name
     """
-    def __init__(self, device, device_provider):
+    def __init__(self, device: str, device_provider: DeviceProvider):
         if not os.path.exists(device):
             raise KiwiMappedDeviceError(
                 'Device %s does not exist' % device
@@ -39,7 +39,7 @@ class MappedDevice(DeviceProvider):
         self.device_provider = device_provider
         self.device = device
 
-    def get_device(self):
+    def get_device(self) -> str:
         """
         Mapped device node name
 
@@ -49,7 +49,7 @@ class MappedDevice(DeviceProvider):
         """
         return self.device
 
-    def is_loop(self):
+    def is_loop(self) -> bool:
         """
         Check if storage provider is loop based
 
