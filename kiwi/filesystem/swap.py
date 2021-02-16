@@ -24,7 +24,7 @@ class FileSystemSwap(FileSystemBase):
     """
     **Implements creation of swap space**
     """
-    def create_on_device(self, label=None):
+    def create_on_device(self, label: str = None):
         """
         Create swap space on block device
 

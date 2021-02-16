@@ -20,6 +20,7 @@ import logging
 # project
 from kiwi.system.size import SystemSize
 from kiwi.defaults import Defaults
+from kiwi.xml_state import XMLState
 
 log = logging.getLogger('kiwi')
 
@@ -35,7 +36,7 @@ class FileSystemSetup:
     :param object xml_state: Instance of XMLState
     :param string root_dir: root directory path
     """
-    def __init__(self, xml_state, root_dir):
+    def __init__(self, xml_state: XMLState, root_dir: str):
         self.configured_size = xml_state.get_build_type_size(
             include_unpartitioned=True
         )
@@ -50,7 +51,7 @@ class FileSystemSetup:
         else:
             self.requested_filesystem = xml_state.build_type.get_filesystem()
 
-    def get_size_mbytes(self, filesystem=None):
+    def get_size_mbytes(self, filesystem: str = None) -> int:
         """
         Precalculate the requires size in mbytes to store all data
         from the root directory in the requested filesystem. Return

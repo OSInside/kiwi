@@ -24,7 +24,7 @@ class FileSystemBtrfs(FileSystemBase):
     """
     **Implements creation of btrfs filesystem**
     """
-    def create_on_device(self, label=None):
+    def create_on_device(self, label: str = None):
         """
         Create btrfs filesystem on block device
 
