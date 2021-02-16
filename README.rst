@@ -21,6 +21,6 @@ KIWI - Next Generation
 
 * |Doc|
 
-If this project reduced your development time feel free to buy me a coffee.
+We'll donate it for good luck so's you're sure to come back :)
 
 |Donate|
