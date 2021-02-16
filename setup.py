@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
+from os import path
 from setuptools import setup
 from setuptools.command import sdist as setuptools_sdist
 
@@ -8,6 +9,10 @@ import distutils
 import subprocess
 
 from kiwi.version import __version__
+
+here = path.abspath(path.dirname(__file__))
+with open(path.join(here, 'README.rst'), encoding='utf-8') as readme:
+    long_description = readme.read()
 
 
 class sdist(setuptools_sdist.sdist):
@@ -44,6 +49,8 @@ class sdist(setuptools_sdist.sdist):
 
 config = {
     'name': 'kiwi',
+    'long_description': long_description,
+    'long_description_content_type': 'text/x-rst',
     'python_requires': '>=3.6',
     'description': 'KIWI - Appliance Builder (next generation)',
     'author': 'Marcus Schaefer',
