@@ -60,6 +60,17 @@ To install {kiwi}, follow these steps:
             F7E82012C74FD0B85F5334DC994B195474CBE823
       uid           Virtualization:Appliances OBS Project <Virtualization:Appliances@build.opensuse.org>
 
+.. note::
+
+   :command:`rpm` requires network utilities in order to download and
+   import remote keys. Make sure :command:`curl` is installed before
+   trying to import remote keys using :command:`rpm`. 
+   
+   Alternatively, the package manager, if not executed in non-interactive mode,
+   will ask you to trust or not the public key of the new repository when
+   refreshing repositories or installing new packages. If trusted the package
+   manager will automatically import it.
+
 5. Install {kiwi}:
 
    .. code:: shell-session
