@@ -43,12 +43,15 @@ options:
     --print-xml|--print-yaml
         print image description in specified format
 """
+import os
+
 # project
 from kiwi.tasks.base import CliTask
 from kiwi.help import Help
 from kiwi.utils.output import DataOutput
 from kiwi.solver.sat import Sat
 from kiwi.solver.repository import SolverRepository
+from kiwi.solver.repository.base import SolverRepositoryBase
 from kiwi.system.uri import Uri
 
 
@@ -146,6 +149,35 @@ class ImageInfoTask(CliTask):
             repo_user = xml_repo.get_username()
             repo_secret = xml_repo.get_password()
             repo_type = xml_repo.get_type()
+            repo_dist = xml_repo.get_distribution()
+            repo_components = xml_repo.get_components()
+            if not repo_type:
+                repo_type = SolverRepositoryBase(
+                    Uri(repo_source), repo_user, repo_secret
+                ).get_repo_type()
+            if repo_type == 'apt-deb':
+                # Debian based repos can be setup for a specific
+                # distribution including a list of individual components.
+                # For each component of the selected distribution extra
+                # repository metadata exists. In such a case we iterate
+                # over the configured dist components and add them as
+                # repository each.
+                dist_type = solver.set_dist_type('deb')
+                if repo_components and repo_dist:
+                    for component in repo_components.split():
+                        repo_source_for_component = os.sep.join(
+                            [
+                                repo_source.rstrip(os.sep), 'dists', repo_dist,
+                                component, f'binary-{dist_type.get("arch")}'
+                            ]
+                        )
+                        solver.add_repository(
+                            SolverRepository.new(
+                                Uri(repo_source_for_component, repo_type),
+                                repo_user, repo_secret
+                            )
+                        )
+                    continue
             solver.add_repository(
                 SolverRepository.new(
                     Uri(repo_source, repo_type), repo_user, repo_secret

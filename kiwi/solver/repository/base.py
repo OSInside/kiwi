@@ -151,7 +151,7 @@ class SolverRepositoryBase:
             pass
         try:
             if self._get_deb_packages():
-                return 'deb'
+                return 'apt-deb'
         except KiwiUriOpenError:
             pass
         try:
@@ -178,19 +178,31 @@ class SolverRepositoryBase:
             with open(dir_listing_download.name) as listing:
                 return listing.read()
 
-    def _get_deb_packages(self):
+    def _get_deb_packages(self, download_dir=None):
         """
-        Download Packages file from an apt repository
+        Download Packages.gz file from an apt repository and
+        return its contents. If download_dir is set, download
+        the file and return the file path name
 
-        :return: Contents of Packages file
+        :param str download_dir: Download directory
+
+        :return: Contents of Packages file or file path name
 
         :rtype: str
         """
-        packages_download = NamedTemporaryFile()
-        self.download_from_repository('Packages', packages_download.name)
-        if os.path.isfile(packages_download.name):
-            with open(packages_download.name) as packages:
-                return packages.read()
+        repo_source = 'Packages.gz'
+        if not download_dir:
+            packages_download = NamedTemporaryFile()
+            self.download_from_repository(repo_source, packages_download.name)
+            if os.path.isfile(packages_download.name):
+                with open(packages_download.name) as packages:
+                    return packages.read()
+        else:
+            packages_download = os.sep.join(
+                [download_dir, repo_source.replace(os.sep, '_')]
+            )
+            self.download_from_repository(repo_source, packages_download)
+            return packages_download
 
     def _get_repomd_xml(self, lookup_path='repodata'):
         """
@@ -262,6 +274,9 @@ class SolverRepositoryBase:
         * rpms2solv
           solvable from rpm header files
 
+        * deb2solv
+          solvable from deb header files
+
         :param str metadata_dir: path name
         :param str tool: one of the above tools
         """
@@ -278,9 +293,13 @@ class SolverRepositoryBase:
         else:
             # each file in the metadata_dir is considered a valid
             # solvable for the selected solv tool
+            tool_options = []
+            if tool == 'deb2solv':
+                tool_options.append('-r')
             for source in glob.iglob('/'.join([metadata_dir, '*'])):
                 bash_command = [
-                    'gzip', '-cd', '--force', source, '|', tool,
+                    'gzip', '-cd', '--force', source, '|', tool
+                ] + tool_options + [
                     '>', self._get_random_solvable_name()
                 ]
                 Command.run(['bash', '-c', ' '.join(bash_command)])
