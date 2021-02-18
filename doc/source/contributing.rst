@@ -65,6 +65,10 @@ LaTeX documentation build environment
   A full LaTeX installation is required to build the PDF documentation
   [#f1]_.
 
+Host Requirements To Build Images
+  A full set of tools needed to build images and provided by
+  the `kiwi-systemdeps` package
+
 The above mentioned system packages will be installed by calling the
 `install_devel_packages.sh` helper script from the checked out Git
 repository as follows:
