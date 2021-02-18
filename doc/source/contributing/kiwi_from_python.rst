@@ -43,3 +43,28 @@ All classes are written in a way to care for a single responsibility
 in order to allow for re-use on other use cases. Therefore it is possible
 to use {kiwi} outside of the main image building scope to manage e.g
 the setup of loop devices, filesystems, partitions, etc...
+
+This means {kiwi} provides you a way to describe a system but you are
+free to make use of the kiwi description format or not. The following
+example shows how to use kiwi to create a simple filesystem image
+which contains your host `tmp` directory.
+
+.. code:: python
+
+    import logging
+
+    from kiwi.storage.loop_device import LoopDevice
+    from kiwi.filesystem import FileSystem
+
+    loop_provider = LoopDevice(
+        filename='my_tmp.ext4', filesize_mbytes=100
+    )
+    loop_provider.create()
+
+    filesystem = FileSystem.new(
+        'ext4', loop_provider, '/tmp/'
+    )
+    filesystem.create_on_device(
+        label='TMP'
+    )
+    filesystem.sync_data()
