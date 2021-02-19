@@ -17,15 +17,11 @@
 #
 import os
 import logging
-from tempfile import mkdtemp
 from urllib.parse import urlparse
 import requests
 import hashlib
-from typing import List
 
 # project
-from kiwi.mount_manager import MountManager
-from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.runtime_config import RuntimeConfig
 
@@ -58,7 +54,6 @@ class Uri:
         self.uri = uri if not uri.startswith(os.sep) else ''.join(
             [Defaults.get_default_uri_type(), uri]
         )
-        self.mount_stack: List[str] = []
 
         self.remote_uri_types = {
             'http': True,
@@ -67,7 +62,6 @@ class Uri:
             'obs': True
         }
         self.local_uri_type = {
-            'iso': True,
             'dir': True,
             'file': True,
             'obsrepositories': True
@@ -78,9 +72,8 @@ class Uri:
         Translate repository location according to their URI type
 
         Depending on the URI type the provided location needs to
-        be adapted e.g loop mounted in case of an ISO or updated
-        by the service URL in case of an open buildservice project
-        name
+        be adapted e.g updated by the service URL in case of an
+        open buildservice project name
 
         :raises KiwiUriStyleUnknown: if the uri scheme can't be detected, is
             unknown or it is inconsistent with the build environment
@@ -125,8 +118,6 @@ class Uri:
             return self._local_path(uri.path)
         elif uri.scheme == 'file':
             return self._local_path(uri.path)
-        elif uri.scheme == 'iso':
-            return self._iso_mount_path(uri.path)
         elif uri.scheme.startswith('http') or uri.scheme == 'ftp':
             if self._get_credentials_uri() or not uri.query:
                 return ''.join(
@@ -237,18 +228,6 @@ class Uri:
         if uri.query and uri.query.startswith('credentials='):
             return uri
 
-    def _iso_mount_path(self, path):
-        # The prefix name 'kiwi_iso_mount' has a meaning here because the
-        # zypper repository manager looks up iso mount paths by its repo
-        # source name
-        iso_mount_path = mkdtemp(prefix='kiwi_iso_mount.')
-        iso_mount = MountManager(
-            device=path, mountpoint=iso_mount_path
-        )
-        self.mount_stack.append(iso_mount)
-        iso_mount.mount()
-        return iso_mount.mountpoint
-
     def _local_path(self, path):
         return os.path.abspath(os.path.normpath(path))
 
@@ -274,9 +253,9 @@ class Uri:
                     'in isolated environment'.format(download_link)
                 )
                 return download_link
-        except Exception as e:
+        except Exception as issue:
             raise KiwiUriOpenError(
-                '{0}: {1} {2}'.format(type(e).__name__, format(e), download_link)
+                f'{download_link}: {issue}'
             )
 
     def _buildservice_path(self, name, urischeme, fragment=None):
@@ -302,9 +281,3 @@ class Uri:
                 [bs_source_dir, 'repos', name]
             )
         return self._local_path(local_path)
-
-    def __del__(self):
-        for mount in reversed(self.mount_stack):
-            if mount.is_mounted():
-                if mount.umount():
-                    Path.wipe(mount.mountpoint)
