@@ -17,7 +17,6 @@ Concept and Workflow
    concept_and_workflow/shell_scripts
    concept_and_workflow/runtime_configuration
    concept_and_workflow/customize_the_boot_process
-   concept_and_workflow/legacy_kiwi
 
 
 Overview
