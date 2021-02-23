@@ -19,6 +19,7 @@
    installation
    quickstart
    commands
+   troubleshooting
    self_contained
    concept_and_workflow
    image_description
