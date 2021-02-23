@@ -18,19 +18,29 @@
 import os
 import re
 from textwrap import dedent
+from typing import NamedTuple
 
 # project
+from kiwi.version import __version__
 from io import StringIO
 from kiwi.xml_description import XMLDescription
 from kiwi.firmware import FirmWare
 from kiwi.xml_state import XMLState
 from kiwi.system.uri import Uri
 from kiwi.defaults import Defaults
+from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.exceptions import (
     KiwiRuntimeError
+)
+
+dracut_module_type = NamedTuple(
+    'dracut_module_type', [
+        ('package', str),
+        ('min_version', str)
+    ]
 )
 
 
@@ -546,6 +556,77 @@ class RuntimeChecker:
                 if not syslinux_check_file:
                     raise KiwiRuntimeError(message)
 
+    def check_dracut_module_versions_compatible_to_kiwi(self, root_dir):
+        """
+        KIWI images which makes use of kiwi dracut modules
+        has to use module versions compatible with the version
+        of this KIWI builder code base. This is important to avoid
+        inconsistencies between the way how kiwi includes its own
+        dracut modules and former version of those dracut modules
+        which could be no longer compatible with the builder.
+        Therefore this runtime check maintains a min_version constraint
+        for which we know this KIWI builder to be compatible with.
+        """
+        message = dedent('''\n
+            Incompatible dracut-kiwi module(s) found
+
+            The image was build with KIWI version={0}. The system
+            root tree has the following dracut-kiwi-* module packages
+            installed which are too old to work with this version of KIWI.
+            Please make sure to use dracut-kiwi-* module packages
+            which are >= than the versions listed below.
+
+            {1}
+        ''')
+        kiwi_dracut_modules = {
+            '90kiwi-dump': dracut_module_type(
+                'dracut-kiwi-oem-dump', '9.20.1'
+            ),
+            '90kiwi-live': dracut_module_type(
+                'dracut-kiwi-live', '9.20.1'
+            ),
+            '90kiwi-overlay': dracut_module_type(
+                'dracut-kiwi-overlay', '9.20.1'
+            ),
+            '90kiwi-repart': dracut_module_type(
+                'dracut-kiwi-oem-repart', '9.20.1'
+            ),
+            '99kiwi-dump-reboot': dracut_module_type(
+                'dracut-kiwi-oem-dump', '9.20.1'
+            ),
+            '99kiwi-lib': dracut_module_type(
+                'dracut-kiwi-lib', '9.20.1'
+            )
+        }
+        dracut_module_dir = os.sep.join(
+            [root_dir, '/usr/lib/dracut/modules.d']
+        )
+        incompatible_modules = {}
+        for module in os.listdir(dracut_module_dir):
+            module_meta = kiwi_dracut_modules.get(module)
+            if module_meta:
+                module_version = self._get_dracut_module_version_from_pdb(
+                    self.xml_state.get_package_manager(),
+                    module_meta.package, root_dir
+                )
+                if module_version:
+                    module_version_nr = tuple(
+                        int(it) for it in module_version.split('.')
+                    )
+                    module_min_version_nr = tuple(
+                        int(it) for it in module_meta.min_version.split('.')
+                    )
+                    if module_version_nr < module_min_version_nr:
+                        incompatible_modules[
+                            module_meta.package
+                        ] = 'got:{0}, need:>={1}'.format(
+                            module_version, module_meta.min_version
+                        )
+        if incompatible_modules:
+            raise KiwiRuntimeError(
+                message.format(__version__, incompatible_modules)
+            )
+
     def check_dracut_module_for_oem_install_in_package_list(self):
         """
         OEM images if configured to use dracut as initrd system
@@ -853,3 +934,26 @@ class RuntimeChecker:
                         type_export.getvalue()
                     )
                 )
+
+    @staticmethod
+    def _get_dracut_module_version_from_pdb(
+        package_manager, package_name, root_dir
+    ):
+        tool = Defaults.get_default_packager_tool(package_manager)
+        package_query = None
+        if tool == 'rpm':
+            package_query = Command.run(
+                [
+                    tool, '--root', root_dir, '-q', '--qf',
+                    '%{VERSION}', package_name
+                ]
+            )
+        elif tool == 'dpkg':
+            package_query = Command.run(
+                [
+                    'dpkg-query', '--admindir', root_dir, '-W', '-f',
+                    '${Version}', package_name
+                ]
+            )
+        if package_query:
+            return package_query.output.split('-', 1)[0]

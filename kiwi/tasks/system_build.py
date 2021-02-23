@@ -144,7 +144,9 @@ class SystemBuildTask(CliTask):
         build_checks.update(
             {
                 'check_target_directory_not_in_shared_cache':
-                    [abs_target_dir_path]
+                    [abs_target_dir_path],
+                'check_dracut_module_versions_compatible_to_kiwi':
+                    [image_root]
             }
         )
         self.run_checks(build_checks)
