@@ -15,11 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-
 import os
 import random
-
 from textwrap import dedent
+from typing import List
 
 # project
 from kiwi.storage.subformat.template.virtualbox_ovf import (
@@ -35,14 +34,19 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
     **Create a vagrant box for the virtualbox provider**
     """
 
-    def vagrant_post_init(self):
+    def vagrant_post_init(self) -> None:
         self.provider = 'virtualbox'
         self.image_format = 'vagrant.virtualbox.box'
 
-    def get_additional_vagrant_config_settings(self):
+    def get_additional_vagrant_config_settings(self) -> str:
         """
         Configure the default shared folder to use rsync when guest additions
         are not present inside the box.
+
+        :return:
+            ruby code to be evaluated as string
+
+        :rtype: str
         """
         extra_settings = dedent('''
             config.vm.base_mac = "{mac_address}"
@@ -55,13 +59,21 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
 
         return extra_settings
 
-    def create_box_img(self, temp_image_dir):
+    def create_box_img(self, temp_image_dir: str) -> List[str]:
         """
-        Create the virtual machine image for the Virtualbox vagrant provider.
+        Create the vmdk image for the Virtualbox vagrant provider.
 
-        This function creates the vmdk disk image and the ovf file. The latter
-        is created via the class
-        :class:`kiwi.storage.subformat.template.virtualbox_ovf.VirtualboxOvfTemplate`.
+        This function creates the vmdk disk image and the ovf file.
+        The latter is created via the class :class:`VirtualboxOvfTemplate`.
+
+        :param str temp_image_dir:
+            Path to the temporary directory used to build the box image
+
+        :return:
+            A list of files relevant for the virtualbox box to be
+            included in the vagrant box
+
+        :rtype: list
         """
         vmdk = DiskFormatVmdk(self.xml_state, self.root_dir, self.target_dir)
         vmdk.create_image_format()

@@ -19,7 +19,12 @@ import json
 import os.path
 
 from tempfile import mkdtemp
+from typing import (
+    Dict, Optional, List
+)
 
+from kiwi import xml_parse
+from kiwi.system.result import Result
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.storage.subformat.template.vagrant_config import VagrantConfigTemplate
 from kiwi.command import Command
@@ -69,7 +74,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
     * :meth:`get_additional_vagrant_config_settings`
 
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Dict['str', xml_parse.vagrantconfig]):
         """
         vagrant disk format post initialization method
 
@@ -94,7 +99,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
         self.vagrantconfig = custom_args['vagrantconfig']
         self.vagrant_post_init()
 
-    def vagrant_post_init(self):
+    def vagrant_post_init(self) -> None:
         """
         Vagrant provider specific post initialization method
 
@@ -103,24 +108,17 @@ class DiskFormatVagrantBase(DiskFormatBase):
         make the this base class methods effective
         """
         self.image_format = None
-        self.provider = None
+        self.provider: Optional[str] = None
 
-    def create_box_img(self, temp_image_dir):
+    def create_box_img(self, temp_image_dir: str) -> List[str]:
         """
-        Provider specific image creation step: this function creates the actual
-        box image. It must be implemented by a child class.
-
-        :param str temp_image_dir:
-            path to a temporary directory inside which the image
-            should be built
-        :return:
-            A list of files that were created by this function
-            and that should be included in the vagrant box
-        :rtype: list
+        Provider specific image creation step: this function
+        creates the actual box image. It must be implemented by a
+        child class.
         """
         raise NotImplementedError
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create a vagrant box for any provider. This includes:
 
@@ -172,7 +170,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
             ]
         )
 
-    def store_to_result(self, result):
+    def store_to_result(self, result: Result) -> None:
         """
         Store result file of the vagrant format conversion into the
         provided result instance. In this case compression is unwanted
@@ -195,7 +193,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
             shasum=True
         )
 
-    def get_additional_metadata(self):
+    def get_additional_metadata(self) -> Dict:
         """
         Provide :meth:`create_image_format` with additional metadata
         that will be included in ``metadata.json``.
@@ -205,9 +203,9 @@ class DiskFormatVagrantBase(DiskFormatBase):
         :return: A dictionary that is serializable to JSON
         :rtype: dict
         """
-        pass
+        return {}
 
-    def get_additional_vagrant_config_settings(self):
+    def get_additional_vagrant_config_settings(self) -> str:
         """
         Supply additional configuration settings for vagrant to be included in
         the resulting box.
@@ -222,7 +220,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
         :return: additional vagrant settings
         :rtype: str
         """
-        pass
+        return ''
 
     def _create_box_metadata(self):
         metadata = self.get_additional_metadata() or {}

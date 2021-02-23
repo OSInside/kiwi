@@ -15,9 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Dict
 import os
 
 # project
+from kiwi.system.result import Result
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
 from kiwi.storage.subformat.template.vmware_settings import (
@@ -33,7 +35,7 @@ class DiskFormatVmdk(DiskFormatBase):
     """
     Create vmdk disk format
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Dict) -> None:
         """
         vmdk disk format post initialization method
 
@@ -48,7 +50,7 @@ class DiskFormatVmdk(DiskFormatBase):
         if custom_args and 'adapter_type=pvscsi' in custom_args:
             self.patch_header_for_pvscsi = True
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create vmdk disk format and machine settings file
         """
@@ -64,7 +66,7 @@ class DiskFormatVmdk(DiskFormatBase):
             self._inject_pvscsi_adapter_type()
         self._create_vmware_settings_file()
 
-    def store_to_result(self, result):
+    def store_to_result(self, result: Result) -> None:
         """
         Store result files of the vmdk format conversion into the
         provided result instance. This includes the vmdk image file

@@ -15,24 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Dict
 import struct
 from binascii import unhexlify
 import re
 
 # project
+from kiwi.system.result import Result
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
 
-from kiwi.exceptions import (
-    KiwiVhdTagError
-)
+from kiwi.exceptions import KiwiVhdTagError
 
 
 class DiskFormatVhdFixed(DiskFormatBase):
     """
     **Create vhd image format in fixed subformat**
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Dict) -> None:
         """
         vhd disk format post initialization method
 
@@ -56,7 +56,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
         self.options.append('-o')
         self.options.append('subformat=fixed')
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create vhd fixed disk format
         """
@@ -71,7 +71,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
         if self.tag:
             self._write_vhd_tag(self.tag)
 
-    def store_to_result(self, result):
+    def store_to_result(self, result: Result) -> None:
         """
         Store result file of the vhdfixed format conversion into the
         provided result instance. In this case compressing the result
