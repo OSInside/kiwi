@@ -16,8 +16,8 @@ from collections import namedtuple
 class TestImageInfoTask:
     def setup(self):
         sys.argv = [
-            sys.argv[0], '--profile', 'vmxFlavour', 'image', 'info',
-            '--description', '../data/description',
+            sys.argv[0], 'image', 'info',
+            '--description', '../data/image_info',
             '--resolve-package-list'
         ]
         result_type = namedtuple(
@@ -82,7 +82,7 @@ class TestImageInfoTask:
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['info'] = False
-        self.task.command_args['--description'] = '../data/description'
+        self.task.command_args['--description'] = '../data/image_info'
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--ignore-repos'] = False
         self.task.command_args['--resolve-package-list'] = False
@@ -110,18 +110,40 @@ class TestImageInfoTask:
         )
 
     @patch('kiwi.tasks.image_info.DataOutput')
-    @patch('kiwi.tasks.image_info.SolverRepository')
+    @patch('kiwi.tasks.image_info.SolverRepository.new')
     @patch('kiwi.tasks.image_info.Uri')
+    @patch('kiwi.tasks.image_info.SolverRepositoryBase.get_repo_type')
     def test_process_image_info_resolve_package_list(
-        self, mock_uri, mock_solver_repo, mock_out
+        self, mock_get_repo_type, mock_uri, mock_solver_repo_new, mock_out
     ):
+        mock_get_repo_type.return_value = 'apt-deb'
+        self.solver.set_dist_type.return_value = {
+            'arch': 'amd64'
+        }
         self._init_command_args()
         self.task.command_args['info'] = True
         self.task.command_args['--resolve-package-list'] = True
         self.task.process()
+
         assert self.solver.add_repository.called
         assert mock_uri.call_args_list == [
-            call('iso:///image/CDs/dvd.iso', None),
+            call('http://us.archive.ubuntu.com/ubuntu/'),
+            call(
+                'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
+                'main/binary-amd64', 'apt-deb'
+            ),
+            call(
+                'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
+                'multiverse/binary-amd64', 'apt-deb'
+            ),
+            call(
+                'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
+                'restricted/binary-amd64', 'apt-deb'
+            ),
+            call(
+                'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
+                'universe/binary-amd64', 'apt-deb'
+            ),
             call('obs://Devel:PubCloud:AmazonEC2/SLE_12_GA', 'rpm-md')
         ]
         mock_out.assert_called_once_with(self.result_info)

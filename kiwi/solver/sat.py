@@ -17,6 +17,7 @@
 #
 import importlib
 import logging
+import platform
 from collections import namedtuple
 from xml.etree import ElementTree
 from xml.dom import minidom
@@ -55,6 +56,26 @@ class Sat:
 
         self.pool = self.solv.Pool()
         self.pool.setarch()
+
+    def set_dist_type(self, dist, arch=None):
+        if not arch:
+            arch = platform.machine()
+        dist_types = {
+            'deb-x86_64': {
+                'pool_dist': self.solv.Pool.DISTTYPE_DEB,
+                'arch': 'amd64'
+            }
+        }
+        dist_type = dist_types.get(f'{dist}-{arch}')
+        if dist_type:
+            if self.pool.setdisttype(dist_type['pool_dist']) < 0:
+                raise KiwiSatSolverPluginError(
+                    f'Failed to set dist type for distribution: {dist!r}'
+                )
+        self.pool.setarch(
+            dist_type['arch'] if dist_type else arch
+        )
+        return dist_type
 
     def add_repository(self, solver_repository):
         """
@@ -155,7 +176,8 @@ class Sat:
         """
         Iterate over solver result and return a data dictionary
 
-        :param object solver_transaction: result of :class:`Pool::Solver::transaction()`
+        :param object solver_transaction:
+            result of :class:`Pool::Solver::transaction()`
 
         :return: dict of packages and their details
 
@@ -199,6 +221,18 @@ class Sat:
         """
         jobs = []
         for job_name in job_names:
+            # There is a special handling for apt-get. In kiwi the
+            # package manager for debian based distros is selected
+            # by the name apt-get. That name is added to the package
+            # list, but apt-get does not really exist in Debian based
+            # distros. The name of the package manager from a packaging
+            # perspective is just: apt not apt-get. We should change
+            # this in the schema and code in kiwi. But so far we
+            # have the hack here. The reason why we don't see an issue
+            # by this when building debian based images is because
+            # the bootstrap phase is handled by debootstrap
+            if job_name == 'apt-get':
+                job_name = 'apt'
             selection_name = self.solv.Selection.SELECTION_NAME
             selection_provides = self.solv.Selection.SELECTION_PROVIDES
             selection = self.pool.select(

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.3" name="LimeJeOS" displayname="Bob">
+    <description type="system">
+        <author>Marcus</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            Testing image info module
+        </specification>
+    </description>
+    <preferences>
+        <version>1.13.2</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>true</rpm-check-signatures>
+        <bootsplash-theme>openSUSE</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences>
+        <type image="iso" mediacheck="true"/>
+    </preferences>
+    <repository alias="Focal" distribution="focal" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="http://us.archive.ubuntu.com/ubuntu/"/>
+    </repository>
+    <repository type="rpm-md" imageinclude="true">
+        <source path="obs://Devel:PubCloud:AmazonEC2/SLE_12_GA"/>
+    </repository>
+    <repository type="rpm-md" imageonly="true">
+        <source path="obs://Devel:Docker:Images:SLE12SP2/SLE_12_SP2_Docker"/>
+    </repository>
+    <packages type="image" patternType="plusRecommended">
+        <namedCollection name="base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+    </packages>
+</image>

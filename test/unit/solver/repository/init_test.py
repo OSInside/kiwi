@@ -34,3 +34,9 @@ class TestSolverRepository:
         self.uri.repo_type = 'rpm-dir'
         SolverRepository.new(self.uri)
         mock_rpm_dir.assert_called_once_with(self.uri, None, None)
+
+    @patch('kiwi.solver.repository.deb.SolverRepositoryDeb')
+    def test_solver_repository_apt(self, mock_deb):
+        self.uri.repo_type = 'apt-deb'
+        SolverRepository.new(self.uri)
+        mock_deb.assert_called_once_with(self.uri, None, None)

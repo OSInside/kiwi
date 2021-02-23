@@ -37,11 +37,12 @@ class SolverRepository(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(uri: Uri, user: str=None, secret: str=None):  # noqa: E252
+    def new(uri: Uri, user: str = None, secret: str = None):
         name_map = {
             'yast2': ['SolverRepositorySUSE', 'suse'],
             'rpm-md': ['SolverRepositoryRpmMd', 'rpm_md'],
-            'rpm-dir': ['SolverRepositoryRpmDir', 'rpm_dir']
+            'rpm-dir': ['SolverRepositoryRpmDir', 'rpm_dir'],
+            'apt-deb': ['SolverRepositoryDeb', 'deb']
         }
         try:
             module_name = name_map[uri.repo_type][0]
