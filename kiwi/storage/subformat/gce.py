@@ -23,13 +23,14 @@ from tempfile import mkdtemp
 from kiwi.command import Command
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.archive.tar import ArchiveTar
+from kiwi.system.result import Result
 
 
 class DiskFormatGce(DiskFormatBase):
     """
     **Create GCE - Google Compute Engine image format**
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: dict) -> None:
         """
         GCE disk format post initialization method
 
@@ -50,7 +51,7 @@ class DiskFormatGce(DiskFormatBase):
                 if key == '--tag':
                     self.tag = value
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create GCE disk format and manifest
         """
@@ -93,7 +94,7 @@ class DiskFormatGce(DiskFormatBase):
             self.temp_image_dir
         )
 
-    def store_to_result(self, result):
+    def store_to_result(self, result: Result) -> None:
         """
         Store result file of the gce format conversion into the
         provided result instance. In this case compression is unwanted

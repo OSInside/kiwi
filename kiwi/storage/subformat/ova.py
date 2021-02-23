@@ -25,6 +25,7 @@ from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.path import Path
+from kiwi.system.result import Result
 
 from kiwi.exceptions import (
     KiwiFormatSetupError,
@@ -36,7 +37,7 @@ class DiskFormatOva(DiskFormatBase):
     """
     **Create ova disk format, based on vmdk**
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: dict) -> None:
         """
         vmdk disk format post initialization method
 
@@ -53,7 +54,7 @@ class DiskFormatOva(DiskFormatBase):
             self.xml_state, self.root_dir, self.target_dir, custom_args
         )
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create ova disk format using ovftool from
         https://www.vmware.com/support/developer/ovf
@@ -97,7 +98,7 @@ class DiskFormatOva(DiskFormatBase):
         st = os.stat(vmx)
         os.chmod(ova, stat.S_IMODE(st.st_mode))
 
-    def store_to_result(self, result):
+    def store_to_result(self, result: Result) -> None:
         """
         Store the resulting ova file into the provided result instance.
 

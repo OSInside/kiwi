@@ -22,6 +22,7 @@ from abc import (
 )
 
 # project
+from kiwi.xml_state import XMLState
 from kiwi.exceptions import KiwiDiskFormatSetupError
 
 
@@ -38,9 +39,10 @@ class DiskFormat(metaclass=ABCMeta):
     def __init__(self) -> None:
         return None  # pragma: no cover
 
+    @staticmethod
     @abstractmethod
     def new(
-        name: str, xml_state: object, root_dir: str, target_dir: str
+        name: str, xml_state: XMLState, root_dir: str, target_dir: str
     ):  # noqa: E252
         name_map = {
             'qcow2': 'Qcow2',
@@ -74,7 +76,7 @@ class DiskFormat(metaclass=ABCMeta):
             )
 
     @staticmethod
-    def _custom_args_for_format(name: str, xml_state: object):
+    def _custom_args_for_format(name: str, xml_state: XMLState):
         custom_args = xml_state.get_build_type_format_options()
         module_namespace = name
         if name == 'vhd-fixed':
