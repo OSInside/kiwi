@@ -198,7 +198,8 @@ class DiskSetup:
             return True
         return False
 
-    def get_boot_label(self) -> str:
+    @staticmethod
+    def get_boot_label() -> str:
         """
         Filesystem Label to use for the boot partition
 
@@ -224,7 +225,8 @@ class DiskSetup:
             root_label = 'ROOT'
         return root_label
 
-    def get_efi_label(self) -> str:
+    @staticmethod
+    def get_efi_label() -> str:
         """
         Filesystem Label to use for the EFI partition
 

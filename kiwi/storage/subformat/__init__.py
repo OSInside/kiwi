@@ -58,9 +58,8 @@ class DiskFormat(metaclass=ABCMeta):
             'base': 'Base'
         }
         try:
-            (custom_args, module_namespace) = DiskFormat._custom_args_for_format(
-                name, xml_state
-            )
+            (custom_args, module_namespace) = DiskFormat.\
+                _custom_args_for_format(name, xml_state)
             diskformat = importlib.import_module(
                 'kiwi.storage.subformat.{0}'.format(module_namespace)
             )

@@ -15,7 +15,8 @@ from kiwi.exceptions import (
 
 class TestDiskFormatBase:
     @patch('platform.machine')
-    def setup(self, mock_machine):
+    @patch('kiwi.storage.subformat.base.DiskFormatBase.post_init')
+    def setup(self, mock_post_init, mock_machine):
         mock_machine.return_value = 'x86_64'
         xml_data = Mock()
         xml_data.get_name = Mock(
@@ -31,9 +32,15 @@ class TestDiskFormatBase:
         kiwi.storage.subformat.base.RuntimeConfig = Mock(
             return_value=self.runtime_config
         )
+        DiskFormatBase(
+            self.xml_state, 'root_dir', 'target_dir', {'option': 'unhandled'}
+        )
+        mock_post_init.assert_called_once_with({'option': 'unhandled'})
+        mock_post_init.reset_mock()
         self.disk_format = DiskFormatBase(
             self.xml_state, 'root_dir', 'target_dir'
         )
+        mock_post_init.assert_called_once_with({})
 
     def test_create_image_format(self):
         with raises(NotImplementedError):
@@ -44,8 +51,8 @@ class TestDiskFormatBase:
             self.disk_format.get_target_file_path_for_format('foo')
 
     def test_post_init(self):
-        self.disk_format.post_init({'option': 'unhandled'})
-        assert self.disk_format.custom_args == {}
+        # in the base class this method just pass
+        self.disk_format.post_init({})
 
     def test_get_qemu_option_list(self):
         custom_args = {

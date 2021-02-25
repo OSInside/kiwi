@@ -47,19 +47,18 @@ class DiskFormatBase:
     """
     def __init__(
             self, xml_state: XMLState, root_dir: str, target_dir: str,
-            custom_args: dict = {}
+            custom_args: dict = None
     ):
         self.xml_state = xml_state
         self.root_dir = root_dir
         self.arch = Defaults.get_platform_name()
         self.target_dir = target_dir
-        self.custom_args: dict = {}
         self.temp_image_dir: str = ''
         self.image_format: str = ''
         self.diskname = self.get_target_file_path_for_format('raw')
         self.runtime_config = RuntimeConfig()
 
-        self.post_init(custom_args)
+        self.post_init(custom_args or {})
 
     def post_init(self, custom_args: dict) -> None:
         """
@@ -122,7 +121,8 @@ class DiskFormatBase:
         """
         raise NotImplementedError
 
-    def get_qemu_option_list(self, custom_args: dict) -> list:
+    @staticmethod
+    def get_qemu_option_list(custom_args: dict) -> list:
         """
         Create list of qemu options from custom_args dict
 
