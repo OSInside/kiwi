@@ -19,13 +19,14 @@ from tempfile import NamedTemporaryFile
 # project
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
+from kiwi.system.result import Result
 
 
 class DiskFormatQcow2(DiskFormatBase):
     """
     **Create qcow2 disk format**
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: dict) -> None:
         """
         qcow2 disk format post initialization method
 
@@ -33,10 +34,10 @@ class DiskFormatQcow2(DiskFormatBase):
 
         :param dict custom_args: custom qemu arguments dictionary
         """
-        self.image_format = 'qcow2'
+        self.image_format: str = 'qcow2'
         self.options = self.get_qemu_option_list(custom_args)
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create qcow2 disk format
         """
@@ -57,7 +58,7 @@ class DiskFormatQcow2(DiskFormatBase):
             ]
         )
 
-    def store_to_result(self, result):
+    def store_to_result(self, result: Result) -> None:
         """
         Store result file of the format conversion into the
         provided result instance.

@@ -24,6 +24,8 @@ from kiwi.command import Command
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 from kiwi.path import Path
+from kiwi.xml_state import XMLState
+from kiwi.system.result import Result
 
 from kiwi.exceptions import (
     KiwiFormatSetupError,
@@ -43,30 +45,32 @@ class DiskFormatBase:
     :param string target_dir: target directory path name
     :param dict custom_args: custom format options dictionary
     """
-    def __init__(self, xml_state, root_dir, target_dir, custom_args=None):
+    def __init__(
+            self, xml_state: XMLState, root_dir: str, target_dir: str,
+            custom_args: dict = None
+    ):
         self.xml_state = xml_state
         self.root_dir = root_dir
         self.arch = Defaults.get_platform_name()
         self.target_dir = target_dir
-        self.custom_args = {}
-        self.temp_image_dir = None
-        self.image_format = None
+        self.temp_image_dir: str = ''
+        self.image_format: str = ''
         self.diskname = self.get_target_file_path_for_format('raw')
         self.runtime_config = RuntimeConfig()
 
-        self.post_init(custom_args)
+        self.post_init(custom_args or {})
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: dict) -> None:
         """
         Post initialization method
 
         Implementation in specialized disk format class if required
 
-        :param list custom_args: unused
+        :param dict custom_args: unused
         """
         pass
 
-    def has_raw_disk(self):
+    def has_raw_disk(self) -> bool:
         """
         Check if the base raw disk image exists
 
@@ -109,7 +113,7 @@ class DiskFormatBase:
         )
         return True
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create disk format
 
@@ -117,7 +121,8 @@ class DiskFormatBase:
         """
         raise NotImplementedError
 
-    def get_qemu_option_list(self, custom_args):
+    @staticmethod
+    def get_qemu_option_list(custom_args: dict) -> list:
         """
         Create list of qemu options from custom_args dict
 
@@ -147,7 +152,7 @@ class DiskFormatBase:
                     options.append(key)
         return options
 
-    def get_target_file_path_for_format(self, format_name):
+    def get_target_file_path_for_format(self, format_name: str) -> str:
         """
         Create target file path name for specified format
 
@@ -172,7 +177,7 @@ class DiskFormatBase:
             ]
         )
 
-    def store_to_result(self, result):
+    def store_to_result(self, result: Result):
         """
         Store result file of the format conversion into the
         provided result instance.

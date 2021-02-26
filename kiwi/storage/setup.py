@@ -23,6 +23,7 @@ from collections import namedtuple
 from kiwi.firmware import FirmWare
 from kiwi.system.size import SystemSize
 from kiwi.defaults import Defaults
+from kiwi.xml_state import XMLState
 
 log = logging.getLogger('kiwi')
 
@@ -37,7 +38,7 @@ class DiskSetup:
     :param object xml_state: Instance of XMLState
     :param string root_dir: root directory path name
     """
-    def __init__(self, xml_state, root_dir):
+    def __init__(self, xml_state: XMLState, root_dir: str):
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
         self.configured_size = xml_state.get_build_type_size()
@@ -63,7 +64,7 @@ class DiskSetup:
         self.root_dir = root_dir
         self.xml_state = xml_state
 
-    def get_disksize_mbytes(self):
+    def get_disksize_mbytes(self) -> int:
         """
         Precalculate disk size requirements in mbytes
 
@@ -197,7 +198,8 @@ class DiskSetup:
             return True
         return False
 
-    def get_boot_label(self):
+    @staticmethod
+    def get_boot_label() -> str:
         """
         Filesystem Label to use for the boot partition
 
@@ -207,7 +209,7 @@ class DiskSetup:
         """
         return 'BOOT'
 
-    def get_root_label(self):
+    def get_root_label(self) -> str:
         """
         Filesystem Label to use for the root partition
 
@@ -223,7 +225,8 @@ class DiskSetup:
             root_label = 'ROOT'
         return root_label
 
-    def get_efi_label(self):
+    @staticmethod
+    def get_efi_label() -> str:
         """
         Filesystem Label to use for the EFI partition
 
@@ -233,7 +236,7 @@ class DiskSetup:
         """
         return 'EFI'
 
-    def boot_partition_size(self):
+    def boot_partition_size(self) -> int:
         """
         Size of the boot partition in mbytes
 
@@ -244,8 +247,8 @@ class DiskSetup:
         if self.need_boot_partition():
             if self.bootpart_mbytes:
                 return self.bootpart_mbytes
-            else:
-                return Defaults.get_default_boot_mbytes()
+            return Defaults.get_default_boot_mbytes()
+        return 0
 
     def _inplace_recovery_partition_size(self):
         """

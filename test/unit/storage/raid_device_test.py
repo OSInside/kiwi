@@ -36,6 +36,9 @@ class TestRaidDevice:
         assert self.raid.get_device().get_device() == '/dev/md0'
         self.raid.raid_device = None
 
+    def test_get_device_no_mapped_device(self):
+        assert self.raid.get_device() is None
+
     @patch('kiwi.storage.raid_device.Command.run')
     @patch('os.path.exists')
     def test_create_degraded_raid(self, mock_path, mock_command):

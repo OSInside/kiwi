@@ -151,7 +151,7 @@ class XMLState:
         """
         return self.build_type.get_image()
 
-    def get_image_version(self) -> Optional[str]:
+    def get_image_version(self) -> str:
         """
         Image version from preferences section.
 
@@ -167,7 +167,7 @@ class XMLState:
             version = preferences.get_version()
             if version:
                 return version[0]
-        return None
+        return ''
 
     def get_initrd_system(self) -> str:
         """
