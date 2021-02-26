@@ -17,6 +17,9 @@
 #
 import os
 from textwrap import dedent
+from typing import (
+    List, Dict
+)
 
 # project
 from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
@@ -28,13 +31,22 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
     """
     **Create a vagrant box for the libvirt provider**
     """
-    def vagrant_post_init(self):
+    def vagrant_post_init(self) -> None:
         self.image_format = 'vagrant.libvirt.box'
         self.provider = 'libvirt'
 
-    def create_box_img(self, temp_image_dir):
+    def create_box_img(self, temp_image_dir: str) -> List[str]:
         """
         Creates the qcow2 disk image box for libvirt vagrant provider
+
+        :param str temp_image_dir:
+            Path to the temporary directory used to build the box image
+
+        :return:
+            A list of files relevant for the libvirt box to be
+            included in the vagrant box
+
+        :rtype: list
         """
         qcow = DiskFormatQcow2(
             self.xml_state, self.root_dir, self.target_dir
@@ -49,19 +61,29 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
         )
         return [box_img]
 
-    def get_additional_metadata(self):
+    def get_additional_metadata(self) -> Dict:
         """
-        Returns a dictionary containing the virtual image format and the size
-        of the image.
+        Provide box metadata needed to create the box in vagrant
+
+        :return:
+            Returns a dictionary containing the virtual image format
+            and the size of the image.
+
+        :rtype: dict
         """
         return {
             'format': 'qcow2',
             'virtual_size': int(self.vagrantconfig.get_virtualsize() or 42)
         }
 
-    def get_additional_vagrant_config_settings(self):
+    def get_additional_vagrant_config_settings(self) -> str:
         """
         Returns settings for the libvirt provider telling vagrant to use kvm.
+
+        :return:
+            ruby code to be evaluated as string
+
+        :rtype: str
         """
         return dedent('''
             config.vm.synced_folder ".", "/vagrant", type: "rsync"

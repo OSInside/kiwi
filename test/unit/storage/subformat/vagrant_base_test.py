@@ -146,8 +146,10 @@ class TestDiskFormatVagrantBase:
             )
 
     def test_get_additional_vagrant_config_settings(self):
-        assert self.disk_format.get_additional_vagrant_config_settings() \
-            is None
+        assert self.disk_format.get_additional_vagrant_config_settings() == ''
+
+    def test_get_additional_metadata(self):
+        assert self.disk_format.get_additional_metadata() == {}
 
     def test_store_to_result(self):
         # select an example provider

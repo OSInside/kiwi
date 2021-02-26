@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Dict
+
 # project
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
@@ -24,7 +26,7 @@ class DiskFormatVhdx(DiskFormatBase):
     """
     **Create vhdx image format in dynamic subformat**
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Dict) -> None:
         """
         vhdx disk format post initialization method
 
@@ -37,7 +39,7 @@ class DiskFormatVhdx(DiskFormatBase):
         self.options.append('-o')
         self.options.append('subformat=dynamic')
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create vhdx dynamic disk format
         """

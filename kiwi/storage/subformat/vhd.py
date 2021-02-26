@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import Dict
+
 # project
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
@@ -24,7 +26,7 @@ class DiskFormatVhd(DiskFormatBase):
     """
     **Create vhd disk format**
     """
-    def post_init(self, custom_args):
+    def post_init(self, custom_args: Dict) -> None:
         """
         vhd disk format post initialization method
 
@@ -35,7 +37,7 @@ class DiskFormatVhd(DiskFormatBase):
         self.image_format = 'vhd'
         self.options = self.get_qemu_option_list(custom_args)
 
-    def create_image_format(self):
+    def create_image_format(self) -> None:
         """
         Create vhd disk format
         """
