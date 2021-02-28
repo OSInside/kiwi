@@ -25,7 +25,7 @@ class SolverRepositoryDeb(SolverRepositoryBase):
     """
     def _setup_repository_metadata(self):
         """
-        Download repo metadata for rpm-md specific repositories
+        Download repo metadata for apt-deb specific repositories
         and create SAT solvables from all solver relevant files
         """
         # Download Packages metadata for the deb2solv solvable
