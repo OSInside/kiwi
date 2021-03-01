@@ -129,3 +129,6 @@
 
 #      # verify WSL naming conventions
 #      - check_appx_naming_conventions_valid
+
+#      # check kiwi dracut modules compatible with kiwi builder
+#      - check_dracut_module_versions_compatible_to_kiwi
