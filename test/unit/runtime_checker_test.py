@@ -97,7 +97,7 @@ class TestRuntimeChecker:
         )
         mock_Command_run.assert_called_once_with(
             [
-                'dpkg-query', '--admindir', 'root_dir',
+                'dpkg-query', '--admindir', 'root_dir/var/lib/dpkg',
                 '-W', '-f', '${Version}', 'dracut-kiwi-oem-dump'
             ]
         )

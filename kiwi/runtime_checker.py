@@ -955,7 +955,8 @@ class RuntimeChecker:
         elif tool == 'dpkg':
             package_query = Command.run(
                 [
-                    'dpkg-query', '--admindir', root_dir, '-W', '-f',
+                    'dpkg-query', '--admindir',
+                    os.sep.join([root_dir, 'var/lib/dpkg']), '-W', '-f',
                     '${Version}', package_name
                 ]
             )
