@@ -144,9 +144,7 @@ class SystemBuildTask(CliTask):
         build_checks.update(
             {
                 'check_target_directory_not_in_shared_cache':
-                    [abs_target_dir_path],
-                'check_dracut_module_versions_compatible_to_kiwi':
-                    [image_root]
+                    [abs_target_dir_path]
             }
         )
         self.run_checks(build_checks)
@@ -265,6 +263,12 @@ class SystemBuildTask(CliTask):
         del setup
 
         log.info('Creating system image')
+        self.run_checks(
+            {
+                'check_dracut_module_versions_compatible_to_kiwi':
+                    [image_root]
+            }
+        )
         image_builder = ImageBuilder.new(
             self.xml_state,
             abs_target_dir_path,
