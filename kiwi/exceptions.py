@@ -195,6 +195,12 @@ class KiwiConfigFileNotFound(KiwiError):
     """
 
 
+class KiwiConfigFileFormatNotSupported(KiwiError):
+    """
+    Exception raised if kiwi description file format is not supported.
+    """
+
+
 class KiwiContainerSetupError(KiwiError):
     """
     Exception raised if an error in the creation of the

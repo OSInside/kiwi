@@ -20,6 +20,7 @@ from lxml import etree
 
 # project
 from kiwi.defaults import Defaults
+from kiwi.exceptions import KiwiConfigFileFormatNotSupported
 
 
 class MarkupBase:
@@ -49,13 +50,22 @@ class MarkupBase:
 
         :param str description: path to an XML description file
         """
+        # Parse the provided description, raising the appropriate
+        # exception if parsing fails.
+        try:
+            parsed_description = etree.parse(description)
+        except etree.XMLSyntaxError:
+            raise KiwiConfigFileFormatNotSupported(
+                'Support for non-XML formatted config files requires '
+                'the Python anymarkup module.')
+
         xslt_transform = etree.XSLT(
             etree.parse(Defaults.get_xsl_stylesheet_file())
         )
         self.description_xslt_processed = NamedTemporaryFile(prefix='xslt-')
         with open(self.description_xslt_processed.name, "wb") as xsltout:
             xsltout.write(
-                etree.tostring(xslt_transform(etree.parse(description)))
+                etree.tostring(xslt_transform(parsed_description))
             )
         return self.description_xslt_processed.name
 

@@ -1,6 +1,10 @@
+from lxml import etree
+from mock import patch
 from pytest import raises
 
 from kiwi.markup.base import MarkupBase
+
+from kiwi.exceptions import KiwiConfigFileFormatNotSupported
 
 
 class TestMarkupBase:
@@ -19,3 +23,11 @@ class TestMarkupBase:
         assert 'xslt-' in self.markup.apply_xslt_stylesheets(
             '../data/example_config.xml'
         )
+
+    @patch('kiwi.markup.base.etree.parse')
+    def test_apply_xslt_stylesheets_nonXML(self, mock_parse):
+        mock_parse.side_effect = etree.XMLSyntaxError('not-XML', '<', 1, 1)
+        with raises(KiwiConfigFileFormatNotSupported):
+            self.markup.apply_xslt_stylesheets(
+                'artificial_and_invalid_XML_markup'
+            )
