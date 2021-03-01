@@ -601,6 +601,10 @@ class RuntimeChecker:
         dracut_module_dir = os.sep.join(
             [root_dir, '/usr/lib/dracut/modules.d']
         )
+        if not os.path.isdir(dracut_module_dir):
+            # no dracut module dir present
+            return
+
         incompatible_modules = {}
         for module in os.listdir(dracut_module_dir):
             module_meta = kiwi_dracut_modules.get(module)

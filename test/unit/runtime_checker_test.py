@@ -52,11 +52,22 @@ class TestRuntimeChecker:
                 '//var/cache//kiwi/foo'
             )
 
+    @patch('os.path.isdir')
+    def test_check_dracut_module_versions_compatible_to_kiwi_no_dracut(
+        self, mock_os_path_isdir
+    ):
+        mock_os_path_isdir.return_value = False
+        self.runtime_checker.\
+            check_dracut_module_versions_compatible_to_kiwi('root_dir')
+        # does not raise if no dracut is installed
+
     @patch('os.listdir')
+    @patch('os.path.isdir')
     @patch('kiwi.runtime_checker.Command.run')
     def test_check_dracut_module_versions_compatible_to_kiwi(
-        self, mock_Command_run, mock_os_listdir
+        self, mock_Command_run, mock_os_path_isdir, mock_os_listdir
     ):
+        mock_os_path_isdir.return_value = True
         command = Mock()
         command.output = '1.2.3-1.2'
         mock_Command_run.return_value = command
