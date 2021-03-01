@@ -83,7 +83,12 @@ class SystemCreateTask(CliTask):
         )
 
         self.run_checks(
-            {'check_target_directory_not_in_shared_cache': [abs_root_path]}
+            {
+                'check_target_directory_not_in_shared_cache':
+                    [abs_root_path],
+                'check_dracut_module_versions_compatible_to_kiwi':
+                    [abs_root_path]
+            }
         )
 
         log.info('Creating system image')

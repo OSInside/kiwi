@@ -1,6 +1,7 @@
 import sys
-from mock import patch
-import mock
+from mock import (
+    patch, Mock
+)
 from pytest import raises
 
 from .test_helper import argv_kiwi_tests
@@ -50,6 +51,45 @@ class TestRuntimeChecker:
             self.runtime_checker.check_target_directory_not_in_shared_cache(
                 '//var/cache//kiwi/foo'
             )
+
+    @patch('os.listdir')
+    @patch('kiwi.runtime_checker.Command.run')
+    def test_check_dracut_module_versions_compatible_to_kiwi(
+        self, mock_Command_run, mock_os_listdir
+    ):
+        command = Mock()
+        command.output = '1.2.3-1.2'
+        mock_Command_run.return_value = command
+        mock_os_listdir.return_value = ['90kiwi-dump']
+        package_manager = Mock()
+        package_manager.return_value = 'zypper'
+        self.xml_state.get_package_manager = package_manager
+        with raises(KiwiRuntimeError) as exception_data:
+            self.runtime_checker.\
+                check_dracut_module_versions_compatible_to_kiwi('root_dir')
+        assert "'dracut-kiwi-oem-dump': 'got:1.2.3, need:>=9.20.1'" in str(
+            exception_data.value
+        )
+        mock_Command_run.assert_called_once_with(
+            [
+                'rpm', '--root', 'root_dir', '-q',
+                '--qf', '%{VERSION}', 'dracut-kiwi-oem-dump'
+            ]
+        )
+        package_manager.return_value = 'apt-get'
+        mock_Command_run.reset_mock()
+        with raises(KiwiRuntimeError) as exception_data:
+            self.runtime_checker.\
+                check_dracut_module_versions_compatible_to_kiwi('root_dir')
+        assert "'dracut-kiwi-oem-dump': 'got:1.2.3, need:>=9.20.1'" in str(
+            exception_data.value
+        )
+        mock_Command_run.assert_called_once_with(
+            [
+                'dpkg-query', '--admindir', 'root_dir',
+                '-W', '-f', '${Version}', 'dracut-kiwi-oem-dump'
+            ]
+        )
 
     def test_valid_target_dir_1(self):
         assert self.runtime_checker.check_target_directory_not_in_shared_cache(
@@ -209,26 +249,26 @@ class TestRuntimeChecker:
             runtime_checker.check_boot_description_exists()
 
     def test_check_xen_uniquely_setup_as_server_or_guest_for_ec2(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
+        self.xml_state.build_type.get_firmware = Mock(
             return_value='ec2'
         )
-        self.xml_state.is_xen_server = mock.Mock(
+        self.xml_state.is_xen_server = Mock(
             return_value=True
         )
-        self.xml_state.is_xen_guest = mock.Mock(
+        self.xml_state.is_xen_guest = Mock(
             return_value=True
         )
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
 
     def test_check_xen_uniquely_setup_as_server_or_guest_for_xen(self):
-        self.xml_state.build_type.get_firmware = mock.Mock(
+        self.xml_state.build_type.get_firmware = Mock(
             return_value=None
         )
-        self.xml_state.is_xen_server = mock.Mock(
+        self.xml_state.is_xen_server = Mock(
             return_value=True
         )
-        self.xml_state.is_xen_guest = mock.Mock(
+        self.xml_state.is_xen_guest = Mock(
             return_value=True
         )
         with raises(KiwiRuntimeError):
@@ -238,7 +278,7 @@ class TestRuntimeChecker:
         xml_state = XMLState(
             self.description.load(), ['vmxFlavour'], 'iso'
         )
-        xml_state.build_type.get_overlayroot = mock.Mock(
+        xml_state.build_type.get_overlayroot = Mock(
             return_value=True
         )
         runtime_checker = RuntimeChecker(xml_state)
@@ -247,10 +287,10 @@ class TestRuntimeChecker:
                 check_dracut_module_for_disk_overlay_in_package_list()
 
     def test_check_efi_mode_for_disk_overlay_correctly_setup(self):
-        self.xml_state.build_type.get_overlayroot = mock.Mock(
+        self.xml_state.build_type.get_overlayroot = Mock(
             return_value=True
         )
-        self.xml_state.build_type.get_firmware = mock.Mock(
+        self.xml_state.build_type.get_firmware = Mock(
             return_value='uefi'
         )
         with raises(KiwiRuntimeError):
