@@ -29,5 +29,5 @@ class TestMarkupBase:
         mock_parse.side_effect = etree.XMLSyntaxError('not-XML', '<', 1, 1)
         with raises(KiwiConfigFileFormatNotSupported):
             self.markup.apply_xslt_stylesheets(
-                '../data/example_config.xml'
+                'artificial_and_invalid_XML_markup'
             )
