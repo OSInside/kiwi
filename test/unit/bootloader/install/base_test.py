@@ -17,3 +17,7 @@ class TestBootLoaderInstallBase:
     def test_install_required(self):
         with raises(NotImplementedError):
             self.bootloader.install_required()
+
+    def test_secure_boot_install(self):
+        with raises(NotImplementedError):
+            self.bootloader.secure_boot_install()
