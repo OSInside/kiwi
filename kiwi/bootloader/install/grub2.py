@@ -119,7 +119,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             return False
         return True
 
-    def install(self):  # noqa: C901
+    def install(self):
         """
         Install bootloader on disk device
         """
@@ -157,61 +157,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 self.arch
             )
 
-        self.root_mount = MountManager(
-            device=self.custom_args['root_device']
-        )
-        if 's390' in self.arch:
-            self.boot_mount = MountManager(
-                device=self.custom_args['boot_device'],
-                mountpoint=self.root_mount.mountpoint + '/boot/zipl'
-            )
-        else:
-            self.boot_mount = MountManager(
-                device=self.custom_args['boot_device'],
-                mountpoint=self.root_mount.mountpoint + '/boot'
-            )
-        if self.custom_args.get('efi_device'):
-            self.efi_mount = MountManager(
-                device=self.custom_args['efi_device'],
-                mountpoint=self.root_mount.mountpoint + '/boot/efi'
-            )
-
-        self.root_mount.mount()
-
-        if not self.root_mount.device == self.boot_mount.device:
-            self.boot_mount.mount()
-
-        if self.efi_mount:
-            self.efi_mount.mount()
-
-        if self.volumes:
-            for volume_path in Path.sort_by_hierarchy(
-                sorted(self.volumes.keys())
-            ):
-                volume_mount = MountManager(
-                    device=self.volumes[volume_path]['volume_device'],
-                    mountpoint=self.root_mount.mountpoint + '/' + volume_path
-                )
-                self.volumes_mount.append(volume_mount)
-                volume_mount.mount(
-                    options=[self.volumes[volume_path]['volume_options']]
-                )
-
-        self.device_mount = MountManager(
-            device='/dev',
-            mountpoint=self.root_mount.mountpoint + '/dev'
-        )
-        self.proc_mount = MountManager(
-            device='/proc',
-            mountpoint=self.root_mount.mountpoint + '/proc'
-        )
-        self.sysfs_mount = MountManager(
-            device='/sys',
-            mountpoint=self.root_mount.mountpoint + '/sys'
-        )
-        self.device_mount.bind_mount()
-        self.proc_mount.bind_mount()
-        self.sysfs_mount.bind_mount()
+        self._mount_device_and_volumes()
 
         # check if a grub installation could be found in the image system
         module_directory = Defaults.get_grub_path(
@@ -288,7 +234,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 ]
             )
 
-        if self.firmware and self.firmware.efi_mode() == 'uefi':
+    def secure_boot_install(self):
+        if self.firmware and self.firmware.efi_mode() == 'uefi' and (
+            Defaults.is_x86_arch(self.arch)
+            or 'arm' in self.arch or self.arch == 'aarch64'     # noqa: W503
+        ):
+            self._mount_device_and_volumes()
             shim_install = self._get_shim_install_tool_name(
                 self.root_mount.mountpoint
             )
@@ -308,11 +259,70 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                     [
                         'chroot', self.root_mount.mountpoint,
                         'shim-install', '--removable',
-                        self.install_device
+                        self.device
                     ]
                 )
                 # restore the grub installer noop
                 self._enable_grub2_install(self.root_mount.mountpoint)
+
+    def _mount_device_and_volumes(self):
+        if self.root_mount is None:
+            self.root_mount = MountManager(
+                device=self.custom_args['root_device']
+            )
+            self.root_mount.mount()
+
+        if self.boot_mount is None:
+            if 's390' in self.arch:
+                self.boot_mount = MountManager(
+                    device=self.custom_args['boot_device'],
+                    mountpoint=self.root_mount.mountpoint + '/boot/zipl'
+                )
+            else:
+                self.boot_mount = MountManager(
+                    device=self.custom_args['boot_device'],
+                    mountpoint=self.root_mount.mountpoint + '/boot'
+                )
+            if not self.root_mount.device == self.boot_mount.device:
+                self.boot_mount.mount()
+
+        if self.efi_mount is None and self.custom_args.get('efi_device'):
+            self.efi_mount = MountManager(
+                device=self.custom_args['efi_device'],
+                mountpoint=self.root_mount.mountpoint + '/boot/efi'
+            )
+            self.efi_mount.mount()
+
+        if self.volumes and not self.volumes_mount:
+            for volume_path in Path.sort_by_hierarchy(
+                sorted(self.volumes.keys())
+            ):
+                volume_mount = MountManager(
+                    device=self.volumes[volume_path]['volume_device'],
+                    mountpoint=self.root_mount.mountpoint + '/' + volume_path
+                )
+                self.volumes_mount.append(volume_mount)
+                volume_mount.mount(
+                    options=[self.volumes[volume_path]['volume_options']]
+                )
+        if self.device_mount is None:
+            self.device_mount = MountManager(
+                device='/dev',
+                mountpoint=self.root_mount.mountpoint + '/dev'
+            )
+            self.device_mount.bind_mount()
+        if self.proc_mount is None:
+            self.proc_mount = MountManager(
+                device='/proc',
+                mountpoint=self.root_mount.mountpoint + '/proc'
+            )
+            self.proc_mount.bind_mount()
+        if self.sysfs_mount is None:
+            self.sysfs_mount = MountManager(
+                device='/sys',
+                mountpoint=self.root_mount.mountpoint + '/sys'
+            )
+            self.sysfs_mount.bind_mount()
 
     def _disable_grub2_install(self, root_path):
         if os.access(root_path, os.W_OK):

@@ -58,3 +58,11 @@ class BootLoaderInstallBase:
         Implementation in specialized bootloader install class required
         """
         raise NotImplementedError
+
+    def secure_boot_install(self):
+        """
+        Run shim-install in self.device for secure boots
+
+        Implementation in specialized bootloader install class required
+        """
+        raise NotImplementedError

@@ -1114,6 +1114,7 @@ class DiskBuilder:
             )
             if bootloader.install_required():
                 bootloader.install()
+            bootloader.secure_boot_install()
 
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()
