@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.3" name="kiwi-test-image-live">
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="7.3" name="kiwi-test-image-live-disk">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>live iso secure boot test build</specification>
     </description>
+    <profiles>
+        <profile name="Live" description="Live image of Tumbleweed"/>
+        <profile name="Disk" description="OEM image of Tumbleweed"/>
+    </profiles>
     <preferences>
         <version>1.15.0</version>
         <packagemanager>zypper</packagemanager>
@@ -16,7 +22,18 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences profiles="Live">
         <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+    </preferences>
+    <preferences profiles="Disk">
+        <type image="oem" firmware="uefi" kernelcmdline="console=ttyS0" installiso="true" filesystem="ext4">
+            <bootloader name="grub2" console="serial" />
+            <oemconfig>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>200</oem-swapsize>
+            </oemconfig>
+        </type>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
@@ -48,7 +65,14 @@
         <package name="which"/>
         <package name="kernel-default"/>
         <package name="timezone"/>
+        <package name="shim"/>
+    </packages>
+    <packages type="image" profiles="Live">
         <package name="dracut-kiwi-live"/>
+    </packages>
+    <packages type="image" profiles="Disk">
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
     </packages>
     <packages type="bootstrap">
         <package name="udev"/>
