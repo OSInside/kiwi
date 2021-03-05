@@ -174,7 +174,7 @@ pypi_upload:
   script:
     - base64 --decode "$PYPI_CONFIG" > .pypirc
     - export PYTHON=python3.6
-    - tox -e release
+    - tox -e doc_man,release
   cache:
     key: "$CI_JOB_NAME"
     paths:
