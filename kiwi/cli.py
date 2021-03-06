@@ -218,6 +218,8 @@ class Cli:
                     value = os.sep + Defaults.get_shared_cache_location()
                 if arg == '--shared-cache-dir' and value:
                     Defaults.set_shared_cache_location(value)
+                if arg == '--config' and value:
+                    Defaults.set_custom_runtime_config_file(value)
                 result[arg] = value
         return result
 

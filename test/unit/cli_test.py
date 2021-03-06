@@ -22,7 +22,7 @@ class TestCli:
         self._caplog = caplog
 
     def setup(self):
-        self.help_global_args = {
+        self.expected_global_args = {
             'help': False,
             '--compat': False,
             'compat': False,
@@ -39,7 +39,7 @@ class TestCli:
             '--profile': [],
             '--shared-cache-dir': '/var/cache/kiwi',
             '--help': False,
-            '--config': None
+            '--config': 'config-file'
         }
         self.command_args = {
             '--add-repo': [],
@@ -141,7 +141,16 @@ class TestCli:
         assert self.cli.get_command_args() == self.command_args
 
     def test_get_global_args(self):
-        assert self.cli.get_global_args() == self.help_global_args
+        self.cli.all_args['--config'] = 'config-file'
+        sys.argv = [
+            sys.argv[0],
+            '--config', 'config-file',
+            'system', 'build',
+            '--description', 'description',
+            '--target-dir', 'directory'
+        ]
+        cli = Cli()
+        assert cli.get_global_args() == self.expected_global_args
 
     def test_load_command(self):
         assert self.cli.load_command() == self.loaded_command

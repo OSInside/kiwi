@@ -6,6 +6,8 @@ from pytest import raises
 
 from .test_helper import argv_kiwi_tests
 
+import kiwi
+
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
@@ -20,9 +22,18 @@ class TestRuntimeChecker:
         self.xml_state = XMLState(
             self.description.load()
         )
+        self.runtime_config = Mock()
+        self.runtime_config.get_oci_archive_tool.return_value = 'umoci'
+        kiwi.runtime_checker.RuntimeConfig = Mock(
+            return_value=self.runtime_config
+        )
         self.runtime_checker = RuntimeChecker(self.xml_state)
 
-    def test_check_image_include_repos_publicly_resolvable(self):
+    @patch('kiwi.runtime_checker.Uri')
+    def test_check_image_include_repos_publicly_resolvable(self, mock_Uri):
+        uri = Mock()
+        uri.is_public.return_value = False
+        mock_Uri.return_value = uri
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_image_include_repos_publicly_resolvable()
 
@@ -160,12 +171,11 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
 
-    @patch('kiwi.runtime_checker.RuntimeConfig.get_oci_archive_tool')
     @patch('kiwi.runtime_checker.Path.which')
     def test_check_container_tool_chain_installed_unknown_tool(
-        self, mock_which, mock_oci_tool
+        self, mock_which
     ):
-        mock_oci_tool.return_value = 'budah'
+        self.runtime_config.get_oci_archive_tool.return_value = 'budah'
         mock_which.return_value = False
         xml_state = XMLState(
             self.description.load(), ['docker'], 'docker'
@@ -174,12 +184,11 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
 
-    @patch('kiwi.runtime_checker.RuntimeConfig.get_oci_archive_tool')
     @patch('kiwi.runtime_checker.Path.which')
     def test_check_container_tool_chain_installed_buildah(
-        self, mock_which, mock_oci_tool
+        self, mock_which
     ):
-        mock_oci_tool.return_value = 'buildah'
+        self.runtime_config.get_oci_archive_tool.return_value = 'buildah'
         mock_which.return_value = False
         xml_state = XMLState(
             self.description.load(), ['docker'], 'docker'

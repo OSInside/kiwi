@@ -1,7 +1,5 @@
 import logging
-from mock import (
-    patch, Mock
-)
+from mock import patch
 from pytest import (
     raises, fixture
 )
@@ -16,41 +14,30 @@ from kiwi.exceptions import (
 
 
 class TestRuntimeConfig:
+    def setup(self):
+        Defaults.set_custom_runtime_config_file(None)
+
     @fixture(autouse=True)
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('kiwi.runtime_config.Cli')
-    def test__get_attribute_raises_on_invalid_structure(self, mock_Cli):
-        cli = Mock()
-        cli.get_global_args.return_value = {}
-        mock_Cli.return_value = cli
+    def test__get_attribute_raises_on_invalid_structure(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/broken'}):
             runtime_config = RuntimeConfig(reread=True)
             with raises(KiwiRuntimeConfigFormatError):
                 runtime_config._get_attribute('foo', 'bar')
 
-    @patch('kiwi.runtime_config.Cli')
-    def test_init_raises_custom_config_file_not_found(self, mock_Cli):
-        cli = Mock()
-        cli.get_global_args.return_value = {}
-        mock_Cli.return_value = cli
-        cli.get_global_args.return_value = {
-            '--config': '../data/kiwi.yml'
-        }
+    def test_init_raises_custom_config_file_not_found(self):
+        Defaults.set_custom_runtime_config_file('some-config-file')
         with patch('os.path.isfile', return_value=False):
             with raises(KiwiRuntimeConfigFileError):
                 RuntimeConfig(reread=True)
 
     @patch('os.path.exists')
     @patch('yaml.safe_load')
-    @patch('kiwi.runtime_config.Cli')
     def test_reading_system_wide_config_file(
-        self, mock_Cli, mock_yaml, mock_exists
+        self, mock_yaml, mock_exists
     ):
-        cli = Mock()
-        cli.get_global_args.return_value = {}
-        mock_Cli.return_value = cli
         exists_call_results = [True, False]
 
         def os_path_exists(config):
@@ -61,11 +48,7 @@ class TestRuntimeConfig:
             RuntimeConfig(reread=True)
             m_open.assert_called_once_with('/etc/kiwi.yml', 'r')
 
-    @patch('kiwi.runtime_config.Cli')
-    def test_config_sections_from_home_base_config(self, mock_Cli):
-        cli = Mock()
-        cli.get_global_args.return_value = {}
-        mock_Cli.return_value = cli
+    def test_config_sections_from_home_base_config(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/ok'}):
             runtime_config = RuntimeConfig(reread=True)
 
@@ -88,14 +71,8 @@ class TestRuntimeConfig:
             {'user_name': 'user_credentials'}
         ]
 
-    @patch('kiwi.runtime_config.Cli')
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
-    def test_config_sections_defaults(
-        self, mock_is_buildservice_worker, mock_Cli
-    ):
-        cli = Mock()
-        cli.get_global_args.return_value = {}
-        mock_Cli.return_value = cli
+    def test_config_sections_defaults(self, mock_is_buildservice_worker):
         mock_is_buildservice_worker.return_value = True
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/defaults'}):
             runtime_config = RuntimeConfig(reread=True)
@@ -112,11 +89,7 @@ class TestRuntimeConfig:
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_package_changes() is False
 
-    @patch('kiwi.runtime_config.Cli')
-    def test_config_sections_invalid(self, mock_Cli):
-        cli = Mock()
-        cli.get_global_args.return_value = {}
-        mock_Cli.return_value = cli
+    def test_config_sections_invalid(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/invalid'}):
             runtime_config = RuntimeConfig(reread=True)
 
@@ -129,11 +102,7 @@ class TestRuntimeConfig:
             assert 'Skipping invalid iso tool category: foo' in \
                 self._caplog.text
 
-    @patch('kiwi.runtime_config.Cli')
-    def test_config_sections_other_settings(self, mock_Cli):
-        cli = Mock()
-        cli.get_global_args.return_value = {}
-        mock_Cli.return_value = cli
+    def test_config_sections_other_settings(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/other'}):
             runtime_config = RuntimeConfig(reread=True)
 
