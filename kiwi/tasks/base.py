@@ -54,9 +54,6 @@ class CliTask:
         # initialize runtime checker
         self.runtime_checker = None
 
-        # initialize runtime configuration
-        self.runtime_config = RuntimeConfig()
-
         # help requested
         self.cli.show_and_exit_on_help_request()
 
@@ -68,6 +65,9 @@ class CliTask:
 
         # get global args
         self.global_args = self.cli.get_global_args()
+
+        # initialize runtime configuration
+        self.runtime_config = RuntimeConfig()
 
         # initialize generic runtime check dicts
         self.checks_before_command_args = {

@@ -20,7 +20,8 @@ import logging
 import yaml
 
 # project
-from kiwi.cli import Cli
+import kiwi.defaults as defaults
+
 from kiwi.defaults import Defaults
 from kiwi.utils.size import StringToSize
 from kiwi.exceptions import (
@@ -51,9 +52,8 @@ class RuntimeConfig:
         global RUNTIME_CONFIG
 
         if RUNTIME_CONFIG is None or reread:
-            cli = Cli()
             config_file = None
-            custom_config_file = cli.get_global_args().get('--config')
+            custom_config_file = defaults.CUSTOM_RUNTIME_CONFIG_FILE
 
             if custom_config_file:
                 config_file = custom_config_file

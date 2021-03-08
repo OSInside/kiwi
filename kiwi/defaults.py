@@ -39,6 +39,7 @@ EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
 IMAGE_METADATA_DIR = 'image'
 ROOT_VOLUME_NAME = 'LVRoot'
 SHARED_CACHE_DIR = '/var/cache/kiwi'
+CUSTOM_RUNTIME_CONFIG_FILE = None
 
 
 class Defaults:
@@ -203,6 +204,16 @@ class Defaults:
         """
         global SHARED_CACHE_DIR
         SHARED_CACHE_DIR = location
+
+    @staticmethod
+    def set_custom_runtime_config_file(filename):
+        """
+        Sets the runtime config file once
+
+        :param str filename: a file path name
+        """
+        global CUSTOM_RUNTIME_CONFIG_FILE
+        CUSTOM_RUNTIME_CONFIG_FILE = filename
 
     @staticmethod
     def get_shared_cache_location():

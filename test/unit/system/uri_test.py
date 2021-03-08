@@ -117,15 +117,24 @@ class TestUri:
 
     @patch('kiwi.system.uri.requests')
     def test_is_public(self, mock_request):
+        # unknown uri schema is considered not public
         uri = Uri('xxx', 'rpm-md')
         assert uri.is_public() is False
+
+        # https is public
         uri = Uri('https://example.com', 'rpm-md')
         assert uri.is_public() is True
+
+        # obs is private with obs_public set to false in config
         uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')
         self.runtime_config.is_obs_public = mock.Mock(
             return_value=False
         )
         uri.runtime_config = self.runtime_config
+        assert uri.is_public() is False
+
+        # unknown uri type considered not public
+        uri = Uri('httpx://example.com', 'rpm-md')
         assert uri.is_public() is False
 
     def test_alias(self):
