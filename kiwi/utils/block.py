@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 
 # project
 from kiwi.command import Command
@@ -25,11 +26,20 @@ class BlockID:
     """
     **Get information from a block device**
 
-    :param str device: block device node name name
+    :param str device:
+        block device node name name. The device can
+        also be specified as UUID=<uuid>
 
     """
     def __init__(self, device):
-        self.device = device
+        uuid_format = re.match(r'^UUID=(.*)', device)
+        if uuid_format:
+            blkid_result = Command.run(
+                ['blkid', '--uuid', uuid_format.group(1)]
+            )
+            self.device = blkid_result.output.strip(os.linesep)
+        else:
+            self.device = device
 
     def get_label(self):
         """

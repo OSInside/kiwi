@@ -25,6 +25,7 @@ from kiwi.mount_manager import MountManager
 from kiwi.storage.setup import DiskSetup
 from kiwi.path import Path
 from kiwi.defaults import Defaults
+from kiwi.utils.block import BlockID
 
 from kiwi.exceptions import (
     KiwiBootLoaderTargetError
@@ -549,6 +550,7 @@ class BootLoaderConfigBase:
 
     def _get_root_cmdline_parameter(self, uuid):
         cmdline = self.xml_state.build_type.get_kernelcmdline()
+        persistency_type = self.xml_state.build_type.get_devicepersistency()
         if cmdline and 'root=' in cmdline:
             log.info(
                 'Kernel root device explicitly set via kernelcmdline'
@@ -560,10 +562,13 @@ class BootLoaderConfigBase:
         if uuid and self.xml_state.build_type.get_overlayroot():
             return 'root=overlay:UUID={0}'.format(uuid)
         elif uuid:
-            return 'root=UUID={0} rw'.format(uuid)
+            block_operation = BlockID(f'UUID={uuid}')
+            blkid_type = 'LABEL' if persistency_type == 'by-label' else 'UUID'
+            location = block_operation.get_blkid(blkid_type)
+            return f'root={blkid_type}={location} rw'
         else:
             log.warning(
-                'root=UUID=<uuid> setup requested, but uuid is not provided'
+                'root setup based on UUID requested, but uuid is not provided'
             )
 
     def __del__(self):
