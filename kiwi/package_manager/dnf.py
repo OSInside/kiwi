@@ -16,12 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
+from typing import List
 
 # project
 from kiwi.command import Command
 from kiwi.utils.rpm_database import RpmDataBase
 from kiwi.utils.rpm import Rpm
 from kiwi.package_manager.base import PackageManagerBase
+from kiwi.system.root_bind import RootBind
 from kiwi.path import Path
 from kiwi.exceptions import KiwiRequestError
 from kiwi.defaults import Defaults
@@ -36,7 +38,7 @@ class PackageManagerDnf(PackageManagerBase):
     :param dict command_env: dnf command environment from repository runtime
         configuration
     """
-    def post_init(self, custom_args=None):
+    def post_init(self, custom_args: List = None) -> None:
         """
         Post initialization method
 
@@ -50,7 +52,7 @@ class PackageManagerDnf(PackageManagerBase):
         self.dnf_args = runtime_config['dnf_args']
         self.command_env = runtime_config['command_env']
 
-    def request_package(self, name):
+    def request_package(self, name: str) -> None:
         """
         Queue a package request
 
@@ -58,7 +60,7 @@ class PackageManagerDnf(PackageManagerBase):
         """
         self.package_requests.append(name)
 
-    def request_collection(self, name):
+    def request_collection(self, name: str) -> None:
         """
         Queue a collection request
 
@@ -66,7 +68,7 @@ class PackageManagerDnf(PackageManagerBase):
         """
         self.collection_requests.append('"' + name + '"')
 
-    def request_product(self, name):
+    def request_product(self, name: str) -> None:
         """
         Queue a product request
 
@@ -76,7 +78,7 @@ class PackageManagerDnf(PackageManagerBase):
         """
         pass
 
-    def request_package_exclusion(self, name):
+    def request_package_exclusion(self, name: str) -> None:
         """
         Queue a package exclusion(skip) request
 
@@ -84,7 +86,7 @@ class PackageManagerDnf(PackageManagerBase):
         """
         self.exclude_requests.append(name)
 
-    def process_install_requests_bootstrap(self, root_bind=None):
+    def process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
         """
         Process package install requests for bootstrap phase (no chroot)
 
@@ -115,7 +117,7 @@ class PackageManagerDnf(PackageManagerBase):
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
 
-    def process_install_requests(self):
+    def process_install_requests(self) -> None:
         """
         Process package install requests for image phase (chroot)
 
@@ -149,7 +151,7 @@ class PackageManagerDnf(PackageManagerBase):
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
 
-    def process_delete_requests(self, force=False):
+    def process_delete_requests(self, force: bool = False) -> None:
         """
         Process package delete requests (chroot)
 
@@ -193,7 +195,7 @@ class PackageManagerDnf(PackageManagerBase):
                 self.command_env
             )
 
-    def update(self):
+    def update(self) -> None:
         """
         Process package update requests (chroot)
 
@@ -211,21 +213,21 @@ class PackageManagerDnf(PackageManagerBase):
             self.command_env
         )
 
-    def process_only_required(self):
+    def process_only_required(self) -> None:
         """
         Setup package processing only for required packages
         """
         if '--setopt=install_weak_deps=False' not in self.custom_args:
             self.custom_args.append('--setopt=install_weak_deps=False')
 
-    def process_plus_recommended(self):
+    def process_plus_recommended(self) -> None:
         """
         Setup package processing to also include recommended dependencies.
         """
         if '--setopt=install_weak_deps=False' in self.custom_args:
             self.custom_args.remove('--setopt=install_weak_deps=False')
 
-    def match_package_installed(self, package_name, dnf_output):
+    def match_package_installed(self, package_name: str, package_manager_output: str) -> bool:
         """
         Match expression to indicate a package has been installed
 
@@ -234,33 +236,33 @@ class PackageManagerDnf(PackageManagerBase):
         be false positives due to sub package names starting with
         the same base package name
 
-        :param list package_list: list of all packages
-        :param str log_line: dnf status line
+        :param str package_name: package_name
+        :param str package_manager_output: dnf status line
 
-        :returns: match or None if there isn't any match
+        :returns: True|False
 
-        :rtype: match object, None
+        :rtype: bool
         """
-        return re.match(
-            '.*Installing  : ' + re.escape(package_name) + '.*', dnf_output
-        )
+        return bool(re.match(
+            '.*Installing  : ' + re.escape(package_name) + '.*', package_manager_output
+        ))
 
-    def match_package_deleted(self, package_name, dnf_output):
+    def match_package_deleted(self, package_name: str, package_manager_output: str) -> bool:
         """
         Match expression to indicate a package has been deleted
 
-        :param list package_list: list of all packages
-        :param str log_line: dnf status line
+        :param str package_name: package_name
+        :param str package_manager_output: dnf status line
 
-        :returns: match or None if there isn't any match
+        :returns: True|False
 
-        :rtype: match object, None
+        :rtype: bool
         """
-        return re.match(
-            '.*Removing: ' + re.escape(package_name) + '.*', dnf_output
-        )
+        return bool(re.match(
+            '.*Removing: ' + re.escape(package_name) + '.*', package_manager_output
+        ))
 
-    def post_process_install_requests_bootstrap(self, root_bind=None):
+    def post_process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
         """
         Move the rpm database to the place as it is expected by the
         rpm package installed during bootstrap phase
@@ -271,7 +273,7 @@ class PackageManagerDnf(PackageManagerBase):
         if rpmdb.has_rpm():
             rpmdb.set_database_to_image_path()
 
-    def clean_leftovers(self):
+    def clean_leftovers(self) -> None:
         """
         Cleans package manager related data not needed in the
         resulting image such as custom macros
