@@ -539,6 +539,7 @@ class TestBootLoaderConfigGrub2:
                 '/boot/grub2/themes/openSUSE/background.png'
             ),
             call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
+            call('GRUB_DISABLE_LINUX_UUID', 'true'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
             call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
@@ -580,6 +581,7 @@ class TestBootLoaderConfigGrub2:
                 'GRUB_BACKGROUND',
                 '/boot/grub2/themes/openSUSE/background.png'
             ),
+            call('GRUB_DISABLE_LINUX_UUID', 'true'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
             call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),

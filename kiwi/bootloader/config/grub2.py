@@ -101,6 +101,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.failsafe_boot = self.failsafe_boot_entry_requested()
         self.mediacheck_boot = self.xml_state.build_type.get_mediacheck()
         self.xen_guest = self.xml_state.is_xen_guest()
+        self.persistency_type = \
+            self.xml_state.build_type.get_devicepersistency()
         self.firmware = FirmWare(
             self.xml_state
         )
@@ -610,6 +612,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_GFXMODE
         * GRUB_TERMINAL
         * GRUB_DISTRIBUTOR
+        * GRUB_DISABLE_LINUX_UUID
         """
         grub_default_entries = {
             'GRUB_TIMEOUT': self.timeout,
@@ -619,6 +622,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         grub_final_cmdline = re.sub(
             r'root=.* |root=.*$', '', self.cmdline
         ).strip()
+        if self.persistency_type != 'by-uuid':
+            grub_default_entries['GRUB_DISABLE_LINUX_UUID'] = 'true'
         if self.displayname:
             grub_default_entries['GRUB_DISTRIBUTOR'] = '"{0}"'.format(
                 self.displayname
@@ -1229,48 +1234,45 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _fix_grub_root_device_reference(self, config_file, boot_options):
         if self.root_reference:
-            if self.root_filesystem_is_overlay or \
-               self.arch.startswith('s390') or \
-               Defaults.is_buildservice_worker():
-                # grub2-mkconfig has no idea how the correct root= setup is
-                # for disk images created with overlayroot enabled or in a
-                # buildservice worker environment. Because of that the mkconfig
-                # tool just finds the raw partition loop device and includes it
-                # which is wrong. In this particular case we have to patch the
-                # written config file and replace the wrong root= reference with
-                # the correct value.
-                with open(config_file) as grub_config_file:
-                    grub_config = grub_config_file.read()
-                    # The following expression matches any of the following
-                    # grub mkconfig root= settings and replaces it with a
-                    # correct value
-                    # 1. root=LOCAL-KIWI-MAPPED-DEVICE
-                    # 2. root=[a-zA-Z]=ANY-LINUX-BY-ID-VALUE
-                    grub_config = re.sub(
-                        r'(root=[a-zA-Z]+=[a-zA-Z0-9:\.-]+)|(root={0})'.format(
-                            boot_options.get('root_device')
-                        ),
-                        '{0}'.format(self.root_reference),
-                        grub_config
-                    )
+            # grub2-mkconfig has no idea how the correct root= setup is
+            # for disk images created with overlayroot enabled or in a
+            # buildservice worker environment. Because of that the mkconfig
+            # tool just finds the raw partition loop device and includes it
+            # which is wrong. In this particular case we have to patch the
+            # written config file and replace the wrong root= reference with
+            # the correct value.
+            with open(config_file) as grub_config_file:
+                grub_config = grub_config_file.read()
+                # The following expression matches any of the following
+                # grub mkconfig root= settings and replaces it with a
+                # correct value
+                # 1. root=LOCAL-KIWI-MAPPED-DEVICE
+                # 2. root=[a-zA-Z]=ANY-LINUX-BY-ID-VALUE
+                grub_config = re.sub(
+                    r'(root=[a-zA-Z]+=[a-zA-Z0-9:\.-]+)|(root={0})'.format(
+                        boot_options.get('root_device')
+                    ),
+                    '{0}'.format(self.root_reference),
+                    grub_config
+                )
 
-                with open(config_file, 'w') as grub_config_file:
-                    grub_config_file.write(grub_config)
+            with open(config_file, 'w') as grub_config_file:
+                grub_config_file.write(grub_config)
 
-                if self.firmware.efi_mode():
-                    vendor_grubenv_file = \
-                        Defaults.get_vendor_grubenv(self.efi_mount.mountpoint)
-                    if vendor_grubenv_file:
-                        with open(vendor_grubenv_file) as vendor_grubenv:
-                            grubenv = vendor_grubenv.read()
-                            grubenv = grubenv.replace(
-                                'root={0}'.format(
-                                    boot_options.get('root_device')
-                                ),
-                                self.root_reference
-                            )
-                        with open(vendor_grubenv_file, 'w') as vendor_grubenv:
-                            vendor_grubenv.write(grubenv)
+            if self.firmware.efi_mode():
+                vendor_grubenv_file = \
+                    Defaults.get_vendor_grubenv(self.efi_mount.mountpoint)
+                if vendor_grubenv_file:
+                    with open(vendor_grubenv_file) as vendor_grubenv:
+                        grubenv = vendor_grubenv.read()
+                        grubenv = grubenv.replace(
+                            'root={0}'.format(
+                                boot_options.get('root_device')
+                            ),
+                            self.root_reference
+                        )
+                    with open(vendor_grubenv_file, 'w') as vendor_grubenv:
+                        vendor_grubenv.write(grubenv)
 
     def _fix_grub_loader_entries_boot_cmdline(self):
         if self.cmdline:
