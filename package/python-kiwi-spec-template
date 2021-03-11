@@ -156,15 +156,6 @@ Requires:       xorriso
 %ifarch %{ix86} x86_64
 Requires:       syslinux
 %endif
-%if "%{_vendor}" == "debbuild"
-Requires:       qemu-utils
-%else
-%if 0%{?suse_version}
-Requires:       qemu-tools
-%else
-Requires:       qemu-img
-%endif
-%endif
 Requires:       kiwi-systemdeps-core = %{version}-%{release}
 Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
 Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
@@ -246,6 +237,15 @@ Requires:       lvm2
 Requires:       parted
 Requires:       kpartx
 Requires:       cryptsetup
+%if "%{_vendor}" == "debbuild"
+Requires:       qemu-utils
+%else
+%if 0%{?suse_version}
+Requires:       qemu-tools
+%else
+Requires:       qemu-img
+%endif
+%endif
 Requires:       kiwi-systemdeps-core = %{version}-%{release}
 
 %description -n kiwi-systemdeps-filesystems
@@ -262,15 +262,6 @@ Obsoletes:      kiwi-image-vmx-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:oem
 Provides:       kiwi-image:vmx
-%endif
-%if "%{_vendor}" == "debbuild"
-Requires:       qemu-utils
-%else
-%if 0%{?suse_version}
-Requires:       qemu-tools
-%else
-Requires:       qemu-img
-%endif
 %endif
 Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
 Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
