@@ -265,6 +265,7 @@ Provides:       kiwi-image:vmx
 %endif
 Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
 Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
+Requires:       kiwi-systemdeps-iso-media = %{version}-%{release}
 
 %description -n kiwi-systemdeps-disk-images
 Host setup helper to pull in all packages required/useful on
