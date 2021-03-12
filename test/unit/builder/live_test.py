@@ -195,9 +195,10 @@ class TestLiveImageBuilder:
         ]
 
         filesystem.create_on_device.assert_called_once_with()
-        filesystem.sync_data.assert_called_once_with(
-            ['image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi']
-        )
+        filesystem.sync_data.assert_called_once_with([
+            'image', '.profile', '.kconfig',
+            'run/*', 'tmp/*', '.buildenv', 'var/cache/kiwi'
+        ])
         filesystem.create_on_file.assert_called_once_with('tmpfile')
 
         assert mock_shutil.copy.call_args_list == [

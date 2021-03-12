@@ -113,9 +113,10 @@ class TestFileSystemBuilder:
             }
         )
         self.filesystem.create_on_device.assert_called_once_with(None)
-        self.filesystem.sync_data.assert_called_once_with(
-            ['image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi']
-        )
+        self.filesystem.sync_data.assert_called_once_with([
+            'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+            '.buildenv', 'var/cache/kiwi'
+        ])
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
@@ -149,7 +150,10 @@ class TestFileSystemBuilder:
         )
         self.filesystem.create_on_file.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.squashfs', None,
-            ['image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi']
+            [
+                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi'
+            ]
         )
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'

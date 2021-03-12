@@ -352,8 +352,9 @@ class TestDiskBuilder:
         call = filesystem.sync_data.call_args_list[2]
         assert filesystem.sync_data.call_args_list[2] == \
             call([
-                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
-                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
+                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi', 'boot/*', 'boot/.*',
+                'boot/efi/*', 'boot/efi/.*'
             ])
         assert m_open.call_args_list[0:4] == [
             call('boot_dir/config.partids', 'w'),
@@ -480,8 +481,9 @@ class TestDiskBuilder:
         call = filesystem.sync_data.call_args_list[2]
         assert filesystem.sync_data.call_args_list[2] == \
             call([
-                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
-                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
+                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi', 'boot/*', 'boot/.*',
+                'boot/efi/*', 'boot/efi/.*'
             ])
         assert m_open.call_args_list == [
             call('boot_dir/config.partids', 'w'),
@@ -560,7 +562,8 @@ class TestDiskBuilder:
         assert squashfs.create_on_file.call_args_list == [
             call(exclude=['var/cache/kiwi'], filename='tempname'),
             call(exclude=[
-                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
+                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ], filename='tempname')
         ]
@@ -753,7 +756,8 @@ class TestDiskBuilder:
         ]
         volume_manager.sync_data.assert_called_once_with(
             [
-                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi',
+                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ]
         )
@@ -844,8 +848,8 @@ class TestDiskBuilder:
         )
         assert filesystem.sync_data.call_args_list.pop() == call(
             [
-                'image', '.profile', '.kconfig', '.buildenv',
-                'var/cache/kiwi', 'var/*', 'var/.*',
+                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi', 'var/*', 'var/.*',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ]
         )

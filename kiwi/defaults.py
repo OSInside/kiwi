@@ -257,7 +257,7 @@ class Defaults:
         :rtype: list
         """
         exclude_list = [
-            'image', '.profile', '.kconfig',
+            'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
             Defaults.get_buildservice_env_name(),
             Defaults.get_shared_cache_location()
         ]

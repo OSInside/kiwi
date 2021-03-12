@@ -61,7 +61,8 @@ class TestArchiveBuilder:
         )
         archive.create_xz_compressed.assert_called_once_with(
             'root_dir', exclude=[
-                'image', '.profile', '.kconfig', '.buildenv', 'var/cache/kiwi'
+                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi'
             ], xz_options=None
         )
         self.setup.export_package_verification.assert_called_once_with(
