@@ -38,7 +38,7 @@ class TestRepository:
     @patch('kiwi.repository.apt.RepositoryApt')
     def test_repository_apt(self, mock_manager):
         root_bind = mock.Mock()
-        Repository.new(root_bind, 'apt-get')
+        Repository.new(root_bind, 'apt')
         mock_manager.assert_called_once_with(root_bind, None)
 
     @patch('kiwi.repository.pacman.RepositoryPacman')

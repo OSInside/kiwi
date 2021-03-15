@@ -1582,7 +1582,7 @@ class Defaults:
         :rtype: str
         """
         rpm_based = ['zypper', 'yum', 'dnf', 'microdnf']
-        deb_based = ['apt-get']
+        deb_based = ['apt']
         if package_manager in rpm_based:
             return 'rpm'
         elif package_manager in deb_based:

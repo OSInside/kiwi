@@ -58,7 +58,7 @@ class PackageManager(metaclass=ABCMeta):
             'yum': ['dnf', 'Dnf'],
             'microdnf': ['microdnf', 'MicroDnf'],
             'pacman': ['pacman', 'Pacman'],
-            'apt-get': ['apt', 'Apt']
+            'apt': ['apt', 'Apt']
         }
         try:
             (module_namespace, module_name) = name_map[package_manager_name]

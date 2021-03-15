@@ -221,18 +221,6 @@ class Sat:
         """
         jobs = []
         for job_name in job_names:
-            # There is a special handling for apt-get. In kiwi the
-            # package manager for debian based distros is selected
-            # by the name apt-get. That name is added to the package
-            # list, but apt-get does not really exist in Debian based
-            # distros. The name of the package manager from a packaging
-            # perspective is just: apt not apt-get. We should change
-            # this in the schema and code in kiwi. But so far we
-            # have the hack here. The reason why we don't see an issue
-            # by this when building debian based images is because
-            # the bootstrap phase is handled by debootstrap
-            if job_name == 'apt-get':
-                job_name = 'apt'
             selection_name = self.solv.Selection.SELECTION_NAME
             selection_provides = self.solv.Selection.SELECTION_PROVIDES
             selection = self.pool.select(

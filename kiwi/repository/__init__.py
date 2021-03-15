@@ -51,7 +51,7 @@ class Repository(metaclass=ABCMeta):
             'dnf': ['dnf', 'Dnf'],
             'yum': ['dnf', 'Dnf'],
             'microdnf': ['dnf', 'Dnf'],
-            'apt-get': ['apt', 'Apt'],
+            'apt': ['apt', 'Apt'],
             'pacman': ['pacman', 'Pacman']
         }
         try:

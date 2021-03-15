@@ -1053,7 +1053,7 @@ class TestSystemSetup:
         command.output = 'packages_data'
         mock_command.return_value = command
         self.xml_state.get_package_manager = Mock(
-            return_value='apt-get'
+            return_value='apt'
         )
 
         with patch('builtins.open') as m_open:
@@ -1131,7 +1131,7 @@ class TestSystemSetup:
         command.output = 'changes'
         mock_command.return_value = command
         self.xml_state.get_package_manager = Mock(
-            return_value='apt-get'
+            return_value='apt'
         )
         mock_os_listdir.return_value = ['package_b', 'package_a']
         mock_os_path_exists.return_value = True
@@ -1220,7 +1220,7 @@ class TestSystemSetup:
         command.output = 'verification_data'
         mock_command.return_value = command
         self.xml_state.get_package_manager = Mock(
-            return_value='apt-get'
+            return_value='apt'
         )
 
         with patch('builtins.open') as m_open:

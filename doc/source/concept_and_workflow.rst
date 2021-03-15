@@ -106,7 +106,7 @@ installed during the image creation process.
 
 For the package installation, {kiwi} relies on the package manager specified
 in the ``packagemanager`` element in :file:`config.xml`. {kiwi} supports the
-following package managers: ``dnf``, ``zypper`` (default) and ``apt-get``.
+following package managers: ``dnf``, ``zypper`` (default) and ``apt``.
 
 The prepare step consists of the following substeps:
 
