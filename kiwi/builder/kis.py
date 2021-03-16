@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from typing import Dict
 
 # project
 from kiwi.defaults import Defaults
@@ -29,6 +30,7 @@ from kiwi.system.kernel import Kernel
 from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.archive.tar import ArchiveTar
+from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import (
     KiwiKisBootImageError
@@ -48,7 +50,7 @@ class KisBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
+    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.xen_server = xml_state.is_xen_server()
@@ -81,16 +83,16 @@ class KisBuilder:
                 '-' + xml_state.get_image_version()
             ]
         )
-        self.image = None
+        self.image: str = None
         self.append_file = ''.join([self.image_name, '.append'])
         self.archive_name = ''.join([self.image_name, '.tar'])
         self.checksum_name = ''.join([self.image_name, '.md5'])
-        self.kernel_filename = None
-        self.hypervisor_filename = None
+        self.kernel_filename: str = None
+        self.hypervisor_filename: str = None
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
-    def create(self):
+    def create(self) -> Result:
         """
         Build a component image consisting out of a boot image(initrd)
         plus its appropriate kernel files and the root filesystem

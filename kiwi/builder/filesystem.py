@@ -17,6 +17,7 @@
 #
 import logging
 import os
+from typing import Dict
 
 # project
 from kiwi.filesystem import FileSystem
@@ -27,6 +28,7 @@ from kiwi.system.setup import SystemSetup
 from kiwi.defaults import Defaults
 from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
+from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import (
     KiwiFileSystemSetupError
@@ -45,7 +47,7 @@ class FileSystemBuilder:
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * None
     """
-    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
+    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
         self.label = None
         self.root_uuid = None
         self.root_dir = root_dir
@@ -88,7 +90,7 @@ class FileSystemBuilder:
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
-    def create(self):
+    def create(self) -> Result:
         """
         Build a mountable filesystem image
 
@@ -158,7 +160,7 @@ class FileSystemBuilder:
         )
         return self.result
 
-    def _operate_on_loop(self):
+    def _operate_on_loop(self) -> None:
         filesystem = None
         loop_provider = LoopDevice(
             self.filename,
@@ -179,7 +181,7 @@ class FileSystemBuilder:
             Defaults.get_exclude_list_for_root_data_sync()
         )
 
-    def _operate_on_file(self):
+    def _operate_on_file(self) -> None:
         default_provider = DeviceProvider()
         filesystem = FileSystem.new(
             self.requested_filesystem, default_provider,

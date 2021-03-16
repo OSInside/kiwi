@@ -18,10 +18,12 @@
 import os
 import logging
 from tempfile import mkdtemp
+from typing import Dict
 import shutil
 
 # project
 from kiwi.command import Command
+from kiwi.boot.image import BootImage
 from kiwi.bootloader.config import BootLoaderConfig
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.filesystem.isofs import FileSystemIsoFs
@@ -35,6 +37,8 @@ from kiwi.utils.compress import Compress
 from kiwi.archive.tar import ArchiveTar
 from kiwi.system.setup import SystemSetup
 from kiwi.iso_tools.base import IsoToolsBase
+from kiwi.xml_state import XMLState
+
 
 from kiwi.exceptions import (
     KiwiInstallBootImageError
@@ -55,9 +59,9 @@ class InstallImageBuilder:
         * xz_options: string of XZ compression parameters
     """
     def __init__(
-        self, xml_state, root_dir, target_dir, boot_image_task,
-        custom_args=None
-    ):
+        self, xml_state: XMLState, root_dir: str, target_dir: str, boot_image_task: BootImage,
+        custom_args: Dict = None
+    ) -> None:
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -117,12 +121,12 @@ class InstallImageBuilder:
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
 
-        self.media_dir = None
-        self.pxe_dir = None
-        self.squashed_contents = None
-        self.custom_iso_args = None
+        self.media_dir: str = None
+        self.pxe_dir: str = None
+        self.squashed_contents: str = None
+        self.custom_iso_args: Dict = None
 
-    def create_install_iso(self):
+    def create_install_iso(self) -> None:
         """
         Create an install ISO from the disk_image as hybrid ISO
         bootable via legacy BIOS, EFI and as disk from Stick
@@ -240,7 +244,7 @@ class InstallImageBuilder:
         iso_image.create_on_file(self.isoname)
         self.boot_image_task.cleanup()
 
-    def create_install_pxe_archive(self):
+    def create_install_pxe_archive(self) -> None:
         """
         Create an oem install tar archive suitable for installing a
         disk image via the network using the PXE boot protocol.
@@ -348,7 +352,7 @@ class InstallImageBuilder:
         archive.create(self.pxe_dir)
         self.boot_image_task.cleanup()
 
-    def _create_pxe_install_kernel_and_initrd(self):
+    def _create_pxe_install_kernel_and_initrd(self) -> None:
         kernelname = 'pxeboot.{0}.kernel'.format(self.pxename)
         initrdname = 'pxeboot.{0}.initrd.xz'.format(self.pxename)
         kernel = Kernel(self.boot_image_task.boot_root_directory)
@@ -408,7 +412,7 @@ class InstallImageBuilder:
         )
         os.chmod(self.pxe_dir + '/{0}'.format(initrdname), 420)
 
-    def _create_iso_install_kernel_and_initrd(self):
+    def _create_iso_install_kernel_and_initrd(self) -> None:
         boot_path = self.media_dir + '/boot/' + self.arch + '/loader'
         Path.create(boot_path)
         kernel = Kernel(self.boot_image_task.boot_root_directory)
@@ -458,7 +462,7 @@ class InstallImageBuilder:
             ]
         )
 
-    def _add_system_image_boot_options_to_boot_image(self):
+    def _add_system_image_boot_options_to_boot_image(self) -> None:
         filename = ''.join(
             [self.boot_image_task.boot_root_directory, '/config.bootoptions']
         )
@@ -466,7 +470,7 @@ class InstallImageBuilder:
             os.sep + os.path.basename(filename), install_media=True
         )
 
-    def _copy_system_image_initrd_to_iso_image(self):
+    def _copy_system_image_initrd_to_iso_image(self) -> None:
         boot_names = self.boot_image_task.get_boot_names()
         system_image_initrd = os.sep.join(
             [self.root_dir, 'boot', boot_names.initrd_name]
@@ -475,18 +479,18 @@ class InstallImageBuilder:
             system_image_initrd, self.media_dir + '/initrd.system_image'
         )
 
-    def _write_install_image_info_to_iso_image(self):
+    def _write_install_image_info_to_iso_image(self) -> None:
         iso_trigger = self.media_dir + '/config.isoclient'
         with open(iso_trigger, 'w') as iso_system:
             iso_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
-    def _write_install_image_info_to_boot_image(self):
+    def _write_install_image_info_to_boot_image(self) -> None:
         initrd_trigger = \
             self.boot_image_task.boot_root_directory + '/config.vmxsystem'
         with open(initrd_trigger, 'w') as vmx_system:
             vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
 
-    def __del__(self):
+    def __del__(self) -> None:
         log.info('Cleaning up %s instance', type(self).__name__)
         if self.media_dir:
             Path.wipe(self.media_dir)
