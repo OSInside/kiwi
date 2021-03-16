@@ -465,7 +465,7 @@ spare_part_is_last="true|false":
   if oem-resize is switched off. There is a runtime
   check in the {kiwi} code to check this condition
 
-devicepersistency="by-uuid|by-label|by-path":
+devicepersistency="by-uuid|by-label":
   Specifies which method to use for persistent device names.
   This will affect all files written by kiwi that includes
   device references for example `etc/fstab` or the `root=`
