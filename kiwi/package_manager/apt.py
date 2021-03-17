@@ -18,11 +18,13 @@
 import re
 import os
 import logging
+from typing import List
 
 # project
 from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.package_manager.base import PackageManagerBase
+from kiwi.system.root_bind import RootBind
 from kiwi.exceptions import (
     KiwiDebootstrapError,
     KiwiRequestError
@@ -41,7 +43,7 @@ class PackageManagerApt(PackageManagerBase):
     :param dict command_env: apt-get command environment from repository
         runtime configuration
     """
-    def post_init(self, custom_args=None):
+    def post_init(self, custom_args: List = None) -> None:
         """
         Post initialization method
 
@@ -52,7 +54,7 @@ class PackageManagerApt(PackageManagerBase):
         self.custom_args = custom_args
         if not custom_args:
             self.custom_args = []
-        self.deboostrap_minbase = True
+        self.deboostrap_minbase: bool = True
 
         runtime_config = self.repository.runtime_config()
         self.apt_get_args = runtime_config['apt_get_args']
@@ -60,7 +62,7 @@ class PackageManagerApt(PackageManagerBase):
         self.distribution = runtime_config['distribution']
         self.distribution_path = runtime_config['distribution_path']
 
-    def request_package(self, name):
+    def request_package(self, name: str) -> None:
         """
         Queue a package request
 
@@ -68,7 +70,7 @@ class PackageManagerApt(PackageManagerBase):
         """
         self.package_requests.append(name)
 
-    def request_collection(self, name):
+    def request_collection(self, name: str) -> None:
         """
         Queue a collection request
 
@@ -80,7 +82,7 @@ class PackageManagerApt(PackageManagerBase):
             'Collection(%s) handling not supported for apt-get', name
         )
 
-    def request_product(self, name):
+    def request_product(self, name: str) -> None:
         """
         Queue a product request
 
@@ -92,7 +94,7 @@ class PackageManagerApt(PackageManagerBase):
             'Product(%s) handling not supported for apt-get', name
         )
 
-    def request_package_exclusion(self, name):
+    def request_package_exclusion(self, name: str) -> None:
         """
         Queue a package exclusion(skip) request
 
@@ -104,7 +106,7 @@ class PackageManagerApt(PackageManagerBase):
             'Package exclusion for (%s) not supported for apt-get', name
         )
 
-    def process_install_requests_bootstrap(self, root_bind=None):
+    def process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
         """
         Process package install requests for bootstrap phase (no chroot)
         The debootstrap program is used to bootstrap a new system with
@@ -180,7 +182,7 @@ class PackageManagerApt(PackageManagerBase):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def post_process_install_requests_bootstrap(self, root_bind=None):
+    def post_process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
         """
         Mounts the kernel file systems to the chroot environment is
         ready after the bootstrap procedure
@@ -190,7 +192,7 @@ class PackageManagerApt(PackageManagerBase):
         """
         root_bind.mount_kernel_file_systems()
 
-    def process_install_requests(self):
+    def process_install_requests(self) -> None:
         """
         Process package install requests for image phase (chroot)
 
@@ -218,7 +220,7 @@ class PackageManagerApt(PackageManagerBase):
             apt_get_command, self.command_env
         )
 
-    def process_delete_requests(self, force=False):
+    def process_delete_requests(self, force: bool = False) -> None:
         """
         Process package delete requests (chroot)
 
@@ -262,7 +264,7 @@ class PackageManagerApt(PackageManagerBase):
             apt_get_command, self.command_env
         )
 
-    def update(self):
+    def update(self) -> None:
         """
         Process package update requests (chroot)
 
@@ -281,7 +283,7 @@ class PackageManagerApt(PackageManagerBase):
             apt_get_command, self.command_env
         )
 
-    def process_only_required(self):
+    def process_only_required(self) -> None:
         """
         Setup package processing only for required packages
         """
@@ -289,7 +291,7 @@ class PackageManagerApt(PackageManagerBase):
             self.custom_args.append('--no-install-recommends')
         self.deboostrap_minbase = True
 
-    def process_plus_recommended(self):
+    def process_plus_recommended(self) -> None:
         """
         Setup package processing to also include recommended dependencies.
         """
@@ -297,7 +299,7 @@ class PackageManagerApt(PackageManagerBase):
             self.custom_args.remove('--no-install-recommends')
         self.deboostrap_minbase = False
 
-    def match_package_installed(self, package_name, apt_get_output):
+    def match_package_installed(self, package_name: str, package_manager_output: str) -> bool:
         """
         Match expression to indicate a package has been installed
 
@@ -306,33 +308,33 @@ class PackageManagerApt(PackageManagerBase):
         be false positives due to sub package names starting with
         the same base package name
 
-        :param list package_list: list of all packages
-        :param str log_line: apt-get status line
+        :param str package_name: package_name
+        :param str package_manager_output: apt-get status line
 
-        :returns: match or None if there isn't any match
+        :returns: True|False
 
-        :rtype: match object, None
+        :rtype: bool
         """
-        return re.match(
-            '.*Unpacking ' + re.escape(package_name) + '.*', apt_get_output
-        )
+        return bool(re.match(
+            '.*Unpacking ' + re.escape(package_name) + '.*', package_manager_output
+        ))
 
-    def match_package_deleted(self, package_name, apt_get_output):
+    def match_package_deleted(self, package_name: str, package_manager_output: str) -> bool:
         """
         Match expression to indicate a package has been deleted
 
-        :param list package_list: list of all packages
-        :param str log_line: apt-get status line
+        :param str package_name: package_name
+        :param str package_manager_output: apt-get status line
 
-        :returns: match or None if there isn't any match
+        :returns: True|False
 
-        :rtype: match object, None
+        :rtype: bool
         """
-        return re.match(
-            '.*Removing ' + re.escape(package_name) + '.*', apt_get_output
-        )
+        return bool(re.match(
+            '.*Removing ' + re.escape(package_name) + '.*', package_manager_output
+        ))
 
-    def _package_requests(self):
+    def _package_requests(self) -> List:
         items = self.package_requests[:]
         self.cleanup_requests()
         return items
