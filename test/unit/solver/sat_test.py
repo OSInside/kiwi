@@ -140,32 +140,6 @@ class TestSat:
         with raises(KiwiSatSolverJobError):
             self.sat.solve(packages)
 
-    def test_solve_apt_get(self):
-        # There is a special handling for apt-get. In kiwi the
-        # package manager for debian based distros is selected
-        # by the name apt-get. That name is added to the package
-        # list, but apt-get does not really exist in Debian based
-        # distros. The name of the package manager from a packaging
-        # perspective is just: apt not apt-get. We should change
-        # this in the schema and code in kiwi. But so far we
-        # have the hack here
-        packages = ['apt-get']
-        self.solver.solve = Mock(
-            return_value=None
-        )
-        self.selection.isempty = Mock(
-            return_value=False
-        )
-        self.selection.jobs = Mock(
-            return_value=packages
-        )
-        self.sat.solve(packages)
-        selection_name = self.solv.Selection.SELECTION_NAME
-        selection_provides = self.solv.Selection.SELECTION_PROVIDES
-        self.sat.pool.select.assert_called_once_with(
-            'apt', selection_name | selection_provides
-        )
-
     def test_solve(self):
         packages = ['vim']
         self.solver.solve = Mock(

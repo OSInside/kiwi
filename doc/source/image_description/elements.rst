@@ -118,7 +118,7 @@ table shows which package manager is connected to which distributor:
 +--------------+-----------------+
 | RedHat       | dnf             |
 +--------------+-----------------+
-| Debian Based | apt-get         |
+| Debian Based | apt             |
 +--------------+-----------------+ 
 | Arch Linux   | pacman          |
 +--------------+-----------------+

@@ -40,7 +40,7 @@ class TestPackageManager:
     @patch('kiwi.package_manager.apt.PackageManagerApt')
     def test_manager_apt(self, mock_manager):
         repository = Mock()
-        PackageManager.new(repository, 'apt-get')
+        PackageManager.new(repository, 'apt')
         mock_manager.assert_called_once_with(repository, None)
 
     @patch('kiwi.package_manager.pacman.PackageManagerPacman')

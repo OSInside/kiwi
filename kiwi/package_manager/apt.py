@@ -149,9 +149,9 @@ class PackageManagerApt(PackageManagerBase):
         for node in debootstrap_device_node_conflicts:
             Path.wipe(os.path.normpath(os.sep.join([self.root_dir, node])))
 
-        if 'apt-get' in self.package_requests:
-            # debootstrap takes care to install apt-get
-            self.package_requests.remove('apt-get')
+        if 'apt' in self.package_requests:
+            # debootstrap takes care to install apt
+            self.package_requests.remove('apt')
         try:
             cmd = ['debootstrap']
             if self.repository.unauthenticated == 'false' and \

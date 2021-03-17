@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.3" name="LimeJeOS" displayname="Bob">
+<image schemaversion="7.4" name="LimeJeOS" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -74,7 +74,7 @@
             </oemconfig>
             <vagrantconfig provider="libvirt" virtualsize="42"/>
             <installmedia>
-                 <initrd action="add">
+                <initrd action="add">
                     <dracut module="network-legacy"/>
                 </initrd>
             </installmedia>

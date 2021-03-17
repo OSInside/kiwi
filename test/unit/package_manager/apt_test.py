@@ -75,7 +75,7 @@ class TestPackageManagerApt:
     def test_process_install_requests_bootstrap_failed_debootstrap(
         self, mock_wipe, mock_exists, mock_call
     ):
-        self.manager.request_package('apt-get')
+        self.manager.request_package('apt')
         mock_call.side_effect = Exception
         mock_exists.return_value = True
         mock_root_bind = Mock()
@@ -88,7 +88,7 @@ class TestPackageManagerApt:
     def test_process_install_requests_bootstrap(
         self, mock_exists, mock_wipe, mock_call
     ):
-        self.manager.request_package('apt-get')
+        self.manager.request_package('apt')
         self.manager.request_package('vim')
         call_result = Mock()
         call_result.process.communicate.return_value = ('stdout', 'stderr')
@@ -121,7 +121,7 @@ class TestPackageManagerApt:
     def test_process_install_requests_bootstrap_no_gpg_check(
         self, mock_exists, mock_wipe, mock_call
     ):
-        self.manager.request_package('apt-get')
+        self.manager.request_package('apt')
         self.manager.request_package('vim')
         call_result = Mock()
         call_result.process.communicate.return_value = ('stdout', 'stderr')

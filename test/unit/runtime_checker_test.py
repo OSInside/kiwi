@@ -98,7 +98,7 @@ class TestRuntimeChecker:
                 '--qf', '%{VERSION}', 'dracut-kiwi-oem-dump'
             ]
         )
-        package_manager.return_value = 'apt-get'
+        package_manager.return_value = 'apt'
         mock_Command_run.reset_mock()
         with raises(KiwiRuntimeError) as exception_data:
             self.runtime_checker.\
