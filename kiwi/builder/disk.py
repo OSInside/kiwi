@@ -861,10 +861,15 @@ class DiskBuilder:
             custom_root_mount_args += ['ro']
             fs_check_interval = '0 0'
 
-        self._add_generic_fstab_entry(
-            device_map['root'].get_device(), '/',
-            custom_root_mount_args, fs_check_interval
-        )
+        if self.volume_manager_name and self.volume_manager_name == 'lvm':
+            self._add_simple_fstab_entry(
+                device_map['root'].get_device(), '/', self.requested_filesystem
+            )
+        else:
+            self._add_generic_fstab_entry(
+                device_map['root'].get_device(), '/',
+                custom_root_mount_args, fs_check_interval
+            )
         if device_map.get('boot'):
             if 's390' in self.arch:
                 boot_mount_point = '/boot/zipl'
