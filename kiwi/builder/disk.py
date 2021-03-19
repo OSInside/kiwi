@@ -19,6 +19,7 @@ import os
 import logging
 import pickle
 from tempfile import NamedTemporaryFile
+from typing import Dict, List
 
 # project
 import kiwi.defaults as defaults
@@ -48,6 +49,7 @@ from kiwi.utils.fstab import Fstab
 from kiwi.path import Path
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.partitioner import Partitioner
+from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import (
     KiwiDiskBootImageError,
@@ -70,7 +72,7 @@ class DiskBuilder:
         * xz_options: string of XZ compression parameters
     """
 
-    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
+    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -166,7 +168,7 @@ class DiskBuilder:
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
-    def create(self):
+    def create(self) -> Result:
         """
         Build a bootable disk image and optional installation image
         The installation image is a bootable hybrid ISO image which
@@ -203,7 +205,7 @@ class DiskBuilder:
 
         return result
 
-    def create_disk(self):
+    def create_disk(self) -> Result:
         """
         Build a bootable raw disk image
 
@@ -498,7 +500,7 @@ class DiskBuilder:
 
         return self.result
 
-    def create_disk_format(self, result_instance):
+    def create_disk_format(self, result_instance: Result) -> Result:
         """
         Create a bootable disk format from a previously
         created raw disk image
@@ -520,7 +522,7 @@ class DiskBuilder:
 
         return result_instance
 
-    def append_unpartitioned_space(self):
+    def append_unpartitioned_space(self) -> None:
         """
         Extends the raw disk if an unpartitioned area is specified
         """
@@ -541,7 +543,7 @@ class DiskBuilder:
             )
             partitioner.resize_table()
 
-    def create_install_media(self, result_instance):
+    def create_install_media(self, result_instance: Result) -> Result:
         """
         Build an installation image. The installation image is a
         bootable hybrid ISO image which embeds the raw disk image
@@ -583,7 +585,7 @@ class DiskBuilder:
 
         return result_instance
 
-    def _load_boot_image_instance(self):
+    def _load_boot_image_instance(self) -> BootImage:
         boot_image_dump_file = self.target_dir + '/boot_image.pickledump'
         if not os.path.exists(boot_image_dump_file):
             raise KiwiInstallMediaError(
@@ -599,18 +601,17 @@ class DiskBuilder:
             )
         return boot_image
 
-    def _setup_selinux_file_contexts(self):
+    def _setup_selinux_file_contexts(self) -> None:
         security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
         if os.path.exists(self.root_dir + security_context):
             self.system_setup.set_selinux_file_contexts(
                 security_context
             )
 
-    def _install_image_requested(self):
-        if self.install_iso or self.install_stick or self.install_pxe:
-            return True
+    def _install_image_requested(self) -> bool:
+        return True if (self.install_iso or self.install_stick or self.install_pxe) else False
 
-    def _get_exclude_list_for_root_data_sync(self, device_map):
+    def _get_exclude_list_for_root_data_sync(self, device_map: Dict) -> list:
         exclude_list = Defaults.get_exclude_list_for_root_data_sync()
         if 'spare' in device_map and self.spare_part_mountpoint:
             exclude_list.append(
@@ -630,10 +631,11 @@ class DiskBuilder:
             exclude_list.append('boot/efi/.*')
         return exclude_list
 
-    def _get_exclude_list_for_boot_data_sync(self):
+    @staticmethod
+    def _get_exclude_list_for_boot_data_sync() -> list:
         return ['efi/*']
 
-    def _build_spare_filesystem(self, device_map):
+    def _build_spare_filesystem(self, device_map: Dict) -> None:
         if 'spare' in device_map and self.spare_part_fs:
             spare_part_data_path = None
             spare_part_custom_parameters = {
@@ -655,7 +657,7 @@ class DiskBuilder:
             )
             self.system_spare = filesystem
 
-    def _build_boot_filesystems(self, device_map):
+    def _build_boot_filesystems(self, device_map: Dict) -> None:
         if 'efi' in device_map:
             log.info(
                 'Creating EFI(fat16) filesystem on %s',
@@ -688,7 +690,7 @@ class DiskBuilder:
             )
             self.system_boot = filesystem
 
-    def _build_and_map_disk_partitions(self, disksize_mbytes):
+    def _build_and_map_disk_partitions(self, disksize_mbytes: float) -> Dict:
         self.disk.wipe()
         disksize_used_mbytes = 0
         if self.firmware.legacy_bios_mode():
@@ -803,7 +805,7 @@ class DiskBuilder:
 
         return self.disk.get_device()
 
-    def _write_partition_id_config_to_boot_image(self):
+    def _write_partition_id_config_to_boot_image(self) -> None:
         log.info('Creating config.partids in boot system')
         filename = ''.join(
             [self.boot_image.boot_root_directory, '/config.partids']
@@ -818,7 +820,7 @@ class DiskBuilder:
             os.sep + os.path.basename(filename)
         )
 
-    def _write_raid_config_to_boot_image(self):
+    def _write_raid_config_to_boot_image(self) -> None:
         if self.mdraid:
             log.info('Creating etc/mdadm.conf in boot system')
             filename = ''.join(
@@ -829,7 +831,7 @@ class DiskBuilder:
                 os.sep + os.sep.join(['etc', os.path.basename(filename)])
             )
 
-    def _write_crypttab_to_system_image(self):
+    def _write_crypttab_to_system_image(self) -> None:
         if self.luks:
             log.info('Creating etc/crypttab')
             filename = ''.join(
@@ -840,16 +842,16 @@ class DiskBuilder:
                 os.sep + os.sep.join(['etc', os.path.basename(filename)])
             )
 
-    def _write_generic_fstab_to_system_image(self, device_map):
+    def _write_generic_fstab_to_system_image(self, device_map: Dict) -> None:
         log.info('Creating generic system etc/fstab')
         self._write_generic_fstab(device_map, self.system_setup)
 
-    def _write_generic_fstab_to_boot_image(self, device_map):
+    def _write_generic_fstab_to_boot_image(self, device_map: Dict) -> None:
         if self.initrd_system == 'kiwi':
             log.info('Creating generic boot image etc/fstab')
             self._write_generic_fstab(device_map, self.boot_image.setup)
 
-    def _write_generic_fstab(self, device_map, setup):
+    def _write_generic_fstab(self, device_map: Dict, setup: DiskSetup) -> None:
         root_is_snapshot = \
             self.xml_state.build_type.get_btrfs_root_is_snapshot()
         root_is_readonly_snapshot = \
@@ -907,8 +909,8 @@ class DiskBuilder:
         )
 
     def _add_simple_fstab_entry(
-        self, device, mount_point, filesystem, options=None, check='0 0'
-    ):
+        self, device: str, mount_point: str, filesystem: str, options: List = None, check: str = '0 0'
+    ) -> None:
         if not options:
             options = ['defaults']
         fstab_entry = ' '.join(
@@ -919,8 +921,8 @@ class DiskBuilder:
         self.fstab.add_entry(fstab_entry)
 
     def _add_generic_fstab_entry(
-        self, device, mount_point, options=None, check='0 0'
-    ):
+        self, device: str, mount_point: str, options: List = None, check: str = '0 0'
+    ) -> None:
         if not options:
             options = ['defaults']
         block_operation = BlockID(device)
@@ -934,7 +936,7 @@ class DiskBuilder:
         )
         self.fstab.add_entry(fstab_entry)
 
-    def _preserve_root_partition_uuid(self, device_map):
+    def _preserve_root_partition_uuid(self, device_map: Dict) -> None:
         block_operation = BlockID(
             device_map['root'].get_device()
         )
@@ -944,7 +946,7 @@ class DiskBuilder:
                 partition_uuid
             )
 
-    def _preserve_root_filesystem_uuid(self, device_map):
+    def _preserve_root_filesystem_uuid(self, device_map: Dict) -> None:
         block_operation = BlockID(
             device_map['root'].get_device()
         )
@@ -954,13 +956,13 @@ class DiskBuilder:
                 rootfs_uuid
             )
 
-    def _write_image_identifier_to_system_image(self):
+    def _write_image_identifier_to_system_image(self) -> None:
         log.info('Creating image identifier: %s', self.mbrid.get_id())
         self.mbrid.write(
             self.root_dir + '/boot/mbrid'
         )
 
-    def _write_recovery_metadata_to_boot_image(self):
+    def _write_recovery_metadata_to_boot_image(self) -> None:
         if os.path.exists(self.root_dir + '/recovery.partition.size'):
             log.info('Copying recovery metadata to boot image')
             recovery_metadata = ''.join(
@@ -973,7 +975,7 @@ class DiskBuilder:
                 os.sep + os.path.basename(recovery_metadata)
             )
 
-    def _write_bootloader_meta_data_to_system_image(self, device_map):
+    def _write_bootloader_meta_data_to_system_image(self, device_map: Dict) -> None:
         if self.bootloader != 'custom':
             log.info('Creating %s bootloader configuration', self.bootloader)
             boot_options = []
@@ -1009,8 +1011,8 @@ class DiskBuilder:
                     self.bootloader_config.get_boot_cmdline(root_uuid)
                 ] + boot_options
             )
-            with open(filename, 'w') as boot_options:
-                boot_options.write(
+            with open(filename, 'w') as boot_optionsfp:
+                boot_optionsfp.write(
                     '{0}{1}'.format(kexec_boot_options, os.linesep)
                 )
 
@@ -1023,7 +1025,7 @@ class DiskBuilder:
             self.requested_filesystem, boot_partition_id
         )
 
-    def _sync_system_to_image(self, device_map):
+    def _sync_system_to_image(self, device_map: Dict) -> None:
         log.info('Syncing system to image')
         if self.system_spare:
             self.system_spare.sync_data()
@@ -1064,7 +1066,7 @@ class DiskBuilder:
                 self._get_exclude_list_for_root_data_sync(device_map)
             )
 
-    def _install_bootloader(self, device_map):
+    def _install_bootloader(self, device_map: Dict) -> None:
         root_device = device_map['root']
         boot_device = root_device
         if 'boot' in device_map:
@@ -1125,7 +1127,7 @@ class DiskBuilder:
             self.diskname, boot_device.get_device()
         )
 
-    def _setup_property_root_is_readonly_snapshot(self):
+    def _setup_property_root_is_readonly_snapshot(self) -> None:
         if self.volume_manager_name:
             root_is_snapshot = \
                 self.xml_state.build_type.get_btrfs_root_is_snapshot()
@@ -1139,7 +1141,7 @@ class DiskBuilder:
                 self.system.set_property_readonly_root()
                 self.system.umount_volumes()
 
-    def _copy_first_boot_files_to_system_image(self):
+    def _copy_first_boot_files_to_system_image(self) -> None:
         boot_names = self.boot_image.get_boot_names()
         if self.initrd_system == 'kiwi':
             log.info('Copy boot files to system image')

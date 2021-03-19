@@ -19,6 +19,7 @@ import os
 import logging
 from tempfile import mkdtemp
 from tempfile import NamedTemporaryFile
+from typing import Dict
 import shutil
 
 # project
@@ -39,6 +40,8 @@ from kiwi.system.identifier import SystemIdentifier
 from kiwi.system.kernel import Kernel
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.iso_tools.base import IsoToolsBase
+from kiwi.xml_state import XMLState
+
 
 from kiwi.exceptions import (
     KiwiLiveBootImageError
@@ -56,9 +59,9 @@ class LiveImageBuilder:
     :param str root_dir: root directory path name
     :param dict custom_args: Custom processing arguments
     """
-    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
-        self.media_dir = None
-        self.live_container_dir = None
+    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
+        self.media_dir: str = None
+        self.live_container_dir: str = None
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -96,7 +99,7 @@ class LiveImageBuilder:
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
-    def create(self):
+    def create(self) -> Result:
         """
         Build a bootable hybrid live ISO image
 
@@ -321,7 +324,7 @@ class LiveImageBuilder:
         )
         return self.result
 
-    def _setup_live_iso_kernel_and_initrd(self):
+    def _setup_live_iso_kernel_and_initrd(self) -> None:
         """
         Copy kernel and initrd from the root tree into the iso boot structure
         """
@@ -363,7 +366,7 @@ class LiveImageBuilder:
                 )
             )
 
-    def __del__(self):
+    def __del__(self) -> None:
         if self.media_dir or self.live_container_dir:
             log.info(
                 'Cleaning up {0} instance'.format(type(self).__name__)

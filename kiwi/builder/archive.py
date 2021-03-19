@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
+from typing import Dict
 
 # project
 from kiwi.defaults import Defaults
@@ -23,6 +24,7 @@ from kiwi.archive.tar import ArchiveTar
 from kiwi.system.setup import SystemSetup
 from kiwi.system.result import Result
 from kiwi.runtime_config import RuntimeConfig
+from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import (
     KiwiArchiveSetupError
@@ -35,13 +37,13 @@ class ArchiveBuilder:
     """
     **Root archive image builder**
 
-    :param obsject xml_state: Instance of :class:`XMLState`
+    :param object xml_state: Instance of :class:`XMLState`
     :param str target_dir: target directory path name
     :param str root_dir: root directory path name
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
+    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -56,7 +58,7 @@ class ArchiveBuilder:
 
         self.runtime_config = RuntimeConfig()
 
-    def create(self):
+    def create(self) -> None:
         """
         Create a root archive tarball
 
@@ -125,7 +127,7 @@ class ArchiveBuilder:
             )
         return self.result
 
-    def _target_file_for(self, suffix):
+    def _target_file_for(self, suffix: str) -> str:
         return ''.join(
             [
                 self.target_dir, '/',

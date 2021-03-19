@@ -17,6 +17,7 @@
 #
 import logging
 import os
+from typing import Dict
 
 # project
 from kiwi.container import ContainerImage
@@ -27,6 +28,7 @@ from kiwi.utils.checksum import Checksum
 from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiContainerBuilderError
 from kiwi.runtime_config import RuntimeConfig
+from kiwi.xml_state import XMLState
 
 log = logging.getLogger('kiwi')
 
@@ -41,7 +43,7 @@ class ContainerBuilder:
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state, target_dir, root_dir, custom_args=None):
+    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
         self.custom_args = custom_args or {}
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -94,7 +96,7 @@ class ContainerBuilder:
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
-    def create(self):
+    def create(self) -> Result:
         """
         Builds a container image which is usually a data archive
         including container specific metadata.
