@@ -1270,7 +1270,6 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
       <choice>
         <value>apt</value>
         <value>zypper</value>
-        <value>yum</value>
         <value>dnf</value>
         <value>microdnf</value>
         <value>pacman</value>

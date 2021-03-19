@@ -55,7 +55,6 @@ class PackageManager(metaclass=ABCMeta):
         name_map = {
             'zypper': ['zypper', 'Zypper'],
             'dnf': ['dnf', 'Dnf'],
-            'yum': ['dnf', 'Dnf'],
             'microdnf': ['microdnf', 'MicroDnf'],
             'pacman': ['pacman', 'Pacman'],
             'apt': ['apt', 'Apt']
