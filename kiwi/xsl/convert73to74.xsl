@@ -34,10 +34,14 @@
 </xsl:template>
 
 <!-- change packagemanager to apt if set to apt-get -->
+<!-- change packagemanager to dnf if set to yum -->
 <xsl:template match="packagemanager" mode="conv73to74">
     <xsl:choose>
         <xsl:when test="text()='apt-get'">
             <packagemanager>apt</packagemanager>
+        </xsl:when>
+        <xsl:when test="text()='yum'">
+            <packagemanager>dnf</packagemanager>
         </xsl:when>
         <xsl:otherwise>
             <xsl:copy-of select="."/>

@@ -51,7 +51,7 @@ class SolverRepositoryRpmMd(SolverRepositoryBase):
         # creation. This includes the files marked as group_gz
         # This component information is like the SUSE pattern
         # information but for RHEL. In order to allow resolving
-        # yum group id names this information needs to be present
+        # group id names this information needs to be present
         rpm_comps_dir = self._create_temporary_metadata_dir()
         rpm_comps_data = self._find_repomd_files(
             ['group_gz'], 'comps2solv'

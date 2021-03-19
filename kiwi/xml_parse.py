@@ -728,7 +728,6 @@ def _cast(typ, value):
 class k_packagemanager_content(object):
     APT='apt'
     ZYPPER='zypper'
-    YUM='yum'
     DNF='dnf'
     MICRODNF='microdnf'
     PACMAN='pacman'
