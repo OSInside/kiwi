@@ -24,7 +24,7 @@ class PackageManagerTemplateAptGet:
     """
     apt-get configuration file template
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.host_header = dedent('''
             # kiwi generated apt-get config file
             Dir "/";
@@ -59,7 +59,7 @@ class PackageManagerTemplateAptGet:
             };
         ''').strip() + os.linesep
 
-    def get_host_template(self, exclude_docs=False):
+    def get_host_template(self, exclude_docs: bool = False) -> Template:
         """
         apt-get package manager template for apt-get called
         outside of the image, not chrooted
@@ -72,7 +72,7 @@ class PackageManagerTemplateAptGet:
 
         return Template(template_data)
 
-    def get_image_template(self, exclude_docs=False):
+    def get_image_template(self, exclude_docs: bool = False) -> Template:
         """
         apt-get package manager template for apt-get called
         inside of the image, chrooted
