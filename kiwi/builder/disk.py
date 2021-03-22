@@ -986,9 +986,6 @@ class DiskBuilder:
             if 'boot' in device_map:
                 boot_device = device_map['boot']
 
-            root_uuid = self.disk.get_uuid(
-                device_map['root'].get_device()
-            )
             boot_uuid = self.disk.get_uuid(
                 boot_device.get_device()
             )
@@ -999,7 +996,8 @@ class DiskBuilder:
                 boot_uuid_unmapped
             )
             self.bootloader_config.write_meta_data(
-                root_uuid=root_uuid, boot_options=' '.join(boot_options)
+                root_device=device_map['root'].get_device(),
+                boot_options=' '.join(boot_options)
             )
 
             log.info('Creating config.bootoptions')
@@ -1008,7 +1006,9 @@ class DiskBuilder:
             )
             kexec_boot_options = ' '.join(
                 [
-                    self.bootloader_config.get_boot_cmdline(root_uuid)
+                    self.bootloader_config.get_boot_cmdline(
+                        device_map['root'].get_device()
+                    )
                 ] + boot_options
             )
             with open(filename, 'w') as boot_optionsfp:

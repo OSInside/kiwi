@@ -310,7 +310,7 @@ class TestDiskBuilder:
             '0815'
         )
         self.bootloader_config.write_meta_data.assert_called_once_with(
-            boot_options='', root_uuid='0815'
+            root_device='/dev/root-device', boot_options=''
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
             boot_options={
@@ -438,7 +438,7 @@ class TestDiskBuilder:
             '0815'
         )
         self.bootloader_config.write_meta_data.assert_called_once_with(
-            boot_options='', root_uuid='0815'
+            root_device='/dev/root-device', boot_options=''
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
             boot_options={
