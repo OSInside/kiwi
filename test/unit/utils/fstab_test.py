@@ -5,6 +5,7 @@ from unittest.mock import (
     MagicMock, patch, call
 )
 from kiwi.utils.fstab import Fstab
+from kiwi.utils.fstab import fstab_entry_type
 
 
 class TestFstab(object):
@@ -23,56 +24,70 @@ class TestFstab(object):
 
     def test_get_devices(self):
         assert self.fstab.get_devices() == [
-            self.fstab.fstab_entry_type(
+            fstab_entry_type(
                 fstype='ext4',
                 mountpoint='/',
                 device_path='/dev/disk/'
                 'by-uuid/bd604632-663b-4d4c-b5b0-8d8686267ea2',
                 device_spec='UUID=bd604632-663b-4d4c-b5b0-8d8686267ea2',
-                options='acl,user_xattr'
+                options='acl,user_xattr',
+                dump='0',
+                fs_passno='1'
             ),
-            self.fstab.fstab_entry_type(
+            fstab_entry_type(
                 fstype='swap',
                 mountpoint='swap',
                 device_path='/dev/disk/'
                 'by-uuid/daa5a8c3-5c72-4343-a1d4-bb74ec4e586e',
                 device_spec='UUID=daa5a8c3-5c72-4343-a1d4-bb74ec4e586e',
-                options='defaults'
+                options='defaults',
+                dump='0',
+                fs_passno='0'
             ),
-            self.fstab.fstab_entry_type(
+            fstab_entry_type(
                 fstype='vfat',
                 mountpoint='/boot/efi',
                 device_path='/dev/disk/by-uuid/FCF7-B051',
                 device_spec='UUID=FCF7-B051',
-                options='defaults'
+                options='defaults',
+                dump='0',
+                fs_passno='0'
             ),
-            self.fstab.fstab_entry_type(
+            fstab_entry_type(
                 fstype='xfs',
                 mountpoint='/boot',
                 device_path='/dev/disk/by-label/BOOT',
                 device_spec='LABEL=BOOT',
-                options='defaults'
+                options='defaults',
+                dump='0',
+                fs_passno='0'
             ),
-            self.fstab.fstab_entry_type(
+            fstab_entry_type(
                 fstype='ext4',
                 mountpoint='/home',
                 device_path='/dev/disk/by-label/foo',
                 device_spec='LABEL=foo',
-                options='defaults'
+                options='defaults',
+                dump='0',
+                fs_passno='0'
             ),
-            self.fstab.fstab_entry_type(
+            fstab_entry_type(
                 fstype='ext4',
                 mountpoint='/bar',
                 device_path='/dev/disk/by-partuuid/3c8bd108-01',
                 device_spec='PARTUUID=3c8bd108-01',
-                options='defaults'
+                options='defaults',
+                dump='0',
+                fs_passno='0'
             ),
-            self.fstab.fstab_entry_type(
+            fstab_entry_type(
                 fstype='ext4',
                 mountpoint='/foo',
                 device_path='/dev/mynode',
                 device_spec='/dev/mynode',
-                options='defaults'
+                options='defaults',
+                dump='0',
+                fs_passno='0'
             )
         ]
 
@@ -91,7 +106,7 @@ class TestFstab(object):
                 ),
                 call(
                     'UUID=bd604632-663b-4d4c-b5b0-8d8686267ea2 / '
-                    'ext4 acl,user_xattr 0 0\n'
+                    'ext4 acl,user_xattr 0 1\n'
                 ),
                 call('PARTUUID=3c8bd108-01 /bar ext4 defaults 0 0\n'),
                 call('LABEL=BOOT /boot xfs defaults 0 0\n'),

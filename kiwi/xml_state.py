@@ -1379,6 +1379,12 @@ class XMLState:
                     # the attribute is handled
                     attributes.append('no-copy-on-write')
 
+                if volume.get_filesystem_check() is True:
+                    # by default filesystem check is switched off for any
+                    # filesystem except the rootfs. Thus only if filesystem
+                    # check is requested the attribute is handled
+                    attributes.append('enable-for-filesystem-check')
+
                 if '@root' in name:
                     # setup root volume, it takes an optional volume
                     # name if specified as @root=name and has no specific

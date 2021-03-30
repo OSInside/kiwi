@@ -379,7 +379,7 @@ class TestXMLState:
                 realpath='etc',
                 mountpoint='etc', fullsize=False,
                 label=None,
-                attributes=['no-copy-on-write'],
+                attributes=['no-copy-on-write', 'enable-for-filesystem-check'],
                 is_root_volume=False
             ),
             volume_type(

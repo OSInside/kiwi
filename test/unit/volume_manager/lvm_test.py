@@ -5,12 +5,12 @@ from mock import (
 from pytest import (
     raises, fixture
 )
-from collections import namedtuple
 
 from kiwi.volume_manager.lvm import VolumeManagerLVM
 from kiwi.defaults import Defaults
 
 from kiwi.exceptions import KiwiVolumeGroupConflict
+from kiwi.xml_state import volume_type
 
 
 class TestVolumeManagerLVM:
@@ -20,40 +20,28 @@ class TestVolumeManagerLVM:
 
     @patch('os.path.exists')
     def setup(self, mock_path):
-        self.volume_type = namedtuple(
-            'volume_type', [
-                'name',
-                'size',
-                'realpath',
-                'mountpoint',
-                'fullsize',
-                'label',
-                'attributes',
-                'is_root_volume'
-            ]
-        )
         self.volumes = [
-            self.volume_type(
+            volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
                 mountpoint=None, fullsize=False, label=None, attributes=[],
                 is_root_volume=True
             ),
-            self.volume_type(
+            volume_type(
                 name='LVSwap', size='size:100', realpath='swap',
                 mountpoint=None, fullsize=False, label='SWAP', attributes=[],
                 is_root_volume=False
             ),
-            self.volume_type(
+            volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
                 mountpoint='/etc', fullsize=False, label='etc', attributes=[],
                 is_root_volume=False
             ),
-            self.volume_type(
+            volume_type(
                 name='myvol', size='size:500', realpath='/data',
                 mountpoint='LVdata', fullsize=False, label=None, attributes=[],
                 is_root_volume=False
             ),
-            self.volume_type(
+            volume_type(
                 name='LVhome', size=None, realpath='/home',
                 mountpoint='/home', fullsize=True, label=None, attributes=[],
                 is_root_volume=False
@@ -183,28 +171,28 @@ class TestVolumeManagerLVM:
 
         assert mock_attrs.call_args_list == [
             call(
-                'root_dir', self.volume_type(
+                'root_dir', volume_type(
                     name='LVSwap', size='size:100', realpath='swap',
                     mountpoint=None, fullsize=False, label='SWAP',
                     attributes=[], is_root_volume=False
                 )
             ),
             call(
-                'root_dir', self.volume_type(
+                'root_dir', volume_type(
                     name='LVRoot', size='freespace:100', realpath='/',
                     mountpoint=None, fullsize=False, label=None,
                     attributes=[], is_root_volume=True
                 )
             ),
             call(
-                'root_dir', self.volume_type(
+                'root_dir', volume_type(
                     name='myvol', size='size:500', realpath='/data',
                     mountpoint='LVdata', fullsize=False, label=None,
                     attributes=[], is_root_volume=False
                 )
             ),
             call(
-                'root_dir', self.volume_type(
+                'root_dir', volume_type(
                     name='LVetc', size='freespace:200', realpath='/etc',
                     mountpoint='/etc', fullsize=False, label='etc',
                     attributes=[], is_root_volume=False
@@ -336,12 +324,29 @@ class TestVolumeManagerLVM:
         }
 
     def test_get_fstab(self):
+        self.volume_manager.volume_group = 'vgroup'
+        self.volume_manager._add_to_volume_map('device')
         volume_mount = Mock()
-        volume_mount.mountpoint = '/tmp/kiwi_volumes.f2qx_d3y/var/tmp'
-        volume_mount.device = 'device'
+        volume_mount.mountpoint = '/tmp/kiwi_volumes.XXX/var/tmp'
+        volume_mount.device = self.volume_manager.volume_map['device']
         self.volume_manager.mount_list = [volume_mount]
         assert self.volume_manager.get_fstab(None, 'ext3') == [
-            'device /var/tmp ext3 a,b,c 1 2'
+            '/dev/vgroup/device /var/tmp ext3 a,b,c 0 0'
+        ]
+        self.volumes.append(
+            volume_type(
+                name='device',
+                size='freespace:100',
+                realpath='/var/tmp',
+                mountpoint=volume_mount.mountpoint,
+                fullsize=False,
+                label=None,
+                attributes=['enable-for-filesystem-check'],
+                is_root_volume=False
+            )
+        )
+        assert self.volume_manager.get_fstab(None, 'ext3') == [
+            '/dev/vgroup/device /var/tmp ext3 a,b,c 0 2'
         ]
 
     @patch('kiwi.volume_manager.lvm.Path.wipe')
