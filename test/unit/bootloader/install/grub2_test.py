@@ -138,6 +138,10 @@ class TestBootLoaderInstallGrub2:
         self.bootloader.arch = 'arm64'
         assert self.bootloader.install_required() is False
 
+    def test_install_required_riscv64(self):
+        self.bootloader.arch = 'riscv64'
+        assert self.bootloader.install_required() is False
+
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
     @patch('kiwi.bootloader.install.grub2.Path.which')
     @patch('kiwi.bootloader.install.grub2.Command.run')

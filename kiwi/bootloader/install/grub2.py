@@ -117,6 +117,13 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'No grub boot code installation on %s', self.arch
             )
             return False
+        elif self.arch == 'riscv64':
+            # On riscv grub2 is used for EFI setup only, no install
+            # of grub2 boot code makes sense
+            log.info(
+                'No grub boot code installation on %s', self.arch
+            )
+            return False
         return True
 
     def install(self):
