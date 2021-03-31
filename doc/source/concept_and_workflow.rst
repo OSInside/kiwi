@@ -112,10 +112,12 @@ The prepare step consists of the following substeps:
 
 #. **Create Target Root Directory**
 
-   {kiwi} aborts with an error if the target root tree already exists to
-   avoid accidental deletion of an existing unpacked image.
+   By default {kiwi} aborts with an error if the target root tree
+   already exists to avoid accidental deletion of an existing
+   unpacked image. The option `--allow-existing-root` can be used
+   to work based on an existing root tree
 
-#. **Install Packages**
+#. **Bootstrap Target Root Directory**
 
    First, {kiwi} configures the package manager to use the repositories
    specified in the configuration file, via the command line, or
@@ -123,20 +125,34 @@ The prepare step consists of the following substeps:
    ``bootstrap`` section of the image description are installed in a
    temporary directory external to the target root tree. This establishes
    the initial environment to support the completion of the process in a
-   chroot setting. The essential packages are ``filesystem`` and
-   ``glibc-locale`` to specify as part of the bootstrap. The dependency
-   chain of these two packages is usually sufficient to populate the
-   bootstrap environment with all required software to support the
-   installation of packages into the new root tree. The aforementioned two
-   packages might not be enough for every distribution.  Consult the
-   `kiwi-descriptions repository
-   <https://github.com/OSInside/kiwi-descriptions/>`_ containing examples for
-   various Linux distributions.
+   chroot setting. At the end of the ``bootstrap`` phase the script
+   :file:`post_bootstrap.sh` is executed, if present.
 
-   The installation of software packages through the selected package
-   manager may install unwanted packages. Removing these packages can be
-   accomplished by marking them for deletion in the image description, see
-   :ref:`uninstall-system-packages`.
+   .. note::
+
+      The essential bootstrap packages are usually ``filesystem`` and
+      ``glibc-locale`` to specify as part of the bootstrap. The dependency
+      chain of these two packages is usually sufficient to populate the
+      bootstrap environment with all required software to support the
+      installation of packages into the new root tree. The aforementioned two
+      packages might not be enough for every distribution. Consult the
+      `kiwi-descriptions repository
+      <https://github.com/OSInside/kiwi-descriptions/>`_ containing examples
+      for various Linux distributions.
+
+#. **Install Packages**
+
+   After the ``bootstrap`` phase all other `<packages>` sections are
+   used to complete the installation as chroot operation. {kiwi} uses
+   the package manager as installed in the ``bootstrap`` phase and
+   installs all other packages as configured.
+
+   .. note::
+
+      The installation of software packages through the selected package
+      manager may install unwanted packages. Removing these packages can be
+      accomplished by marking them for deletion in the image description, see
+      :ref:`uninstall-system-packages`.
 
 #. **Apply the Overlay Tree**
 

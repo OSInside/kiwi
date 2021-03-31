@@ -131,6 +131,12 @@ class TestSystemSetup:
             ),
             call(
                 [
+                    'cp', '{0}/post_bootstrap.sh'.format(self.description_dir),
+                    'root_dir/image/post_bootstrap.sh'
+                ]
+            ),
+            call(
+                [
                     'cp', Defaults.project_file('config/functions.sh'),
                     'root_dir/.kconfig'
                 ]
@@ -158,7 +164,7 @@ class TestSystemSetup:
         self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
-            True, False, True, True, True, True, True, True
+            True, False, True, True, True, True, True, True, True
         ]
 
         def side_effect(arg):
@@ -199,6 +205,12 @@ class TestSystemSetup:
                 [
                     'cp', '{0}/images.sh'.format(self.description_dir),
                     'root_dir/image/images.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp', '{0}/post_bootstrap.sh'.format(self.description_dir),
+                    'root_dir/image/post_bootstrap.sh'
                 ]
             ),
             call(
@@ -662,6 +674,37 @@ class TestSystemSetup:
         mock_copy_deepcopy.assert_called_once_with(os.environ)
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'image/config.sh'], {}
+        )
+
+    @patch('kiwi.system.setup.Profile')
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command_process.CommandProcess.poll_and_watch')
+    @patch('os.path.exists')
+    @patch('os.stat')
+    @patch('os.access')
+    @patch('copy.deepcopy')
+    def test_call_excutable_post_bootstrap_script(
+        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
+        mock_watch, mock_command, mock_Profile
+    ):
+        mock_copy_deepcopy.return_value = {}
+        profile = Mock()
+        mock_Profile.return_value = profile
+        profile.get_settings.return_value = {}
+        result_type = namedtuple(
+            'result', ['stderr', 'returncode']
+        )
+        mock_result = result_type(stderr='stderr', returncode=0)
+        mock_os_path.return_value = True
+        mock_watch.return_value = mock_result
+
+        # pretend that the script is executable
+        mock_access.return_value = True
+        self.setup.call_post_bootstrap_script()
+
+        mock_copy_deepcopy.assert_called_once_with(os.environ)
+        mock_command.assert_called_once_with(
+            ['chroot', 'root_dir', 'image/post_bootstrap.sh'], {}
         )
 
     @patch('kiwi.system.setup.Profile')

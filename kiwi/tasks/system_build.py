@@ -201,6 +201,15 @@ class SystemBuildTask(CliTask):
         system.install_bootstrap(
             manager, self.command_args['--add-bootstrap-package']
         )
+
+        setup = SystemSetup(
+            self.xml_state, image_root
+        )
+        setup.import_description()
+
+        # call post_bootstrap.sh script if present
+        setup.call_post_bootstrap_script()
+
         system.install_system(
             manager
         )
@@ -221,11 +230,6 @@ class SystemBuildTask(CliTask):
             Defaults.get_profile_file(image_root)
         )
 
-        setup = SystemSetup(
-            self.xml_state, image_root
-        )
-
-        setup.import_description()
         setup.import_overlay_files()
         setup.import_image_identifier()
         setup.setup_groups()
@@ -241,6 +245,8 @@ class SystemBuildTask(CliTask):
 
         # setup permanent image repositories after cleanup
         setup.import_repositories_marked_as_imageinclude()
+
+        # call config.sh script if present
         setup.call_config_script()
 
         # handle uninstall package requests, gracefully uninstall

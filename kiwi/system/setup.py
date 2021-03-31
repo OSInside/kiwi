@@ -589,6 +589,14 @@ class SystemSetup:
             defaults.POST_DISK_SYNC_SCRIPT
         )
 
+    def call_post_bootstrap_script(self) -> None:
+        """
+        Call post_bootstrap.sh script chrooted
+        """
+        self._call_script(
+            defaults.POST_BOOTSTRAP_SCRIPT
+        )
+
     def call_config_script(self) -> None:
         """
         Call config.sh script chrooted
@@ -915,6 +923,10 @@ class SystemSetup:
             'script_type', ['filepath', 'raise_if_not_exists']
         )
         custom_scripts = {
+            defaults.POST_BOOTSTRAP_SCRIPT: script_type(
+                filepath=defaults.POST_BOOTSTRAP_SCRIPT,
+                raise_if_not_exists=False
+            ),
             defaults.POST_PREPARE_SCRIPT: script_type(
                 filepath=defaults.POST_PREPARE_SCRIPT,
                 raise_if_not_exists=False
