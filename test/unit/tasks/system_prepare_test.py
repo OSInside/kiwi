@@ -156,6 +156,7 @@ class TestSystemPrepareTask:
         self.setup.import_overlay_files.assert_called_once_with()
         self.setup.import_repositories_marked_as_imageinclude.\
             assert_called_once_with()
+        self.setup.call_post_bootstrap_script.assert_called_once_with()
         self.setup.call_config_script.assert_called_once_with()
         self.setup.import_image_identifier.assert_called_once_with()
         self.setup.setup_groups.assert_called_once_with()

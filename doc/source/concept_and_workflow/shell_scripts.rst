@@ -13,6 +13,14 @@ User Defined Scripts
 {kiwi} supports the following optional scripts that it runs in a
 root environment (chroot) containing your new appliance:
 
+post_bootstrap.sh
+  runs at the end of the `bootstrap` phase as part of the
+  :ref:`prepare step <prepare-step>`. The script can be used to
+  configure the package manager with additional settings that
+  should apply in the following chroot based installation step
+  which completes the installation. The script is not dedicated to
+  this use and can also be used for other tasks.
+
 config.sh
   runs at the end of the :ref:`prepare step <prepare-step>`
   and after users have been set and the *overlay tree directory*
