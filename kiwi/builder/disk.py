@@ -857,31 +857,26 @@ class DiskBuilder:
         root_is_readonly_snapshot = \
             self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot()
 
-        fs_check_interval = '1 1'
+        fs_check_interval = '0 1'
         custom_root_mount_args = list(self.custom_root_mount_args)
         if root_is_snapshot and root_is_readonly_snapshot:
             custom_root_mount_args += ['ro']
             fs_check_interval = '0 0'
 
-        if self.volume_manager_name and self.volume_manager_name == 'lvm':
-            self._add_simple_fstab_entry(
-                device_map['root'].get_device(), '/', self.requested_filesystem
-            )
-        else:
-            self._add_generic_fstab_entry(
-                device_map['root'].get_device(), '/',
-                custom_root_mount_args, fs_check_interval
-            )
+        self._add_fstab_entry(
+            device_map['root'].get_device(), '/',
+            custom_root_mount_args, fs_check_interval
+        )
         if device_map.get('boot'):
             if 's390' in self.arch:
                 boot_mount_point = '/boot/zipl'
             else:
                 boot_mount_point = '/boot'
-            self._add_generic_fstab_entry(
+            self._add_fstab_entry(
                 device_map['boot'].get_device(), boot_mount_point
             )
         if device_map.get('efi'):
-            self._add_generic_fstab_entry(
+            self._add_fstab_entry(
                 device_map['efi'].get_device(), '/boot/efi'
             )
         if self.volume_manager_name:
@@ -892,48 +887,42 @@ class DiskBuilder:
                 self.fstab.add_entry(volume_fstab_entry)
         if device_map.get('spare') and \
            self.spare_part_fs and self.spare_part_mountpoint:
-            self._add_generic_fstab_entry(
+            self._add_fstab_entry(
                 device_map['spare'].get_device(), self.spare_part_mountpoint
             )
         if device_map.get('swap'):
-            if self.volume_manager_name and self.volume_manager_name == 'lvm':
-                self._add_simple_fstab_entry(
-                    device_map['swap'].get_device(), 'swap', 'swap'
-                )
-            else:
-                self._add_generic_fstab_entry(
-                    device_map['swap'].get_device(), 'swap'
-                )
+            self._add_fstab_entry(
+                device_map['swap'].get_device(), 'swap'
+            )
         setup.create_fstab(
             self.fstab
         )
 
-    def _add_simple_fstab_entry(
-        self, device: str, mount_point: str, filesystem: str, options: List = None, check: str = '0 0'
-    ) -> None:
-        if not options:
-            options = ['defaults']
-        fstab_entry = ' '.join(
-            [
-                device, mount_point, filesystem, ','.join(options), check
-            ]
-        )
-        self.fstab.add_entry(fstab_entry)
-
-    def _add_generic_fstab_entry(
-        self, device: str, mount_point: str, options: List = None, check: str = '0 0'
+    def _add_fstab_entry(
+        self, device: str, mount_point: str,
+        options: List = None, check: str = '0 0'
     ) -> None:
         if not options:
             options = ['defaults']
         block_operation = BlockID(device)
-        blkid_type = 'LABEL' if self.persistency_type == 'by-label' else 'UUID'
-        device_id = block_operation.get_blkid(blkid_type)
-        fstab_entry = ' '.join(
-            [
-                blkid_type + '=' + device_id, mount_point,
-                block_operation.get_filesystem(), ','.join(options), check
-            ]
-        )
+        if self.volume_manager_name and self.volume_manager_name == 'lvm' \
+           and mount_point == '/':
+            fstab_entry = ' '.join(
+                [
+                    device, mount_point,
+                    block_operation.get_filesystem(), ','.join(options), check
+                ]
+            )
+        else:
+            blkid_type = 'LABEL' if self.persistency_type == 'by-label' \
+                else 'UUID'
+            device_id = block_operation.get_blkid(blkid_type)
+            fstab_entry = ' '.join(
+                [
+                    blkid_type + '=' + device_id, mount_point,
+                    block_operation.get_filesystem(), ','.join(options), check
+                ]
+            )
         self.fstab.add_entry(fstab_entry)
 
     def _preserve_root_partition_uuid(self, device_map: Dict) -> None:

@@ -15,14 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import (
+    NamedTuple, List
+)
 import logging
 import os
-from collections import namedtuple
 
 # project
 from kiwi.path import Path
 
 log = logging.getLogger('kiwi')
+
+fstab_entry_type = NamedTuple(
+    'fstab_entry_type', [
+        ('fstype', str),
+        ('mountpoint', str),
+        ('device_spec', str),
+        ('device_path', str),
+        ('options', str),
+        ('dump', str),
+        ('fs_passno', str)
+    ]
+)
 
 
 class Fstab:
@@ -31,13 +45,8 @@ class Fstab:
     """
     def __init__(self):
         self.fstab = []
-        self.fstab_entry_type = namedtuple(
-            'fstab_entry_type', [
-                'fstype', 'mountpoint', 'device_spec', 'device_path', 'options'
-            ]
-        )
 
-    def read(self, filename):
+    def read(self, filename: str) -> None:
         """
         Import specified fstab file
 
@@ -50,7 +59,7 @@ class Fstab:
             for line in fstab.readlines():
                 self.add_entry(line)
 
-    def add_entry(self, line):
+    def add_entry(self, line: str) -> None:
         new_entry = self._parse_entry(line)
         if new_entry:
             for entry in self.fstab:
@@ -64,10 +73,10 @@ class Fstab:
                     return
             self.fstab.append(new_entry)
 
-    def get_devices(self):
+    def get_devices(self) -> List[fstab_entry_type]:
         return self.fstab
 
-    def export(self, filename):
+    def export(self, filename: str) -> None:
         """
         Export entries, respect canonical mount order
 
@@ -87,19 +96,22 @@ class Fstab:
                 )
 
     def _file_entry(self, entry):
-        return '{0} {1} {2} {3} 0 0'.format(
+        return '{0} {1} {2} {3} {4} {5}'.format(
             entry.device_spec, entry.mountpoint,
-            entry.fstype, entry.options
+            entry.fstype, entry.options, entry.dump,
+            entry.fs_passno
         )
 
     def _parse_entry(self, line):
         data_record = line.split()
-        if data_record and len(data_record) >= 4 \
+        if data_record and len(data_record) >= 6 \
            and not data_record[0].startswith('#'):
             device = data_record[0]
             mountpoint = data_record[1]
             fstype = data_record[2]
             options = data_record[3]
+            dump = data_record[4]
+            fs_passno = data_record[5]
             if device.startswith('UUID'):
                 device_path = ''.join(
                     ['/dev/disk/by-uuid/', device.split('=')[1]]
@@ -115,10 +127,12 @@ class Fstab:
             else:
                 device_path = device
 
-            return self.fstab_entry_type(
+            return fstab_entry_type(
                 fstype=fstype,
                 mountpoint=mountpoint,
                 device_path=device_path,
                 device_spec=device,
-                options=options
+                options=options,
+                dump=dump,
+                fs_passno=fs_passno
             )

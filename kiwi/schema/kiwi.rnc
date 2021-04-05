@@ -2082,11 +2082,21 @@ div {
     k.volume.copy_on_write.attribute =
         ## Apply the filesystem copy-on-write attribute for this volume
         attribute copy_on_write { xsd:boolean }
+    k.volume.filesystem_check =
+        ## Indicate that this filesystem should perform the validation
+        ## to become filesystem checked. The actual constraints if the
+        ## check is performed or not depends on systemd and filesystem
+        ## specific components. If not set or set to false no system
+        ## component will be triggered to run an eventual filesystem
+        ## check, which results in this filesystem to be never checked.
+        ## The latter is the default.
+        attribute filesystem_check { xsd:boolean }
     k.volume.label.attribute =
         ## filesystem label name of the volume.
         attribute label { text }
     k.volume.attlist =
         k.volume.copy_on_write.attribute? &
+        k.volume.filesystem_check? &
         k.volume.freespace.attribute? &
         k.volume.mountpoint.attribute? &
         k.volume.label.attribute? &

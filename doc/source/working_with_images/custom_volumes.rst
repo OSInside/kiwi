@@ -73,6 +73,13 @@ attributes:
 - `copy_on_write`: Optional attribute to set the filesystem copy-on-write
   attribute for this volume.
 
+- `filesystem_check`: Optional attribute to indicate that this
+  filesystem should perform the validation to become filesystem checked.
+  The actual constraints if the check is performed or not depends on
+  systemd and filesystem specific components. If not set or set to
+  `false` no system component will be triggered to run an eventual
+  filesystem check, which results in this filesystem to be never checked.
+  The latter is the default.
 
 .. warning::
    The size attributes for filesystem volumes, as for btrfs, are

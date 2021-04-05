@@ -209,10 +209,16 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         for volume_mount in self.subvol_mount_list:
             subvol_name = self._get_subvol_name_from_mountpoint(volume_mount)
             mount_entry_options = mount_options + ['subvol=' + subvol_name]
+            fs_check = self._is_volume_enabled_for_fs_check(
+                volume_mount.mountpoint
+            )
             fstab_entry = ' '.join(
                 [
                     blkid_type + '=' + device_id, subvol_name.replace('@', ''),
-                    'btrfs', ','.join(mount_entry_options), '0 0'
+                    'btrfs', ','.join(mount_entry_options),
+                    '0 {fs_passno}'.format(
+                        fs_passno='2' if fs_check else '0'
+                    )
                 ]
             )
             fstab_entries.append(fstab_entry)
@@ -339,6 +345,13 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             Command.run(
                 ['btrfs', 'property', 'set', sync_target, 'ro', 'true']
             )
+
+    def _is_volume_enabled_for_fs_check(self, mountpoint):
+        for volume in self.volumes:
+            if volume.realpath in mountpoint:
+                if 'enable-for-filesystem-check' in volume.attributes:
+                    return True
+        return False
 
     def _set_default_volume(self, default_volume):
         subvolume_list_call = Command.run(

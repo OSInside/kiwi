@@ -239,14 +239,21 @@ class VolumeManagerLVM(VolumeManagerBase):
         """
         fstab_entries = []
         for volume_mount in self.mount_list:
-            if not self._is_root_volume(volume_mount.device):
+            volume_name = self._get_volume_name_from_volume_map(
+                volume_mount.device
+            )
+            if not self._is_root_volume(volume_name):
                 mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
+                fs_check = self._is_volume_enabled_for_fs_check(volume_name)
                 if not mount_path.startswith('/'):
                     mount_path = '/' + mount_path
                 fstab_entry = ' '.join(
                     [
                         volume_mount.device, mount_path, filesystem_name,
-                        self.mount_options, '1 2'
+                        self.mount_options,
+                        '0 {fs_passno}'.format(
+                            fs_passno='2' if fs_check else '0'
+                        )
                     ]
                 )
                 fstab_entries.append(fstab_entry)
@@ -297,6 +304,13 @@ class VolumeManagerLVM(VolumeManagerBase):
                     all_volumes_umounted = False
         return all_volumes_umounted
 
+    def _is_volume_enabled_for_fs_check(self, volume_name):
+        for volume in self.volumes:
+            if volume_name == volume.name:
+                if 'enable-for-filesystem-check' in volume.attributes:
+                    return True
+        return False
+
     def _create_filesystem(self, volume_name, volume_label, filesystem_name):
         device_node = self.volume_map[volume_name]
         if self._is_root_volume(volume_name) and not volume_label:
@@ -338,6 +352,11 @@ class VolumeManagerLVM(VolumeManagerBase):
             ['/dev/', self.volume_group, '/', volume_name]
         )
 
+    def _get_volume_name_from_volume_map(self, device):
+        for volume_name, volume_path in self.volume_map.items():
+            if volume_path == device:
+                return volume_name
+
     def _volume_group_in_use_on_host_system(self, volume_group_name):
         vgs_call = Command.run(
             [
@@ -354,14 +373,14 @@ class VolumeManagerLVM(VolumeManagerBase):
             # group name, it is considered to be not used
             return False
 
-    def _is_root_volume(self, name):
+    def _is_root_volume(self, volume_name):
         for volume in self.volumes:
-            if name in volume.name and volume.is_root_volume:
+            if volume_name == volume.name and volume.is_root_volume:
                 return True
 
-    def _is_swap_volume(self, name):
+    def _is_swap_volume(self, volume_name):
         for volume in self.volumes:
-            if name in volume.name and volume.label == 'SWAP':
+            if volume_name == volume.name and volume.label == 'SWAP':
                 return True
 
     def __del__(self):

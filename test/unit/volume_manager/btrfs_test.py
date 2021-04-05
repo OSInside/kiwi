@@ -8,9 +8,9 @@ from pytest import (
 )
 from lxml import etree
 from xml.dom import minidom
-from collections import namedtuple
 
 from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
+from kiwi.xml_state import volume_type
 
 from kiwi.exceptions import (
     KiwiVolumeRootIDError,
@@ -25,36 +25,25 @@ class TestVolumeManagerBtrfs:
 
     @patch('os.path.exists')
     def setup(self, mock_path):
-        self.volume_type = namedtuple(
-            'volume_type', [
-                'name',
-                'size',
-                'realpath',
-                'mountpoint',
-                'fullsize',
-                'attributes',
-                'is_root_volume'
-            ]
-        )
         self.volumes = [
-            self.volume_type(
+            volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
-                mountpoint=None, fullsize=False,
+                mountpoint=None, fullsize=False, label=None,
                 attributes=[], is_root_volume=True
             ),
-            self.volume_type(
+            volume_type(
                 name='LVetc', size='freespace:200', realpath='/etc',
-                mountpoint='/etc', fullsize=False,
+                mountpoint='/etc', fullsize=False, label=None,
                 attributes=[], is_root_volume=False
             ),
-            self.volume_type(
+            volume_type(
                 name='myvol', size='size:500', realpath='/data',
-                mountpoint='LVdata', fullsize=False,
+                mountpoint='LVdata', fullsize=False, label=None,
                 attributes=[], is_root_volume=False
             ),
-            self.volume_type(
+            volume_type(
                 name='LVhome', size=None, realpath='/home',
-                mountpoint='/home', fullsize=True,
+                mountpoint='/home', fullsize=True, label=None,
                 attributes=[], is_root_volume=False
             )
         ]
@@ -185,23 +174,26 @@ class TestVolumeManagerBtrfs:
 
         assert mock_attrs.call_args_list == [
             call(
-                'tmpdir/@/', self.volume_type(
+                'tmpdir/@/', volume_type(
                     name='myvol', size='size:500', realpath='/data',
-                    mountpoint='LVdata', fullsize=False, attributes=[],
+                    mountpoint='LVdata', fullsize=False, label=None,
+                    attributes=[],
                     is_root_volume=False
                 )
             ),
             call(
-                'tmpdir/@/', self.volume_type(
+                'tmpdir/@/', volume_type(
                     name='LVetc', size='freespace:200', realpath='/etc',
-                    mountpoint='/etc', fullsize=False, attributes=[],
+                    mountpoint='/etc', fullsize=False, label=None,
+                    attributes=[],
                     is_root_volume=False
                 )
             ),
             call(
-                'tmpdir/@/', self.volume_type(
+                'tmpdir/@/', volume_type(
                     name='LVhome', size=None, realpath='/home',
-                    mountpoint='/home', fullsize=True, attributes=[],
+                    mountpoint='/home', fullsize=True, label=None,
+                    attributes=[],
                     is_root_volume=False
                 )
             )
@@ -256,12 +248,27 @@ class TestVolumeManagerBtrfs:
         mock_command.return_value = blkid_result
         volume_mount = Mock()
         volume_mount.mountpoint = \
-            '/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
+            '/tmp/kiwi_volumes.XXX/@/.snapshots/1/snapshot/var/tmp'
         volume_mount.device = 'device'
         self.volume_manager.toplevel_volume = '@/.snapshots/1/snapshot'
         self.volume_manager.subvol_mount_list = [volume_mount]
         assert self.volume_manager.get_fstab() == [
             'LABEL=id /var/tmp btrfs defaults,subvol=@/var/tmp 0 0'
+        ]
+        self.volumes.append(
+            volume_type(
+                name='device',
+                size='freespace:100',
+                realpath='/var/tmp',
+                mountpoint=volume_mount.mountpoint,
+                fullsize=False,
+                label=None,
+                attributes=['enable-for-filesystem-check'],
+                is_root_volume=False
+            )
+        )
+        assert self.volume_manager.get_fstab() == [
+            'LABEL=id /var/tmp btrfs defaults,subvol=@/var/tmp 0 2'
         ]
 
     @patch('os.path.exists')

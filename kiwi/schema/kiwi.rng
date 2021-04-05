@@ -3180,6 +3180,18 @@ add "M" and/or "G" as postfix</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
+    <define name="k.volume.filesystem_check">
+      <attribute name="filesystem_check">
+        <a:documentation>Indicate that this filesystem should perform the validation
+to become filesystem checked. The actual constraints if the
+check is performed or not depends on systemd and filesystem
+specific components. If not set or set to false no system
+component will be triggered to run an eventual filesystem
+check, which results in this filesystem to be never checked.
+The latter is the default.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.volume.label.attribute">
       <attribute name="label">
         <a:documentation>filesystem label name of the volume.</a:documentation>
@@ -3189,6 +3201,9 @@ add "M" and/or "G" as postfix</a:documentation>
       <interleave>
         <optional>
           <ref name="k.volume.copy_on_write.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.volume.filesystem_check"/>
         </optional>
         <optional>
           <ref name="k.volume.freespace.attribute"/>

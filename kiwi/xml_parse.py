@@ -4032,9 +4032,10 @@ class volume(GeneratedsSuper):
     """Specify which parts of the filesystem should be on an extra volume."""
     subclass = None
     superclass = None
-    def __init__(self, copy_on_write=None, freespace=None, mountpoint=None, label=None, name=None, size=None):
+    def __init__(self, copy_on_write=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, size=None):
         self.original_tagname_ = None
         self.copy_on_write = _cast(bool, copy_on_write)
+        self.filesystem_check = _cast(bool, filesystem_check)
         self.freespace = _cast(None, freespace)
         self.mountpoint = _cast(None, mountpoint)
         self.label = _cast(None, label)
@@ -4053,6 +4054,8 @@ class volume(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_copy_on_write(self): return self.copy_on_write
     def set_copy_on_write(self, copy_on_write): self.copy_on_write = copy_on_write
+    def get_filesystem_check(self): return self.filesystem_check
+    def set_filesystem_check(self, filesystem_check): self.filesystem_check = filesystem_check
     def get_freespace(self): return self.freespace
     def set_freespace(self, freespace): self.freespace = freespace
     def get_mountpoint(self): return self.mountpoint
@@ -4101,6 +4104,9 @@ class volume(GeneratedsSuper):
         if self.copy_on_write is not None and 'copy_on_write' not in already_processed:
             already_processed.add('copy_on_write')
             outfile.write(' copy_on_write="%s"' % self.gds_format_boolean(self.copy_on_write, input_name='copy_on_write'))
+        if self.filesystem_check is not None and 'filesystem_check' not in already_processed:
+            already_processed.add('filesystem_check')
+            outfile.write(' filesystem_check="%s"' % self.gds_format_boolean(self.filesystem_check, input_name='filesystem_check'))
         if self.freespace is not None and 'freespace' not in already_processed:
             already_processed.add('freespace')
             outfile.write(' freespace=%s' % (quote_attrib(self.freespace), ))
@@ -4133,6 +4139,15 @@ class volume(GeneratedsSuper):
                 self.copy_on_write = True
             elif value in ('false', '0'):
                 self.copy_on_write = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('filesystem_check', node)
+        if value is not None and 'filesystem_check' not in already_processed:
+            already_processed.add('filesystem_check')
+            if value in ('true', '1'):
+                self.filesystem_check = True
+            elif value in ('false', '0'):
+                self.filesystem_check = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('freespace', node)
