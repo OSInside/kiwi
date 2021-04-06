@@ -23,6 +23,7 @@ from abc import (
 )
 
 # project
+from kiwi.storage.device_provider import DeviceProvider
 from kiwi.exceptions import KiwiFileSystemSetupError
 
 
@@ -41,7 +42,7 @@ class FileSystem(metaclass=ABCMeta):
 
     @staticmethod
     def new(
-        name: str, device_provider: object,
+        name: str, device_provider: DeviceProvider,
         root_dir: str=None, custom_args: Dict=None  # noqa: E252
     ):
         name_map = {

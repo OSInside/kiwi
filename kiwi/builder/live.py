@@ -28,6 +28,7 @@ from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.filesystem.setup import FileSystemSetup
 from kiwi.storage.loop_device import LoopDevice
+from kiwi.storage.device_provider import DeviceProvider
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.system.size import SystemSize
 from kiwi.system.setup import SystemSetup
@@ -42,10 +43,7 @@ from kiwi.runtime_config import RuntimeConfig
 from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.xml_state import XMLState
 
-
-from kiwi.exceptions import (
-    KiwiLiveBootImageError
-)
+from kiwi.exceptions import KiwiLiveBootImageError
 
 log = logging.getLogger('kiwi')
 
@@ -59,9 +57,12 @@ class LiveImageBuilder:
     :param str root_dir: root directory path name
     :param dict custom_args: Custom processing arguments
     """
-    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
-        self.media_dir: str = None
-        self.live_container_dir: str = None
+    def __init__(
+        self, xml_state: XMLState, target_dir: str,
+        root_dir: str, custom_args: Dict = None
+    ):
+        self.media_dir: str = ''
+        self.live_container_dir: str = ''
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -256,7 +257,7 @@ class LiveImageBuilder:
         )
         live_container_image = FileSystem.new(
             name='squashfs',
-            device_provider=None,
+            device_provider=DeviceProvider(),
             root_dir=self.live_container_dir,
             custom_args={
                 'compression':
@@ -275,7 +276,7 @@ class LiveImageBuilder:
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
         iso_image = FileSystemIsoFs(
-            device_provider=None, root_dir=self.media_dir,
+            device_provider=DeviceProvider(), root_dir=self.media_dir,
             custom_args=custom_iso_args
         )
         iso_image.create_on_file(self.isoname)

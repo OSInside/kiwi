@@ -17,7 +17,7 @@
 #
 from tempfile import mkdtemp
 from typing import (
-    Dict, List
+    Dict, List, Optional
 )
 import logging
 
@@ -45,7 +45,7 @@ class FileSystemClicFs(FileSystemBase):
 
         :param dict custom_args: unused
         """
-        self.container_dir = None
+        self.container_dir: Optional[str] = None
 
     def create_on_file(
         self, filename: str, label: str = None, exclude: List[str] = None

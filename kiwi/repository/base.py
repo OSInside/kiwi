@@ -15,8 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-
-from typing import List, Dict
+from typing import (
+    List, Dict
+)
 
 from kiwi.system.root_bind import RootBind
 
@@ -33,14 +34,16 @@ class RepositoryBase:
         and build system root
     """
 
-    def __init__(self, root_bind: RootBind = None, custom_args: List = None) -> None:
+    def __init__(
+        self, root_bind: RootBind, custom_args: List = []
+    ) -> None:
         self.root_bind = root_bind
         self.root_dir = root_bind.root_dir
         self.shared_location = root_bind.shared_location
 
-        self.post_init(custom_args)
+        self.post_init(custom_args or [])
 
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
@@ -67,9 +70,10 @@ class RepositoryBase:
         raise NotImplementedError
 
     def add_repo(
-        self, name: str, uri: str, repo_type: str, prio: int, dist: str, components: str,
-        user: str, secret: str, credentials_file: str, repo_gpgcheck: bool,
-        pkg_gpgcheck: bool, sourcetype: str, use_for_bootstrap: bool = False
+        self, name: str, uri: str, repo_type: str, prio: int, dist: str,
+        components: str, user: str, secret: str, credentials_file: str,
+        repo_gpgcheck: bool, pkg_gpgcheck: bool, sourcetype: str,
+        use_for_bootstrap: bool = False
     ) -> None:
         """
         Add repository

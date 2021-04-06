@@ -22,9 +22,7 @@ import copy
 from collections import OrderedDict
 from collections import namedtuple
 from tempfile import NamedTemporaryFile
-from typing import (
-    Any, Optional
-)
+from typing import Any
 
 # project
 import kiwi.defaults as defaults
@@ -493,7 +491,7 @@ class SystemSetup:
                 options=['-a']
             )
 
-    def export_package_list(self, target_dir: str) -> Optional[str]:
+    def export_package_list(self, target_dir: str) -> str:
         """
         Export image package list as metadata reference
         used by the open buildservice
@@ -522,9 +520,9 @@ class SystemSetup:
         elif packager == 'pacman':
             self._export_pacman_package_list(filename)
             return filename
-        return None
+        return ''
 
-    def export_package_changes(self, target_dir: str) -> Optional[str]:
+    def export_package_changes(self, target_dir: str) -> str:
         """
         Export image package changelog for comparision of
         actual changes of the installed packages
@@ -551,9 +549,9 @@ class SystemSetup:
             elif packager == 'dpkg':
                 self._export_deb_package_changes(filename)
                 return filename
-        return None
+        return ''
 
-    def export_package_verification(self, target_dir: str) -> Optional[str]:
+    def export_package_verification(self, target_dir: str) -> str:
         """
         Export package verification result as metadata reference
         used by the open buildservice
@@ -579,7 +577,7 @@ class SystemSetup:
         elif packager == 'dpkg':
             self._export_deb_package_verification(filename)
             return filename
-        return None
+        return ''
 
     def call_disk_script(self) -> None:
         """

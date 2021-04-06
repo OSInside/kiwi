@@ -21,10 +21,13 @@ import logging
 from typing import List
 
 # project
+from kiwi.command import command_call_type
 from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.system.root_bind import RootBind
+from kiwi.repository.apt import RepositoryApt
+
 from kiwi.exceptions import (
     KiwiDebootstrapError,
     KiwiRequestError
@@ -35,15 +38,15 @@ log = logging.getLogger('kiwi')
 
 class PackageManagerApt(PackageManagerBase):
     """
-    **Implements base class for installation/deletion of
-    packages and collections using apt-get**
+    **Implements Installation/Deletion of packages/collections with apt-get**
 
-    :param list apt_get_args: apt-get arguments from repository runtime
-        configuration
-    :param dict command_env: apt-get command environment from repository
+    :param list apt_get_args:
+        apt-get arguments from repository runtime configuration
+    :param dict command_env:
+        apt-get command environment from repository
         runtime configuration
     """
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
@@ -51,9 +54,9 @@ class PackageManagerApt(PackageManagerBase):
 
         :param list custom_args: custom apt-get arguments
         """
+        self.repository: RepositoryApt = self.repository
         self.custom_args = custom_args
-        if not custom_args:
-            self.custom_args = []
+
         self.deboostrap_minbase: bool = True
 
         runtime_config = self.repository.runtime_config()
@@ -106,7 +109,9 @@ class PackageManagerApt(PackageManagerBase):
             'Package exclusion for (%s) not supported for apt-get', name
         )
 
-    def process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> command_call_type:
         """
         Process package install requests for bootstrap phase (no chroot)
         The debootstrap program is used to bootstrap a new system with
@@ -140,7 +145,9 @@ class PackageManagerApt(PackageManagerBase):
         # debootstrap. Debootstrap manages itself the kernel file systems for
         # chroot environment, thus we need to umount the kernel file systems
         # before calling debootstrap and remount them afterwards.
-        root_bind.umount_kernel_file_systems()
+        if root_bind:
+            root_bind.umount_kernel_file_systems()
+
         # debootsrap will create its own dev/fd devices
         debootstrap_device_node_conflicts = [
             'dev/fd',
@@ -182,7 +189,9 @@ class PackageManagerApt(PackageManagerBase):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def post_process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def post_process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> None:
         """
         Mounts the kernel file systems to the chroot environment is
         ready after the bootstrap procedure
@@ -190,9 +199,10 @@ class PackageManagerApt(PackageManagerBase):
         :param object root_bind:
             instance of RootBind to manage kernel file systems
         """
-        root_bind.mount_kernel_file_systems()
+        if root_bind:
+            root_bind.mount_kernel_file_systems()
 
-    def process_install_requests(self) -> None:
+    def process_install_requests(self) -> command_call_type:
         """
         Process package install requests for image phase (chroot)
 
@@ -220,7 +230,7 @@ class PackageManagerApt(PackageManagerBase):
             apt_get_command, self.command_env
         )
 
-    def process_delete_requests(self, force: bool = False) -> None:
+    def process_delete_requests(self, force: bool = False) -> command_call_type:
         """
         Process package delete requests (chroot)
 
@@ -264,7 +274,7 @@ class PackageManagerApt(PackageManagerBase):
             apt_get_command, self.command_env
         )
 
-    def update(self) -> None:
+    def update(self) -> command_call_type:
         """
         Process package update requests (chroot)
 
@@ -299,7 +309,9 @@ class PackageManagerApt(PackageManagerBase):
             self.custom_args.remove('--no-install-recommends')
         self.deboostrap_minbase = False
 
-    def match_package_installed(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_installed(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been installed
 
@@ -315,11 +327,16 @@ class PackageManagerApt(PackageManagerBase):
 
         :rtype: bool
         """
-        return bool(re.match(
-            '.*Unpacking ' + re.escape(package_name) + '.*', package_manager_output
-        ))
+        return bool(
+            re.match(
+                '.*Unpacking {0}.*'.format(re.escape(package_name)),
+                package_manager_output
+            )
+        )
 
-    def match_package_deleted(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_deleted(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been deleted
 
@@ -330,9 +347,12 @@ class PackageManagerApt(PackageManagerBase):
 
         :rtype: bool
         """
-        return bool(re.match(
-            '.*Removing ' + re.escape(package_name) + '.*', package_manager_output
-        ))
+        return bool(
+            re.match(
+                '.*Removing {0}.*'.format(re.escape(package_name)),
+                package_manager_output
+            )
+        )
 
     def _package_requests(self) -> List:
         items = self.package_requests[:]

@@ -88,14 +88,14 @@ class Disk(DeviceProvider):
         """
         return self.storage_provider.is_loop()
 
-    def create_root_partition(self, mbsize: int):
+    def create_root_partition(self, mbsize: str):
         """
         Create root partition
 
         Populates kiwi_RootPart(id) and kiwi_BootPart(id) if no extra
         boot partition is requested
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.lxroot', mbsize, 't.linux')
         self._add_to_map('root')
@@ -105,19 +105,19 @@ class Disk(DeviceProvider):
         if 'kiwi_BootPart' not in self.public_partition_id_map:
             self._add_to_public_id_map('kiwi_BootPart')
 
-    def create_root_lvm_partition(self, mbsize: int):
+    def create_root_lvm_partition(self, mbsize: str):
         """
         Create root partition for use with LVM
 
         Populates kiwi_RootPart(id)
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.lxlvm', mbsize, 't.lvm')
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
 
-    def create_root_raid_partition(self, mbsize: int):
+    def create_root_raid_partition(self, mbsize: str):
         """
         Create root partition for use with MD Raid
 
@@ -125,14 +125,14 @@ class Disk(DeviceProvider):
         as the default raid device node at boot time which is
         configured to be kiwi_RaidDev(/dev/mdX)
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.lxraid', mbsize, 't.raid')
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
         self._add_to_public_id_map('kiwi_RaidPart')
 
-    def create_root_readonly_partition(self, mbsize: int):
+    def create_root_readonly_partition(self, mbsize: str):
         """
         Create root readonly partition for use with overlayfs
 
@@ -141,79 +141,79 @@ class Disk(DeviceProvider):
         should be the size of the squashfs filesystem in order to
         avoid wasting disk space
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.lxreadonly', mbsize, 't.linux')
         self._add_to_map('readonly')
         self._add_to_public_id_map('kiwi_ROPart')
 
-    def create_boot_partition(self, mbsize: int):
+    def create_boot_partition(self, mbsize: str):
         """
         Create boot partition
 
         Populates kiwi_BootPart(id)
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.lxboot', mbsize, 't.linux')
         self._add_to_map('boot')
         self._add_to_public_id_map('kiwi_BootPart')
 
-    def create_prep_partition(self, mbsize: int):
+    def create_prep_partition(self, mbsize: str):
         """
         Create prep partition
 
         Populates kiwi_PrepPart(id)
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.prep', mbsize, 't.prep')
         self._add_to_map('prep')
         self._add_to_public_id_map('kiwi_PrepPart')
 
-    def create_spare_partition(self, mbsize: int):
+    def create_spare_partition(self, mbsize: str):
         """
         Create spare partition for custom use
 
         Populates kiwi_SparePart(id)
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.spare', mbsize, 't.linux')
         self._add_to_map('spare')
         self._add_to_public_id_map('kiwi_SparePart')
 
-    def create_swap_partition(self, mbsize: int):
+    def create_swap_partition(self, mbsize: str):
         """
         Create swap partition
 
         Populates kiwi_SwapPart(id)
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.swap', mbsize, 't.swap')
         self._add_to_map('swap')
         self._add_to_public_id_map('kiwi_SwapPart')
 
-    def create_efi_csm_partition(self, mbsize: int):
+    def create_efi_csm_partition(self, mbsize: str):
         """
         Create EFI bios grub partition
 
         Populates kiwi_BiosGrub(id)
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.legacy', mbsize, 't.csm')
         self._add_to_map('efi_csm')
         self._add_to_public_id_map('kiwi_BiosGrub')
 
-    def create_efi_partition(self, mbsize: int):
+    def create_efi_partition(self, mbsize: str):
         """
         Create EFI partition
 
         Populates kiwi_EfiPart(id)
 
-        :param int mbsize: partition size
+        :param str mbsize: partition size NumberString or 'all_free'
         """
         self.partitioner.create('p.UEFI', mbsize, 't.efi')
         self._add_to_map('efi')

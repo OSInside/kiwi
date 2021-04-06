@@ -18,8 +18,9 @@
 import os
 from configparser import ConfigParser
 from tempfile import NamedTemporaryFile
-from typing import List, Dict
-
+from typing import (
+    List, Dict
+)
 
 # project
 from kiwi.repository.base import RepositoryBase
@@ -38,7 +39,7 @@ class RepositoryPacman(RepositoryBase):
     :param dict command_env: customized os.environ for pacman
     """
 
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
@@ -50,8 +51,6 @@ class RepositoryPacman(RepositoryBase):
         self.custom_args = custom_args
         self.check_signatures = False
         self.repo_names: List = []
-        if not custom_args:
-            self.custom_args = []
 
         self.runtime_pacman_config_file = NamedTemporaryFile(
             dir=self.root_dir
@@ -94,8 +93,9 @@ class RepositoryPacman(RepositoryBase):
         }
 
     def _add_repo_section(
-        self, config_parser: ConfigParser, name: str, uri: str, repo_gpgcheck: bool = False,
-            pkg_gpgcheck: bool = False) -> None:
+        self, config_parser: ConfigParser, name: str, uri: str,
+        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False
+    ) -> None:
         config_parser.add_section(name)
         if uri.startswith(os.sep) and os.path.exists(uri):
             uri = 'file://{}'.format(uri)
@@ -111,7 +111,7 @@ class RepositoryPacman(RepositoryBase):
         self, name: str, uri: str, repo_type: str = None,
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = None, pkg_gpgcheck: bool = None,
+        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
         sourcetype: str = None, use_for_bootstrap: bool = False
     ) -> None:
         """
@@ -136,7 +136,7 @@ class RepositoryPacman(RepositoryBase):
         )
         self.repo_names.append(name + '.repo')
         repo_config = ConfigParser()
-        repo_config.optionxform = str
+        repo_config.optionxform = str  # type: ignore
         if not components:
             self._add_repo_section(
                 repo_config, name, uri, repo_gpgcheck,
@@ -216,7 +216,7 @@ class RepositoryPacman(RepositoryBase):
 
     def _write_runtime_config(self) -> None:
         runtime_pacman_config = ConfigParser()
-        runtime_pacman_config.optionxform = str
+        runtime_pacman_config.optionxform = str  # type: ignore
         runtime_pacman_config.add_section('options')
 
         runtime_pacman_config.set(

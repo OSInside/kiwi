@@ -50,16 +50,17 @@ class KisBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
+    def __init__(
+        self, xml_state: XMLState, target_dir: str,
+        root_dir: str, custom_args: Dict = None
+    ):
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.xen_server = xml_state.is_xen_server()
         self.custom_cmdline = xml_state.build_type.get_kernelcmdline()
-        self.filesystem = xml_state.build_type.get_filesystem()
-        if self.filesystem:
-            self.filesystem = FileSystemBuilder(
-                xml_state, target_dir, root_dir + '/'
-            )
+        self.filesystem = FileSystemBuilder(
+            xml_state, target_dir, root_dir + '/'
+        ) if xml_state.build_type.get_filesystem() else None
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=root_dir
         )
@@ -83,12 +84,12 @@ class KisBuilder:
                 '-' + xml_state.get_image_version()
             ]
         )
-        self.image: str = None
+        self.image: str = ''
         self.append_file = ''.join([self.image_name, '.append'])
         self.archive_name = ''.join([self.image_name, '.tar'])
         self.checksum_name = ''.join([self.image_name, '.md5'])
-        self.kernel_filename: str = None
-        self.hypervisor_filename: str = None
+        self.kernel_filename: str = ''
+        self.hypervisor_filename: str = ''
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
@@ -156,10 +157,13 @@ class KisBuilder:
 
         # extract hypervisor from boot(initrd) root system
         if self.xen_server:
-            kernel_data = kernel.get_xen_hypervisor()
-            if kernel_data:
+            hypervisor_data = kernel.get_xen_hypervisor()
+            if hypervisor_data:
                 self.hypervisor_filename = ''.join(
-                    [os.path.basename(self.image_name), '-', kernel_data.name]
+                    [
+                        os.path.basename(self.image_name),
+                        '-', hypervisor_data.name
+                    ]
                 )
                 kernel.copy_xen_hypervisor(
                     self.target_dir, self.hypervisor_filename

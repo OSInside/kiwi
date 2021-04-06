@@ -38,7 +38,7 @@ class TestPartitionerDasd:
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
             with self._caplog.at_level(logging.DEBUG):
-                self.partitioner.create('name', 100, 't.linux', ['f.active'])
+                self.partitioner.create('name', '100', 't.linux', ['f.active'])
 
         m_open.return_value.write.assert_called_once_with(
             'n\np\n\n+100M\nw\nq\n'

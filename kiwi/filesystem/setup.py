@@ -64,9 +64,10 @@ class FileSystemSetup:
 
         :rtype: int
         """
+        fstype = self.requested_filesystem if not filesystem else filesystem
         root_dir_mbytes = self.size.accumulate_mbyte_file_sizes()
         filesystem_mbytes = self.size.customize(
-            root_dir_mbytes, self.requested_filesystem or filesystem
+            root_dir_mbytes, fstype
         )
 
         if not self.configured_size:

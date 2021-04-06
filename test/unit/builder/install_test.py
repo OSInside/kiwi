@@ -113,6 +113,7 @@ class TestInstallImageBuilder:
         )
         assert install_image.arch == 'ix86'
 
+    @patch('kiwi.builder.install.DeviceProvider')
     @patch('kiwi.builder.install.BootLoaderConfig.new')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.shutil.copy')
@@ -121,7 +122,8 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.Defaults.get_grub_boot_directory_name')
     def test_create_install_iso(
         self, mock_grub_dir, mock_command, mock_dtemp, mock_copy,
-        mock_setup_media_loader_directory, mock_BootLoaderConfig
+        mock_setup_media_loader_directory, mock_BootLoaderConfig,
+        mock_DeviceProvider
     ):
         tmpdir_name = ['temp-squashfs', 'temp_media_dir']
 
@@ -155,7 +157,8 @@ class TestInstallImageBuilder:
         ]
         kiwi.builder.install.FileSystemSquashFs.assert_called_once_with(
             custom_args={'compression': mock.ANY},
-            device_provider=None, root_dir='temp-squashfs'
+            device_provider=mock_DeviceProvider.return_value,
+            root_dir='temp-squashfs'
         )
         self.squashed_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.raw.squashfs'

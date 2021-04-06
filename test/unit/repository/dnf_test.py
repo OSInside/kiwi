@@ -114,7 +114,9 @@ class TestRepositoryDnf:
             assert repo_config.set.call_args_list == [
                 call('foo', 'name', 'foo'),
                 call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
-                call('foo', 'priority', '42')
+                call('foo', 'priority', '42'),
+                call('foo', 'repo_gpgcheck', '0'),
+                call('foo', 'gpgcheck', '0'),
             ]
             mock_open.assert_called_once_with(
                 '/shared-dir/dnf/repos/foo.repo', 'w'
@@ -131,7 +133,9 @@ class TestRepositoryDnf:
             repo_config.add_section.assert_called_once_with('bar')
             assert repo_config.set.call_args_list == [
                 call('bar', 'name', 'bar'),
-                call('bar', 'metalink', 'https://metalink')
+                call('bar', 'metalink', 'https://metalink'),
+                call('bar', 'repo_gpgcheck', '0'),
+                call('bar', 'gpgcheck', '0')
             ]
             mock_open.assert_called_once_with(
                 '/shared-dir/dnf/repos/bar.repo', 'w'
@@ -156,6 +160,8 @@ class TestRepositoryDnf:
                 call('foo', 'name', 'foo'),
                 call('foo', 'baseurl', 'file://kiwi_iso_mount/uri'),
                 call('foo', 'priority', '42'),
+                call('foo', 'repo_gpgcheck', '0'),
+                call('foo', 'gpgcheck', '0'),
                 call('foo', 'module_hotfixes', '1')
             ]
             mock_open.assert_called_once_with(

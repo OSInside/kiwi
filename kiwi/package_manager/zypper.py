@@ -21,6 +21,7 @@ from typing import List
 
 
 # project
+from kiwi.command import command_call_type
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.system.root_bind import RootBind
@@ -33,15 +34,15 @@ from kiwi.defaults import Defaults
 
 class PackageManagerZypper(PackageManagerBase):
     """
-    **Implements base class for installation/deletion of
-    packages and collections using zypper**
+    **Implements Installation/Deletion of packages/collections with zypper**
 
-    :param list zypper_args: zypper arguments from repository runtime
-        configuration
-    :param dict command_env: zypper command environment from repository
+    :param list zypper_args:
+        zypper arguments from repository runtime configuration
+    :param dict command_env:
+        zypper command environment from repository
         runtime configuration
     """
-    def post_init(self, custom_args: list = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
@@ -51,8 +52,6 @@ class PackageManagerZypper(PackageManagerBase):
         """
         self.anonymousId_file = '/var/lib/zypp/AnonymousUniqueId'
         self.custom_args = custom_args
-        if not custom_args:
-            self.custom_args = []
 
         runtime_config = self.repository.runtime_config()
 
@@ -100,7 +99,9 @@ class PackageManagerZypper(PackageManagerBase):
         """
         self.exclude_requests.append(name)
 
-    def process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> command_call_type:
         """
         Process package install requests for bootstrap phase (no chroot)
 
@@ -118,7 +119,7 @@ class PackageManagerZypper(PackageManagerBase):
             command, self.command_env
         )
 
-    def process_install_requests(self) -> None:
+    def process_install_requests(self) -> command_call_type:
         """
         Process package install requests for image phase (chroot)
 
@@ -148,7 +149,7 @@ class PackageManagerZypper(PackageManagerBase):
             self.chroot_command_env
         )
 
-    def process_delete_requests(self, force: bool = False) -> None:
+    def process_delete_requests(self, force: bool = False) -> command_call_type:
         """
         Process package delete requests (chroot)
 
@@ -190,7 +191,7 @@ class PackageManagerZypper(PackageManagerBase):
                 self.chroot_command_env
             )
 
-    def update(self) -> None:
+    def update(self) -> command_call_type:
         """
         Process package update requests (chroot)
 
@@ -219,7 +220,9 @@ class PackageManagerZypper(PackageManagerBase):
         if '--no-recommends' in self.custom_args:
             self.custom_args.remove('--no-recommends')
 
-    def match_package_installed(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_installed(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been installed
 
@@ -235,11 +238,16 @@ class PackageManagerZypper(PackageManagerBase):
 
         :rtype: bool
         """
-        return bool(re.match(
-            '.*Installing: ' + re.escape(package_name) + '.*', package_manager_output
-        ))
+        return bool(
+            re.match(
+                '.*Installing: {0}.*'.format(re.escape(package_name)),
+                package_manager_output
+            )
+        )
 
-    def match_package_deleted(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_deleted(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been deleted
 
@@ -250,11 +258,16 @@ class PackageManagerZypper(PackageManagerBase):
 
         :rtype: bool
         """
-        return bool(re.match(
-            '.*Removing: ' + re.escape(package_name) + '.*', package_manager_output
-        ))
+        return bool(
+            re.match(
+                '.*Removing: {0}.*'.format(re.escape(package_name)),
+                package_manager_output
+            )
+        )
 
-    def post_process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def post_process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> None:
         """
         Move the rpm database to the place as it is expected by the
         rpm package installed during bootstrap phase

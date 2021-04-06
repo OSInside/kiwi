@@ -1001,19 +1001,19 @@ class TestSystemSetup:
     def test_export_package_list_unknown_packager(
         self, mock_get_default_packager_tool
     ):
-        assert self.setup.export_package_list('target_dir') is None
+        assert self.setup.export_package_list('target_dir') == ''
 
     @patch('kiwi.defaults.Defaults.get_default_packager_tool')
     def test_export_package_changes_unknown_packager(
         self, mock_get_default_packager_tool
     ):
-        assert self.setup.export_package_changes('target_dir') is None
+        assert self.setup.export_package_changes('target_dir') == ''
 
     @patch('kiwi.defaults.Defaults.get_default_packager_tool')
     def test_export_package_verification_unknown_packager(
         self, mock_get_default_packager_tool
     ):
-        assert self.setup.export_package_verification('target_dir') is None
+        assert self.setup.export_package_verification('target_dir') == ''
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')

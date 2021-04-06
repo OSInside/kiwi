@@ -40,7 +40,7 @@ class RepositoryDnf(RepositoryBase):
     :param str runtime_dnf_config: instance of :class:`ConfigParser`
     """
 
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
@@ -51,8 +51,6 @@ class RepositoryDnf(RepositoryBase):
         """
         self.custom_args = custom_args
         self.exclude_docs = False
-        if not custom_args:
-            self.custom_args = []
 
         # extract custom arguments not used in dnf call
         if 'exclude_docs' in self.custom_args:
@@ -185,7 +183,7 @@ class RepositoryDnf(RepositoryBase):
         self, name: str, uri: str, repo_type: str = 'rpm-md',
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = None, pkg_gpgcheck: bool = None,
+        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
         sourcetype: str = None, use_for_bootstrap: bool = False
     ) -> None:
         """
@@ -223,18 +221,17 @@ class RepositoryDnf(RepositoryBase):
             repo_config.set(
                 name, 'priority', format(prio)
             )
-        if repo_gpgcheck is not None:
-            repo_config.set(
-                name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
-            )
-        if pkg_gpgcheck is not None:
-            repo_config.set(
-                name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
-            )
+        repo_config.set(
+            name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
+        )
+        repo_config.set(
+            name, 'gpgcheck', '1' if pkg_gpgcheck else '0'
+        )
         if Defaults.is_buildservice_worker():
-            # when building in the build service, modular metadata is inaccessible...
-            # in order to use modular content in the build service, we need to disable
-            # modular filtering, which is done with module_hotfixes option
+            # when building in the build service, modular metadata is
+            # inaccessible. In order to use modular content in the build
+            # service, we need to disable modular filtering, which is
+            # done with module_hotfixes option
             repo_config.set(
                 name, 'module_hotfixes', '1'
             )

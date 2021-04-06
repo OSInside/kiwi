@@ -107,7 +107,6 @@ class DiskFormatVagrantBase(DiskFormatBase):
         be set by the specialized provider class implementation to
         make the this base class methods effective
         """
-        self.image_format = None
         self.provider: Optional[str] = None
 
     def create_box_img(self, temp_image_dir: str) -> List[str]:

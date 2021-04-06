@@ -17,14 +17,14 @@
 #
 from typing import List
 
+from kiwi.command import command_call_type
 from kiwi.system.root_bind import RootBind
 from kiwi.repository.base import RepositoryBase
 
 
 class PackageManagerBase:
     """
-    **Implements base class for installation/deletion of
-    packages and collections using a package manager**
+    **Implements base class for Package Management**
 
     :param object repository: instance of :class:`Repository`
     :param str root_dir: root directory path name
@@ -32,8 +32,9 @@ class PackageManagerBase:
     :param list collection_requests: list of collections to install
     :param list product_requests: list of products to install
     """
-
-    def __init__(self, repository: RepositoryBase, custom_args: List = None) -> None:
+    def __init__(
+        self, repository: RepositoryBase, custom_args: List = []
+    ) -> None:
         self.repository = repository
         self.root_dir = repository.root_dir
         self.package_requests: List[str] = []
@@ -41,9 +42,9 @@ class PackageManagerBase:
         self.product_requests: List[str] = []
         self.exclude_requests: List[str] = []
 
-        self.post_init(custom_args)
+        self.post_init(custom_args or [])
 
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
@@ -103,7 +104,9 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> command_call_type:
         """
         Process package install requests for bootstrap phase (no chroot)
 
@@ -111,7 +114,7 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def process_install_requests(self) -> None:
+    def process_install_requests(self) -> command_call_type:
         """
         Process package install requests for image phase (chroot)
 
@@ -119,7 +122,7 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def process_delete_requests(self, force: bool = False) -> None:
+    def process_delete_requests(self, force: bool = False) -> command_call_type:
         """
         Process package delete requests (chroot)
 
@@ -129,7 +132,7 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def update(self) -> None:
+    def update(self) -> command_call_type:
         """
         Process package update requests (chroot)
 
@@ -153,7 +156,9 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def match_package_installed(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_installed(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been installed
 
@@ -168,7 +173,9 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def match_package_deleted(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_deleted(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been deleted
 
@@ -195,7 +202,9 @@ class PackageManagerBase:
         """
         pass
 
-    def post_process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def post_process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> None:
         """
         Process extra code required after bootstrapping
 

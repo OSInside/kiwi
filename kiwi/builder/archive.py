@@ -43,7 +43,10 @@ class ArchiveBuilder:
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
+    def __init__(
+        self, xml_state: XMLState, target_dir: str,
+        root_dir: str, custom_args: Dict = None
+    ):
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -58,7 +61,7 @@ class ArchiveBuilder:
 
         self.runtime_config = RuntimeConfig()
 
-    def create(self) -> None:
+    def create(self) -> Result:
         """
         Create a root archive tarball
 

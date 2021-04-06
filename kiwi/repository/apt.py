@@ -43,7 +43,7 @@ class RepositoryApt(RepositoryBase):
         host and image
     """
 
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
@@ -55,8 +55,6 @@ class RepositoryApt(RepositoryBase):
         self.custom_args = custom_args
         self.exclude_docs = False
         self.signing_keys: List = []
-        if not custom_args:
-            self.custom_args = []
 
         # extract custom arguments used for apt config only
         if 'exclude_docs' in self.custom_args:
@@ -69,8 +67,8 @@ class RepositoryApt(RepositoryBase):
         else:
             self.unauthenticated = 'true'
 
-        self.distribution: str = None
-        self.distribution_path: str = None
+        self.distribution: str = ''
+        self.distribution_path: str = ''
         self.debootstrap_repo_set = False
         self.repo_names: List = []
         self.components: List = []

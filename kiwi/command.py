@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import NamedTuple
 import select
 import os
 import logging
 import subprocess
-from collections import namedtuple
 
 # project
 from kiwi.utils.codec import Codec
@@ -31,8 +31,22 @@ from kiwi.exceptions import (
 
 log = logging.getLogger('kiwi')
 
-command_type = namedtuple(
-    'command_type', ['output', 'error', 'returncode']
+command_type = NamedTuple(
+    'command_type', [
+        ('output', str),
+        ('error', str),
+        ('returncode', int)
+    ]
+)
+
+command_call_type = NamedTuple(
+    'command_call_type', [
+        ('output', str),
+        ('output_available', bool),
+        ('error', str),
+        ('error_available', bool),
+        ('process', subprocess.Popen)
+    ]
 )
 
 
@@ -203,14 +217,7 @@ class Command:
                     return True
             return _select
 
-        command = namedtuple(
-            'command', [
-                'output', 'output_available',
-                'error', 'error_available',
-                'process'
-            ]
-        )
-        return command(
+        return command_call_type(
             output=process.stdout,
             output_available=output_available(),
             error=process.stderr,

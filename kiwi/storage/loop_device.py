@@ -17,7 +17,6 @@
 #
 import os
 import logging
-from typing import Optional
 
 # project
 from kiwi.command import Command
@@ -43,7 +42,7 @@ class LoopDevice(DeviceProvider):
         self, filename: str, filesize_mbytes: int = None,
         blocksize_bytes: int = None
     ):
-        self.node_name = None
+        self.node_name = ''
         if not os.path.exists(filename) and not filesize_mbytes:
             raise KiwiLoopSetupError(
                 'Can not create loop file without a size'
@@ -52,7 +51,7 @@ class LoopDevice(DeviceProvider):
         self.filesize_mbytes = filesize_mbytes
         self.blocksize_bytes = blocksize_bytes
 
-    def get_device(self) -> Optional[str]:
+    def get_device(self) -> str:
         """
         Device node name
 
@@ -97,7 +96,7 @@ class LoopDevice(DeviceProvider):
         loop_call = Command.run(
             ['losetup'] + loop_options + ['-f', '--show', self.filename]
         )
-        self.node_name = loop_call.output.rstrip('\n')
+        self.node_name = loop_call.output.rstrip(os.linesep)
 
     def __del__(self):
         if self.node_name:

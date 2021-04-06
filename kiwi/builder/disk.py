@@ -19,22 +19,27 @@ import os
 import logging
 import pickle
 from tempfile import NamedTemporaryFile
-from typing import Dict, List
+from typing import (
+    Dict, List, Optional, Any
+)
 
 # project
 import kiwi.defaults as defaults
 
 from kiwi.defaults import Defaults
+from kiwi.filesystem.base import FileSystemBase
 from kiwi.bootloader.config import BootLoaderConfig
 from kiwi.bootloader.install import BootLoaderInstall
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.boot.image import BootImage
+from kiwi.boot.image.base import BootImageBase
 from kiwi.storage.setup import DiskSetup
 from kiwi.storage.loop_device import LoopDevice
 from kiwi.firmware import FirmWare
 from kiwi.storage.disk import Disk
 from kiwi.storage.raid_device import RaidDevice
 from kiwi.storage.luks_device import LuksDevice
+from kiwi.storage.device_provider import DeviceProvider
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.volume_manager import VolumeManager
@@ -71,8 +76,10 @@ class DiskBuilder:
         * signing_keys: list of package signing keys
         * xz_options: string of XZ compression parameters
     """
-
-    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
+    def __init__(
+        self, xml_state: XMLState, target_dir: str,
+        root_dir: str, custom_args: Dict = None
+    ):
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -149,20 +156,20 @@ class DiskBuilder:
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
         # which could live on another part of the disk
-        self.system = None
+        self.system: Any = None
 
         # an instance of a class with the sync_data capability
         # representing the boot/ area of the disk if not part of
         # self.system
-        self.system_boot = None
+        self.system_boot: Optional[FileSystemBase] = None
 
         # an instance of a class with the sync_data capability
         # representing the boot/efi area of the disk
-        self.system_efi = None
+        self.system_efi: Optional[FileSystemBase] = None
 
         # an instance of a class with the sync_data capability
         # representing the spare_part_mountpoint area of the disk
-        self.system_spare = None
+        self.system_spare: Optional[FileSystemBase] = None
 
         # result store
         self.result = Result(xml_state)
@@ -323,7 +330,8 @@ class DiskBuilder:
                 'root_is_snapshot':
                     self.xml_state.build_type.get_btrfs_root_is_snapshot(),
                 'root_is_readonly_snapshot':
-                    self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot(),
+                    self.xml_state.build_type.
+                    get_btrfs_root_is_readonly_snapshot(),
                 'quota_groups':
                     self.xml_state.build_type.get_btrfs_quota_groups(),
                 'resize_on_boot':
@@ -585,7 +593,7 @@ class DiskBuilder:
 
         return result_instance
 
-    def _load_boot_image_instance(self) -> BootImage:
+    def _load_boot_image_instance(self) -> BootImageBase:
         boot_image_dump_file = self.target_dir + '/boot_image.pickledump'
         if not os.path.exists(boot_image_dump_file):
             raise KiwiInstallMediaError(
@@ -609,7 +617,9 @@ class DiskBuilder:
             )
 
     def _install_image_requested(self) -> bool:
-        return True if (self.install_iso or self.install_stick or self.install_pxe) else False
+        return bool(
+            self.install_iso or self.install_stick or self.install_pxe
+        )
 
     def _get_exclude_list_for_root_data_sync(self, device_map: Dict) -> list:
         exclude_list = Defaults.get_exclude_list_for_root_data_sync()
@@ -726,24 +736,25 @@ class DiskBuilder:
             disksize_used_mbytes += partition_mbsize
 
         if self.swap_mbytes:
-            if not self.volume_manager_name or self.volume_manager_name != 'lvm':
+            if not self.volume_manager_name or \
+               self.volume_manager_name != 'lvm':
                 log.info('--> creating SWAP partition')
                 self.disk.create_swap_partition(
-                    self.swap_mbytes
+                    f'{self.swap_mbytes}'
                 )
                 disksize_used_mbytes += self.swap_mbytes
 
         if self.spare_part_mbsize and not self.spare_part_is_last:
             log.info('--> creating spare partition')
             self.disk.create_spare_partition(
-                self.spare_part_mbsize
+                f'{self.spare_part_mbsize}'
             )
 
         if self.root_filesystem_is_overlay:
             log.info('--> creating readonly root partition')
             squashed_root_file = NamedTemporaryFile()
             squashed_root = FileSystemSquashFs(
-                device_provider=None, root_dir=self.root_dir,
+                device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
                     'compression':
                         self.xml_state.build_type.get_squashfscompression()
@@ -851,7 +862,9 @@ class DiskBuilder:
             log.info('Creating generic boot image etc/fstab')
             self._write_generic_fstab(device_map, self.boot_image.setup)
 
-    def _write_generic_fstab(self, device_map: Dict, setup: DiskSetup) -> None:
+    def _write_generic_fstab(
+        self, device_map: Dict, setup: SystemSetup
+    ) -> None:
         root_is_snapshot = \
             self.xml_state.build_type.get_btrfs_root_is_snapshot()
         root_is_readonly_snapshot = \
@@ -964,7 +977,9 @@ class DiskBuilder:
                 os.sep + os.path.basename(recovery_metadata)
             )
 
-    def _write_bootloader_meta_data_to_system_image(self, device_map: Dict) -> None:
+    def _write_bootloader_meta_data_to_system_image(
+        self, device_map: Dict
+    ) -> None:
         if self.bootloader != 'custom':
             log.info('Creating %s bootloader configuration', self.bootloader)
             boot_options = []
@@ -1011,7 +1026,7 @@ class DiskBuilder:
             boot_partition_id = partition_id_map['kiwi_BootPart']
 
         self.system_setup.call_edit_boot_config_script(
-            self.requested_filesystem, boot_partition_id
+            self.requested_filesystem, int(boot_partition_id)
         )
 
     def _sync_system_to_image(self, device_map: Dict) -> None:
@@ -1033,7 +1048,7 @@ class DiskBuilder:
         if self.root_filesystem_is_overlay:
             squashed_root_file = NamedTemporaryFile()
             squashed_root = FileSystemSquashFs(
-                device_provider=None, root_dir=self.root_dir,
+                device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
                     'compression':
                         self.xml_state.build_type.get_squashfscompression()

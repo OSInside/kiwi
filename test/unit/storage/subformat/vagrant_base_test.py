@@ -43,7 +43,7 @@ class TestDiskFormatVagrantBase:
             self.xml_state, 'root_dir', 'target_dir',
             {'vagrantconfig': self.vagrantconfig}
         )
-        assert self.disk_format.image_format is None
+        assert self.disk_format.image_format == ''
         assert self.disk_format.provider is None
 
     def test_create_box_img_not_implemented(self):
