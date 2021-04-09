@@ -17,6 +17,7 @@
 #
 from typing import List
 
+from kiwi.api_helper import decommissioned
 from kiwi.command import command_call_type
 from kiwi.system.root_bind import RootBind
 from kiwi.repository.base import RepositoryBase
@@ -84,15 +85,9 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
+    @decommissioned
     def request_package_lock(self, name: str) -> None:
-        """
-        Queue a package exclusion(skip) request
-
-        OBSOLETE: Will be removed 2019-06-05
-
-        Kept for API compatbility Method calls: request_package_exclusion
-        """
-        return self.request_package_exclusion(name)
+        pass  # pragma: no cover
 
     def request_package_exclusion(self, name: str) -> None:
         """
@@ -190,17 +185,13 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
+    @decommissioned
     def database_consistent(self) -> None:
-        """
-        OBSOLETE: Will be removed 2019-06-05
-        """
-        pass
+        pass  # pragma: no cover
 
+    @decommissioned
     def dump_reload_package_database(self, version: int = 45) -> None:
-        """
-        OBSOLETE: Will be removed 2019-06-05
-        """
-        pass
+        pass  # pragma: no cover
 
     def post_process_install_requests_bootstrap(
         self, root_bind: RootBind = None

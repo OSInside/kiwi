@@ -79,7 +79,6 @@ class TestProfile:
             'kiwi_oemsilentverify': None,
             'kiwi_oemskipverify': 'true',
             'kiwi_oemswapMB': None,
-            'kiwi_oemswap': None,
             'kiwi_oemtitle': 'schäfer',
             'kiwi_oemunattended_id': None,
             'kiwi_oemunattended': None,
