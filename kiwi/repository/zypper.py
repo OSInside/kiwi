@@ -42,7 +42,7 @@ class RepositoryZypper(RepositoryBase):
     :param object runtime_zypper_config: instance of :class:`ConfigParser`
     """
 
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
@@ -54,8 +54,6 @@ class RepositoryZypper(RepositoryBase):
         self.custom_args = custom_args
         self.exclude_docs = False
         self.gpgcheck = False
-        if not custom_args:
-            self.custom_args = []
 
         # extract custom arguments used for zypp config only
         if 'exclude_docs' in self.custom_args:
@@ -236,7 +234,7 @@ class RepositoryZypper(RepositoryBase):
         self, name: str, uri: str, repo_type: str = 'rpm-md',
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
-        repo_gpgcheck: bool = None, pkg_gpgcheck: bool = None,
+        repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
         sourcetype: str = None, use_for_bootstrap: bool = False
     ) -> None:
         """
@@ -307,23 +305,20 @@ class RepositoryZypper(RepositoryBase):
                 zypper_addrepo_command, self.command_env
             )
 
-        if prio or repo_gpgcheck is not None or pkg_gpgcheck is not None:
-            repo_config = ConfigParser()
-            repo_config.read(repo_file)
-            if repo_gpgcheck is not None:
-                repo_config.set(
-                    name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
-                )
-            if pkg_gpgcheck is not None:
-                repo_config.set(
-                    name, 'pkg_gpgcheck', '1' if pkg_gpgcheck else '0'
-                )
-            if prio:
-                repo_config.set(
-                    name, 'priority', format(prio)
-                )
-            with open(repo_file, 'w') as repo:
-                repo_config.write(repo)
+        repo_config = ConfigParser()
+        repo_config.read(repo_file)
+        repo_config.set(
+            name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
+        )
+        repo_config.set(
+            name, 'pkg_gpgcheck', '1' if pkg_gpgcheck else '0'
+        )
+        if prio:
+            repo_config.set(
+                name, 'priority', format(prio)
+            )
+        with open(repo_file, 'w') as repo:
+            repo_config.write(repo)
         self._restore_package_cache()
 
     def import_trusted_keys(self, signing_keys: List) -> None:

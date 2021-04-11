@@ -23,7 +23,8 @@ import shutil
 
 # project
 from kiwi.command import Command
-from kiwi.boot.image import BootImage
+from kiwi.storage.device_provider import DeviceProvider
+from kiwi.boot.image.base import BootImageBase
 from kiwi.bootloader.config import BootLoaderConfig
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.filesystem.isofs import FileSystemIsoFs
@@ -59,7 +60,8 @@ class InstallImageBuilder:
         * xz_options: string of XZ compression parameters
     """
     def __init__(
-        self, xml_state: XMLState, root_dir: str, target_dir: str, boot_image_task: BootImage,
+        self, xml_state: XMLState, root_dir: str, target_dir: str,
+        boot_image_task: BootImageBase,
         custom_args: Dict = None
     ) -> None:
         self.arch = Defaults.get_platform_name()
@@ -121,10 +123,10 @@ class InstallImageBuilder:
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
 
-        self.media_dir: str = None
-        self.pxe_dir: str = None
-        self.squashed_contents: str = None
-        self.custom_iso_args: Dict = None
+        self.media_dir: str = ''
+        self.pxe_dir: str = ''
+        self.squashed_contents: str = ''
+        self.custom_iso_args: Dict = {}
 
     def create_install_iso(self) -> None:
         """
@@ -179,7 +181,7 @@ class InstallImageBuilder:
             ]
         )
         squashed_image = FileSystemSquashFs(
-            device_provider=None,
+            device_provider=DeviceProvider(),
             root_dir=self.squashed_contents,
             custom_args={
                 'compression':
@@ -238,7 +240,7 @@ class InstallImageBuilder:
         # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')
         iso_image = FileSystemIsoFs(
-            device_provider=None, root_dir=self.media_dir,
+            device_provider=DeviceProvider(), root_dir=self.media_dir,
             custom_args=self.custom_iso_args
         )
         iso_image.create_on_file(self.isoname)

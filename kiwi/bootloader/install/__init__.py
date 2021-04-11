@@ -46,14 +46,12 @@ class BootLoaderInstall(metaclass=ABCMeta):
         custom_args: Dict = None
     ):
         name_map = {
-            'grub2': 'BootLoaderInstallGrub2'
-            if name == 'grub2' or name == 'grub2_s390x_emu' else None
+            'grub2': {'grub2': 'BootLoaderInstallGrub2'},
+            'grub2_s390x_emu': {'grub2': 'BootLoaderInstallGrub2'}
         }
-
-        for bootloader_namespace, bootloader_name in list(name_map.items()):
-            if bootloader_name:
-                break
         try:
+            (bootloader_namespace, bootloader_name) = \
+                list(name_map[name].items())[0]
             bootloader_install = importlib.import_module(
                 'kiwi.bootloader.install.{}'.format(bootloader_namespace)
             )
@@ -62,6 +60,5 @@ class BootLoaderInstall(metaclass=ABCMeta):
             )
         except Exception:
             raise KiwiBootLoaderInstallSetupError(
-                'Support for {} bootloader installation '
-                'not implemented'.format(name)
+                f'Support for {name} bootloader installation not implemented'
             )

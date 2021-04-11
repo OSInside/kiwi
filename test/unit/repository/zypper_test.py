@@ -136,9 +136,11 @@ class TestRepositoryZypper:
             repo_config.read.assert_called_once_with(
                 '../data/shared-dir/zypper/repos/foo.repo'
             )
-            repo_config.set.assert_called_once_with(
-                'foo', 'priority', '42'
-            )
+            assert repo_config.set.call_args_list == [
+                call('foo', 'repo_gpgcheck', '0'),
+                call('foo', 'pkg_gpgcheck', '0'),
+                call('foo', 'priority', '42')
+            ]
             mock_open.assert_called_once_with(
                 '../data/shared-dir/zypper/repos/foo.repo', 'w'
             )
@@ -293,12 +295,14 @@ class TestRepositoryZypper:
             call('key-file-b.asc')
         ]
 
+    @patch('kiwi.repository.zypper.ConfigParser')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Path.wipe')
     @patch('os.path.exists')
     @patch('kiwi.repository.zypper.Uri')
     def test_add_repo_with_credentials(
-        self, mock_uri, mock_exists, mock_wipe, mock_command
+        self, mock_uri, mock_exists, mock_wipe, mock_command,
+        mock_config
     ):
         exists_results = [False, False, False, True]
 
@@ -317,9 +321,10 @@ class TestRepositoryZypper:
             mock_wipe.assert_called_once_with(
                 '../data/shared-dir/zypper/credentials/credentials_file'
             )
-            mock_open.assert_called_once_with(
-                '../data/shared-dir/zypper/credentials/credentials_file', 'w'
-            )
+            assert mock_open.call_args_list == [
+                call('../data/shared-dir/zypper/credentials/credentials_file', 'w'),
+                call('../data/shared-dir/zypper/repos/foo.repo', 'w')
+            ]
             assert file_handle.write.call_args_list == [
                 call('username=user\n'),
                 call('password=secret\n')

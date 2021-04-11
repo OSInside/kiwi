@@ -23,9 +23,9 @@ from abc import (
     abstractmethod
 )
 
-from kiwi.exceptions import (
-    KiwiBootImageSetupError
-)
+from kiwi.xml_state import XMLState
+
+from kiwi.exceptions import KiwiBootImageSetupError
 
 
 class BootImage(metaclass=ABCMeta):
@@ -43,20 +43,17 @@ class BootImage(metaclass=ABCMeta):
 
     @staticmethod
     def new(
-        xml_state: object, target_dir: str,
+        xml_state: XMLState, target_dir: str,
         root_dir: str=None, signing_keys: List=None  # noqa: E252
     ):
         initrd_system = xml_state.get_initrd_system()
         name_map = {
-            'builtin_kiwi':
-                'BootImageKiwi' if initrd_system == 'kiwi' else None,
-            'dracut':
-                'BootImageDracut' if initrd_system == 'dracut' else None
+            'kiwi': {'builtin_kiwi': 'BootImageKiwi'},
+            'dracut': {'dracut': 'BootImageDracut'}
         }
-        for boot_image_namespace, boot_image_name in list(name_map.items()):
-            if boot_image_name:
-                break
         try:
+            (boot_image_namespace, boot_image_name) = \
+                list(name_map[initrd_system].items())[0]
             boot_image = importlib.import_module(
                 'kiwi.boot.image.{0}'.format(boot_image_namespace)
             )

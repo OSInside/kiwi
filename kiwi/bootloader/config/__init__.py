@@ -46,17 +46,13 @@ class BootLoaderConfig(metaclass=ABCMeta):
         boot_dir: str = None, custom_args: Dict = None
     ):
         name_map = {
-            'grub2': 'BootLoaderConfigGrub2'
-            if name == 'grub2' or name == 'grub2_s390x_emu' else None,
-
-            'isolinux': 'BootLoaderConfigIsoLinux'
-            if name == 'isolinux' else None
+            'grub2': {'grub2': 'BootLoaderConfigGrub2'},
+            'grub2_s390x_emu': {'grub2': 'BootLoaderConfigGrub2'},
+            'isolinux': {'isolinux': 'BootLoaderConfigIsoLinux'}
         }
-
-        for bootloader_namespace, bootloader_name in list(name_map.items()):
-            if bootloader_name:
-                break
         try:
+            (bootloader_namespace, bootloader_name) = \
+                list(name_map[name].items())[0]
             booloader_config = importlib.import_module(
                 'kiwi.bootloader.config.{}'.format(bootloader_namespace)
             )
@@ -65,5 +61,5 @@ class BootLoaderConfig(metaclass=ABCMeta):
             )
         except Exception:
             raise KiwiBootLoaderConfigSetupError(
-                'Support for {} bootloader config not implemented'.format(name)
+                f'Support for {name} bootloader config not implemented'
             )

@@ -20,6 +20,7 @@ import logging
 from typing import List
 
 # project
+from kiwi.command import command_call_type
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.system.root_bind import RootBind
@@ -31,12 +32,12 @@ log = logging.getLogger('kiwi')
 
 class PackageManagerPacman(PackageManagerBase):
     """
-    **Implements base class for installation/deletion of
-    packages and collections using pacman**
+    **Implements Installation/Deletion of packages/collections with pacman**
 
-    :param list pacman_args: pacman arguments from repository runtime
-        configuration
-    :param dict command_env: pacman command environment from repository
+    :param list pacman_args:
+        pacman arguments from repository runtime configuration
+    :param dict command_env:
+        pacman command environment from repository
         runtime configuration
     """
     def post_init(self, custom_args: List = None) -> None:
@@ -96,7 +97,9 @@ class PackageManagerPacman(PackageManagerBase):
         """
         self.exclude_requests.append(name)
 
-    def process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> command_call_type:
         """
         Process package install requests for bootstrap phase (no chroot)
 
@@ -124,7 +127,7 @@ class PackageManagerPacman(PackageManagerBase):
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
 
-    def process_install_requests(self) -> None:
+    def process_install_requests(self) -> command_call_type:
         """
         Process package install requests for image phase (chroot)
 
@@ -143,7 +146,7 @@ class PackageManagerPacman(PackageManagerBase):
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
 
-    def process_delete_requests(self, force: bool = False) -> None:
+    def process_delete_requests(self, force: bool = False) -> command_call_type:
         """
         Process package delete requests (chroot)
 
@@ -158,7 +161,9 @@ class PackageManagerPacman(PackageManagerBase):
         delete_items = []
         for delete_item in self.package_requests:
             try:
-                Command.run(['chroot', self.root_dir, 'pacman', '-Qi', delete_item])
+                Command.run(
+                    ['chroot', self.root_dir, 'pacman', '-Qi', delete_item]
+                )
                 delete_items.append(delete_item)
             except Exception:
                 # ignore packages which are not installed
@@ -178,7 +183,7 @@ class PackageManagerPacman(PackageManagerBase):
             self.command_env
         )
 
-    def update(self) -> None:
+    def update(self) -> command_call_type:
         """
         Process package update requests (chroot)
 
@@ -212,7 +217,9 @@ class PackageManagerPacman(PackageManagerBase):
         """
         pass
 
-    def match_package_installed(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_installed(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been installed
 
@@ -228,11 +235,16 @@ class PackageManagerPacman(PackageManagerBase):
 
         :rtype: bool
         """
-        return bool(re.match(
-            '.* installing ' + re.escape(package_name) + '.*', package_manager_output
-        ))
+        return bool(
+            re.match(
+                '.* installing {0}.*'.format(re.escape(package_name)),
+                package_manager_output
+            )
+        )
 
-    def match_package_deleted(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_deleted(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been deleted
 
@@ -243,6 +255,9 @@ class PackageManagerPacman(PackageManagerBase):
 
         :rtype: bool
         """
-        return bool(re.match(
-            '.* removing ' + re.escape(package_name) + '.*', package_manager_output
-        ))
+        return bool(
+            re.match(
+                '.* removing {0}.*'.format(re.escape(package_name)),
+                package_manager_output
+            )
+        )

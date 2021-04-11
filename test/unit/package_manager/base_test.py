@@ -1,5 +1,4 @@
 import mock
-from mock import patch
 from pytest import raises
 
 from kiwi.package_manager.base import PackageManagerBase
@@ -23,10 +22,9 @@ class TestPackageManagerBase:
         with raises(NotImplementedError):
             self.manager.request_product('name')
 
-    @patch.object(PackageManagerBase, 'request_package_exclusion')
-    def test_request_package_lock(self, mock_exclude):
-        self.manager.request_package_lock('name')
-        mock_exclude.assert_called_once_with('name')
+    def test_request_package_lock(self):
+        with raises(DeprecationWarning):
+            self.manager.request_package_lock('name')
 
     def test_request_package_exclusion(self):
         with raises(NotImplementedError):
@@ -68,10 +66,12 @@ class TestPackageManagerBase:
             self.manager.match_package_deleted('package_name', 'log')
 
     def test_database_consistent(self):
-        self.manager.database_consistent()
+        with raises(DeprecationWarning):
+            self.manager.database_consistent()
 
     def test_dump_reload_package_database(self):
-        self.manager.dump_reload_package_database()
+        with raises(DeprecationWarning):
+            self.manager.dump_reload_package_database()
 
     def test_has_failed(self):
         assert self.manager.has_failed(0) is False

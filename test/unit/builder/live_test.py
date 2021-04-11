@@ -129,6 +129,7 @@ class TestLiveImageBuilder:
         )
         assert live_image.arch == 'ix86'
 
+    @patch('kiwi.builder.live.DeviceProvider')
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.mkdtemp')
     @patch('kiwi.builder.live.NamedTemporaryFile')
@@ -142,7 +143,7 @@ class TestLiveImageBuilder:
     def test_create_overlay_structure(
         self, mock_exists, mock_grub_dir, mock_size, mock_filesystem,
         mock_isofs, mock_tag, mock_shutil, mock_tmpfile, mock_dtemp,
-        mock_setup_media_loader_directory
+        mock_setup_media_loader_directory, mock_DeviceProvider
     ):
         tempfile = mock.Mock()
         tempfile.name = 'tmpfile'
@@ -188,7 +189,8 @@ class TestLiveImageBuilder:
                 }
             ),
             call(
-                device_provider=None, name='squashfs',
+                device_provider=mock_DeviceProvider.return_value,
+                name='squashfs',
                 root_dir='temp-squashfs',
                 custom_args={'compression': 'lzo'}
             )
@@ -269,7 +271,9 @@ class TestLiveImageBuilder:
                     'efi_mode': 'uefi',
                     'udf': True
                 }
-            }, device_provider=None, root_dir='temp_media_dir'
+            },
+            device_provider=mock_DeviceProvider.return_value,
+            root_dir='temp_media_dir'
         )
         iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.iso'

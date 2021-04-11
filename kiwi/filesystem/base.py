@@ -49,13 +49,13 @@ class FileSystemBase:
     """
     def __init__(
         self, device_provider: DeviceProvider,
-        root_dir: str = None, custom_args: Dict = None
+        root_dir: str = None, custom_args: Dict = {}
     ):
         # filesystems created with a block device stores the mountpoint
         # here. The file name of the file containing the filesystem is
         # stored in the device_provider if the filesystem is represented
         # as a file there
-        self.filesystem_mount = None
+        self.filesystem_mount: Optional[MountManager] = None
 
         # bind the block device providing class instance to this object.
         # This is done to guarantee the correct destructor order when
@@ -69,7 +69,7 @@ class FileSystemBase:
         # filesystem file name here
         self.filename = None
 
-        self.custom_args = {}
+        self.custom_args: Dict = {}
         self.post_init(custom_args)
 
     def post_init(self, custom_args: Dict):
@@ -144,6 +144,7 @@ class FileSystemBase:
         """
         if self.filesystem_mount:
             return self.filesystem_mount.mountpoint
+        return None
 
     def sync_data(self, exclude: List[str] = None):
         """

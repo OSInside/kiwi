@@ -297,7 +297,7 @@ class TestDiskBuilder:
             self.disk_setup.boot_partition_size()
         )
         self.disk.create_swap_partition.assert_called_once_with(
-            128
+            '128'
         )
         self.disk.create_prep_partition.assert_called_once_with(
             self.firmware.get_prep_partition_size()
@@ -522,6 +522,7 @@ class TestDiskBuilder:
         assert self.boot_image_task.write_system_config_file.call_args_list == \
             []
 
+    @patch('kiwi.builder.disk.DeviceProvider')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.FileSystemSquashFs')
     @patch('kiwi.builder.disk.Command.run')
@@ -532,7 +533,8 @@ class TestDiskBuilder:
     @patch('random.randrange')
     def test_create_disk_standard_root_is_overlay(
         self, mock_rand, mock_temp, mock_getsize, mock_exists,
-        mock_grub_dir, mock_command, mock_squashfs, mock_fs
+        mock_grub_dir, mock_command, mock_squashfs, mock_fs,
+        mock_DeviceProvider
     ):
         mock_rand.return_value = 15
         self.disk_builder.root_filesystem_is_overlay = True
@@ -553,10 +555,12 @@ class TestDiskBuilder:
         assert mock_squashfs.call_args_list == [
             call(
                 custom_args={'compression': None},
-                device_provider=None, root_dir='root_dir'
+                device_provider=mock_DeviceProvider.return_value,
+                root_dir='root_dir'
             ), call(
                 custom_args={'compression': None},
-                device_provider=None, root_dir='root_dir'
+                device_provider=mock_DeviceProvider.return_value,
+                root_dir='root_dir'
             )
         ]
         assert squashfs.create_on_file.call_args_list == [
@@ -839,7 +843,7 @@ class TestDiskBuilder:
         with patch('builtins.open'):
             self.disk_builder.create_disk()
 
-        self.disk.create_spare_partition.assert_called_once_with(42)
+        self.disk.create_spare_partition.assert_called_once_with('42')
         assert mock_fs.call_args_list[0] == call(
             self.disk_builder.spare_part_fs,
             self.device_map['spare'],

@@ -19,14 +19,16 @@ import re
 from typing import List
 
 # project
+from kiwi.command import command_call_type
 from kiwi.command import Command
 from kiwi.utils.rpm_database import RpmDataBase
 from kiwi.utils.rpm import Rpm
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.system.root_bind import RootBind
 from kiwi.path import Path
-from kiwi.exceptions import KiwiRequestError
 from kiwi.defaults import Defaults
+
+from kiwi.exceptions import KiwiRequestError
 
 
 class PackageManagerDnf(PackageManagerBase):
@@ -38,15 +40,13 @@ class PackageManagerDnf(PackageManagerBase):
     :param dict command_env: dnf command environment from repository runtime
         configuration
     """
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
         :param list custom_args: custom dnf arguments
         """
         self.custom_args = custom_args
-        if not custom_args:
-            self.custom_args = []
 
         runtime_config = self.repository.runtime_config()
         self.dnf_args = runtime_config['dnf_args']
@@ -86,7 +86,9 @@ class PackageManagerDnf(PackageManagerBase):
         """
         self.exclude_requests.append(name)
 
-    def process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> command_call_type:
         """
         Process package install requests for bootstrap phase (no chroot)
 
@@ -117,7 +119,7 @@ class PackageManagerDnf(PackageManagerBase):
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
 
-    def process_install_requests(self) -> None:
+    def process_install_requests(self) -> command_call_type:
         """
         Process package install requests for image phase (chroot)
 
@@ -125,25 +127,26 @@ class PackageManagerDnf(PackageManagerBase):
 
         :rtype: namedtuple
         """
+        exclude_args = []
         if self.exclude_requests:
             # For DNF, excluding a package means removing it from
             # the solver operation. This is done by adding --exclude
             # to the command line. This means that if the package is
             # hard required by another package, it will break the transaction.
             for package in self.exclude_requests:
-                self.custom_args.append('--exclude=' + package)
+                exclude_args.append('--exclude=' + package)
         chroot_dnf_args = Path.move_to_root(
             self.root_dir, self.dnf_args
         )
         bash_command = [
             'chroot', self.root_dir, 'dnf'
-        ] + chroot_dnf_args + self.custom_args + [
+        ] + chroot_dnf_args + self.custom_args + exclude_args + [
             'install'
         ] + self.package_requests
         if self.collection_requests:
             bash_command += [
                 '&&', 'chroot', self.root_dir, 'dnf'
-            ] + chroot_dnf_args + self.custom_args + [
+            ] + chroot_dnf_args + self.custom_args + exclude_args + [
                 'group', 'install'
             ] + self.collection_requests
         self.cleanup_requests()
@@ -151,7 +154,7 @@ class PackageManagerDnf(PackageManagerBase):
             ['bash', '-c', ' '.join(bash_command)], self.command_env
         )
 
-    def process_delete_requests(self, force: bool = False) -> None:
+    def process_delete_requests(self, force: bool = False) -> command_call_type:
         """
         Process package delete requests (chroot)
 
@@ -195,7 +198,7 @@ class PackageManagerDnf(PackageManagerBase):
                 self.command_env
             )
 
-    def update(self) -> None:
+    def update(self) -> command_call_type:
         """
         Process package update requests (chroot)
 
@@ -227,7 +230,9 @@ class PackageManagerDnf(PackageManagerBase):
         if '--setopt=install_weak_deps=False' in self.custom_args:
             self.custom_args.remove('--setopt=install_weak_deps=False')
 
-    def match_package_installed(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_installed(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been installed
 
@@ -243,11 +248,16 @@ class PackageManagerDnf(PackageManagerBase):
 
         :rtype: bool
         """
-        return bool(re.match(
-            '.*Installing  : ' + re.escape(package_name) + '.*', package_manager_output
-        ))
+        return bool(
+            re.match(
+                '.*Installing  : {0}.*'.format(re.escape(package_name)),
+                package_manager_output
+            )
+        )
 
-    def match_package_deleted(self, package_name: str, package_manager_output: str) -> bool:
+    def match_package_deleted(
+        self, package_name: str, package_manager_output: str
+    ) -> bool:
         """
         Match expression to indicate a package has been deleted
 
@@ -258,11 +268,16 @@ class PackageManagerDnf(PackageManagerBase):
 
         :rtype: bool
         """
-        return bool(re.match(
-            '.*Removing: ' + re.escape(package_name) + '.*', package_manager_output
-        ))
+        return bool(
+            re.match(
+                '.*Removing: {0}.*'.format(re.escape(package_name)),
+                package_manager_output
+            )
+        )
 
-    def post_process_install_requests_bootstrap(self, root_bind: RootBind = None) -> None:
+    def post_process_install_requests_bootstrap(
+        self, root_bind: RootBind = None
+    ) -> None:
         """
         Move the rpm database to the place as it is expected by the
         rpm package installed during bootstrap phase

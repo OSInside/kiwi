@@ -64,7 +64,7 @@ class PartitionerDasd(PartitionerBase):
             if mbsize == 'all_free':
                 partition.write('n\np\n\n\nw\nq\n')
             else:
-                partition.write('n\np\n\n+%dM\nw\nq\n' % mbsize)
+                partition.write(f'n\np\n\n+{mbsize}M\nw\nq\n')
         bash_command = ' '.join(
             ['cat', fdasd_input.name, '|', 'fdasd', '-f', self.disk_device]
         )
