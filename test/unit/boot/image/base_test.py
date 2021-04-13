@@ -10,7 +10,6 @@ from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
-    KiwiBootImageDumpError,
     KiwiConfigFileNotFound,
     KiwiDiskBootImageError
 )
@@ -60,24 +59,6 @@ class TestBootImageBase:
     def test_create_initrd(self):
         with raises(NotImplementedError):
             self.boot_image.create_initrd()
-
-    @patch('pickle.dump')
-    def test_dump_error(self, mock_dump):
-        mock_dump.side_effect = Exception
-        with patch('builtins.open'):
-            with raises(KiwiBootImageDumpError):
-                self.boot_image.dump('filename')
-
-    @patch('pickle.dump')
-    def test_dump(self, mock_dump):
-        with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=io.IOBase)
-            file_handle = mock_open.return_value.__enter__.return_value
-            self.boot_image.dump('filename')
-            mock_open.assert_called_once_with('filename', 'wb')
-            mock_dump.assert_called_once_with(
-                self.boot_image, file_handle
-            )
 
     @patch('os.listdir')
     def test_is_prepared(self, mock_listdir):

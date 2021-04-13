@@ -18,13 +18,16 @@
 import os
 import logging
 from tempfile import mkdtemp
-from typing import Dict
+from typing import (
+    Dict, Optional
+)
 import shutil
 
 # project
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.boot.image.base import BootImageBase
+from kiwi.boot.image import BootImage
 from kiwi.bootloader.config import BootLoaderConfig
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.filesystem.isofs import FileSystemIsoFs
@@ -61,13 +64,12 @@ class InstallImageBuilder:
     """
     def __init__(
         self, xml_state: XMLState, root_dir: str, target_dir: str,
-        boot_image_task: BootImageBase,
+        boot_image_task: Optional[BootImageBase],
         custom_args: Dict = None
     ) -> None:
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
-        self.boot_image_task = boot_image_task
         self.xml_state = xml_state
         self.root_filesystem_is_multipath = \
             xml_state.get_oemconfig_oem_multipath_scan()
@@ -127,6 +129,14 @@ class InstallImageBuilder:
         self.pxe_dir: str = ''
         self.squashed_contents: str = ''
         self.custom_iso_args: Dict = {}
+
+        if not boot_image_task:
+            self.boot_image_task = BootImage.new(
+                xml_state, target_dir, root_dir
+            )
+            self.boot_image_task.prepare()
+        else:
+            self.boot_image_task = boot_image_task
 
     def create_install_iso(self) -> None:
         """
@@ -384,23 +394,16 @@ class InstallImageBuilder:
                     self.boot_image_task.boot_root_directory
                 )
         if self.initrd_system == 'dracut':
-            self.boot_image_task.include_module(
-                'kiwi-dump', install_media=True
-            )
-            self.boot_image_task.include_module(
-                'kiwi-dump-reboot', install_media=True
-            )
+            self.boot_image_task.include_module('kiwi-dump')
+            self.boot_image_task.include_module('kiwi-dump-reboot')
             if self.root_filesystem_is_multipath is False:
-                self.boot_image_task.omit_module(
-                    'multipath', install_media=True
-                )
+                self.boot_image_task.omit_module('multipath')
             for mod in self.xml_state.get_installmedia_initrd_modules('add'):
-                self.boot_image_task.include_module(mod, install_media=True)
+                self.boot_image_task.include_module(mod)
             for mod in self.xml_state.get_installmedia_initrd_modules('omit'):
-                self.boot_image_task.omit_module(mod, install_media=True)
+                self.boot_image_task.omit_module(mod)
             self.boot_image_task.set_static_modules(
-                self.xml_state.get_installmedia_initrd_modules('set'),
-                install_media=True
+                self.xml_state.get_installmedia_initrd_modules('set')
             )
         self.boot_image_task.create_initrd(
             self.mbrid, 'initrd_kiwi_install',
@@ -434,23 +437,16 @@ class InstallImageBuilder:
                     self.boot_image_task.boot_root_directory
                 )
         if self.initrd_system == 'dracut':
-            self.boot_image_task.include_module(
-                'kiwi-dump', install_media=True
-            )
-            self.boot_image_task.include_module(
-                'kiwi-dump-reboot', install_media=True
-            )
+            self.boot_image_task.include_module('kiwi-dump')
+            self.boot_image_task.include_module('kiwi-dump-reboot')
             if self.root_filesystem_is_multipath is False:
-                self.boot_image_task.omit_module(
-                    'multipath', install_media=True
-                )
+                self.boot_image_task.omit_module('multipath')
             for mod in self.xml_state.get_installmedia_initrd_modules('add'):
-                self.boot_image_task.include_module(mod, install_media=True)
+                self.boot_image_task.include_module(mod)
             for mod in self.xml_state.get_installmedia_initrd_modules('omit'):
-                self.boot_image_task.omit_module(mod, install_media=True)
+                self.boot_image_task.omit_module(mod)
             self.boot_image_task.set_static_modules(
-                self.xml_state.get_installmedia_initrd_modules('set'),
-                install_media=True
+                self.xml_state.get_installmedia_initrd_modules('set')
             )
             self._add_system_image_boot_options_to_boot_image()
         self.boot_image_task.create_initrd(
@@ -468,9 +464,7 @@ class InstallImageBuilder:
         filename = ''.join(
             [self.boot_image_task.boot_root_directory, '/config.bootoptions']
         )
-        self.boot_image_task.include_file(
-            os.sep + os.path.basename(filename), install_media=True
-        )
+        self.boot_image_task.include_file(os.sep + os.path.basename(filename))
 
     def _copy_system_image_initrd_to_iso_image(self) -> None:
         boot_names = self.boot_image_task.get_boot_names()

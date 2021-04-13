@@ -17,7 +17,6 @@
 #
 import re
 import os
-import pickle
 import logging
 import glob
 from collections import namedtuple
@@ -32,7 +31,6 @@ from kiwi.system.kernel import Kernel
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
     KiwiConfigFileNotFound,
-    KiwiBootImageDumpError,
     KiwiDiskBootImageError
 )
 
@@ -149,22 +147,6 @@ class BootImageBase:
         :param string config_file: configuration file to write
         """
         pass
-
-    def dump(self, filename):
-        """
-        Pickle dump this instance to a file. If the object dump
-        is requested the destructor code will also be disabled
-        in order to preserve the generated data
-
-        :param string filename: file path name
-        """
-        try:
-            with open(filename, 'wb') as boot_image:
-                pickle.dump(self, boot_image)
-        except Exception as e:
-            raise KiwiBootImageDumpError(
-                'Failed to pickle dump boot image: %s' % format(e)
-            )
 
     def get_boot_names(self):
         """

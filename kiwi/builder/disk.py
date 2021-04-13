@@ -17,7 +17,6 @@
 #
 import os
 import logging
-import pickle
 from tempfile import NamedTemporaryFile
 from typing import (
     Dict, List, Optional, Any
@@ -51,7 +50,6 @@ from kiwi.storage.subformat import DiskFormat
 from kiwi.system.result import Result
 from kiwi.utils.block import BlockID
 from kiwi.utils.fstab import Fstab
-from kiwi.path import Path
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.partitioner import Partitioner
 from kiwi.xml_state import XMLState
@@ -184,35 +182,17 @@ class DiskBuilder:
         Image types which triggers this builder are:
 
         * image="oem"
-        * image="vmx"
 
         :return: result
 
         :rtype: instance of :class:`Result`
         """
-        disk = DiskBuilder(
-            self.xml_state, self.target_dir, self.root_dir, self.custom_args
-        )
-        result = disk.create_disk()
+        result = self.create_disk()
+        result = self.create_install_media(result)
+        self.append_unpartitioned_space()
+        return self.create_disk_format(result)
 
-        # cleanup disk resources taken prior to next steps
-        del disk
-
-        disk_installer = DiskBuilder(
-            self.xml_state, self.target_dir, self.root_dir
-        )
-        result = disk_installer.create_install_media(result)
-
-        disk_format = DiskBuilder(
-            self.xml_state, self.target_dir, self.root_dir
-        )
-
-        disk_format.append_unpartitioned_space()
-        result = disk_format.create_disk_format(result)
-
-        return result
-
-    def create_disk(self) -> Result:
+    def create_disk(self):
         """
         Build a bootable raw disk image
 
@@ -455,13 +435,6 @@ class DiskBuilder:
         # set root filesystem properties
         self._setup_property_root_is_readonly_snapshot()
 
-        # prepare for install media if requested
-        if self.install_media:
-            log.info('Saving boot image instance to file')
-            self.boot_image.dump(
-                self.target_dir + '/boot_image.pickledump'
-            )
-
         Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(),
             self.diskname
@@ -564,9 +537,13 @@ class DiskBuilder:
         :rtype: instance of :class:`Result`
         """
         if self.install_media:
+            if self.initrd_system == 'dracut':
+                boot_image = None
+            else:
+                boot_image = self.boot_image
             install_image = InstallImageBuilder(
                 self.xml_state, self.root_dir, self.target_dir,
-                self._load_boot_image_instance(), self.custom_args
+                boot_image, self.custom_args
             )
 
             if self.install_iso or self.install_stick:
@@ -592,22 +569,6 @@ class DiskBuilder:
                 )
 
         return result_instance
-
-    def _load_boot_image_instance(self) -> BootImageBase:
-        boot_image_dump_file = self.target_dir + '/boot_image.pickledump'
-        if not os.path.exists(boot_image_dump_file):
-            raise KiwiInstallMediaError(
-                'No boot image instance dump %s found' % boot_image_dump_file
-            )
-        try:
-            with open(boot_image_dump_file, 'rb') as boot_image_dump:
-                boot_image = pickle.load(boot_image_dump)
-            Path.wipe(boot_image_dump_file)
-        except Exception as e:
-            raise KiwiInstallMediaError(
-                'Failed to load boot image dump: %s' % type(e).__name__
-            )
-        return boot_image
 
     def _setup_selinux_file_contexts(self) -> None:
         security_context = '/etc/selinux/targeted/contexts/files/file_contexts'

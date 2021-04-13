@@ -1,6 +1,6 @@
 import sys
 from mock import (
-    call, patch, mock_open, Mock, MagicMock
+    call, patch, mock_open, Mock, MagicMock, ANY
 )
 from pytest import raises
 import kiwi
@@ -221,39 +221,41 @@ class TestDiskBuilder:
         with raises(KiwiVolumeManagerSetupError):
             self.disk_builder.create_disk()
 
-    @patch('os.path.exists')
-    @patch('pickle.load')
-    @patch('kiwi.builder.disk.Path.wipe')
+    @patch('kiwi.builder.disk.InstallImageBuilder')
     def test_create_install_media(
-        self, mock_wipe, mock_load, mock_path
+        self, mock_install_image
     ):
         result_instance = Mock()
-        mock_path.return_value = True
+        mock_install_image.return_value = self.install_image
+        self.disk_builder.initrd_system = 'dracut'
         self.disk_builder.install_iso = True
         self.disk_builder.install_pxe = True
-        with patch('builtins.open'):
-            self.disk_builder.create_install_media(result_instance)
+
+        self.disk_builder.create_install_media(result_instance)
+
         self.install_image.create_install_iso.assert_called_once_with()
         self.install_image.create_install_pxe_archive.assert_called_once_with()
-        mock_wipe.assert_called_once_with('target_dir/boot_image.pickledump')
+        mock_install_image.assert_called_once_with(
+            ANY, 'root_dir', 'target_dir', None,
+            {'signing_keys': ['key_file_a', 'key_file_b']}
+        )
 
-    @patch('os.path.exists')
-    def test_create_install_media_no_boot_instance_found(self, mock_path):
+    @patch('kiwi.builder.disk.InstallImageBuilder')
+    def test_create_install_mediai_custom_boot(
+        self, mock_install_image
+    ):
         result_instance = Mock()
-        mock_path.return_value = False
-        self.disk_builder.install_iso = True
-        with raises(KiwiInstallMediaError):
-            self.disk_builder.create_install_media(result_instance)
+        mock_install_image.return_value = self.install_image
+        self.disk_builder.initrd_system = 'kiwi'
+        self.disk_builder.install_pxe = True
 
-    @patch('os.path.exists')
-    @patch('pickle.load')
-    def test_create_install_media_pickle_load_error(self, mock_load, mock_path):
-        result_instance = Mock()
-        mock_load.side_effect = Exception
-        mock_path.return_value = True
-        self.disk_builder.install_iso = True
-        with raises(KiwiInstallMediaError):
-            self.disk_builder.create_install_media(result_instance)
+        self.disk_builder.create_install_media(result_instance)
+
+        self.install_image.create_install_pxe_archive.assert_called_once_with()
+        mock_install_image.assert_called_once_with(
+            ANY, 'root_dir', 'target_dir', ANY,
+            {'signing_keys': ['key_file_a', 'key_file_b']}
+        )
 
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('random.randrange')
@@ -807,22 +809,24 @@ class TestDiskBuilder:
 
         self.disk.create_mbr.assert_called_once_with()
 
-    @patch('kiwi.builder.disk.DiskBuilder')
-    def test_create(
-        self, mock_builder
-    ):
+    def test_create(self):
         result = Mock()
-        builder = Mock()
-        builder.create_disk.return_value = result
-        builder.create_install_media.return_value = result
-        mock_builder.return_value = builder
+        create_disk = Mock(return_value=result)
+        create_install_media = Mock(return_value=result)
+        append_unpartitioned = Mock()
+        create_disk_format = Mock(return_value=result)
+
+        self.disk_builder.create_disk = create_disk
+        self.disk_builder.create_install_media = create_install_media
+        self.disk_builder.append_unpartitioned_space = append_unpartitioned
+        self.disk_builder.create_disk_format = create_disk_format
 
         self.disk_builder.create()
 
-        builder.create_disk.assert_called_once_with()
-        builder.create_install_media.assert_called_once_with(result)
-        builder.append_unpartitioned_space.assert_called_once_with()
-        builder.create_disk_format.assert_called_once_with(result)
+        create_disk.assert_called_once_with()
+        create_install_media.assert_called_once_with(result)
+        append_unpartitioned.assert_called_once_with()
+        create_disk_format.assert_called_once_with(result)
 
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
