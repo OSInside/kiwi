@@ -6,6 +6,7 @@ from pytest import (
     raises, fixture
 )
 
+from kiwi.defaults import Defaults
 from kiwi.solver.sat import Sat
 
 from kiwi.exceptions import (
@@ -49,16 +50,14 @@ class TestSat:
         with raises(KiwiSatSolverPluginError):
             Sat()
 
-    @patch('platform.machine')
-    def test_set_dist_type_raises(self, mock_platform_machine):
-        mock_platform_machine.return_value = 'x86_64'
+    def test_set_dist_type_raises(self):
+        Defaults.set_platform_name('x86_64')
         self.sat.pool.setdisttype.return_value = -1
         with raises(KiwiSatSolverPluginError):
             self.sat.set_dist_type('deb')
 
-    @patch('platform.machine')
-    def test_set_dist_type_deb(self, mock_platform_machine):
-        mock_platform_machine.return_value = 'x86_64'
+    def test_set_dist_type_deb(self):
+        Defaults.set_platform_name('x86_64')
         self.sat.pool.setdisttype.return_value = 0
         self.sat.set_dist_type('deb')
         self.sat.pool.setdisttype.assert_called_once_with(

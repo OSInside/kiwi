@@ -5,6 +5,9 @@ from mock import (
 )
 from pytest import raises
 
+from kiwi.boot.image.base import BootImageBase
+from kiwi.defaults import Defaults
+
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
     KiwiBootImageDumpError,
@@ -12,14 +15,11 @@ from kiwi.exceptions import (
     KiwiDiskBootImageError
 )
 
-from kiwi.boot.image.base import BootImageBase
-
 
 class TestBootImageBase:
     @patch('kiwi.boot.image.base.os.path.exists')
-    @patch('platform.machine')
-    def setup(self, mock_machine, mock_exists):
-        mock_machine.return_value = 'x86_64'
+    def setup(self, mock_exists):
+        Defaults.set_platform_name('x86_64')
         self.boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']
         )

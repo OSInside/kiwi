@@ -8,18 +8,19 @@ import kiwi
 
 from ...test_helper import argv_kiwi_tests
 
+from kiwi.defaults import Defaults
 from kiwi.boot.image.builtin_kiwi import BootImageKiwi
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
+
 from kiwi.exceptions import KiwiConfigFileNotFound
 
 
 class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
     @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
-    @patch('platform.machine')
-    def setup(self, mock_machine, mock_exists, mock_mkdtemp):
-        mock_machine.return_value = 'x86_64'
+    def setup(self, mock_exists, mock_mkdtemp):
+        Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
         description = XMLDescription('../data/example_config.xml')
         self.xml_state = XMLState(

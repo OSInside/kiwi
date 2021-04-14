@@ -6,6 +6,7 @@ from mock import (
 from pytest import (
     raises, fixture
 )
+from kiwi.defaults import Defaults
 from kiwi.bootloader.config.isolinux import BootLoaderConfigIsoLinux
 
 from kiwi.exceptions import KiwiTemplateError
@@ -17,9 +18,8 @@ class TestBootLoaderConfigIsoLinux:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    @patch('platform.machine')
-    def setup(self, mock_machine, mock_exists):
-        mock_machine.return_value = 'x86_64'
+    def setup(self, mock_exists):
+        Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
         self.state = mock.Mock()
         self.state.get_build_type_bootloader_console = mock.Mock(
@@ -93,19 +93,17 @@ class TestBootLoaderConfigIsoLinux:
             self.state, 'root_dir'
         )
 
-    @patch('platform.machine')
-    def test_post_init_ix86_platform(self, mock_machine):
-        mock_machine.return_value = 'i686'
+    def test_post_init_ix86_platform(self):
+        Defaults.set_platform_name('i686')
         bootloader = BootLoaderConfigIsoLinux(self.state, 'root_dir')
         assert bootloader.arch == 'ix86'
 
     @patch('os.path.exists')
-    @patch('platform.machine')
-    def test_post_init_dom0(self, mock_machine, mock_exists):
+    def test_post_init_dom0(self, mock_exists):
+        Defaults.set_platform_name('x86_64')
         self.state.is_xen_server = mock.Mock(
             return_value=True
         )
-        mock_machine.return_value = 'x86_64'
         mock_exists.return_value = True
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True

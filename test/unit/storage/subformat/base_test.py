@@ -3,6 +3,7 @@ from mock import (
 )
 from pytest import raises
 
+from kiwi.defaults import Defaults
 from kiwi.storage.subformat.base import DiskFormatBase
 
 import kiwi
@@ -14,10 +15,9 @@ from kiwi.exceptions import (
 
 
 class TestDiskFormatBase:
-    @patch('platform.machine')
     @patch('kiwi.storage.subformat.base.DiskFormatBase.post_init')
-    def setup(self, mock_post_init, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self, mock_post_init):
+        Defaults.set_platform_name('x86_64')
         xml_data = Mock()
         xml_data.get_name = Mock(
             return_value='some-disk-image'

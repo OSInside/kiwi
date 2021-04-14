@@ -2,6 +2,7 @@ from mock import patch
 
 import mock
 
+from kiwi.defaults import Defaults
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 
 
@@ -11,10 +12,9 @@ class TestFileSystemSquashfs:
         mock_exists.return_value = True
         self.squashfs = FileSystemSquashFs(mock.Mock(), 'root_dir')
 
-    @patch('platform.machine')
     @patch('kiwi.filesystem.squashfs.Command.run')
-    def test_create_on_file(self, mock_command, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def test_create_on_file(self, mock_command):
+        Defaults.set_platform_name('x86_64')
         self.squashfs.create_on_file('myimage', 'label')
         mock_command.assert_called_once_with(
             [
@@ -23,10 +23,9 @@ class TestFileSystemSquashfs:
             ]
         )
 
-    @patch('platform.machine')
     @patch('kiwi.filesystem.squashfs.Command.run')
-    def test_create_on_file_exclude_data(self, mock_command, mock_machine):
-        mock_machine.return_value = 'ppc64le'
+    def test_create_on_file_exclude_data(self, mock_command):
+        Defaults.set_platform_name('ppc64le')
         self.squashfs.create_on_file('myimage', 'label', ['foo'])
         mock_command.assert_called_once_with(
             [
@@ -35,10 +34,9 @@ class TestFileSystemSquashfs:
             ]
         )
 
-    @patch('platform.machine')
     @patch('kiwi.filesystem.squashfs.Command.run')
-    def test_create_on_file_unkown_arch(self, mock_command, mock_machine):
-        mock_machine.return_value = 'aarch64'
+    def test_create_on_file_unkown_arch(self, mock_command):
+        Defaults.set_platform_name('aarch64')
         self.squashfs.create_on_file('myimage', 'label')
         mock_command.assert_called_once_with(
             [

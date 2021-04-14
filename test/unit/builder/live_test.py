@@ -8,14 +8,14 @@ import kiwi
 
 from ..test_helper import argv_kiwi_tests
 
+from kiwi.defaults import Defaults
 from kiwi.builder.live import LiveImageBuilder
 from kiwi.exceptions import KiwiLiveBootImageError
 
 
 class TestLiveImageBuilder:
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
 
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
@@ -114,8 +114,8 @@ class TestLiveImageBuilder:
     def teardown(self):
         sys.argv = argv_kiwi_tests
 
-    @patch('platform.machine')
-    def test_init_for_ix86_platform(self, mock_machine):
+    def test_init_for_ix86_platform(self):
+        Defaults.set_platform_name('i686')
         xml_state = mock.Mock()
         xml_state.xml_data.get_name = mock.Mock(
             return_value='some-image'
@@ -123,7 +123,6 @@ class TestLiveImageBuilder:
         xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
         )
-        mock_machine.return_value = 'i686'
         live_image = LiveImageBuilder(
             xml_state, 'target_dir', 'root_dir'
         )

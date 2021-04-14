@@ -8,7 +8,7 @@ import struct
 import pytest
 import sys
 
-
+from kiwi.defaults import Defaults
 from kiwi.iso_tools.iso import Iso
 from kiwi.path import Path
 from tempfile import NamedTemporaryFile
@@ -21,9 +21,8 @@ from kiwi.exceptions import (
 
 
 class TestIso:
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         self.iso = Iso('source-dir')
 
     def test_create_header_end_marker(self):

@@ -11,6 +11,7 @@ from collections import OrderedDict
 from collections import namedtuple
 from builtins import bytes
 
+from kiwi.defaults import Defaults
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder
@@ -25,9 +26,8 @@ from kiwi.exceptions import (
 
 class TestDiskBuilder:
     @patch('os.path.exists')
-    @patch('platform.machine')
-    def setup(self, mock_machine, mock_exists):
-        mock_machine.return_value = 'x86_64'
+    def setup(self, mock_exists):
+        Defaults.set_platform_name('x86_64')
 
         def side_effect(filename):
             if filename.endswith('.config/kiwi/config.yml'):
@@ -195,9 +195,8 @@ class TestDiskBuilder:
     def teardown(self):
         sys.argv = argv_kiwi_tests
 
-    @patch('platform.machine')
-    def test_setup_ix86(self, mock_machine):
-        mock_machine.return_value = 'i686'
+    def test_setup_ix86(self):
+        Defaults.set_platform_name('i686')
         description = XMLDescription(
             '../data/example_disk_config.xml'
         )

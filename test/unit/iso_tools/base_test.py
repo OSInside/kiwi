@@ -3,13 +3,13 @@ from mock import (
 )
 from pytest import raises
 
+from kiwi.defaults import Defaults
 from kiwi.iso_tools.base import IsoToolsBase
 
 
 class TestIsoToolsBase:
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         self.iso_tool = IsoToolsBase('source-dir')
 
     def test_create_iso(self):

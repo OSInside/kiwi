@@ -7,6 +7,7 @@ from pytest import (
     raises, fixture
 )
 
+from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 
@@ -22,9 +23,8 @@ class TestXMLState:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         self.description = XMLDescription(
             '../data/example_config.xml'
         )
@@ -58,13 +58,13 @@ class TestXMLState:
         assert description.specification == \
             'Testing various configuration states'
 
-    @patch('platform.machine')
-    def test_get_preferences_by_architecture(self, mock_machine):
-        mock_machine.return_value = 'aarch64'
+    def test_get_preferences_by_architecture(self):
+        Defaults.set_platform_name('aarch64')
         state = XMLState(
             self.description.load()
         )
         preferences = state.get_preferences_sections()
+        Defaults.set_platform_name('x86_64')
         assert len(preferences) == 3
         assert preferences[2].get_arch() == 'aarch64'
         assert state.get_build_type_name() == 'iso'
@@ -128,9 +128,8 @@ class TestXMLState:
             'vim'
         ]
 
-    @patch('platform.machine')
-    def test_get_system_packages_some_arch(self, mock_machine):
-        mock_machine.return_value = 's390'
+    def test_get_system_packages_some_arch(self):
+        Defaults.set_platform_name('s390')
         state = XMLState(
             self.description.load()
         )
@@ -145,6 +144,7 @@ class TestXMLState:
             'plymouth-branding-openSUSE',
             'vim'
         ]
+        Defaults.set_platform_name('x86_64')
 
     def test_get_system_collections(self):
         assert self.state.get_system_collections() == [
@@ -892,19 +892,17 @@ class TestXMLState:
     def test_is_xen_guest_no_xen_guest_setup(self):
         assert self.boot_state.is_xen_guest() is False
 
-    @patch('platform.machine')
-    def test_is_xen_guest_by_firmware_setup(self, mock_platform_machine):
-        mock_platform_machine.return_value = 'x86_64'
+    def test_is_xen_guest_by_firmware_setup(self):
         xml_data = self.description.load()
         state = XMLState(xml_data, ['ec2Flavour'], 'oem')
         assert state.is_xen_guest() is True
 
-    @patch('platform.machine')
-    def test_is_xen_guest_by_architecture(self, mock_platform_machine):
-        mock_platform_machine.return_value = 'unsupported'
+    def test_is_xen_guest_by_architecture(self):
+        Defaults.set_platform_name('unsupported')
         xml_data = self.description.load()
         state = XMLState(xml_data, ['ec2Flavour'], 'oem')
         assert state.is_xen_guest() is False
+        Defaults.set_platform_name('x86_64')
 
     def test_get_initrd_system(self):
         xml_data = self.description.load()

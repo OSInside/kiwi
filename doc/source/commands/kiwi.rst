@@ -24,6 +24,7 @@ SYNOPSIS
        result <command> [<args>...]
    kiwi-ng [--profile=<name>...]
            [--shared-cache-dir=<directory>]
+           [--target-arch=<name>]
            [--type=<build_type>]
            [--logfile=<filename>]
            [--debug]
@@ -113,6 +114,16 @@ GLOBAL OPTIONS
   root system and contains information about package repositories
   and their cache and meta data. The default location is set
   to /var/cache/kiwi
+
+--target-arch=<name>
+
+  Specify the image architecture. By default the host architecture is
+  used as the image architecture. If the specified architecture name
+  does not match the host architecture and is therefore requesting
+  a cross architecture image build, it's important to understand that
+  for this process to work a preparatory step to support the image
+  architecture and binary format on the building host is required
+  and not a responsibility of {kiwi}.
 
 --type=<build_type>
 

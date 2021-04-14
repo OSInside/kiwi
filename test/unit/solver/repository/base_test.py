@@ -8,6 +8,7 @@ import mock
 
 from lxml import etree
 
+from kiwi.defaults import Defaults
 from kiwi.solver.repository.base import SolverRepositoryBase
 
 from kiwi.exceptions import KiwiUriOpenError
@@ -67,13 +68,12 @@ class TestSolverRepositoryBase:
 
     @patch('kiwi.solver.repository.base.NamedTemporaryFile')
     @patch.object(SolverRepositoryBase, 'download_from_repository')
-    @patch('platform.machine')
     @patch('os.path.isfile')
     def test__get_pacman_packages(
-        self, mock_os_isfile, mock_machine, mock_download, mock_tmpfile
+        self, mock_os_isfile, mock_download, mock_tmpfile
     ):
+        Defaults.set_platform_name('x86_64')
         mock_os_isfile.return_value = True
-        mock_machine.return_value = 'x86_64'
         tmpfile = mock.Mock()
         tmpfile.name = 'tmpfile'
         mock_tmpfile.return_value = tmpfile

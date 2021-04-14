@@ -8,6 +8,7 @@ from .test_helper import argv_kiwi_tests
 
 import kiwi
 
+from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
@@ -227,13 +228,12 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_container_tool_chain_installed()
 
-    @patch('platform.machine')
     @patch('kiwi.runtime_checker.Defaults.get_boot_image_description_path')
     def test_check_consistent_kernel_in_boot_and_system_image(
-        self, mock_boot_path, mock_machine
+        self, mock_boot_path
     ):
+        Defaults.set_platform_name('x86_64')
         mock_boot_path.return_value = '../data'
-        mock_machine.return_value = 'x86_64'
         xml_state = XMLState(
             self.description.load(), ['vmxFlavour'], 'oem'
         )
@@ -372,11 +372,8 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_image_version_provided()
 
-    @patch('platform.machine')
-    def test_check_architecture_supports_iso_firmware_setup(
-        self, mock_machine
-    ):
-        mock_machine.return_value = 'aarch64'
+    def test_check_architecture_supports_iso_firmware_setup(self):
+        Defaults.set_platform_name('aarch64')
         xml_state = XMLState(
             self.description.load(), ['vmxFlavour'], 'iso'
         )
@@ -390,13 +387,12 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_architecture_supports_iso_firmware_setup()
 
-    @patch('platform.machine')
     @patch('kiwi.runtime_checker.Path.which')
     def test_check_syslinux_installed_if_isolinux_is_used(
-        self, mock_Path_which, mock_machine
+        self, mock_Path_which
     ):
+        Defaults.set_platform_name('x86_64')
         mock_Path_which.return_value = None
-        mock_machine.return_value = 'x86_64'
         xml_state = XMLState(
             self.description.load(), ['vmxFlavour'], 'iso'
         )

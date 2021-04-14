@@ -5,14 +5,15 @@ from pytest import raises
 import mock
 import kiwi
 
+from kiwi.defaults import Defaults
 from kiwi.builder.container import ContainerBuilder
 from kiwi.exceptions import KiwiContainerBuilderError
 
 
 class TestContainerBuilder:
-    @patch('platform.machine')
     @patch('os.path.exists')
-    def setup(self, mock_exists, mock_machine):
+    def setup(self, mock_exists):
+        Defaults.set_platform_name('x86_64')
         self.runtime_config = mock.Mock()
         self.runtime_config.get_max_size_constraint = mock.Mock(
             return_value=None
@@ -20,7 +21,6 @@ class TestContainerBuilder:
         kiwi.builder.container.RuntimeConfig = mock.Mock(
             return_value=self.runtime_config
         )
-        mock_machine.return_value = 'x86_64'
         self.xml_state = mock.Mock()
         self.xml_state.get_derived_from_image_uri.return_value = mock.Mock()
         self.container_config = {

@@ -17,12 +17,13 @@
 #
 import importlib
 import logging
-import platform
 from collections import namedtuple
 from xml.etree import ElementTree
 from xml.dom import minidom
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi.exceptions import (
     KiwiSatSolverPluginError,
     KiwiSatSolverJobError,
@@ -59,7 +60,7 @@ class Sat:
 
     def set_dist_type(self, dist, arch=None):
         if not arch:
-            arch = platform.machine()
+            arch = defaults.PLATFORM_MACHINE
         dist_types = {
             'deb-x86_64': {
                 'pool_dist': self.solv.Pool.DISTTYPE_DEB,

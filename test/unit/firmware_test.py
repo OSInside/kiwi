@@ -1,16 +1,15 @@
-from mock import patch
 from pytest import raises
 import mock
 
 from kiwi.firmware import FirmWare
+from kiwi.defaults import Defaults
 
 from kiwi.exceptions import KiwiNotImplementedError
 
 
 class TestFirmWare:
-    @patch('platform.machine')
-    def setup(self, mock_platform):
-        mock_platform.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         xml_state = mock.Mock()
         xml_state.build_type.get_firmware = mock.Mock()
         xml_state.build_type.get_firmware.return_value = 'bios'
@@ -32,7 +31,7 @@ class TestFirmWare:
         xml_state.build_type.get_firmware.return_value = 'ec2'
         self.firmware_ec2 = FirmWare(xml_state)
 
-        mock_platform.return_value = 's390x'
+        Defaults.set_platform_name('s390x')
         xml_state.build_type.get_firmware.return_value = None
         xml_state.get_build_type_bootloader_targettype = mock.Mock()
 
@@ -42,14 +41,14 @@ class TestFirmWare:
         xml_state.get_build_type_bootloader_targettype.return_value = 'SCSI'
         self.firmware_s390_scsi = FirmWare(xml_state)
 
-        mock_platform.return_value = 'ppc64le'
+        Defaults.set_platform_name('ppc64le')
         xml_state.build_type.get_firmware.return_value = 'ofw'
         self.firmware_ofw = FirmWare(xml_state)
 
         xml_state.build_type.get_firmware.return_value = 'opal'
         self.firmware_opal = FirmWare(xml_state)
 
-        mock_platform.return_value = 'arm64'
+        Defaults.set_platform_name('x86_64')
 
     def test_firmware_unsupported(self):
         xml_state = mock.Mock()

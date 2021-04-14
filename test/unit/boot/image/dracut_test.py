@@ -3,6 +3,7 @@ from mock import (
 )
 from collections import namedtuple
 
+from kiwi.defaults import Defaults
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
@@ -11,9 +12,8 @@ from kiwi.xml_state import XMLState
 class TestBootImageKiwi:
     @patch('kiwi.boot.image.dracut.Command.run')
     @patch('kiwi.boot.image.base.os.path.exists')
-    @patch('platform.machine')
-    def setup(self, mock_machine, mock_exists, mock_cmd):
-        mock_machine.return_value = 'x86_64'
+    def setup(self, mock_exists, mock_cmd):
+        Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
         command_type = namedtuple('command', ['output'])
         mock_cmd.return_value = command_type(

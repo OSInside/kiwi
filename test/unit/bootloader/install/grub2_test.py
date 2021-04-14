@@ -15,9 +15,8 @@ from kiwi.exceptions import (
 
 
 class TestBootLoaderInstallGrub2:
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
 
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
