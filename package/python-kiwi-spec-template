@@ -113,6 +113,7 @@ Requires:       kiwi-tools
 Requires:       mtools
 Requires:       rsync
 Requires:       tar >= 1.2.7
+Requires:       openssl
 
 %description -n kiwi-systemdeps-core
 This metapackage installs the necessary system dependencies
