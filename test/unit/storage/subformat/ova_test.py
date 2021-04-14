@@ -3,6 +3,7 @@ from mock import (
 )
 from pytest import raises
 
+from kiwi.defaults import Defaults
 from kiwi.storage.subformat.ova import DiskFormatOva
 
 import kiwi
@@ -14,8 +15,8 @@ from kiwi.exceptions import (
 
 
 class TestDiskFormatOva:
-    @patch('platform.machine')
-    def setup(self, mock_machine):
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         self.context_manager_mock = Mock()
         self.file_mock = Mock()
         self.enter_mock = Mock()
@@ -23,7 +24,6 @@ class TestDiskFormatOva:
         self.enter_mock.return_value = self.file_mock
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
-        mock_machine.return_value = 'x86_64'
         xml_data = Mock()
         xml_data.get_name = Mock(
             return_value='some-disk-image'

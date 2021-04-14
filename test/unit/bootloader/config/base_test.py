@@ -6,6 +6,7 @@ from pytest import (
     raises, fixture
 )
 
+from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import KiwiBootLoaderTargetError
@@ -17,9 +18,8 @@ class TestBootLoaderConfigBase:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         description = XMLDescription(
             '../data/example_config.xml'
         )

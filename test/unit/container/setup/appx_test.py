@@ -5,6 +5,8 @@ from mock import (
 )
 
 from kiwi.container.setup.appx import ContainerSetupAppx
+from kiwi.defaults import Defaults
+
 from kiwi.exceptions import KiwiContainerSetupError
 
 
@@ -42,9 +44,8 @@ class TestContainerSetupAppx:
         with raises(KiwiContainerSetupError):
             self.appx.setup()
 
-    @patch('platform.machine')
-    def test_setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def test_setup(self):
+        Defaults.set_platform_name('x86_64')
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value

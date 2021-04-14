@@ -8,15 +8,15 @@ from ..test_helper import argv_kiwi_tests
 
 import kiwi
 
+from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiFileSystemSetupError
 from kiwi.builder.filesystem import FileSystemBuilder
 
 
 class TestFileSystemBuilder:
     @patch('kiwi.builder.filesystem.FileSystemSetup')
-    @patch('platform.machine')
-    def setup(self, mock_machine, mock_fs_setup):
-        mock_machine.return_value = 'x86_64'
+    def setup(self, mock_fs_setup):
+        Defaults.set_platform_name('x86_64')
         self.loop_provider = Mock()
         self.loop_provider.get_device = Mock(
             return_value='/dev/loop1'
@@ -90,11 +90,10 @@ class TestFileSystemBuilder:
     @patch('kiwi.builder.filesystem.LoopDevice')
     @patch('kiwi.builder.filesystem.FileSystem.new')
     @patch('kiwi.builder.filesystem.FileSystemSetup')
-    @patch('platform.machine')
     def test_create_on_loop(
-        self, mock_machine, mock_fs_setup, mock_fs, mock_loop
+        self, mock_fs_setup, mock_fs, mock_loop
     ):
-        mock_machine.return_value = 'x86_64'
+        Defaults.set_platform_name('x86_64')
         mock_fs_setup.return_value = self.fs_setup
         mock_fs.return_value = self.filesystem
         mock_loop.return_value = self.loop_provider
@@ -126,11 +125,10 @@ class TestFileSystemBuilder:
 
     @patch('kiwi.builder.filesystem.FileSystem.new')
     @patch('kiwi.builder.filesystem.DeviceProvider')
-    @patch('platform.machine')
     def test_create_on_file(
-        self, mock_machine, mock_provider, mock_fs
+        self, mock_provider, mock_fs
     ):
-        mock_machine.return_value = 'x86_64'
+        Defaults.set_platform_name('x86_64')
         provider = Mock()
         mock_provider.return_value = provider
         mock_fs.return_value = self.filesystem

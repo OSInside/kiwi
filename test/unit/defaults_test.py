@@ -36,7 +36,8 @@ class TestDefaults:
         )
 
     def test_get_preparer(self):
-        assert Defaults.get_preparer() == 'KIWI - https://github.com/OSInside/kiwi'
+        assert Defaults.get_preparer() == \
+            'KIWI - https://github.com/OSInside/kiwi'
 
     def test_get_publisher(self):
         assert Defaults.get_publisher() == 'SUSE LINUX GmbH'
@@ -63,11 +64,10 @@ class TestDefaults:
         assert Defaults.get_live_dracut_modules_from_flag('dmsquash') == \
             ['dmsquash-live', 'livenet']
 
-    @patch('platform.machine')
-    def test_get_iso_boot_path(self, mock_machine):
-        mock_machine.return_value = 'i686'
+    def test_get_iso_boot_path(self):
+        Defaults.set_platform_name('i686')
         assert Defaults.get_iso_boot_path() == 'boot/ix86'
-        mock_machine.return_value = 'x86_64'
+        Defaults.set_platform_name('x86_64')
         assert Defaults.get_iso_boot_path() == 'boot/x86_64'
 
     @patch('kiwi.defaults.glob.iglob')

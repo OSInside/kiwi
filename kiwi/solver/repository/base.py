@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import platform
 from base64 import b64encode
 from urllib.request import urlopen
 from urllib.request import Request
@@ -27,6 +26,8 @@ import glob
 import os
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi.exceptions import KiwiUriOpenError
 from kiwi.path import Path
 from kiwi.command import Command
@@ -172,7 +173,7 @@ class SolverRepositoryBase:
         """
         dir_listing_download = NamedTemporaryFile()
         self.download_from_repository(
-            platform.machine(), dir_listing_download.name
+            defaults.PLATFORM_MACHINE, dir_listing_download.name
         )
         if os.path.isfile(dir_listing_download.name):
             with open(dir_listing_download.name) as listing:

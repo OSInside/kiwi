@@ -7,17 +7,17 @@ import kiwi
 
 from collections import namedtuple
 
+from kiwi.defaults import Defaults
 from kiwi.builder.install import InstallImageBuilder
 from kiwi.exceptions import KiwiInstallBootImageError
 
 
 class TestInstallImageBuilder:
-    @patch('platform.machine')
-    def setup(self, mock_machine):
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']
         )
-        mock_machine.return_value = 'x86_64'
         self.setup = mock.Mock()
         kiwi.builder.install.SystemSetup = mock.Mock(
             return_value=self.setup
@@ -92,9 +92,8 @@ class TestInstallImageBuilder:
             self.xml_state, 'root_dir', 'target_dir', self.boot_image_task
         )
 
-    @patch('platform.machine')
-    def test_setup_ix86(self, mock_machine):
-        mock_machine.return_value = 'i686'
+    def test_setup_ix86(self):
+        Defaults.set_platform_name('i686')
         xml_state = mock.Mock()
         xml_state.xml_data.get_name = mock.Mock(
             return_value='result-image'

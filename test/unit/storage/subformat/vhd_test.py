@@ -4,13 +4,13 @@ from mock import (
 
 import kiwi
 
+from kiwi.defaults import Defaults
 from kiwi.storage.subformat.vhd import DiskFormatVhd
 
 
 class TestDiskFormatVhd:
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         xml_data = Mock()
         xml_data.get_name = Mock(
             return_value='some-disk-image'

@@ -41,6 +41,7 @@ IMAGE_METADATA_DIR = 'image'
 ROOT_VOLUME_NAME = 'LVRoot'
 SHARED_CACHE_DIR = '/var/cache/kiwi'
 CUSTOM_RUNTIME_CONFIG_FILE = None
+PLATFORM_MACHINE = platform.machine()
 
 
 class Defaults:
@@ -108,10 +109,31 @@ class Defaults:
 
     @staticmethod
     def get_platform_name():
-        arch = platform.machine()
+        """
+        Provides the machine architecture name as used by KIWI
+
+        This is the architecture name as it is returned by 'uname -m'
+        with one exception for the 32bit x86 architecture which is
+        handled as 'ix86' in general
+
+        :return: architecture name
+
+        :rtype: str
+        """
+        arch = PLATFORM_MACHINE
         if arch == 'i686' or arch == 'i586':
             arch = 'ix86'
         return arch
+
+    @staticmethod
+    def set_platform_name(name: str):
+        """
+        Sets the platform architecture once
+
+        :param str name: an architecture name
+        """
+        global PLATFORM_MACHINE
+        PLATFORM_MACHINE = name
 
     @staticmethod
     def is_x86_arch(arch):

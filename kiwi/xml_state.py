@@ -21,7 +21,6 @@ from typing import (
 import re
 import logging
 import copy
-import platform
 from textwrap import dedent
 
 # project
@@ -90,7 +89,7 @@ class XMLState:
     ):
         self.root_partition_uuid: Optional[str] = None
         self.root_filesystem_uuid: Optional[str] = None
-        self.host_architecture = platform.machine()
+        self.host_architecture = defaults.PLATFORM_MACHINE
         self.xml_data = xml_data
         self.profiles = self._used_profiles(profiles)
         self.build_type = self._build_type_section(

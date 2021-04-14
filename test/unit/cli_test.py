@@ -8,6 +8,8 @@ from pytest import (
 from .test_helper import argv_kiwi_tests
 
 from kiwi.cli import Cli
+from kiwi.defaults import Defaults
+
 from kiwi.exceptions import (
     KiwiCompatError,
     KiwiLoadCommandUndefined,
@@ -38,6 +40,7 @@ class TestCli:
             'result': False,
             '--profile': [],
             '--shared-cache-dir': '/var/cache/kiwi',
+            '--target-arch': None,
             '--help': False,
             '--config': 'config-file'
         }
@@ -114,6 +117,17 @@ class TestCli:
             cli.get_global_args()
             assert 'vmx type is now a subset of oem, --type set to oem' in \
                 self._caplog.text
+
+    def test_set_target_arch(self):
+        sys.argv = [
+            sys.argv[0],
+            '--target-arch', 'artificial', 'system', 'build',
+            '--description', 'description',
+            '--target-dir', 'directory'
+        ]
+        cli = Cli()
+        cli.get_global_args()
+        assert Defaults.get_platform_name() == 'artificial'
 
     def test_get_servicename_image(self):
         sys.argv = [

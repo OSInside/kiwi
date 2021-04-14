@@ -16,9 +16,8 @@ class TestDiskSetup:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         self.size = mock.Mock()
         self.size.customize = mock.Mock(
             return_value=42
@@ -65,7 +64,7 @@ class TestDiskSetup:
             XMLState(description.load()), 'root_dir'
         )
 
-        mock_machine.return_value = 'ppc64'
+        Defaults.set_platform_name('ppc64')
         description = XMLDescription(
             '../data/example_ppc_disk_size_config.xml'
         )
@@ -73,7 +72,7 @@ class TestDiskSetup:
             XMLState(description.load()), 'root_dir'
         )
 
-        mock_machine.return_value = 'arm64'
+        Defaults.set_platform_name('arm64')
         description = XMLDescription(
             '../data/example_arm_disk_size_config.xml'
         )

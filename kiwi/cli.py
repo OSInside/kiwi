@@ -30,6 +30,7 @@ usage: kiwi-ng -h | --help
            result <command> [<args>...]
        kiwi-ng [--profile=<name>...]
                [--shared-cache-dir=<directory>]
+               [--target-arch=<name>]
                [--type=<build_type>]
                [--logfile=<filename>]
                [--debug]
@@ -71,6 +72,16 @@ global options for services: image, system
     --type=<build_type>
         image build type. If not set the default XML specified
         build type will be used
+
+global options for services: system
+    --target-arch=<name>
+        set the image architecture. By default the host architecture is
+        used as the image architecture. If the specified architecture name
+        does not match the host architecture and is therefore requesting
+        a cross architecture image build, it's important to understand that
+        for this process to work a preparatory step to support the image
+        architecture and binary format on the building host is required
+        and not a responsibility of kiwi.
 """
 import logging
 import sys
@@ -218,6 +229,8 @@ class Cli:
                     value = os.sep + Defaults.get_shared_cache_location()
                 if arg == '--shared-cache-dir' and value:
                     Defaults.set_shared_cache_location(value)
+                if arg == '--target-arch' and value:
+                    Defaults.set_platform_name(value)
                 if arg == '--config' and value:
                     Defaults.set_custom_runtime_config_file(value)
                 result[arg] = value

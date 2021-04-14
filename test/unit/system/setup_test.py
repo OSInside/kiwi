@@ -28,15 +28,14 @@ class TestSystemSetup:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('platform.machine')
     @patch('kiwi.system.setup.RuntimeConfig')
-    def setup(self, mock_RuntimeConfig, mock_machine):
+    def setup(self, mock_RuntimeConfig):
+        Defaults.set_platform_name('x86_64')
         self.runtime_config = Mock()
         self.runtime_config.get_package_changes = Mock(
             return_value=True
         )
         mock_RuntimeConfig.return_value = self.runtime_config
-        mock_machine.return_value = 'x86_64'
         self.xml_state = MagicMock()
         self.xml_state.get_package_manager = Mock(
             return_value='zypper'
@@ -74,9 +73,8 @@ class TestSystemSetup:
     def teardown(self):
         sys.argv = argv_kiwi_tests
 
-    @patch('platform.machine')
-    def test_setup_ix86(self, mock_machine):
-        mock_machine.return_value = 'i686'
+    def test_setup_ix86(self):
+        Defaults.set_platform_name('i686')
         setup = SystemSetup(
             MagicMock(), 'root_dir'
         )

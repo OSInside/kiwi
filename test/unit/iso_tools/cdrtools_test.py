@@ -4,15 +4,15 @@ from mock import (
 from pytest import raises
 from collections import namedtuple
 
+from kiwi.defaults import Defaults
 from kiwi.iso_tools.cdrtools import IsoToolsCdrTools
 
 from kiwi.exceptions import KiwiIsoToolError
 
 
 class TestIsoToolsCdrTools:
-    @patch('platform.machine')
-    def setup(self, mock_machine):
-        mock_machine.return_value = 'x86_64'
+    def setup(self):
+        Defaults.set_platform_name('x86_64')
         self.iso_tool = IsoToolsCdrTools('source-dir')
 
     @patch('kiwi.iso_tools.cdrtools.Path.which')

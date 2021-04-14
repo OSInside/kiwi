@@ -21,6 +21,8 @@ from tempfile import NamedTemporaryFile
 from typing import List, Dict
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -130,6 +132,9 @@ class RepositoryZypper(RepositoryBase):
         self.runtime_zypp_config.set(
             'main', 'credentials.global.dir',
             self.shared_zypper_dir['credentials-dir']
+        )
+        self.runtime_zypp_config.set(
+            'main', 'arch', defaults.PLATFORM_MACHINE
         )
         if self.exclude_docs:
             self.runtime_zypp_config.set(

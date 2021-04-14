@@ -6,6 +6,7 @@ import io
 import mock
 import os
 
+from kiwi.defaults import Defaults
 from kiwi.repository.zypper import RepositoryZypper
 from kiwi.exceptions import KiwiCommandError
 
@@ -47,6 +48,7 @@ class TestRepositoryZypper:
     def test_custom_args_init_check_signatures(
         self, mock_config, mock_temp, mock_command
     ):
+        Defaults.set_platform_name('x86_64')
         runtime_zypp_config = mock.Mock()
         mock_config.return_value = runtime_zypp_config
         with patch('builtins.open', create=True):
@@ -58,6 +60,7 @@ class TestRepositoryZypper:
                     'credentials.global.dir',
                     '../data/shared-dir/zypper/credentials'
                 ),
+                call('main', 'arch', 'x86_64'),
                 call('main', 'gpgcheck', '1'),
             ]
 
