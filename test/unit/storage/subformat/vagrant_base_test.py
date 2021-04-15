@@ -9,6 +9,7 @@ from mock import (
 
 import kiwi
 
+from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiFormatSetupError
 from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
 
@@ -17,6 +18,7 @@ from textwrap import dedent
 
 class TestDiskFormatVagrantBase:
     def setup(self):
+        Defaults.set_platform_name('x86_64')
         xml_data = Mock()
         xml_data.get_name = Mock(
             return_value='some-disk-image'

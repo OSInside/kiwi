@@ -13,6 +13,7 @@ from kiwi.defaults import Defaults
 
 class TestDiskFormatVagrantVirtualBox:
     def setup(self):
+        Defaults.set_platform_name('x86_64')
         with open("../data/vagrant_virtualbox.ovf", "r") as ovf_file:
             self.Leap_15_ovf = ovf_file.read(-1)
 
