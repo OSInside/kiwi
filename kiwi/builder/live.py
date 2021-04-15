@@ -243,7 +243,9 @@ class LiveImageBuilder:
             '--> Syncing data to {0} root image'.format(root_filesystem)
         )
         live_filesystem.sync_data(
-            Defaults.get_exclude_list_for_root_data_sync()
+            Defaults.
+            get_exclude_list_for_root_data_sync() + Defaults.
+            get_exclude_list_from_custom_exclude_files(self.root_dir)
         )
         live_filesystem.umount()
 

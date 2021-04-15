@@ -181,7 +181,9 @@ class FileSystemBuilder:
             f'--> Syncing data to filesystem on {loop_provider.get_device()}'
         )
         filesystem.sync_data(
-            Defaults.get_exclude_list_for_root_data_sync()
+            Defaults.
+            get_exclude_list_for_root_data_sync() + Defaults.
+            get_exclude_list_from_custom_exclude_files(self.root_dir)
         )
 
     def _operate_on_file(self) -> None:
