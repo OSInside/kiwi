@@ -63,7 +63,6 @@ class TestContainerImageOCI:
         assert container.oci_config == {
             'container_name': 'kiwi-container',
             'container_tag': 'latest',
-            'entry_subcommand': ['/bin/bash'],
             'history': {'created_by': 'KIWI {0}'.format(__version__)}
         }
 
@@ -188,14 +187,12 @@ class TestContainerImageOCI:
             'container_name': 'foo/bar',
             'additional_tags': ['current', 'foobar'],
             'container_tag': 'latest',
-            'entry_subcommand': ['/bin/bash'],
             'history': {'created_by': 'KIWI {0}'.format(__version__)}
         })
         mock_oci.set_config.assert_called_once_with({
             'container_name': 'foo/bar',
             'additional_tags': ['current', 'foobar'],
             'container_tag': 'latest',
-            'entry_subcommand': ['/bin/bash'],
             'history': {'created_by': 'KIWI {0}'.format(__version__)}
         })
         mock_oci.post_process.assert_called_once_with()
