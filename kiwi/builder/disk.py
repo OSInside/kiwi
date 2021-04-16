@@ -622,7 +622,9 @@ class DiskBuilder:
         )
 
     def _get_exclude_list_for_root_data_sync(self, device_map: Dict) -> list:
-        exclude_list = Defaults.get_exclude_list_for_root_data_sync()
+        exclude_list = Defaults.\
+            get_exclude_list_for_root_data_sync() + Defaults.\
+            get_exclude_list_from_custom_exclude_files(self.root_dir)
         if 'spare' in device_map and self.spare_part_mountpoint:
             exclude_list.append(
                 '{0}/*'.format(self.spare_part_mountpoint.lstrip(os.sep))

@@ -88,7 +88,9 @@ class ArchiveBuilder:
             )
             archive.create_xz_compressed(
                 self.root_dir, xz_options=self.xz_options,
-                exclude=Defaults.get_exclude_list_for_root_data_sync()
+                exclude=Defaults.
+                get_exclude_list_for_root_data_sync() + Defaults.
+                get_exclude_list_from_custom_exclude_files(self.root_dir)
             )
             Result.verify_image_size(
                 self.runtime_config.get_max_size_constraint(),

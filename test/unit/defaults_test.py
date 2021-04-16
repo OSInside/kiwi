@@ -1,8 +1,9 @@
+import logging
 from mock import patch
 
 import sys
-
 import mock
+from pytest import fixture
 
 from .test_helper import argv_kiwi_tests
 
@@ -10,6 +11,10 @@ from kiwi.defaults import Defaults
 
 
 class TestDefaults:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         self.defaults = Defaults()
 
@@ -86,3 +91,22 @@ class TestDefaults:
         mock_path_exists.return_value = True
         assert Defaults.get_vendor_grubenv('boot/efi') == \
             'boot/efi/EFI/fedora/grubenv'
+
+    def test_get_exclude_list_from_custom_exclude_files(self):
+        assert Defaults.get_exclude_list_from_custom_exclude_files(
+            '../data/root-dir'
+        ) == [
+            'usr/bin/qemu-binfmt',
+            'usr/bin/qemu-x86_64-binfmt',
+            'usr/bin/qemu-x86_64'
+        ]
+
+    @patch('yaml.safe_load')
+    def test_get_exclude_list_from_custom_exclude_files_is_invalid(
+        self, mock_yaml_safe_load
+    ):
+        mock_yaml_safe_load.return_value = {'invalid': 'artificial'}
+        with self._caplog.at_level(logging.WARNING):
+            assert Defaults.get_exclude_list_from_custom_exclude_files(
+                '../data/root-dir'
+            ) == []

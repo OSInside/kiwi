@@ -15,11 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import logging
 import os
 import glob
 from collections import namedtuple
 import platform
+import yaml
 from pkg_resources import resource_filename
+from typing import List
 
 # project
 from kiwi.path import Path
@@ -42,6 +45,8 @@ ROOT_VOLUME_NAME = 'LVRoot'
 SHARED_CACHE_DIR = '/var/cache/kiwi'
 CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
+
+log = logging.getLogger('kiwi')
 
 
 class Defaults:
@@ -284,6 +289,37 @@ class Defaults:
             Defaults.get_buildservice_env_name(),
             Defaults.get_shared_cache_location()
         ]
+        return exclude_list
+
+    @staticmethod
+    def get_exclude_list_from_custom_exclude_files(root_dir: str) -> List:
+        """
+        Provides the list of folders that are excluded by the
+        optional metadata file image/exclude_files.yaml
+
+        :return: list of file and directory names
+
+        :param string root_dir: image root directory
+
+        :rtype: list
+        """
+        exclude_file = os.sep.join(
+            [root_dir, 'image', 'exclude_files.yaml']
+        )
+        exclude_list = []
+        if os.path.isfile(exclude_file):
+            with open(exclude_file) as exclude:
+                exclude_dict = yaml.safe_load(exclude)
+                exclude_data = exclude_dict.get('exclude')
+                if exclude_data and isinstance(exclude_data, list):
+                    for exclude_file in exclude_data:
+                        exclude_list.append(
+                            exclude_file.lstrip(os.sep)
+                        )
+                else:
+                    log.warning(
+                        f'invalid yaml structure in {exclude_file}, ignored'
+                    )
         return exclude_list
 
     @staticmethod

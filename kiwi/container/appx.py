@@ -75,7 +75,9 @@ class ContainerImageAppx:
         :param string filename: archive file name
         :param string base_image: not-supported
         """
-        exclude_list = Defaults.get_exclude_list_for_root_data_sync()
+        exclude_list = Defaults.\
+            get_exclude_list_for_root_data_sync() + Defaults.\
+            get_exclude_list_from_custom_exclude_files(self.root_dir)
         exclude_list.append('boot')
         exclude_list.append('dev')
         exclude_list.append('sys')
