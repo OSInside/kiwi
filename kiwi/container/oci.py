@@ -95,11 +95,6 @@ class ContainerImageOCI:
             self.oci_config['container_tag'] = \
                 Defaults.get_default_container_tag()
 
-        if 'entry_command' not in self.oci_config and \
-                'entry_subcommand' not in self.oci_config:
-            self.oci_config['entry_subcommand'] = \
-                Defaults.get_default_container_subcommand()
-
         if 'history' not in self.oci_config:
             self.oci_config['history'] = {}
         if 'created_by' not in self.oci_config['history']:
@@ -128,6 +123,11 @@ class ContainerImageOCI:
                 )
             )
         else:
+            # Apply default subcommand only for base images
+            if 'entry_command' not in self.oci_config and \
+                    'entry_subcommand' not in self.oci_config:
+                self.oci_config['entry_subcommand'] = \
+                    Defaults.get_default_container_subcommand()
             oci.init_container()
 
         image_ref = '{0}:{1}'.format(
