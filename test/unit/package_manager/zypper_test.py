@@ -56,7 +56,8 @@ class TestPackageManagerZypper:
             [
                 'zypper', '--reposd-dir', 'root-dir/my/repos',
                 '--root', 'root-dir',
-                'install', '--auto-agree-with-licenses'
+                'install', '--download', 'in-advance',
+                '--auto-agree-with-licenses'
             ] + self.manager.custom_args + ['--', 'vim'], self.command_env
         )
 
@@ -79,7 +80,8 @@ class TestPackageManagerZypper:
         )
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
-                'install', '--auto-agree-with-licenses'
+                'install', '--download', 'in-advance',
+                '--auto-agree-with-licenses'
             ] + self.manager.custom_args + ['--', 'vim'], self.chroot_command_env
         )
 
@@ -122,7 +124,8 @@ class TestPackageManagerZypper:
         self.manager.update()
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + self.chroot_zypper_args + [
-                'update', '--auto-agree-with-licenses'
+                'update', '--download', 'in-advance',
+                '--auto-agree-with-licenses'
             ] + self.manager.custom_args, self.chroot_command_env
         )
 
