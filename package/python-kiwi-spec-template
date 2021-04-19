@@ -83,15 +83,19 @@ Obsoletes:      kiwi-image-tbz-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:tbz
 %endif
-# tools used by kiwi
+# tools conditionally used by kiwi
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends:     gnupg2
+Recommends:     debootstrap
+Recommends:     dpkg
 %endif
 %if 0%{?suse_version}
-# If it's available, let's pull it in
-Recommends:     dnf
 Recommends:     gpg2
+Recommends:     dnf
+Recommends:     debootstrap
+Recommends:     dpkg
 %endif
+# package managers required by distro
 %if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} >= 1550
 Provides:       kiwi-packagemanager:microdnf
 Requires:       microdnf
@@ -107,8 +111,10 @@ Provides:       kiwi-packagemanager:zypper
 %endif
 %if 0%{?debian} || 0%{?ubuntu}
 Requires:       debootstrap
+Requires:       dpkg
 Requires:       gnupg
 %endif
+# tools required by kiwi
 Requires:       kiwi-tools
 Requires:       mtools
 Requires:       rsync
