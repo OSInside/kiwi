@@ -96,40 +96,15 @@ class ContainerSetupAppx(ContainerSetupBase):
                 identity.set('Version', history.get('package_version'))
             if history.get('created_by'):
                 identity.set('Publisher', history.get('created_by'))
-            if history.get('author'):
-                identity.set('Name', history.get('author'))
 
     def _update_desktop_visual(self):
         history = self.custom_args.get('history') or {}
-        displaynames = self._get_xpath(
-            '//wsl:Properties/wsl:DisplayName'
-        )
-        published_displaynames = self._get_xpath(
-            '//wsl:Properties/wsl:PublisherDisplayName'
-        )
         visuals = self._get_xpath(
             '//wsl:Applications/wsl:Application/uap:VisualElements'
         )
-        titles = self._get_xpath(
-            '//wsl:Applications/wsl:Application/'
-            'uap:VisualElements/uap:DefaultTile'
-        )
-        if self.custom_args.get('container_name'):
-            for displayname in displaynames:
-                displayname.text = \
-                    self.custom_args.get('container_name')
-            for published_displayname in published_displaynames:
-                published_displayname.text = \
-                    self.custom_args.get('container_name')
         for visual in visuals:
-            if self.custom_args.get('container_name'):
-                visual.set(
-                    'DisplayName', self.custom_args.get('container_name')
-                )
             if history.get('comment'):
                 visual.set('Description', history.get('comment'))
-        for titel in titles:
-            titel.set('ShortName', self.custom_args.get('container_name'))
 
     def _update_application_metadata(self):
         history = self.custom_args.get('history') or {}
