@@ -105,12 +105,13 @@ class ContainerImageAppx:
                 for entry in sorted(dirs + files):
                     if entry in files:
                         mapfile = os.sep.join([topdir, entry])
+                        mapfile_relative = os.path.relpath(mapfile, start=self.meta_data_path)
                         log.info(
-                            'Adding {0} to Appx filemap'.format(mapfile)
+                            'Adding {0} to Appx filemap as relative path {1}'.format(mapfile, mapfile_relative)
                         )
                         filemap.write(
                             '"{0}" "{1}"{2}'.format(
-                                mapfile, os.path.basename(mapfile), os.linesep
+                                mapfile, mapfile_relative, os.linesep
                             )
                         )
 
