@@ -30,7 +30,7 @@
         </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="efi" format="qcow2">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -84,6 +84,10 @@
         <package name="netbase"/>
         <package name="bsdmainutils"/>
         <package name="usrmerge"/>
+    </packages>
+    <packages type="image" profiles="Virtual">
+        <package name="shim-signed"/>
+        <package name="grub-efi-amd64-signed"/>
     </packages>
     <packages type="image" profiles="Live">
         <package name="dracut-kiwi-live"/>
