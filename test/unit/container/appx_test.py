@@ -64,7 +64,7 @@ class TestContainerImageAppx:
             self.appx.create('target_dir/image.appx')
             assert file_handle.write.call_args_list == [
                 call('[Files]\n'),
-                call('"source/baz/baz_file" "baz_file"\n')
+                call('"source/baz/baz_file" "../../source/baz/baz_file"\n')
             ]
         mock_ArchiveTar.assert_called_once_with('meta/data/install.tar')
         archive.create.assert_called_once_with(
