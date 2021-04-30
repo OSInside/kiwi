@@ -42,6 +42,7 @@
             <bootloader name="grub2" console="serial"/>
             <oemconfig>
                 <oem-swap>true</oem-swap>
+                <oem-unattended>true</oem-unattended>
                 <oem-device-filter>/dev/ram</oem-device-filter>
                 <oem-multipath-scan>false</oem-multipath-scan>
             </oemconfig>
