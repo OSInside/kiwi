@@ -12,6 +12,7 @@ from pytest import (
 import kiwi
 
 from kiwi.defaults import Defaults
+from kiwi.defaults import grub_loader_type
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
@@ -316,11 +317,16 @@ class TestBootLoaderConfigGrub2:
     @patch('glob.iglob')
     @patch('shutil.copy')
     @patch('kiwi.bootloader.config.grub2.Path.create')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Defaults.get_signed_grub_loader')
     def test_copy_grub_config_to_efi_path(
-        self, mock_Path_create, mock_shutil_copy, mock_glob
+        self, mock_get_signed_grub_loader, mock_Command,
+        mock_Path_create, mock_shutil_copy, mock_glob
     ):
+        mock_get_signed_grub_loader.return_value = None
         mock_glob.return_value = []
 
+        # 1. run: check default handling
         self.bootloader._copy_grub_config_to_efi_path(
             'root_dir', 'config_file'
         )
@@ -331,10 +337,32 @@ class TestBootLoaderConfigGrub2:
         mock_shutil_copy.assert_called_once_with(
             'config_file', 'root_dir/EFI/BOOT/grub.cfg'
         )
+
+        # 2. run: check with vendor directory read from grub binary
         mock_shutil_copy.reset_mock()
         mock_Path_create.reset_mock()
-        mock_glob.return_value = ['root_dir/EFI/fedora/shim.efi']
+        strings_out = Mock()
+        strings_out.output = '/EFI/ubuntu'
+        mock_get_signed_grub_loader.return_value = grub_loader_type(
+            'some-loader', None
+        )
+        mock_Command.return_value = strings_out
+        self.bootloader._copy_grub_config_to_efi_path(
+            'root_dir', 'config_file'
+        )
 
+        mock_Path_create.assert_called_once_with(
+            'root_dir/EFI/ubuntu'
+        )
+        mock_shutil_copy.assert_called_once_with(
+            'config_file', 'root_dir/EFI/ubuntu/grub.cfg'
+        )
+
+        # 3. run: check with installed vendor directory
+        mock_shutil_copy.reset_mock()
+        mock_Path_create.reset_mock()
+        mock_get_signed_grub_loader.return_value = None
+        mock_glob.return_value = ['root_dir/EFI/fedora/shim.efi']
         self.bootloader._copy_grub_config_to_efi_path(
             'root_dir', 'config_file'
         )
@@ -1327,7 +1355,7 @@ class TestBootLoaderConfigGrub2:
                     call(
                         [
                             'cp', 'root_dir/usr/lib64/efi/grub.efi',
-                            'root_dir/boot/efi/EFI/BOOT'
+                            'root_dir/boot/efi/EFI/BOOT/grub.efi'
                         ]
                     )
                 ]
@@ -1691,7 +1719,7 @@ class TestBootLoaderConfigGrub2:
                     call(
                         [
                             'cp', 'root_dir/usr/lib64/efi/grub.efi',
-                            'root_dir/EFI/BOOT'
+                            'root_dir/EFI/BOOT/grub.efi'
                         ]
                     )
                 ]

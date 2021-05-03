@@ -486,6 +486,24 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             root_path
         )
         if not efi_boot_path:
+            # not all distributors installs a vendor directory but
+            # have them in their encoded early boot script. Thus
+            # the following code tries to look up the vendor string
+            # from the signed grub binary
+            grub_image = Defaults.get_signed_grub_loader(self.root_dir)
+            if grub_image and grub_image.filename:
+                bash_command = [
+                    'strings', grub_image.filename, '|', 'grep', 'EFI\/'
+                ]
+                efi_boot_path = Command.run(
+                    ['bash', '-c', ' '.join(bash_command)],
+                    raise_on_error=False
+                ).output
+                if efi_boot_path:
+                    efi_boot_path = os.path.normpath(
+                        os.sep.join([root_path, efi_boot_path.strip()])
+                    )
+        if not efi_boot_path:
             efi_boot_path = os.path.normpath(
                 os.sep.join([root_path, 'EFI/BOOT'])
             )
@@ -727,13 +745,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 ['cp', shim_image, self._get_efi_image_name()]
             )
             Command.run(
-                ['cp', grub_image, self.efi_boot_path]
+                [
+                    'cp', grub_image.filename,
+                    os.sep.join([self.efi_boot_path, grub_image.binaryname])
+                ]
             )
         else:
             # Without shim a self signed grub image is used that
             # gets loaded by the firmware
             Command.run(
-                ['cp', grub_image, self._get_efi_image_name()]
+                ['cp', grub_image.filename, self._get_efi_image_name()]
             )
         self._create_efi_config_search(uuid, mbrid)
 

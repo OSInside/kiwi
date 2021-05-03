@@ -22,7 +22,9 @@ from collections import namedtuple
 import platform
 import yaml
 from pkg_resources import resource_filename
-from typing import List
+from typing import (
+    List, NamedTuple, Optional
+)
 
 # project
 from kiwi.path import Path
@@ -47,6 +49,13 @@ CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
 
 log = logging.getLogger('kiwi')
+
+grub_loader_type = NamedTuple(
+    'grub_loader_type', [
+        ('filename', str),
+        ('binaryname', str)
+    ]
+)
 
 
 class Defaults:
@@ -690,7 +699,8 @@ class Defaults:
         shim_file_patterns = [
             '/usr/share/efi/*/shim.efi',
             '/usr/lib64/efi/shim.efi',
-            '/boot/efi/EFI/*/shim.efi'
+            '/boot/efi/EFI/*/shim.efi',
+            '/usr/lib/shim/shim*.efi'
         ]
         for shim_file_pattern in shim_file_patterns:
             for shim_file in glob.iglob(root_path + shim_file_pattern):
@@ -820,28 +830,50 @@ class Defaults:
         return 'eltorito.img'
 
     @staticmethod
-    def get_signed_grub_loader(root_path):
+    def get_signed_grub_loader(root_path: str) -> Optional[grub_loader_type]:
         """
         Provides shim signed grub loader file path
 
         Searches distribution specific locations to find grub.efi
         below the given root path
 
-        :param string root_path: image root path
+        :param str root_path: image root path
 
-        :return: file path or None
+        :return: grub_loader_type | None
 
-        :rtype: str
+        :rtype: NamedTuple
         """
+        grub_pattern_type = namedtuple(
+            'grub_pattern_type', ['pattern', 'binaryname']
+        )
         signed_grub_file_patterns = [
-            '/usr/share/efi/*/grub.efi',
-            '/usr/lib64/efi/grub.efi',
-            '/boot/efi/EFI/*/grub*.efi',
-            '/usr/share/grub*/*-efi/grub.efi'
+            grub_pattern_type(
+                '/usr/share/efi/*/grub.efi', None
+            ),
+            grub_pattern_type(
+                '/usr/lib64/efi/grub.efi', None
+            ),
+            grub_pattern_type(
+                '/boot/efi/EFI/*/grub*.efi', None
+            ),
+            grub_pattern_type(
+                '/usr/share/grub*/*-efi/grub.efi', None
+            ),
+            grub_pattern_type(
+                '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
+                'grubx64.efi'
+            )
         ]
-        for signed_grub_pattern in signed_grub_file_patterns:
-            for signed_grub in glob.iglob(root_path + signed_grub_pattern):
-                return signed_grub
+        for signed_grub in signed_grub_file_patterns:
+            for signed_grub_file in glob.iglob(root_path + signed_grub.pattern):
+                if not signed_grub.binaryname:
+                    binaryname = os.path.basename(signed_grub_file)
+                else:
+                    binaryname = signed_grub.binaryname
+                return grub_loader_type(
+                    signed_grub_file, binaryname
+                )
+        return None
 
     @staticmethod
     def get_efi_vendor_directory(efi_path):
@@ -860,7 +892,9 @@ class Defaults:
             'EFI/fedora',
             'EFI/redhat',
             'EFI/centos',
-            'EFI/opensuse'
+            'EFI/opensuse',
+            'EFI/ubuntu',
+            'EFI/debian'
         ]
         for efi_vendor_directory in efi_vendor_directories:
             efi_vendor_directory = os.sep.join([efi_path, efi_vendor_directory])

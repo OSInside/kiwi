@@ -10,6 +10,7 @@ from ..test_helper import argv_kiwi_tests
 import kiwi.xml_parse
 from kiwi.tasks.base import CliTask
 
+from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiConfigFileNotFound
 
 
@@ -31,6 +32,7 @@ class TestCliTask:
         mock_load_command, mock_help_check, mock_color,
         mock_setlog, mock_setlevel
     ):
+        Defaults.set_platform_name('x86_64')
         mock_global_args.return_value = {
             '--debug': True,
             '--logfile': 'log',

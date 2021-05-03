@@ -16,6 +16,7 @@ from kiwi.exceptions import (
     KiwiPackagesDeletePhaseFailed
 )
 
+from kiwi.defaults import Defaults
 from kiwi.system.prepare import SystemPrepare
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
@@ -30,6 +31,7 @@ class TestSystemPrepare:
     @patch('kiwi.system.prepare.RootBind')
     @patch('kiwi.logger.Logger.get_logfile')
     def setup(self, mock_get_logfile, mock_root_bind, mock_root_init):
+        Defaults.set_platform_name('x86_64')
         mock_get_logfile.return_value = None
         description = XMLDescription(
             description='../data/example_config.xml',
