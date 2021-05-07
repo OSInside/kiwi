@@ -47,13 +47,6 @@ class KiwiArchiveTarError(KiwiError):
     """
 
 
-class KiwiBootImageDumpError(KiwiError):
-    """
-    Exception raised if an instance of BootImage* can not be
-    serialized on as file via pickle dump
-    """
-
-
 class KiwiBootImageSetupError(KiwiError):
     """
     Exception raised if an unsupported initrd system type is used.

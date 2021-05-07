@@ -46,39 +46,26 @@ class TestBootImageKiwi:
         assert self.boot_image.included_files == [
             '--install', 'foo'
         ]
-        assert self.boot_image.included_files_install == []
 
     def test_include_module(self):
         self.boot_image.include_module('foobar')
         assert self.boot_image.add_modules == ['foobar']
-        assert self.boot_image.add_install_modules == []
 
-        self.boot_image.include_module('module', install_media=True)
         self.boot_image.include_module('foobar')
         self.boot_image.include_module('not_available')
         assert self.boot_image.add_modules == ['foobar']
-        assert self.boot_image.add_install_modules == ['module']
 
     def test_omit_module(self):
         self.boot_image.omit_module('foobar')
         assert self.boot_image.omit_modules == ['foobar']
-        assert self.boot_image.omit_install_modules == []
 
-        self.boot_image.omit_module('module', install_media=True)
         self.boot_image.omit_module('foobar')
         assert self.boot_image.omit_modules == ['foobar']
-        assert self.boot_image.omit_install_modules == ['module']
 
     def test_set_static_modules(self):
         modules = ['foobar', 'module']
-        install_modules = ['foo']
         self.boot_image.set_static_modules(modules)
         assert self.boot_image.modules == modules
-        assert self.boot_image.install_modules == []
-
-        self.boot_image.set_static_modules(install_modules, install_media=True)
-        assert self.boot_image.modules == modules
-        assert self.boot_image.install_modules == install_modules
 
     def test_write_system_config_file(self):
         with patch('builtins.open', create=True) as mock_write:
@@ -110,11 +97,8 @@ class TestBootImageKiwi:
             ) in mock_write.mock_calls
 
     def test_include_file_install(self):
-        self.boot_image.include_file('foo', install_media=True)
+        self.boot_image.include_file('foo')
         assert self.boot_image.included_files == [
-            '--install', 'foo'
-        ]
-        assert self.boot_image.included_files_install == [
             '--install', 'foo'
         ]
 
@@ -134,9 +118,6 @@ class TestBootImageKiwi:
         kernel.get_kernel = Mock(return_value=kernel_details)
         mock_kernel.return_value = kernel
         self.boot_image.include_file('system-directory/etc/foo')
-        self.boot_image.include_file(
-            '/system-directory/var/lib/bar', install_media=True
-        )
         self.boot_image.include_module('foo')
         self.boot_image.omit_module('bar')
         self.boot_image.create_initrd()
@@ -150,7 +131,6 @@ class TestBootImageKiwi:
                 '--no-hostonly-cmdline', '--xz',
                 '--add', ' foo ', '--omit', ' bar ',
                 '--install', 'system-directory/etc/foo',
-                '--install', '/system-directory/var/lib/bar',
                 'LimeJeOS.x86_64-1.13.2.initrd.xz', '1.2.3'
             ], stderr_to_stdout=True),
             call([
@@ -161,13 +141,14 @@ class TestBootImageKiwi:
             ])
         ]
         mock_command.reset_mock()
-        self.boot_image.create_initrd(basename='foo', install_initrd=True)
+        self.boot_image.create_initrd(basename='foo')
         assert mock_command.call_args_list == [
             call([
                 'chroot', 'system-directory',
                 'dracut', '--verbose', '--no-hostonly',
                 '--no-hostonly-cmdline', '--xz',
-                '--install', '/system-directory/var/lib/bar',
+                '--add', ' foo ', '--omit', ' bar ',
+                '--install', 'system-directory/etc/foo',
                 'foo.xz', '1.2.3'
             ], stderr_to_stdout=True),
             call([

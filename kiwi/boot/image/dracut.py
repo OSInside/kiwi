@@ -48,13 +48,9 @@ class BootImageDracut(BootImageBase):
         # Initialize empty list of dracut caller options
         self.dracut_options = []
         self.included_files = []
-        self.included_files_install = []
         self.modules = []
-        self.install_modules = []
         self.add_modules = []
-        self.add_install_modules = []
         self.omit_modules = []
-        self.omit_install_modules = []
         self.available_modules = self._get_modules()
 
     def include_file(self, filename, install_media=False):
@@ -62,25 +58,21 @@ class BootImageDracut(BootImageBase):
         Include file to dracut boot image
 
         :param string filename: file path name
+        :param bool install_media: unused
         """
         self.included_files.append('--install')
         self.included_files.append(filename)
-        if install_media:
-            self.included_files_install.append('--install')
-            self.included_files_install.append(filename)
 
     def include_module(self, module, install_media=False):
         """
         Include module to dracut boot image
 
         :param string module: module to include
-        :param bool install_media: include the module for install initrds
+        :param bool install_media: unused
         """
         warn_msg = 'module "{0}" not included in initrd'.format(module)
         if self._module_available(module):
-            if install_media and module not in self.add_install_modules:
-                self.add_install_modules.append(module)
-            elif module not in self.add_modules:
+            if module not in self.add_modules:
                 self.add_modules.append(module)
         else:
             log.warning(warn_msg)
@@ -90,11 +82,9 @@ class BootImageDracut(BootImageBase):
         Omit module to dracut boot image
 
         :param string module: module to omit
-        :param bool install_media: omit the module for install initrds
+        :param bool install_media: unused
         """
-        if install_media and module not in self.omit_install_modules:
-            self.omit_install_modules.append(module)
-        elif module not in self.omit_modules:
+        if module not in self.omit_modules:
             self.omit_modules.append(module)
 
     def set_static_modules(self, modules, install_media=False):
@@ -102,12 +92,9 @@ class BootImageDracut(BootImageBase):
         Set static dracut modules list for boot image
 
         :param list modules: list of the modules to include
-        :param bool install_media: lists the modules for install initrds
+        :param bool install_media: unused
         """
-        if install_media:
-            self.install_modules = modules
-        else:
-            self.modules = modules
+        self.modules = modules
 
     def write_system_config_file(self, config, config_file=None):
         """
@@ -166,7 +153,7 @@ class BootImageDracut(BootImageBase):
 
         :param object mbrid: unused
         :param string basename: base initrd file name
-        :param bool install_initrd: installation media initrd
+        :param bool install_initrd: unused
         """
         if self.is_prepared():
             log.info('Creating generic dracut initrd archive')
@@ -177,30 +164,16 @@ class BootImageDracut(BootImageBase):
                 dracut_initrd_basename = basename
             else:
                 dracut_initrd_basename = self.initrd_base_name
-            if install_initrd:
-                included_files = self.included_files_install
-                modules_args = [
-                    '--modules', ' {0} '.format(' '.join(self.install_modules))
-                ] if self.install_modules else []
-                modules_args += [
-                    '--add', ' {0} '.format(' '.join(self.add_install_modules))
-                ] if self.add_install_modules else []
-                modules_args += [
-                    '--omit', ' {0} '.format(
-                        ' '.join(self.omit_install_modules)
-                    )
-                ] if self.omit_install_modules else []
-            else:
-                included_files = self.included_files
-                modules_args = [
-                    '--modules', ' {0} '.format(' '.join(self.modules))
-                ] if self.modules else []
-                modules_args += [
-                    '--add', ' {0} '.format(' '.join(self.add_modules))
-                ] if self.add_modules else []
-                modules_args += [
-                    '--omit', ' {0} '.format(' '.join(self.omit_modules))
-                ] if self.omit_modules else []
+            included_files = self.included_files
+            modules_args = [
+                '--modules', ' {0} '.format(' '.join(self.modules))
+            ] if self.modules else []
+            modules_args += [
+                '--add', ' {0} '.format(' '.join(self.add_modules))
+            ] if self.add_modules else []
+            modules_args += [
+                '--omit', ' {0} '.format(' '.join(self.omit_modules))
+            ] if self.omit_modules else []
             dracut_initrd_basename += '.xz'
             options = self.dracut_options + modules_args + included_files
             dracut_call = Command.run(

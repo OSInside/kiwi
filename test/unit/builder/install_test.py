@@ -1,5 +1,5 @@
 from mock import (
-    patch, call, mock_open
+    patch, call, mock_open, ANY
 )
 from pytest import raises
 import mock
@@ -90,6 +90,15 @@ class TestInstallImageBuilder:
 
         self.install_image = InstallImageBuilder(
             self.xml_state, 'root_dir', 'target_dir', self.boot_image_task
+        )
+
+    @patch('kiwi.builder.install.BootImage')
+    def test_init_dracut_based(self, mock_boot_image):
+        InstallImageBuilder(
+            self.xml_state, 'root_dir', 'target_dir', None
+        )
+        mock_boot_image.new.assert_called_once_with(
+            ANY, 'target_dir', 'root_dir'
         )
 
     def test_setup_ix86(self):
@@ -214,23 +223,17 @@ class TestInstallImageBuilder:
         with patch('builtins.open', m_open, create=True):
             self.install_image.create_install_iso()
 
-        self.boot_image_task.include_module.assert_any_call(
-            'kiwi-dump', install_media=True
-        )
-        self.boot_image_task.include_module.assert_any_call(
-            'kiwi-dump-reboot', install_media=True
-        )
+        self.boot_image_task.include_module.assert_any_call('kiwi-dump')
+        self.boot_image_task.include_module.assert_any_call('kiwi-dump-reboot')
         self.boot_image_task.omit_module.call_args_list == [
-            call('multipath', install_media=True),
-            call('module1', install_media=True),
-            call('module2', install_media=True),
+            call('multipath'), call('module1'), call('module2')
         ]
         self.boot_image_task.set_static_modules.assert_called_once_with(
-            ['module1', 'module2'], install_media=True
+            ['module1', 'module2']
         )
 
         self.boot_image_task.include_file.assert_called_once_with(
-            '/config.bootoptions', install_media=True
+            '/config.bootoptions'
         )
         assert m_open.call_args_list == [
             call('temp_media_dir/config.isoclient', 'w'),
@@ -414,19 +417,13 @@ class TestInstallImageBuilder:
             )
         ]
 
-        self.boot_image_task.include_module.assert_any_call(
-            'kiwi-dump', install_media=True
-        )
-        self.boot_image_task.include_module.assert_any_call(
-            'kiwi-dump-reboot', install_media=True
-        )
+        self.boot_image_task.include_module.assert_any_call('kiwi-dump')
+        self.boot_image_task.include_module.assert_any_call('kiwi-dump-reboot')
         self.boot_image_task.omit_module.call_args_list == [
-            call('multipath', install_media=True),
-            call('module1', install_media=True),
-            call('module2', install_media=True),
+            call('multipath'), call('module1'), call('module2')
         ]
         self.boot_image_task.set_static_modules.assert_called_once_with(
-            ['module1', 'module2'], install_media=True
+            ['module1', 'module2']
         )
 
     @patch('kiwi.builder.install.Path.wipe')
