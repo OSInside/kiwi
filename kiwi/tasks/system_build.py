@@ -196,7 +196,8 @@ class SystemBuildTask(CliTask):
         )
         manager = system.setup_repositories(
             self.command_args['--clear-cache'],
-            self.command_args['--signing-key']
+            self.command_args['--signing-key'],
+            self.global_args['--target-arch']
         )
         system.install_bootstrap(
             manager, self.command_args['--add-bootstrap-package']

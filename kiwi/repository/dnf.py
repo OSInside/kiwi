@@ -51,6 +51,8 @@ class RepositoryDnf(RepositoryBase):
         """
         self.custom_args = custom_args
         self.exclude_docs = False
+        self.locale = None
+        self.target_arch = None
 
         # extract custom arguments not used in dnf call
         if 'exclude_docs' in self.custom_args:
@@ -63,11 +65,16 @@ class RepositoryDnf(RepositoryBase):
         else:
             self.gpg_check = '0'
 
-        self.locale = list(
-            item for item in self.custom_args if '_install_langs' in item
-        )
+        for argument in self.custom_args:
+            if '_install_langs' in argument:
+                self.locale = argument
+            elif '_target_arch' in argument:
+                self.target_arch = argument
         if self.locale:
-            self.custom_args.remove(self.locale[0])
+            self.custom_args.remove(self.locale)
+        if self.target_arch:
+            self.custom_args.remove(self.target_arch)
+            self.target_arch = self.target_arch.split('%')[1]
 
         self.repo_names: List = []
 
@@ -114,7 +121,7 @@ class RepositoryDnf(RepositoryBase):
             self.root_dir, Defaults.get_custom_rpm_image_macro_name()
         )
         if self.locale:
-            rpmdb.set_macro_from_string(self.locale[0])
+            rpmdb.set_macro_from_string(self.locale)
         rpmdb.write_config()
 
         rpmdb = RpmDataBase(self.root_dir)
@@ -341,6 +348,10 @@ class RepositoryDnf(RepositoryBase):
         if self.exclude_docs:
             self.runtime_dnf_config.set(
                 'main', 'tsflags', 'nodocs'
+            )
+        if self.target_arch:
+            self.runtime_dnf_config.set(
+                'main', 'basearch', self.target_arch
             )
 
     def _create_runtime_plugin_config_parser(self) -> None:

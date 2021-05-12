@@ -18,7 +18,7 @@
 import os
 import logging
 from typing import (
-    List, Any
+    List, Any, Optional
 )
 from textwrap import dedent
 
@@ -101,7 +101,8 @@ class SystemPrepare:
         self.uri_list: List[Uri] = []
 
     def setup_repositories(
-        self, clear_cache: bool = False, signing_keys: List[str] = None
+        self, clear_cache: bool = False,
+        signing_keys: List[str] = None, target_arch: Optional[str] = None
     ) -> PackageManagerBase:
         """
         Set up repositories for software installation and return a
@@ -111,6 +112,8 @@ class SystemPrepare:
             Flag the clear cache before configure anything
         :param list signing_keys:
             Keys imported to the package manager
+        :param str target_arch:
+            Target architecture name
 
         :return: instance of :class:`PackageManager` subclass
 
@@ -128,6 +131,10 @@ class SystemPrepare:
         if rpm_locale_list:
             repository_options.append(
                 '_install_langs%{0}'.format(':'.join(rpm_locale_list))
+            )
+        if target_arch:
+            repository_options.append(
+                f'_target_arch%{target_arch}'
             )
         repo = Repository.new(
             self.root_bind, package_manager, repository_options

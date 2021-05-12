@@ -197,13 +197,15 @@ class TestSystemPrepare:
 
         self.system.setup_repositories(
             clear_cache=True,
-            signing_keys=['key-file-a.asc', 'key-file-b.asc']
+            signing_keys=['key-file-a.asc', 'key-file-b.asc'],
+            target_arch='x86_64'
         )
 
         mock_repo.assert_called_once_with(
             self.system.root_bind, 'package-manager-name', [
                 'check_signatures', 'exclude_docs',
-                '_install_langs%POSIX:C:C.UTF-8:en_US:de_DE'
+                '_install_langs%POSIX:C:C.UTF-8:en_US:de_DE',
+                '_target_arch%x86_64'
             ]
         )
         # mock local repos will be translated and bind mounted

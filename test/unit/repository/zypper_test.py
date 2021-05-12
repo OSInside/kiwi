@@ -52,7 +52,9 @@ class TestRepositoryZypper:
         runtime_zypp_config = mock.Mock()
         mock_config.return_value = runtime_zypp_config
         with patch('builtins.open', create=True):
-            repo = RepositoryZypper(self.root_bind, ['check_signatures'])
+            repo = RepositoryZypper(
+                self.root_bind, ['check_signatures', '_target_arch%x86_64']
+            )
             assert repo.custom_args == []
             assert runtime_zypp_config.set.call_args_list == [
                 call(

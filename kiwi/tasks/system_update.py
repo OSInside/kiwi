@@ -89,7 +89,9 @@ class SystemUpdateTask(CliTask):
             abs_root_path,
             allow_existing=True
         )
-        manager = self.system.setup_repositories()
+        manager = self.system.setup_repositories(
+            target_arch=self.global_args['--target-arch']
+        )
 
         if not package_requests:
             self.system.update_system(manager)
