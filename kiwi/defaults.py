@@ -699,7 +699,7 @@ class Defaults:
         shim_file_patterns = [
             '/usr/share/efi/*/shim.efi',
             '/usr/lib64/efi/shim.efi',
-            '/boot/efi/EFI/*/shim.efi',
+            '/boot/efi/EFI/*/shim*.efi',
             '/usr/lib/shim/shim*.efi'
         ]
         for shim_file_pattern in shim_file_patterns:
