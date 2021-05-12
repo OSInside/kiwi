@@ -15,7 +15,11 @@ case "${root}" in
         wait_for_dev -n "${root#live:}"
         ;;
     live:aoe:/dev/*)
-        /sbin/initqueue \
-            --settled --onetime --unique /sbin/kiwi-live-root "${root}"
+        {
+        printf 'KERNEL=="%s", RUN+="/sbin/initqueue %s %s %s"\n' \
+            "${root#live:aoe:/dev/}" "--settled --onetime --unique" \
+            "/sbin/kiwi-live-root" "${root#live:aoe:}"
+        } >> /etc/udev/rules.d/99-live-aoe-kiwi.rules
+        wait_for_dev -n "${root#live:aoe:}"
         ;;
 esac

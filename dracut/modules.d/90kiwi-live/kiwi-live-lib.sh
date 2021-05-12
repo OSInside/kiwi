@@ -70,19 +70,7 @@ function initGlobalDevices {
     if [ -z "$1" ]; then
         die "No root device for operation given"
     fi
-    if getargbool 0 rd.kiwi.live.pxe; then
-        local bootdev
-        read -r bootdev < /tmp/net.bootdev 2>/dev/null
-        if [ -n "${bootdev}" ] && [ -e /tmp/net."${bootdev}".did-setup ]; then
-            : # already set up
-        elif ! ifup lan0 &>/tmp/net.info;then
-            die "Network setup failed, see /tmp/net.info"
-        fi
-        modprobe aoe
-        isodev="${1#live:aoe:}"
-    else
-        isodev="$1"
-    fi
+    isodev="$1"
     local isodisk
     isodisk=$(lookupIsoDiskDevice "${isodev}")
     isodiskdev=$(echo "${isodisk}" | cut -f1 -d%)
