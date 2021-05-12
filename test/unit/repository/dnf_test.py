@@ -27,7 +27,10 @@ class TestRepositoryDnf:
 
         with patch('builtins.open', create=True):
             self.repo = RepositoryDnf(
-                root_bind, ['exclude_docs', '_install_langs%en_US:de_DE']
+                root_bind, [
+                    'exclude_docs', '_install_langs%en_US:de_DE',
+                    '_target_arch%x86_64'
+                ]
             )
 
         assert runtime_dnf_config.set.call_args_list == [
@@ -42,6 +45,8 @@ class TestRepositoryDnf:
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
+            call('main', 'arch', 'x86_64'),
+            call('main', 'ignorearch', '1'),
             call('main', 'enabled', '1')
         ]
 
@@ -89,6 +94,8 @@ class TestRepositoryDnf:
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
+            call('main', 'arch', 'x86_64'),
+            call('main', 'ignorearch', '1'),
             call('main', 'enabled', '1')
         ]
 

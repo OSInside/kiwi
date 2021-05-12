@@ -21,8 +21,6 @@ from tempfile import NamedTemporaryFile
 from typing import List, Dict
 
 # project
-import kiwi.defaults as defaults
-
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -56,6 +54,8 @@ class RepositoryZypper(RepositoryBase):
         self.custom_args = custom_args
         self.exclude_docs = False
         self.gpgcheck = False
+        self.locale = None
+        self.target_arch = None
 
         # extract custom arguments used for zypp config only
         if 'exclude_docs' in self.custom_args:
@@ -66,11 +66,16 @@ class RepositoryZypper(RepositoryBase):
             self.custom_args.remove('check_signatures')
             self.gpgcheck = True
 
-        self.locale = list(
-            item for item in self.custom_args if '_install_langs' in item
-        )
+        for argument in self.custom_args:
+            if '_install_langs' in argument:
+                self.locale = argument
+            elif '_target_arch' in argument:
+                self.target_arch = argument
         if self.locale:
-            self.custom_args.remove(self.locale[0])
+            self.custom_args.remove(self.locale)
+        if self.target_arch:
+            self.custom_args.remove(self.target_arch)
+            self.target_arch = self.target_arch.split('%')[1]
 
         self.repo_names: List = []
 
@@ -133,9 +138,10 @@ class RepositoryZypper(RepositoryBase):
             'main', 'credentials.global.dir',
             self.shared_zypper_dir['credentials-dir']
         )
-        self.runtime_zypp_config.set(
-            'main', 'arch', defaults.PLATFORM_MACHINE
-        )
+        if self.target_arch:
+            self.runtime_zypp_config.set(
+                'main', 'arch', self.target_arch
+            )
         if self.exclude_docs:
             self.runtime_zypp_config.set(
                 'main', 'rpm.install.excludedocs', 'yes'
@@ -167,7 +173,7 @@ class RepositoryZypper(RepositoryBase):
             self.root_dir, Defaults.get_custom_rpm_image_macro_name()
         )
         if self.locale:
-            rpmdb.set_macro_from_string(self.locale[0])
+            rpmdb.set_macro_from_string(self.locale)
         rpmdb.write_config()
 
         rpmdb = RpmDataBase(self.root_dir)

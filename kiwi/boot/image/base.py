@@ -45,9 +45,11 @@ class BootImageBase:
     :param string target_dir: target dir to store the initrd
     :param string root_dir: system image root directory
     :param list signing_keys: list of package signing keys
+    :param str target_arch: target architecture
     """
     def __init__(
-        self, xml_state, target_dir, root_dir=None, signing_keys=None
+        self, xml_state, target_dir, root_dir=None,
+        signing_keys=None, target_arch=None
     ):
         self.xml_state = xml_state
         self.target_dir = target_dir
@@ -55,6 +57,7 @@ class BootImageBase:
         self.boot_xml_state = None
         self.setup = None
         self.signing_keys = signing_keys
+        self.target_arch = target_arch
         self.boot_root_directory = root_dir
 
         if not os.path.exists(target_dir):
