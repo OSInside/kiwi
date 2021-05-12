@@ -45,7 +45,8 @@ class TestRepositoryDnf:
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
-            call('main', 'basearch', 'x86_64'),
+            call('main', 'arch', 'x86_64'),
+            call('main', 'ignorearch', '1'),
             call('main', 'enabled', '1')
         ]
 
@@ -93,7 +94,8 @@ class TestRepositoryDnf:
             call('main', 'plugins', '1'),
             call('main', 'gpgcheck', '0'),
             call('main', 'tsflags', 'nodocs'),
-            call('main', 'basearch', 'x86_64'),
+            call('main', 'arch', 'x86_64'),
+            call('main', 'ignorearch', '1'),
             call('main', 'enabled', '1')
         ]
 

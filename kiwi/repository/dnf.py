@@ -351,7 +351,10 @@ class RepositoryDnf(RepositoryBase):
             )
         if self.target_arch:
             self.runtime_dnf_config.set(
-                'main', 'basearch', self.target_arch
+                'main', 'arch', self.target_arch
+            )
+            self.runtime_dnf_config.set(
+                'main', 'ignorearch', '1'
             )
 
     def _create_runtime_plugin_config_parser(self) -> None:
