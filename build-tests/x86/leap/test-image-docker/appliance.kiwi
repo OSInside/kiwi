@@ -7,7 +7,7 @@
         <specification>docker test build</specification>
     </description>
     <preferences>
-        <version>2.1.0</version>
+        <version>1.15.3</version>
         <packagemanager>zypper</packagemanager>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>

@@ -16,8 +16,9 @@ command line flag `--profile=$PROFILE_NAME`:
 
 .. code:: shell-session
 
-   $ sudo kiwi-ng --type iso --profile=workstation system build \
-         --description kiwi-descriptions/suse/x86_64/{exc_description} \
+   $ sudo kiwi-ng --type oem --profile libvirt system build \
+         --description kiwi/build-tests/{exc_description_vagrant} \
+         --set-repo {exc_repo_leap} \
          --target-dir /tmp/myimage
 
 Consult the manual page of :file:`kiwi` for further details:
@@ -29,10 +30,7 @@ Building with the Open Build Service
 
 The Open Build Service (OBS) support profiles via the `multibuild
 <https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.multibuild.html>`_
-feature. An example project using this feature is the
-`openSUSE-Tumbleweed
-<https://build.opensuse.org/package/show/openSUSE:Factory/openSUSE-Tumbleweed>`_
-image.
+feature.
 
 To enable and use the profiles, follow these steps:
 
@@ -49,7 +47,7 @@ To enable and use the profiles, follow these steps:
 
       <?xml version="1.0" encoding="utf-8"?>
       <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
-      <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+      <image schemaversion="{schema_version}" name="{exc_image_base_name_vagrant}">
         <!-- snip -->
       </image>
 

@@ -10,7 +10,7 @@
         <type image="docker" derived_from="obs://openSUSE:Containers:Leap:15.3/containers/opensuse/leap#15.3">
             <containerconfig name="builder" tag="1.0" additionaltags="latest"/>
         </type>
-        <version>1.0</version>
+        <version>1.15.3</version>
         <packagemanager>zypper</packagemanager>
         <rpm-excludedocs>true</rpm-excludedocs>
     </preferences>

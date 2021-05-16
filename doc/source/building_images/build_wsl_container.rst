@@ -128,7 +128,7 @@ openSUSE TW:
 #. Setup the image type:
 
    Edit the XML description file:
-   :file:`kiwi-descriptions/suse/x86_64/suse-tumbleweed/config.xml`
+   :file:`kiwi/build-tests/{exc_description_wsl}/appliance.kiwi`
    and add the following type and containerconfig:
 
    .. code:: xml
@@ -157,8 +157,9 @@ openSUSE TW:
 
    .. code:: bash
 
-      $ sudo kiwi-ng --type appx system build \
-          --description kiwi-descriptions/suse/x86_64/suse-tumbleweed \
+      $ sudo kiwi-ng system build \
+          --description kiwi/build-tests/{exc_description_wsl} \
+          --set-repo {exc_repo_tumbleweed} \
           --target-dir /tmp/myimage
 
 Testing the WSL image

@@ -7,7 +7,7 @@
         <specification>Simple tar archive build, bootstrap only</specification>
     </description>
     <preferences>
-        <version>1.15.1</version>
+        <version>1.15.3</version>
         <packagemanager>zypper</packagemanager>
         <type image="tbz"/>
     </preferences>

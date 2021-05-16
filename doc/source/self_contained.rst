@@ -70,7 +70,8 @@ shown in the following example:
 .. code:: bash
 
    $ kiwi-ng --type iso system boxbuild --box leap -- \
-         --description kiwi-descriptions/suse/x86_64/{exc_description} \
+         --description kiwi/build-tests/{exc_description_disk} \
+         --set-repo {exc_repo_leap} \
          --target-dir /tmp/myimage
 
 .. note::
