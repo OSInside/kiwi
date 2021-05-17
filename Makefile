@@ -39,9 +39,6 @@ install:
 	# manual pages
 	install -d -m 755 ${buildroot}usr/share/man/man8
 	for man in doc/build/man/8/*.8; do \
-		test -e $$man && gzip -f $$man || true ;\
-	done
-	for man in doc/build/man/8/*.8.gz; do \
 		install -m 644 $$man ${buildroot}usr/share/man/man8 ;\
 	done
 	# completion
@@ -128,7 +125,8 @@ build: clean tox
 		> dist/python-kiwi.spec
 	# update package version in PKGBUILD file
 	md5sums=$$(md5sum dist/python-kiwi.tar.gz | cut -d" " -f1); \
-	cat package/python-kiwi-pkgbuild-template | sed -e s'@%%VERSION@${version}@' \
+	cat package/python-kiwi-pkgbuild-template | sed \
+		-e s'@%%VERSION@${version}@' \
 		-e s"@%%MD5SUM@$${md5sums}@" > dist/PKGBUILD
 	# provide rpm rpmlintrc
 	cp package/python-kiwi-rpmlintrc dist
