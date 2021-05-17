@@ -73,7 +73,8 @@ system. As diskless client, a QEMU virtual machine is used.
    .. code:: bash
 
        $ sudo kiwi-ng --type pxe system build \
-           --description kiwi-descriptions/suse/x86_64/{exc_description} \
+           --description kiwi/build-tests/{exc_description_pxe} \
+           --set-repo {exc_repo_tumbleweed} \
            --target-dir /tmp/mypxe-result
 
 3. Change into the build directory:
@@ -93,8 +94,8 @@ system. As diskless client, a QEMU virtual machine is used.
 
    .. code:: bash
 
-       $ cp {exc_image_base_name}.x86_64-{exc_image_version} /srv/tftpboot/image
-       $ cp {exc_image_base_name}.x86_64-{exc_image_version}.md5 /srv/tftpboot/image
+       $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version} /srv/tftpboot/image
+       $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version}.md5 /srv/tftpboot/image
 
 6. Adjust the PXE configuration file.
    The configuration file controls which kernel and initrd is
@@ -118,7 +119,7 @@ system. As diskless client, a QEMU virtual machine is used.
 
        $ vi /srv/tftpboot/KIWI/config.default
 
-       IMAGE=/dev/ram1;{exc_image_base_name}.x86_64;{exc_image_version};192.168.100.2;4096
+       IMAGE=/dev/ram1;{exc_image_base_name_pxe}.x86_64;{exc_image_version};192.168.100.2;4096
        UNIONFS_CONFIG=/dev/ram2,/dev/ram1,overlay
 
    All PXE boot based deployment methods are controlled by a client
@@ -227,7 +228,7 @@ is required:
 
 .. note::
 
-   In the referenced {exc_description} XML description the ``pxe``
+   In the referenced {exc_description_pxe} XML description the ``pxe``
    type must be changed as follows and the image needs to be
    rebuild:
 
@@ -237,7 +238,7 @@ is required:
 
 .. code:: bash
 
-       IMAGE="/dev/sda2;{exc_image_base_name}.x86_64;{exc_image_version};192.168.100.2;4096"
+       IMAGE="/dev/sda2;{exc_image_base_name_pxe}.x86_64;{exc_image_version};192.168.100.2;4096"
        DISK="/dev/sda"
        PART="5;S;X,X;L;/"
 
@@ -254,7 +255,7 @@ configuration, the following setup is required:
 
 .. note::
 
-   In the referenced {exc_description} XML description the ``pxe``
+   In the referenced {exc_description_pxe} XML description the ``pxe``
    type must be changed as follows and the image needs to be
    rebuild:
 
@@ -265,7 +266,7 @@ configuration, the following setup is required:
 .. code:: bash
 
        RAID="1;/dev/sda;/dev/sdb"
-       IMAGE="/dev/md1;{exc_image_base_name}.x86_64;{exc_image_version};192.168.100.2;4096"
+       IMAGE="/dev/md1;{exc_image_base_name_pxe}.x86_64;{exc_image_version};192.168.100.2;4096"
        PART="5;S;x,x;L;/"
 
 The first parameter of the RAID line is the RAID level. So far only raid1

@@ -64,8 +64,9 @@ build the image:
 
 .. code:: bash
 
-   $ sudo kiwi-ng --profile KIS system build \
-       --description kiwi-descriptions/suse/x86_64/{exc_description} \
+   $ sudo kiwi-ng --type kis system build \
+       --description kiwi/build-tests/{exc_description_pxe} \
+       --set-repo {exc_repo_tumbleweed} \
        --target-dir /tmp/myimage
 
 The resulting image components are saved in the folder :file:`/tmp/myimage`.
@@ -78,7 +79,7 @@ tested with QEMU as follows:
        -kernel /tmp/myimage/*.kernel \
        -initrd /tmp/myimage/*.initrd.xz \
        -append $(cat /tmp/myimage/*.append) \
-       -hda /tmp/myimage/{exc_image_base_name}.*-{exc_image_version} \
+       -hda /tmp/myimage/{exc_image_base_name_pxe}.*-{exc_image_version} \
 
 .. note::
 

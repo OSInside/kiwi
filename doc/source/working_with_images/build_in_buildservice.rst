@@ -17,7 +17,7 @@ image build projects from the base Testing project
 https://build.opensuse.org
 
 For example the test images for SUSE on x86 can be found `here
-<https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:suse>`__.
+<https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:leap>`__.
 
 
 Advantages of using the Open Build Service (OBS)

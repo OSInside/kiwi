@@ -29,7 +29,8 @@ system:
    .. code:: bash
 
        $ sudo kiwi-ng --type oem system build \
-           --description kiwi-descriptions/suse/x86_64/{exc_description} \
+           --description kiwi/build-tests/{exc_description_disk} \
+           --set-repo {exc_repo_leap} \
            --target-dir /tmp/myimage
 
    Find the following result images below :file:`/tmp/myimage`.
@@ -92,7 +93,7 @@ The following steps shows how to do it:
 
    .. code:: bash
 
-       $ dd if={exc_image_base_name}.x86_64-{exc_image_version}.raw of=target_disk conv=notrunc
+       $ dd if={exc_image_base_name_disk}.x86_64-{exc_image_version}.raw of=target_disk conv=notrunc
 
 3. Boot the target disk
 
@@ -123,7 +124,7 @@ The following steps shows how to do it:
 
    .. code:: bash
 
-       $ qemu -cdrom{exc_image_base_name}.x86_64-{exc_image_version}.install.iso -hda target_disk -boot d -m 4096
+       $ qemu -cdrom{exc_image_base_name_disk}.x86_64-{exc_image_version}.install.iso -hda target_disk -boot d -m 4096
 
    .. note:: USB Stick Deployment
 
@@ -147,7 +148,7 @@ target system:
 
 1. Make sure to create an installation PXE TAR archive along with your
    disk image by replacing the following setup in
-   kiwi-descriptions/suse/x86_64/{exc_description}/config.xml
+   kiwi/build-tests/{exc_description_disk}/appliance.kiwi
 
    Instead of
 
@@ -163,7 +164,7 @@ target system:
 
 
 2. Rebuild the image, unpack the resulting
-   :file:`{exc_image_base_name}.x86_64-{exc_image_version}.install.tar.xz`
+   :file:`{exc_image_base_name_disk}.x86_64-{exc_image_version}.install.tar.xz`
    file to a temporary directory and copy the initrd and kernel images to
    the PXE server:
 
@@ -172,14 +173,14 @@ target system:
       .. code:: bash
 
           mkdir /tmp/pxe && cd /tmp/pxe
-          tar -xf {exc_image_base_name}.x86_64-{exc_image_version}.install.tar.xz
+          tar -xf {exc_image_base_name_disk}.x86_64-{exc_image_version}.install.tar.xz
 
    b) Copy kernel and initrd used for pxe boot
 
       .. code:: bash
 
-          scp pxeboot.{exc_image_base_name}.x86_64-{exc_image_version}.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
-          scp pxeboot.{exc_image_base_name}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
+          scp pxeboot.{exc_image_base_name_disk}.x86_64-{exc_image_version}.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
+          scp pxeboot.{exc_image_base_name_disk}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
 3. Copy the disk image, MD5 file, system kernel, initrd and bootoptions to
    the PXE boot server:
@@ -191,16 +192,16 @@ target system:
 
       .. code:: bash
 
-          scp {exc_image_base_name}.x86_64-{exc_image_version}.xz PXE_SERVER_IP:/srv/tftpboot/image/
-          scp {exc_image_base_name}.x86_64-{exc_image_version}.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name_disk}.x86_64-{exc_image_version}.xz PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name_disk}.x86_64-{exc_image_version}.md5 PXE_SERVER_IP:/srv/tftpboot/image/
 
    b) Copy kernel, initrd and bootoptions used for booting the system via kexec
 
       .. code:: bash
 
-          scp {exc_image_base_name}.x86_64-{exc_image_version}.initrd PXE_SERVER_IP:/srv/tftpboot/image/
-          scp {exc_image_base_name}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/image/
-          scp {exc_image_base_name}.x86_64-{exc_image_version}.config.bootoptions PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name_disk}.x86_64-{exc_image_version}.initrd PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name_disk}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name_disk}.x86_64-{exc_image_version}.config.bootoptions PXE_SERVER_IP:/srv/tftpboot/image/
 
       .. note::
 
@@ -220,7 +221,7 @@ target system:
 
    .. code:: bash
 
-       append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/{exc_image_base_name}.x86_64-{exc_image_version}.xz
+       append initrd=boot/initrd rd.kiwi.install.pxe rd.kiwi.install.image=tftp://192.168.100.16/image/{exc_image_base_name_disk}.x86_64-{exc_image_version}.xz
 
    The location of the image is specified as a source URI which can point
    to any location supported by the `curl` command. {kiwi} calls `curl` to fetch

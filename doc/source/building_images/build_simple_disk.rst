@@ -69,9 +69,10 @@ them) build the image with {kiwi}:
 
 .. code:: bash
 
-   $ sudo kiwi-ng --type oem system build \
-       --description kiwi-descriptions/suse/x86_64/{exc_description} \
-       --target-dir /tmp/myimage
+   $ sudo kiwi-ng system build \
+        --description kiwi/build-tests/{exc_description_disk_simple} \
+        --set-repo {exc_repo_leap} \
+        --target-dir /tmp/myimage
 
 The created image will be in the target directory :file:`/tmp/myimage` with
 the file extension :file:`.raw`.
@@ -81,7 +82,7 @@ The live image can then be tested with QEMU:
 .. code:: bash
 
    $ qemu \
-       -drive file={exc_image_base_name}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
+       -drive file={exc_image_base_name_disk_simple}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
        -m 4096
 
 For further information how to setup the image to work within a cloud

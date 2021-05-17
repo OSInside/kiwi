@@ -123,10 +123,27 @@ package manager pip:
 Example Appliance Descriptions
 ------------------------------
 
-There is a GitHub project hosting example appliance descriptions to be used
-with the next generation {kiwi}. Users who need an example to start with
-should clone the project as follows:
+There are two places for example appliance descriptions:
 
-.. code:: shell-session
+The {kiwi} build tests:
+  The {kiwi} project itself hosts a collection of appliance descriptions
+  which are used for integration testing of the {kiwi} builder itself.
+  These descriptions are required to build prior any {kiwi} release
+  and are also used as the base for this documentation. Please check
+  them out when working with this reference guide:
 
-    $ git clone https://github.com/OSInside/kiwi-descriptions
+  .. code:: shell-session
+
+      $ git clone https://github.com/OSInside/kiwi
+
+      $ tree -L 3 kiwi/build-tests
+
+The {kiwi} community descriptions project:
+  There is a GitHub project hosting example appliance descriptions to be used
+  with the next generation {kiwi}. Contributions from the community makes up
+  the contents of this repository and users who need an example for a specific
+  use case and distribution can clone the project as follows:
+
+  .. code:: shell-session
+
+      $ git clone https://github.com/OSInside/kiwi-descriptions

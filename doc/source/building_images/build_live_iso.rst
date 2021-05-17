@@ -55,8 +55,9 @@ build the image:
 
 .. code:: bash
 
-   $ sudo kiwi-ng --type iso system build \
-         --description kiwi-descriptions/suse/x86_64/{exc_description} \
+   $ sudo kiwi-ng system build \
+         --description kiwi/build-tests/{exc_description_live} \
+         --set-repo {exc_repo_leap} \
          --target-dir /tmp/myimage
 
 The resulting image is saved in the folder :file:`/tmp/myimage` and can
@@ -64,7 +65,7 @@ be tested with QEMU:
 
 .. code:: bash
 
-   $ qemu -cdrom {exc_image_base_name}.x86_64-{exc_image_version}.iso -m 4096
+   $ qemu -cdrom {exc_image_base_name_live}.x86_64-{exc_image_version}.iso -m 4096
 
 The image is now complete and ready to use. See :ref:`iso_to_usb_stick` and
 :ref:`iso_as_file_to_usb_stick` for further information concerning

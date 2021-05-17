@@ -134,11 +134,7 @@ The prepare step consists of the following substeps:
       ``glibc-locale`` to specify as part of the bootstrap. The dependency
       chain of these two packages is usually sufficient to populate the
       bootstrap environment with all required software to support the
-      installation of packages into the new root tree. The aforementioned two
-      packages might not be enough for every distribution. Consult the
-      `kiwi-descriptions repository
-      <https://github.com/OSInside/kiwi-descriptions/>`_ containing examples
-      for various Linux distributions.
+      installation of packages into the new root tree.
 
 #. **Install Packages**
 

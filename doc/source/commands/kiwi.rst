@@ -141,24 +141,9 @@ EXAMPLE
 
 .. code:: bash
 
-   $ git clone https://github.com/OSInside/kiwi-descriptions
+   $ git clone https://github.com/OSInside/kiwi
 
-   $ kiwi --type oem system build \
-       --description kiwi-descriptions/suse/x86_64/{exc_description} \
+   $ sudo kiwi-ng system build \
+       --description kiwi/build-tests/{exc_description_disk} \
+       --set-repo {exc_repo_leap} \
        --target-dir /tmp/myimage
-
-
-.. _db_commands_kiwi_compat:
-
-COMPATIBILITY
--------------
-
-This version of {kiwi} uses a different caller syntax compared to
-former versions. However there is a compatibility mode which allows
-to use a legacy {kiwi} commandline as follows:
-
-.. code:: bash
-
-   $ kiwi compat \
-       --build kiwi-descriptions/suse/x86_64/{exc_description} \
-       --type oem -d /tmp/myimage
