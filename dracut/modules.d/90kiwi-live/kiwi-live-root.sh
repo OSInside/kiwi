@@ -11,14 +11,14 @@ setupDebugMode
 # initialize profile environment
 initialize
 
+# load required kernel modules
+loadKernelModules
+
 # device nodes and types
 initGlobalDevices "$1"
 
 # live options and their default values
 initGlobalOptions
-
-# load required kernel modules
-loadKernelModules
 
 # mount ISO device
 iso_mount_point=$(mountIso)
