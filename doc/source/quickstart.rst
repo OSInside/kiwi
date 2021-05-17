@@ -73,7 +73,7 @@ QEMU and boot it as follows:
 
     $ qemu -boot c \
         -drive file={exc_image_base_name_disk}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
-        -m 4096
+        -m 4096 -serial stdio
 
 Tweak and Customize your Image
 ------------------------------

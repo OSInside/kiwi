@@ -80,6 +80,7 @@ tested with QEMU as follows:
        -initrd /tmp/myimage/*.initrd.xz \
        -append $(cat /tmp/myimage/*.append) \
        -hda /tmp/myimage/{exc_image_base_name_pxe}.*-{exc_image_version} \
+       -serial stdio
 
 .. note::
 
