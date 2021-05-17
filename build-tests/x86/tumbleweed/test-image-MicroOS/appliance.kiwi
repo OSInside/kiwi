@@ -17,7 +17,7 @@
                 <oem-unattended>true</oem-unattended>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" console="serial" timeout="2"/>
+            <bootloader name="grub2" console="serial" timeout="10"/>
             <systemdisk>
                 <volume name="home"/>
                 <volume name="root"/>

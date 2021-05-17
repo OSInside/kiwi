@@ -51,7 +51,7 @@
              therefore the installation ISO does not support EFI
         -->
         <type image="oem" filesystem="ext4" installiso="true" installboot="install" kernelcmdline="console=ttyS0" editbootinstall="editbootinstall_arch.sh" firmware="efi">
-            <bootloader name="grub2" console="serial" timeout="2"/>
+            <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
             </oemconfig>

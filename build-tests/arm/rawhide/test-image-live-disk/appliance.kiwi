@@ -29,7 +29,7 @@
     </preferences>
     <preferences profiles="Disk">
         <type image="oem" firmware="uefi" kernelcmdline="console=ttyS0" installiso="true" installboot="install" filesystem="ext4">
-            <bootloader name="grub2" console="serial" timeout="2"/>
+            <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
                 <oem-swap>true</oem-swap>

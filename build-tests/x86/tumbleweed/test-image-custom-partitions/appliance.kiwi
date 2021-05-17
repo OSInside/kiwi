@@ -25,7 +25,7 @@
                 <oem-swapsize>512</oem-swapsize>
                 <oem-device-filter>/dev/ram</oem-device-filter>
             </oemconfig>
-            <bootloader name="grub2" console="serial" timeout="2"/>
+            <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
     <users>

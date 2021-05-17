@@ -26,7 +26,7 @@
     </preferences>
     <preferences profiles="Live">
         <type image="iso" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true" firmware="efi" kernelcmdline="console=ttyS0">
-            <bootloader name="grub2" console="serial" timeout="2"/>
+            <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
     <preferences profiles="Virtual">
@@ -34,12 +34,12 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" console="serial" timeout="2"/>
+            <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
     <preferences profiles="Disk">
         <type image="oem" filesystem="ext4" firmware="efi" installiso="true" installboot="install" kernelcmdline="console=ttyS0">
-            <bootloader name="grub2" console="serial" timeout="2"/>
+            <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-unattended>true</oem-unattended>
