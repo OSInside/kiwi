@@ -27,17 +27,23 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" console="serial"/>
+            <bootloader name="grub2" console="serial" timeout="2"/>
         </type>
     </preferences>
     <preferences profiles="PhysicalBSZ_4096">
         <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="ofw" installiso="true" installboot="install" target_blocksize="4096">
-            <bootloader name="grub2" console="serial"/>
+            <bootloader name="grub2" console="serial" timeout="2"/>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+            </oemconfig>
         </type>
     </preferences>
     <preferences profiles="PhysicalBSZ_512">
         <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="ofw" installiso="true" installboot="install">
-            <bootloader name="grub2" console="serial"/>
+            <bootloader name="grub2" console="serial" timeout="2"/>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+            </oemconfig>
         </type>
     </preferences>
     <users>

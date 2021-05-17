@@ -26,12 +26,12 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2_s390x_emu" console="serial"/>
+            <bootloader name="grub2_s390x_emu" console="serial" timeout="2"/>
         </type>
     </preferences>
     <preferences profiles="Physical">
         <type image="oem" filesystem="xfs" kernelcmdline="console=ttyS0 dasd_mod.dasd=ipldev" bootpartition="true" bootfilesystem="ext3" target_blocksize="4096">
-            <bootloader name="grub2_s390x_emu" console="serial" targettype="CDL"/>
+            <bootloader name="grub2_s390x_emu" console="serial" targettype="CDL" timeout="2"/>
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>512</oem-swapsize>

@@ -16,7 +16,7 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <type image="oem" filesystem="btrfs" fsmountoptions="noatime,compress=lzo" firmware="efi" kernelcmdline="plymouth.enable=0 swiotlb=512 cma=64M console=ttyS0" bootpartition="false" devicepersistency="by-label" btrfs_root_is_snapshot="true" efipartsize="16" editbootinstall="editbootinstall_rpi.sh">
-            <bootloader name="grub2" console="serial"/>
+            <bootloader name="grub2" console="serial" timeout="2"/>
             <systemdisk name="RaspberryPi">
                 <volume name="home"/>
                 <volume name="root"/>

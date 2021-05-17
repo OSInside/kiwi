@@ -17,7 +17,7 @@
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
-            <bootloader name="grub2" console="serial"/>
+            <bootloader name="grub2" console="serial" timeout="2"/>
         </type>
     </preferences>
     <users>

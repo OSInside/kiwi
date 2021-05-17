@@ -27,9 +27,10 @@
         <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" firmware="uefi" kernelcmdline="console=ttyS0" installiso="true" filesystem="ext4">
-            <bootloader name="grub2" console="serial"/>
+        <type image="oem" firmware="uefi" kernelcmdline="console=ttyS0" installiso="true" installboot="install" filesystem="ext4">
+            <bootloader name="grub2" console="serial" timeout="2"/>
             <oemconfig>
+                <oem-unattended>true</oem-unattended>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>200</oem-swapsize>
             </oemconfig>

@@ -50,8 +50,11 @@
              grub.cfg file. This hotpatch only applies for disk images
              therefore the installation ISO does not support EFI
         -->
-        <type image="oem" filesystem="ext4" installiso="true" kernelcmdline="console=ttyS0" editbootinstall="editbootinstall_arch.sh" firmware="efi">
-            <bootloader name="grub2" console="serial"/>
+        <type image="oem" filesystem="ext4" installiso="true" installboot="install" kernelcmdline="console=ttyS0" editbootinstall="editbootinstall_arch.sh" firmware="efi">
+            <bootloader name="grub2" console="serial" timeout="2"/>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+            </oemconfig>
         </type>
     </preferences>
     <preferences profiles="KIS">
