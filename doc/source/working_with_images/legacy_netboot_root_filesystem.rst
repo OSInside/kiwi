@@ -136,7 +136,7 @@ system. As diskless client, a QEMU virtual machine is used.
 
    .. code:: bash
 
-       $ qemu -boot n -m 4096
+       $ sudo qemu -boot n -m 4096
 
 .. _pxe_legacy_client_config:
 
