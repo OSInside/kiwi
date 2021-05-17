@@ -38,10 +38,10 @@ install:
 	${MAKE} -C tools buildroot=${buildroot} install
 	# manual pages
 	install -d -m 755 ${buildroot}usr/share/man/man8
-	for man in doc/build/man/*.8; do \
+	for man in doc/build/man/8/*.8; do \
 		test -e $$man && gzip -f $$man || true ;\
 	done
-	for man in doc/build/man/*.8.gz; do \
+	for man in doc/build/man/8/*.8.gz; do \
 		install -m 644 $$man ${buildroot}usr/share/man/man8 ;\
 	done
 	# completion
