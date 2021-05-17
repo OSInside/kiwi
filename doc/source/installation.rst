@@ -5,9 +5,15 @@ Installation
 
 .. note::
 
-   This document describes how to install {kiwi}. Apart from the preferred
-   method to install {kiwi} via rpm, it is also available on `pypi
-   <https://pypi.org/project/kiwi/>`__ and can be installed via pip.
+   This document describes how to install {kiwi}.
+
+Apart from the preferred method to install {kiwi} via a distribution
+package manager, it is also available on `pypi <https://pypi.org/project/kiwi/>`__
+and can be installed using Python's package manager pip as follows:
+
+.. code:: shell-session
+
+    $ sudo pip install kiwi
 
 .. _installation-from-obs:
 
@@ -33,90 +39,60 @@ To install {kiwi}, follow these steps:
 
    .. code:: shell-session
 
-       $ sudo zypper addrepo http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST> appliance-builder
+       $ sudo zypper addrepo \
+             http://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST> \
+             kiwi-appliance-builder
+
+4. Install {kiwi}:
+
+   .. code:: shell-session
+
+       $ sudo zypper --gpg-auto-import-keys install python3-kiwi
+
+
+.. note:: Other Distributions
 
    If your distribution is not using :command:`zypper`, please use your
-   package manager's appropriate command instead. For :command:`dnf` that
-   is:
+   package manager's appropriate command instead. For :command:`dnf`,
+   as an example, that is:
 
    .. code:: shell-session
 
-      $ sudo dnf config-manager --add-repo https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>/Virtualization:Appliances:Builder.repo
+      $ sudo dnf config-manager \
+            --add-repo https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/<DIST>/Virtualization:Appliances:Builder.repo
 
-4. Add the repositories' signing-key to your package manager's
-   database. For rpm run:
-
-   .. code:: shell-session
-
-      $ sudo rpm --import https://build.opensuse.org/projects/Virtualization:Appliances:Builder/public_key
-
-   And verify that you got the correct key:
-
-   .. code:: shell-session
-
-      $ rpm -qi gpg-pubkey-74cbe823-* | gpg2
-      gpg: WARNING: no command supplied.  Trying to guess what you mean ...
-      pub   dsa1024 2009-05-04 [SC] [expires: 2020-10-09]
-            F7E82012C74FD0B85F5334DC994B195474CBE823
-      uid           Virtualization:Appliances OBS Project <Virtualization:Appliances@build.opensuse.org>
-
-.. note::
-
-   :command:`rpm` requires network utilities in order to download and
-   import remote keys. Make sure :command:`curl` is installed before
-   trying to import remote keys using :command:`rpm`. 
-   
-   Alternatively, the package manager, if not executed in non-interactive mode,
-   will ask you to trust or not the public key of the new repository when
-   refreshing repositories or installing new packages. If trusted the package
-   manager will automatically import it.
-
-5. Install {kiwi}:
-
-   .. code:: shell-session
-
-       $ sudo zypper in python3-kiwi
+      $ sudo dnf install python3-kiwi
 
 
-Installation from your distribution's repositories
---------------------------------------------------
-
-.. note::
-
-   There are many packages that contain the name {kiwi} in their name, some
-   of these are even python packages. Please double check the packages'
-   description whether it is actually the {kiwi} Appliance builder before
-   installing it.
-
+Installation from Distribution Repositories
+-------------------------------------------
 
 Some Linux distributions ship {kiwi} in their official repositories. These
-include openSUSE Tumbleweed, openSUSE Leap, and Fedora since
-version 28. Note, these packages tend to not be as up to date as the
-packages from OBS, so some features described here might not exist yet.
+include **openSUSE** and **Fedora** since version 28. Note, these packages tend to
+not be as up to date as the packages from OBS, so some features described
+here might not exist yet.
 
-To install {kiwi} on openSUSE, run the following command:
+.. note::
 
-.. code:: shell-session
+   There are many packages that contain the name *kiwi* in their name, some
+   of these are not even python packages. Please double check the packages'
+   description whether it is actually the {kiwi} Appliance builder before
+   installing it. Please also note, depending on how the responsible
+   packager has integrated {kiwi} into the distribution, the install
+   name can be different from the instructions provided in:
+   :ref:`installation-from-obs`
 
-   $ sudo zypper install python3-kiwi
+To install {kiwi} for the desired distribution, run the following command:
 
-On Fedora, use the following command instead:
+Leap/Tumbleweed:
+  .. code:: shell-session
 
-.. code:: shell-session
+     $ sudo zypper install python3-kiwi
 
-   $ sudo dnf install kiwi-cli
+Fedora/Rawhide:
+  .. code:: shell-session
 
-
-Installation from PyPI
-----------------------
-
-{kiwi} can be obtained from the Python Package Index (PyPi) via Python's
-package manager pip:
-
-.. code:: shell-session
-
-   $ pip install kiwi
-
+     $ sudo dnf install kiwi-cli
 
 .. _example-descriptions:
 

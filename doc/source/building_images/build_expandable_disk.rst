@@ -99,7 +99,7 @@ The following steps shows how to do it:
 
    .. code:: bash
 
-       $ qemu -hda target_disk -m 4096 -serial stdio
+       $ sudo qemu -hda target_disk -m 4096 -serial stdio
 
 
    At first boot of the target_disk the system is expanded to the
@@ -124,7 +124,8 @@ The following steps shows how to do it:
 
    .. code:: bash
 
-       $ qemu -cdrom {exc_image_base_name_disk}.x86_64-{exc_image_version}.install.iso -hda target_disk \
+       $ sudo qemu -cdrom \
+             {exc_image_base_name_disk}.x86_64-{exc_image_version}.install.iso -hda target_disk \
              -boot d -m 4096 -serial stdio
 
    .. note:: USB Stick Deployment
@@ -270,7 +271,7 @@ target system:
 
    .. code:: bash
 
-      $ qemu -boot n -hda target_disk -m 4096
+      $ sudo qemu -boot n -hda target_disk -m 4096
 
    .. note:: QEMU bridged networking
 

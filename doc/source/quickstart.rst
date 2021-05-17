@@ -17,7 +17,7 @@ Before you start
 
    .. code:: bash
 
-      $ pip install kiwi
+      $ sudo pip install kiwi
 
 2. Clone the {kiwi} repository containing example appliances (see
    :ref:`example-descriptions`):
@@ -71,7 +71,7 @@ QEMU and boot it as follows:
 
 .. code:: bash
 
-    $ qemu -boot c \
+    $ sudo qemu -boot c \
         -drive file={exc_image_base_name_disk}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
         -m 4096 -serial stdio
 

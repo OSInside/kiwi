@@ -65,7 +65,8 @@ be tested with QEMU:
 
 .. code:: bash
 
-   $ qemu -cdrom {exc_image_base_name_live}.x86_64-{exc_image_version}.iso \
+   $ sudo qemu -cdrom \
+         {exc_image_base_name_live}.x86_64-{exc_image_version}.iso \
          -m 4096 -serial stdio
 
 The image is now complete and ready to use. See :ref:`iso_to_usb_stick` and

@@ -81,7 +81,7 @@ The live image can then be tested with QEMU:
 
 .. code:: bash
 
-   $ qemu \
+   $ sudo qemu \
        -drive file={exc_image_base_name_disk_simple}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
        -m 4096
 

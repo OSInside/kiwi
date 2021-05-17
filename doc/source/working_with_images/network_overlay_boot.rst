@@ -151,4 +151,4 @@ from the network:
 
    .. code:: bash
 
-      $ qemu -boot n
+      $ sudo qemu -boot n
