@@ -34,6 +34,7 @@ function run_progress_dialog {
     # Run the gauge dialog via systemd reading progress
     # status information from stdin
     # """
+    stop_plymouth
     declare fifo=${current_progress_fifo}
     local title=$1
     local backtitle=$2
