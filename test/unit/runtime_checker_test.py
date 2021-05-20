@@ -1,8 +1,11 @@
 import sys
+import logging
 from mock import (
     patch, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from .test_helper import argv_kiwi_tests
 
@@ -16,6 +19,10 @@ from kiwi.exceptions import KiwiRuntimeError
 
 
 class TestRuntimeChecker:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         self.description = XMLDescription(
             '../data/example_runtime_checker_config.xml'
@@ -95,7 +102,7 @@ class TestRuntimeChecker:
         )
         mock_Command_run.assert_called_once_with(
             [
-                'rpm', '--root', 'root_dir', '-q',
+                'chroot', 'root_dir', 'rpm', '-q',
                 '--qf', '%{VERSION}', 'dracut-kiwi-oem-dump'
             ]
         )
@@ -109,10 +116,17 @@ class TestRuntimeChecker:
         )
         mock_Command_run.assert_called_once_with(
             [
-                'dpkg-query', '--admindir', 'root_dir/var/lib/dpkg',
+                'chroot', 'root_dir', 'dpkg-query',
                 '-W', '-f', '${Version}', 'dracut-kiwi-oem-dump'
             ]
         )
+        mock_Command_run.side_effect = Exception
+        # If the package manager call failed with an exception
+        # the expected behavior is the runtime check to just pass
+        # because there is no data to operate on. Best guess approach
+        with self._caplog.at_level(logging.DEBUG):
+            self.runtime_checker.\
+                check_dracut_module_versions_compatible_to_kiwi('root_dir')
 
     def test_valid_target_dir_1(self):
         assert self.runtime_checker.check_target_directory_not_in_shared_cache(
