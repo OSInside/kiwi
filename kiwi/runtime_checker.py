@@ -101,9 +101,8 @@ class RuntimeChecker:
                         message.format(repo_source)
                     )
 
-    def check_target_directory_not_in_shared_cache(
-        self, target_dir: str
-    ) -> None:
+    @staticmethod
+    def check_target_directory_not_in_shared_cache(target_dir: str) -> None:
         """
         The target directory must be outside of the kiwi shared cache
         directory in order to avoid busy mounts because kiwi bind mounts
