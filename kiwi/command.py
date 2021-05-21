@@ -120,11 +120,11 @@ class Command:
                 '%s: %s: %s' % (command[0], type(e).__name__, format(e))
             )
         output, error = process.communicate()
-        if process.returncode != 0 and not error:
-            error = bytes(b'(no output on stderr)')
-        if process.returncode != 0 and not output:
-            output = bytes(b'(no output on stdout)')
         if process.returncode != 0 and raise_on_error:
+            if not error:
+                error = bytes(b'(no output on stderr)')
+            if not output:
+                output = bytes(b'(no output on stdout)')
             log.debug(
                 'EXEC: Failed with stderr: {0}, stdout: {1}'.format(
                     Codec.decode(error), Codec.decode(output)

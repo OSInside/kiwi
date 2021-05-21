@@ -19,7 +19,7 @@ class TestCommand:
         mock_which.return_value = 'command'
         mock_process = mock.Mock()
         mock_process.communicate = mock.Mock(
-            return_value=[str.encode('stdout'), str.encode('stderr')]
+            return_value=[str.encode(''), str.encode('')]
         )
         mock_process.returncode = 1
         mock_popen.return_value = mock_process
@@ -49,7 +49,7 @@ class TestCommand:
         mock_process.returncode = 1
         mock_popen.return_value = mock_process
         result = Command.run(['command', 'args'], os.environ, False)
-        assert result.error == '(no output on stderr)'
+        assert result.error == ''
         assert result.output == 'stdout'
 
     @patch('kiwi.path.Path.which')
