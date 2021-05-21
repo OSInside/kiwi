@@ -33,7 +33,7 @@ mypy
 generateDS==2.29.24
 
 # for building documentation
-sphinx
+sphinx>=4.0.2
 
 git+https://github.com/openSUSE/rstxml2docbook.git@feature/kiwi
 
