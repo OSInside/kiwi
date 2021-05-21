@@ -643,6 +643,7 @@ class Defaults:
 
         :rtype: str
         """
+        log.debug(f'Searching grub file: {filename}')
         install_dirs = [
             'usr/share', 'usr/lib'
         ]
@@ -652,7 +653,9 @@ class Defaults:
                 grub_path = os.path.join(
                     root_path, install_dir, grub_name, filename
                 )
+                log.debug(f'--> {grub_path}')
                 if os.path.exists(grub_path):
+                    log.debug(f'--> Found in: {grub_path}')
                     return grub_path
                 lookup_list.append(grub_path)
         if raise_on_error:
