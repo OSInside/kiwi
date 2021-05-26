@@ -53,6 +53,17 @@ unit_py38:
     paths:
       - .tox/3.8
 
+scripts:
+  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
+  stage: test
+  <<: *only-default
+  script:
+    - tox -e scripts
+  cache:
+    key: "$CI_JOB_NAME"
+    paths:
+      - .tox/3
+
 build_doc:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$TUMBLEWEED_BUILD
   stage: documentation
