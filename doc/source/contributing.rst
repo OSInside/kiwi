@@ -129,6 +129,14 @@ To resume your work, :command:`cd` into your local Git repository and call:
     $ source .tox/3/bin/activate
 
 
+Alternatively, you can launch single commands inside the virtualenv without
+sourcing it directly:
+
+.. code:: shell-session
+
+   $ tox -e devel -- kiwi-ng --version
+
+
 Running the Unit Tests
 ----------------------
 
