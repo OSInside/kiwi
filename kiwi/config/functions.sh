@@ -345,7 +345,7 @@ function baseStripDocs {
     "
     for dir in ${directories}; do
         docfiles=$(find "${dir}" -type f |\
-            grep -iv "copying\|license\|copyright")
+            grep -iv "copying\|license\|copyright" || :)
         rm -f "${docfiles}"
     done
     rm -rf /usr/share/info
@@ -714,7 +714,7 @@ function baseStripFirmware {
     mkdir -p /lib/firmware-required
     find "${base}" \( -name "*.ko" -o -name "*.ko.xz" \) -print0 | \
     while IFS= read -r -d $'\0' kernel_module; do
-        firmware=$(modinfo "${kernel_module}" | grep ^firmware)
+        firmware=$(modinfo "${kernel_module}" | grep ^firmware || :)
         if [ -z "${firmware}" ];then
             continue
         fi
