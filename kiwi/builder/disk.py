@@ -154,6 +154,9 @@ class DiskBuilder:
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
+        if not self.boot_image.has_initrd_support():
+            log.warning('Building without initrd support !')
+
     def create(self) -> Result:
         """
         Build a bootable disk image and optional installation image
@@ -219,9 +222,10 @@ class DiskBuilder:
         # setup recovery archive, cleanup and create archive if requested
         self.system_setup.create_recovery_archive()
 
-        # prepare boot(initrd) root system
-        log.info('Preparing boot system')
-        self.boot_image.prepare()
+        # prepare initrd
+        if self.boot_image.has_initrd_support():
+            log.info('Preparing boot system')
+            self.boot_image.prepare()
 
         # precalculate needed disk size
         disksize_mbytes = self.disk_setup.get_disksize_mbytes()
@@ -401,8 +405,9 @@ class DiskBuilder:
             if self.disk_resize_requested:
                 self.boot_image.include_module('kiwi-repart')
 
-        # create initrd cpio archive
-        self.boot_image.create_initrd(self.mbrid)
+        # create initrd
+        if self.boot_image.has_initrd_support():
+            self.boot_image.create_initrd(self.mbrid)
 
         # create second stage metadata to system image
         self._copy_first_boot_files_to_system_image()
@@ -540,9 +545,8 @@ class DiskBuilder:
         :rtype: instance of :class:`Result`
         """
         if self.install_media:
-            if self.initrd_system == 'dracut':
-                boot_image = None
-            else:
+            boot_image = None
+            if self.initrd_system == 'kiwi':
                 boot_image = self.boot_image
             install_image = InstallImageBuilder(
                 self.xml_state, self.root_dir, self.target_dir,
@@ -1157,10 +1161,11 @@ class DiskBuilder:
                         self.boot_image.boot_root_directory
                     )
 
-        log.info('--> initrd archive as %s', boot_names.initrd_name)
-        Command.run(
-            [
-                'mv', self.boot_image.initrd_filename,
-                self.root_dir + ''.join(['/boot/', boot_names.initrd_name])
-            ]
-        )
+        if self.boot_image.initrd_filename:
+            log.info('--> initrd archive as %s', boot_names.initrd_name)
+            Command.run(
+                [
+                    'mv', self.boot_image.initrd_filename,
+                    self.root_dir + ''.join(['/boot/', boot_names.initrd_name])
+                ]
+            )

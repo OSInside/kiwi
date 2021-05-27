@@ -49,7 +49,8 @@ class BootImage(metaclass=ABCMeta):
         initrd_system = xml_state.get_initrd_system()
         name_map = {
             'kiwi': {'builtin_kiwi': 'BootImageKiwi'},
-            'dracut': {'dracut': 'BootImageDracut'}
+            'dracut': {'dracut': 'BootImageDracut'},
+            'none': {'base': 'BootImageBase'}
         }
         try:
             (boot_image_namespace, boot_image_name) = \

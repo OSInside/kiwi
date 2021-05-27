@@ -911,7 +911,7 @@ class TestXMLState:
         state = XMLState(xml_data, ['vmxSimpleFlavour'], 'iso')
         assert state.get_initrd_system() == 'dracut'
         state = XMLState(xml_data, ['containerFlavour'], 'docker')
-        assert state.get_initrd_system() is None
+        assert state.get_initrd_system() == 'none'
         state = XMLState(xml_data, [], 'oem')
         assert state.get_initrd_system() == 'dracut'
 

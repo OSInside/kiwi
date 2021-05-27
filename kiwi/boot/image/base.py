@@ -83,6 +83,15 @@ class BootImageBase:
         """
         pass
 
+    def has_initrd_support(self) -> bool:
+        """
+        Indicates if this instance supports actual creation of an initrd
+
+        The method needs to be overwritten by the subclass
+        implementing preparation and creation of an initrd
+        """
+        return False
+
     def include_file(self, filename, install_media=False):
         """
         Include file to boot image

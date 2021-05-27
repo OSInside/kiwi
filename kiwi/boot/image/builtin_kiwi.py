@@ -41,6 +41,12 @@ class BootImageKiwi(BootImageBase):
     to control the first boot an appliance. The kiwi initrd replaces
     itself after first boot by the result of dracut.
     """
+    def has_initrd_support(self) -> bool:
+        """
+        This instance supports initrd preparation and creation
+        """
+        return True
+
     def post_init(self):
         """
         Post initialization method

@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 from mock import (
     patch, Mock, MagicMock, mock_open
@@ -74,6 +75,17 @@ class TestKisBuilder:
         )
         self.kis.image_name = 'myimage'
         self.kis.compressed = True
+
+    @patch('kiwi.builder.kis.FileSystemBuilder')
+    @patch('kiwi.builder.kis.BootImage')
+    def test_setup_warn_no_initrd_support(self, mock_boot, mock_filesystem):
+        boot_image_task = MagicMock()
+        boot_image_task.has_initrd_support = Mock(
+            return_value=False
+        )
+        mock_boot.new.return_value = boot_image_task
+        with self._caplog.at_level(logging.WARNING):
+            KisBuilder(self.xml_state, 'target_dir', 'root_dir')
 
     @patch('kiwi.builder.kis.Checksum')
     @patch('kiwi.builder.kis.Compress')

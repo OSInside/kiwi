@@ -2332,17 +2332,17 @@ create a hybrid GPT/MBR partition table</a:documentation>
     </define>
     <define name="k.type.initrd_system.attribute">
       <attribute name="initrd_system">
-        <a:documentation>specify which initrd builder to use, default is kiwi's
-builtin architecture. Be aware that the dracut initrd
-system does not support all features of the kiwi initrd</a:documentation>
+        <a:documentation>specify which initrd builder to use, default is dracut
+initrd architecture.</a:documentation>
         <choice>
           <value>kiwi</value>
           <value>dracut</value>
+          <value>none</value>
         </choice>
       </attribute>
       <sch:pattern id="initrd_system" is-a="image_type">
         <sch:param name="attr" value="initrd_system"/>
-        <sch:param name="types" value="oem pxe"/>
+        <sch:param name="types" value="oem pxe kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.image.attribute">

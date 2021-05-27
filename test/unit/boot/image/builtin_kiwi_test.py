@@ -178,5 +178,8 @@ class TestBootImageKiwi:
         self.boot_image.cleanup()
         mock_wipe.assert_called_once_with('boot-root-directory')
 
+    def test_has_initrd_support(self):
+        assert self.boot_image.has_initrd_support() is True
+
     def teardown(self):
         sys.argv = argv_kiwi_tests

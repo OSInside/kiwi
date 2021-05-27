@@ -157,3 +157,6 @@ class TestBootImageKiwi:
                 'some-target-dir'
             ])
         ]
+
+    def test_has_initrd_support(self):
+        assert self.boot_image.has_initrd_support() is True

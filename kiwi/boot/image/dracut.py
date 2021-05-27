@@ -33,6 +33,12 @@ class BootImageDracut(BootImageBase):
     """
     **Implements creation of dracut boot(initrd) images.**
     """
+    def has_initrd_support(self) -> bool:
+        """
+        This instance supports initrd preparation and creation
+        """
+        return True
+
     def post_init(self):
         """
         Post initialization method

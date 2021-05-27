@@ -1,8 +1,11 @@
+import logging
 import sys
 from mock import (
     call, patch, mock_open, Mock, MagicMock, ANY
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 import kiwi
 
 from ..test_helper import argv_kiwi_tests
@@ -25,6 +28,10 @@ from kiwi.exceptions import (
 
 
 class TestDiskBuilder:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.exists')
     def setup(self, mock_exists):
         Defaults.set_platform_name('x86_64')
@@ -184,8 +191,9 @@ class TestDiskBuilder:
         kiwi.builder.disk.Fstab = Mock(
             return_value=self.fstab
         )
+        self.xml_state = XMLState(description.load())
         self.disk_builder = DiskBuilder(
-            XMLState(description.load()), 'target_dir', 'root_dir',
+            self.xml_state, 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
         self.disk_builder.root_filesystem_is_overlay = False
@@ -194,6 +202,13 @@ class TestDiskBuilder:
 
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def test_setup_warn_no_initrd_support(self):
+        self.boot_image_task.has_initrd_support = Mock(
+            return_value=False
+        )
+        with self._caplog.at_level(logging.WARNING):
+            DiskBuilder(self.xml_state, 'target_dir', 'root_dir')
 
     def test_setup_ix86(self):
         Defaults.set_platform_name('i686')
