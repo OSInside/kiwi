@@ -567,7 +567,7 @@ function suseSetupProduct {
     if [ -f /etc/SuSE-brand ];then
         prod=$(head /etc/SuSE-brand -n 1)
     elif [ -f /etc/os-release ];then
-        prod=$(grep "^NAME" /etc/os-release | cut -d '=' -f 2 | cut -d '"' -f 2)
+        prod=$(while read -r line; do if [[ $line =~ ^NAME ]]; then echo "$line"; fi; done < /etc/os-release | cut -d '=' -f 2 | cut -d '"' -f 2)
     fi
     if [ -d /etc/products.d ];then
         pushd /etc/products.d || return
@@ -576,7 +576,14 @@ function suseSetupProduct {
         elif [ -f "SUSE_${prod}.prod" ];then
             ln -sf "SUSE_${prod}.prod" baseproduct
         else
-            prod=$(find . -maxdepth 1 -name "*.prod" 2>/dev/null | tail -n 1)
+            find_prod() {
+                for f in *; do
+                    if [[ $f =~ \.prod$ ]]; then
+                        echo "$f"
+                    fi
+                done
+            }
+            prod=$(find_prod | tail -n 1)
             if [ -f "${prod}" ];then
                 ln -sf "${prod}" baseproduct
             fi
