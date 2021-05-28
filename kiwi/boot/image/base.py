@@ -103,7 +103,8 @@ class BootImageBase:
         """
         pass
 
-    def has_initrd_support(self) -> bool:
+    @staticmethod
+    def has_initrd_support() -> bool:
         """
         Indicates if this instance supports actual creation of an initrd
 

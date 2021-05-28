@@ -37,7 +37,8 @@ class BootImageDracut(BootImageBase):
     """
     **Implements creation of dracut boot(initrd) images.**
     """
-    def has_initrd_support(self) -> bool:
+    @staticmethod
+    def has_initrd_support() -> bool:
         """
         This instance supports initrd preparation and creation
         """
