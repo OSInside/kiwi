@@ -18,9 +18,13 @@
 import os
 import logging
 from tempfile import mkdtemp
+from typing import (
+    Optional, List
+)
 
 # project
 from kiwi.defaults import Defaults
+from kiwi.system.identifier import SystemIdentifier
 from kiwi.utils.sync import DataSync
 from kiwi.system.prepare import SystemPrepare
 from kiwi.system.profile import Profile
@@ -47,7 +51,7 @@ class BootImageKiwi(BootImageBase):
         """
         return True
 
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -58,74 +62,78 @@ class BootImageKiwi(BootImageBase):
         # builtin kiwi initrd builds its own root tree to create
         # an initrd from. Thus there is no pre defined boot root
         # directory
-        self.boot_root_directory = None
+        self.boot_root_directory = ''
 
-        self.temp_directories = []
+        self.temp_directories: List[str] = []
 
-    def prepare(self):
+    def prepare(self) -> None:
         """
         Prepare new root system suitable to create a kiwi initrd from it
         """
-        self.boot_root_directory = mkdtemp(
-            prefix='kiwi_boot_root.', dir=self.target_dir
-        )
-        self.temp_directories.append(
-            self.boot_root_directory
-        )
-        self.load_boot_xml_description()
-        boot_image_name = self.boot_xml_state.xml_data.get_name()
+        if self.boot_xml_state:
+            self.boot_root_directory = mkdtemp(
+                prefix='kiwi_boot_root.', dir=self.target_dir
+            )
+            self.temp_directories.append(
+                self.boot_root_directory
+            )
+            self.load_boot_xml_description()
+            boot_image_name = self.boot_xml_state.xml_data.get_name()
 
-        self.import_system_description_elements()
+            self.import_system_description_elements()
 
-        log.info('Preparing boot image')
-        system = SystemPrepare(
-            xml_state=self.boot_xml_state,
-            root_dir=self.boot_root_directory,
-            allow_existing=True
-        )
-        manager = system.setup_repositories(
-            signing_keys=self.signing_keys, target_arch=self.target_arch
-        )
-        system.install_bootstrap(
-            manager
-        )
-        system.install_system(
-            manager
-        )
+            log.info('Preparing boot image')
+            system = SystemPrepare(
+                xml_state=self.boot_xml_state,
+                root_dir=self.boot_root_directory,
+                allow_existing=True
+            )
+            manager = system.setup_repositories(
+                signing_keys=self.signing_keys, target_arch=self.target_arch
+            )
+            system.install_bootstrap(
+                manager
+            )
+            system.install_system(
+                manager
+            )
 
-        profile = Profile(self.boot_xml_state)
-        profile.add('kiwi_initrdname', boot_image_name)
+            profile = Profile(self.boot_xml_state)
+            profile.add('kiwi_initrdname', boot_image_name)
 
-        defaults = Defaults()
-        defaults.to_profile(profile)
+            defaults = Defaults()
+            defaults.to_profile(profile)
 
-        self.setup = SystemSetup(
-            self.boot_xml_state, self.boot_root_directory
-        )
-        profile.create(
-            Defaults.get_profile_file(self.boot_root_directory)
-        )
-        self.setup.import_description()
-        self.setup.import_overlay_files(
-            follow_links=True
-        )
-        self.setup.call_config_script()
+            self.setup = SystemSetup(
+                self.boot_xml_state, self.boot_root_directory
+            )
+            profile.create(
+                Defaults.get_profile_file(self.boot_root_directory)
+            )
+            self.setup.import_description()
+            self.setup.import_overlay_files(
+                follow_links=True
+            )
+            self.setup.call_config_script()
 
-        system.pinch_system(
-            manager=manager, force=True
-        )
-        # make sure system instance is cleaned up before setting up
-        del system
+            system.pinch_system(
+                manager=manager, force=True
+            )
+            # make sure system instance is cleaned up before setting up
+            del system
 
-        self.setup.call_image_script()
-        self.setup.create_init_link_from_linuxrc()
+            self.setup.call_image_script()
+            self.setup.create_init_link_from_linuxrc()
 
-    def create_initrd(self, mbrid=None, basename=None, install_initrd=False):
+    def create_initrd(
+        self, mbrid: Optional[SystemIdentifier] = None,
+        basename: Optional[str] = None, install_initrd: bool = False
+    ) -> None:
         """
         Create initrd from prepared boot system tree and compress the result
 
-        :param object mbrid: instance of ImageIdentifier
-        :param string basename: base initrd file name
+        :param SystemIdentifier mbrid: instance of ImageIdentifier
+        :param str basename: base initrd file name
         :param bool install_initrd: installation media initrd
 
         """
@@ -196,7 +204,7 @@ class BootImageKiwi(BootImageBase):
             )
             self.initrd_filename = compress.compressed_filename
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         for directory in self.temp_directories:
             if directory and os.path.exists(directory):
                 Path.wipe(directory)

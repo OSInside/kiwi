@@ -44,7 +44,7 @@ class BootImage(metaclass=ABCMeta):
     @staticmethod
     def new(
         xml_state: XMLState, target_dir: str,
-        root_dir: str=None, signing_keys: List=None  # noqa: E252
+        root_dir: str = None, signing_keys: List = None
     ):
         initrd_system = xml_state.get_initrd_system()
         name_map = {

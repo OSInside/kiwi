@@ -1,7 +1,7 @@
 import sys
-import mock
-from mock import patch
-from mock import call
+from mock import (
+    patch, call, Mock
+)
 from pytest import raises
 
 import kiwi
@@ -27,27 +27,28 @@ class TestBootImageKiwi:
             description.load()
         )
 
-        self.manager = mock.Mock()
-        self.system_prepare = mock.Mock()
-        self.setup = mock.Mock()
-        self.profile = mock.Mock()
+        self.manager = Mock()
+        self.system_prepare = Mock()
+        self.setup = Mock()
+        self.profile = Mock()
         self.profile.dot_profile = dict()
-        self.system_prepare.setup_repositories = mock.Mock(
+        self.system_prepare.setup_repositories = Mock(
             return_value=self.manager
         )
-        kiwi.boot.image.builtin_kiwi.SystemPrepare = mock.Mock(
+        kiwi.boot.image.builtin_kiwi.SystemPrepare = Mock(
             return_value=self.system_prepare
         )
-        kiwi.boot.image.builtin_kiwi.SystemSetup = mock.Mock(
+        kiwi.boot.image.builtin_kiwi.SystemSetup = Mock(
             return_value=self.setup
         )
-        kiwi.boot.image.builtin_kiwi.Profile = mock.Mock(
+        kiwi.boot.image.builtin_kiwi.Profile = Mock(
             return_value=self.profile
         )
         mock_mkdtemp.return_value = 'boot-root-directory'
         self.boot_image = BootImageKiwi(
             self.xml_state, 'some-target-dir'
         )
+        self.boot_image.boot_xml_state = Mock()
 
     def test_include_file(self):
         # is a nop for builtin kiwi initrd and does nothing
@@ -106,15 +107,15 @@ class TestBootImageKiwi:
         self, mock_os_chmod, mock_mkdtemp, mock_prepared, mock_sync,
         mock_wipe, mock_create, mock_compress, mock_cpio
     ):
-        data = mock.Mock()
+        data = Mock()
         mock_sync.return_value = data
         mock_mkdtemp.return_value = 'temp-boot-directory'
         mock_prepared.return_value = True
         self.boot_image.boot_root_directory = 'boot-root-directory'
-        mbrid = mock.Mock()
-        mbrid.write = mock.Mock()
-        cpio = mock.Mock()
-        compress = mock.Mock()
+        mbrid = Mock()
+        mbrid.write = Mock()
+        cpio = Mock()
+        compress = Mock()
         mock_cpio.return_value = cpio
         mock_compress.return_value = compress
         self.boot_image.create_initrd(mbrid)

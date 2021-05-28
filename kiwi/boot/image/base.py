@@ -19,10 +19,14 @@ import re
 import os
 import logging
 import glob
-from collections import namedtuple
+from typing import (
+    Optional, List, Dict, NamedTuple
+)
 
 # project
 from kiwi.defaults import Defaults
+from kiwi.system.setup import SystemSetup
+from kiwi.system.identifier import SystemIdentifier
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.path import Path
@@ -34,31 +38,47 @@ from kiwi.exceptions import (
     KiwiDiskBootImageError
 )
 
+boot_names_type = NamedTuple(
+    'boot_names_type', [
+        ('kernel_name', str),
+        ('initrd_name', str)
+    ]
+)
+
 log = logging.getLogger('kiwi')
 
 
 class BootImageBase:
     """
     **Base class for boot image(initrd) task**
-
-    :param object xml_state: Instance of :class:`XMLState`
-    :param string target_dir: target dir to store the initrd
-    :param string root_dir: system image root directory
-    :param list signing_keys: list of package signing keys
-    :param str target_arch: target architecture
     """
     def __init__(
-        self, xml_state, target_dir, root_dir=None,
-        signing_keys=None, target_arch=None
-    ):
+        self, xml_state: XMLState, target_dir: str,
+        root_dir: Optional[str] = None,
+        signing_keys: Optional[List[str]] = None,
+        target_arch: Optional[str] = None
+    ) -> None:
+        """
+        Create a base class instance of a BootImage
+
+        The base class instance only support the common operations
+        for boot images. The actual preparation and creation of an
+        initrd is specific to the used initrd creation toolchain
+
+        :param XMLState xml_state: Instance of :class:`XMLState`
+        :param str target_dir: target dir to store the initrd
+        :param str root_dir: system image root directory
+        :param List[str] signing_keys: list of package signing keys
+        :param str target_arch: target architecture
+        """
         self.xml_state = xml_state
         self.target_dir = target_dir
-        self.initrd_filename = None
-        self.boot_xml_state = None
-        self.setup = None
+        self.initrd_filename = ''
+        self.boot_xml_state: Optional[XMLState] = None
+        self.setup: Optional[SystemSetup] = None
         self.signing_keys = signing_keys
         self.target_arch = target_arch
-        self.boot_root_directory = root_dir
+        self.boot_root_directory = root_dir or ''
 
         if not os.path.exists(target_dir):
             raise KiwiTargetDirectoryNotFound(
@@ -75,7 +95,7 @@ class BootImageBase:
         )
         self.post_init()
 
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -92,7 +112,7 @@ class BootImageBase:
         """
         return False
 
-    def include_file(self, filename, install_media=False):
+    def include_file(self, filename: str, install_media: bool = False) -> None:
         """
         Include file to boot image
 
@@ -100,37 +120,39 @@ class BootImageBase:
         archive definitions with the bootinclude attribute. Thus
         for kiwi boot images the method is a noop
 
-        :param string filename: file path name
+        :param str filename: file path name
 
         :param bool install_media: include also for installation media initrd
         """
         pass
 
-    def include_module(self, module, install_media=False):
+    def include_module(self, module: str, install_media: bool = False) -> None:
         """
         Include module to boot image
 
         For kiwi boot no modules configuration is required. Thus in
         such a case this method is a noop.
 
-        :param string module: module to include
+        :param str module: module to include
         :param bool install_media: include the module for install initrds
         """
         pass
 
-    def omit_module(self, module, install_media=False):
+    def omit_module(self, module: str, install_media: bool = False) -> None:
         """
         Omit module to boot image
 
         For kiwi boot no modules configuration is required. Thus in
         such a case this method is a noop.
 
-        :param string module: module to omit
+        :param str module: module to omit
         :param bool install_media: omit the module for install initrds
         """
         pass
 
-    def set_static_modules(self, modules, install_media=False):
+    def set_static_modules(
+        self, modules: List[str], install_media: bool = False
+    ) -> None:
         """
         Set static modules list for boot image
 
@@ -143,8 +165,8 @@ class BootImageBase:
         pass
 
     def write_system_config_file(
-        self, config, config_file=None
-    ):
+        self, config: Dict, config_file: Optional[str] = None
+    ) -> None:
         """
         Writes relevant boot image configuration into configuration file
         that will be part of the system image.
@@ -156,11 +178,11 @@ class BootImageBase:
         recreation, thus this method is a noop in that case.
 
         :param dict config: dictonary including configuration parameters
-        :param string config_file: configuration file to write
+        :param str config_file: configuration file to write
         """
         pass
 
-    def get_boot_names(self):
+    def get_boot_names(self) -> boot_names_type:
         """
         Provides kernel and initrd names for the boot image
 
@@ -174,11 +196,8 @@ class BootImageBase:
                     initrd_name='DRACUT_OUTPUT_NAME'
                 )
 
-        :rtype: tuple
+        :rtype: boot_names_type
         """
-        boot_names_type = namedtuple(
-            'boot_names_type', ['kernel_name', 'initrd_name']
-        )
         kernel = Kernel(
             self.boot_root_directory
         )
@@ -198,7 +217,7 @@ class BootImageBase:
             )
         )
 
-    def prepare(self):
+    def prepare(self) -> None:
         """
         Prepare new root system to create initrd from. Implementation
         is only needed if there is no other root system available
@@ -207,19 +226,22 @@ class BootImageBase:
         """
         raise NotImplementedError
 
-    def create_initrd(self, mbrid=None, basename=None, install_initrd=False):
+    def create_initrd(
+        self, mbrid: Optional[SystemIdentifier] = None,
+        basename: Optional[str] = None, install_initrd: bool = False
+    ) -> None:
         """
         Implements creation of the initrd
 
-        :param object mbrid: instance of ImageIdentifier
-        :param string basename: base initrd file name
+        :param SystemIdentifier mbrid: instance of SystemIdentifier
+        :param str basename: base initrd file name
         :param bool install_initrd: installation media initrd
 
         Implementation in specialized boot image class
         """
         raise NotImplementedError
 
-    def is_prepared(self):
+    def is_prepared(self) -> bool:
         """
         Check if initrd system is prepared.
 
@@ -229,7 +251,7 @@ class BootImageBase:
         """
         return bool(os.listdir(self.boot_root_directory))
 
-    def load_boot_xml_description(self):
+    def load_boot_xml_description(self) -> None:
         """
         Load the boot image description referenced by the system image
         description boot attribute
@@ -273,7 +295,7 @@ class BootImageBase:
                 boot_image_profile, boot_kernel_profile
             )
 
-    def import_system_description_elements(self):
+    def import_system_description_elements(self) -> None:
         """
         Copy information from the system image relevant to create the
         boot image to the boot image state XML description
@@ -358,7 +380,7 @@ class BootImageBase:
             self.boot_xml_state
         )
 
-    def get_boot_description_directory(self):
+    def get_boot_description_directory(self) -> Optional[str]:
         """
         Provide path to the boot image XML description
 
@@ -372,15 +394,15 @@ class BootImageBase:
                 boot_description = \
                     Defaults.get_boot_image_description_path() + '/' + \
                     boot_description
-            return boot_description
+        return boot_description
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """
         Cleanup temporary boot image data if any
         """
         pass
 
-    def _get_boot_image_output_file_format(self, kernel_version):
+    def _get_boot_image_output_file_format(self, kernel_version: str) -> str:
         """
         The initrd output file format varies between
         the different Linux distributions. Tools like lsinitrd, and also
@@ -429,7 +451,9 @@ class BootImageBase:
             )
             return default_outfile_format
 
-    def _get_boot_image_output_file_format_from_dracut_code(self):
+    def _get_boot_image_output_file_format_from_dracut_code(
+        self
+    ) -> Optional[str]:
         dracut_tool = Path.which(
             'dracut', root_dir=self.boot_root_directory, access_mode=os.X_OK
         )
@@ -439,12 +463,14 @@ class BootImageBase:
                 matches = re.findall(outfile_expression, dracut.read())
                 if matches:
                     return matches[0].replace('$kernel', '{kernel_version}')
+        return None
 
     def _get_boot_image_output_file_format_from_existing_file(
-        self, kernel_version
-    ):
+        self, kernel_version: str
+    ) -> Optional[str]:
         for initrd_file in glob.iglob(self.boot_root_directory + '/boot/init*'):
             if not os.path.islink(initrd_file):
                 return os.path.basename(initrd_file).replace(
                     kernel_version, '{kernel_version}'
                 )
+        return None
