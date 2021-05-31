@@ -53,9 +53,9 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
-        <source path="obs://Virtualization:Appliances:Staging/Fedora_33"/>
+        <source path="obs://Virtualization:Appliances:Staging/Fedora_34"/>
     </repository>
-    <repository type="rpm-md" alias="Fedora_33">
+    <repository type="rpm-md" alias="Fedora_34">
         <source path="obs://Fedora:34/standard"/>
     </repository>
     <repository type="rpm-md" alias="Fedora_EPEL">
