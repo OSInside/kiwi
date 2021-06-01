@@ -557,8 +557,12 @@ hybridpersistent_filesystem="ext4|xfs":
   writing if a hybrid image is used as disk on e.g a USB Stick.
   By default the ext4 filesystem is used.
 
-initrd_system="kiwi|dracut":
-  Specify which initrd builder to use, default is set to `dracut`
+initrd_system="kiwi|dracut|none":
+  Specify which initrd builder to use, default is set to `dracut`.
+  If set to `none` the image is build without an initrd. Depending
+  on the image type this can lead to a non bootable system as its
+  now a kernel responsibility if the given root device can be
+  mounted or not.
 
 metadata_path="dir_path":
   Specifies a path to additional metadata required for the selected

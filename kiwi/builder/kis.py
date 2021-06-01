@@ -93,6 +93,9 @@ class KisBuilder:
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
+        if not self.boot_image_task.has_initrd_support():
+            log.warning('Building without initrd support !')
+
     def create(self) -> Result:
         """
         Build a component image consisting out of a boot image(initrd)
@@ -127,16 +130,17 @@ class KisBuilder:
             checksum = Checksum(self.image)
             checksum.md5(self.checksum_name)
 
-        # prepare boot(initrd) root system
-        log.info('Creating boot image')
-        self.boot_image_task.prepare()
+        # prepare initrd
+        if self.boot_image_task.has_initrd_support():
+            log.info('Creating boot image')
+            self.boot_image_task.prepare()
 
         # export modprobe configuration to boot image
         self.system_setup.export_modprobe_setup(
             self.boot_image_task.boot_root_directory
         )
 
-        # extract kernel from boot(initrd) root system
+        # extract kernel from boot system
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         kernel_data = kernel.get_kernel()
         if kernel_data:
@@ -182,7 +186,8 @@ class KisBuilder:
                 )
 
         # create initrd
-        self.boot_image_task.create_initrd()
+        if self.boot_image_task.has_initrd_support():
+            self.boot_image_task.create_initrd()
 
         # create append information
         # this information helps to configure the deployment infrastructure
@@ -200,9 +205,12 @@ class KisBuilder:
 
         kis_tarball_files = [
             self.kernel_filename,
-            os.path.basename(self.boot_image_task.initrd_filename),
             os.path.basename(self.checksum_name),
         ]
+        if self.boot_image_task.initrd_filename:
+            kis_tarball_files.append(
+                os.path.basename(self.boot_image_task.initrd_filename)
+            )
 
         if self.image:
             kis_tarball_files.append(os.path.basename(self.image))

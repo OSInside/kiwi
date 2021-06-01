@@ -174,24 +174,28 @@ class XMLState:
 
         Depending on the image type a specific initrd system is
         either pre selected or free of choice according to the
-        XML type setup
+        XML type setup.
 
-        :return: dracut, kiwi or None
+        :return: 'dracut', 'kiwi' or 'none'
 
         :rtype: str
         """
-        if self.get_build_type_name() in ['vmx', 'iso', 'kis']:
-            # vmx, iso and kis image types always use dracut as initrd system
-            initrd_system = 'dracut'
-        elif self.get_build_type_name() == 'pxe':
-            # pxe image type defaults to kiwi if unset
-            initrd_system = self.build_type.get_initrd_system() or 'kiwi'
-        elif self.get_build_type_name() == 'oem':
-            # oem image type defaults to dracut if unset
-            initrd_system = self.build_type.get_initrd_system() or 'dracut'
-        else:
-            initrd_system = self.build_type.get_initrd_system()
-        return initrd_system
+        pre_selection_map = {
+            'vmx': 'dracut',
+            'oem': 'dracut',
+            'iso': 'dracut',
+            'kis': 'dracut',
+            'pxe': 'kiwi',
+        }
+        build_type = self.get_build_type_name()
+        default_initrd_system = pre_selection_map.get(build_type) or 'none'
+
+        if build_type == 'iso':
+            # iso type always use dracut as initrd system
+            return default_initrd_system
+
+        # Allow to choose for any other build type
+        return self.build_type.get_initrd_system() or default_initrd_system
 
     def get_locale(self) -> Optional[List]:
         """

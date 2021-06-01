@@ -1594,15 +1594,14 @@ div {
             sch:param [ name = "types" value = "oem" ]
         ]
     k.type.initrd_system.attribute =
-        ## specify which initrd builder to use, default is kiwi's
-        ## builtin architecture. Be aware that the dracut initrd
-        ## system does not support all features of the kiwi initrd
+        ## specify which initrd builder to use, default is dracut
+        ## initrd architecture.
         attribute initrd_system {
-            "kiwi" | "dracut"
+            "kiwi" | "dracut" | "none"
         }
         >> sch:pattern [ id = "initrd_system" is-a = "image_type"
             sch:param [ name = "attr" value = "initrd_system" ]
-            sch:param [ name = "types" value = "oem pxe" ]
+            sch:param [ name = "types" value = "oem pxe kis" ]
         ]
     k.type.image.attribute =
         ## Specifies the image type

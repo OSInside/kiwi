@@ -171,3 +171,6 @@ class TestBootImageBase:
         self.boot_image.set_static_modules(['module'])
         self.boot_image.write_system_config_file({'config_key': 'value'})
         self.boot_image.cleanup()
+
+    def test_has_initrd_support(self):
+        assert self.boot_image.has_initrd_support() is False
