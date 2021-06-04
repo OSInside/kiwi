@@ -190,7 +190,7 @@ Europe/Berlin for ``/usr/share/zoneinfo/Europe/Berlin``.
 .. code:: xml
 
    <preferences>
-     <keytable>Europe/Berlin</keytable>
+     <timezone>Europe/Berlin</timezone>
    </preferences>
 
 <preferences><locale>
