@@ -66,6 +66,7 @@ class BootImageKiwi(BootImageBase):
         self.boot_root_directory = ''
 
         self.temp_directories: List[str] = []
+        self.load_boot_xml_description()
 
     def prepare(self) -> None:
         """
@@ -78,7 +79,6 @@ class BootImageKiwi(BootImageBase):
             self.temp_directories.append(
                 self.boot_root_directory
             )
-            self.load_boot_xml_description()
             boot_image_name = self.boot_xml_state.xml_data.get_name()
 
             self.import_system_description_elements()

@@ -19,7 +19,9 @@ from kiwi.exceptions import KiwiConfigFileNotFound
 class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
     @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
-    def setup(self, mock_exists, mock_mkdtemp):
+    @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
+    def setup(self, mock_boot_path, mock_exists, mock_mkdtemp):
+        mock_boot_path.return_value = '../data'
         Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
         description = XMLDescription('../data/example_config.xml')
@@ -48,7 +50,6 @@ class TestBootImageKiwi:
         self.boot_image = BootImageKiwi(
             self.xml_state, 'some-target-dir'
         )
-        self.boot_image.boot_xml_state = Mock()
 
     def test_include_file(self):
         # is a nop for builtin kiwi initrd and does nothing
@@ -93,7 +94,7 @@ class TestBootImageKiwi:
         mock_mkdtemp.return_value = 'boot-root-directory'
         mock_os_path.return_value = False
         with raises(KiwiConfigFileNotFound):
-            self.boot_image.prepare()
+            self.boot_image.post_init()
 
     @patch('kiwi.boot.image.builtin_kiwi.ArchiveCpio')
     @patch('kiwi.boot.image.builtin_kiwi.Compress')
