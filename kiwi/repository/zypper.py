@@ -117,6 +117,7 @@ class RepositoryZypper(RepositoryBase):
 
         self.zypper_args = [
             '--non-interactive',
+            '--gpg-auto-import-keys',
             '--pkg-cache-dir', self.shared_zypper_dir['pkg-cache-dir'],
             '--reposd-dir', self.shared_zypper_dir['reposd-dir'],
             '--solv-cache-dir', self.shared_zypper_dir['solv-cache-dir'],
