@@ -1,51 +1,29 @@
-#================
-# FILE          : functions.sh
-#----------------
-# PROJECT       : openSUSE Build-Service
-# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
-#               :
-# AUTHOR        : Marcus Schaefer <ms@suse.de>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : This module contains common used functions
-#               : for the config.sh and image.sh scripts
-#               :
-#               :
-# STATUS        : Development
-#----------------
-
-#======================================
-#             IMPORTANT
-#======================================
-# If you change *anything* in this file
-# PLEASE also adapt the documentation
-# in doc/source/working_with_kiwi/shell_scripts.rst
-#======================================
-#             IMPORTANT
-#======================================
-
+#!/bin/bash
+# Copyright (c) 2021 SUSE Software Solutions Germany GmbH.  All rights reserved.
+#
+# This file is part of kiwi.
+#
+# kiwi is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# kiwi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with kiwi.  If not, see <http://www.gnu.org/licenses/>
+#
 #======================================
 # work in POSIX environment
 #--------------------------------------
 export LANG=C
 export LC_ALL=C
-#======================================
-# check base tools
-#--------------------------------------
-for tool in basename dirname;do
-    if [ -x "/bin/${tool}" ] && [ ! -e "/usr/bin/${tool}" ];then
-        ln -s "/bin/${tool}" "/usr/bin/${tool}"
-    fi
-done
-for tool in setctsid klogconsole;do
-    if [ -x "/usr/bin/${tool}" ] && [ ! -e "/usr/sbin/${tool}" ];then
-        ln -s "/usr/bin/${tool}" "/usr/sbin/${tool}"
-    fi
-done
 
 #======================================
-# baseSystemdServiceInstalled
+# Common Functions
 #--------------------------------------
 function baseSystemdServiceInstalled {
     local service=$1
@@ -67,9 +45,6 @@ function baseSystemdServiceInstalled {
     done
 }
 
-#======================================
-# baseSysVServiceInstalled
-#--------------------------------------
 function baseSysVServiceInstalled {
     local service=$1
     if [ -x "/etc/init.d/${service}" ];then
@@ -77,9 +52,6 @@ function baseSysVServiceInstalled {
     fi
 }
 
-#======================================
-# baseSystemctlCall
-#--------------------------------------
 function baseSystemdCall {
     local service_name=$1; shift
     local service
@@ -97,9 +69,6 @@ function baseSystemdCall {
     fi
 }
 
-#======================================
-# baseInsertService
-#--------------------------------------
 function baseInsertService {
     # /.../
     # Enable a system service using systemctl
@@ -113,9 +82,6 @@ function baseInsertService {
     baseSystemdCall "${service}" "enable"
 }
 
-#======================================
-# baseRemoveService
-#--------------------------------------
 function baseRemoveService {
     # /.../
     # Disable a system service using systemctl
@@ -128,9 +94,6 @@ function baseRemoveService {
     baseSystemdCall "${service}" "disable"
 }
 
-#======================================
-# baseService
-#--------------------------------------
 function baseService {
     # /.../
     # Enable or Disable a service
@@ -160,343 +123,18 @@ function baseService {
     fi
 }
 
-#======================================
-# suseRemoveService
-#--------------------------------------
-function suseRemoveService {
-    # function kept for compatibility
-    baseRemoveService "$@"
-}
-
-#======================================
-# suseInsertService
-#--------------------------------------
-function suseInsertService {
-    # function kept for compatibility
-    baseInsertService "$@"
-}
-
-#======================================
-# suseService
-#--------------------------------------
-function suseService {
-    # function kept for compatibility
-    baseService "$@"
-}
-
-#======================================
-# suseActivateDefaultServices
-#--------------------------------------
-function suseActivateDefaultServices {
-    # /.../
-    # Some basic services that needs to be on.
-    # ----
-    local services=(
-        network
-        cron
-    )
-    for service in "${services[@]}";do
-        echo "Activating service: ${service}"
-        baseInsertService "${service}"
-    done
-}
-
-#======================================
-# suseImportBuildKey
-#--------------------------------------
-function suseImportBuildKey {
-    # /.../
-    # Add missing gpg keys to rpm database
-    # ----
-    local KEY
-    local TDIR
-    local KFN
-    local dumpsigs=/usr/lib/rpm/gnupg/dumpsigs
-    TDIR=$(mktemp -d)
-    if [ ! -d "${TDIR}" ]; then
-        echo "suseImportBuildKey: Failed to create temp dir"
-        return
-    fi
-    if [ -d "/usr/lib/rpm/gnupg/keys" ];then
-        pushd "/usr/lib/rpm/gnupg/keys" || return
-    else
-        pushd "${TDIR}" || return
-        if [ -x "${dumpsigs}" ];then
-            ${dumpsigs} /usr/lib/rpm/gnupg/suse-build-key.gpg
-        fi
-    fi
-    for KFN in gpg-pubkey-*.asc; do
-        if [ ! -e "${KFN}" ];then
-            #
-            # check if file exists because if the glob match did
-            # not find files bash will use the glob string as
-            # result and we just continue in this case
-            #
-            continue
-        fi
-        KEY=$(basename "${KFN}" .asc)
-        if rpm -q "${KEY}" >/dev/null; then
-            continue
-        fi
-        echo "Importing ${KEY} to rpm database"
-        rpm --import "${KFN}"
-    done
-    popd || return
-    rm -rf "${TDIR}"
-}
-
-#======================================
-# baseSetupUserPermissions
-#--------------------------------------
-function baseSetupUserPermissions {
-    while read -r line;do
-        dir=$(echo "${line}" | cut -f6 -d:)
-        uid=$(echo "${line}" | cut -f3 -d:)
-        usern=$(echo "${line}" | cut -f1 -d:)
-        group=$(echo "${line}" | cut -f4 -d:)
-        shell=$(echo "${line}" | cut -f7 -d:)
-        if [ ! -d "${dir}" ];then
-            continue
-        fi
-        if [ "${uid}" -lt 1000 ];then
-            continue
-        fi
-        if [[ ! "${shell}" =~ nologin|true|false ]];then
-            group=$(grep "${group}" /etc/group | cut -f1 -d:)
-            chown -c -R "${usern}":"${group}" "${dir}"
-        fi
-    done < /etc/passwd
-}
-
-#======================================
-# suseConfig
-#--------------------------------------
-function suseConfig {
-    # function kept for compatibility
-    return
-}
-
-#======================================
-# baseGetPackagesForDeletion
-#--------------------------------------
-function baseGetPackagesForDeletion {
-    declare kiwi_delete=${kiwi_delete}
-    echo "${kiwi_delete}"
-}
-
-#======================================
-# baseGetProfilesUsed
-#--------------------------------------
-function baseGetProfilesUsed {
-    declare kiwi_profiles=${kiwi_profiles}
-    echo "${kiwi_profiles}"
-}
-
-#======================================
-# baseCleanMount
-#--------------------------------------
-function baseCleanMount {
-    echo "DEPRECATED: ${FUNCNAME[0]} is obsolete and only exists as noop method"
-}
-
-#======================================
-# baseMount
-#--------------------------------------
-function baseMount {
-    echo "DEPRECATED: ${FUNCNAME[0]} is obsolete and only exists as noop method"
-}
-
-#======================================
-# baseStripMans
-#--------------------------------------
-function baseStripMans {
-    # /..,/
-    # remove all manual pages, except
-    # one given as parametr
-    #
-    # params - name of keep man pages
-    # example baseStripMans less
-    # ----
-    local keepMans="$*"
-    local directories="
-        /opt/gnome/share/man
-        /usr/local/man
-        /usr/share/man
-        /opt/kde3/share/man/packages
-    "
-    find "${directories}" -mindepth 1 -maxdepth 2 -type f 2>/dev/null |\
-        baseStripAndKeep "${keepMans}"
-}
-
-#======================================
-# baseStripDocs
-#--------------------------------------
-function baseStripDocs {
-    # /.../
-    # remove all documentation, except
-    # copying license copyright
-    # ----
-    local docfiles
-    local dir
-    local directories="
-        /opt/gnome/share/doc/packages
-        /usr/share/doc/packages
-        /opt/kde3/share/doc/packages
-    "
-    for dir in ${directories}; do
-        docfiles=$(find "${dir}" -type f |\
-            grep -iv "copying\|license\|copyright" || :)
-        rm -f "${docfiles}"
-    done
-    rm -rf /usr/share/info
-    rm -rf /usr/share/man
-}
-
-#======================================
-# baseStripLocales
-#--------------------------------------
 function baseStripLocales {
     local keepLocales="$*"
     find /usr/lib/locale -mindepth 1 -maxdepth 1 -type d 2>/dev/null |\
         baseStripAndKeep "${keepLocales}"
 }
 
-#======================================
-# baseStripTranslations
-#--------------------------------------
 function baseStripTranslations {
     local keepMatching="$*"
     find /usr/share/locale -name "*.mo" |\
         grep -v "${keepMatching}" | xargs rm -f
 }
 
-#======================================
-# baseStripInfos
-#--------------------------------------
-function baseStripInfos {
-    # /.../
-    # remove all info files,
-    # except one given as parametr
-    #
-    # params - name of keep info files
-    # ----
-    local keepInfos="$*"
-    find /usr/share/info -mindepth 1 -maxdepth 1 -type f 2>/dev/null |\
-        baseStripAndKeep "${keepInfos}"
-}
-
-#======================================
-# baseStripAndKeep
-#--------------------------------------
-function baseStripAndKeep {
-    # /.../
-    # helper function for the baseStrip* functions
-    # reads the list of files to check from stdin for removing
-    # - params - files which should be kept
-    # ----
-    local keepFiles="$*"
-    local found
-    local baseFile
-    local keep
-    local file
-    while read -r file; do
-        baseFile=$(/usr/bin/basename "${file}")
-        found=0
-        for keep in ${keepFiles};do
-            if echo "${baseFile}" | grep -q "${keep}"; then
-                found=1
-                break
-            fi
-        done
-        if [ "${found}" = 0 ]; then
-             Rm -rf "${file}"
-        fi
-    done
-}
-#======================================
-# baseStripTools {list of toolpath} {list of tools}
-# Helper function for suseStripInitrd
-# function parameters: toolpath, tools.
-#--------------------------------------
-function baseStripTools {
-    local tpath=$1
-    local tools=$2
-    local found
-    local file
-    local IFS
-    find "${tpath}" -print0 | \
-    while IFS= read -r -d $'\0' file; do
-        found=0
-        base=$(/usr/bin/basename "${file}")
-        for need in ${tools};do
-            if [ "${base}" = "$need" ];then
-                found=1
-                break
-            fi
-        done
-        if [ "${found}" = 0 ] && [ ! -d "${file}" ];then
-            Rm -fv "${file}"
-        fi
-    done
-}
-#======================================
-# Rm
-#--------------------------------------
-function Rm {
-    # /.../
-    # delete files & anounce it to log
-    # ----
-    Debug "rm $*"
-    rm "$@"
-}
-
-#======================================
-# Rpm
-#--------------------------------------
-function Rpm {
-    # /.../
-    # all rpm function & anounce it to log
-    # ----
-    Debug "rpm $*"
-    rpm "$@"
-}
-#======================================
-# Echo
-#--------------------------------------
-function Echo {
-    # /.../
-    # print a message to the controling terminal
-    # ----
-    local option=""
-    local prefix="----->"
-    local optn=""
-    local opte=""
-    while getopts "bne" option;do
-        case ${option} in
-            b) prefix="      " ;;
-            n) optn="-n" ;;
-            e) opte="-e" ;;
-            *) echo "Invalid argument: ${option}" ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-    echo "${optn}" "${opte}" "${prefix} $1"
-    OPTIND=1
-}
-#======================================
-# Debug
-#--------------------------------------
-function Debug {
-    # /.../
-    # print message if variable DEBUG is set to 1
-    # -----
-    if test "${DEBUG:-0}" = 1;then
-        echo "+++++> (caller:${FUNCNAME[1]}:${FUNCNAME[2]} )  $*"
-    fi
-}
-#======================================
-# stripUnusedLibs
-#--------------------------------------
 function baseStripUnusedLibs {
     # /.../
     # Remove libraries which are not directly linked
@@ -549,7 +187,8 @@ function baseStripUnusedLibs {
     for libname in $1; do
         for libfile in \
             /lib*/"$libname"* /usr/lib*/"$libname"* \
-            /lib/x86_64-linux-gnu/"$libname"* /usr/lib/x86_64-linux-gnu/"$libname"* \
+            /lib/x86_64-linux-gnu/"$libname"* \
+            /usr/lib/x86_64-linux-gnu/"$libname"* \
             /usr/X11R6/lib*/"$libname"*
         do
             if [ -e "$libfile" ];then
@@ -590,9 +229,6 @@ function baseStripUnusedLibs {
     done
 }
 
-#======================================
-# baseUpdateSysConfig
-#--------------------------------------
 function baseUpdateSysConfig {
     # /.../
     # Update the contents of a sysconfig variable
@@ -609,9 +245,6 @@ function baseUpdateSysConfig {
     fi
 }
 
-#======================================
-# baseStripInitrd
-#--------------------------------------
 function baseStripInitrd {
     declare kiwi_initrd_system=${kiwi_initrd_system}
     declare kiwi_strip_tools=${kiwi_strip_tools}
@@ -633,72 +266,6 @@ function baseStripInitrd {
     done
 }
 
-#======================================
-# suseStripInitrd
-#--------------------------------------
-function suseStripInitrd {
-    baseStripInitrd "$@"
-}
-
-#======================================
-# rhelStripInitrd
-#--------------------------------------
-function rhelStripInitrd {
-    baseStripInitrd "$@"
-}
-
-#======================================
-# debianStripInitrd
-#--------------------------------------
-function debianStripInitrd {
-    baseStripInitrd "$@"
-}
-
-#======================================
-# rhelSplashToGrub
-#--------------------------------------
-function rhelSplashToGrub {
-    local grub_stage=/usr/lib/grub
-    local rhel_logos=/boot/grub/splash.xpm.gz
-    if [ ! -e "${rhel_logos}" ];then
-        return
-    fi
-    if [ ! -d "${grub_stage}" ];then
-        mkdir -p "${grub_stage}"
-    fi
-    mv "${rhel_logos}" "${grub_stage}"
-}
-
-#======================================
-# suseSetupProductInformation
-#--------------------------------------
-function suseSetupProductInformation {
-    # /.../
-    # This function will use zypper to search for the installed
-    # product and prepare the product specific information
-    # for YaST
-    # ----
-    local zypper
-    local product
-    local p_alias
-    local p_name
-    if [ ! -x /usr/bin/zypper ];then
-        echo "zypper not installed... skipped"
-        return
-    fi
-    zypper="zypper --non-interactive --no-gpg-checks"
-    product=$("${zypper}" search -t product | grep product | head -n 1)
-
-    p_alias=$(echo "${product}" | cut -f4 -d'|')
-    p_name=$(echo "${product}" | cut -f 4-5 -d'|' | tr '|' '-' | tr -d " ")
-
-    echo "Installing product information for $p_name"
-    $zypper install -t product "${p_alias}"
-}
-
-#======================================
-# baseStripFirmware
-#--------------------------------------
 function baseStripFirmware {
     # /.../
     # check all kernel modules if they require a firmware and
@@ -732,13 +299,15 @@ function baseStripFirmware {
                     match="${match//\/lib\/firmware\//}"
                     bmdir=$(dirname "${match}")
                     mkdir -p "/lib/firmware-required/${bmdir}"
-                    mv "/lib/firmware/${match}" "/lib/firmware-required/${bmdir}"
+                    mv "/lib/firmware/${match}" \
+                        "/lib/firmware-required/${bmdir}"
                 fi
             done
         done
     done
     # Preserve licenses and txt files (which are needed for some firmware blobs)
-    find /lib/firmware \( -name 'LICENSE*' -o -name '*txt' \) -print | while read -r match; do
+    find /lib/firmware \( -name 'LICENSE*' -o -name '*txt' \) -print |\
+    while read -r match; do
         if [ -e "${match}" ];then
             match="${match//\/lib\/firmware\//}"
             bmdir=$(dirname "${match}")
@@ -750,9 +319,6 @@ function baseStripFirmware {
     mv /lib/firmware-required /lib/firmware
 }
 
-#======================================
-# baseStripModules
-#--------------------------------------
 function baseStripModules {
     # /.../
     # search for updated modules and remove the old version
@@ -808,46 +374,6 @@ function baseStripModules {
     done
 }
 
-#======================================
-# baseCreateKernelTree
-#--------------------------------------
-function baseCreateKernelTree {
-    # Create a copy of the kernel source tree under /kernel-tree/ for stripping
-    # operations
-    echo "Creating copy of kernel tree for strip operations"
-    mkdir -p /kernel-tree
-    cp -a /lib/modules/* /kernel-tree/
-}
-
-#======================================
-# baseSyncKernelTree
-#--------------------------------------
-function baseSyncKernelTree {
-    # Overwrite the original kernel tree with a minimized version from
-    # /kernel-tree/.
-    echo "Replace kernel tree with downsized version"
-    rm -rf /lib/modules/*
-    cp -a /kernel-tree/* /lib/modules/
-    rm -rf /kernel-tree
-}
-
-#======================================
-# baseKernelDriverMatches
-#--------------------------------------
-function baseKernelDriverMatches {
-    declare kiwi_drivers=${kiwi_drivers}
-    module=$1
-    for pattern in $(echo "${kiwi_drivers}" | tr , ' '); do
-        if [[ ${module} =~ ${pattern} ]];then
-            return 0
-        fi
-    done
-    return 1
-}
-
-#======================================
-# baseStripKernelModules
-#--------------------------------------
 function baseStripKernelModules {
     for kernel_dir in /kernel-tree/*;do
         kernel_version=$(/usr/bin/basename "${kernel_dir}")
@@ -856,7 +382,8 @@ function baseStripKernelModules {
         fi
         echo "Downsizing kernel modules for ${kernel_dir}"
         for module in $(
-            find "/kernel-tree/${kernel_version}/kernel" -name "*.ko" -o -name "*.ko.xz" | sort
+            find "/kernel-tree/${kernel_version}/kernel" \
+                -name "*.ko" -o -name "*.ko.xz" | sort
         ); do
             if ! baseKernelDriverMatches "${module}"; then
                 echo "Deleting unwanted module: ${module}"
@@ -866,49 +393,6 @@ function baseStripKernelModules {
     done
 }
 
-#======================================
-# baseFixupKernelModuleDependencies
-#--------------------------------------
-function baseFixupKernelModuleDependencies {
-    local kernel_dir
-    local kernel_version
-    local module
-    local module_name
-    local module_info
-    local dependency
-    local module_files
-    for kernel_dir in /kernel-tree/*;do
-        echo "Checking kernel dependencies for ${kernel_dir}"
-        kernel_version=$(/usr/bin/basename "${kernel_dir}")
-        module_files=$(find "/kernel-tree/${kernel_version}" -name "*.ko" -o -name "*.ko.xz")
-
-        for module in ${module_files};do
-            module_u=${module%.xz}
-            module_name=$(/usr/bin/basename "${module_u}")
-            module_info=$(/sbin/modprobe \
-                --set-version "${kernel_version}" --ignore-install \
-                --show-depends "${module_name%.ko}" |\
-                sed -ne 's:.*insmod /\?::p'
-            )
-
-            for dependency in ${module_info}; do
-                if [ ! -f "/${dependency}" ]; then
-                    continue
-                fi
-                dependency_module=${dependency/lib\/modules/kernel-tree}
-                if [ ! -f "${dependency_module}" ];then
-                    echo -e "Fix ${module}:\n  --> needs: ${dependency_module}"
-                    mkdir -p "$(/usr/bin/dirname "${dependency_module}")"
-                    cp -a "${dependency}" "${dependency_module}"
-                fi
-            done
-        done
-    done
-}
-
-#======================================
-# baseUpdateModuleDependencies
-#--------------------------------------
 function baseUpdateModuleDependencies {
     local kernel_dir
     local kernel_version
@@ -922,9 +406,6 @@ function baseUpdateModuleDependencies {
     done
 }
 
-#======================================
-# baseStripKernel
-#--------------------------------------
 function baseStripKernel {
     # /.../
     # this function will strip the kernel
@@ -967,62 +448,6 @@ function baseStripKernel {
     fi
 }
 
-#======================================
-# suseStripKernel
-#--------------------------------------
-function suseStripKernel {
-    baseStripKernel
-}
-
-#======================================
-# rhelStripKernel
-#--------------------------------------
-function rhelStripKernel {
-    baseStripKernel
-}
-
-#======================================
-# debianStripKernel
-#--------------------------------------
-function debianStripKernel {
-    baseStripKernel
-}
-
-#======================================
-# suseSetupProduct
-#--------------------------------------
-function suseSetupProduct {
-    # /.../
-    # This function creates the /etc/products.d/baseproduct
-    # link pointing to the product referenced by either
-    # /etc/SuSE-brand or /etc/os-release or the latest .prod file
-    # available in /etc/products.d
-    # ----
-    local prod=undef
-    if [ -f /etc/SuSE-brand ];then
-        prod=$(head /etc/SuSE-brand -n 1)
-    elif [ -f /etc/os-release ];then
-        prod=$(grep "^NAME" /etc/os-release | cut -d '=' -f 2 | cut -d '"' -f 2)
-    fi
-    if [ -d /etc/products.d ];then
-        pushd /etc/products.d || return
-        if [ -f "${prod}.prod" ];then
-            ln -sf "${prod}.prod" baseproduct
-        elif [ -f "SUSE_${prod}.prod" ];then
-            ln -sf "SUSE_${prod}.prod" baseproduct
-        else
-            prod=$(find . -maxdepth 1 -name "*.prod" 2>/dev/null | tail -n 1)
-            if [ -f "${prod}" ];then
-                ln -sf "${prod}" baseproduct
-            fi
-        fi
-        popd || return
-    fi
-}
-
-#======================================
-# baseSetRunlevel
-#--------------------------------------
 function baseSetRunlevel {
     # /.../
     # Set the systemd default target link according to the
@@ -1066,80 +491,12 @@ function baseSetRunlevel {
     esac
 }
 
-#======================================
-# baseCleanup
-#--------------------------------------
-function baseCleanup {
-    # /.../
-    # Delete files from the system which are considered
-    # one time initialization files to be re-created on
-    # the final target system
-    # ----
-    # systemd random seed
-    rm -f /var/lib/systemd/random-seed
-}
-
-#======================================
-# suseCleanup
-#--------------------------------------
-function suseCleanup {
-    # /.../
-    # Delete files from a SUSE system which are considered
-    # one time initialization files to be re-created on
-    # the final target system
-    # ----
-    baseCleanup
-}
-
-#======================================
-# suseRemoveYaST
-#--------------------------------------
-function suseRemoveYaST {
-    if [ -e /etc/YaST2/firstboot.xml ];then
-        return
-    fi
-    if [ -e /var/lib/autoinstall/autoconf/autoconf.xml ];then
-        return
-    fi
-    local yast_pkgs
-    # prevent non-zero exit status when no yast packages were found
-    yast_pkgs=$(rpm -qa | grep yast || :)
-    if [ "${yast_pkgs}" != "" ];then
-        echo "${yast_pkgs}" | xargs rpm -e --nodeps
-    fi
-}
-
-#======================================
-# baseSetupBuildDay
-#--------------------------------------
 function baseSetupBuildDay {
     local buildDay
     buildDay="$(LC_ALL=C date -u '+%Y%m%d')"
     echo "build_day=${buildDay}" > /build_day
 }
 
-#======================================
-# baseQuoteFile
-#--------------------------------------
-function baseQuoteFile {
-    local file=$1
-    local conf=$file.quoted
-    # create clean input, no empty lines and comments
-    grep -v '^$' "${file}" | grep -v '^[ \t]*#' > "${conf}"
-    # remove start/stop quoting from values
-    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=[\"']\(.*\)[\"']#\1=\2#" "${conf}"
-    # remove backslash quotes if any
-    sed -i -e s"#\\\\\(.\)#\1#g" "${conf}"
-    # quote simple quotation marks
-    sed -i -e s"#'\+#'\\\\''#g" "${conf}"
-    # add '...' quoting to values
-    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=\(.*\)#\1='\2'#" "${conf}"
-    mv "${conf}" "${file}"
-}
-
-#======================================
-# baseVagrantSetup
-#--------------------------------------
 function baseVagrantSetup {
     # insert the default insecure ssh key from here:
     # https://github.com/hashicorp/vagrant/blob/master/keys/vagrant.pub
@@ -1170,6 +527,410 @@ function baseVagrantSetup {
 
     # SSH service
     baseInsertService sshd
+}
+
+
+#======================================
+# Common Functions (SUSE)
+#--------------------------------------
+function suseRemoveService {
+    # function kept for compatibility
+    baseRemoveService "$@"
+}
+
+function suseInsertService {
+    # function kept for compatibility
+    baseInsertService "$@"
+}
+
+function suseService {
+    # function kept for compatibility
+    baseService "$@"
+}
+
+function suseStripInitrd {
+    baseStripInitrd "$@"
+}
+
+function suseStripKernel {
+    baseStripKernel
+}
+
+function suseSetupProduct {
+    # /.../
+    # This function creates the /etc/products.d/baseproduct
+    # link pointing to the product referenced by either
+    # /etc/SuSE-brand or /etc/os-release or the latest .prod file
+    # available in /etc/products.d
+    # ----
+    local prod=undef
+    if [ -f /etc/SuSE-brand ];then
+        prod=$(head /etc/SuSE-brand -n 1)
+    elif [ -f /etc/os-release ];then
+        prod=$(grep "^NAME" /etc/os-release | cut -d '=' -f 2 | cut -d '"' -f 2)
+    fi
+    if [ -d /etc/products.d ];then
+        pushd /etc/products.d || return
+        if [ -f "${prod}.prod" ];then
+            ln -sf "${prod}.prod" baseproduct
+        elif [ -f "SUSE_${prod}.prod" ];then
+            ln -sf "SUSE_${prod}.prod" baseproduct
+        else
+            prod=$(find . -maxdepth 1 -name "*.prod" 2>/dev/null | tail -n 1)
+            if [ -f "${prod}" ];then
+                ln -sf "${prod}" baseproduct
+            fi
+        fi
+        popd || return
+    fi
+}
+
+
+#======================================
+# Helper methods
+#--------------------------------------
+function Echo {
+    # /.../
+    # print a message to the controling terminal
+    # ----
+    local option=""
+    local prefix="----->"
+    local optn=""
+    local opte=""
+    while getopts "bne" option;do
+        case ${option} in
+            b) prefix="      " ;;
+            n) optn="-n" ;;
+            e) opte="-e" ;;
+            *) echo "Invalid argument: ${option}" ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+    echo "${optn}" "${opte}" "${prefix} $1"
+    OPTIND=1
+}
+
+function Debug {
+    # /.../
+    # print message if variable DEBUG is set to 1
+    # -----
+    if test "${DEBUG:-0}" = 1;then
+        echo "+++++> (caller:${FUNCNAME[1]}:${FUNCNAME[2]} )  $*"
+    fi
+}
+
+function baseQuoteFile {
+    # /.../
+    # Quote file to be shell sourceable
+    # -----
+    local file=$1
+    local conf=$file.quoted
+    # create clean input, no empty lines and comments
+    grep -v '^$' "${file}" | grep -v '^[ \t]*#' > "${conf}"
+    # remove start/stop quoting from values
+    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=[\"']\(.*\)[\"']#\1=\2#" "${conf}"
+    # remove backslash quotes if any
+    sed -i -e s"#\\\\\(.\)#\1#g" "${conf}"
+    # quote simple quotation marks
+    sed -i -e s"#'\+#'\\\\''#g" "${conf}"
+    # add '...' quoting to values
+    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=\(.*\)#\1='\2'#" "${conf}"
+    mv "${conf}" "${file}"
+}
+
+function baseCreateKernelTree {
+    # /.../
+    # Create a copy of the kernel source tree under
+    # /kernel-tree/ for stripping operations
+    # ----
+    echo "Creating copy of kernel tree for strip operations"
+    mkdir -p /kernel-tree
+    cp -a /lib/modules/* /kernel-tree/
+}
+
+function baseSyncKernelTree {
+    # /.../
+    # Overwrite the original kernel tree with a minimized
+    # version from /kernel-tree/.
+    # ----
+    echo "Replace kernel tree with downsized version"
+    rm -rf /lib/modules/*
+    cp -a /kernel-tree/* /lib/modules/
+    rm -rf /kernel-tree
+}
+
+function baseFixupKernelModuleDependencies {
+    # /.../
+    # Browse through the kernel tree and check if kernel
+    # module dependencies are broken, if yes fix them
+    # ----
+    local kernel_dir
+    local kernel_version
+    local module
+    local module_name
+    local module_info
+    local dependency
+    local module_files
+    for kernel_dir in /kernel-tree/*;do
+        echo "Checking kernel dependencies for ${kernel_dir}"
+        kernel_version=$(/usr/bin/basename "${kernel_dir}")
+        module_files=$(
+            find "/kernel-tree/${kernel_version}" \
+                -name "*.ko" -o -name "*.ko.xz"
+        )
+
+        for module in ${module_files};do
+            module_u=${module%.xz}
+            module_name=$(/usr/bin/basename "${module_u}")
+            module_info=$(/sbin/modprobe \
+                --set-version "${kernel_version}" --ignore-install \
+                --show-depends "${module_name%.ko}" |\
+                sed -ne 's:.*insmod /\?::p'
+            )
+
+            for dependency in ${module_info}; do
+                if [ ! -f "/${dependency}" ]; then
+                    continue
+                fi
+                dependency_module=${dependency/lib\/modules/kernel-tree}
+                if [ ! -f "${dependency_module}" ];then
+                    echo -e "Fix ${module}:\n  --> needs: ${dependency_module}"
+                    mkdir -p "$(/usr/bin/dirname "${dependency_module}")"
+                    cp -a "${dependency}" "${dependency_module}"
+                fi
+            done
+        done
+    done
+}
+
+function baseKernelDriverMatches {
+    # /.../
+    # Check if the provided kernel module name matches
+    # the kiwi driver pattern
+    # ----
+    declare kiwi_drivers=${kiwi_drivers}
+    module=$1
+    for pattern in $(echo "${kiwi_drivers}" | tr , ' '); do
+        if [[ ${module} =~ ${pattern} ]];then
+            return 0
+        fi
+    done
+    return 1
+}
+
+function baseStripAndKeep {
+    # /.../
+    # helper function for the baseStrip* functions
+    # reads the list of files to check from stdin for removing
+    # - params - files which should be kept
+    # ----
+    local keepFiles="$*"
+    local found
+    local baseFile
+    local keep
+    local file
+    while read -r file; do
+        baseFile=$(/usr/bin/basename "${file}")
+        found=0
+        for keep in ${keepFiles};do
+            if echo "${baseFile}" | grep -q "${keep}"; then
+                found=1
+                break
+            fi
+        done
+        if [ "${found}" = 0 ]; then
+             Rm -rf "${file}"
+        fi
+    done
+}
+
+function baseStripTools {
+    # /.../
+    # baseStripTools {list of toolpath} {list of tools}
+    # Helper function for suseStripInitrd, only keep
+    # the provided tools from the list
+    local tpath=$1
+    local tools=$2
+    local found
+    local file
+    local IFS
+    find "${tpath}" -print0 | \
+    while IFS= read -r -d $'\0' file; do
+        found=0
+        base=$(/usr/bin/basename "${file}")
+        for need in ${tools};do
+            if [ "${base}" = "$need" ];then
+                found=1
+                break
+            fi
+        done
+        if [ "${found}" = 0 ] && [ ! -d "${file}" ];then
+            Rm -fv "${file}"
+        fi
+    done
+}
+
+function Rm {
+    # /.../
+    # delete files & anounce it to log
+    # ----
+    Debug "rm $*"
+    rm "$@"
+}
+
+function deprecated {
+    echo "DEPRECATED: $1() is obsolete"
+    echo "["
+    cat
+    echo "]"
+    exit 1
+}
+
+
+#======================================
+# Deprecated methods
+#--------------------------------------
+function baseCleanMount {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Cleanup operations are a responsibility of the kiwi code
+	EOF
+}
+
+function baseMount {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Mounting of kernel and other base filesystems are a
+	responsibility of the kiwi code
+	EOF
+}
+
+function suseActivateDefaultServices {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	There is no generic applicable list of default services
+	It is expected that the installation of software handles
+	this properly. Optional services should be handled explicitly
+	EOF
+}
+
+function suseImportBuildKey {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	This is done by kiwi at call time of zypper
+	EOF
+}
+
+function baseSetupUserPermissions {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	This is done in kiwi by chkstat
+	EOF
+}
+
+function suseConfig {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	suse script no longer present
+	EOF
+}
+
+function baseGetPackagesForDeletion {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Provided by the kiwi_delete environment variable
+	EOF
+}
+
+function baseGetProfilesUsed {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Provided by the kiwi_profiles environment variable
+	EOF
+}
+
+function baseStripMans {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Man pages are marked as documentation by the package manager
+	and can be excluded via rpm-excludedocs
+	EOF
+}
+
+function baseStripDocs {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Documentation lives at different places and a method
+	to do this in a common way should not be a responsibility
+	of kiwi
+	EOF
+}
+
+function baseStripInfos {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Info files are marked as documentation by the package manager
+	and can be excluded via rpm-excludedocs
+	EOF
+}
+
+function Rpm {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Please call rpm as it fits in the caller scope
+	EOF
+}
+
+function rhelStripInitrd {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Useful only in the context of a kiwi created initrd
+	This concept was never exposed to RHEL/Fedora
+	EOF
+}
+
+function debianStripInitrd {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Useful only in the context of a kiwi created initrd
+	This concept was never exposed to Debian/Ubuntu
+	EOF
+}
+
+function rhelStripKernel {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Useful only in the context of a kiwi created initrd
+	This concept was never exposed to RHEL/Fedora
+	EOF
+}
+
+function debianStripKernel {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Useful only in the context of a kiwi created initrd
+	This concept was never exposed to Debian/Ubuntu
+	EOF
+}
+
+function rhelSplashToGrub {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Code based on distros out of support and no longer using kernel splash
+	EOF
+}
+
+function suseSetupProductInformation {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Utilizes zypper to install a product information.
+	Product handling in zypper has changed. The method here
+	was based on distros out of support
+	EOF
+}
+
+function baseCleanup {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Cleanup operations are a responsibility of the kiwi code
+	EOF
+}
+
+function suseCleanup {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	Cleanup operations are a responsibility of the kiwi code
+	EOF
+}
+
+function suseRemoveYaST {
+    deprecated "${FUNCNAME[0]}" <<- EOF
+	There is no standard uninstall method for YaST which
+	is common across distributions. To prevent installation of
+	YaST make sure it does not get pulled in with the packages.
+	If this is inevitable delete it based on packages in the
+	kiwi delete/uninstall <packages> sections
+	EOF
 }
 
 # vim: set noexpandtab:
