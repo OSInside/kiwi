@@ -23,11 +23,6 @@ echo "Configure image: [$kiwi_iname]-[$kiwi_profiles]..."
 CONSOLE_FONT="eurlatgr.psfu"
 
 #======================================
-# Mount system filesystems
-#--------------------------------------
-baseMount
-
-#======================================
 # Setup baseproduct link
 #--------------------------------------
 suseSetupProduct
@@ -38,19 +33,9 @@ suseSetupProduct
 baseSetRunlevel 3
 
 #======================================
-# Add missing gpg keys to rpm
-#--------------------------------------
-suseImportBuildKey
-
-#======================================
 # Activate services
 #--------------------------------------
 suseInsertService sshd
-
-#======================================
-# Remove doc files
-#--------------------------------------
-baseStripDocs
 
 #======================================
 # Sysconfig Update
@@ -121,7 +106,3 @@ cat > /usr/lib/sysctl.d/50-rpi3.conf <<-EOF
     # Avoid running out of DMA pages for smsc95xx (bsc#1012449)
     vm.min_free_kbytes = 2048
 EOF
-
-baseCleanMount
-
-exit 0

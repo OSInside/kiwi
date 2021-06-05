@@ -43,11 +43,6 @@ rm -f /etc/machine-id \
 baseSetRunlevel multi-user.target
 
 #======================================
-# Import trusted rpm keys
-#--------------------------------------
-suseImportBuildKey
-
-#======================================
 # Set hostname by DHCP
 #--------------------------------------
 baseUpdateSysConfig /etc/sysconfig/network/dhcp DHCLIENT_SET_HOSTNAME yes
