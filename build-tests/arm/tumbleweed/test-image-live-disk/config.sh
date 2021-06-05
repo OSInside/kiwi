@@ -24,11 +24,6 @@ test -f /.profile && . /.profile
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Mount system filesystems
-#--------------------------------------
-baseMount
-
-#======================================
 # Setup baseproduct link
 #--------------------------------------
 suseSetupProduct
@@ -42,15 +37,3 @@ suseInsertService sshd
 # Setup default target, multi-user
 #--------------------------------------
 baseSetRunlevel 3
-
-#======================================
-# Remove yast if not in use
-#--------------------------------------
-suseRemoveYaST
-
-#======================================
-# Umount kernel filesystems
-#--------------------------------------
-baseCleanMount
-
-exit 0

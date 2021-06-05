@@ -37,8 +37,3 @@ suseInsertService sshd
 # Setup default target, multi-user
 #--------------------------------------
 baseSetRunlevel 3
-
-#======================================
-# Remove yast if not in use
-#--------------------------------------
-suseRemoveYaST

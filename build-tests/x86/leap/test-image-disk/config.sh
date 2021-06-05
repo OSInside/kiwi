@@ -42,14 +42,3 @@ suseInsertService dracut_hostonly
 # Setup default target, multi-user
 #--------------------------------------
 baseSetRunlevel 3
-
-#==========================================
-# remove package docs
-#------------------------------------------
-rm -rf /usr/share/doc/packages/*
-rm -rf /usr/share/doc/manual/*
-
-#======================================
-# Remove yast if not in use
-#--------------------------------------
-suseRemoveYaST
