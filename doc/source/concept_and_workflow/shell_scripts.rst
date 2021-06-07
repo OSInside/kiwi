@@ -100,35 +100,13 @@ name ``base``.
 
 The following list describes all functions provided by :file:`.kconfig`:
 
-baseCleanMount
-  Unmount the filesystems :file:`/proc`, :file:`/dev/pts`, :file:`/sys` and
-  :file:`/proc/sys/fs/binfmt_misc`.
-
-baseGetPackagesForDeletion
-  Return the name(s) of the packages marked for deletion in the image
-  description.
-
-baseGetProfilesUsed
-  Return the name(s) of profiles used to build this image.
-
 baseSetRunlevel {value}
   Set the default run level.
-
-baseSetupUserPermissions
-  Set the ownership of all home directories and their content to the correct
-  users and groups listed in :file:`/etc/passwd`.
 
 baseStripAndKeep {list of info-files to keep}
   Helper function for the ``baseStrip*`` functions, reads the list of files
   to check from stdin for removing
   params: files which should be kept
-
-baseStripDocs {list of docu names to keep}
-  Remove all documentation files, except for the ones given as the
-  parameter.
-
-baseStripInfos {list of info-files to keep}
-  Remove all info files, except for the one given as the parameter.
 
 baseStripLocales {list of locales}
   Remove all locales, except for the ones given as the parameter.
@@ -136,27 +114,12 @@ baseStripLocales {list of locales}
 baseStripTranslations {list of translations}
   Remove all translations, except for the ones given as the parameter.
 
-baseStripMans {list of manpages to keep}
-  Remove all manual pages, except for the ones given as the parameter.
-
-  Example:
-
-  .. code:: bash
-
-     baseStripMans more less
-
-suseImportBuildKey
-  Add the SUSE build keys to the RPM database.
-
 baseStripUnusedLibs
   Remove libraries which are not directly linked against applications
   in the bin directories.
 
 baseUpdateSysConfig {filename} {variable} {value}
   Update the contents of a sysconfig variable
-
-suseConfig
-  This function is deprecated and is a NOP.
 
 baseSystemdServiceInstalled {service}
   Prints the path of the first found systemd unit or mount with name passed
@@ -199,19 +162,11 @@ suseService {servicename} {on|off}
   Calls baseService and exists only for compatibility
   reasons.
 
-suseActivateDefaultServices
-  Activates the `network` and `cron` services to run at boot.
-
 suseSetupProduct
   Creates the :file:`/etc/products.d/baseproduct` link
   pointing to the product referenced by either :file:`/etc/SuSE-brand` or
   :file:`/etc/os-release` or the latest `.prod` file available in
   :file:`/etc/products.d`
-
-suseSetupProductInformation
-  Uses :command:`zypper` to search for the installed product
-  and installs all product specific packages. This function fails
-  when :command:`zypper` is not the appliances package manager.
 
 baseVagrantSetup
   Configures the image to work as a vagrant box by performing the following
@@ -232,10 +187,6 @@ Echo {echo commandline}
 
 Rm {list of files}
   Helper function to delete files and log the deletion.
-
-Rpm {rpm commandline}
-  Helper function for calling ``rpm``: forwards all commandline arguments to
-  ``rpm`` and logs the call.
 
 Profile Environment Variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
