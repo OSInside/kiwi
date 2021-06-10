@@ -104,13 +104,18 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
     @patch('kiwi.boot.image.builtin_kiwi.mkdtemp')
     @patch('kiwi.boot.image.builtin_kiwi.os.chmod')
+    @patch('kiwi.boot.image.builtin_kiwi.TemporaryDirectory')
     def test_create_initrd(
-        self, mock_os_chmod, mock_mkdtemp, mock_prepared, mock_sync,
+        self, mock_TemporaryDirectory, mock_os_chmod,
+        mock_mkdtemp, mock_prepared, mock_sync,
         mock_wipe, mock_create, mock_compress, mock_cpio
     ):
         data = Mock()
         mock_sync.return_value = data
         mock_mkdtemp.return_value = 'temp-boot-directory'
+        temporary_directory = Mock()
+        temporary_directory.name = 'temp-boot-directory'
+        mock_TemporaryDirectory.return_value = temporary_directory
         mock_prepared.return_value = True
         self.boot_image.boot_root_directory = 'boot-root-directory'
         mbrid = Mock()

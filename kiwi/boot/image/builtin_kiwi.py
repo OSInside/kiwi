@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from tempfile import TemporaryDirectory
 from tempfile import mkdtemp
 from typing import (
     Optional, List
@@ -151,13 +152,11 @@ class BootImageKiwi(BootImageBase):
                 kiwi_initrd_basename = basename
             else:
                 kiwi_initrd_basename = self.initrd_base_name
-            temp_boot_root_directory = mkdtemp(
+            temp_boot_root = TemporaryDirectory(
                 prefix='kiwi_boot_root_copy.'
             )
+            temp_boot_root_directory = temp_boot_root.name
             os.chmod(temp_boot_root_directory, 0o755)
-            self.temp_directories.append(
-                temp_boot_root_directory
-            )
             data = DataSync(
                 self.boot_root_directory + '/',
                 temp_boot_root_directory
