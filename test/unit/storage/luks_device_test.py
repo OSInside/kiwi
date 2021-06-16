@@ -25,10 +25,6 @@ class TestLuksDevice:
         )
         self.luks = LuksDevice(storage_device)
 
-    def test_create_crypto_luks_empty_passphrase(self):
-        with raises(KiwiLuksSetupError):
-            self.luks.create_crypto_luks('')
-
     def test_create_crypto_luks_unsupported_os_options(self):
         with raises(KiwiLuksSetupError):
             self.luks.create_crypto_luks('passphrase', 'some-os')
@@ -45,6 +41,45 @@ class TestLuksDevice:
         mock_path.return_value = True
         self.luks.luks_device = None
         assert self.luks.get_device() is None
+
+    @patch('kiwi.storage.luks_device.Command.run')
+    def test_create_crypto_luks_empty_passphrase(self, mock_command):
+        with patch('builtins.open', create=True):
+            self.luks.create_crypto_luks(
+                passphrase='', os='sle12', keyfile='some-keyfile'
+            )
+            assert mock_command.call_args_list == [
+                call(
+                    [
+                        'dd', 'if=/dev/urandom', 'bs=1M', 'count=1',
+                        'of=/dev/some-device'
+                    ]
+                ),
+                call(
+                    [
+                        'cryptsetup', '-q', '--key-file', '/dev/zero',
+                        '--cipher', 'aes-xts-plain64',
+                        '--key-size', '256', '--hash', 'sha1',
+                        '--keyfile-size', '32',
+                        'luksFormat', '/dev/some-device'
+                    ]
+                ),
+                call(
+                    [
+                        'cryptsetup', '--key-file', '/dev/zero',
+                        '--keyfile-size', '32',
+                        'luksAddKey', '/dev/some-device', 'some-keyfile'
+                    ]
+                ),
+                call(
+                    [
+                        'cryptsetup', '--key-file', '/dev/zero',
+                        '--keyfile-size', '32',
+                        'luksOpen', '/dev/some-device', 'luksRoot'
+                    ]
+                )
+            ]
+            self.luks.luks_device = None
 
     @patch('kiwi.storage.luks_device.Command.run')
     @patch('kiwi.storage.luks_device.NamedTemporaryFile')

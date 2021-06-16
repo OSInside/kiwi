@@ -91,10 +91,6 @@ class LuksDevice(DeviceProvider):
         """
         if not options:
             options = []
-        if not passphrase:
-            raise KiwiLuksSetupError(
-                'passphrase must not be empty'
-            )
         if os:
             if os in self.option_map:
                 options += self.option_map[os]
@@ -102,8 +98,13 @@ class LuksDevice(DeviceProvider):
                 raise KiwiLuksSetupError(
                     'no custom option configuration found for OS %s' % os
                 )
+        extra_options = []
         storage_device = self.storage_provider.get_device()
         log.info('Creating crypto LUKS on %s', storage_device)
+
+        if not passphrase:
+            log.warning('Using an empty passphrase for the key setup')
+
         log.info('--> Randomizing...')
         storage_size_mbytes = self.storage_provider.get_byte_size(
             storage_device
@@ -116,13 +117,23 @@ class LuksDevice(DeviceProvider):
             ]
         )
         log.info('--> Creating LUKS map')
-        passphrase_file = NamedTemporaryFile()
-        with open(passphrase_file.name, 'w') as credentials:
-            credentials.write(passphrase)
+
+        if passphrase:
+            passphrase_file_tmp = NamedTemporaryFile()
+            with open(passphrase_file_tmp.name, 'w') as credentials:
+                credentials.write(passphrase)
+            passphrase_file = passphrase_file_tmp.name
+        else:
+            passphrase_file_zero = '/dev/zero'
+            extra_options = [
+                '--keyfile-size', '32'
+            ]
+            passphrase_file = passphrase_file_zero
+
         Command.run(
             [
-                'cryptsetup', '-q', '--key-file', passphrase_file.name
-            ] + options + [
+                'cryptsetup', '-q', '--key-file', passphrase_file
+            ] + options + extra_options + [
                 'luksFormat', storage_device
             ]
         )
@@ -131,13 +142,15 @@ class LuksDevice(DeviceProvider):
             LuksDevice.create_random_keyfile(keyfile)
             Command.run(
                 [
-                    'cryptsetup', '--key-file', passphrase_file.name,
+                    'cryptsetup', '--key-file', passphrase_file
+                ] + extra_options + [
                     'luksAddKey', storage_device, keyfile
                 ]
             )
         Command.run(
             [
-                'cryptsetup', '--key-file', passphrase_file.name,
+                'cryptsetup', '--key-file', passphrase_file
+            ] + extra_options + [
                 'luksOpen', storage_device, self.luks_name
             ]
         )
