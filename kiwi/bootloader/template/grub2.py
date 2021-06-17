@@ -37,7 +37,7 @@ class BootLoaderTemplateGrub2:
               }
             fi
             if [ -n "$${iso_path}" ]; then
-              isoboot="iso-scan/filename=$${iso_path}"
+                isoboot="iso-scan/filename=$${iso_path}"
             fi
         ''').strip() + os.linesep
 
