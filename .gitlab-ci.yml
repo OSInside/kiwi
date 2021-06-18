@@ -58,6 +58,7 @@ scripts:
   stage: test
   <<: *only-default
   script:
+    - dnf install podman
     - tox -e scripts
   cache:
     key: "$CI_JOB_NAME"
