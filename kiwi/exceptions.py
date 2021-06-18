@@ -194,6 +194,13 @@ class KiwiConfigFileFormatNotSupported(KiwiError):
     """
 
 
+
+class KiwiConfigSyntaxError(KiwiError):
+    """
+    Exception raised if kiwi description is in XML but cannot be parsed.
+    """
+
+
 class KiwiContainerSetupError(KiwiError):
     """
     Exception raised if an error in the creation of the

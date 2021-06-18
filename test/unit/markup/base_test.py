@@ -4,7 +4,10 @@ from pytest import raises
 
 from kiwi.markup.base import MarkupBase
 
-from kiwi.exceptions import KiwiConfigFileFormatNotSupported
+from kiwi.exceptions import (
+    KiwiConfigFileFormatNotSupported,
+    KiwiConfigSyntaxError
+)
 
 
 class TestMarkupBase:
@@ -29,5 +32,13 @@ class TestMarkupBase:
         mock_parse.side_effect = etree.XMLSyntaxError('not-XML', '<', 1, 1)
         with raises(KiwiConfigFileFormatNotSupported):
             self.markup.apply_xslt_stylesheets(
-                'artificial_and_invalid_XML_markup'
+                '../data/example_no_xml_config.xml'
+            )
+
+    @patch('kiwi.markup.base.etree.parse')
+    def test_apply_xslt_stylesheets_syntax_error(self, mock_parse):
+        mock_parse.side_effect = etree.XMLSyntaxError('not-XML', '<', 1, 1)
+        with raises(KiwiConfigSyntaxError):
+            self.markup.apply_xslt_stylesheets(
+                '../data/xample_syntaxerror_config.xml'
             )

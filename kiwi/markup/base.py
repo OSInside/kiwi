@@ -20,7 +20,10 @@ from lxml import etree
 
 # project
 from kiwi.defaults import Defaults
-from kiwi.exceptions import KiwiConfigFileFormatNotSupported
+from kiwi.exceptions import (
+    KiwiConfigFileFormatNotSupported,
+    KiwiConfigSyntaxError
+)
 
 
 class MarkupBase:
@@ -55,6 +58,12 @@ class MarkupBase:
         try:
             parsed_description = etree.parse(description)
         except etree.XMLSyntaxError:
+            with open(description) as image_description:
+                content = image_description.readlines()
+                if content[0].startswith('<?xml '):
+                    raise KiwiConfigSyntaxError(
+                        'The configuration file contains an XML syntax error '
+                        'and the file could not be parsed.')
             raise KiwiConfigFileFormatNotSupported(
                 'Support for non-XML formatted config files requires '
                 'the Python anymarkup module.')
