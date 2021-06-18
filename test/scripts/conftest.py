@@ -1,4 +1,5 @@
 import subprocess
+import logging
 from dataclasses import dataclass
 from os import getenv, path
 from typing import Any, List, Optional, Tuple
@@ -98,8 +99,8 @@ def _check_container_runtimes():
             Container.cleanup_container(runtime, con_id)
 
             working_container_runtimes.append(runtime)
-        except Exception:
-            pass
+        except Exception as issue:
+            logging.debug(issue)
 
     if len(working_container_runtimes) == 0:
         raise ValueError("No working container runtime found")

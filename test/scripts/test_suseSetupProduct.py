@@ -31,8 +31,9 @@ def test_sets_baseproduct_from_etc_os_relesae(shared_container, product_name):
     assert shared_container.file("/etc/products.d/baseproduct").exists
     assert shared_container.file("/etc/products.d/baseproduct").is_symlink
     assert (
-        shared_container.file("/etc/products.d/baseproduct").linked_to
-        == "/etc/products.d/" + product_name
+        shared_container.file(
+            "/etc/products.d/baseproduct"
+        ).linked_to == "/etc/products.d/" + product_name
     )
 
 
@@ -55,8 +56,9 @@ EOF
     assert container_per_test.file("/etc/products.d/baseproduct").exists
     assert container_per_test.file("/etc/products.d/baseproduct").is_symlink
     assert (
-        container_per_test.file("/etc/products.d/baseproduct").linked_to
-        == "/etc/products.d/openSUSE.prod"
+        container_per_test.file(
+            "/etc/products.d/baseproduct"
+        ).linked_to == "/etc/products.d/openSUSE.prod"
     )
 
 
@@ -76,6 +78,7 @@ touch /etc/products.d/20.prod
     assert container_per_test.file("/etc/products.d/baseproduct").exists
     assert container_per_test.file("/etc/products.d/baseproduct").is_symlink
     assert (
-        container_per_test.file("/etc/products.d/baseproduct").linked_to
-        == "/etc/products.d/20.prod"
+        container_per_test.file(
+            "/etc/products.d/baseproduct"
+        ).linked_to == "/etc/products.d/20.prod"
     )
