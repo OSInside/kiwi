@@ -102,7 +102,7 @@ def _check_container_runtimes():
             pass
 
     if len(working_container_runtimes) == 0:
-        raise ValueError("No working container runtime found")
+        raise RuntimeError("No working container runtime found")
     elif len(working_container_runtimes) == 1:
         global SELECTED_CONTAINER_RUNTIME
         SELECTED_CONTAINER_RUNTIME = working_container_runtimes[0]
