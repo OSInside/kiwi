@@ -27,6 +27,9 @@ wheel
 # Python style guide checker
 flake8
 mypy
+types-pkg_resources
+types-requests
+types-PyYAML
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS
