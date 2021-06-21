@@ -686,7 +686,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
-        if self.custom_args.get('boot_is_crypto'):
+        if self.custom_args.get('crypto_disk'):
             grub_default_entries['GRUB_ENABLE_CRYPTODISK'] = 'y'
 
         enable_blscfg_implemented = Command.run(

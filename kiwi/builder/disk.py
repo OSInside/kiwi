@@ -251,6 +251,8 @@ class DiskBuilder:
                         loop_provider.get_device(),
                     'grub_directory_name':
                         Defaults.get_grub_boot_directory_name(self.root_dir),
+                    'crypto_disk':
+                        True if self.luks is not None else False,
                     'boot_is_crypto':
                         self.boot_is_crypto
                 }
@@ -272,18 +274,31 @@ class DiskBuilder:
 
         # create luks on current root device if requested
         luks_root = None
-        if self.luks:
+        if self.luks is not None:
             luks_root = LuksDevice(device_map['root'])
             self.luks_boot_keyname = '/.root.keyfile'
             self.luks_boot_keyfile = ''.join(
                 [self.root_dir, self.luks_boot_keyname]
             )
+            # use LUKS key file for the following conditions:
+            # 1. /boot is encrypted
+            #    In this case grub needs to read from LUKS via the
+            #    cryptodisk module which at the moment always asks
+            #    for the passphrase even when empty. The keyfile
+            #    setup makes sure only one interaction on the grub
+            #    stage is needed
+            # 2. LUKS passphrase is configured as empty string
+            #    In this case the keyfile allows to open the
+            #    LUKS pool without asking
+            #
+            luks_need_keyfile = \
+                True if self.boot_is_crypto or self.luks == '' else False
             luks_root.create_crypto_luks(
                 passphrase=self.luks,
                 os=self.luks_os,
-                keyfile=self.luks_boot_keyfile if self.boot_is_crypto else None
+                keyfile=self.luks_boot_keyfile if luks_need_keyfile else None
             )
-            if self.boot_is_crypto:
+            if luks_need_keyfile:
                 self.luks_boot_keyfile_setup = ''.join(
                     [self.root_dir, '/etc/dracut.conf.d/99-luks-boot.conf']
                 )

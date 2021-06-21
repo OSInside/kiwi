@@ -110,6 +110,7 @@ class TestBootLoaderConfigGrub2:
             self.state, 'root_dir', None, {
                 'grub_directory_name': 'grub2',
                 'boot_is_crypto': True,
+                'crypto_disk': True,
                 'targetbase': 'rootdev'
             }
         )
