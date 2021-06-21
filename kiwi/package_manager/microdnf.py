@@ -107,7 +107,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
 
         :rtype: namedtuple
         """
-        bash_command = [
+        microdnf_command = [
             'microdnf'
         ] + ['--refresh'] + self.dnf_args + [
             '--installroot', self.root_dir,
@@ -124,7 +124,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
         ] + self.custom_args + ['install'] + self.package_requests
         self.cleanup_requests()
         return Command.call(
-            ['bash', '-c', ' '.join(bash_command)], self.command_env
+            microdnf_command, self.command_env
         )
 
     def process_install_requests(self) -> command_call_type:
@@ -146,14 +146,14 @@ class PackageManagerMicroDnf(PackageManagerBase):
         chroot_dnf_args = Path.move_to_root(
             self.root_dir, self.dnf_args
         )
-        bash_command = [
+        microdnf_command = [
             'chroot', self.root_dir, 'microdnf'
         ] + chroot_dnf_args + self.custom_args + exclude_args + [
             'install'
         ] + self.package_requests
         self.cleanup_requests()
         return Command.call(
-            ['bash', '-c', ' '.join(bash_command)], self.command_env
+            microdnf_command, self.command_env
         )
 
     def process_delete_requests(self, force: bool = False) -> command_call_type:
