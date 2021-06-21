@@ -56,8 +56,10 @@ class MarkupBase:
             parsed_description = etree.parse(description)
         except etree.XMLSyntaxError:
             raise KiwiConfigFileFormatNotSupported(
-                'Support for non-XML formatted config files requires '
-                'the Python anymarkup module.')
+                'Configuration file could not be parsed. '
+                'In case your configuration file is XML it most likely '
+                'contains a syntax error. For other formats the '
+                'Python anymarkup module is required.')
 
         xslt_transform = etree.XSLT(
             etree.parse(Defaults.get_xsl_stylesheet_file())
