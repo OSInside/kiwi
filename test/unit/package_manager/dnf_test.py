@@ -26,7 +26,7 @@ class TestPackageManagerDnf:
 
     def test_request_collection(self):
         self.manager.request_collection('name')
-        assert self.manager.collection_requests == ['"name"']
+        assert self.manager.collection_requests == ['@name']
 
     def test_request_product(self):
         self.manager.request_product('name')
@@ -47,12 +47,8 @@ class TestPackageManagerDnf:
         )
         mock_call.assert_called_once_with(
             [
-                'bash', '-c',
-                'dnf --config /root-dir/dnf.conf -y '
-                '--installroot /root-dir install vim && '
-                'dnf --config /root-dir/dnf.conf -y '
-                '--installroot /root-dir group install '
-                '"collection"'
+                'dnf', '--config', '/root-dir/dnf.conf', '-y',
+                '--installroot', '/root-dir', 'install', 'vim', '@collection'
             ], ['env']
         )
 
@@ -64,12 +60,8 @@ class TestPackageManagerDnf:
         self.manager.process_install_requests()
         mock_call.assert_called_once_with(
             [
-                'bash', '-c',
-                'chroot /root-dir dnf --config /dnf.conf -y '
-                '--exclude=skipme install vim && '
-                'chroot /root-dir dnf --config /dnf.conf -y '
-                '--exclude=skipme group install '
-                '"collection"'
+                'chroot', '/root-dir', 'dnf', '--config', '/dnf.conf', '-y',
+                '--exclude=skipme', 'install', 'vim', '@collection'
             ], ['env']
         )
 

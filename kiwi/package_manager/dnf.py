@@ -64,9 +64,9 @@ class PackageManagerDnf(PackageManagerBase):
         """
         Queue a collection request
 
-        :param str name: dnf group name
+        :param str name: dnf group ID name
         """
-        self.collection_requests.append('"' + name + '"')
+        self.collection_requests.append(f'@{name}')
 
     def request_product(self, name: str) -> None:
         """
@@ -101,22 +101,16 @@ class PackageManagerDnf(PackageManagerBase):
         Command.run(
             ['dnf'] + self.dnf_args + ['makecache']
         )
-        bash_command = [
+        dnf_command = [
             'dnf'
         ] + self.dnf_args + [
             '--installroot', self.root_dir
-        ] + self.custom_args + ['install'] + self.package_requests
-        if self.collection_requests:
-            bash_command += [
-                '&&', 'dnf'
-            ] + self.dnf_args + [
-                '--installroot', self.root_dir
-            ] + self.custom_args + [
-                'group', 'install'
-            ] + self.collection_requests
+        ] + self.custom_args + [
+            'install'
+        ] + self.package_requests + self.collection_requests
         self.cleanup_requests()
         return Command.call(
-            ['bash', '-c', ' '.join(bash_command)], self.command_env
+            dnf_command, self.command_env
         )
 
     def process_install_requests(self) -> command_call_type:
@@ -138,20 +132,14 @@ class PackageManagerDnf(PackageManagerBase):
         chroot_dnf_args = Path.move_to_root(
             self.root_dir, self.dnf_args
         )
-        bash_command = [
+        dnf_command = [
             'chroot', self.root_dir, 'dnf'
         ] + chroot_dnf_args + self.custom_args + exclude_args + [
             'install'
-        ] + self.package_requests
-        if self.collection_requests:
-            bash_command += [
-                '&&', 'chroot', self.root_dir, 'dnf'
-            ] + chroot_dnf_args + self.custom_args + exclude_args + [
-                'group', 'install'
-            ] + self.collection_requests
+        ] + self.package_requests + self.collection_requests
         self.cleanup_requests()
         return Command.call(
-            ['bash', '-c', ' '.join(bash_command)], self.command_env
+            dnf_command, self.command_env
         )
 
     def process_delete_requests(self, force: bool = False) -> command_call_type:
