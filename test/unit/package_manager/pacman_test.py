@@ -54,10 +54,10 @@ class TestPackageManagerPacman:
         ]
         mock_call.assert_called_once_with(
             [
-                'bash', '-c',
-                'pacman --config /root-dir/pacman.conf -y --noconfirm '
-                '--root /root-dir -S --needed --overwrite /root-dir/var/run '
-                'vim collection'
+                'pacman', '--config', '/root-dir/pacman.conf',
+                '-y', '--noconfirm', '--root', '/root-dir', '-S',
+                '--needed', '--overwrite', '/root-dir/var/run',
+                'vim', 'collection'
             ], ['env']
         )
 
@@ -69,9 +69,9 @@ class TestPackageManagerPacman:
         self.manager.process_install_requests()
         mock_call.assert_called_once_with(
             [
-                'bash', '-c',
-                'chroot /root-dir pacman --config /pacman.conf -y '
-                '--noconfirm -S --needed vim collection'
+                'chroot', '/root-dir', 'pacman', '--config',
+                '/pacman.conf', '-y', '--noconfirm', '-S',
+                '--needed', 'vim', 'collection'
             ], ['env']
         )
 
