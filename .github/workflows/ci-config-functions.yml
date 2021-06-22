@@ -1,5 +1,4 @@
----
-name: CI
+name: CI-Config-Functions
 
 on:
   push:
@@ -9,7 +8,7 @@ on:
 
 jobs:
   scripts_integration_tests:
-    name: Integration tests for functions.sh
+    name: Integration tests for config/functions.sh
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -31,7 +30,7 @@ jobs:
         uses: actions/checkout@v2
       - name: set up Python
         uses: actions/setup-python@v2
-      - name: install tox
+      - name: Install Tox
         run: sudo apt update && sudo apt install tox
 
       - name: Run the scripts integration tests
