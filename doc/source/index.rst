@@ -128,5 +128,7 @@ Contact
 * `Matrix <https://matrix.org>`__
 
   An open network for secure, decentralized communication. Please find the
-  ``#kiwi`` room via `Riot <https://riot.im/app/>`__ on the web or by using
-  the supported `clients <https://matrix.org/docs/projects/clients-matrix>`__.
+  ``#kiwi:matrix.org`` room via
+  `Matrix <https://matrix.to/#kiwi:matrix.org>`__ on the web
+  or by using the supported
+  `clients <https://matrix.org/docs/projects/clients-matrix>`__.
