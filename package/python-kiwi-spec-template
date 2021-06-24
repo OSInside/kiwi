@@ -530,6 +530,10 @@ BuildRequires:  dracut
 %endif
 Requires:       dracut-kiwi-lib = %{version}-%{release}
 Requires:       util-linux
+# lsblk is part of util-linux-systemd on openSUSE
+%if 0%{?suse_version}
+Requires:       util-linux-systemd
+%endif
 Requires:       dracut
 License:        GPL-3.0-or-later
 Group:          %{sysgroup}
