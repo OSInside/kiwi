@@ -4,5 +4,5 @@
 MAIN=xml/book.xml
 ADOC_POST=yes
 ADOC_TYPE=book
-STYLEROOT="/usr/share/xml/docbook/stylesheet/suse2013-ns"
+STYLEROOT="/usr/share/xml/docbook/stylesheet/suse2021-ns"
 DOCBOOK5_RNG_URI="file:///usr/share/xml/docbook/schema/rng/5.1/docbookxi.rnc"
