@@ -742,7 +742,7 @@ class DiskBuilder:
 
         if self.root_filesystem_is_overlay:
             log.info('--> creating readonly root partition')
-            squashed_root_file = NamedTemporaryFile()
+            squashed_root_file = NamedTemporaryFile(dir='/var/tmp', prefix='kiwi-')
             squashed_root = FileSystemSquashFs(
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
@@ -1052,7 +1052,7 @@ class DiskBuilder:
 
         log.info('--> Syncing root filesystem data')
         if self.root_filesystem_is_overlay:
-            squashed_root_file = NamedTemporaryFile()
+            squashed_root_file = NamedTemporaryFile(dir='/var/tmp', prefix='kiwi-')
             squashed_root = FileSystemSquashFs(
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
