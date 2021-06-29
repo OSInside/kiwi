@@ -22,6 +22,7 @@
                 <oem-unattended>true</oem-unattended>
                 <oem-swapsize>1024</oem-swapsize>
                 <oem-multipath-scan>false</oem-multipath-scan>
+                <oem-device-filter>/dev/ram</oem-device-filter>
             </oemconfig>
             <systemdisk>
                 <volume name="home"/>
