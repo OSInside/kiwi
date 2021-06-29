@@ -106,8 +106,10 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.dracut.Command.run')
     @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
     @patch('kiwi.boot.image.dracut.Profile')
+    @patch('kiwi.boot.image.dracut.MountManager')
     def test_create_initrd(
-        self, mock_Profile, mock_prepared, mock_command, mock_kernel
+        self, mock_MountManager, mock_Profile, mock_prepared,
+        mock_command, mock_kernel
     ):
         profile = Mock()
         profile.dot_profile = dict()
@@ -124,6 +126,10 @@ class TestBootImageKiwi:
         profile.create.assert_called_once_with(
             'system-directory/.profile'
         )
+        assert mock_MountManager.call_args_list == [
+            call(device='/dev', mountpoint='system-directory/dev'),
+            call(device='/proc', mountpoint='system-directory/proc')
+        ]
         assert mock_command.call_args_list == [
             call([
                 'chroot', 'system-directory',
@@ -160,3 +166,10 @@ class TestBootImageKiwi:
 
     def test_has_initrd_support(self):
         assert self.boot_image.has_initrd_support() is True
+
+    def test_destructor(self):
+        self.boot_image.device_mount = Mock()
+        self.boot_image.proc_mount = Mock()
+        self.boot_image.__del__()
+        self.boot_image.device_mount.umount.assert_called_once_with()
+        self.boot_image.proc_mount.umount.assert_called_once_with()
