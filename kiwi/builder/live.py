@@ -225,7 +225,7 @@ class LiveImageBuilder:
         filesystem_setup = FileSystemSetup(
             self.xml_state, self.root_dir
         )
-        root_image = NamedTemporaryFile()
+        root_image = NamedTemporaryFile(dir='/var/tmp', prefix='kiwi-')
         loop_provider = LoopDevice(
             root_image.name,
             filesystem_setup.get_size_mbytes(root_filesystem),
@@ -266,7 +266,7 @@ class LiveImageBuilder:
                     self.xml_state.build_type.get_squashfscompression()
             }
         )
-        container_image = NamedTemporaryFile()
+        container_image = NamedTemporaryFile(dir='/var/tmp', prefix='kiwi-')
         live_container_image.create_on_file(
             container_image.name
         )

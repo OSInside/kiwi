@@ -145,7 +145,7 @@ class TestLiveImageBuilder:
         mock_setup_media_loader_directory, mock_DeviceProvider
     ):
         tempfile = mock.Mock()
-        tempfile.name = 'tmpfile'
+        tempfile.name = 'kiwi-tmpfile'
         mock_tmpfile.return_value = tempfile
         mock_exists.return_value = True
         mock_grub_dir.return_value = 'grub2'
@@ -200,11 +200,11 @@ class TestLiveImageBuilder:
             'image', '.profile', '.kconfig',
             'run/*', 'tmp/*', '.buildenv', 'var/cache/kiwi'
         ])
-        filesystem.create_on_file.assert_called_once_with('tmpfile')
+        filesystem.create_on_file.assert_called_once_with('kiwi-tmpfile')
 
         assert mock_shutil.copy.call_args_list == [
-            call('tmpfile', 'temp-squashfs/LiveOS/rootfs.img'),
-            call('tmpfile', 'temp_media_dir/LiveOS/squashfs.img')
+            call('kiwi-tmpfile', 'temp-squashfs/LiveOS/rootfs.img'),
+            call('kiwi-tmpfile', 'temp_media_dir/LiveOS/squashfs.img')
         ]
 
         self.setup.call_edit_boot_config_script.assert_called_once_with(
