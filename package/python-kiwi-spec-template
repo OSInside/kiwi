@@ -426,6 +426,10 @@ Requires:       lvm2
 Requires:       mdadm
 Requires:       parted
 Requires:       util-linux
+# lsblk is part of util-linux-systemd on openSUSE
+%if 0%{?suse_version}
+Requires:       util-linux-systemd
+%endif
 Requires:       xfsprogs
 Requires:       dialog
 Requires:       pv
@@ -499,6 +503,10 @@ Requires:       dialog
 Requires:       xfsprogs
 Requires:       e2fsprogs
 Requires:       util-linux
+# lsblk is part of util-linux-systemd on openSUSE
+%if 0%{?suse_version}
+Requires:       util-linux-systemd
+%endif
 %if 0%{?debian} || 0%{?ubuntu}
 Requires:       dmsetup
 Requires:       dracut-network
