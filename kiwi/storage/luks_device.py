@@ -200,6 +200,7 @@ class LuksDevice(DeviceProvider):
         """
         with open(filename, 'wb') as keyfile:
             keyfile.write(os.urandom(Defaults.get_luks_key_length()))
+        os.chmod(filename, 0o600)
 
     def __del__(self):
         if self.luks_device:
