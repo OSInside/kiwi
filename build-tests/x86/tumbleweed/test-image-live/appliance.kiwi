@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+<!-- OBS-ExclusiveArch: x86_64 -->
+
 <image schemaversion="7.4" name="kiwi-test-image-live">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>live iso test build</specification>
     </description>
+    <profiles>
+        <profile name="Standard" description="Standard EFI/BIOS Live Boot"/>
+        <profile name="Secure" description="SecureBoot/BIOS Live Boot"/>
+    </profiles>
     <preferences>
         <version>1.42.3</version>
         <packagemanager>zypper</packagemanager>
@@ -16,7 +24,14 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences profiles="Standard">
         <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+        </type>
+    </preferences>
+    <preferences profiles="Secure">
+        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
