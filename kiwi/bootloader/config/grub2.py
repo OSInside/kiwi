@@ -641,7 +641,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'GRUB_TERMINAL': '"{0}"'.format(self.terminal)
         }
         grub_final_cmdline = re.sub(
-            r'root=.* |root=.*$', '', self.cmdline
+            r'(^root=[^\s]+)|( root=[^\s]+)', '', self.cmdline
         ).strip()
         if self.persistency_type != 'by-uuid':
             grub_default_entries['GRUB_DISABLE_LINUX_UUID'] = 'true'
