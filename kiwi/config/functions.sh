@@ -549,9 +549,15 @@ function baseVagrantSetup {
     chmod 0600 /home/vagrant/.ssh/authorized_keys
     chown -R vagrant:vagrant /home/vagrant/
 
-    # recommended ssh settings for vagrant boxes
-    echo "UseDNS no" >> /etc/ssh/sshd_config
-    echo "GSSAPIAuthentication no" >> /etc/ssh/sshd_config
+    # apply recommended ssh settings for vagrant boxes
+    SSHD_CONFIG=/etc/ssh/sshd_config.d/99-vagrant.conf
+    if [[ ! -d "$(dirname ${SSHD_CONFIG})" ]]; then
+        SSHD_CONFIG=/etc/ssh/sshd_config
+        # prepend the settings, so that they take precedence
+        echo -e "UseDNS no\nGSSAPIAuthentication no\n$(cat ${SSHD_CONFIG})" > ${SSHD_CONFIG}
+    else
+        echo -e "UseDNS no\nGSSAPIAuthentication no" > ${SSHD_CONFIG}
+    fi
 
     # vagrant assumes that it can sudo without a password
     # => add the vagrant user to the sudoers list
