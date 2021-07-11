@@ -74,6 +74,7 @@ CONTAINERS = [
     Container(
         name="SLE-12-SP5", url="registry.suse.com/suse/sles12sp5:latest"
     ),
+    Container(name="centos:stream8", url="quay.io/centos/centos:stream8"),
 ]
 
 
