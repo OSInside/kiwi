@@ -393,6 +393,14 @@ oemconfig.oem-unattended Element
   possible target devices are discovered the image is deployed to
   the first device. ``kiwi_oemunattended`` in the initrd
 
+oemconfig.oem-skip-verify Element
+  Do not perform the checksum verification process after install
+  of the image to the target disk. The verification process computes
+  the checksum of the image byte size installed to the target
+  and compares this value with the initrd embedded checksum
+  information at build time of the image. Depending on the size of
+  the image and machine power the computation can take some time.
+
 .. _installmedia_customize:
 
 Installation Media Customization
