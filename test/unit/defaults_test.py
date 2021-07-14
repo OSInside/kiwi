@@ -147,3 +147,19 @@ class TestDefaults:
             '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
             binaryname='grubx64.efi'
         )
+
+    @patch('glob.iglob')
+    def test_get_mok_manager(self, mock_iglob):
+        mock_iglob.return_value = []
+        assert Defaults.get_mok_manager('root_path') is None
+
+        mock_iglob.return_value = ['some_glob_result']
+        assert Defaults.get_mok_manager('root_path') == 'some_glob_result'
+
+    @patch('glob.iglob')
+    def test_get_shim_loader(self, mock_iglob):
+        mock_iglob.return_value = []
+        assert Defaults.get_shim_loader('root_path') is None
+
+        mock_iglob.return_value = ['some_glob_result']
+        assert Defaults.get_shim_loader('root_path') == 'some_glob_result'

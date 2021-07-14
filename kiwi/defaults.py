@@ -710,6 +710,31 @@ class Defaults:
                 return shim_file
 
     @staticmethod
+    def get_mok_manager(root_path: str) -> Optional[str]:
+        """
+        Provides Mok Manager file path
+
+        Searches distribution specific locations to find
+        the Mok Manager EFI binary
+
+        :param str root_path: image root path
+
+        :return: file path or None
+
+        :rtype: str
+        """
+        mok_manager_file_patterns = [
+            '/usr/share/efi/*/MokManager.efi',
+            '/usr/lib64/efi/MokManager.efi',
+            '/boot/efi/EFI/*/mm*.efi',
+            '/usr/lib/shim/mm*.efi'
+        ]
+        for mok_manager_file_pattern in mok_manager_file_patterns:
+            for mm_file in glob.iglob(root_path + mok_manager_file_pattern):
+                return mm_file
+        return None
+
+    @staticmethod
     def get_grub_efi_font_directory(root_path):
         """
         Provides distribution specific EFI font directory used with grub.

@@ -750,6 +750,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     os.sep.join([self.efi_boot_path, grub_image.binaryname])
                 ]
             )
+            mok_manager = Defaults.get_mok_manager(lookup_path)
+            if mok_manager:
+                Command.run(
+                    ['cp', mok_manager, self.efi_boot_path]
+                )
         else:
             # Without shim a self signed grub image is used that
             # gets loaded by the firmware
