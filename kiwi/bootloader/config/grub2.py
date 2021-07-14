@@ -824,7 +824,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             [self.boot_dir + '/boot/', self.arch, '/efi']
         )
         Command.run(
-            ['qemu-img', 'create', efi_fat_image, '15M']
+            ['qemu-img', 'create', efi_fat_image, '20M']
         )
         Command.run(
             ['mkdosfs', '-n', 'BOOT', efi_fat_image]
