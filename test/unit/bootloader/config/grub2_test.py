@@ -300,7 +300,7 @@ class TestBootLoaderConfigGrub2:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '15M'
+                    'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '20M'
                 ]
             ),
             call(
