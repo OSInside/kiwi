@@ -30,6 +30,7 @@ mypy
 types-pkg_resources
 types-requests
 types-PyYAML
+types-mock
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS
