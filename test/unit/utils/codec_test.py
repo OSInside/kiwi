@@ -21,8 +21,8 @@ class TestCodec:
     def test_decode_ascii_failure(self, mock_decode):
         msg = 'utf-8 compatible string'
 
-        def mocked_decode(literal, charset):
-            if charset:
+        def mocked_decode(literal, encoding, error_handling_schema):
+            if encoding:
                 return msg
             else:
                 raise KiwiDecodingError('ascii decoding failure')
@@ -42,8 +42,8 @@ class TestCodec:
 
     @patch('kiwi.utils.codec.Codec._wrapped_decode')
     def test_decode_utf8_failure(self, mock_decode):
-        def mocked_decode(literal, charset):
-            if charset:
+        def mocked_decode(literal, encoding, error_handling_schema):
+            if encoding:
                 raise KiwiDecodingError('utf-8 decoding failure')
             else:
                 raise KiwiDecodingError('ascii decoding failure')
