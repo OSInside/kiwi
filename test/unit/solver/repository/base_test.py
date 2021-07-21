@@ -1,6 +1,6 @@
 import io
 from mock import (
-    patch, call, mock_open, MagicMock
+    patch, call, mock_open, MagicMock, Mock
 )
 from pytest import raises
 import os
@@ -66,7 +66,7 @@ class TestSolverRepositoryBase:
             xml_data, 'repo:data[@type="primary"]/repo:location'
         )[0].get('href') == 'repodata/55f95a93-primary.xml.gz'
 
-    @patch('kiwi.solver.repository.base.NamedTemporaryFile')
+    @patch('kiwi.solver.repository.base.Temporary.new_file')
     @patch.object(SolverRepositoryBase, 'download_from_repository')
     @patch('os.path.isfile')
     def test__get_pacman_packages(
@@ -86,7 +86,7 @@ class TestSolverRepositoryBase:
                 'x86_64', 'tmpfile'
             )
 
-    @patch('kiwi.solver.repository.base.NamedTemporaryFile')
+    @patch('kiwi.solver.repository.base.Temporary.new_file')
     @patch.object(SolverRepositoryBase, 'download_from_repository')
     @patch('os.path.isfile')
     def test__get_deb_packages(
@@ -111,7 +111,7 @@ class TestSolverRepositoryBase:
             'Packages.gz', 'download_dir/Packages.gz'
         )
 
-    @patch('kiwi.solver.repository.base.NamedTemporaryFile')
+    @patch('kiwi.solver.repository.base.Temporary.new_file')
     @patch.object(SolverRepositoryBase, 'download_from_repository')
     @patch('lxml.etree.parse')
     def test__get_repomd_xml(self, mock_parse, mock_download, mock_tmpfile):
@@ -126,12 +126,13 @@ class TestSolverRepositoryBase:
         )
         mock_parse.assert_called_once_with('tmpfile')
 
-    @patch('kiwi.solver.repository.base.mkdtemp')
-    def test__create_temporary_metadata_dir(self, mock_mkdtemp):
-        mock_mkdtemp.return_value = 'tmpdir'
+    @patch('kiwi.solver.repository.base.Temporary')
+    def test__create_temporary_metadata_dir(self, mock_Temporary):
         self.solver._create_temporary_metadata_dir()
-        assert self.solver.repository_metadata_dirs == ['tmpdir']
-        mock_mkdtemp.assert_called_once_with(prefix='metadata_dir.')
+        assert self.solver.repository_metadata_dirs == [
+            mock_Temporary.return_value.new_dir.return_value
+        ]
+        mock_Temporary.assert_called_once_with(prefix='kiwi_metadata_dir.')
 
     @patch('os.path.exists')
     def test_is_uptodate_static_time(self, mock_exists):
@@ -263,15 +264,15 @@ class TestSolverRepositoryBase:
         with raises(KiwiUriOpenError):
             self.solver.download_from_repository('repodata/file', 'target-file')
 
-    @patch('kiwi.solver.repository.base.mkdtemp')
+    @patch('kiwi.solver.repository.base.Temporary')
     @patch('kiwi.solver.repository.base.random.randrange')
     @patch('kiwi.solver.repository.base.Command.run')
     def test__create_solvables_rpms2_solv(
-        self, mock_command, mock_rand, mock_mkdtemp
+        self, mock_command, mock_rand, mock_Temporary
     ):
         mock_rand.return_value = 0xfe
         self.solver.repository_metadata_dirs = ['metadata_dir.XXXX']
-        mock_mkdtemp.return_value = 'solv_dir.XX'
+        mock_Temporary.return_value.new_dir.return_value.name = 'solv_dir.XX'
         self.solver._create_solvables('meta_dir.XX', 'rpms2solv')
         mock_command.assert_called_once_with(
             [
@@ -280,17 +281,17 @@ class TestSolverRepositoryBase:
             ]
         )
 
-    @patch('kiwi.solver.repository.base.mkdtemp')
+    @patch('kiwi.solver.repository.base.Temporary')
     @patch('kiwi.solver.repository.base.random.randrange')
     @patch('kiwi.solver.repository.base.Command.run')
     @patch('kiwi.solver.repository.base.glob.iglob')
     def test__create_solvables_rpmmd2_solv(
-        self, mock_glob, mock_command, mock_rand, mock_mkdtemp
+        self, mock_glob, mock_command, mock_rand, mock_Temporary
     ):
         mock_glob.return_value = ['some-solv-data-file']
         mock_rand.return_value = 0xfe
         self.solver.repository_metadata_dirs = ['metadata_dir.XXXX']
-        mock_mkdtemp.return_value = 'solv_dir.XX'
+        mock_Temporary.return_value.new_dir.return_value.name = 'solv_dir.XX'
         self.solver._create_solvables('meta_dir.XX', 'rpmmd2solv')
         mock_glob.assert_called_once_with('meta_dir.XX/*')
         mock_command.assert_called_once_with(
@@ -304,17 +305,17 @@ class TestSolverRepositoryBase:
             ]
         )
 
-    @patch('kiwi.solver.repository.base.mkdtemp')
+    @patch('kiwi.solver.repository.base.Temporary')
     @patch('kiwi.solver.repository.base.random.randrange')
     @patch('kiwi.solver.repository.base.Command.run')
     @patch('kiwi.solver.repository.base.glob.iglob')
     def test__create_solvables_deb2_solv(
-        self, mock_glob, mock_command, mock_rand, mock_mkdtemp
+        self, mock_glob, mock_command, mock_rand, mock_Temporary
     ):
         mock_glob.return_value = ['some-solv-data-file']
         mock_rand.return_value = 0xfe
         self.solver.repository_metadata_dirs = ['metadata_dir.XXXX']
-        mock_mkdtemp.return_value = 'solv_dir.XX'
+        mock_Temporary.return_value.new_dir.return_value.name = 'solv_dir.XX'
         self.solver._create_solvables('meta_dir.XX', 'deb2solv')
         mock_glob.assert_called_once_with('meta_dir.XX/*')
         mock_command.assert_called_once_with(
@@ -338,7 +339,9 @@ class TestSolverRepositoryBase:
         mock_path_create, mock_path_wipe, mock_command
     ):
         mock_is_uptodate.return_value = False
-        self.solver.repository_solvable_dir = 'solvable_dir.XX'
+        tempdir = Mock()
+        tempdir.name = 'solvable_dir.XX'
+        self.solver.repository_solvable_dir = tempdir
         self.uri.alias.return_value = 'repo-alias'
         self.uri.uri = 'repo-uri'
 
@@ -362,13 +365,4 @@ class TestSolverRepositoryBase:
         assert m_open.return_value.write.call_args_list == [
             call(''.join(['repo-uri', os.linesep])),
             call('static')
-        ]
-
-    @patch('kiwi.solver.repository.base.Path.wipe')
-    def test_destructor(self, mock_wipe):
-        self.solver.repository_metadata_dirs = ['meta_dir.XX']
-        self.solver.repository_solvable_dir = 'solv_dir.XX'
-        self.solver.__del__()
-        assert mock_wipe.call_args_list == [
-            call('meta_dir.XX'), call('solv_dir.XX')
         ]

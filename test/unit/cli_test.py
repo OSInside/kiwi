@@ -40,6 +40,7 @@ class TestCli:
             'result': False,
             '--profile': [],
             '--shared-cache-dir': '/var/cache/kiwi',
+            '--temp-dir': '/var/tmp',
             '--target-arch': None,
             '--help': False,
             '--config': 'config-file'

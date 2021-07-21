@@ -17,11 +17,11 @@
 #
 import os
 import logging
-from tempfile import NamedTemporaryFile
 from urllib.parse import urlparse
 from typing import List, Dict
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
@@ -86,9 +86,9 @@ class RepositoryApt(RepositoryBase):
         }
         self.keyring = '{}/trusted.gpg'.format(self.manager_base)
 
-        self.runtime_apt_get_config_file = NamedTemporaryFile(
+        self.runtime_apt_get_config_file = Temporary(
             dir=self.root_dir
-        )
+        ).new_file()
 
         self.apt_get_args = [
             '-q', '-c', self.runtime_apt_get_config_file.name, '-y'

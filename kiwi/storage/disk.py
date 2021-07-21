@@ -19,9 +19,9 @@ import os
 import logging
 from collections import OrderedDict
 from typing import Dict
-from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
@@ -259,7 +259,7 @@ class Disk(DeviceProvider):
         """
         if 'dasd' in self.table_type:
             log.debug('Initialize DASD disk with new VTOC table')
-            fdasd_input = NamedTemporaryFile()
+            fdasd_input = Temporary().new_file()
             with open(fdasd_input.name, 'w') as vtoc:
                 vtoc.write('y\n\nw\nq\n')
             bash_command = ' '.join(

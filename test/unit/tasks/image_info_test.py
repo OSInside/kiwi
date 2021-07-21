@@ -183,7 +183,7 @@ class TestImageInfoTask:
         self.task.command_args['--print-xml'] = True
         self.task.process()
         tmpfile, message = mock_out.display_file.call_args.args
-        assert tmpfile.startswith('/tmp/xslt-')
+        assert tmpfile.startswith('/var/tmp/kiwi_xslt-')
         assert message == 'Description(XML):'
 
     @patch('kiwi.tasks.image_info.DataOutput')
@@ -192,5 +192,5 @@ class TestImageInfoTask:
         self.task.command_args['--print-yaml'] = True
         self.task.process()
         tmpfile, message = mock_out.display_file.call_args.args
-        assert tmpfile.startswith('/tmp/xslt-')
+        assert tmpfile.startswith('/var/tmp/kiwi_xslt-')
         assert message == 'Description(YAML):'

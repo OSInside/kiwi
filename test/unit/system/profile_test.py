@@ -1,7 +1,6 @@
 # vim: set fileencoding=utf-8
 from mock import patch
 
-import mock
 import os
 
 from kiwi.system.profile import Profile
@@ -11,21 +10,16 @@ from kiwi.xml_description import XMLDescription
 
 class TestProfile:
     def setup(self):
-        self.tmpfile = mock.Mock()
-        self.tmpfile.name = 'tmpfile'
         self.profile_file = 'tmpfile.profile'
         description = XMLDescription('../data/example_dot_profile_config.xml')
         self.profile = Profile(
             XMLState(description.load())
         )
 
-    @patch('kiwi.system.profile.NamedTemporaryFile')
     @patch('kiwi.path.Path.which')
-    def test_create(self, mock_which, mock_temp):
+    def test_create(self, mock_which):
         mock_which.return_value = 'cp'
-        mock_temp.return_value = self.tmpfile
         self.profile.create(self.profile_file)
-        os.remove(self.tmpfile.name)
         os.remove(self.profile_file)
         assert self.profile.dot_profile == {
             'kiwi_Volume_1': 'usr_lib|size:1024|usr/lib',
@@ -104,32 +98,26 @@ class TestProfile:
             'kiwi_rootpartuuid': None
         }
 
-    @patch('kiwi.system.profile.NamedTemporaryFile')
     @patch('kiwi.path.Path.which')
-    def test_create_displayname_is_image_name(self, mock_which, mock_temp):
+    def test_create_displayname_is_image_name(self, mock_which):
         mock_which.return_value = 'cp'
-        mock_temp.return_value = self.tmpfile
         description = XMLDescription('../data/example_pxe_config.xml')
         profile = Profile(
             XMLState(description.load())
         )
         profile.create(self.profile_file)
-        os.remove(self.tmpfile.name)
         os.remove(self.profile_file)
         assert profile.dot_profile['kiwi_displayname'] == \
             'LimeJeOS-openSUSE-13.2'
 
-    @patch('kiwi.system.profile.NamedTemporaryFile')
     @patch('kiwi.path.Path.which')
-    def test_create_cpio(self, mock_which, mock_temp):
+    def test_create_cpio(self, mock_which):
         mock_which.return_value = 'cp'
-        mock_temp.return_value = self.tmpfile
         description = XMLDescription('../data/example_dot_profile_config.xml')
         profile = Profile(
             XMLState(description.load(), None, 'cpio')
         )
         profile.create(self.profile_file)
-        os.remove(self.tmpfile.name)
         os.remove(self.profile_file)
         assert profile.dot_profile['kiwi_cpio_name'] == \
             'LimeJeOS-openSUSE-13.2'

@@ -17,9 +17,9 @@
 #
 import os
 import logging
-from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 
@@ -107,7 +107,7 @@ class Compress:
             Command.run([zipper, '-d', self.source_filename])
             self.uncompressed_filename = self.source_filename
         else:
-            self.temp_file = NamedTemporaryFile()
+            self.temp_file = Temporary().new_file()
             bash_command = [
                 zipper, '-c', '-d', self.source_filename,
                 '>', self.temp_file.name

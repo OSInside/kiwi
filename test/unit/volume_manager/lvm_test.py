@@ -93,9 +93,9 @@ class TestVolumeManagerLVM:
             '/dev/lvswap'
 
     @patch('kiwi.volume_manager.lvm.Command.run')
-    @patch('kiwi.volume_manager.base.mkdtemp')
-    def test_setup(self, mock_mkdtemp, mock_command):
-        mock_mkdtemp.return_value = 'tmpdir'
+    @patch('kiwi.volume_manager.base.Temporary')
+    def test_setup(self, mock_Temporary, mock_command):
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         command = Mock()
         # no output for commands to mock empty information for
         # vgs command, indicating the volume group is not in use
@@ -128,8 +128,10 @@ class TestVolumeManagerLVM:
         self.volume_manager.volume_group = None
 
     @patch('kiwi.volume_manager.lvm.Command.run')
-    @patch('kiwi.volume_manager.base.mkdtemp')
-    def test_setup_volume_group_host_conflict(self, mock_mkdtemp, mock_command):
+    @patch('kiwi.volume_manager.base.Temporary')
+    def test_setup_volume_group_host_conflict(
+        self, mock_Temporary, mock_command
+    ):
         command = Mock()
         command.output = 'some_data_about_volume_group'
         mock_command.return_value = command

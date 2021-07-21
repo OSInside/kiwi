@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import NamedTemporaryFile
 from typing import Optional, Any, List
 from collections.abc import Iterable
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 
@@ -63,7 +63,7 @@ class Shell:
 
         :rtype: List[str]
         """
-        temp_copy = NamedTemporaryFile()
+        temp_copy = Temporary().new_file()
         Command.run(['cp', filename, temp_copy.name])
         Shell.run_common_function('baseQuoteFile', [temp_copy.name])
         with open(temp_copy.name) as quoted:

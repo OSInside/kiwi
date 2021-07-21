@@ -18,6 +18,7 @@
 """
 usage: kiwi-ng -h | --help
        kiwi-ng [--profile=<name>...]
+               [--temp-dir=<directory>]
                [--type=<build_type>]
                [--logfile=<filename>]
                [--debug]
@@ -30,6 +31,7 @@ usage: kiwi-ng -h | --help
            result <command> [<args>...]
        kiwi-ng [--profile=<name>...]
                [--shared-cache-dir=<directory>]
+               [--temp-dir=<directory>]
                [--target-arch=<name>]
                [--type=<build_type>]
                [--logfile=<filename>]
@@ -69,6 +71,10 @@ global options for services: image, system
         is shared via bind mount between the build host and image
         root system and contains information about package repositories
         and their cache and meta data.
+    --temp-dir=<directory>
+        specify an alternative base temporary directory. The
+        provided path is used as base directory to store temporary
+        files and directories. By default /var/tmp is used.
     --type=<build_type>
         image build type. If not set the default XML specified
         build type will be used
@@ -229,6 +235,10 @@ class Cli:
                     value = os.sep + Defaults.get_shared_cache_location()
                 if arg == '--shared-cache-dir' and value:
                     Defaults.set_shared_cache_location(value)
+                if arg == '--temp-dir' and not value:
+                    value = Defaults.get_temp_location()
+                if arg == '--temp-dir' and value:
+                    Defaults.set_temp_location(value)
                 if arg == '--target-arch' and value:
                     Defaults.set_platform_name(value)
                 if arg == '--config' and value:

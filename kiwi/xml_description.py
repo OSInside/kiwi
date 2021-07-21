@@ -25,9 +25,9 @@ from lxml import (
     etree,
     isoschematron
 )
-from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.markup import Markup
 from kiwi.defaults import Defaults
 from kiwi import xml_parse
@@ -164,7 +164,7 @@ class XMLDescription:
                         xml_data_domtree = minidom.parseString(
                             xml_data_unformatted
                         )
-                        extension_file = NamedTemporaryFile()
+                        extension_file = Temporary().new_file()
                         with open(extension_file.name, 'w') as xml_data:
                             xml_data.write(xml_data_domtree.toprettyxml())
                         XMLDescription._get_relaxng_validation_details(

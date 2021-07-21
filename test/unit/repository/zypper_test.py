@@ -13,7 +13,7 @@ from kiwi.exceptions import KiwiCommandError
 
 class TestRepositoryZypper:
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.Temporary.new_file')
     def setup(self, mock_temp, mock_command):
 
         self.context_manager_mock = mock.Mock()
@@ -36,14 +36,14 @@ class TestRepositoryZypper:
             )
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.Temporary.new_file')
     def test_custom_args_init_excludedocs(self, mock_temp, mock_command):
         with patch('builtins.open', create=True):
             repo = RepositoryZypper(self.root_bind)
             assert repo.custom_args == []
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.Temporary.new_file')
     @patch('kiwi.repository.zypper.ConfigParser')
     def test_custom_args_init_check_signatures(
         self, mock_config, mock_temp, mock_command

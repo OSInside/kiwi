@@ -17,10 +17,10 @@
 #
 import os
 import logging
-from tempfile import NamedTemporaryFile
 from typing import Optional
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 from kiwi.storage.device_provider import DeviceProvider
@@ -119,7 +119,7 @@ class LuksDevice(DeviceProvider):
         log.info('--> Creating LUKS map')
 
         if passphrase:
-            passphrase_file_tmp = NamedTemporaryFile()
+            passphrase_file_tmp = Temporary().new_file()
             with open(passphrase_file_tmp.name, 'w') as credentials:
                 credentials.write(passphrase)
             passphrase_file = passphrase_file_tmp.name

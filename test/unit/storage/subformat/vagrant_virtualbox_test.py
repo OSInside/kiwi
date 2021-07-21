@@ -94,14 +94,14 @@ class TestDiskFormatVagrantVirtualBox:
             expected_res
 
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
-    @patch('kiwi.storage.subformat.vagrant_base.mkdtemp')
+    @patch('kiwi.storage.subformat.vagrant_base.Temporary')
     @patch('kiwi.storage.subformat.vagrant_virtualbox.random.randrange')
     @patch.object(DiskFormatVagrantVirtualBox, 'create_box_img')
     def test_create_image_format_with_and_without_guest_additions(
         self, mock_create_box_img, mock_rand,
-        mock_mkdtemp, mock_command
+        mock_Temporary, mock_command
     ):
-        mock_mkdtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         mock_create_box_img.return_value = ['arbitrary']
 
         # without guest additions

@@ -11,7 +11,7 @@ import sys
 from kiwi.defaults import Defaults
 from kiwi.iso_tools.iso import Iso
 from kiwi.path import Path
-from tempfile import NamedTemporaryFile
+from kiwi.utils.temporary import Temporary
 
 from kiwi.exceptions import (
     KiwiIsoLoaderError,
@@ -76,7 +76,7 @@ class TestIso:
         Path.which('isoinfo') is None, reason='requires cdrtools'
     )
     def test_create_header_end_block_on_test_iso(self):
-        temp_file = NamedTemporaryFile()
+        temp_file = Temporary().new_file()
         self.iso.header_end_file = temp_file.name
         assert self.iso.create_header_end_block(
             '../data/iso_with_marker.iso'
@@ -101,7 +101,7 @@ class TestIso:
         Path.which('isoinfo') is None, reason='requires cdrtools'
     )
     def test_create_header_end_block_raises_on_test_iso(self):
-        temp_file = NamedTemporaryFile()
+        temp_file = Temporary().new_file()
         self.iso.header_end_file = temp_file.name
         with raises(KiwiIsoLoaderError):
             self.iso.create_header_end_block(

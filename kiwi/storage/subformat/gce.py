@@ -17,9 +17,9 @@
 #
 import os
 from collections import OrderedDict
-from tempfile import mkdtemp
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.archive.tar import ArchiveTar
@@ -56,9 +56,9 @@ class DiskFormatGce(DiskFormatBase):
         Create GCE disk format and manifest
         """
         gce_tar_ball_file_list = []
-        self.temp_image_dir = mkdtemp(
+        temp_image_dir = Temporary(
             prefix='kiwi_gce_subformat.', dir=self.target_dir
-        )
+        ).new_dir()
         diskname = ''.join(
             [
                 self.target_dir, '/',
@@ -69,12 +69,12 @@ class DiskFormatGce(DiskFormatBase):
             ]
         )
         if self.tag:
-            with open(self.temp_image_dir + '/manifest.json', 'w') as manifest:
+            with open(temp_image_dir.name + '/manifest.json', 'w') as manifest:
                 manifest.write('{"licenses": ["%s"]}' % self.tag)
             gce_tar_ball_file_list.append('manifest.json')
 
         Command.run(
-            ['cp', diskname, self.temp_image_dir + '/disk.raw']
+            ['cp', diskname, temp_image_dir.name + '/disk.raw']
         )
         gce_tar_ball_file_list.append('disk.raw')
 
@@ -91,7 +91,7 @@ class DiskFormatGce(DiskFormatBase):
             file_list=gce_tar_ball_file_list
         )
         archive.create_gnu_gzip_compressed(
-            self.temp_image_dir
+            temp_image_dir.name
         )
 
     def store_to_result(self, result: Result) -> None:

@@ -21,12 +21,12 @@ import logging
 import copy
 from collections import OrderedDict
 from collections import namedtuple
-from tempfile import NamedTemporaryFile
 from typing import Any
 
 # project
 import kiwi.defaults as defaults
 
+from kiwi.utils.temporary import Temporary
 from kiwi.utils.fstab import Fstab
 from kiwi.xml_state import XMLState
 from kiwi.runtime_config import RuntimeConfig
@@ -738,9 +738,7 @@ class SystemSetup:
             'partition_filesystem':
                 self.root_dir + '/recovery.tar.filesystem'
         }
-        recovery_archive = NamedTemporaryFile(
-            delete=False
-        )
+        recovery_archive = Temporary(delete=False).new_file()
         archive = ArchiveTar(
             filename=recovery_archive.name,
             create_from_file_list=False

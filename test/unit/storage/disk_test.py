@@ -195,7 +195,7 @@ class TestDisk:
         )
 
     @patch('kiwi.storage.disk.Command.run')
-    @patch('kiwi.storage.disk.NamedTemporaryFile')
+    @patch('kiwi.storage.disk.Temporary.new_file')
     def test_wipe_dasd(self, mock_temp, mock_command):
         mock_command.side_effect = Exception
         self.disk.table_type = 'dasd'

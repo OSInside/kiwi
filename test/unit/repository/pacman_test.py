@@ -9,7 +9,7 @@ from kiwi.repository.pacman import RepositoryPacman
 
 
 class TestRepositorPacman(object):
-    @patch('kiwi.repository.pacman.NamedTemporaryFile')
+    @patch('kiwi.repository.pacman.Temporary.new_file')
     @patch('kiwi.repository.pacman.ConfigParser')
     @patch('kiwi.repository.pacman.Path.create')
     def setup(self, mock_path, mock_config, mock_temp):

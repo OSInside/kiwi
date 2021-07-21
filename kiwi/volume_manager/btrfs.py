@@ -454,4 +454,3 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 log.warning('Subvolumes still busy')
                 return
             Path.wipe(self.mountpoint)
-        self._cleanup_tempdirs()

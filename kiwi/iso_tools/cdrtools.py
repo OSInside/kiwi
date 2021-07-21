@@ -17,13 +17,13 @@
 #
 import os
 import re
-from tempfile import NamedTemporaryFile
 from collections import (
     namedtuple,
     OrderedDict
 )
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
 from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.utils.command_capabilities import CommandCapabilities
@@ -250,7 +250,7 @@ class IsoToolsCdrTools(IsoToolsBase):
 
         :rtype: str
         """
-        self.iso_sortfile = NamedTemporaryFile()
+        self.iso_sortfile = Temporary().new_file()
         catalog_file = \
             self.source_dir + '/' + self.boot_path + '/boot.catalog'
         loader_file = \

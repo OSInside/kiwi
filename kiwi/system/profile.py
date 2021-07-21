@@ -19,9 +19,9 @@ import os
 import logging
 import collections
 from typing import Dict
-from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.xml_state import XMLState
 from kiwi.system.shell import Shell
 from kiwi.defaults import Defaults
@@ -82,7 +82,7 @@ class Profile:
         :param str filename: file path name
         """
         sorted_profile = self.get_settings()
-        temp_profile = NamedTemporaryFile()
+        temp_profile = Temporary().new_file()
         with open(temp_profile.name, 'w') as profile:
             for key, value in list(sorted_profile.items()):
                 profile.write(

@@ -16,11 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from collections import namedtuple
-from tempfile import mkdtemp
 import logging
 import os
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.mount_manager import MountManager
@@ -358,9 +358,6 @@ class VolumeManagerBase(DeviceProvider):
         Implements creation of a master directory holding
         the mounts of all volumes
         """
-        self.mountpoint = mkdtemp(prefix='kiwi_volumes.')
-        self.temp_directories.append(self.mountpoint)
-
-    def _cleanup_tempdirs(self):
-        for directory in self.temp_directories:
-            Path.wipe(directory)
+        self.mountpoint_tempdir = Temporary(prefix='kiwi_volumes.').new_dir()
+        self.mountpoint = self.mountpoint_tempdir.name
+        self.temp_directories.append(self.mountpoint_tempdir)

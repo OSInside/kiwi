@@ -35,7 +35,7 @@ class TestIsoToolsCdrTools:
             self.iso_tool.get_tool_name()
 
     @patch('os.walk')
-    @patch('kiwi.iso_tools.cdrtools.NamedTemporaryFile')
+    @patch('kiwi.iso_tools.cdrtools.Temporary.new_file')
     def test_init_iso_creation_parameters(
         self, mock_tempfile, mock_walk
     ):

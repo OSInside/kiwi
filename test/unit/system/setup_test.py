@@ -901,7 +901,7 @@ class TestSystemSetup:
         ]
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.system.setup.NamedTemporaryFile')
+    @patch('kiwi.system.setup.Temporary.new_file')
     @patch('kiwi.system.setup.ArchiveTar')
     @patch('kiwi.system.setup.Compress')
     @patch('os.path.getsize')

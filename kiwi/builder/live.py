@@ -17,12 +17,11 @@
 #
 import os
 import logging
-from tempfile import mkdtemp
-from tempfile import NamedTemporaryFile
 from typing import Dict
 import shutil
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.bootloader.config import BootLoaderConfig
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
@@ -61,8 +60,6 @@ class LiveImageBuilder:
         self, xml_state: XMLState, target_dir: str,
         root_dir: str, custom_args: Dict = None
     ):
-        self.media_dir: str = ''
-        self.live_container_dir: str = ''
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -115,14 +112,14 @@ class LiveImageBuilder:
         :rtype: instance of :class:`Result`
         """
         # media dir to store CD contents
-        self.media_dir = mkdtemp(
+        self.media_dir = Temporary(
             prefix='live-media.', dir=self.target_dir
-        )
+        ).new_dir()
 
         # unpack cdroot user files to media dir
-        self.system_setup.import_cdroot_files(self.media_dir)
+        self.system_setup.import_cdroot_files(self.media_dir.name)
 
-        rootsize = SystemSize(self.media_dir)
+        rootsize = SystemSize(self.media_dir.name)
 
         # custom iso metadata
         log.info('Using following live ISO metadata:')
@@ -149,7 +146,7 @@ class LiveImageBuilder:
             # based on grub
             bootloader_config = BootLoaderConfig.new(
                 'grub2', self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir, custom_args={
+                boot_dir=self.media_dir.name, custom_args={
                     'grub_directory_name':
                         Defaults.get_grub_boot_directory_name(self.root_dir)
                 }
@@ -163,10 +160,10 @@ class LiveImageBuilder:
             # only.
             bootloader_config = BootLoaderConfig.new(
                 'isolinux', self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir
+                boot_dir=self.media_dir.name
             )
         IsoToolsBase.setup_media_loader_directory(
-            self.boot_image.boot_root_directory, self.media_dir,
+            self.boot_image.boot_root_directory, self.media_dir.name,
             bootloader_config.get_boot_theme()
         )
         bootloader_config.write_meta_data()
@@ -177,7 +174,7 @@ class LiveImageBuilder:
 
         # call custom editbootconfig script if present
         self.system_setup.call_edit_boot_config_script(
-            filesystem='iso:{0}'.format(self.media_dir), boot_part_id=1,
+            filesystem='iso:{0}'.format(self.media_dir.name), boot_part_id=1,
             working_directory=self.root_dir
         )
 
@@ -225,7 +222,7 @@ class LiveImageBuilder:
         filesystem_setup = FileSystemSetup(
             self.xml_state, self.root_dir
         )
-        root_image = NamedTemporaryFile(dir='/var/tmp', prefix='kiwi-')
+        root_image = Temporary().new_file()
         loop_provider = LoopDevice(
             root_image.name,
             filesystem_setup.get_size_mbytes(root_filesystem),
@@ -250,35 +247,35 @@ class LiveImageBuilder:
         live_filesystem.umount()
 
         log.info('--> Creating squashfs container for root image')
-        self.live_container_dir = mkdtemp(
+        self.live_container_dir = Temporary(
             prefix='live-container.', dir=self.target_dir
-        )
-        Path.create(self.live_container_dir + '/LiveOS')
+        ).new_dir()
+        Path.create(self.live_container_dir.name + '/LiveOS')
         shutil.copy(
-            root_image.name, self.live_container_dir + '/LiveOS/rootfs.img'
+            root_image.name, self.live_container_dir.name + '/LiveOS/rootfs.img'
         )
         live_container_image = FileSystem.new(
             name='squashfs',
             device_provider=DeviceProvider(),
-            root_dir=self.live_container_dir,
+            root_dir=self.live_container_dir.name,
             custom_args={
                 'compression':
                     self.xml_state.build_type.get_squashfscompression()
             }
         )
-        container_image = NamedTemporaryFile(dir='/var/tmp', prefix='kiwi-')
+        container_image = Temporary().new_file()
         live_container_image.create_on_file(
             container_image.name
         )
-        Path.create(self.media_dir + '/LiveOS')
+        Path.create(self.media_dir.name + '/LiveOS')
         shutil.copy(
-            container_image.name, self.media_dir + '/LiveOS/squashfs.img'
+            container_image.name, self.media_dir.name + '/LiveOS/squashfs.img'
         )
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
         iso_image = FileSystemIsoFs(
-            device_provider=DeviceProvider(), root_dir=self.media_dir,
+            device_provider=DeviceProvider(), root_dir=self.media_dir.name,
             custom_args=custom_iso_args
         )
         iso_image.create_on_file(self.isoname)
@@ -332,7 +329,7 @@ class LiveImageBuilder:
         Copy kernel and initrd from the root tree into the iso boot structure
         """
         boot_path = ''.join(
-            [self.media_dir, '/boot/', self.arch, '/loader']
+            [self.media_dir.name, '/boot/', self.arch, '/loader']
         )
         Path.create(boot_path)
 
@@ -368,13 +365,3 @@ class LiveImageBuilder:
                     self.boot_image.boot_root_directory
                 )
             )
-
-    def __del__(self) -> None:
-        if self.media_dir or self.live_container_dir:
-            log.info(
-                'Cleaning up {0} instance'.format(type(self).__name__)
-            )
-            if self.media_dir:
-                Path.wipe(self.media_dir)
-            if self.live_container_dir:
-                Path.wipe(self.live_container_dir)

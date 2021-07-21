@@ -17,11 +17,10 @@
 #
 import time
 import logging
-from tempfile import mkdtemp
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
-from kiwi.path import Path
 
 log = logging.getLogger('kiwi')
 
@@ -40,10 +39,11 @@ class MountManager:
     """
     def __init__(self, device, mountpoint=None):
         self.device = device
-        self.mountpoint_created_by_mount_manager = False
         if not mountpoint:
-            self.mountpoint = mkdtemp(prefix='kiwi_mount_manager.')
-            self.mountpoint_created_by_mount_manager = True
+            self.mountpoint_tempdir = Temporary(
+                prefix='kiwi_mount_manager.'
+            ).new_dir()
+            self.mountpoint = self.mountpoint_tempdir.name
         else:
             self.mountpoint = mountpoint
 
@@ -129,7 +129,3 @@ class MountManager:
             return True
         else:
             return False
-
-    def __del__(self):
-        if self.mountpoint_created_by_mount_manager and not self.is_mounted():
-            Path.wipe(self.mountpoint)

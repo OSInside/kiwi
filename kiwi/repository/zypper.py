@@ -17,10 +17,10 @@
 #
 import os
 from configparser import ConfigParser
-from tempfile import NamedTemporaryFile
 from typing import List, Dict
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -108,12 +108,12 @@ class RepositoryZypper(RepositoryBase):
             )
         }
 
-        self.runtime_zypper_config_file = NamedTemporaryFile(
+        self.runtime_zypper_config_file = Temporary(
             dir=self.root_dir
-        )
-        self.runtime_zypp_config_file = NamedTemporaryFile(
+        ).new_file()
+        self.runtime_zypp_config_file = Temporary(
             dir=self.root_dir
-        )
+        ).new_file()
 
         self.zypper_args = [
             '--non-interactive',

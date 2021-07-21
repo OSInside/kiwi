@@ -85,7 +85,7 @@ class TestLuksDevice:
             self.luks.luks_device = None
 
     @patch('kiwi.storage.luks_device.Command.run')
-    @patch('kiwi.storage.luks_device.NamedTemporaryFile')
+    @patch('kiwi.storage.luks_device.Temporary.new_file')
     @patch('os.chmod')
     def test_create_crypto_luks(
         self, mock_os_chmod, mock_tmpfile, mock_command

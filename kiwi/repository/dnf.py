@@ -18,10 +18,10 @@
 import os
 import glob
 from configparser import ConfigParser
-from tempfile import NamedTemporaryFile
 from typing import List, Dict
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -92,9 +92,9 @@ class RepositoryDnf(RepositoryBase):
             'vars-dir': manager_base + '/vars'
         }
 
-        self.runtime_dnf_config_file = NamedTemporaryFile(
+        self.runtime_dnf_config_file = Temporary(
             dir=self.root_dir
-        )
+        ).new_file()
 
         self.dnf_args = [
             '--config', self.runtime_dnf_config_file.name, '-y'

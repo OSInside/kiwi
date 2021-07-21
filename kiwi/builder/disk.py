@@ -17,7 +17,6 @@
 #
 import os
 import logging
-from tempfile import NamedTemporaryFile
 from typing import (
     Dict, List, Optional, Tuple, Any
 )
@@ -25,6 +24,7 @@ from typing import (
 # project
 import kiwi.defaults as defaults
 
+from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.bootloader.config import BootLoaderConfig
@@ -742,7 +742,7 @@ class DiskBuilder:
 
         if self.root_filesystem_is_overlay:
             log.info('--> creating readonly root partition')
-            squashed_root_file = NamedTemporaryFile(dir='/var/tmp', prefix='kiwi-')
+            squashed_root_file = Temporary().new_file()
             squashed_root = FileSystemSquashFs(
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
@@ -1052,7 +1052,7 @@ class DiskBuilder:
 
         log.info('--> Syncing root filesystem data')
         if self.root_filesystem_is_overlay:
-            squashed_root_file = NamedTemporaryFile(dir='/var/tmp', prefix='kiwi-')
+            squashed_root_file = Temporary().new_file()
             squashed_root = FileSystemSquashFs(
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
