@@ -11,7 +11,7 @@ class TestTemporary:
     def test_new_file(self, mock_NamedTemporaryFile):
         self.temporary.new_file()
         mock_NamedTemporaryFile.assert_called_once_with(
-            dir='/var/tmp', prefix='kiwi_', delete=True
+            dir='/var/tmp', prefix='kiwi_'
         )
 
     @patch('kiwi.utils.temporary.TemporaryDirectory')
