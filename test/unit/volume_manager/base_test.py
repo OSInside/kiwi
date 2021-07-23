@@ -236,9 +236,9 @@ class TestVolumeManagerBase:
         )
         assert self.volume_manager.get_mountpoint() == 'mountpoint'
 
-    @patch('kiwi.volume_manager.base.mkdtemp')
-    def test_setup_mountpoint(self, mock_mkdtemp):
-        mock_mkdtemp.return_value = 'tmpdir'
+    @patch('kiwi.volume_manager.base.Temporary')
+    def test_setup_mountpoint(self, mock_Temporary):
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         self.volume_manager.setup_mountpoint()
         assert self.volume_manager.mountpoint == 'tmpdir'
 
@@ -259,9 +259,3 @@ class TestVolumeManagerBase:
         mock_command.assert_called_once_with(
             ['chattr', '+C', 'toplevel/etc']
         )
-
-    @patch('kiwi.volume_manager.base.Path.wipe')
-    def test_cleanup_tempdirs(self, mock_Path_wipe):
-        self.volume_manager.temp_directories = ['tmpdir']
-        self.volume_manager._cleanup_tempdirs()
-        mock_Path_wipe.assert_called_once_with('tmpdir')

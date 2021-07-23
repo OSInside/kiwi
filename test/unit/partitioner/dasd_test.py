@@ -15,7 +15,7 @@ class TestPartitionerDasd:
         self._caplog = caplog
 
     @patch('kiwi.partitioner.dasd.Command.run')
-    @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
+    @patch('kiwi.partitioner.dasd.Temporary.new_file')
     def setup(self, mock_temp, mock_command):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
@@ -30,7 +30,7 @@ class TestPartitionerDasd:
         self.partitioner = PartitionerDasd(disk_provider)
 
     @patch('kiwi.partitioner.dasd.Command.run')
-    @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
+    @patch('kiwi.partitioner.dasd.Temporary.new_file')
     def test_create(self, mock_temp, mock_command):
         mock_command.side_effect = Exception
         mock_temp.return_value = self.tempfile
@@ -48,7 +48,7 @@ class TestPartitionerDasd:
         )
 
     @patch('kiwi.partitioner.dasd.Command.run')
-    @patch('kiwi.partitioner.dasd.NamedTemporaryFile')
+    @patch('kiwi.partitioner.dasd.Temporary.new_file')
     def test_create_all_free(self, mock_temp, mock_command):
         mock_temp.return_value = self.tempfile
 

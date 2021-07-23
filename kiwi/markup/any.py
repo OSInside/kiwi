@@ -17,9 +17,9 @@
 #
 from typing import Any
 import importlib
-from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.markup.base import MarkupBase
 
 from kiwi.exceptions import (
@@ -44,7 +44,7 @@ class MarkupAny(MarkupBase):
         except Exception as issue:
             raise KiwiAnyMarkupPluginError(issue)
         try:
-            self.description_markup_processed = NamedTemporaryFile()
+            self.description_markup_processed = Temporary().new_file()
             markup = self.anymarkup.parse_file(
                 self.description, force_types=None
             )

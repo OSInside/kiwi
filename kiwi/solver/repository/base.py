@@ -18,8 +18,7 @@
 from base64 import b64encode
 from urllib.request import urlopen
 from urllib.request import Request
-from tempfile import NamedTemporaryFile
-from tempfile import mkdtemp
+from kiwi.utils.temporary import Temporary
 from lxml import etree
 import random
 import glob
@@ -46,7 +45,8 @@ class SolverRepositoryBase:
         self.uri = uri
         self.user = user
         self.secret = secret
-        self._init_temporary_dir_names()
+        self.repository_metadata_dirs = []
+        self.repository_solvable_dir = None
 
     def create_repository_solvable(
         self, target_dir=Defaults.get_solvable_location()
@@ -69,7 +69,6 @@ class SolverRepositoryBase:
         if not self.is_uptodate(target_dir):
             self._setup_repository_metadata()
             solvable = self._merge_solvables(target_dir)
-            self._cleanup()
 
         return solvable
 
@@ -171,7 +170,7 @@ class SolverRepositoryBase:
 
         :rtype: str
         """
-        dir_listing_download = NamedTemporaryFile()
+        dir_listing_download = Temporary().new_file()
         self.download_from_repository(
             defaults.PLATFORM_MACHINE, dir_listing_download.name
         )
@@ -193,7 +192,7 @@ class SolverRepositoryBase:
         """
         repo_source = 'Packages.gz'
         if not download_dir:
-            packages_download = NamedTemporaryFile()
+            packages_download = Temporary().new_file()
             self.download_from_repository(repo_source, packages_download.name)
             if os.path.isfile(packages_download.name):
                 with open(packages_download.name) as packages:
@@ -216,7 +215,7 @@ class SolverRepositoryBase:
 
         :rtype: XML etree
         """
-        xml_download = NamedTemporaryFile()
+        xml_download = Temporary().new_file()
         xml_setup_file = os.sep.join([lookup_path, 'repomd.xml'])
         self.download_from_repository(xml_setup_file, xml_download.name)
         return etree.parse(xml_download.name)
@@ -282,7 +281,9 @@ class SolverRepositoryBase:
         :param str tool: one of the above tools
         """
         if not self.repository_solvable_dir:
-            self.repository_solvable_dir = mkdtemp(prefix='solvable_dir.')
+            self.repository_solvable_dir = Temporary(
+                prefix='kiwi_solvable_dir.'
+            ).new_dir()
 
         if tool == 'rpms2solv':
             # solvable is created from a bunch of rpm files
@@ -317,7 +318,8 @@ class SolverRepositoryBase:
         if self.repository_solvable_dir:
             solvable = os.sep.join([target_dir, self.uri.alias()])
             bash_command = [
-                'mergesolv', '/'.join([self.repository_solvable_dir, '*']),
+                'mergesolv',
+                '/'.join([self.repository_solvable_dir.name, '*']),
                 '>', solvable
             ]
             Command.run(['bash', '-c', ' '.join(bash_command)])
@@ -326,18 +328,6 @@ class SolverRepositoryBase:
             with open('.'.join([solvable, 'timestamp']), 'w') as solvable_time:
                 solvable_time.write(self.timestamp())
             return solvable
-
-    def _cleanup(self):
-        """
-        Delete all temporary directories
-        """
-        for metadata_dir in self.repository_metadata_dirs:
-            Path.wipe(metadata_dir)
-
-        if self.repository_solvable_dir:
-            Path.wipe(self.repository_solvable_dir)
-
-        self._init_temporary_dir_names()
 
     def _get_mime_typed_uri(self):
         """
@@ -351,15 +341,6 @@ class SolverRepositoryBase:
             ['file://', self.uri.translate()]
         )
 
-    def _init_temporary_dir_names(self):
-        """
-        Initialize data structures to store temporary directory names
-        required to hold the repository metadata and solvable files
-        until the final repository solvable got created
-        """
-        self.repository_metadata_dirs = []
-        self.repository_solvable_dir = None
-
     def _create_temporary_metadata_dir(self):
         """
         Create and manage a temporary metadata directory
@@ -368,19 +349,16 @@ class SolverRepositoryBase:
 
         :rtype: str
         """
-        metadata_dir = mkdtemp(prefix='metadata_dir.')
+        metadata_dir = Temporary(prefix='kiwi_metadata_dir.').new_dir()
         self.repository_metadata_dirs.append(metadata_dir)
-        return metadata_dir
+        return metadata_dir.name
 
     def _get_random_solvable_name(self):
         if self.repository_solvable_dir:
             return '{0}/solvable-{1}{2}{3}{4}'.format(
-                self.repository_solvable_dir,
+                self.repository_solvable_dir.name,
                 self._rand(), self._rand(), self._rand(), self._rand()
             )
 
     def _rand(self):
         return '%02x' % random.randrange(1, 0xfe)
-
-    def __del__(self):
-        self._cleanup()

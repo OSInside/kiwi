@@ -74,12 +74,12 @@ class TestDiskFormatVagrantLibVirt:
             ''').strip()
 
     @patch('kiwi.storage.subformat.vagrant_base.Command.run')
-    @patch('kiwi.storage.subformat.vagrant_base.mkdtemp')
+    @patch('kiwi.storage.subformat.vagrant_base.Temporary')
     @patch.object(DiskFormatVagrantLibVirt, 'create_box_img')
     def test_create_image_format(
-        self, mock_create_box_img, mock_mkdtemp, mock_command
+        self, mock_create_box_img, mock_Temporary, mock_command
     ):
-        mock_mkdtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         mock_create_box_img.return_value = ['arbitrary']
 
         m_open = mock_open()

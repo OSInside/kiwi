@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import mkdtemp
 import os
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.oci_tools.base import OCIBase
 from kiwi.command import Command
 from kiwi.path import Path
@@ -34,7 +34,8 @@ class OCIUmoci(OCIBase):
         """
         Initializes some umoci parameters and options
         """
-        self.oci_dir = mkdtemp(prefix='kiwi_oci_dir.')
+        self.oci_dir_tempfile = Temporary(prefix='kiwi_oci_dir.').new_dir()
+        self.oci_dir = self.oci_dir_tempfile.name
         self.container_dir = os.sep.join(
             [self.oci_dir, 'oci_layout']
         )
@@ -102,7 +103,10 @@ class OCIUmoci(OCIBase):
         """
         Unpack current container root data
         """
-        self.oci_root_dir = mkdtemp(prefix='kiwi_oci_root_dir.')
+        self.oci_root_dir_tempdir = Temporary(
+            prefix='kiwi_oci_root_dir.'
+        ).new_dir()
+        self.oci_root_dir = self.oci_root_dir_tempdir.name
         Command.run([
             'umoci', 'unpack', '--image',
             self.working_image, self.oci_root_dir
@@ -259,9 +263,3 @@ class OCIUmoci(OCIBase):
         Command.run(
             ['umoci', 'gc', '--layout', self.container_dir]
         )
-
-    def __del__(self):
-        if self.oci_root_dir:
-            Path.wipe(self.oci_root_dir)
-        if self.oci_dir:
-            Path.wipe(self.oci_dir)

@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import NamedTemporaryFile
 from lxml import etree
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiConfigFileFormatNotSupported
 
@@ -64,7 +64,7 @@ class MarkupBase:
         xslt_transform = etree.XSLT(
             etree.parse(Defaults.get_xsl_stylesheet_file())
         )
-        self.description_xslt_processed = NamedTemporaryFile(prefix='xslt-')
+        self.description_xslt_processed = Temporary(prefix='xslt-').new_file()
         with open(self.description_xslt_processed.name, "wb") as xsltout:
             xsltout.write(
                 etree.tostring(xslt_transform(parsed_description))

@@ -45,6 +45,7 @@ EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
 IMAGE_METADATA_DIR = 'image'
 ROOT_VOLUME_NAME = 'LVRoot'
 SHARED_CACHE_DIR = '/var/cache/kiwi'
+TEMP_DIR = '/var/tmp'
 CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
 
@@ -253,6 +254,16 @@ class Defaults:
         CUSTOM_RUNTIME_CONFIG_FILE = filename
 
     @staticmethod
+    def set_temp_location(location):
+        """
+        Sets the temp directory location once
+
+        :param str location: a location path
+        """
+        global TEMP_DIR
+        TEMP_DIR = location
+
+    @staticmethod
     def get_shared_cache_location():
         """
         Provides the shared cache location
@@ -270,6 +281,22 @@ class Defaults:
         return os.path.abspath(os.path.normpath(
             SHARED_CACHE_DIR
         )).lstrip(os.sep)
+
+    @staticmethod
+    def get_temp_location():
+        """
+        Provides the base temp directory location
+
+        This is the directory used to store any temporary files
+        and directories created by kiwi during runtime
+
+        :return: directory path
+
+        :rtype: str
+        """
+        return os.path.abspath(
+            os.path.normpath(TEMP_DIR)
+        )
 
     @staticmethod
     def get_sync_options():

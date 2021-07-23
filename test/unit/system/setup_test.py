@@ -901,23 +901,20 @@ class TestSystemSetup:
         ]
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.system.setup.NamedTemporaryFile')
+    @patch('pathlib.Path.touch')
     @patch('kiwi.system.setup.ArchiveTar')
     @patch('kiwi.system.setup.Compress')
     @patch('os.path.getsize')
     @patch('kiwi.system.setup.Path.wipe')
     def test_create_recovery_archive(
         self, mock_wipe, mock_getsize, mock_compress,
-        mock_archive, mock_temp, mock_command
+        mock_archive, mock_pathlib_Path_touch, mock_command
     ):
         mock_getsize.return_value = 42
         compress = Mock()
         mock_compress.return_value = compress
         archive = Mock()
         mock_archive.return_value = archive
-        tmpdir = Mock()
-        tmpdir.name = 'tmpdir'
-        mock_temp.return_value = tmpdir
         self.setup.oemconfig['recovery'] = True
         self.setup.oemconfig['recovery_inplace'] = True
 
@@ -929,7 +926,7 @@ class TestSystemSetup:
             ['bash', '-c', 'rm -f root_dir/recovery.*']
         )
         mock_archive.assert_called_once_with(
-            create_from_file_list=False, filename='tmpdir'
+            create_from_file_list=False, filename='root_dir/recovery.tar'
         )
         archive.create.assert_called_once_with(
             exclude=['dev', 'proc', 'sys'],
@@ -940,14 +937,12 @@ class TestSystemSetup:
             ],
             source_dir='root_dir'
         )
-        assert mock_command.call_args_list[1] == call(
-            ['mv', 'tmpdir', 'root_dir/recovery.tar']
-        )
         assert m_open.call_args_list[0] == call(
             'root_dir/recovery.tar.filesystem', 'w'
         )
         assert m_open.return_value.write.call_args_list[0] == call('ext3')
-        assert mock_command.call_args_list[2] == call(
+
+        assert mock_command.call_args_list[1] == call(
             ['bash', '-c', 'tar -tf root_dir/recovery.tar | wc -l']
         )
         assert m_open.call_args_list[1] == call(

@@ -70,12 +70,12 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.FileSystem.new')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
-    @patch('kiwi.volume_manager.base.mkdtemp')
+    @patch('kiwi.volume_manager.base.Temporary')
     def test_setup_no_snapshot(
-        self, mock_mkdtemp, mock_mount, mock_mapped_device, mock_fs,
+        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
     ):
-        mock_mkdtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         toplevel_mount = Mock()
         mock_mount.return_value = toplevel_mount
         command_call = Mock()
@@ -101,12 +101,12 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.FileSystem.new')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
-    @patch('kiwi.volume_manager.base.mkdtemp')
+    @patch('kiwi.volume_manager.base.Temporary')
     def test_setup_with_snapshot(
-        self, mock_mkdtemp, mock_mount, mock_mapped_device, mock_fs,
+        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
     ):
-        mock_mkdtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         toplevel_mount = Mock()
         mock_mount.return_value = toplevel_mount
         command_call = Mock()
@@ -143,9 +143,9 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.FileSystem.new')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
-    @patch('kiwi.volume_manager.base.mkdtemp')
+    @patch('kiwi.volume_manager.base.Temporary')
     def test_setup_volume_id_not_detected(
-        self, mock_mkdtemp, mock_mount, mock_mapped_device, mock_fs,
+        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
     ):
         command_call = Mock()
@@ -299,12 +299,13 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.FileSystem.new')
     @patch('kiwi.volume_manager.btrfs.MappedDevice')
     @patch('kiwi.volume_manager.btrfs.MountManager')
-    @patch('kiwi.volume_manager.base.mkdtemp')
+    @patch('kiwi.volume_manager.base.Temporary')
     def test_remount_volumes(
-        self, mock_mkdtemp, mock_mount, mock_mapped_device, mock_fs,
+        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists
     ):
-        mock_mkdtemp.return_value = '/tmp/kiwi_volumes.xx'
+        mock_Temporary.return_value.new_dir.return_value.name = \
+            '/tmp/kiwi_volumes.xx'
         toplevel_mount = Mock()
         toplevel_mount.is_mounted = Mock(
             return_value=False

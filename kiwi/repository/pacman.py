@@ -17,12 +17,12 @@
 #
 import os
 from configparser import ConfigParser
-from tempfile import NamedTemporaryFile
 from typing import (
     List, Dict
 )
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.command import Command
@@ -52,9 +52,9 @@ class RepositoryPacman(RepositoryBase):
         self.check_signatures = False
         self.repo_names: List = []
 
-        self.runtime_pacman_config_file = NamedTemporaryFile(
+        self.runtime_pacman_config_file = Temporary(
             dir=self.root_dir
-        )
+        ).new_file()
 
         if 'check_signatures' in self.custom_args:
             self.custom_args.remove('check_signatures')

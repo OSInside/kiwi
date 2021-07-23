@@ -545,7 +545,7 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     @patch('os.path.getsize')
-    @patch('kiwi.builder.disk.NamedTemporaryFile')
+    @patch('kiwi.builder.disk.Temporary.new_file')
     @patch('random.randrange')
     def test_create_disk_standard_root_is_overlay(
         self, mock_rand, mock_temp, mock_getsize, mock_exists,

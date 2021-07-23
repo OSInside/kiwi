@@ -399,4 +399,3 @@ class VolumeManagerLVM(VolumeManagerBase):
                         'volume group %s still busy', self.volume_group
                     )
                     return
-        self._cleanup_tempdirs()

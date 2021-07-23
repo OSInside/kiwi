@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import NamedTemporaryFile
 import logging
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.partitioner.base import PartitionerBase
 
@@ -60,7 +60,7 @@ class PartitionerMsDos(PartitionerBase):
         :param list flags: additional flags
         """
         self.partition_id += 1
-        fdisk_input = NamedTemporaryFile()
+        fdisk_input = Temporary().new_file()
         if self.partition_id > 1:
             # Undefined start sector value skips this for fdisk and
             # use its default value

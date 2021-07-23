@@ -15,18 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import mkdtemp
 from typing import (
-    Dict, List, Optional
+    Dict, List
 )
 import logging
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.filesystem.ext4 import FileSystemExt4
 from kiwi.command import Command
 from kiwi.system.size import SystemSize
-from kiwi.path import Path
 from kiwi.storage.loop_device import LoopDevice
 
 log = logging.getLogger('kiwi')
@@ -45,7 +44,7 @@ class FileSystemClicFs(FileSystemBase):
 
         :param dict custom_args: unused
         """
-        self.container_dir: Optional[str] = None
+        pass
 
     def create_on_file(
         self, filename: str, label: str = None, exclude: List[str] = None
@@ -63,8 +62,8 @@ class FileSystemClicFs(FileSystemBase):
         :param string label: unused
         :param list exclude: unused
         """
-        self.container_dir = mkdtemp(prefix='kiwi_clicfs.')
-        clicfs_container_filesystem = self.container_dir + '/fsdata.ext4'
+        container_dir = Temporary(prefix='kiwi_clicfs.').new_dir()
+        clicfs_container_filesystem = container_dir.name + '/fsdata.ext4'
         loop_provider = LoopDevice(
             clicfs_container_filesystem,
             self._get_container_filesystem_size_mbytes()
@@ -91,8 +90,3 @@ class FileSystemClicFs(FileSystemBase):
         size = SystemSize(self.root_dir)
         root_dir_mbytes = size.accumulate_mbyte_file_sizes()
         return size.customize(root_dir_mbytes, 'ext4')
-
-    def __del__(self):
-        if self.container_dir:
-            log.info('Cleaning up %s instance', type(self).__name__)
-            Path.wipe(self.container_dir)

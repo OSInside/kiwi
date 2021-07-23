@@ -12,7 +12,7 @@ class TestRepositoryDnf:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('kiwi.repository.dnf.NamedTemporaryFile')
+    @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Path.create')
     def setup(self, mock_path, mock_config, mock_temp):
@@ -50,14 +50,14 @@ class TestRepositoryDnf:
             call('main', 'enabled', '1')
         ]
 
-    @patch('kiwi.repository.dnf.NamedTemporaryFile')
+    @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.Path.create')
     def test_post_init_no_custom_args(self, mock_path, mock_temp):
         with patch('builtins.open', create=True):
             self.repo.post_init()
         assert self.repo.custom_args == []
 
-    @patch('kiwi.repository.dnf.NamedTemporaryFile')
+    @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.Path.create')
     @patch('os.path.exists')
     def test_post_init_with_custom_args(

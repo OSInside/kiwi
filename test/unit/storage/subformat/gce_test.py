@@ -44,11 +44,11 @@ class TestDiskFormatGce:
 
     @patch('kiwi.storage.subformat.gce.Command.run')
     @patch('kiwi.storage.subformat.gce.ArchiveTar')
-    @patch('kiwi.storage.subformat.gce.mkdtemp')
+    @patch('kiwi.storage.subformat.gce.Temporary')
     def test_create_image_format(
-        self, mock_mkdtemp, mock_archive, mock_command
+        self, mock_Temporary, mock_archive, mock_command
     ):
-        mock_mkdtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         archive = mock.Mock()
         mock_archive.return_value = archive
         self.disk_format.tag = 'gce-license'

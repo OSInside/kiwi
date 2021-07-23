@@ -14,9 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.command import Command
 from kiwi.system.result import Result
@@ -41,7 +41,7 @@ class DiskFormatQcow2(DiskFormatBase):
         """
         Create qcow2 disk format
         """
-        intermediate = NamedTemporaryFile()
+        intermediate = Temporary().new_file()
         Command.run(
             [
                 'qemu-img', 'convert', '-f', 'raw', self.diskname,

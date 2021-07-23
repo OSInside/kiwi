@@ -16,12 +16,11 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from pwd import getpwnam
-from tempfile import mkdtemp
-from shutil import rmtree
 from shutil import copy
 import os
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.utils.sync import DataSync
 from kiwi.path import Path
 from kiwi.defaults import Defaults
@@ -73,26 +72,25 @@ class RootInit:
         :raises KiwiRootInitCreationError: if the init creation fails
             at some point
         """
-        root = mkdtemp(prefix='kiwi_root.')
+        root = Temporary(prefix='kiwi_root.').new_dir()
         Path.create(self.root_dir)
         try:
-            self._create_base_directories(root)
-            self._create_base_links(root)
-            data = DataSync(root + '/', self.root_dir)
+            self._create_base_directories(root.name)
+            self._create_base_links(root.name)
+            data = DataSync(root.name + '/', self.root_dir)
             data.sync_data(
                 options=['-a', '--ignore-existing']
             )
             if Defaults.is_buildservice_worker():
                 copy(
                     os.sep + Defaults.get_buildservice_env_name(),
-                    self.root_dir)
+                    self.root_dir
+                )
         except Exception as e:
             self.delete()
             raise KiwiRootInitCreationError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
-        finally:
-            rmtree(root, ignore_errors=True)
 
     def _create_base_directories(self, root):
         """

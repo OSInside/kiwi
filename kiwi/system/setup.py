@@ -19,9 +19,9 @@ import glob
 import os
 import logging
 import copy
+import pathlib
 from collections import OrderedDict
 from collections import namedtuple
-from tempfile import NamedTemporaryFile
 from typing import Any
 
 # project
@@ -738,11 +738,9 @@ class SystemSetup:
             'partition_filesystem':
                 self.root_dir + '/recovery.tar.filesystem'
         }
-        recovery_archive = NamedTemporaryFile(
-            delete=False
-        )
+        pathlib.Path(metadata['archive_name']).touch()
         archive = ArchiveTar(
-            filename=recovery_archive.name,
+            filename=metadata['archive_name'],
             create_from_file_list=False
         )
         archive.create(
@@ -753,9 +751,6 @@ class SystemSetup:
                 '--hard-dereference',
                 '--preserve-permissions'
             ]
-        )
-        Command.run(
-            ['mv', recovery_archive.name, metadata['archive_name']]
         )
         # recovery.tar.filesystem
         recovery_filesystem = self.xml_state.build_type.get_filesystem()

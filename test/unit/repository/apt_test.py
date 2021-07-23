@@ -8,7 +8,7 @@ from kiwi.repository.apt import RepositoryApt
 
 
 class TestRepositoryApt:
-    @patch('kiwi.repository.apt.NamedTemporaryFile')
+    @patch('kiwi.repository.apt.Temporary.new_file')
     @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
     @patch('kiwi.repository.apt.Path.create')
     def setup(self, mock_path, mock_template, mock_temp):
@@ -54,7 +54,8 @@ class TestRepositoryApt:
         template = mock.Mock()
         template.substitute.return_value = 'template-data'
         self.apt_conf.get_image_template.return_value = template
-        self.repo.use_default_location()
+        with patch('builtins.open', create=True):
+            self.repo.use_default_location()
         assert self.repo.shared_apt_get_dir['sources-dir'] == \
             '../data/etc/apt/sources.list.d'
         assert self.repo.shared_apt_get_dir['preferences-dir'] == \

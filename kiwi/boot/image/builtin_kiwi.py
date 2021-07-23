@@ -17,8 +17,7 @@
 #
 import os
 import logging
-from tempfile import TemporaryDirectory
-from tempfile import mkdtemp
+from kiwi.utils.temporary import Temporary
 from typing import (
     Optional, List
 )
@@ -74,9 +73,10 @@ class BootImageKiwi(BootImageBase):
         Prepare new root system suitable to create a kiwi initrd from it
         """
         if self.boot_xml_state:
-            self.boot_root_directory = mkdtemp(
+            self.boot_root_directory_temporary = Temporary(
                 prefix='kiwi_boot_root.', dir=self.target_dir
-            )
+            ).new_dir()
+            self.boot_root_directory = self.boot_root_directory_temporary.name
             self.temp_directories.append(
                 self.boot_root_directory
             )
@@ -152,9 +152,9 @@ class BootImageKiwi(BootImageBase):
                 kiwi_initrd_basename = basename
             else:
                 kiwi_initrd_basename = self.initrd_base_name
-            temp_boot_root = TemporaryDirectory(
+            temp_boot_root = Temporary(
                 prefix='kiwi_boot_root_copy.'
-            )
+            ).new_dir()
             temp_boot_root_directory = temp_boot_root.name
             os.chmod(temp_boot_root_directory, 0o755)
             data = DataSync(
