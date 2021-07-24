@@ -33,7 +33,7 @@ class Temporary:
     def __init__(
         self, dir: str = defaults.TEMP_DIR, prefix: str = ''
     ):
-        self.prefix = f'kiwi_{prefix}' if prefix else 'kiwi_'
+        self.prefix = prefix if prefix else 'kiwi_'
         self.dir = dir
 
     def new_file(self) -> IO[bytes]:

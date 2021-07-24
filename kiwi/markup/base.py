@@ -64,7 +64,9 @@ class MarkupBase:
         xslt_transform = etree.XSLT(
             etree.parse(Defaults.get_xsl_stylesheet_file())
         )
-        self.description_xslt_processed = Temporary(prefix='xslt-').new_file()
+        self.description_xslt_processed = Temporary(
+            prefix='kiwi_xslt-'
+        ).new_file()
         with open(self.description_xslt_processed.name, "wb") as xsltout:
             xsltout.write(
                 etree.tostring(xslt_transform(parsed_description))

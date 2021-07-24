@@ -329,7 +329,7 @@ class TestVolumeManagerLVM:
         self.volume_manager.volume_group = 'vgroup'
         self.volume_manager._add_to_volume_map('device')
         volume_mount = Mock()
-        volume_mount.mountpoint = '/tmp/kiwi_volumes.XXX/var/tmp'
+        volume_mount.mountpoint = '/var/tmp/kiwi_volumes.XXX/var/tmp'
         volume_mount.device = self.volume_manager.volume_map['device']
         self.volume_manager.mount_list = [volume_mount]
         assert self.volume_manager.get_fstab(None, 'ext3') == [
@@ -351,9 +351,8 @@ class TestVolumeManagerLVM:
             '/dev/vgroup/device /var/tmp ext3 a,b,c 0 2'
         ]
 
-    @patch('kiwi.volume_manager.lvm.Path.wipe')
     @patch('kiwi.volume_manager.lvm.Command.run')
-    def test_destructor_busy_volumes(self, mock_command, mock_wipe):
+    def test_destructor_busy_volumes(self, mock_command):
         self.volume_manager.mountpoint = 'tmpdir'
         self.volume_manager.volume_group = 'volume_group'
         volume_mount = Mock()
@@ -369,10 +368,9 @@ class TestVolumeManagerLVM:
         self.volume_manager.volume_group = None
 
     @patch('kiwi.volume_manager.lvm.VolumeManagerLVM.umount_volumes')
-    @patch('kiwi.volume_manager.lvm.Path.wipe')
     @patch('kiwi.volume_manager.lvm.Command.run')
     def test_destructor(
-        self, mock_command, mock_wipe, mock_umount_volumes
+        self, mock_command, mock_umount_volumes
     ):
         mock_umount_volumes.return_value = True
         mock_command.side_effect = Exception
@@ -382,7 +380,6 @@ class TestVolumeManagerLVM:
         with self._caplog.at_level(logging.WARNING):
             self.volume_manager.__del__()
             mock_umount_volumes.assert_called_once_with()
-            mock_wipe.assert_called_once_with('tmpdir')
             mock_command.assert_called_once_with(
                 ['vgchange'] + self.volume_manager.lvm_tool_options + [
                     '-an', 'volume_group'
