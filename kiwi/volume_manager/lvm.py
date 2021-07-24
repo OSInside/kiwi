@@ -275,8 +275,11 @@ class VolumeManagerLVM(VolumeManagerBase):
         :rtype: dict
         """
         volumes = {}
+        path_start_index = len(defaults.TEMP_DIR.split(os.sep)) + 1
         for volume_mount in self.mount_list:
-            mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
+            mount_path = os.sep.join(
+                volume_mount.mountpoint.split(os.sep)[path_start_index:]
+            )
             if mount_path:
                 volumes[mount_path] = {
                     'volume_options': self.mount_options,

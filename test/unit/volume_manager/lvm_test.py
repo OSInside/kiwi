@@ -315,7 +315,7 @@ class TestVolumeManagerLVM:
     def test_get_volumes(self):
         volume_mount = Mock()
         volume_mount.mountpoint = \
-            '/tmp/kiwi_volumes.f2qx_d3y/boot/grub2/x86_64-efi'
+            '/var/tmp/kiwi_volumes.f2qx_d3y/boot/grub2/x86_64-efi'
         volume_mount.device = '/dev/mapper/vg1-LVRoot'
         self.volume_manager.mount_list = [volume_mount]
         assert self.volume_manager.get_volumes() == {
