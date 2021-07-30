@@ -18,6 +18,8 @@
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" format="vmdk">
             <oemconfig>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>512</oem-swapsize>
                 <oem-resize>false</oem-resize>
             </oemconfig>
             <bootloader name="grub2" console="serial" timeout="10"/>
@@ -61,7 +63,11 @@
         <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
         <package name="udev"/>
+        <package name="xz"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>

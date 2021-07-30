@@ -920,7 +920,7 @@ class DiskBuilder:
             options = ['defaults']
         block_operation = BlockID(device)
         if self.volume_manager_name and self.volume_manager_name == 'lvm' \
-           and mount_point == '/':
+           and (mount_point == '/' or mount_point == 'swap'):
             fstab_entry = ' '.join(
                 [
                     device, mount_point,
