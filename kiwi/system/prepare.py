@@ -23,6 +23,7 @@ from typing import (
 from textwrap import dedent
 
 # project
+from kiwi.xml_parse import repository
 from kiwi.xml_state import XMLState
 from kiwi.system.root_init import RootInit
 from kiwi.system.root_import import RootImport
@@ -153,6 +154,9 @@ class SystemPrepare:
             repo_components = xml_repo.get_components()
             repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
             repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
+            repo_customization_script = self._get_repo_customization_script(
+                xml_repo
+            )
             repo_sourcetype = xml_repo.get_sourcetype()
             repo_use_for_bootstrap = \
                 True if xml_repo.get_use_for_bootstrap() else False
@@ -187,7 +191,8 @@ class SystemPrepare:
                 repo_type, repo_priority, repo_dist, repo_components,
                 repo_user, repo_secret, uri.credentials_file_name(),
                 repo_repository_gpgcheck, repo_package_gpgcheck,
-                repo_sourcetype, repo_use_for_bootstrap
+                repo_sourcetype, repo_use_for_bootstrap,
+                repo_customization_script
             )
             if clear_cache:
                 repo.delete_repo_cache(repo_alias)
@@ -539,6 +544,14 @@ class SystemPrepare:
             manager.collection_requests + \
             manager.product_requests + \
             manager.exclude_requests
+
+    def _get_repo_customization_script(self, xml_repo: repository) -> str:
+        script_path = xml_repo.get_customize()
+        if script_path and not os.path.isabs(script_path):
+            script_path = os.path.join(
+                self.xml_state.xml_data.description_dir, script_path
+            )
+        return script_path
 
     def __del__(self):
         log.info('Cleaning up {:s} instance'.format(type(self).__name__))

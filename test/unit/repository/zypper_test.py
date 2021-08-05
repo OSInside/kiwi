@@ -111,7 +111,10 @@ class TestRepositoryZypper:
         mock_config.return_value = repo_config
         mock_exists.return_value = True
         with patch('builtins.open', create=True) as mock_open:
-            self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
+            self.repo.add_repo(
+                'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
+                customization_script='custom_script'
+            )
             mock_wipe.assert_called_once_with(
                 '../data/shared-dir/zypper/repos/foo.repo'
             )
@@ -133,6 +136,10 @@ class TestRepositoryZypper:
                         'foo'
                     ], self.repo.command_env
                 ),
+                call([
+                    'bash', '--norc', 'custom_script',
+                    '../data/shared-dir/zypper/repos/foo.repo'
+                ]),
                 call([
                     'mv', '-f',
                     '/shared-dir/packages.moved', '/shared-dir/packages'

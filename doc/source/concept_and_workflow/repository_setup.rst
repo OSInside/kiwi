@@ -74,6 +74,28 @@ following optional attributes:
 
 - `profiles`: List of profiles to which this repository applies.
 
+- `customize`: Script to run custom modifications to the repo file(s).
+  repo files allows for several customization options which not all of them
+  are supported to be set by kiwi through the current repository schema.
+  As the options used do not follow any standard and are not compatible
+  between package managers and distributions, the only generic way to handle
+  this is through a script hook which is invoked with the repo file as
+  parameter for each file created by {kiwi}.
+
+  An example for a script call to add the `module_hotfixes` option
+  for a `dnf` compatible repository configuration could look like
+  this
+
+  .. code:: bash
+
+     repo_file=$1
+     echo 'module_hotfixes = 1' >> ${repo_file}
+
+  .. note::
+
+     If the script is provided as relative path it will
+     be searched in the image description directory
+
 .. _supported-repository-paths:
 
 Supported repository paths

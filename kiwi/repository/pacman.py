@@ -112,7 +112,8 @@ class RepositoryPacman(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, use_for_bootstrap: bool = False
+        sourcetype: str = None, use_for_bootstrap: bool = False,
+        customization_script: str = None
     ) -> None:
         """
         Add pacman repository
@@ -130,6 +131,8 @@ class RepositoryPacman(RepositoryBase):
         :param bool pkg_gpgcheck: enable package signature validation
         :param str sourcetype: unused
         :param bool use_for_bootstrap: unused
+        :param str customization_script:
+            custom script called after the repo file was created
         """
         repo_file = '{0}/{1}.repo'.format(
             self.shared_pacman_dir['repos-dir'], name
@@ -151,6 +154,8 @@ class RepositoryPacman(RepositoryBase):
 
         with open(repo_file, 'w') as config:
             repo_config.write(config)
+        if customization_script:
+            self.run_repo_customize(customization_script, repo_file)
 
     def import_trusted_keys(self, signing_keys: List) -> None:
         """

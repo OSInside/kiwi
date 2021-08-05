@@ -20,6 +20,7 @@ from typing import (
 )
 
 from kiwi.system.root_bind import RootBind
+from kiwi.command import Command
 
 
 class RepositoryBase:
@@ -73,7 +74,7 @@ class RepositoryBase:
         self, name: str, uri: str, repo_type: str, prio: int, dist: str,
         components: str, user: str, secret: str, credentials_file: str,
         repo_gpgcheck: bool, pkg_gpgcheck: bool, sourcetype: str,
-        use_for_bootstrap: bool = False
+        use_for_bootstrap: bool = False, customization_script: str = None
     ) -> None:
         """
         Add repository
@@ -93,6 +94,7 @@ class RepositoryBase:
         :param bool pkg_gpgcheck: unused
         :param str sourcetype: unused
         :param bool use_for_bootstrap: unused
+        :param str customization_script: unused
         """
         raise NotImplementedError
 
@@ -152,3 +154,15 @@ class RepositoryBase:
         :param str name: unused
         """
         raise NotImplementedError
+
+    @staticmethod
+    def run_repo_customize(script_path: str, repo_file) -> None:
+        """
+        Run an optional customization script
+
+        :param str script_path: unused
+        :param str repo_file: unused
+        """
+        Command.run(
+            ['bash', '--norc', script_path, repo_file]
+        )
