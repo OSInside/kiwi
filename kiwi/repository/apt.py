@@ -136,7 +136,8 @@ class RepositoryApt(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = None, pkg_gpgcheck: bool = None,
-        sourcetype: str = None, use_for_bootstrap: bool = False
+        sourcetype: str = None, use_for_bootstrap: bool = False,
+        customization_script: str = None
     ) -> None:
         """
         Add apt_get repository
@@ -155,6 +156,8 @@ class RepositoryApt(RepositoryBase):
         :param str sourcetype: unused
         :param bool use_for_bootstrap: use this repository for the
             debootstrap call
+        :param str customization_script:
+            custom script called after the repo file was created
         """
         list_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.list']
@@ -194,6 +197,8 @@ class RepositoryApt(RepositoryBase):
                     self.debootstrap_repo_set = use_for_bootstrap
                 repo_line += ' {0} {1}\n'.format(dist, components)
             repo.write(repo_line)
+        if customization_script:
+            self.run_repo_customize(customization_script, list_file)
         if prio:
             uri_parsed = urlparse(uri.replace('file://', 'file:/'))
             with open(pref_file, 'w') as pref:
@@ -211,6 +216,8 @@ class RepositoryApt(RepositoryBase):
                 pref.write(
                     'Pin-Priority: {0}{1}'.format(prio, os.linesep)
                 )
+            if customization_script:
+                self.run_repo_customize(customization_script, pref_file)
 
     def import_trusted_keys(self, signing_keys: List) -> None:
         """

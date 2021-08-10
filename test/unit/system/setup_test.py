@@ -1307,7 +1307,7 @@ class TestSystemSetup:
         self.setup_with_real_xml.import_repositories_marked_as_imageinclude()
         assert repo.add_repo.call_args_list[0] == call(
             'uri-alias', 'uri', 'rpm-md', None, None, None, None, None,
-            'kiwiRepoCredentials', None, None, None
+            'kiwiRepoCredentials', None, None, None, False, '../data/script'
         )
 
     @patch('os.path.exists')

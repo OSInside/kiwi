@@ -222,12 +222,12 @@ class TestSystemPrepare:
             call(
                 'uri-alias', 'uri', None, 42,
                 None, None, None, None, 'credentials-file', None, None,
-                'baseurl', False
+                'baseurl', False, None
             ),
             call(
                 'uri-alias', 'uri', 'rpm-md', None,
                 None, None, None, None, 'credentials-file', None, None,
-                None, False
+                None, False, '../data/script'
             )
         ]
         assert repo.delete_repo_cache.call_args_list == [

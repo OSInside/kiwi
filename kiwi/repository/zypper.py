@@ -247,7 +247,8 @@ class RepositoryZypper(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, use_for_bootstrap: bool = False
+        sourcetype: str = None, use_for_bootstrap: bool = False,
+        customization_script: str = None
     ) -> None:
         """
         Add zypper repository
@@ -265,6 +266,8 @@ class RepositoryZypper(RepositoryBase):
         :param bool pkg_gpgcheck: enable package signature validation
         :param str sourcetype: unused
         :param boot use_for_bootstrap: unused
+        :param str customization_script:
+            custom script called after the repo file was created
         """
         if credentials_file:
             repo_secret = os.sep.join(
@@ -331,6 +334,8 @@ class RepositoryZypper(RepositoryBase):
             )
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
+        if customization_script:
+            self.run_repo_customize(customization_script, repo_file)
         self._restore_package_cache()
 
     def import_trusted_keys(self, signing_keys: List) -> None:

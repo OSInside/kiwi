@@ -727,6 +727,15 @@ repository_gpgcheck="true|false"
   relevant key information needs to be provided on the {kiwi}
   commandline using the `--signing-key` option
 
+customize="/path/to/custom_script"
+  Custom script hook which is invoked with the repo file as parameter
+  for each file created by {kiwi}.
+
+  .. note::
+
+     If the script is provided as relative path it will
+     be searched in the image description directory
+
 imageinclude="true|false"
   Specifies whether the given repository should be configured as a
   repository in the image or not. The default behavior is that

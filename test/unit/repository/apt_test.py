@@ -78,13 +78,15 @@ class TestRepositoryApt:
         self.repo.setup_package_database_configuration()
 
     @patch('os.path.exists')
-    def test_add_repo_with_priority(self, mock_exists):
+    @patch('kiwi.command.Command.run')
+    def test_add_repo_with_priority(self, mock_Command_run, mock_exists):
         mock_exists.return_value = True
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.repo.add_repo(
-                'foo', '/srv/my-repo', 'deb', '42', 'xenial', 'a b'
+                'foo', '/srv/my-repo', 'deb', '42', 'xenial', 'a b',
+                customization_script='custom_script'
             )
             assert mock_open.call_args_list == [
                 call('/shared-dir/apt-get/sources.list.d/foo.list', 'w'),
@@ -95,6 +97,20 @@ class TestRepositoryApt:
                 call('Package: *\n'),
                 call('Pin: origin ""\n'),
                 call('Pin-Priority: 42\n')
+            ]
+            assert mock_Command_run.call_args_list == [
+                call(
+                    [
+                        'bash', '--norc', 'custom_script',
+                        '/shared-dir/apt-get/sources.list.d/foo.list'
+                    ]
+                ),
+                call(
+                    [
+                        'bash', '--norc', 'custom_script',
+                        '/shared-dir/apt-get/preferences.d/foo.pref'
+                    ]
+                )
             ]
         mock_exists.return_value = False
         with patch('builtins.open', create=True) as mock_open:

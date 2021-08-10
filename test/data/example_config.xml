@@ -169,7 +169,7 @@
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso"/>
     </repository>
-    <repository type="rpm-md" imageinclude="true">
+    <repository type="rpm-md" imageinclude="true" customize="script">
         <source path="obs://Devel:PubCloud:AmazonEC2/SLE_12_GA"/>
     </repository>
     <repository type="rpm-md" imageonly="true">

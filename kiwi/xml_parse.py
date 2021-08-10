@@ -2064,7 +2064,7 @@ class repository(k_source):
     """The Name of the Repository"""
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, package_gpgcheck=None, priority=None, password=None, username=None, use_for_bootstrap=None):
+    def __init__(self, source=None, type_=None, profiles=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, customize=None, package_gpgcheck=None, priority=None, password=None, username=None, use_for_bootstrap=None):
         self.original_tagname_ = None
         super(repository, self).__init__(source, )
         self.type_ = _cast(None, type_)
@@ -2076,6 +2076,7 @@ class repository(k_source):
         self.imageinclude = _cast(bool, imageinclude)
         self.imageonly = _cast(bool, imageonly)
         self.repository_gpgcheck = _cast(bool, repository_gpgcheck)
+        self.customize = _cast(None, customize)
         self.package_gpgcheck = _cast(bool, package_gpgcheck)
         self.priority = _cast(int, priority)
         self.password = _cast(None, password)
@@ -2110,6 +2111,8 @@ class repository(k_source):
     def set_imageonly(self, imageonly): self.imageonly = imageonly
     def get_repository_gpgcheck(self): return self.repository_gpgcheck
     def set_repository_gpgcheck(self, repository_gpgcheck): self.repository_gpgcheck = repository_gpgcheck
+    def get_customize(self): return self.customize
+    def set_customize(self, customize): self.customize = customize
     def get_package_gpgcheck(self): return self.package_gpgcheck
     def set_package_gpgcheck(self, package_gpgcheck): self.package_gpgcheck = package_gpgcheck
     def get_priority(self): return self.priority
@@ -2177,6 +2180,9 @@ class repository(k_source):
         if self.repository_gpgcheck is not None and 'repository_gpgcheck' not in already_processed:
             already_processed.add('repository_gpgcheck')
             outfile.write(' repository_gpgcheck="%s"' % self.gds_format_boolean(self.repository_gpgcheck, input_name='repository_gpgcheck'))
+        if self.customize is not None and 'customize' not in already_processed:
+            already_processed.add('customize')
+            outfile.write(' customize=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.customize), input_name='customize')), ))
         if self.package_gpgcheck is not None and 'package_gpgcheck' not in already_processed:
             already_processed.add('package_gpgcheck')
             outfile.write(' package_gpgcheck="%s"' % self.gds_format_boolean(self.package_gpgcheck, input_name='package_gpgcheck'))
@@ -2255,6 +2261,10 @@ class repository(k_source):
                 self.repository_gpgcheck = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('customize', node)
+        if value is not None and 'customize' not in already_processed:
+            already_processed.add('customize')
+            self.customize = value
         value = find_attr_value_('package_gpgcheck', node)
         if value is not None and 'package_gpgcheck' not in already_processed:
             already_processed.add('package_gpgcheck')
