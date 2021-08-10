@@ -837,10 +837,12 @@ function Rm {
 }
 
 function deprecated {
-    echo "DEPRECATED: $1() is obsolete"
-    echo "["
-    cat
-    echo "]"
+    {
+        echo "DEPRECATED: $1() is obsolete"
+        echo "["
+        cat
+        echo "]"
+    } >&2
     exit 1
 }
 
