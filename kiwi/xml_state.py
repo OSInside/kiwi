@@ -2110,6 +2110,45 @@ class XMLState:
         """
         return self.root_filesystem_uuid
 
+    @staticmethod
+    def get_archives_target_dirs(
+        packages_sections_names: Optional[List[xml_parse.packages]]
+    ) -> Dict:
+        """
+        Dict of archive names and target dirs for packages section(s), if any
+        :return: archive names and its target dir
+        :rtype: dict
+        """
+        result = {}
+        if packages_sections_names:
+            for package_section_name in packages_sections_names:
+                for archive in package_section_name.get_archive():
+                    result[archive.get_name().strip()] = archive.get_target_dir()
+
+        return result
+
+    def get_bootstrap_archives_target_dirs(self) -> Dict:
+        """
+        Dict of archive names and target dirs from the type="bootstrap"
+        packages section(s)
+        :return: archive names and its target dir
+        :rtype: dict
+        """
+        return self.get_archives_target_dirs(
+            self.get_packages_sections(['bootstrap'])
+        )
+
+    def get_system_archives_target_dirs(self) -> Dict:
+        """
+        Dict of archive names and its target dir from the packages sections matching
+        type="image" and type=build_type
+        :return: archive names and its target dir
+        :rtype: dict
+        """
+        return self.get_archives_target_dirs(
+            self.get_packages_sections(['image', self.get_build_type_name()])
+        )
+
     def _used_profiles(self, profiles=None):
         """
         return list of profiles to use. The method looks up the

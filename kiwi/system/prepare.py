@@ -231,6 +231,7 @@ class SystemPrepare:
         bootstrap_collections = self.xml_state.get_bootstrap_collections()
         bootstrap_products = self.xml_state.get_bootstrap_products()
         bootstrap_archives = self.xml_state.get_bootstrap_archives()
+        bootstrap_archives_target_dirs = self.xml_state.get_bootstrap_archives_target_dirs()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -265,7 +266,9 @@ class SystemPrepare:
         # process archive installations
         if bootstrap_archives:
             try:
-                self._install_archives(bootstrap_archives)
+                self._install_archives(
+                    bootstrap_archives, bootstrap_archives_target_dirs
+                )
             except Exception as issue:
                 raise KiwiBootStrapPhaseFailed(
                     self.issue_message.format(
@@ -297,6 +300,7 @@ class SystemPrepare:
         system_collections = self.xml_state.get_system_collections()
         system_products = self.xml_state.get_system_products()
         system_archives = self.xml_state.get_system_archives()
+        system_archives_target_dirs = self.xml_state.get_system_archives_target_dirs()
         system_packages_ignored = self.xml_state.get_system_ignore_packages()
         # process package installations
         if collection_type == 'onlyRequired':
@@ -332,7 +336,10 @@ class SystemPrepare:
         # process archive installations
         if system_archives:
             try:
-                self._install_archives(system_archives)
+                self._install_archives(
+                    system_archives,
+                    system_archives_target_dirs
+                )
             except Exception as issue:
                 raise KiwiInstallPhaseFailed(
                     self.issue_message.format(
@@ -496,7 +503,7 @@ class SystemPrepare:
         )
         manager.clean_leftovers()
 
-    def _install_archives(self, archive_list):
+    def _install_archives(self, archive_list, archive_target_dir_dict):
         log.info("Installing archives")
         for archive in archive_list:
             log.info("--> archive: %s", archive)
@@ -517,8 +524,15 @@ class SystemPrepare:
                 archive_file = '/'.join(
                     [derived_description_dir, archive]
                 )
+            target_dir = self.root_bind.root_dir
+            if archive_target_dir_dict.get(archive):
+                target_dir = os.path.join(
+                    target_dir,
+                    archive_target_dir_dict.get(archive)
+                )
+            log.info('--> target dir: %s', target_dir)
             tar = ArchiveTar(archive_file)
-            tar.extract(self.root_bind.root_dir)
+            tar.extract(target_dir)
 
     def _setup_requests(
         self, manager, packages, collections=None, products=None, ignored=None

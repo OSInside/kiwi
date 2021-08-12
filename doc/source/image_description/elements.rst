@@ -944,7 +944,7 @@ any of its required packages and any recommended packages.
 .. code:: xml
 
    <packages type="image"/>
-     <archive name="name"/>
+     <archive name="name" target_dir="some/path"/>
    </packages>
 
 The archive element takes the `name` attribute and looks up the
@@ -952,7 +952,9 @@ given name as file on the system. If specified relative {kiwi}
 looks up the name in the image description directory. The archive
 is installed using the `tar` program. Thus the file name is
 expected to be a tar archive. The compression of the archive is
-detected automatically by the tar program.
+detected automatically by the tar program. The optional target_dir
+attribute can be used to specify a target directory to unpack the
+archive.
 
 <packages><ignore>
 ~~~~~~~~~~~~~~~~~~

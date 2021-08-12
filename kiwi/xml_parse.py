@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.6.12 (default, Dec 02 2020, 09:44:23) [GCC]
+# Python 3.8.10 (default, May 05 2021, 15:36:36) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/jesusbv/Projects/kiwi/.tox/3.8/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -1174,10 +1174,11 @@ class archive(GeneratedsSuper):
     """Name of an image archive file (tarball)"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, bootinclude=None):
+    def __init__(self, name=None, bootinclude=None, target_dir=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.bootinclude = _cast(bool, bootinclude)
+        self.target_dir = _cast(None, target_dir)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1193,6 +1194,8 @@ class archive(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_bootinclude(self): return self.bootinclude
     def set_bootinclude(self, bootinclude): self.bootinclude = bootinclude
+    def get_target_dir(self): return self.target_dir
+    def set_target_dir(self, target_dir): self.target_dir = target_dir
     def hasContent_(self):
         if (
 
@@ -1227,6 +1230,9 @@ class archive(GeneratedsSuper):
         if self.bootinclude is not None and 'bootinclude' not in already_processed:
             already_processed.add('bootinclude')
             outfile.write(' bootinclude="%s"' % self.gds_format_boolean(self.bootinclude, input_name='bootinclude'))
+        if self.target_dir is not None and 'target_dir' not in already_processed:
+            already_processed.add('target_dir')
+            outfile.write(' target_dir=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.target_dir), input_name='target_dir')), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='archive', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -1250,6 +1256,10 @@ class archive(GeneratedsSuper):
                 self.bootinclude = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('target_dir', node)
+        if value is not None and 'target_dir' not in already_processed:
+            already_processed.add('target_dir')
+            self.target_dir = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class archive
