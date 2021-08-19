@@ -2501,7 +2501,7 @@ mount that filesystem while booting</a:documentation>
     </define>
     <define name="k.type.luksOS.attribute">
       <attribute name="luksOS">
-        <a:documentation>With the luksOS value a predefined set of ciper, keysize
+        <a:documentation>With the luksOS value a predefined set of cipher, keysize
 and hash format options is passed to the cryptsetup call
 in order to create a format compatible to the specified
 distribution</a:documentation>
