@@ -103,6 +103,7 @@ class ResultBundleTask(CliTask):
         )
         image_version = result.xml_state.get_image_version()
         image_name = result.xml_state.xml_data.get_name()
+        luks_setup = result.xml_state.build_type.get_luks()
         ordered_results = OrderedDict(sorted(result.get_results().items()))
 
         # hard link bundle files, compress and build checksum
@@ -130,7 +131,7 @@ class ResultBundleTask(CliTask):
                         'cp', result_file.filename, bundle_file
                     ]
                 )
-                if result_file.compress:
+                if result_file.compress and luks_setup == None:
                     log.info('--> XZ compressing')
                     compress = Compress(bundle_file)
                     compress.xz(self.runtime_config.get_xz_options())
