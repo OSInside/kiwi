@@ -1710,7 +1710,7 @@ div {
             sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
     k.type.luksOS.attribute =
-        ## With the luksOS value a predefined set of ciper, keysize
+        ## With the luksOS value a predefined set of cipher, keysize
         ## and hash format options is passed to the cryptsetup call
         ## in order to create a format compatible to the specified
         ## distribution
