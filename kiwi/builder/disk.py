@@ -463,13 +463,14 @@ class DiskBuilder:
             self.diskname
         )
         # store image file name in result
+        compression = self.runtime_config.get_bundle_compression(default=True)
+        if self.luks != None:
+            compression = False
         self.result.add(
             key='disk_image',
             filename=self.diskname,
             use_for_bundle=True if not self.image_format else False,
-            compress=self.runtime_config.get_bundle_compression(
-                default=True
-            ),
+            compress=compression,
             shasum=True
         )
 
