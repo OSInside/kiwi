@@ -51,8 +51,8 @@ The following procedure shows how to setup Grub2 on your hard drive:
    .. code:: bash
 
       menuentry "Boot from openSUSE ISO" {
-   	   iso_path="(hd0,gpt2)/path/to/openSUSE.iso"
-   	   export iso_path
+	   iso_path="(hd0,gpt2)/path/to/openSUSE.iso"
+	   export iso_path
 	   loopback loop "$iso_path"
 	   root=(loop)
 	   configfile /boot/grub2/loopback.cfg
