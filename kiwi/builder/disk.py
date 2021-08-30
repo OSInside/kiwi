@@ -17,7 +17,6 @@
 #
 import os
 import logging
-from tempfile import NamedTemporaryFile
 from typing import (
     Dict, List, Optional, Tuple, Any
 )
@@ -25,6 +24,7 @@ from typing import (
 # project
 import kiwi.defaults as defaults
 
+from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.bootloader.config import BootLoaderConfig
@@ -251,6 +251,8 @@ class DiskBuilder:
                         loop_provider.get_device(),
                     'grub_directory_name':
                         Defaults.get_grub_boot_directory_name(self.root_dir),
+                    'crypto_disk':
+                        True if self.luks is not None else False,
                     'boot_is_crypto':
                         self.boot_is_crypto
                 }
@@ -272,18 +274,31 @@ class DiskBuilder:
 
         # create luks on current root device if requested
         luks_root = None
-        if self.luks:
+        if self.luks is not None:
             luks_root = LuksDevice(device_map['root'])
             self.luks_boot_keyname = '/.root.keyfile'
             self.luks_boot_keyfile = ''.join(
                 [self.root_dir, self.luks_boot_keyname]
             )
+            # use LUKS key file for the following conditions:
+            # 1. /boot is encrypted
+            #    In this case grub needs to read from LUKS via the
+            #    cryptodisk module which at the moment always asks
+            #    for the passphrase even when empty. The keyfile
+            #    setup makes sure only one interaction on the grub
+            #    stage is needed
+            # 2. LUKS passphrase is configured as empty string
+            #    In this case the keyfile allows to open the
+            #    LUKS pool without asking
+            #
+            luks_need_keyfile = \
+                True if self.boot_is_crypto or self.luks == '' else False
             luks_root.create_crypto_luks(
                 passphrase=self.luks,
                 os=self.luks_os,
-                keyfile=self.luks_boot_keyfile if self.boot_is_crypto else None
+                keyfile=self.luks_boot_keyfile if luks_need_keyfile else None
             )
-            if self.boot_is_crypto:
+            if luks_need_keyfile:
                 self.luks_boot_keyfile_setup = ''.join(
                     [self.root_dir, '/etc/dracut.conf.d/99-luks-boot.conf']
                 )
@@ -448,13 +463,14 @@ class DiskBuilder:
             self.diskname
         )
         # store image file name in result
+        compression = self.runtime_config.get_bundle_compression(default=True)
+        if self.luks is not None:
+            compression = False
         self.result.add(
             key='disk_image',
             filename=self.diskname,
             use_for_bundle=True if not self.image_format else False,
-            compress=self.runtime_config.get_bundle_compression(
-                default=True
-            ),
+            compress=compression,
             shasum=True
         )
 
@@ -727,7 +743,7 @@ class DiskBuilder:
 
         if self.root_filesystem_is_overlay:
             log.info('--> creating readonly root partition')
-            squashed_root_file = NamedTemporaryFile()
+            squashed_root_file = Temporary().new_file()
             squashed_root = FileSystemSquashFs(
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
@@ -905,7 +921,7 @@ class DiskBuilder:
             options = ['defaults']
         block_operation = BlockID(device)
         if self.volume_manager_name and self.volume_manager_name == 'lvm' \
-           and mount_point == '/':
+           and (mount_point == '/' or mount_point == 'swap'):
             fstab_entry = ' '.join(
                 [
                     device, mount_point,
@@ -1037,7 +1053,7 @@ class DiskBuilder:
 
         log.info('--> Syncing root filesystem data')
         if self.root_filesystem_is_overlay:
-            squashed_root_file = NamedTemporaryFile()
+            squashed_root_file = Temporary().new_file()
             squashed_root = FileSystemSquashFs(
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={

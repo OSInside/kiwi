@@ -12,7 +12,7 @@ class TestRepositoryDnf:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('kiwi.repository.dnf.NamedTemporaryFile')
+    @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Path.create')
     def setup(self, mock_path, mock_config, mock_temp):
@@ -50,14 +50,14 @@ class TestRepositoryDnf:
             call('main', 'enabled', '1')
         ]
 
-    @patch('kiwi.repository.dnf.NamedTemporaryFile')
+    @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.Path.create')
     def test_post_init_no_custom_args(self, mock_path, mock_temp):
         with patch('builtins.open', create=True):
             self.repo.post_init()
         assert self.repo.custom_args == []
 
-    @patch('kiwi.repository.dnf.NamedTemporaryFile')
+    @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.Path.create')
     @patch('os.path.exists')
     def test_post_init_with_custom_args(
@@ -108,14 +108,20 @@ class TestRepositoryDnf:
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
-    def test_add_repo(self, mock_exists, mock_buildservice, mock_config):
+    @patch('kiwi.command.Command.run')
+    def test_add_repo(
+        self, mock_Command_run, mock_exists, mock_buildservice, mock_config
+    ):
         repo_config = mock.Mock()
         mock_buildservice.return_value = False
         mock_config.return_value = repo_config
         mock_exists.return_value = True
 
         with patch('builtins.open', create=True) as mock_open:
-            self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
+            self.repo.add_repo(
+                'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
+                customization_script='custom_script'
+            )
 
             repo_config.add_section.assert_called_once_with('foo')
             assert repo_config.set.call_args_list == [
@@ -127,6 +133,12 @@ class TestRepositoryDnf:
             ]
             mock_open.assert_called_once_with(
                 '/shared-dir/dnf/repos/foo.repo', 'w'
+            )
+            mock_Command_run.assert_called_once_with(
+                [
+                    'bash', '--norc', 'custom_script',
+                    '/shared-dir/dnf/repos/foo.repo'
+                ]
             )
 
         repo_config.add_section.reset_mock()

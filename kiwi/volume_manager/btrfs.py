@@ -25,6 +25,8 @@ from xml.dom import minidom
 from typing import List
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi.command import Command
 from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.mount_manager import MountManager
@@ -442,7 +444,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             snapshot_info_file.write(self._xml_pretty(snapshot))
 
     def _get_subvol_name_from_mountpoint(self, volume_mount):
-        subvol_name = '/'.join(volume_mount.mountpoint.split('/')[3:])
+        path_start_index = len(defaults.TEMP_DIR.split(os.sep)) + 1
+        subvol_name = os.sep.join(
+            volume_mount.mountpoint.split(os.sep)[path_start_index:]
+        )
         if self.toplevel_volume and self.toplevel_volume in subvol_name:
             subvol_name = subvol_name.replace(self.toplevel_volume, '')
         return os.path.normpath(os.sep.join(['@', subvol_name]))
@@ -452,6 +457,3 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             log.info('Cleaning up %s instance', type(self).__name__)
             if not self.umount_volumes():
                 log.warning('Subvolumes still busy')
-                return
-            Path.wipe(self.mountpoint)
-        self._cleanup_tempdirs()

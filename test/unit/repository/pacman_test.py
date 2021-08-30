@@ -9,7 +9,7 @@ from kiwi.repository.pacman import RepositoryPacman
 
 
 class TestRepositorPacman(object):
-    @patch('kiwi.repository.pacman.NamedTemporaryFile')
+    @patch('kiwi.repository.pacman.Temporary.new_file')
     @patch('kiwi.repository.pacman.ConfigParser')
     @patch('kiwi.repository.pacman.Path.create')
     def setup(self, mock_path, mock_config, mock_temp):
@@ -59,8 +59,9 @@ class TestRepositorPacman(object):
 
     @patch('kiwi.repository.pacman.ConfigParser')
     @patch('os.path.exists')
+    @patch('kiwi.command.Command.run')
     def test_add_local_repo_with_components(
-        self, mock_exists, mock_config
+        self, mock_Command_run, mock_exists, mock_config
     ):
         repo_config = Mock()
         mock_config.return_value = repo_config
@@ -70,7 +71,8 @@ class TestRepositorPacman(object):
         with patch('builtins.open', m_open, create=True):
             self.repo.add_repo(
                 'foo', '/some_uri', components='core extra',
-                repo_gpgcheck=False, pkg_gpgcheck=True
+                repo_gpgcheck=False, pkg_gpgcheck=True,
+                customization_script='custom_script'
             )
         m_open.assert_called_once_with(
             '/shared-dir/pacman/repos/foo.repo', 'w'
@@ -85,6 +87,12 @@ class TestRepositorPacman(object):
             call('extra', 'Server', 'file:///some_uri'),
             call('extra', 'SigLevel', 'Required DatabaseNever'),
         ]
+        mock_Command_run.assert_called_once_with(
+            [
+                'bash', '--norc', 'custom_script',
+                '/shared-dir/pacman/repos/foo.repo'
+            ]
+        )
 
     @patch('kiwi.repository.pacman.ConfigParser')
     @patch('os.path.exists')

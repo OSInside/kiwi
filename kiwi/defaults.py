@@ -45,6 +45,7 @@ EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
 IMAGE_METADATA_DIR = 'image'
 ROOT_VOLUME_NAME = 'LVRoot'
 SHARED_CACHE_DIR = '/var/cache/kiwi'
+TEMP_DIR = '/var/tmp'
 CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
 
@@ -253,6 +254,16 @@ class Defaults:
         CUSTOM_RUNTIME_CONFIG_FILE = filename
 
     @staticmethod
+    def set_temp_location(location):
+        """
+        Sets the temp directory location once
+
+        :param str location: a location path
+        """
+        global TEMP_DIR
+        TEMP_DIR = location
+
+    @staticmethod
     def get_shared_cache_location():
         """
         Provides the shared cache location
@@ -270,6 +281,22 @@ class Defaults:
         return os.path.abspath(os.path.normpath(
             SHARED_CACHE_DIR
         )).lstrip(os.sep)
+
+    @staticmethod
+    def get_temp_location():
+        """
+        Provides the base temp directory location
+
+        This is the directory used to store any temporary files
+        and directories created by kiwi during runtime
+
+        :return: directory path
+
+        :rtype: str
+        """
+        return os.path.abspath(
+            os.path.normpath(TEMP_DIR)
+        )
 
     @staticmethod
     def get_sync_options():
@@ -708,6 +735,31 @@ class Defaults:
         for shim_file_pattern in shim_file_patterns:
             for shim_file in glob.iglob(root_path + shim_file_pattern):
                 return shim_file
+
+    @staticmethod
+    def get_mok_manager(root_path: str) -> Optional[str]:
+        """
+        Provides Mok Manager file path
+
+        Searches distribution specific locations to find
+        the Mok Manager EFI binary
+
+        :param str root_path: image root path
+
+        :return: file path or None
+
+        :rtype: str
+        """
+        mok_manager_file_patterns = [
+            '/usr/share/efi/*/MokManager.efi',
+            '/usr/lib64/efi/MokManager.efi',
+            '/boot/efi/EFI/*/mm*.efi',
+            '/usr/lib/shim/mm*.efi'
+        ]
+        for mok_manager_file_pattern in mok_manager_file_patterns:
+            for mm_file in glob.iglob(root_path + mok_manager_file_pattern):
+                return mm_file
+        return None
 
     @staticmethod
     def get_grub_efi_font_directory(root_path):

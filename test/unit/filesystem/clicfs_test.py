@@ -12,14 +12,13 @@ class TestFileSystemClicFs:
         self.clicfs = FileSystemClicFs(mock.Mock(), 'root_dir')
 
     @patch('kiwi.filesystem.clicfs.Command.run')
-    @patch('kiwi.filesystem.clicfs.mkdtemp')
+    @patch('kiwi.filesystem.clicfs.Temporary')
     @patch('kiwi.filesystem.clicfs.LoopDevice')
     @patch('kiwi.filesystem.clicfs.FileSystemExt4')
     @patch('kiwi.filesystem.clicfs.SystemSize')
-    @patch('kiwi.filesystem.clicfs.Path.wipe')
     def test_create_on_file(
-        self, mock_wipe, mock_size, mock_ext4, mock_loop,
-        mock_dtemp, mock_command
+        self, mock_size, mock_ext4, mock_loop,
+        mock_Temporary, mock_command
     ):
         size = mock.Mock()
         size.customize = mock.Mock(
@@ -33,7 +32,7 @@ class TestFileSystemClicFs:
         mock_ext4.return_value = filesystem
         loop_provider = mock.Mock()
         mock_loop.return_value = loop_provider
-        mock_dtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
 
         self.clicfs.create_on_file('myimage', 'label')
 
@@ -55,9 +54,3 @@ class TestFileSystemClicFs:
                 ['mkclicfs', 'tmpdir/fsdata.ext4', 'myimage']
             )
         ]
-
-    @patch('kiwi.filesystem.clicfs.Path.wipe')
-    def test_destructor(self, mock_wipe):
-        self.clicfs.container_dir = 'tmpdir'
-        self.clicfs.__del__()
-        mock_wipe.assert_called_once_with('tmpdir')

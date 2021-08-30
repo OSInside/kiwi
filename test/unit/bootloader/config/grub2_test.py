@@ -62,6 +62,7 @@ class TestBootLoaderConfigGrub2:
             'root_dir/boot/efi/': True
         }
         self.glob_iglob = [
+            ['root_dir/usr/lib64/efi/MokManager.efi'],
             ['root_dir/usr/lib64/efi/shim.efi'],
             ['root_dir/usr/lib64/efi/grub.efi'],
             ['root_dir/boot/efi/EFI/DIST/fonts']
@@ -110,6 +111,7 @@ class TestBootLoaderConfigGrub2:
             self.state, 'root_dir', None, {
                 'grub_directory_name': 'grub2',
                 'boot_is_crypto': True,
+                'crypto_disk': True,
                 'targetbase': 'rootdev'
             }
         )
@@ -298,7 +300,7 @@ class TestBootLoaderConfigGrub2:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '15M'
+                    'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '20M'
                 ]
             ),
             call(
@@ -1357,9 +1359,16 @@ class TestBootLoaderConfigGrub2:
                             'cp', 'root_dir/usr/lib64/efi/grub.efi',
                             'root_dir/boot/efi/EFI/BOOT/grub.efi'
                         ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/lib64/efi/MokManager.efi',
+                            'root_dir/boot/efi/EFI/BOOT'
+                        ]
                     )
                 ]
 
+    @patch('kiwi.bootloader.config.grub2.Defaults.get_shim_loader')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -1369,11 +1378,12 @@ class TestBootLoaderConfigGrub2:
     @patch('os.stat')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot_no_shim_at_all(
         self, mock_stat, mock_chmod, mock_glob,
-        mock_exists, mock_command, mock_which, mock_get_boot_path
+        mock_exists, mock_command, mock_which, mock_get_boot_path,
+        mock_get_shim_loader
     ):
         # we expect the copy of grub.efi from the fallback
         # code if no shim was found at all
-        self.glob_iglob[0] = [None]
+        mock_get_shim_loader.return_value = None
 
         Defaults.set_platform_name('x86_64')
         mock_get_boot_path.return_value = '/boot'
@@ -1720,6 +1730,12 @@ class TestBootLoaderConfigGrub2:
                         [
                             'cp', 'root_dir/usr/lib64/efi/grub.efi',
                             'root_dir/EFI/BOOT/grub.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/lib64/efi/MokManager.efi',
+                            'root_dir/EFI/BOOT'
                         ]
                     )
                 ]

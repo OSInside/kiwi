@@ -12,6 +12,7 @@ SYNOPSIS
 
    kiwi-ng -h | --help
    kiwi-ng [--profile=<name>...]
+           [--temp-dir=<directory>]
            [--type=<build_type>]
            [--logfile=<filename>]
            [--debug]
@@ -24,6 +25,7 @@ SYNOPSIS
        result <command> [<args>...]
    kiwi-ng [--profile=<name>...]
            [--shared-cache-dir=<directory>]
+           [--temp-dir=<directory>]
            [--target-arch=<name>]
            [--type=<build_type>]
            [--logfile=<filename>]
@@ -105,7 +107,7 @@ GLOBAL OPTIONS
 
   Select profile to use. The specified profile must be part of the
   XML description. The option can be specified multiple times to
-  allow using a combination of profiles
+  allow using a combination of profiles.
 
 --shared-cache-dir=<directory>
 
@@ -113,7 +115,13 @@ GLOBAL OPTIONS
   is shared via bind mount between the build host and image
   root system and contains information about package repositories
   and their cache and meta data. The default location is set
-  to /var/cache/kiwi
+  to `/var/cache/kiwi`.
+
+--temp-dir=<directory>
+
+  Specify an alternative base temporary directory. The
+  provided path is used as base directory to store temporary
+  files and directories. By default `/var/tmp` is used.
 
 --target-arch=<name>
 

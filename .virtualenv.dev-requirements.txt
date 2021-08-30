@@ -27,6 +27,10 @@ wheel
 # Python style guide checker
 flake8
 mypy
+types-pkg_resources
+types-requests
+types-PyYAML
+types-mock
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS
@@ -50,3 +54,7 @@ python-dateutil
 
 # for release
 twine
+
+# for scripts testing
+pytest-testinfra
+dataclasses ; python_version < "3.7"

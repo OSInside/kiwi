@@ -13,7 +13,7 @@ from kiwi.exceptions import KiwiCommandError
 
 class TestRepositoryZypper:
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.Temporary.new_file')
     def setup(self, mock_temp, mock_command):
 
         self.context_manager_mock = mock.Mock()
@@ -36,14 +36,14 @@ class TestRepositoryZypper:
             )
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.Temporary.new_file')
     def test_custom_args_init_excludedocs(self, mock_temp, mock_command):
         with patch('builtins.open', create=True):
             repo = RepositoryZypper(self.root_bind)
             assert repo.custom_args == []
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.NamedTemporaryFile')
+    @patch('kiwi.repository.zypper.Temporary.new_file')
     @patch('kiwi.repository.zypper.ConfigParser')
     def test_custom_args_init_check_signatures(
         self, mock_config, mock_temp, mock_command
@@ -111,7 +111,10 @@ class TestRepositoryZypper:
         mock_config.return_value = repo_config
         mock_exists.return_value = True
         with patch('builtins.open', create=True) as mock_open:
-            self.repo.add_repo('foo', 'kiwi_iso_mount/uri', 'rpm-md', 42)
+            self.repo.add_repo(
+                'foo', 'kiwi_iso_mount/uri', 'rpm-md', 42,
+                customization_script='custom_script'
+            )
             mock_wipe.assert_called_once_with(
                 '../data/shared-dir/zypper/repos/foo.repo'
             )
@@ -133,6 +136,10 @@ class TestRepositoryZypper:
                         'foo'
                     ], self.repo.command_env
                 ),
+                call([
+                    'bash', '--norc', 'custom_script',
+                    '../data/shared-dir/zypper/repos/foo.repo'
+                ]),
                 call([
                     'mv', '-f',
                     '/shared-dir/packages.moved', '/shared-dir/packages'

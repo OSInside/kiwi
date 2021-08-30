@@ -18,7 +18,7 @@
 import json
 import os.path
 
-from tempfile import mkdtemp
+from kiwi.utils.temporary import Temporary
 from typing import (
     Dict, Optional, List
 )
@@ -131,15 +131,15 @@ class DiskFormatVagrantBase(DiskFormatBase):
                 'vagrant_post_init: Missing provider and/or box name setup'
             )
 
-        self.temp_image_dir = mkdtemp(prefix='kiwi_vagrant_box.')
+        temp_image_dir = Temporary(prefix='kiwi_vagrant_box.').new_dir()
 
-        box_img_files = self.create_box_img(self.temp_image_dir)
+        box_img_files = self.create_box_img(temp_image_dir.name)
 
-        metadata_json = os.path.join(self.temp_image_dir, 'metadata.json')
+        metadata_json = os.path.join(temp_image_dir.name, 'metadata.json')
         with open(metadata_json, 'w') as meta:
             meta.write(self._create_box_metadata())
 
-        vagrantfile = os.path.join(self.temp_image_dir, 'Vagrantfile')
+        vagrantfile = os.path.join(temp_image_dir.name, 'Vagrantfile')
         with open(vagrantfile, 'w') as vagrant:
             # autogenerate a Vagrantfile:
             if not self.vagrantconfig.get_embedded_vagrantfile():
@@ -157,7 +157,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
 
         Command.run(
             [
-                'tar', '-C', self.temp_image_dir,
+                'tar', '-C', temp_image_dir.name,
                 '-czf', self.get_target_file_path_for_format(
                     self.image_format
                 ),

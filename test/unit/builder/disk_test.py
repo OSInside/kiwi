@@ -545,7 +545,7 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     @patch('os.path.getsize')
-    @patch('kiwi.builder.disk.NamedTemporaryFile')
+    @patch('kiwi.builder.disk.Temporary.new_file')
     @patch('random.randrange')
     def test_create_disk_standard_root_is_overlay(
         self, mock_rand, mock_temp, mock_getsize, mock_exists,
@@ -559,7 +559,7 @@ class TestDiskBuilder:
         mock_squashfs.return_value = squashfs
         mock_getsize.return_value = 1048576
         tempfile = Mock()
-        tempfile.name = 'tempname'
+        tempfile.name = 'kiwi-tempname'
         mock_temp.return_value = tempfile
         mock_exists.return_value = True
         self.disk_builder.initrd_system = 'dracut'
@@ -580,16 +580,16 @@ class TestDiskBuilder:
             )
         ]
         assert squashfs.create_on_file.call_args_list == [
-            call(exclude=['var/cache/kiwi'], filename='tempname'),
+            call(exclude=['var/cache/kiwi'], filename='kiwi-tempname'),
             call(exclude=[
                 'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
-            ], filename='tempname')
+            ], filename='kiwi-tempname')
         ]
         self.disk.create_root_readonly_partition.assert_called_once_with(11)
         assert mock_command.call_args_list[2] == call(
-            ['dd', 'if=tempname', 'of=/dev/readonly-root-device']
+            ['dd', 'if=kiwi-tempname', 'of=/dev/readonly-root-device']
         )
         assert m_open.return_value.write.call_args_list == [
             call('kiwi_BootPart="1"\n'),

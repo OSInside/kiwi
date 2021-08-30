@@ -18,9 +18,9 @@
 import json
 import os
 import logging
-from tempfile import NamedTemporaryFile
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.path import Path
 
 log = logging.getLogger('kiwi')
@@ -87,7 +87,7 @@ class DataOutput:
         """
         Show data in json output format with nice color highlighting
         """
-        out_file = NamedTemporaryFile()
+        out_file = Temporary().new_file()
         out_file.write(json.dumps(self.data, sort_keys=True).encode())
         out_file.flush()
         pjson_cmd = ''.join(

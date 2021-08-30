@@ -25,16 +25,15 @@ class TestRootInit:
     @patch('os.makedirs')
     @patch('os.chown')
     @patch('os.symlink')
-    @patch('shutil.rmtree')
     @patch('kiwi.system.root_init.DataSync')
-    @patch('kiwi.system.root_init.mkdtemp')
+    @patch('kiwi.system.root_init.Temporary')
     @patch('kiwi.system.root_init.Path.create')
     def test_create_raises_error(
-        self, mock_Path_create, mock_temp, mock_data_sync, mock_rmtree,
+        self, mock_Path_create, mock_Temporary, mock_data_sync,
         mock_symlink, mock_chwon, mock_makedirs, mock_path
     ):
         mock_path.return_value = False
-        mock_temp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         mock_data_sync.side_effect = Exception
         root = RootInit('root_dir')
         with raises(KiwiRootInitCreationError):
@@ -47,13 +46,12 @@ class TestRootInit:
     @patch('os.makedev')
     @patch('kiwi.path.Path.create')
     @patch('kiwi.system.root_init.copy')
-    @patch('kiwi.system.root_init.rmtree')
     @patch('kiwi.system.root_init.DataSync')
-    @patch('kiwi.system.root_init.mkdtemp')
+    @patch('kiwi.system.root_init.Temporary')
     @patch('kiwi.system.root_init.Path.create')
     def test_create(
-        self, mock_Path_create, mock_temp, mock_data_sync,
-        mock_rmtree, mock_copy, mock_create, mock_makedev,
+        self, mock_Path_create, mock_Temporary, mock_data_sync,
+        mock_copy, mock_create, mock_makedev,
         mock_symlink, mock_chwon, mock_makedirs,
         mock_path
     ):
@@ -71,7 +69,7 @@ class TestRootInit:
         mock_path.side_effect = path_exists
 
         mock_path.return_value = False
-        mock_temp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         root = RootInit('root_dir', True)
         assert root.create() is None
         assert mock_makedirs.call_args_list == [
@@ -103,9 +101,6 @@ class TestRootInit:
         )
         data_sync.sync_data.assert_called_once_with(
             options=['-a', '--ignore-existing']
-        )
-        mock_rmtree.assert_called_once_with(
-            'tmpdir', ignore_errors=True
         )
 
         mock_copy.assert_called_once_with(

@@ -19,14 +19,15 @@ import glob
 import os
 import logging
 import copy
+import pathlib
 from collections import OrderedDict
 from collections import namedtuple
-from tempfile import NamedTemporaryFile
 from typing import Any
 
 # project
 import kiwi.defaults as defaults
 
+from kiwi.xml_parse import repository
 from kiwi.utils.fstab import Fstab
 from kiwi.xml_state import XMLState
 from kiwi.runtime_config import RuntimeConfig
@@ -150,7 +151,11 @@ class SystemSetup:
             repo_components = xml_repo.get_components()
             repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
             repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
+            repo_customization_script = self._get_repo_customization_script(
+                xml_repo
+            )
             repo_sourcetype = xml_repo.get_sourcetype()
+            repo_use_for_bootstrap = False
             uri = Uri(repo_source, repo_type)
             repo_source_translated = uri.translate(
                 check_build_environment=False
@@ -166,7 +171,8 @@ class SystemSetup:
                 repo_type, repo_priority, repo_dist, repo_components,
                 repo_user, repo_secret, uri.credentials_file_name(),
                 repo_repository_gpgcheck, repo_package_gpgcheck,
-                repo_sourcetype
+                repo_sourcetype, repo_use_for_bootstrap,
+                repo_customization_script
             )
 
     def import_cdroot_files(self, target_dir: str) -> None:
@@ -738,11 +744,9 @@ class SystemSetup:
             'partition_filesystem':
                 self.root_dir + '/recovery.tar.filesystem'
         }
-        recovery_archive = NamedTemporaryFile(
-            delete=False
-        )
+        pathlib.Path(metadata['archive_name']).touch()
         archive = ArchiveTar(
-            filename=recovery_archive.name,
+            filename=metadata['archive_name'],
             create_from_file_list=False
         )
         archive.create(
@@ -753,9 +757,6 @@ class SystemSetup:
                 '--hard-dereference',
                 '--preserve-permissions'
             ]
-        )
-        Command.run(
-            ['mv', recovery_archive.name, metadata['archive_name']]
         )
         # recovery.tar.filesystem
         recovery_filesystem = self.xml_state.build_type.get_filesystem()
@@ -1240,3 +1241,9 @@ class SystemSetup:
         data.sync_data(
             options=sync_options
         )
+
+    def _get_repo_customization_script(self, xml_repo: repository) -> str:
+        script_path = xml_repo.get_customize()
+        if script_path and not os.path.isabs(script_path):
+            script_path = os.path.join(self.description_dir, script_path)
+        return script_path

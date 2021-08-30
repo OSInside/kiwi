@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from tempfile import NamedTemporaryFile
 import logging
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.partitioner.base import PartitionerBase
 
@@ -55,7 +55,7 @@ class PartitionerDasd(PartitionerBase):
         :param list flags: unused
         """
         self.partition_id += 1
-        fdasd_input = NamedTemporaryFile()
+        fdasd_input = Temporary().new_file()
         with open(fdasd_input.name, 'w') as partition:
             log.debug(
                 '%s: fdasd: n p cur_position +%sM w q',

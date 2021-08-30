@@ -25,10 +25,6 @@ class TestLuksDevice:
         )
         self.luks = LuksDevice(storage_device)
 
-    def test_create_crypto_luks_empty_passphrase(self):
-        with raises(KiwiLuksSetupError):
-            self.luks.create_crypto_luks('')
-
     def test_create_crypto_luks_unsupported_os_options(self):
         with raises(KiwiLuksSetupError):
             self.luks.create_crypto_luks('passphrase', 'some-os')
@@ -47,8 +43,53 @@ class TestLuksDevice:
         assert self.luks.get_device() is None
 
     @patch('kiwi.storage.luks_device.Command.run')
-    @patch('kiwi.storage.luks_device.NamedTemporaryFile')
-    def test_create_crypto_luks(self, mock_tmpfile, mock_command):
+    @patch('os.chmod')
+    def test_create_crypto_luks_empty_passphrase(
+        self, mock_os_chmod, mock_command
+    ):
+        with patch('builtins.open', create=True):
+            self.luks.create_crypto_luks(
+                passphrase='', os='sle12', keyfile='some-keyfile'
+            )
+            assert mock_command.call_args_list == [
+                call(
+                    [
+                        'dd', 'if=/dev/urandom', 'bs=1M', 'count=1',
+                        'of=/dev/some-device'
+                    ]
+                ),
+                call(
+                    [
+                        'cryptsetup', '-q', '--key-file', '/dev/zero',
+                        '--cipher', 'aes-xts-plain64',
+                        '--key-size', '256', '--hash', 'sha1',
+                        '--keyfile-size', '32',
+                        'luksFormat', '/dev/some-device'
+                    ]
+                ),
+                call(
+                    [
+                        'cryptsetup', '--key-file', '/dev/zero',
+                        '--keyfile-size', '32',
+                        'luksAddKey', '/dev/some-device', 'some-keyfile'
+                    ]
+                ),
+                call(
+                    [
+                        'cryptsetup', '--key-file', '/dev/zero',
+                        '--keyfile-size', '32',
+                        'luksOpen', '/dev/some-device', 'luksRoot'
+                    ]
+                )
+            ]
+            self.luks.luks_device = None
+
+    @patch('kiwi.storage.luks_device.Command.run')
+    @patch('kiwi.storage.luks_device.Temporary.new_file')
+    @patch('os.chmod')
+    def test_create_crypto_luks(
+        self, mock_os_chmod, mock_tmpfile, mock_command
+    ):
         tmpfile = Mock()
         tmpfile.name = 'tmpfile'
         mock_tmpfile.return_value = tmpfile
@@ -108,7 +149,8 @@ class TestLuksDevice:
             self.luks.luks_device = None
 
     @patch('os.urandom')
-    def test_create_random_keyfile(self, mock_os_urandom):
+    @patch('os.chmod')
+    def test_create_random_keyfile(self, mock_os_chmod, mock_os_urandom):
         secret = b'secret'
         mock_os_urandom.return_value = secret
         with patch('builtins.open', create=True) as mock_open:
@@ -116,6 +158,7 @@ class TestLuksDevice:
             file_handle = mock_open.return_value.__enter__.return_value
             LuksDevice.create_random_keyfile('some-file')
             file_handle.write.assert_called_once_with(secret)
+            mock_os_chmod.assert_called_once_with('some-file', 0o600)
 
     def test_is_loop(self):
         assert self.luks.is_loop() is True

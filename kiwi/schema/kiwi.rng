@@ -1492,6 +1492,14 @@ appended into the repository configuration file.</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
+    <define name="k.repository.customize.attribute">
+      <attribute name="customize">
+        <a:documentation>Specify the path to a customization script.
+The script receives the repo file according to the
+used package manager as a parameter such that custom
+modifications can be placed when needed</a:documentation>
+      </attribute>
+    </define>
     <define name="k.repository.priority.attribute">
       <attribute name="priority">
         <a:documentation>Channel priority assigned to all packages available in
@@ -1574,6 +1582,9 @@ last one is picked.</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.repository_gpgcheck.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repository.customize.attribute"/>
         </optional>
         <optional>
           <ref name="k.repository.package_gpgcheck.attribute"/>
@@ -2490,7 +2501,7 @@ mount that filesystem while booting</a:documentation>
     </define>
     <define name="k.type.luksOS.attribute">
       <attribute name="luksOS">
-        <a:documentation>With the luksOS value a predefined set of ciper, keysize
+        <a:documentation>With the luksOS value a predefined set of cipher, keysize
 and hash format options is passed to the cryptsetup call
 in order to create a format compatible to the specified
 distribution</a:documentation>

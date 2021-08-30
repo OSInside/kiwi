@@ -976,6 +976,12 @@ div {
         ## to run package signature validation. If not set, no value is
         ## appended into the repository configuration file.
         attribute package_gpgcheck { xsd:boolean }
+    k.repository.customize.attribute =
+        ## Specify the path to a customization script.
+        ## The script receives the repo file according to the
+        ## used package manager as a parameter such that custom
+        ## modifications can be placed when needed
+        attribute customize { text }
     k.repository.priority.attribute =
         ## Channel priority assigned to all packages available in
         ## this channel (0 if not set). If the exact same package
@@ -1031,6 +1037,7 @@ div {
             k.repository.imageonly.attribute
         )? &
         k.repository.repository_gpgcheck.attribute? &
+        k.repository.customize.attribute? &
         k.repository.package_gpgcheck.attribute? &
         k.repository.priority.attribute? &
         k.repository.password.attribute? &
@@ -1703,7 +1710,7 @@ div {
             sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
     k.type.luksOS.attribute =
-        ## With the luksOS value a predefined set of ciper, keysize
+        ## With the luksOS value a predefined set of cipher, keysize
         ## and hash format options is passed to the cryptsetup call
         ## in order to create a format compatible to the specified
         ## distribution

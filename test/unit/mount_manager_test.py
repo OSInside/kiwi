@@ -1,9 +1,8 @@
 import logging
 from pytest import fixture
 from mock import (
-    patch, call
+    patch, call, Mock
 )
-import mock
 
 from kiwi.mount_manager import MountManager
 
@@ -18,9 +17,9 @@ class TestMountManager:
             '/dev/some-device', '/some/mountpoint'
         )
 
-    @patch('kiwi.mount_manager.mkdtemp')
-    def test_setup_empty_mountpoint(self, mock_mkdtemp):
-        mock_mkdtemp.return_value = 'tmpdir'
+    @patch('kiwi.mount_manager.Temporary')
+    def test_setup_empty_mountpoint(self, mock_Temporary):
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         mount_manager = MountManager('/dev/some-device')
         assert mount_manager.mountpoint == 'tmpdir'
 
@@ -78,7 +77,7 @@ class TestMountManager:
 
     @patch('kiwi.mount_manager.Command.run')
     def test_is_mounted_true(self, mock_command):
-        command = mock.Mock()
+        command = Mock()
         command.returncode = 0
         mock_command.return_value = command
         assert self.mount_manager.is_mounted() is True
@@ -89,7 +88,7 @@ class TestMountManager:
 
     @patch('kiwi.mount_manager.Command.run')
     def test_is_mounted_false(self, mock_command):
-        command = mock.Mock()
+        command = Mock()
         command.returncode = 1
         mock_command.return_value = command
         assert self.mount_manager.is_mounted() is False
@@ -97,11 +96,3 @@ class TestMountManager:
             command=['mountpoint', '-q', '/some/mountpoint'],
             raise_on_error=False
         )
-
-    @patch('kiwi.mount_manager.Path.wipe')
-    @patch('kiwi.mount_manager.MountManager.is_mounted')
-    def test_destructor(self, mock_mounted, mock_wipe):
-        self.mount_manager.mountpoint_created_by_mount_manager = True
-        mock_mounted.return_value = False
-        self.mount_manager.__del__()
-        mock_wipe.assert_called_once_with('/some/mountpoint')

@@ -18,10 +18,10 @@
 import os
 import glob
 from configparser import ConfigParser
-from tempfile import NamedTemporaryFile
 from typing import List, Dict
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -92,9 +92,9 @@ class RepositoryDnf(RepositoryBase):
             'vars-dir': manager_base + '/vars'
         }
 
-        self.runtime_dnf_config_file = NamedTemporaryFile(
+        self.runtime_dnf_config_file = Temporary(
             dir=self.root_dir
-        )
+        ).new_file()
 
         self.dnf_args = [
             '--config', self.runtime_dnf_config_file.name, '-y'
@@ -191,7 +191,8 @@ class RepositoryDnf(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, use_for_bootstrap: bool = False
+        sourcetype: str = None, use_for_bootstrap: bool = False,
+        customization_script: str = None
     ) -> None:
         """
         Add dnf repository
@@ -210,6 +211,8 @@ class RepositoryDnf(RepositoryBase):
         :param str sourcetype:
             source type, one of 'baseurl', 'metalink' or 'mirrorlist'
         :param bool use_for_bootstrap: unused
+        :param str customization_script:
+            custom script called after the repo file was created
         """
         repo_file = self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')
@@ -244,6 +247,8 @@ class RepositoryDnf(RepositoryBase):
             )
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
+        if customization_script:
+            self.run_repo_customize(customization_script, repo_file)
 
     def import_trusted_keys(self, signing_keys: List) -> None:
         """

@@ -649,7 +649,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'GRUB_TERMINAL': '"{0}"'.format(self.terminal)
         }
         grub_final_cmdline = re.sub(
-            r'root=.* |root=.*$', '', self.cmdline
+            r'(^root=[^\s]+)|( root=[^\s]+)', '', self.cmdline
         ).strip()
         if self.persistency_type != 'by-uuid':
             grub_default_entries['GRUB_DISABLE_LINUX_UUID'] = 'true'
@@ -694,7 +694,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
-        if self.custom_args.get('boot_is_crypto'):
+        if self.custom_args.get('crypto_disk'):
             grub_default_entries['GRUB_ENABLE_CRYPTODISK'] = 'y'
 
         enable_blscfg_implemented = Command.run(
@@ -758,6 +758,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     os.sep.join([self.efi_boot_path, grub_image.binaryname])
                 ]
             )
+            mok_manager = Defaults.get_mok_manager(lookup_path)
+            if mok_manager:
+                Command.run(
+                    ['cp', mok_manager, self.efi_boot_path]
+                )
         else:
             # Without shim a self signed grub image is used that
             # gets loaded by the firmware
@@ -827,7 +832,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             [self.boot_dir + '/boot/', self.arch, '/efi']
         )
         Command.run(
-            ['qemu-img', 'create', efi_fat_image, '15M']
+            ['qemu-img', 'create', efi_fat_image, '20M']
         )
         Command.run(
             ['mkdosfs', '-n', 'BOOT', efi_fat_image]

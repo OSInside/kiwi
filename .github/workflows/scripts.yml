@@ -1,0 +1,40 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+
+jobs:
+  scripts_integration_tests:
+    name: Integration tests for functions.sh
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        container_runtime:
+          - DOCKER
+          - PODMAN
+    steps:
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+            .tox/
+          key: pip-${{ hashFiles('.virtualenv.dev-requirements.txt') }}-${{ hashFiles('.virtualenv.requirements.txt') }}
+          restore-keys: |
+            -pip-
+
+      - name: checkout source code
+        uses: actions/checkout@v2
+      - name: set up Python
+        uses: actions/setup-python@v2
+      - name: install tox
+        run: sudo apt update && sudo apt install tox
+
+      - name: Run the scripts integration tests
+        run: sudo tox -e scripts
+        env:
+          CONTAINER_RUNTIME: ${{ matrix.container_runtime }}

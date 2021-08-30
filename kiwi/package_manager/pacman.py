@@ -114,7 +114,7 @@ class PackageManagerPacman(PackageManagerBase):
                 '--root', self.root_dir, '-Sy'
             ]
         )
-        bash_command = [
+        pacman_command = [
             'pacman'
         ] + self.pacman_args + [
             '--root', self.root_dir
@@ -124,7 +124,7 @@ class PackageManagerPacman(PackageManagerBase):
         ] + self.package_requests
         self.cleanup_requests()
         return Command.call(
-            ['bash', '-c', ' '.join(bash_command)], self.command_env
+            pacman_command, self.command_env
         )
 
     def process_install_requests(self) -> command_call_type:
@@ -136,14 +136,14 @@ class PackageManagerPacman(PackageManagerBase):
         :rtype: namedtuple
         """
         chroot_pacman_args = Path.move_to_root(self.root_dir, self.pacman_args)
-        bash_command = [
+        pacman_command = [
             'chroot', self.root_dir, 'pacman'
         ] + chroot_pacman_args + self.custom_args + [
             '-S', '--needed'
         ] + self.package_requests
         self.cleanup_requests()
         return Command.call(
-            ['bash', '-c', ' '.join(bash_command)], self.command_env
+            pacman_command, self.command_env
         )
 
     def process_delete_requests(self, force: bool = False) -> command_call_type:

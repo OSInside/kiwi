@@ -37,11 +37,11 @@ class TestContainerImageAppx:
     @patch('kiwi.container.appx.Compress')
     @patch('kiwi.container.appx.Defaults.get_exclude_list_for_root_data_sync')
     @patch('kiwi.container.appx.Defaults.get_exclude_list_from_custom_exclude_files')
-    @patch('kiwi.container.appx.NamedTemporaryFile')
+    @patch('kiwi.container.appx.Temporary.new_file')
     @patch('kiwi.container.appx.Command.run')
     @patch('os.walk')
     def test_create(
-        self, mock_os_walk, mock_Command_run, mock_NamedTemporaryFile,
+        self, mock_os_walk, mock_Command_run, mock_Temporary_new_file,
         mock_get_exclude_list_from_custom_exclude_files,
         mock_get_exclude_list_for_root_data_sync,
         mock_Compress, mock_ArchiveTar
@@ -53,7 +53,7 @@ class TestContainerImageAppx:
         ]
         tempfile = Mock()
         tempfile.name = 'tempfile'
-        mock_NamedTemporaryFile.return_value = tempfile
+        mock_Temporary_new_file.return_value = tempfile
         archive = Mock()
         mock_ArchiveTar.return_value = archive
         compress = Mock()

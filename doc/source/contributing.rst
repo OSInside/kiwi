@@ -12,6 +12,7 @@ Contributing
 
    contributing/kiwi_from_python
    contributing/kiwi_plugin_architecture
+   contributing/scripts_testing
    contributing/schema_extensions.rst
 
 The Basics
@@ -129,6 +130,14 @@ To resume your work, :command:`cd` into your local Git repository and call:
     $ source .tox/3/bin/activate
 
 
+Alternatively, you can launch single commands inside the virtualenv without
+sourcing it directly:
+
+.. code:: shell-session
+
+   $ tox -e devel -- kiwi-ng --version
+
+
 Running the Unit Tests
 ----------------------
 
@@ -172,6 +181,7 @@ example runs the test cases for the Python 3.6 interpreter only:
 .. code:: shell-session
 
     $ tox -e unit_py3_6
+
 
 Create a Branch for each Feature or Bugfix
 ------------------------------------------

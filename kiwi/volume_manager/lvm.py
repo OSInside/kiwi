@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import logging
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.command import Command
 from kiwi.mount_manager import MountManager
@@ -243,10 +246,13 @@ class VolumeManagerLVM(VolumeManagerBase):
                 volume_mount.device
             )
             if not self._is_root_volume(volume_name):
-                mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
+                path_start_index = len(defaults.TEMP_DIR.split(os.sep)) + 1
+                mount_path = os.sep.join(
+                    volume_mount.mountpoint.split(os.sep)[path_start_index:]
+                )
                 fs_check = self._is_volume_enabled_for_fs_check(volume_name)
-                if not mount_path.startswith('/'):
-                    mount_path = '/' + mount_path
+                if not mount_path.startswith(os.sep):
+                    mount_path = os.sep + mount_path
                 fstab_entry = ' '.join(
                     [
                         volume_mount.device, mount_path, filesystem_name,
@@ -269,8 +275,11 @@ class VolumeManagerLVM(VolumeManagerBase):
         :rtype: dict
         """
         volumes = {}
+        path_start_index = len(defaults.TEMP_DIR.split(os.sep)) + 1
         for volume_mount in self.mount_list:
-            mount_path = '/'.join(volume_mount.mountpoint.split('/')[3:])
+            mount_path = os.sep.join(
+                volume_mount.mountpoint.split(os.sep)[path_start_index:]
+            )
             if mount_path:
                 volumes[mount_path] = {
                     'volume_options': self.mount_options,
@@ -387,7 +396,6 @@ class VolumeManagerLVM(VolumeManagerBase):
         if self.volume_group:
             log.info('Cleaning up %s instance', type(self).__name__)
             if self.umount_volumes():
-                Path.wipe(self.mountpoint)
                 try:
                     Command.run(
                         ['vgchange'] + self.lvm_tool_options + [
@@ -399,4 +407,3 @@ class VolumeManagerLVM(VolumeManagerBase):
                         'volume group %s still busy', self.volume_group
                     )
                     return
-        self._cleanup_tempdirs()

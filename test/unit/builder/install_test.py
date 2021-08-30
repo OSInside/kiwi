@@ -1,5 +1,5 @@
 from mock import (
-    patch, call, mock_open, ANY
+    patch, call, mock_open, ANY, Mock
 )
 from pytest import raises
 import mock
@@ -125,22 +125,28 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.BootLoaderConfig.new')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.shutil.copy')
-    @patch('kiwi.builder.install.mkdtemp')
+    @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Defaults.get_grub_boot_directory_name')
     def test_create_install_iso(
-        self, mock_grub_dir, mock_command, mock_dtemp, mock_copy,
+        self, mock_grub_dir, mock_command, mock_Temporary, mock_copy,
         mock_setup_media_loader_directory, mock_BootLoaderConfig,
         mock_DeviceProvider
     ):
-        tmpdir_name = ['temp-squashfs', 'temp_media_dir']
+        temp_squashfs = Mock()
+        temp_squashfs.new_dir.return_value.name = 'temp-squashfs'
+
+        temp_media_dir = Mock()
+        temp_media_dir.new_dir.return_value.name = 'temp_media_dir'
+
+        tmpdir_name = [temp_squashfs, temp_media_dir]
 
         def side_effect(prefix, dir):
             return tmpdir_name.pop()
 
         bootloader_config = mock.Mock()
         mock_BootLoaderConfig.return_value = bootloader_config
-        mock_dtemp.side_effect = side_effect
+        mock_Temporary.side_effect = side_effect
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
@@ -216,7 +222,7 @@ class TestInstallImageBuilder:
             'target_dir/result-image.x86_64-1.2.3.install.iso'
         )
 
-        tmpdir_name = ['temp-squashfs', 'temp_media_dir']
+        tmpdir_name = [temp_squashfs, temp_media_dir]
         self.install_image.initrd_system = 'dracut'
 
         m_open.reset_mock()
@@ -243,7 +249,7 @@ class TestInstallImageBuilder:
         ]
 
         mock_BootLoaderConfig.reset_mock()
-        tmpdir_name = ['temp-squashfs', 'temp_media_dir']
+        tmpdir_name = [temp_squashfs, temp_media_dir]
         self.firmware.efi_mode.return_value = None
 
         with patch('builtins.open', m_open, create=True):
@@ -255,10 +261,10 @@ class TestInstallImageBuilder:
         )
 
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
-    @patch('kiwi.builder.install.mkdtemp')
+    @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     def test_create_install_iso_no_kernel_found(
-        self, mock_command, mock_dtemp, mock_setup_media_loader_directory
+        self, mock_command, mock_Temporary, mock_setup_media_loader_directory
     ):
         self.kernel.get_kernel.return_value = False
         with patch('builtins.open'):
@@ -266,44 +272,45 @@ class TestInstallImageBuilder:
                 self.install_image.create_install_iso()
 
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
-    @patch('kiwi.builder.install.mkdtemp')
+    @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     def test_create_install_iso_no_hypervisor_found(
-        self, mock_command, mock_dtemp, mock_setup_media_loader_directory
+        self, mock_command, mock_Temporary, mock_setup_media_loader_directory
     ):
         self.kernel.get_xen_hypervisor.return_value = False
         with patch('builtins.open'):
             with raises(KiwiInstallBootImageError):
                 self.install_image.create_install_iso()
 
-    @patch('kiwi.builder.install.mkdtemp')
+    @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
     def test_create_install_pxe_no_kernel_found(
-        self, mock_compress, mock_md5, mock_command, mock_dtemp
+        self, mock_compress, mock_md5, mock_command, mock_Temporary
     ):
-        mock_dtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         self.kernel.get_kernel.return_value = False
         with patch('builtins.open'):
             with raises(KiwiInstallBootImageError):
                 self.install_image.create_install_pxe_archive()
 
-    @patch('kiwi.builder.install.mkdtemp')
+    @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
     @patch('kiwi.builder.install.os.symlink')
     def test_create_install_pxe_no_hypervisor_found(
-        self, mock_symlink, mock_compress, mock_md5, mock_command, mock_dtemp
+        self, mock_symlink, mock_compress, mock_md5, mock_command,
+        mock_Temporary
     ):
-        mock_dtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         self.kernel.get_xen_hypervisor.return_value = False
         with patch('builtins.open'):
             with raises(KiwiInstallBootImageError):
                 self.install_image.create_install_pxe_archive()
 
-    @patch('kiwi.builder.install.mkdtemp')
+    @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.ArchiveTar')
     @patch('kiwi.builder.install.Checksum')
@@ -313,9 +320,9 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.os.chmod')
     def test_create_install_pxe_archive(
         self, mock_chmod, mock_symlink, mock_copy, mock_compress,
-        mock_md5, mock_archive, mock_command, mock_dtemp
+        mock_md5, mock_archive, mock_command, mock_Temporary
     ):
-        mock_dtemp.return_value = 'tmpdir'
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
 
         archive = mock.Mock()
         mock_archive.return_value = archive
@@ -425,19 +432,3 @@ class TestInstallImageBuilder:
         self.boot_image_task.set_static_modules.assert_called_once_with(
             ['module1', 'module2']
         )
-
-    @patch('kiwi.builder.install.Path.wipe')
-    @patch('os.path.exists')
-    def test_destructor(self, mock_exists, mock_wipe):
-        mock_exists.return_value = True
-        self.install_image.initrd_system = 'dracut'
-        self.install_image.pxe_dir = 'pxe-dir'
-        self.install_image.media_dir = 'media-dir'
-        self.install_image.squashed_contents = 'squashed-dir'
-        self.install_image.__del__()
-        assert mock_wipe.call_args_list == [
-            call('media-dir'), call('pxe-dir'), call('squashed-dir')
-        ]
-        self.install_image.pxe_dir = None
-        self.install_image.media_dir = None
-        self.install_image.squashed_contents = None
