@@ -124,7 +124,7 @@ class LiveImageBuilder:
         # custom iso metadata
         log.info('Using following live ISO metadata:')
         log.info('--> Application id: {0}'.format(self.mbrid.get_id()))
-        log.info('--> Publisher: {0}'.format(Defaults.get_publisher()))
+        log.info('--> Publisher: {0}'.format(self.publisher))
         log.info('--> Volume id: {0}'.format(self.volume_id))
         custom_iso_args = {
             'meta_data': {
