@@ -439,6 +439,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 lookup_path=lookup_path, mbrid=mbrid
             )
 
+        log.info('--> Creating loopback config')
+        loopback_file = os.path.join(
+            self.boot_dir, self.get_boot_path(), self.boot_directory_name, '/loopback.cfg'
+        )
+        self._create_loopback_config(
+            loopback_file
+        )
+
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
         Create/Provide grub2 boot images and metadata
@@ -1402,4 +1410,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         except Exception:
             raise KiwiDiskGeometryError(
                 'unknown format for disk geometry: %s' % fdasd_output
+            )
+
+    def _create_loopback_config(self, filename):
+        with open(filename, 'w') as loopback_cfg:
+            loopback_cfg.write(
+                'source /boot/{0}/grub.cfg{1}'.format(
+                    self.boot_directory_name, os.linesep
+                )
             )

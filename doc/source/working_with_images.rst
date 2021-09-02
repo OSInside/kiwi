@@ -12,6 +12,7 @@ Working with Images
 
    working_with_images/iso_to_usb_stick_deployment
    working_with_images/iso_to_usb_stick_file_based_deployment
+   working_with_images/iso_to_usb_stick_grub2_boot_from_iso
 
    working_with_images/disk_setup_for_ec2
    working_with_images/disk_setup_for_azure

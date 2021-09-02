@@ -36,6 +36,9 @@ class BootLoaderTemplateGrub2:
                 menuentry "If OK, run snapper rollback and reboot." { true; }
               }
             fi
+            if [ -n "$${iso_path}" ]; then
+                isoboot="iso-scan/filename=$${iso_path}"
+            fi
         ''').strip() + os.linesep
 
         self.timeout = dedent('''
@@ -143,7 +146,7 @@ class BootLoaderTemplateGrub2:
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -165,7 +168,7 @@ class BootLoaderTemplateGrub2:
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${boot_options}
+                linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -175,7 +178,7 @@ class BootLoaderTemplateGrub2:
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${failsafe_boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${failsafe_boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -197,7 +200,7 @@ class BootLoaderTemplateGrub2:
             menuentry "Failsafe -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} ${failsafe_boot_options}
+                linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${failsafe_boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -239,7 +242,7 @@ class BootLoaderTemplateGrub2:
             menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} mediacheck=1 plymouth.enable=0 ${boot_options}
+                $$linux ($$root)${bootpath}/${kernel_file} mediacheck=1 plymouth.enable=0 $${isoboot} ${boot_options}
                 echo Loading initrd...
                 $$initrd ($$root)${bootpath}/${initrd_file}
             }
@@ -261,7 +264,7 @@ class BootLoaderTemplateGrub2:
             menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
                 echo Loading kernel...
-                linux ($$root)${bootpath}/${kernel_file} mediacheck=1 plymouth.enable=0 ${boot_options}
+                linux ($$root)${bootpath}/${kernel_file} mediacheck=1 plymouth.enable=0 $${isoboot} ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
             }
