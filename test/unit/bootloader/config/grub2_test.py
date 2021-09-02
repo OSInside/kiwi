@@ -1512,7 +1512,8 @@ class TestBootLoaderConfigGrub2:
 
             assert mock_open.call_args_list == [
                 call('boot_dir/boot/grub2/earlyboot.cfg', 'w'),
-                call('boot_dir/EFI/BOOT/earlyboot.cfg', 'w')
+                call('boot_dir/EFI/BOOT/earlyboot.cfg', 'w'),
+                call('boot_dir/boot/grub2/loopback.cfg', 'w')
             ]
             assert file_handle.write.call_args_list == [
                 call('set btrfs_relative_path="yes"\n'),
@@ -1522,7 +1523,8 @@ class TestBootLoaderConfigGrub2:
                 call('set btrfs_relative_path="yes"\n'),
                 call('search --file --set=root /boot/0xffffffff\n'),
                 call('set prefix=($root)/boot/grub2\n'),
-                call('configfile ($root)/boot/grub2/grub.cfg\n')
+                call('configfile ($root)/boot/grub2/grub.cfg\n'),
+                call('source /boot/grub2/grub.cfg\n')
             ]
         assert mock_Path_create.call_args_list == [
             call('boot_dir/boot/grub2'),
@@ -1630,11 +1632,13 @@ class TestBootLoaderConfigGrub2:
                 call('set btrfs_relative_path="yes"\n'),
                 call('search --file --set=root /boot/0xffffffff\n'),
                 call('set prefix=($root)/boot/grub2\n'),
-                call('configfile ($root)/boot/grub2/grub.cfg\n')
+                call('configfile ($root)/boot/grub2/grub.cfg\n'),
+                call('source /boot/grub2/grub.cfg\n')
             ]
-            mock_open.assert_called_once_with(
-                'boot_dir/EFI/BOOT/grub.cfg', 'w'
-            )
+            assert mock_open.call_args_list == [
+                call('boot_dir/EFI/BOOT/grub.cfg', 'w'),
+                call('boot_dir/boot/grub2/loopback.cfg', 'w')
+            ]
 
         assert mock_command.call_args_list == [
             call(
@@ -1696,11 +1700,13 @@ class TestBootLoaderConfigGrub2:
                     call('set btrfs_relative_path="yes"\n'),
                     call('search --file --set=root /boot/0xffffffff\n'),
                     call('set prefix=($root)/boot/grub2\n'),
-                    call('configfile ($root)/boot/grub2/grub.cfg\n')
+                    call('configfile ($root)/boot/grub2/grub.cfg\n'),
+                    call('source /boot/grub2/grub.cfg\n')
                 ]
-                mock_open.assert_called_once_with(
-                    'root_dir/EFI/BOOT/grub.cfg', 'w'
-                )
+                assert mock_open.call_args_list == [
+                    call('root_dir/EFI/BOOT/grub.cfg', 'w'),
+                    call('root_dir/grub2/loopback.cfg', 'w')
+                ]
                 assert mock_command.call_args_list == [
                     call(
                         [

@@ -440,8 +440,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
 
         log.info('--> Creating loopback config')
-        loopback_file = os.path.join(
-            self.boot_dir, self.get_boot_path(), self.boot_directory_name, '/loopback.cfg'
+        loopback_file = os.path.normpath(
+            os.sep.join(
+                [
+                    self.boot_dir, self.get_boot_path(),
+                    self.boot_directory_name, '/loopback.cfg'
+                ]
+            )
         )
         self._create_loopback_config(
             loopback_file
