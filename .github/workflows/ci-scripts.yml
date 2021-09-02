@@ -1,5 +1,4 @@
----
-name: CI
+name: CIConfigFunctions
 
 on:
   push:

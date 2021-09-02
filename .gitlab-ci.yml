@@ -5,7 +5,6 @@
     - master
 
 stages:
-  - test
   - documentation
   - deploy
   - sourcepackage
@@ -17,41 +16,6 @@ variables:
   BUILD_IMAGES_PROJECT: kiwi3/kiwi-ci-containers
   TUMBLEWEED_BUILD: buildenv-tumbleweed
   FEDORA_BUILD: buildenv-fedora
-
-code_style:
-  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
-  stage: test
-  <<: *only-default
-  script:
-    - tox -e check
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - .tox/3
-
-unit_py36:
-  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
-  stage: test
-  <<: *only-default
-  script:
-    - export PYTHON=python3.6
-    - tox -e unit_py3_6 "-n $(nproc)"
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - .tox/3.6
-
-unit_py38:
-  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
-  stage: test
-  <<: *only-default
-  script:
-    - export PYTHON=python3.8
-    - tox -e unit_py3_8 "-n $(nproc)"
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - .tox/3.8
 
 build_doc:
   image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$TUMBLEWEED_BUILD
