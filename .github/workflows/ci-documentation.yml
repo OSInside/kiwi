@@ -1,0 +1,28 @@
+name: CI-Documentation
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+
+jobs:
+  unit_tests:
+    name: Test rendering Sphinx ReST documentation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Python${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Tox
+        run: |
+          sudo apt update && sudo apt install tox
+      - name: Run sphinx build
+        run: |
+          tox -e doc
