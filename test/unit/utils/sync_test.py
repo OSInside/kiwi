@@ -39,6 +39,18 @@ class TestDataSync:
                 'target_dir', mock_stat.return_value[ST_MODE]
             )
 
+    @patch('kiwi.utils.sync.Command.run')
+    @patch('os.chmod')
+    @patch('os.stat')
+    def test_sync_data_force_trailing_slash(
+        self, mock_stat, mock_chmod, mock_command
+    ):
+        mock_stat.return_value = os.stat('.')
+        self.sync.sync_data(force_trailing_slash=True)
+        mock_command.assert_called_once_with(
+            ['rsync', 'source_dir/', 'target_dir']
+        )
+
     @patch('xattr.getxattr')
     def test_target_supports_extended_attributes(self, mock_getxattr):
         assert self.sync.target_supports_extended_attributes() is True

@@ -43,14 +43,45 @@ class DataSync:
         self.target_dir = target_dir
 
     def sync_data(
-        self, options: List[str] = [], exclude: List[str] = []
+        self, options: List[str] = [], exclude: List[str] = [],
+        force_trailing_slash: bool = False
     ) -> None:
         """
         Sync data from source to target using the rsync protocol
 
         :param list options: rsync options
         :param list exclude: file patterns to exclude
+        :param bool force_trailing_slash: add '/' to source_dir if not present
+
+        A speciality of the rsync tool is that it behaves differently
+        if the given source_dir ends with a '/' or not. If it ends
+        with a slash the data structure below will be synced to the
+        target_dir. If it does not end with a slash the source_dir
+        and its contents are synced to the target_dir. For example
+
+        .. code:: bash
+
+            source
+              └── some_data
+
+            1. $ rsync -a source target
+
+            target
+              └── source
+                    └── some_data
+
+            2. $ rsync -a source/ target
+
+            target
+              └── some_data
+
+        The parameter force_trailing_slash can be used to make
+        sure rsync behaves like shown in the second case. If
+        set to true a '/' is appended to the given source_dir
+        if not already present
         """
+        if force_trailing_slash and not self.source_dir.endswith(os.sep):
+            self.source_dir += os.sep
         target_entry_permissions = None
         exclude_options = []
         rsync_options = []
