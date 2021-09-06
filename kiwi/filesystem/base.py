@@ -146,7 +146,7 @@ class FileSystemBase:
             return self.filesystem_mount.mountpoint
         return None
 
-    def sync_data(self, exclude: List[str] = None):
+    def sync_data(self, exclude: List[str] = []):
         """
         Copy root data tree into filesystem
 

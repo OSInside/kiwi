@@ -18,6 +18,7 @@
 import os
 import logging
 from stat import ST_MODE
+from typing import List
 import xattr
 
 # project
@@ -28,19 +29,24 @@ log = logging.getLogger('kiwi')
 
 class DataSync:
     """
-    **Sync data from a source directory to a target directory
-    using the rsync protocol**
-
-    :param str source_dir: source directory path name
-    :param str target_dir: target directory path name
+    **Sync data from a source directory to a target directory**
     """
-    def __init__(self, source_dir, target_dir):
+    def __init__(self, source_dir: str, target_dir: str) -> None:
+        """
+        Create a new DataSync instance and initialize
+        sync source and target
+
+        :param str source_dir: source directory path name
+        :param str target_dir: target directory path name
+        """
         self.source_dir = source_dir
         self.target_dir = target_dir
 
-    def sync_data(self, options=None, exclude=None):
+    def sync_data(
+        self, options: List[str] = [], exclude: List[str] = []
+    ) -> None:
         """
-        Sync data from source to target using rsync
+        Sync data from source to target using the rsync protocol
 
         :param list options: rsync options
         :param list exclude: file patterns to exclude
@@ -87,7 +93,7 @@ class DataSync:
             # not changed
             os.chmod(self.target_dir, target_entry_permissions)
 
-    def target_supports_extended_attributes(self):
+    def target_supports_extended_attributes(self) -> bool:
         """
         Check if the target directory supports extended filesystem
         attributes
