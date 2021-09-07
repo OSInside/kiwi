@@ -36,5 +36,6 @@
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
+        <archive name="foo.tar.gz" target_dir="etc"/>
     </packages>
 </image>

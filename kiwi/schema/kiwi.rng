@@ -221,6 +221,12 @@ part of the boot image also</a:documentation>
       <data type="boolean"/>
     </attribute>
   </define>
+  <define name="k.target_dir.attribute">
+    <attribute name="target_dir">
+      <a:documentation>Indicates that this package have a tarball
+that should be placed in that directory</a:documentation>
+    </attribute>
+  </define>
   <define name="k.bootdelete.attribute">
     <attribute name="bootdelete">
       <a:documentation>Indicates that this package should be removed from
@@ -359,11 +365,17 @@ file was fetched</a:documentation>
     <define name="k.archive.bootinclude.attribute">
       <ref name="k.bootinclude.attribute"/>
     </define>
+    <define name="k.archive.target_dir.attribute">
+      <ref name="k.target_dir.attribute"/>
+    </define>
     <define name="k.archive.attlist">
       <interleave>
         <ref name="k.archive.name.attribute"/>
         <optional>
           <ref name="k.archive.bootinclude.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.archive.target_dir.attribute"/>
         </optional>
       </interleave>
     </define>

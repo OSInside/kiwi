@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.4" name="LimeJeOS" displayname="Bob">
+    <drivers>
+        <file name="crypto/*"/>
+        <file name="drivers/acpi/*"/>
+        <file name="bar"/>
+    </drivers>
+    <strip type="delete">
+        <file name="del-a"/>
+        <file name="del-b"/>
+    </strip>
+    <strip type="tools">
+        <file name="tool-a"/>
+        <file name="tool-b"/>
+    </strip>
+    <strip type="libs">
+        <file name="lib-a"/>
+        <file name="lib-b"/>
+    </strip>
+    <description type="system">
+        <author>Marcus</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            Testing various configuration states
+        </specification>
+    </description>
+    <profiles>
+        <profile name="xenDom0Flavour" description="Disk Dom0"/>
+        <profile name="xenDomUFlavour" description="Disk DomU"/>
+        <profile name="ec2Flavour" description="Disk EC2"/>
+        <profile name="vmxFlavour" description="Disk" import="true" arch="x86_64,s390"/>
+        <profile name="vmxSimpleFlavour" description="Disk no resize"/>
+        <profile name="containerFlavour" description="Container image"/>
+        <profile name="derivedContainer" description="Container from a base"/>
+        <profile name="composedProfile" description="Composed profile">
+            <requires profile="vmxSimpleFlavour"/>
+            <requires profile="xenDomUFlavour"/>
+        </profile>
+    </profiles>
+    <preferences>
+        <locale>en_US,de_DE</locale>
+        <rpm-locale-filtering>true</rpm-locale-filtering>
+    </preferences>
+    <preferences>
+        <version>1.13.2</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>true</rpm-check-signatures>
+        <bootsplash-theme>openSUSE</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences arch="aarch64">
+        <type image="iso" firmware="efi"/>
+    </preferences>
+    <preferences profiles="vmxFlavour">
+        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" fscreateoptions="-O ^has_journal" btrfs_root_is_snapshot="true" spare_part="200M" spare_part_fs_attributes="no-copy-on-write" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4" installiso="true">
+            <size unit="G" additive="true">1</size>
+            <systemdisk name="mydisk"/>
+            <machine memory="512" xen_loader="hvmloader">
+                <vmdisk id="0" device="/dev/xvda" controller="ide"/>
+                <vmnic interface=""/>
+                <vmdvd id="0" controller="scsi"/>
+            </machine>
+            <oemconfig>
+                <oem-systemsize>2048</oem-systemsize>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>42</oem-swapsize>
+                <oem-swapname>swap</oem-swapname>
+                <oem-recovery>false</oem-recovery>
+            </oemconfig>
+            <vagrantconfig provider="libvirt" virtualsize="42"/>
+            <installmedia>
+                <initrd action="add">
+                    <dracut module="network-legacy"/>
+                </initrd>
+            </installmedia>
+        </type>
+    </preferences>
+    <preferences profiles="ec2Flavour">
+        <type image="oem" filesystem="ext3" bootprofile="ec2" bootkernel="ec2k" kernelcmdline="xencons=xvc0 console=xvc0 multipath=off splash" firmware="ec2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+        </type>
+    </preferences>
+    <preferences profiles="xenDomUFlavour">
+        <type image="oem" filesystem="ext3" bootprofile="xen" bootkernel="xenk" kernelcmdline="splash">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <machine memory="512" xen_loader="hvmloader">
+                <vmdisk id="0" device="/dev/xvda" controller="ide"/>
+                <vmnic interface=""/>
+            </machine>
+            <size>10</size>
+        </type>
+    </preferences>
+    <preferences profiles="xenDom0Flavour">
+        <type image="oem" filesystem="ext3" boot="oemboot/example-distribution" bootprofile="xen" bootkernel="xenk" installiso="true" kernelcmdline="splash">
+            <oemconfig>
+                <oem-systemsize>2048</oem-systemsize>
+                <oem-swap>true</oem-swap>
+            </oemconfig>
+        </type>
+        <type image="docker"/>
+    </preferences>
+    <preferences profiles="vmxSimpleFlavour">
+        <type image="oem" filesystem="ext3" format="vmdk" kernelcmdline="splash" bootpartition="false">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <size unit="G" unpartitioned="1">4</size>
+            <systemdisk name="systemVG"/>
+            <machine memory="512" guestOS="suse" HWversion="4">
+                <vmdisk id="0" controller="ide"/>
+                <vmnic driver="e1000" interface="0" mode="bridged"/>
+                <vmconfig-entry>numvcpus = "4"</vmconfig-entry>
+                <vmconfig-entry>cpuid.coresPerSocket = "2"</vmconfig-entry>
+            </machine>
+        </type>
+        <type image="iso" mediacheck="true"/>
+    </preferences>
+    <preferences profiles="containerFlavour">
+        <type image="docker">
+            <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag" additionaltags="current,foobar">
+                <entrypoint execute="/bin/bash">
+                    <argument name="-x"/>
+                </entrypoint>
+                <subcommand execute="ls">
+                    <argument name="-l"/>
+                </subcommand>
+                <expose>
+                    <port number="80"/>
+                    <port number="8080"/>
+                </expose>
+                <volumes>
+                    <volume name="/tmp"/>
+                    <volume name="/var/log"/>
+                </volumes>
+                <environment>
+                    <env name="PATH" value="/bin:/usr/bin:/home/user/bin"/>
+                    <env name="SOMEVAR" value="somevalue"/>
+                </environment>
+                <labels>
+                    <label name="somelabel" value="labelvalue"/>
+                    <label name="someotherlabel" value="anotherlabelvalue"/>
+                </labels>
+                <history author="history author" created_by="created by text" application_id="123" launcher="app" package_version="2003.12.0.0">This is a comment</history>
+            </containerconfig>
+        </type>
+    </preferences>
+    <preferences profiles="derivedContainer">
+        <type image="docker" derived_from="obs://project/repo/image#mytag">
+            <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag">
+                <entrypoint clear="true"/>
+                <subcommand clear="true"/>
+            </containerconfig>
+        </type>
+    </preferences>
+    <users>
+        <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
+        <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
+        <user groups="kiwi,admin,users" pwdformat="plain" password="mypwd" name="kiwi"/>
+    </users>
+    <repository priority="42" sourcetype="baseurl">
+        <source path="iso:///image/CDs/dvd.iso"/>
+    </repository>
+    <repository type="rpm-md" imageinclude="true" customize="script">
+        <source path="obs://Devel:PubCloud:AmazonEC2/SLE_12_GA"/>
+    </repository>
+    <repository type="rpm-md" imageonly="true">
+        <source path="obs://Devel:Docker:Images:SLE12SP2/SLE_12_SP2_Docker"/>
+    </repository>
+    <packages type="image" patternType="plusRecommended">
+        <namedCollection name="base"/>
+        <product name="openSUSE"/>
+        <package name="plymouth-branding-openSUSE" bootinclude="true"/>
+        <package name="grub2-branding-openSUSE" bootinclude="true"/>
+        <package name="ifplugd"/>
+        <package name="iputils"/>
+        <package name="vim" bootdelete="true"/>
+        <package name="openssh"/>
+        <archive name="/absolute/path/to/image.tgz" bootinclude="true"/>
+        <package name="foo" arch="s390,aarch64"/>
+    </packages>
+    <packages type="iso">
+        <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
+    </packages>
+    <packages type="oem">
+        <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
+    </packages>
+    <packages type="image" profiles="ec2Flavour">
+        <package name="kernel-ec2"/>
+        <package name="xen-tools" arch="x86_64"/>
+        <package name="xen" arch="x86_64"/>
+    </packages>
+    <packages type="image" profiles="xenDom0Flavour,xenDomUFlavour">
+        <package name="kernel-xen"/>
+        <package name="xen-tools" arch="x86_64"/>
+        <package name="xen" arch="x86_64"/>
+    </packages>
+    <packages type="image" profiles="vmxFlavour">
+        <package name="kernel-default"/>
+        <ignore name="foo" arch="x86_64,aarch64"/>
+        <ignore name="bar" arch="x86_64"/>
+        <ignore name="baz"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <namedCollection name="bootstrap-collection"/>
+        <product name="kiwi"/>
+        <archive name="bootstrap.tgz" target_dir="foo"/>
+    </packages>
+    <packages type="delete">
+        <package name="kernel-debug"/>
+    </packages>
+    <packages type="uninstall">
+        <package name="shadow"/>
+    </packages>
+</image>

@@ -304,6 +304,35 @@ class TestSystemPrepare:
             self.system.root_bind
         )
 
+    @patch('kiwi.system.prepare.RootInit')
+    @patch('kiwi.system.prepare.RootBind')
+    @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
+    @patch('kiwi.system.prepare.ArchiveTar')
+    def test_install_bootstrap_archive_target_dir(
+        self, mock_tar, mock_poll, mock_root_bind, mock_root_init
+    ):
+        Defaults.set_platform_name('x86_64')
+        description = XMLDescription(
+            description='../data/example_config_target_dir.xml'
+        )
+        self.xml = description.load()
+        root_bind = MagicMock()
+        root_bind.root_dir = 'root_dir'
+        mock_root_bind.return_value = root_bind
+        self.state = XMLState(
+            self.xml
+        )
+        self.system = SystemPrepare(
+            xml_state=self.state, root_dir='root_dir',
+            allow_existing=True
+        )
+        tar = Mock()
+        mock_tar.return_value = tar
+
+        self.system.install_bootstrap(self.manager)
+
+        tar.extract.assert_called_once_with('root_dir/foo')
+
     @patch('kiwi.xml_state.XMLState.get_bootstrap_packages_sections')
     def test_install_bootstrap_skipped(self, mock_bootstrap_section):
         mock_bootstrap_section.return_value = []
