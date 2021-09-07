@@ -557,6 +557,8 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.firmware.efi_mode.return_value = 'efi'
+        self.bootloader.persistency_type = 'by-label'
+
         self.bootloader._setup_default_grub()
 
         mock_sysconfig.assert_called_once_with('root_dir/etc/default/grub')
@@ -600,6 +602,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.bootloader.cmdline = 'root=UUID=foo'
+        self.bootloader.persistency_type = 'by-label'
 
         self.bootloader._setup_default_grub()
 
