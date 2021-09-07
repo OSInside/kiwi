@@ -46,10 +46,6 @@ class DiskFormatVmdk(DiskFormatBase):
         self.image_format = 'vmdk'
         self.options = self.get_qemu_option_list(custom_args)
 
-        self.patch_header_for_pvscsi = False
-        if custom_args and 'adapter_type=pvscsi' in custom_args:
-            self.patch_header_for_pvscsi = True
-
     def create_image_format(self) -> None:
         """
         Create vmdk disk format and machine settings file
@@ -62,8 +58,6 @@ class DiskFormatVmdk(DiskFormatBase):
                 self.get_target_file_path_for_format('vmdk')
             ]
         )
-        if self.patch_header_for_pvscsi:
-            self._inject_pvscsi_adapter_type()
         self._create_vmware_settings_file()
 
     def store_to_result(self, result: Result) -> None:
@@ -178,24 +172,3 @@ class DiskFormatVmdk(DiskFormatBase):
             raise KiwiTemplateError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
-
-    def _inject_pvscsi_adapter_type(self):
-        """
-        QEMU does not support the pvscsi adapter type.
-        According to suggestions VMware giving to their customers, just
-        open the VMDK file, and change ddb.adapterType directly.
-        """
-        vmdk_image_name = self.get_target_file_path_for_format('vmdk')
-        vmdk_descriptor = None
-        with open(vmdk_image_name, 'rb') as vmdk:
-            vmdk.seek(512, 0)
-            vmdk_descriptor = bytes(vmdk.read(1024))
-
-        if vmdk_descriptor:
-            vmdk_descriptor = vmdk_descriptor.replace(
-                b'"lsilogic"', b'"pvscsi"'
-            )
-            with open(vmdk_image_name, 'r+b') as vmdk:
-                vmdk.seek(512, 0)
-                vmdk.write(vmdk_descriptor)
-                vmdk.seek(0, 2)
