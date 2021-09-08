@@ -13,6 +13,7 @@ SYNOPSIS
    kiwi-ng result bundle -h | --help
    kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
        [--zsync_source=<download_location>]
+       [--package-as-rpm]
    kiwi-ng result bundle help
 
 .. _db_kiwi_result_bundle_desc:
@@ -56,3 +57,7 @@ OPTIONS
 
   * It is expected that all files from a bundle are placed to the same
     download location
+
+--package-as-rpm
+
+  Take all result files and create an rpm package out of it

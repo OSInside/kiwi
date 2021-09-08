@@ -19,6 +19,7 @@
 usage: kiwi-ng result bundle -h | --help
        kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
            [--zsync-source=<download_location>]
+           [--package-as-rpm]
        kiwi-ng result bundle help
 
 commands:
@@ -45,9 +46,14 @@ options:
         in a kiwi build only those are meaningful for a partial binary
         file download. It is expected that all files from a bundle
         are placed to the same download location
+    --package-as-rpm
+        Take all result files and create an rpm package out of it
 """
 from collections import OrderedDict
+from textwrap import dedent
+from typing import List
 import logging
+import glob
 import os
 
 # project
@@ -57,6 +63,7 @@ from kiwi.system.result import Result
 from kiwi.path import Path
 from kiwi.utils.compress import Compress
 from kiwi.utils.checksum import Checksum
+from kiwi.privileges import Privileges
 from kiwi.command import Command
 
 from kiwi.exceptions import (
@@ -87,6 +94,9 @@ class ResultBundleTask(CliTask):
         if self._help():
             return
 
+        if self.command_args['--package-as-rpm']:
+            Privileges.check_for_root_permissions()
+
         # load serialized result object from target directory
         result_directory = os.path.abspath(self.command_args['--target-dir'])
         bundle_directory = os.path.abspath(self.command_args['--bundle-dir'])
@@ -103,11 +113,12 @@ class ResultBundleTask(CliTask):
         )
         image_version = result.xml_state.get_image_version()
         image_name = result.xml_state.xml_data.get_name()
+        image_description = result.xml_state.get_description_section()
         ordered_results = OrderedDict(sorted(result.get_results().items()))
 
         # hard link bundle files, compress and build checksum
-        if not os.path.exists(bundle_directory):
-            Path.create(bundle_directory)
+        Path.wipe(bundle_directory)
+        Path.create(bundle_directory)
         for result_file in list(ordered_results.values()):
             if result_file.use_for_bundle:
                 bundle_file_basename = os.path.basename(result_file.filename)
@@ -170,6 +181,86 @@ class ResultBundleTask(CliTask):
                                 os.linesep
                             )
                         )
+        if self.command_args['--package-as-rpm']:
+            ResultBundleTask._build_rpm_package(
+                bundle_directory, image_name, image_version,
+                image_description.specification,
+                list(glob.iglob(f'{bundle_directory}/*'))
+            )
+
+    @staticmethod
+    def _build_rpm_package(
+        bundle_directory: str, image_name: str, image_version: str,
+        description_text, filenames: List[str]
+    ) -> None:
+        source_links = []
+        for source_file in filenames:
+            source_links.append(
+                ' '.join(
+                    [
+                        'ln', '%{_sourcedir}/' + os.path.basename(source_file),
+                        '%{buildroot}' + f'/var/tmp/{image_name}'
+                    ]
+                )
+            )
+        spec_file_name = os.path.join(bundle_directory, f'{image_name}.spec')
+        spec_data = dedent('''
+            %global _sourcedir %(pwd)
+            %global _rpmdir .
+
+            Url:            https://osinside.github.io/kiwi
+            Name:           {name}
+            Summary:        {name}
+            Version:        {version}
+            Release:        0
+            Group:          %{{sysgroup}}
+            License:        GPL-3.0-or-later
+            BuildRoot:      %{{_tmppath}}/%{{name}}-%{{version}}-build
+            BuildArch:      noarch
+
+            %description
+            {description}
+
+            %prep
+
+            %build
+
+            %install
+            install -d -m 755 %{{buildroot}}/var/tmp/{name}
+
+            {source_links}
+
+            %clean
+            rm -rf %{{buildroot}}
+
+            %files
+            %defattr(-, root, root)
+            /var/tmp/{name}
+
+            %changelog
+        ''').format(
+            name=image_name,
+            version=image_version,
+            description=description_text,
+            source_links=os.linesep.join(source_links)
+        )
+        with open(spec_file_name, 'w') as spec:
+            spec.write(spec_data)
+        os.chdir(bundle_directory)
+        log.info('Creating rpm package...')
+        Command.run(
+            [
+                'rpmbuild', '--nodeps', '--nocheck', '--rmspec',
+                '-bb', spec_file_name
+            ]
+        )
+        for source_file in filenames:
+            os.unlink(source_file)
+        Command.run(
+            [
+                'bash', '-c', 'mv noarch/*.rpm . && rmdir noarch'
+            ]
+        )
 
     def _help(self):
         if self.command_args['help']:
