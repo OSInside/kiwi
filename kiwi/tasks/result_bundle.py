@@ -117,8 +117,10 @@ class ResultBundleTask(CliTask):
         ordered_results = OrderedDict(sorted(result.get_results().items()))
 
         # hard link bundle files, compress and build checksum
-        Path.wipe(bundle_directory)
-        Path.create(bundle_directory)
+        if self.command_args['--package-as-rpm']:
+            Path.wipe(bundle_directory)
+        if not os.path.exists(bundle_directory):
+            Path.create(bundle_directory)
         for result_file in list(ordered_results.values()):
             if result_file.use_for_bundle:
                 bundle_file_basename = os.path.basename(result_file.filename)
