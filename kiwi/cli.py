@@ -25,7 +25,8 @@ usage: kiwi-ng -h | --help
                [--color-output]
                [--config=<configfile>]
            image <command> [<args>...]
-       kiwi-ng [--debug]
+       kiwi-ng [--logfile=<filename>]
+               [--debug]
                [--color-output]
                [--config=<configfile>]
            result <command> [<args>...]
@@ -51,6 +52,10 @@ global options:
         use specified runtime configuration file. If
         not specified the runtime configuration is looked
         up at ~/.config/kiwi/config.yml or /etc/kiwi.yml
+    --logfile=<filename>
+        create a log file containing all log information including
+        debug information even if this is was not requested by the
+        debug switch
     --debug
         print debug information
     -v --version
@@ -59,10 +64,6 @@ global options:
         show manual page
 
 global options for services: image, system
-    --logfile=<filename>
-        create a log file containing all log information including
-        debug information even if this is was not requested by the
-        debug switch
     --profile=<name>
         profile name, multiple profiles can be selected by passing
         this option multiple times
