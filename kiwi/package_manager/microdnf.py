@@ -168,20 +168,22 @@ class PackageManagerMicroDnf(PackageManagerBase):
 
         :rtype: namedtuple
         """
-        delete_items = []
-        for delete_item in self.package_requests:
-            try:
-                Command.run(['chroot', self.root_dir, 'rpm', '-q', delete_item])
-                delete_items.append(delete_item)
-            except Exception:
-                # ignore packages which are not installed
-                pass
-        if not delete_items:
-            raise KiwiRequestError(
-                'None of the requested packages to delete are installed'
-            )
-        self.cleanup_requests()
         if force:
+            delete_items = []
+            for delete_item in self.package_requests:
+                try:
+                    Command.run(
+                        ['chroot', self.root_dir, 'rpm', '-q', delete_item]
+                    )
+                    delete_items.append(delete_item)
+                except Exception:
+                    # ignore packages which are not installed
+                    pass
+            if not delete_items:
+                raise KiwiRequestError(
+                    'None of the requested packages to delete are installed'
+                )
+            self.cleanup_requests()
             delete_options = ['--nodeps', '--allmatches', '--noscripts']
             return Command.call(
                 [
@@ -191,13 +193,14 @@ class PackageManagerMicroDnf(PackageManagerBase):
             )
         else:
             chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
+            dnf_command = [
+                'chroot', self.root_dir, 'microdnf'
+            ] + chroot_dnf_args + self.custom_args + [
+                'remove'
+            ] + self.package_requests
+            self.cleanup_requests()
             return Command.call(
-                [
-                    'chroot', self.root_dir, 'microdnf'
-                ] + chroot_dnf_args + self.custom_args + [
-                    'remove'
-                ] + delete_items,
-                self.command_env
+                dnf_command, self.command_env
             )
 
     def update(self) -> command_call_type:
