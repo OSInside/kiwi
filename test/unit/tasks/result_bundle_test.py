@@ -80,12 +80,11 @@ class TestResultBundleTask:
     @patch('kiwi.tasks.result_bundle.Command.run')
     @patch('kiwi.tasks.result_bundle.Path.create')
     @patch('kiwi.tasks.result_bundle.Path.which')
-    @patch('kiwi.tasks.result_bundle.Path.wipe')
     @patch('kiwi.tasks.result_bundle.Compress')
     @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
     def test_process_result_bundle(
-        self, mock_exists, mock_checksum, mock_compress, mock_path_wipe,
+        self, mock_exists, mock_checksum, mock_compress,
         mock_path_which, mock_path_create, mock_command, mock_load
     ):
         # This file won't be copied with build id
@@ -113,7 +112,6 @@ class TestResultBundleTask:
         mock_load.assert_called_once_with(
             os.sep.join([self.abs_target_dir, 'kiwi.result'])
         )
-        mock_path_wipe.assert_called_once_with(self.abs_bundle_dir)
         mock_path_create.assert_called_once_with(self.abs_bundle_dir)
         assert mock_command.call_args_list == [
             call([
@@ -180,6 +178,7 @@ class TestResultBundleTask:
         with patch('builtins.open', m_open, create=True):
             self.task.process()
 
+        mock_path_wipe.assert_called_once_with(self.abs_bundle_dir)
         mock_Privileges_check_for_root_permissions.assert_called_once_with()
         assert mock_command.call_args_list == [
             call(
@@ -210,11 +209,9 @@ class TestResultBundleTask:
     @patch('kiwi.tasks.result_bundle.Result.load')
     @patch('kiwi.tasks.result_bundle.Command.run')
     @patch('kiwi.tasks.result_bundle.Path.create')
-    @patch('kiwi.tasks.result_bundle.Path.wipe')
     @patch('os.path.exists')
     def test_process_result_bundle_name_includes_version(
-        self, mock_exists, mock_path_wipe, mock_path_create,
-        mock_command, mock_load
+        self, mock_exists, mock_path_create, mock_command, mock_load
     ):
         result = Result(self.xml_state)
         result.add(
@@ -235,7 +232,6 @@ class TestResultBundleTask:
         mock_load.assert_called_once_with(
             os.sep.join([self.abs_target_dir, 'kiwi.result'])
         )
-        mock_path_wipe.assert_called_once_with(self.abs_bundle_dir)
         mock_path_create.assert_called_once_with(self.abs_bundle_dir)
         assert mock_command.call_args_list == [
             call([
@@ -251,12 +247,11 @@ class TestResultBundleTask:
     @patch('kiwi.tasks.result_bundle.Command.run')
     @patch('kiwi.tasks.result_bundle.Path.create')
     @patch('kiwi.tasks.result_bundle.Path.which')
-    @patch('kiwi.tasks.result_bundle.Path.wipe')
     @patch('kiwi.tasks.result_bundle.Compress')
     @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
     def test_process_result_bundle_zsyncmake_missing(
-        self, mock_exists, mock_checksum, mock_compress, mock_path_wipe,
+        self, mock_exists, mock_checksum, mock_compress,
         mock_path_which, mock_path_create, mock_command, mock_load
     ):
         checksum = Mock()
