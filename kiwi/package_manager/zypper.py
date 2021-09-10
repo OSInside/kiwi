@@ -163,19 +163,22 @@ class PackageManagerZypper(PackageManagerBase):
 
         :rtype: namedtuple
         """
-        delete_items = []
-        for delete_item in self._delete_items():
-            try:
-                Command.run(['chroot', self.root_dir, 'rpm', '-q', delete_item])
-                delete_items.append(delete_item)
-            except Exception:
-                # ignore packages which are not installed
-                pass
-        if not delete_items:
-            raise KiwiRequestError(
-                'None of the requested packages to delete are installed'
-            )
         if force:
+            delete_items = []
+            for delete_item in self._delete_items():
+                try:
+                    Command.run(
+                        ['chroot', self.root_dir, 'rpm', '-q', delete_item]
+                    )
+                    delete_items.append(delete_item)
+                except Exception:
+                    # ignore packages which are not installed
+                    pass
+            if not delete_items:
+                raise KiwiRequestError(
+                    'None of the requested packages to delete are installed'
+                )
+            self.cleanup_requests()
             force_options = ['--nodeps', '--allmatches', '--noscripts']
             return Command.call(
                 [
@@ -184,13 +187,14 @@ class PackageManagerZypper(PackageManagerBase):
                 self.chroot_command_env
             )
         else:
+            zypper_command = [
+                'chroot', self.root_dir, 'zypper'
+            ] + self.chroot_zypper_args + [
+                'remove', '-u', '--force-resolution'
+            ] + self._delete_items()
+            self.cleanup_requests()
             return Command.call(
-                [
-                    'chroot', self.root_dir, 'zypper'
-                ] + self.chroot_zypper_args + [
-                    'remove', '-u', '--force-resolution'
-                ] + delete_items,
-                self.chroot_command_env
+                zypper_command, self.chroot_command_env
             )
 
     def update(self) -> command_call_type:

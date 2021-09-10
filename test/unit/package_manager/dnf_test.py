@@ -101,7 +101,7 @@ class TestPackageManagerDnf:
         mock_run.side_effect = Exception
         self.manager.request_package('vim')
         with raises(KiwiRequestError):
-            self.manager.process_delete_requests()
+            self.manager.process_delete_requests(force=True)
         mock_run.assert_called_once_with(
             ['chroot', '/root-dir', 'rpm', '-q', 'vim']
         )
