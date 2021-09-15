@@ -27,6 +27,7 @@ graft kiwi/iso_tools
 graft kiwi/oci_tools
 graft package
 graft doc/source
+graft test
 
 include doc/Makefile
 include Makefile
@@ -36,7 +37,7 @@ include tox.ini
 include kiwi.yml
 
 recursive-include doc/build/man *
-recursive-include test *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz
+recursive-include *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz
 
 include .bumpversion.cfg
 include .coverage*
