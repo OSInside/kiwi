@@ -1,9 +1,5 @@
 # Manifest describing source package contents
 
-# schema docs gets auto generated, don't include any data
-# existing there into the package tarball
-prune doc/source/development/schema
-
 graft tools
 graft dracut
 graft helper
@@ -30,7 +26,9 @@ graft kiwi/solver
 graft kiwi/iso_tools
 graft kiwi/oci_tools
 graft package
+graft doc/source
 
+include doc/Makefile
 include Makefile
 include README.rst
 include LICENSE
