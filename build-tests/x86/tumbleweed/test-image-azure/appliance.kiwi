@@ -7,7 +7,7 @@
         <specification>azure test build</specification>
     </description>
     <preferences>
-        <type image="oem" filesystem="xfs" kernelcmdline="USE_BY_UUID_DEVICE_NAMES=1 earlyprintk=ttyS0 console=ttyS0 rootdelay=300 net.ifnames=0 dis_ucode_ldr" devicepersistency="by-uuid" formatoptions="force_size" format="vhd-fixed" vhdfixedtag="22222222-3333-4444-5555-666666666666" bootpartition="true" bootpartsize="1024">
+        <type image="oem" filesystem="xfs" kernelcmdline="USE_BY_UUID_DEVICE_NAMES=1 earlyprintk=ttyS0 console=ttyS0 rootdelay=300 net.ifnames=0 dis_ucode_ldr" devicepersistency="by-uuid" formatoptions="force_size" format="vhd-fixed" vhdfixedtag="22222222-3333-4444-5555-666666666666">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
