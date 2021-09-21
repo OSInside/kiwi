@@ -129,25 +129,3 @@ rpm_suse_TW:
   allow_failure: true
   dependencies:
     - rpm_source_package
-
-pypi_upload:
-  stage: release
-  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
-  only:
-    - tags
-  script:
-    - base64 --decode "$PYPI_CONFIG" > .pypirc
-    - export PYTHON=python3.6
-    - tox -e doc_man,release
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - .tox/3.6
-
-doc_update:
-  stage: release
-  image: $CI_REGISTRY/$BUILD_IMAGES_PROJECT:$FEDORA_BUILD
-  only:
-    - tags
-  script:
-    - helper/deploy_pages.sh "$GITHUB_TOKEN" "$GITLAB_USER_NAME" "$GITLAB_USER_EMAIL"
