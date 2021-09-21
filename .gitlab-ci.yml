@@ -9,7 +9,6 @@ stages:
   - deploy
   - sourcepackage
   - packages
-  - release
 
 variables:
   LANG: en_US.UTF-8
