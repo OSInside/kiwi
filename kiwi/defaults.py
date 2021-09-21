@@ -51,6 +51,13 @@ PLATFORM_MACHINE = platform.machine()
 
 log = logging.getLogger('kiwi')
 
+shim_loader_type = NamedTuple(
+    'shim_loader_type', [
+         ('filename', str),
+         ('binaryname', str)
+     ]
+)
+
 grub_loader_type = NamedTuple(
     'grub_loader_type', [
         ('filename', str),
@@ -713,7 +720,7 @@ class Defaults:
         return 'SUSE LINUX GmbH'
 
     @staticmethod
-    def get_shim_loader(root_path):
+    def get_shim_loader(root_path: str) -> Optional[shim_loader_type]:
         """
         Provides shim loader file path
 
@@ -726,15 +733,29 @@ class Defaults:
 
         :rtype: str
         """
+
+        shim_pattern_type = namedtuple(
+            'shim_pattern_type', ['pattern', 'binaryname']
+        )
+
         shim_file_patterns = [
-            '/usr/share/efi/*/shim.efi',
-            '/usr/lib64/efi/shim.efi',
-            '/boot/efi/EFI/*/shim*.efi',
-            '/usr/lib/shim/shim*.efi'
+            shim_pattern_type('/usr/lib/shim/shim*.efi.signed', 'shimx64.efi'),
+            shim_pattern_type('/usr/share/efi/*/shim.efi', None),
+            shim_pattern_type('/usr/lib64/efi/shim.efi', None),
+            shim_pattern_type('/boot/efi/EFI/*/shim*.efi', None),
+            shim_pattern_type('/usr/lib/shim/shim*.efi', None)
         ]
         for shim_file_pattern in shim_file_patterns:
-            for shim_file in glob.iglob(root_path + shim_file_pattern):
-                return shim_file
+            for shim_file in glob.iglob(root_path + shim_file_pattern.pattern):
+                if not shim_file:
+                    binaryname = os.path.basename(shim_file)
+                else:
+                    binaryname = shim_file_pattern.binaryname
+                return shim_loader_type(
+                    shim_file, binaryname
+                )
+
+        return None
 
     @staticmethod
     def get_mok_manager(root_path: str) -> Optional[str]:

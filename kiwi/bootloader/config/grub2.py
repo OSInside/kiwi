@@ -748,14 +748,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'Signed grub2 efi loader not found'
             )
         shim_image = Defaults.get_shim_loader(lookup_path)
-        if shim_image:
+        if shim_image and shim_image.filename:
             # The shim concept is based on a two step system including a
             # grub image(shim) that got signed by Microsoft followed by
             # a grub image that got signed by the shim. The shim image
             # is the one that gets loaded by the firmware which itself
             # loads the second stage grub image
             Command.run(
-                ['cp', shim_image, self._get_efi_image_name()]
+                ['cp', shim_image.filename, self._get_efi_image_name()]
             )
             Command.run(
                 [
