@@ -46,7 +46,7 @@
 <xsl:import href="convert72to73.xsl"/>
 <xsl:import href="convert73to74.xsl"/>
 <xsl:import href="pretty.xsl"/>
-
+<xsl:import href="include.xsl"/>
 
 <xsl:output encoding="utf-8"/>
 
@@ -210,6 +210,10 @@
     <xsl:variable name="v74">
         <xsl:apply-templates select="exslt:node-set($v73)" mode="conv73to74"/>
     </xsl:variable>
+
+    <xsl:apply-templates
+        select="exslt:node-set($v74)" mode="include"
+    />
 
     <xsl:apply-templates
         select="exslt:node-set($v74)" mode="pretty"

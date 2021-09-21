@@ -41,6 +41,39 @@ id
    sets an identification number which appears as file ``/etc/ImageID``
    within the image.
 
+.. _sec.include:
+
+<include>
+---------
+
+Optional include of XML file content from file
+
+.. code:: xml
+
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <include from="description.xml"/>
+   </image> 
+
+with file :file:`description.xml` as follows:
+
+.. code:: xml
+
+   <description type="system">
+     <author>name</author>
+     <contact>contact</contact>
+     <specification>text</specification>
+   </description>
+
+This will replace the `include` statement with the contents
+of :file:`description.xml`. The validation of the result happens
+after the inclusion of all `include` references.
+
+.. note::
+
+   The include is implemented via a XSLT stylesheet and therefore
+   expects an XML document. Other markup formats are not supported
+   as include reference.
+
 .. _sec.description:
 
 <description>

@@ -811,7 +811,7 @@ class image(GeneratedsSuper):
     """The root element of the configuration file"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, packages=None, extension=None):
+    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, packages=None, extension=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.displayname = _cast(None, displayname)
@@ -819,6 +819,10 @@ class image(GeneratedsSuper):
         self.schemaversion = _cast(None, schemaversion)
         self.noNamespaceSchemaLocation = _cast(None, noNamespaceSchemaLocation)
         self.schemaLocation = _cast(None, schemaLocation)
+        if include is None:
+            self.include = []
+        else:
+            self.include = include
         if description is None:
             self.description = []
         else:
@@ -866,6 +870,11 @@ class image(GeneratedsSuper):
         else:
             return image(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_include(self): return self.include
+    def set_include(self, include): self.include = include
+    def add_include(self, value): self.include.append(value)
+    def insert_include_at(self, index, value): self.include.insert(index, value)
+    def replace_include_at(self, index, value): self.include[index] = value
     def get_description(self): return self.description
     def set_description(self, description): self.description = description
     def add_description(self, value): self.description.append(value)
@@ -932,6 +941,7 @@ class image(GeneratedsSuper):
     validate_safe_posix_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
     def hasContent_(self):
         if (
+            self.include or
             self.description or
             self.preferences or
             self.profiles or
@@ -990,6 +1000,8 @@ class image(GeneratedsSuper):
             eol_ = '\n'
         else:
             eol_ = ''
+        for include_ in self.include:
+            include_.export(outfile, level, namespaceprefix_, name_='include', pretty_print=pretty_print)
         for description_ in self.description:
             description_.export(outfile, level, namespaceprefix_, name_='description', pretty_print=pretty_print)
         for preferences_ in self.preferences:
@@ -1044,7 +1056,12 @@ class image(GeneratedsSuper):
             already_processed.add('schemaLocation')
             self.schemaLocation = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'description':
+        if nodeName_ == 'include':
+            obj_ = include.factory()
+            obj_.build(child_)
+            self.include.append(obj_)
+            obj_.original_tagname_ = 'include'
+        elif nodeName_ == 'description':
             obj_ = description.factory()
             obj_.build(child_)
             self.description.append(obj_)
@@ -4197,6 +4214,75 @@ class volume(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class volume
+
+
+class include(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, from_=None):
+        self.original_tagname_ = None
+        self.from_ = _cast(None, from_)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, include)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if include.subclass:
+            return include.subclass(*args_, **kwargs_)
+        else:
+            return include(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_from(self): return self.from_
+    def set_from(self, from_): self.from_ = from_
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='include', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('include')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='include')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='include', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='include'):
+        if self.from_ is not None and 'from_' not in already_processed:
+            already_processed.add('from_')
+            outfile.write(' from=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.from_), input_name='from')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='include', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('from', node)
+        if value is not None and 'from' not in already_processed:
+            already_processed.add('from')
+            self.from_ = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class include
 
 
 class description(GeneratedsSuper):
@@ -8036,6 +8122,7 @@ __all__ = [
     "history",
     "ignore",
     "image",
+    "include",
     "initrd",
     "installmedia",
     "k_source",

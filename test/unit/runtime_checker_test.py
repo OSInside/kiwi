@@ -429,5 +429,15 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_image_type_unique()
 
+    def test_check_include_references_unresolvable(self):
+        description = XMLDescription(
+            '../data/example_runtime_checker_include_missing.xml'
+        )
+        xml_state = XMLState(description.load())
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError) as issue:
+            runtime_checker.check_include_references_unresolvable()
+        print(issue.value)
+
     def teardown(self):
         sys.argv = argv_kiwi_tests

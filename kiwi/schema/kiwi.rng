@@ -166,6 +166,9 @@ named /etc/ImageID</a:documentation>
         <a:documentation>The root element of the configuration file   </a:documentation>
         <interleave>
           <ref name="k.image.attlist"/>
+          <zeroOrMore>
+            <ref name="k.include"/>
+          </zeroOrMore>
           <ref name="k.description"/>
           <oneOrMore>
             <ref name="k.preferences"/>
@@ -3248,6 +3251,27 @@ The latter is the default.</a:documentation>
 on an extra volume.</a:documentation>
         <ref name="k.volume.attlist"/>
         <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <include>
+    
+  -->
+  <div>
+    <define name="k.include.from.attribute">
+      <attribute name="from">
+        <a:documentation>include given file and replace the include
+statement with its contents</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.include.attlist">
+      <ref name="k.include.from.attribute"/>
+    </define>
+    <define name="k.include">
+      <element name="include">
+        <ref name="k.include.attlist"/>
       </element>
     </define>
   </div>

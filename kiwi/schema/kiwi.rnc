@@ -78,6 +78,7 @@ div {
         ## The root element of the configuration file   
         element image {
             k.image.attlist &
+            k.include* &
             k.description &
             k.preferences+ &
             k.profiles? &
@@ -2120,6 +2121,21 @@ div {
         element volume {
             k.volume.attlist,
             empty
+        }
+}
+
+#==========================================
+# main block: <include>
+#
+div {
+    k.include.from.attribute =
+        ## include given file and replace the include
+        ## statement with its contents
+        attribute from { text }
+    k.include.attlist = k.include.from.attribute
+    k.include =
+        element include {
+            k.include.attlist
         }
 }
 

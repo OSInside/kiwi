@@ -95,3 +95,16 @@ The optional :ref:`sec.profiles` element contains information to create one
 or more namespaces to an image description. The namespace can be
 used with any of the above elements and therefore tie them into
 a namespace which can be selected at call time of {kiwi}
+
+Image Includes
+--------------
+
+.. code:: xml
+
+   <include from="filename.xml"/>
+
+The optional :ref:`sec.include` element allows to drop in the contents
+of the specified :file:`filename.xml` file at the place were the `include`
+statement was specified in the document. The `include` statement is
+only allowed as descendant of the root (top-level element) of the
+image description.
