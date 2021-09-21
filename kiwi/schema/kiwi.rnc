@@ -187,7 +187,11 @@ div {
 div {
     k.archive.name.attribute = k.name.attribute
     k.archive.bootinclude.attribute = k.bootinclude.attribute
-    k.archive.target_dir.attribute = k.path.attribute
+    k.archive.target_dir.attribute =
+        # Extract tarball to the specified target directory.
+        # By default the target directory is the root(/) of
+        # the image.
+        attribute target_dir { text }
     k.archive.attlist =
         k.archive.name.attribute &
         k.archive.bootinclude.attribute? &

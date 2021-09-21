@@ -221,12 +221,6 @@ part of the boot image also</a:documentation>
       <data type="boolean"/>
     </attribute>
   </define>
-  <define name="k.target_dir.attribute">
-    <attribute name="target_dir">
-      <a:documentation>Indicates that this package have a tarball
-that should be placed in that directory</a:documentation>
-    </attribute>
-  </define>
   <define name="k.bootdelete.attribute">
     <attribute name="bootdelete">
       <a:documentation>Indicates that this package should be removed from
@@ -366,7 +360,12 @@ file was fetched</a:documentation>
       <ref name="k.bootinclude.attribute"/>
     </define>
     <define name="k.archive.target_dir.attribute">
-      <ref name="k.target_dir.attribute"/>
+      <!--
+        Extract tarball to the specified target directory.
+        By default the target directory is the root(/) of
+        the image.
+      -->
+      <attribute name="target_dir"/>
     </define>
     <define name="k.archive.attlist">
       <interleave>

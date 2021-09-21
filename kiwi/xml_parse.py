@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.8.10 (default, May 05 2021, 15:36:36) [GCC]
+# Python 3.6.12 (default, Dec 02 2020, 09:44:23) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/jesusbv/Projects/kiwi/.tox/3.8/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
