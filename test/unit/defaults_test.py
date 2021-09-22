@@ -9,6 +9,7 @@ from .test_helper import argv_kiwi_tests
 
 from kiwi.defaults import Defaults
 from kiwi.defaults import grub_loader_type
+from kiwi.defaults import shim_loader_type
 
 
 class TestDefaults:
@@ -158,8 +159,33 @@ class TestDefaults:
 
     @patch('glob.iglob')
     def test_get_shim_loader(self, mock_iglob):
-        mock_iglob.return_value = []
+        def iglob_simple_match(pattern):
+            if '/usr/lib64/efi/shim.efi' in pattern:
+                return ['root_path/usr/lib64/efi/shim.efi']
+            else:
+                return []
+
+        def iglob_custom_binary_match(pattern):
+            if '/usr/lib/shim/shimx64.efi.signed' in pattern:
+                return [
+                    'root_path'
+                    '/usr/lib/shim/shimx64.efi.signed'
+                ]
+            else:
+                return []
+
         assert Defaults.get_shim_loader('root_path') is None
 
-        mock_iglob.return_value = ['some_glob_result']
-        assert Defaults.get_shim_loader('root_path') == 'some_glob_result'
+        mock_iglob.side_effect = iglob_simple_match
+        assert Defaults.get_shim_loader('root_path') == shim_loader_type(
+            filename='root_path'
+            '/usr/lib64/efi/shim.efi',
+            binaryname='shim.efi'
+        )
+
+        mock_iglob.side_effect = iglob_custom_binary_match
+        assert Defaults.get_shim_loader('root_path/usr/lib/shim/shimx64.efi.signed') == shim_loader_type(
+            filename='root_path'
+            '/usr/lib/shim/shimx64.efi.signed',
+            binaryname='shimx64.efi'
+        )
