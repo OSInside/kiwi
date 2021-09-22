@@ -747,7 +747,7 @@ class Defaults:
         ]
         for shim_file_pattern in shim_file_patterns:
             for shim_file in glob.iglob(root_path + shim_file_pattern.pattern):
-                if not shim_file:
+                if not shim_file_pattern.binaryname:
                     binaryname = os.path.basename(shim_file)
                 else:
                     binaryname = shim_file_pattern.binaryname
