@@ -729,9 +729,9 @@ class Defaults:
 
         :param string root_path: image root path
 
-        :return: file path or None
+        :return: shim_loader_type | None
 
-        :rtype: str
+        :rtype: NamedTuple
         """
 
         shim_pattern_type = namedtuple(
