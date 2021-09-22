@@ -53,6 +53,53 @@ bit is set (in that case a shebang is mandatory) otherwise they will be
 invoked via the BASH. If a script exits with a non-zero exit code
 then {kiwi} will report the failure and abort the image creation.
 
+Developing/Debugging Scripts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When creating a custom script it usually takes some iterations of
+try and testing until a final stable state is reached. To support
+developers with this task {kiwi} calls scripts associated with a
+`screen` session. The connection to `screen` is only done if {kiwi}
+is called with the `--debug` option.
+
+In this mode a script can start like the following template:
+
+.. code:: bash
+
+   # The magic bits are still not set
+
+   echo "break"
+   /bin/bash
+
+At call time of the script a `screen` session executes and you get
+access to the break in shell. From this environment the needed script
+code can be implemented. Once the shell is closed the {kiwi} process
+continues.
+
+Apart from providing a full featured terminal throughout the
+execution of the script code, there is also the advantage to
+have control on the session during the process of the image
+creation. Listing the active sessions for script execution
+can be done as follows:
+
+.. code:: bash
+
+   $ sudo screen -list
+
+   There is a screen on:
+        19699.pts-4.asterix     (Attached)
+   1 Socket in /run/screens/S-root.
+
+.. note::
+
+   As shown above the screen session(s) to execute script code
+   provides extended control which could also be considered a
+   security risk. Because of that {kiwi} only runs scripts through
+   `screen` when explicitly enabled via the `--debug` switch.
+   For production processes all scripts should run in their
+   native way and should not require a terminal to operate
+   correctly !
+
 Script Template for config.sh / images.sh
 -----------------------------------------
 
