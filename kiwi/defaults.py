@@ -53,9 +53,9 @@ log = logging.getLogger('kiwi')
 
 shim_loader_type = NamedTuple(
     'shim_loader_type', [
-         ('filename', str),
-         ('binaryname', str)
-     ]
+        ('filename', str),
+        ('binaryname', str)
+    ]
 )
 
 grub_loader_type = NamedTuple(
