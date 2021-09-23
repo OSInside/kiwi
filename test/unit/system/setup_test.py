@@ -705,6 +705,7 @@ class TestSystemSetup:
             ['chroot', 'root_dir', 'image/post_bootstrap.sh'], {}
         )
 
+    @patch('kiwi.logger.Logger.getLogLevel')
     @patch('kiwi.system.setup.Profile')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
@@ -714,8 +715,9 @@ class TestSystemSetup:
     @patch('copy.deepcopy')
     def test_call_disk_script(
         self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile
+        mock_watch, mock_command, mock_Profile, mock_getLogLevel
     ):
+        mock_getLogLevel.return_value = logging.DEBUG
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
         mock_Profile.return_value = profile
@@ -731,7 +733,10 @@ class TestSystemSetup:
         self.setup.call_disk_script()
         mock_copy_deepcopy.assert_called_once_with(os.environ)
         mock_command.assert_called_once_with(
-            ['chroot', 'root_dir', 'bash', 'image/disk.sh'], {}
+            [
+                'screen', '-t', '-X',
+                'chroot', 'root_dir', 'bash', 'image/disk.sh'
+            ], {}
         )
 
     @patch('kiwi.system.setup.Profile')
@@ -787,13 +792,16 @@ class TestSystemSetup:
             'ext4 1'
         ])
 
+    @patch('kiwi.logger.Logger.getLogLevel')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
     @patch('os.path.abspath')
     def test_call_edit_boot_install_script(
-        self, mock_abspath, mock_exists, mock_watch, mock_command
+        self, mock_abspath, mock_exists, mock_watch, mock_command,
+        mock_getLogLevel
     ):
+        mock_getLogLevel.return_value = logging.DEBUG
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )
@@ -807,11 +815,15 @@ class TestSystemSetup:
         mock_abspath.assert_called_once_with(
             'root_dir/image/edit_boot_install.sh'
         )
-        mock_command.assert_called_once_with([
-            'bash', '-c',
-            'cd root_dir && bash --norc /root_dir/image/edit_boot_install.sh '
-            'my_image.raw /dev/mapper/loop0p1'
-        ])
+        mock_command.assert_called_once_with(
+            [
+                'screen', '-t', '-X',
+                'bash', '-c',
+                'cd root_dir && bash --norc '
+                '/root_dir/image/edit_boot_install.sh '
+                'my_image.raw /dev/mapper/loop0p1'
+            ]
+        )
 
     @patch('kiwi.system.setup.Profile')
     @patch('kiwi.command.Command.call')

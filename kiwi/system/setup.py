@@ -998,7 +998,14 @@ class SystemSetup:
         script_path = os.path.join(self.root_dir, 'image', name)
         if os.path.exists(script_path):
             options = option_list or []
-            command = ['chroot', self.root_dir]
+            if log.getLogLevel() == logging.DEBUG:
+                # In debug mode run scripts in a screen session to
+                # allow attaching and debugging
+                command = ['screen', '-t', '-X', 'chroot', self.root_dir]
+            else:
+                # In standard mode run scripts without a terminal
+                # associated to them
+                command = ['chroot', self.root_dir]
             if not Path.access(script_path, os.X_OK):
                 command.append('bash')
             command.append(
@@ -1031,9 +1038,17 @@ class SystemSetup:
                 'cd', working_directory, '&&',
                 'bash', '--norc', script_path, ' '.join(option_list)
             ]
-            config_script = Command.call(
-                ['bash', '-c', ' '.join(bash_command)]
-            )
+            if log.getLogLevel() == logging.DEBUG:
+                # In debug mode run scripts in a screen session to
+                # allow attaching and debugging
+                config_script = Command.call(
+                    ['screen', '-t', '-X', 'bash', '-c', ' '.join(bash_command)]
+                )
+            else:
+                # In standard mode run script through bash
+                config_script = Command.call(
+                    ['bash', '-c', ' '.join(bash_command)]
+                )
             process = CommandProcess(
                 command=config_script, log_topic='Calling ' + name + ' script'
             )
