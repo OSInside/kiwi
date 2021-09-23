@@ -705,6 +705,7 @@ class TestSystemSetup:
             ['chroot', 'root_dir', 'image/post_bootstrap.sh'], {}
         )
 
+    @patch('kiwi.system.setup.Defaults.is_buildservice_worker')
     @patch('kiwi.logger.Logger.getLogLevel')
     @patch('kiwi.system.setup.Profile')
     @patch('kiwi.command.Command.call')
@@ -715,8 +716,10 @@ class TestSystemSetup:
     @patch('copy.deepcopy')
     def test_call_disk_script(
         self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile, mock_getLogLevel
+        mock_watch, mock_command, mock_Profile, mock_getLogLevel,
+        mock_is_buildservice_worker
     ):
+        mock_is_buildservice_worker.return_value = False
         mock_getLogLevel.return_value = logging.DEBUG
         mock_copy_deepcopy.return_value = {}
         profile = Mock()
@@ -792,6 +795,7 @@ class TestSystemSetup:
             'ext4 1'
         ])
 
+    @patch('kiwi.system.setup.Defaults.is_buildservice_worker')
     @patch('kiwi.logger.Logger.getLogLevel')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
@@ -799,8 +803,9 @@ class TestSystemSetup:
     @patch('os.path.abspath')
     def test_call_edit_boot_install_script(
         self, mock_abspath, mock_exists, mock_watch, mock_command,
-        mock_getLogLevel
+        mock_getLogLevel, mock_is_buildservice_worker
     ):
+        mock_is_buildservice_worker.return_value = False
         mock_getLogLevel.return_value = logging.DEBUG
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
