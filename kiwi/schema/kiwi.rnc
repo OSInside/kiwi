@@ -1498,7 +1498,7 @@ div {
         ## the disk layout and the partition table type. By default
         ## the standard x86 bios firmware setup is used
         attribute firmware {
-            "bios" | "ec2" | "efi" | "uefi" | "ofw" | "opal"
+            "bios" | "ec2" | "efi" | "uefi" | "ofw" | "opal" | "none"
         }
         >> sch:pattern [ id = "firmware" is-a = "image_type"
             sch:param [ name = "attr" value = "firmware" ]

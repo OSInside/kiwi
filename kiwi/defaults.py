@@ -1148,7 +1148,7 @@ class Defaults:
             'i586': ['bios'],
             'i686': ['bios'],
             'ix86': ['bios'],
-            'aarch64': ['efi', 'uefi'],
+            'aarch64': ['efi', 'uefi', 'none'],
             'arm64': ['efi', 'uefi'],
             'armv5el': ['efi', 'uefi'],
             'armv5tel': ['efi', 'uefi'],

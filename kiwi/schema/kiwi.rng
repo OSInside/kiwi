@@ -2202,6 +2202,7 @@ the standard x86 bios firmware setup is used</a:documentation>
           <value>uefi</value>
           <value>ofw</value>
           <value>opal</value>
+          <value>none</value>
         </choice>
       </attribute>
       <sch:pattern id="firmware" is-a="image_type">
