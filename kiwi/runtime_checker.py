@@ -17,7 +17,6 @@
 #
 import os
 import re
-import json
 import logging
 from textwrap import dedent
 from typing import (
@@ -72,31 +71,6 @@ class RuntimeChecker:
         if not self.xml_state.get_repository_sections():
             raise KiwiRuntimeError(
                 'No repositories configured'
-            )
-
-    def check_include_references_unresolvable(self) -> None:
-        """
-        Raise for still included <include> statements as not resolvable.
-        The KIWI XSLT processing replaces the specified include
-        directive(s) with the given file reference(s). If the file
-        reference does not exist the include statement stays in the
-        KIWI description to be consumed and reported by this runtime
-        check
-        """
-        message = dedent('''\n
-            One ore more <include> statements are unresolvable
-
-            The following include references could not be found.
-            Please verify the specified location(s) and/or delete
-            the broken include directive(s) from the description
-
-            {0}
-        ''')
-        include_files = \
-            self.xml_state.get_include_section_reference_file_names()
-        if include_files:
-            raise KiwiRuntimeError(
-                message.format(json.dumps(include_files, indent=4))
             )
 
     def check_image_include_repos_publicly_resolvable(self) -> None:

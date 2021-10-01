@@ -1580,19 +1580,6 @@ class XMLState:
         """
         return self.get_strip_list('libs')
 
-    def get_include_section_reference_file_names(self) -> List[str]:
-        """
-        List of all <include> section file name references
-
-        :return: List[str]
-
-        :rtype: list
-        """
-        include_files = []
-        for include in self.xml_data.get_include():
-            include_files.append(include.get_from())
-        return include_files
-
     def get_repository_sections(self) -> List:
         """
         List of all repository sections matching configured profiles

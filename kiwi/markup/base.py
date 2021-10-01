@@ -23,7 +23,8 @@ from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
 from kiwi.exceptions import (
     KiwiConfigFileFormatNotSupported,
-    KiwiDescriptionInvalid
+    KiwiDescriptionInvalid,
+    KiwiIncludFileNotFoundError
 )
 
 
@@ -110,9 +111,6 @@ class FileResolver(etree.Resolver):
         if os.path.exists(url):
             return self.resolve_filename(url, context)
         else:
-            # In case a document() reference file cannot be found
-            # an <include> statement is created to be consumed by
-            # the check_include_references_unresolvable runtime check
-            return self.resolve_string(
-                f'<include from="not_found:{url}"/>', context
+            raise KiwiIncludFileNotFoundError(
+                f'include reference {url!r} does not exist'
             )
