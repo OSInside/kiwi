@@ -12,7 +12,7 @@
 </xsl:template>
 
 <!-- incorporate optional include file(s) -->
-<xsl:template match="image/include" mode="include">
+<xsl:template match="include" mode="include">
     <xsl:param name="include_file_name" select="@from"/>
     <xsl:choose>
         <xsl:when test="document($include_file_name)">
