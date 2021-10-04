@@ -203,7 +203,8 @@ class XMLDescription:
         """
         try:
             Command.run(
-                ['jing', schema_file, description_file]
+                ['jing', schema_file, description_file],
+                raise_on_error=True
             )
         except KiwiCommandError as issue:
             log.info('RelaxNG validation failed. See jing report:')
