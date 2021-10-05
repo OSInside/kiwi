@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.4" name="JeOS">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>Test for missing include reference</specification>
+    </description>
+    <include from="../data/nested_include.xml"/>
+    <preferences>
+        <version>1.1.0</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <type image="tbz"/>
+    </preferences>
+    <repository>
+        <source path="obs://13.2/repo/oss"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+    </packages>
+</image>

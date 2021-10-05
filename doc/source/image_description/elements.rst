@@ -80,6 +80,13 @@ after the inclusion of all `include` references.
 
 .. note::
 
+   Nesting of include statements in other include files is
+   not supported. This will lead to unresolved include
+   statements in the final document and will cause the
+   runtime checker to complain about it.
+
+.. note::
+
    The include is implemented via a XSLT stylesheet and therefore
    expects an XML document. Other markup formats are not supported
    as include reference.
