@@ -58,15 +58,25 @@ with file :file:`description.xml` as follows:
 
 .. code:: xml
 
-   <description type="system">
-     <author>name</author>
-     <contact>contact</contact>
-     <specification>text</specification>
-   </description>
+   <image>
+       <description type="system">
+           <author>name</author>
+           <contact>contact</contact>
+           <specification>text</specification>
+       </description>
+   </image>
 
 This will replace the `include` statement with the contents
 of :file:`description.xml`. The validation of the result happens
 after the inclusion of all `include` references.
+
+.. note::
+
+   The include information must be embedded into an `<image>`
+   root node. Only the inner elements of the root node will
+   be included. The processing of XML data via XSLT always
+   requires a root node which is the reason why this is
+   required to be specified for include files as well.
 
 .. note::
 

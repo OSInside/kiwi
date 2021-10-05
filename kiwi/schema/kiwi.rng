@@ -173,9 +173,9 @@ named /etc/ImageID</a:documentation>
           <oneOrMore>
             <ref name="k.preferences"/>
           </oneOrMore>
-          <optional>
+          <zeroOrMore>
             <ref name="k.profiles"/>
-          </optional>
+          </zeroOrMore>
           <zeroOrMore>
             <ref name="k.users"/>
           </zeroOrMore>

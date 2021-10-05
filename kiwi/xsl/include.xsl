@@ -16,7 +16,7 @@
     <xsl:param name="include_file_name" select="@from"/>
     <xsl:choose>
         <xsl:when test="document($include_file_name)">
-            <xsl:copy-of select="document($include_file_name)/."/>
+            <xsl:copy-of select="document($include_file_name)/image/*"/>
         </xsl:when>
         <xsl:otherwise>
             <xsl:copy-of select="."/>

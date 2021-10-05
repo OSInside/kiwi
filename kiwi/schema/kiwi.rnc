@@ -81,7 +81,7 @@ div {
             k.include* &
             k.description &
             k.preferences+ &
-            k.profiles? &
+            k.profiles* &
             k.users* &
             k.drivers* &
             k.strip* &
