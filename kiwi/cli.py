@@ -55,7 +55,8 @@ global options:
     --logfile=<filename>
         create a log file containing all log information including
         debug information even if this is was not requested by the
-        debug switch
+        debug switch. The special call: '--logfile stdout' sends all
+        information to standard out instead of writing to a file
     --debug
         print debug information
     -v --version
