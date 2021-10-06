@@ -116,17 +116,24 @@ class Logger(logging.Logger):
         :param str filename: logfile file path
         """
         try:
-            logfile = logging.FileHandler(
-                filename=filename, encoding='utf-8'
-            )
-            logfile.setFormatter(
+            if filename == 'stdout':
+                # special case, log usual log file contents to stdout
+                handler = logging.StreamHandler(sys.__stdout__)
+                # deactivate standard console logger by setting
+                # the highest possible log entry level
+                self.setLogLevel(logging.CRITICAL)
+            else:
+                handler = logging.FileHandler(
+                    filename=filename, encoding='utf-8'
+                )
+                self.logfile = filename
+            handler.setFormatter(
                 logging.Formatter(
                     '%(levelname)s: %(asctime)-8s | %(message)s', '%H:%M:%S'
                 )
             )
-            logfile.addFilter(LoggerSchedulerFilter())
-            self.addHandler(logfile)
-            self.logfile = filename
+            handler.addFilter(LoggerSchedulerFilter())
+            self.addHandler(handler)
         except Exception as e:
             raise KiwiLogFileSetupFailed(
                 '%s: %s' % (type(e).__name__, format(e))

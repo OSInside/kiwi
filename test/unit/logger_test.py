@@ -1,3 +1,4 @@
+import sys
 from mock import (
     patch, call
 )
@@ -30,6 +31,14 @@ class TestLogger:
             filename='logfile', encoding='utf-8'
         )
         assert self.log.get_logfile() == 'logfile'
+
+    @patch('logging.StreamHandler')
+    def test_set_logfile_to_stdout(self, mock_stream_handler):
+        self.log.set_logfile('stdout')
+        mock_stream_handler.assert_called_once_with(
+            sys.__stdout__
+        )
+        assert self.log.get_logfile() is None
 
     @patch('kiwi.logger.ColorFormatter')
     def test_set_color_format(self, mock_color_format):
