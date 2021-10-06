@@ -18,66 +18,49 @@ tox:
     $ tox -e scripts -- -n NUMBER_OF_THREADS
 
 
-It is recommended to leverage `testinfra <https://testinfra.readthedocs.io/>`__
-and the ``shared_container`` and ``container_per_test`` fixtures for writing
-these integration tests. The fixtures give your test functions a connection to a
-running container (by default that will be ``opensuse/tumbleweed``)
-:file:`functions.sh` copied to :file:`/bin/functions.sh` inside the
-container. You can then use the connection to perform some setup, tear down and
-the actual tests as follows:
+The tests are written using the `pytest-container
+<https://github.com/dcermak/pytest_container>`__ plugin. If applicable please
+leverage the utility functions and fixtures of that plugin, e.g. the
+``auto_container`` and ``auto_container_per_test`` fixtures in conjunction with
+`testinfra <https://testinfra.readthedocs.io/>`__.
+
+
+Test Setup
+~~~~~~~~~~
+
+The script tests can be run inside different containers, which are setup in
+:file:`test/scripts/conftest.py`. This file contains the ``CONTAINERS`` list
+with all currently present images. These images get pulled and build when needed
+and the :file:`functions.sh` is copied into :file:`/bin/`, so that it is
+available in ``PATH``.
+
+To use any of these containers, you can either define the global variable
+``CONTAINER_IMAGES`` in a test module and use the ``auto_container`` fixture or
+`parametrize <https://docs.pytest.org/en/stable/parametrize.html>`__ the
+``container`` fixture indirectly:
 
 .. code:: python
 
-    def test_RmWorks(shared_container):
+    @pytest.mark.parametrize("container_per_test", (TUMBLEWEED, LEAP_15_3), indirect=True)
+    def test_RmWorks(container_per_test):
         # create the file /root/foobar
-        shared_container.run_expect([0], "touch /root/foobar")
-        assert shared_container.file("/root/foobar").exists
+        container_per_test.connection.run_expect([0], "touch /root/foobar")
+        assert container_per_test.connection.file("/root/foobar").exists
 
         # source the functions and execute our function under test
-        shared_container.run_expect([0], ". /bin/functions.sh && Rm /root/foobar")
+        container_per_test.connection.run_expect([0], ". /bin/functions.sh && Rm /root/foobar")
 
         # verify the result
-        assert not shared_container.file("/root/foobar").exists
+        assert not container_per_test.connection.file("/root/foobar").exists
 
 
-In this example we used the ``shared_container`` fixture: it creates a podman
-container at the start of the test session and gives each function using this
-fixture the same connection. Therefore you must only use it for tests where you
-do not perform any mutation of the container that you are not undoing
-afterwards! If you need to perform extensive mutation that you cannot or do not
-want to undo yourself, then resort to the ``container_per_test`` fixture. It
-will give you a fresh container for each test function. While this makes writing
-tests simpler, it also increases the runtime significantly, thus only use it
-when necessary.
+We used the ``_per_test`` variant of the ``container`` fixture in the above
+example. This fixture ensures that this container is only used in a single test
+function. You should use this variant for tests that mutate the system under
+test, as otherwise hard to debug race conditions could occur. For tests that
+only perform reads, you can omit the ``_per_test`` suffix and the container
+environment will be shared with other tests. This improves execution speed, but
+comes at the expense of safety in case mutation does occur.
 
-
-Running Tests for multiple container images
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It is important to test certain functions on multiple operating systems &
-versions, to e.g. ensure that older tools behave the same way that you expect
-them to.
-
-This can be achieved by leveraging pytest's `fixture parametrization
-<https://docs.pytest.org/en/stable/parametrize.html>`__ as follows:
-
-.. code:: python
-
-    @pytest.mark.parametrize(
-        "shared_container",
-        (
-            "Tumbleweed",
-            "Leap-{exc_os_version}",
-        ),
-        indirect=True,
-    )
-    def test_something(shared_container):
-        pass
-
-
-Where we pass multiple image names to the container images to the
-``shared_container`` fixture. Pytest will then look for the image with the given
-name in the predefined list of containers in :file:`conftest.py`.
-
-To add a new container, simply add a new ``Container`` class to the
-``CONTAINERS`` list and give it appropriate values for ``name`` and ``url``.
+For further information please refer to the documentation of `pytest-container
+<https://github.com/dcermak/pytest_container>`__.
