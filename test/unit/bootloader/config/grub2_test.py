@@ -1708,7 +1708,7 @@ class TestBootLoaderConfigGrub2:
                 ]
                 assert mock_open.call_args_list == [
                     call('root_dir/EFI/BOOT/grub.cfg', 'w'),
-                    call('root_dir/grub2/loopback.cfg', 'w')
+                    call('root_dir/boot/grub2/loopback.cfg', 'w')
                 ]
                 assert mock_command.call_args_list == [
                     call(

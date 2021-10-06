@@ -411,8 +411,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.efi_boot_path = self.create_efi_path(in_sub_dir='')
 
         log.info('--> Creating identifier file %s', mbrid.get_id())
+        grub_boot_path = self._get_grub2_boot_path()
         Path.create(
-            self._get_grub2_boot_path()
+            grub_boot_path
         )
         mbrid.write(
             self.boot_dir + '/boot/' + mbrid.get_id()
@@ -441,12 +442,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         log.info('--> Creating loopback config')
         loopback_file = os.path.normpath(
-            os.sep.join(
-                [
-                    self.boot_dir, self.get_boot_path(),
-                    self.boot_directory_name, '/loopback.cfg'
-                ]
-            )
+            os.sep.join([grub_boot_path, 'loopback.cfg'])
         )
         self._create_loopback_config(
             loopback_file
