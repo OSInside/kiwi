@@ -234,16 +234,10 @@ Requires:       btrfs-progs
 %endif
 %endif
 %if 0%{?suse_version}
-Requires:       gptfdisk
 Requires:       squashfs
 %else
-Requires:       gdisk
 Requires:       squashfs-tools
 %endif
-Requires:       lvm2
-Requires:       parted
-Requires:       kpartx
-Requires:       cryptsetup
 %if "%{_vendor}" == "debbuild"
 Requires:       qemu-utils
 %else
@@ -273,6 +267,16 @@ Provides:       kiwi-image:vmx
 Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
 Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
 Requires:       kiwi-systemdeps-iso-media = %{version}-%{release}
+%if 0%{?suse_version}
+Requires:       gptfdisk
+%else
+Requires:       gdisk
+%endif
+Requires:       lvm2
+Requires:       parted
+Requires:       kpartx
+Requires:       cryptsetup
+Requires:       mdadm
 
 %description -n kiwi-systemdeps-disk-images
 Host setup helper to pull in all packages required/useful on
