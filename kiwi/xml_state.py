@@ -1580,6 +1580,19 @@ class XMLState:
         """
         return self.get_strip_list('libs')
 
+    def get_include_section_reference_file_names(self) -> List[str]:
+        """
+        List of all <include> section file name references
+
+        :return: List[str]
+
+        :rtype: list
+        """
+        include_files = []
+        for include in self.xml_data.get_include():
+            include_files.append(include.get_from())
+        return include_files
+
     def get_repository_sections(self) -> List:
         """
         List of all repository sections matching configured profiles
@@ -2166,14 +2179,14 @@ class XMLState:
         """
         available_profiles = dict()
         import_profiles = []
-        profiles_section = self.xml_data.get_profiles()
-        if profiles_section:
-            for profile in profiles_section[0].get_profile():
+        for profiles_section in self.xml_data.get_profiles():
+            for profile in profiles_section.get_profile():
                 if self.profile_matches_host_architecture(profile):
                     name = profile.get_name()
                     available_profiles[name] = profile
                     if profile.get_import():
                         import_profiles.append(name)
+
         if not profiles:
             return import_profiles
         else:

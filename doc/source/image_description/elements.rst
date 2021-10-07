@@ -41,6 +41,56 @@ id
    sets an identification number which appears as file ``/etc/ImageID``
    within the image.
 
+.. _sec.include:
+
+<include>
+---------
+
+Optional include of XML file content from file
+
+.. code:: xml
+
+   <image schemaversion="{schema_version}" name="{exc_image_base_name}">
+       <include from="description.xml"/>
+   </image> 
+
+with file :file:`description.xml` as follows:
+
+.. code:: xml
+
+   <image>
+       <description type="system">
+           <author>name</author>
+           <contact>contact</contact>
+           <specification>text</specification>
+       </description>
+   </image>
+
+This will replace the `include` statement with the contents
+of :file:`description.xml`. The validation of the result happens
+after the inclusion of all `include` references.
+
+.. note::
+
+   The include information must be embedded into an `<image>`
+   root node. Only the inner elements of the root node will
+   be included. The processing of XML data via XSLT always
+   requires a root node which is the reason why this is
+   required to be specified for include files as well.
+
+.. note::
+
+   Nesting of include statements in other include files is
+   not supported. This will lead to unresolved include
+   statements in the final document and will cause the
+   runtime checker to complain about it.
+
+.. note::
+
+   The include is implemented via a XSLT stylesheet and therefore
+   expects an XML document. Other markup formats are not supported
+   as include reference.
+
 .. _sec.description:
 
 <description>

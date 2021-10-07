@@ -107,8 +107,10 @@ class XMLDescription:
                 schematron.validation_report
             )
         if not validation_rng or not validation_schematron:
+            log.debug(open(self.description).read())
             raise KiwiDescriptionInvalid(
-                'Failed to validate schema and/or schematron rules'
+                'Failed to validate schema and/or schematron rules. '
+                'Use --debug for more details'
             )
 
         parse_result = self._parse()

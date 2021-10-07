@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import json
 import re
 import logging
 from textwrap import dedent
@@ -71,6 +72,32 @@ class RuntimeChecker:
         if not self.xml_state.get_repository_sections():
             raise KiwiRuntimeError(
                 'No repositories configured'
+            )
+
+    def check_include_references_unresolvable(self) -> None:
+        """
+        Raise for still included <include> statements as not resolvable.
+        The KIWI XSLT processing replaces the specified include
+        directive(s) with the given file reference(s). If this action
+        did not happen for example on nested includes, it can happen
+        that they stay in the document as sort of waste.
+        """
+        message = dedent('''\n
+            One ore more <include> statements are unresolvable
+
+            The following include references could not be resolved.
+            Please verify the specified location(s) and/or delete
+            the broken include directive(s) from the description.
+            Please also note, nested includes from other include
+            files are not supported:
+
+            {0}
+        ''')
+        include_files = \
+            self.xml_state.get_include_section_reference_file_names()
+        if include_files:
+            raise KiwiRuntimeError(
+                message.format(json.dumps(include_files, indent=4))
             )
 
     def check_image_include_repos_publicly_resolvable(self) -> None:

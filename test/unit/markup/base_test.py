@@ -4,7 +4,11 @@ from pytest import raises
 
 from kiwi.markup.base import MarkupBase
 
-from kiwi.exceptions import KiwiConfigFileFormatNotSupported
+from kiwi.exceptions import (
+    KiwiConfigFileFormatNotSupported,
+    KiwiDescriptionInvalid,
+    KiwiIncludFileNotFoundError
+)
 
 
 class TestMarkupBase:
@@ -30,4 +34,20 @@ class TestMarkupBase:
         with raises(KiwiConfigFileFormatNotSupported):
             self.markup.apply_xslt_stylesheets(
                 'artificial_and_invalid_XML_markup'
+            )
+
+    def test_apply_xslt_stylesheets_broken_XML(self):
+        markup = MarkupBase('../data/example_include_config.xml')
+        with raises(KiwiDescriptionInvalid):
+            markup.apply_xslt_stylesheets(
+                '../data/example_include_config.xml'
+            )
+
+    def test_apply_xslt_stylesheets_missing_include_reference(self):
+        markup = MarkupBase(
+            '../data/example_include_config_missing_reference.xml'
+        )
+        with raises(KiwiIncludFileNotFoundError):
+            markup.apply_xslt_stylesheets(
+                '../data/example_include_config_missing_reference.xml'
             )

@@ -132,3 +132,6 @@
 
 #      # check kiwi dracut modules compatible with kiwi builder
 #      - check_dracut_module_versions_compatible_to_kiwi
+
+#      # check for unresolved include statements in the XML description
+#      - check_include_references_unresolvable

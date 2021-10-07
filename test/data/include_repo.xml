@@ -1,0 +1,6 @@
+<!-- this is broken XML at the end -->
+<image>
+    <repository priority="42" sourcetype="baseurl">
+        <source path="iso:///image/CDs/dvd.iso"/>
+    </repository
+</image>

@@ -15,12 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from lxml import etree
 
 # project
 from kiwi.utils.temporary import Temporary
 from kiwi.defaults import Defaults
-from kiwi.exceptions import KiwiConfigFileFormatNotSupported
+from kiwi.exceptions import (
+    KiwiConfigFileFormatNotSupported,
+    KiwiDescriptionInvalid,
+    KiwiIncludFileNotFoundError
+)
 
 
 class MarkupBase:
@@ -59,18 +64,29 @@ class MarkupBase:
                 'Configuration file could not be parsed. '
                 'In case your configuration file is XML it most likely '
                 'contains a syntax error. For other formats the '
-                'Python anymarkup module is required.')
+                'Python anymarkup module is required.'
+            )
 
+        xslt_transform_parser = etree.XMLParser()
+        xslt_transform_parser.resolvers.add(FileResolver())
         xslt_transform = etree.XSLT(
-            etree.parse(Defaults.get_xsl_stylesheet_file())
+            etree.parse(
+                Defaults.get_xsl_stylesheet_file(), xslt_transform_parser
+            )
         )
         self.description_xslt_processed = Temporary(
             prefix='kiwi_xslt-'
         ).new_file()
-        with open(self.description_xslt_processed.name, "wb") as xsltout:
-            xsltout.write(
-                etree.tostring(xslt_transform(parsed_description))
-            )
+        try:
+            with open(self.description_xslt_processed.name, "wb") as xsltout:
+                xsltout.write(
+                    etree.tostring(
+                        xslt_transform(parsed_description), pretty_print=True
+                    )
+                )
+        except etree.XMLSyntaxError as issue:
+            raise KiwiDescriptionInvalid(issue)
+
         return self.description_xslt_processed.name
 
     def get_xml_description(self) -> str:
@@ -88,3 +104,13 @@ class MarkupBase:
         Implementation in specialized Markup class
         """
         raise NotImplementedError
+
+
+class FileResolver(etree.Resolver):
+    def resolve(self, url, pubid, context):
+        if os.path.exists(url):
+            return self.resolve_filename(url, context)
+        else:
+            raise KiwiIncludFileNotFoundError(
+                f'include reference {url!r} does not exist'
+            )
