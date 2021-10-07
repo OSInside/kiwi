@@ -20,7 +20,7 @@
    quickstart
    commands
    troubleshooting
-   self_contained
+   plugins
    concept_and_workflow
    image_description
    image_types_and_results
