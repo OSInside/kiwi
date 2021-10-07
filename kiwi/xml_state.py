@@ -2368,8 +2368,8 @@ class XMLState:
                 if build_type == image_type.get_image():
                     return image_type
             raise KiwiTypeNotFound(
-                'build type {0} not found in {1}'.format(
-                    build_type, self.xml_data.description
+                'Build type {0!r} not found for applied profiles: {1!r}'.format(
+                    build_type, self.profiles
                 )
             )
 
@@ -2382,7 +2382,9 @@ class XMLState:
         if image_type_sections:
             return image_type_sections[0]
         raise KiwiTypeNotFound(
-            'No build type defined in {0}'.format(self.xml_data.description)
+            'No build type defined with applied profiles: {0!r}'.format(
+                self.profiles
+            )
         )
 
     def _profiled(self, xml_abstract):

@@ -72,7 +72,7 @@ system. As diskless client, a QEMU virtual machine is used.
 
    .. code:: bash
 
-       $ sudo kiwi-ng --type pxe system build \
+       $ sudo kiwi-ng --profile Flat system build \
            --description kiwi/build-tests/{exc_description_pxe} \
            --set-repo {exc_repo_tumbleweed} \
            --target-dir /tmp/mypxe-result
