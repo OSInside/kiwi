@@ -119,7 +119,7 @@ class TestBootLoaderConfigBase:
         mock_BlockID.return_value = block_operation
         mock_initrd.return_value = 'dracut'
         assert self.bootloader.get_boot_cmdline('uuid') == \
-            'splash root=UUID=uuid rw'
+            'splash root=UUID=uuid'
 
     @patch('kiwi.xml_parse.type_.get_initrd_system')
     @patch('kiwi.bootloader.config.base.BlockID')

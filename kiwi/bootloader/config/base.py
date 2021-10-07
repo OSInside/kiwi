@@ -565,7 +565,7 @@ class BootLoaderConfigBase:
             if self.xml_state.build_type.get_overlayroot():
                 return f'root=overlay:{blkid_type}={location}'
             else:
-                return f'root={blkid_type}={location} rw'
+                return f'root={blkid_type}={location}'
         else:
             log.warning(
                 'No explicit root= cmdline provided'
