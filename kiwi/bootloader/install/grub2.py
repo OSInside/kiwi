@@ -260,12 +260,23 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 # only setup the system for EFI secure boot which does not
                 # require any bootloader code in the master boot record.
                 # In addition kiwi has called the grub installer right
-                # before
+                # before. The shim-install utility is a suse only extension
+                # and currently not expected to be used by other distributions.
+                # This is the reason why suse specific options are allowed
+                # here in contrast to any other kiwi code which tries to
+                # be distribution independent. If at any point in the future
+                # shim-install becomes a cross distribution utility used in
+                # a broader scope these extra --suse specific option handling
+                # will turn into a major issue for which no good solution
+                # exists. As we don't have this crystal ball and can't
+                # foresee what the future brings we live with the call
+                # you see below to support users of shim-install as best as
+                # we can.
                 self._disable_grub2_install(self.root_mount.mountpoint)
                 Command.run(
                     [
                         'chroot', self.root_mount.mountpoint,
-                        'shim-install', '--removable',
+                        'shim-install', '--removable', '--suse-enable-tpm',
                         self.device
                     ]
                 )
