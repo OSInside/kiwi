@@ -31,6 +31,7 @@ types-pkg_resources
 types-requests
 types-PyYAML
 types-mock
+types-simplejson
 
 # Generate Data Structures from XML Schema
 # http://pythonhosted.org/generateDS

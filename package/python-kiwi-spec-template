@@ -335,6 +335,7 @@ Requires:       python%{python3_pkgversion}-yaml
 %else
 Requires:       python%{python3_pkgversion}-PyYAML
 %endif
+Requires:       python%{python3_pkgversion}-simplejson
 Requires:       python%{python3_pkgversion}-docopt
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests

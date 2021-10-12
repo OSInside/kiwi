@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
+import simplejson
 import pickle
 import os
 from typing import (
@@ -96,11 +97,16 @@ class Result:
             for key, value in sorted(list(self.result_files.items())):
                 log.info('--> %s: %s', key, value.filename)
 
-    def dump(self, filename: str) -> None:
+    def dump(self, filename: str, portable: bool = True) -> None:
         """
         Picke dump this instance to a file
 
         :param str filename: file path name
+        :param bool portable:
+            If set to true also create a .json formatted variant
+            of the dump file which contains the elements of this
+            instance that could be expressed in a portable json
+            document. Default is set to: True
 
         :raises KiwiResultError: if pickle fails to dump :class:`Result`
             instance
@@ -108,6 +114,13 @@ class Result:
         try:
             with open(filename, 'wb') as result:
                 pickle.dump(self, result)
+            if portable:
+                with open(filename + '.json', 'w') as result_portable:
+                    result_portable.write(
+                        simplejson.dumps(
+                            self.result_files, sort_keys=True, indent=4
+                        ) + os.linesep
+                    )
         except Exception as e:
             raise KiwiResultError(
                 'Failed to pickle dump results: %s' % format(e)
