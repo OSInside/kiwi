@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.4" name="kiwi-test-image-embedded">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>Disk test build that applies several aspects of embedded images. For example avoid chroot operations, don't create an initrd and don't install a bootloader. This image only boots with: "kvm --kernel (kernel-kvmsmall) -drive file=kiwi-test-image-embedded.raw,if=virtio -append 'root=/dev/vda1 rw'"</specification>
+    </description>
+    <preferences>
+        <version>1.0.1</version>
+        <packagemanager>zypper</packagemanager>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <type image="oem" filesystem="ext2" firmware="bios" initrd_system="none">
+            <bootloader name="custom"/>
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obs://openSUSE:Leap:15.2/standard"/>
+    </repository>
+    <packages type="bootstrap">
+        <package name="patterns-openSUSE-base"/>
+        <package name="systemd"/>
+        <package name="iputils"/>
+        <package name="vim"/>
+        <package name="fontconfig"/>
+        <package name="fonts-config"/>
+        <package name="tar"/>
+        <package name="openssh"/>
+        <package name="iproute2"/>
+        <package name="less"/>
+        <package name="bash-completion"/>
+        <package name="bind-utils"/>
+        <package name="dhcp-client"/>
+        <package name="which"/>
+        <package name="kernel-kvmsmall"/>
+        <package name="timezone"/>
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
+        <package name="udev"/>
+        <package name="xz"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="openSUSE-release"/>
+    </packages>
+</image>
