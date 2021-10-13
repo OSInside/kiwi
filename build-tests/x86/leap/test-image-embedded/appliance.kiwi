@@ -22,7 +22,7 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md">
-        <source path="obs://openSUSE:Leap:15.2/standard"/>
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="bootstrap">
         <package name="patterns-openSUSE-base"/>
