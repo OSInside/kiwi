@@ -19,7 +19,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" primary="true" filesystem="ext3" installiso="true" kernelcmdline="splash" firmware="efi" ramonly="true" xen_server="true">
+        <type image="oem" primary="true" filesystem="ext3" installiso="true" kernelcmdline="splash" firmware="efi" ramonly="true" xen_server="true" luks="">
             <systemdisk>
                 <volume name="usr/lib" size="1G"/>
                 <volume name="@root" freespace="500M"/>
