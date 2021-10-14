@@ -39,7 +39,7 @@ class LuksDevice(DeviceProvider):
 
     :param object storage_provider: Instance of class based on DeviceProvider
     """
-    def __init__(self, storage_provider: DeviceProvider):
+    def __init__(self, storage_provider: DeviceProvider) -> None:
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
         # the correct destructor order when the device should be released.
@@ -73,8 +73,8 @@ class LuksDevice(DeviceProvider):
 
     def create_crypto_luks(
         self, passphrase: str, os: str = None,
-        options: list = None, keyfile: str = None
-    ):
+        options: list = None, keyfile: str = ''
+    ) -> None:
         """
         Create luks device. Please note the passphrase is readable
         at creation time of this image. Make sure your host system
@@ -156,7 +156,7 @@ class LuksDevice(DeviceProvider):
         )
         self.luks_device = '/dev/mapper/' + self.luks_name
 
-    def create_crypttab(self, filename: str):
+    def create_crypttab(self, filename: str) -> None:
         """
         Create crypttab, setting the UUID of the storage device
 
@@ -192,7 +192,7 @@ class LuksDevice(DeviceProvider):
         return self.storage_provider.is_loop()
 
     @staticmethod
-    def create_random_keyfile(filename: str):
+    def create_random_keyfile(filename: str) -> None:
         """
         Create keyfile with random data
 
