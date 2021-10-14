@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
 <image schemaversion="7.4" name="kiwi-test-image-embedded">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>Disk test build that applies several aspects of embedded images. For example avoid chroot operations, don't create an initrd and don't install a bootloader. This image only boots with: "kvm --kernel (kernel-kvmsmall) -drive file=kiwi-test-image-embedded.raw,if=virtio -append 'root=/dev/vda1 rw'"</specification>
     </description>
+    <profiles>
+        <profile name="Kernel" description="Provides kernel for kvm boot"/>
+        <profile name="System" description="Provides system for kvm boot"/>
+    </profiles>
     <preferences>
         <version>1.0.1</version>
         <packagemanager>zypper</packagemanager>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Kernel">
+        <type image="pxe" initrd_system="none"/>
+    </preferences>
+    <preferences profiles="System">
         <type image="oem" filesystem="ext2" firmware="bios" initrd_system="none">
             <bootloader name="custom"/>
             <oemconfig>
