@@ -23,8 +23,22 @@ function resize_luks {
 }
 
 function activate_luks {
+    declare kiwi_luks_empty_passphrase=${kiwi_luks_empty_passphrase}
     local device=$1
-    /usr/lib/systemd/systemd-cryptsetup attach luks "${device}"
+    if [ "${kiwi_luks_empty_passphrase}" = "true" ];then
+        # There is no keyfile and kiwi has created the luks pool with
+        # an empty key. Therefore it can be opened without interaction
+        # but this requires to manually call luksOpen since
+        # with systemd-cryptsetup we saw it still asking for
+        # a passphrase
+        cryptsetup \
+            --key-file /dev/zero \
+            --keyfile-size 32 \
+        luksOpen "${device}" luks
+    else
+        # There is a keyfile and we need to get prompted to enter the passphrase
+        /usr/lib/systemd/systemd-cryptsetup attach luks "${device}"
+    fi
     wait_for_storage_device "/dev/mapper/luks"
     set_root_map "/dev/mapper/luks"
 }

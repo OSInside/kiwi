@@ -93,6 +93,7 @@ class TestProfile:
             'kiwi_type': 'oem',
             'kiwi_vga': None,
             'kiwi_startsector': 2048,
+            'kiwi_luks_empty_passphrase': True,
             'kiwi_wwid_wait_timeout': None,
             'kiwi_xendomain': 'dom0',
             'kiwi_rootpartuuid': None

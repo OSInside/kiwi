@@ -296,7 +296,7 @@ class DiskBuilder:
             luks_root.create_crypto_luks(
                 passphrase=self.luks,
                 os=self.luks_os,
-                keyfile=self.luks_boot_keyfile if luks_need_keyfile else None
+                keyfile=self.luks_boot_keyfile if luks_need_keyfile else ''
             )
             if luks_need_keyfile:
                 self.luks_boot_keyfile_setup = ''.join(
