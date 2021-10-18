@@ -7,7 +7,7 @@
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
-        <specification>Disk test build that applies several aspects of embedded images. For example avoid chroot operations, don't create an initrd and don't install a bootloader. This image only boots with: "kvm --kernel (kernel-kvmsmall) -drive file=kiwi-test-image-embedded.raw,if=virtio -append 'root=/dev/vda1 rw'"</specification>
+        <specification>Disk test build that applies several aspects of embedded images. For example avoid chroot operations, don't create an initrd and don't install a bootloader. This image only boots with: "kvm --kernel (kernel-kvmsmall) -drive file=kiwi-test-image-embedded.raw,if=virtio -append 'root=/dev/vda1 console=ttyS0 rw'"</specification>
     </description>
     <profiles>
         <profile name="Kernel" description="Provides kernel for kvm boot"/>
