@@ -7,11 +7,12 @@
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
-        <specification>Disk test build that applies several aspects of embedded images. For example avoid chroot operations, don't create an initrd and don't install a bootloader. This image only boots with: "kvm --kernel (kernel-kvmsmall) -drive file=kiwi-test-image-embedded.raw,if=virtio -append 'root=/dev/vda1 console=ttyS0 rw'"</specification>
+        <specification>Disk test build that applies several aspects of embedded images. For example avoid chroot operations, don't create an initrd and don't install a bootloader.</specification>
     </description>
     <profiles>
         <profile name="Kernel" description="Provides kernel for kvm boot"/>
         <profile name="System" description="Provides system for kvm boot"/>
+        <profile name="SystemOverlayRoot" description="Provides system for kvm boot using a squashfs compressed root overlay"/>
     </profiles>
     <preferences>
         <version>1.0.1</version>
@@ -20,14 +21,28 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Kernel">
+        <!-- unpack kernel via "tar -xf kiwi-test-image-embedded.x86_64-1.0.1-Kernel*.tar.xz" -->
         <type image="pxe" initrd_system="none"/>
     </preferences>
     <preferences profiles="System">
+        <!-- xz -d kiwi-test-image-embedded.x86_64-1.0.1-*.raw.xz -->
+        <!-- run this system via "kvm -kernel (kernel-from-Kernel) -drive file=kiwi-test-image-embedded.x86_64-1.0.1-*.raw,if=virtio -append 'root=/dev/vda1 console=ttyS0 rw' -->
         <type image="oem" filesystem="ext2" firmware="bios" initrd_system="none">
             <bootloader name="custom"/>
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
+        </type>
+    </preferences>
+    <preferences profiles="SystemOverlayRoot">
+        <!-- xz -d kiwi-test-image-embedded.x86_64-1.0.1-*.raw.xz -->
+        <!-- run this system via "kvm -kernel (kernel-from-Kernel) -drive file=kiwi-test-image-embedded.x86_64-1.0.1-*.raw,if=virtio -append 'root=/dev/vda1 init=/sbin/overlayroot console=ttyS0' -->
+        <type image="oem" filesystem="ext2" firmware="bios" initrd_system="none" overlayroot="true" bootpartition="false">
+            <bootloader name="custom"/>
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <size unit="M">200</size>
         </type>
     </preferences>
     <users>
@@ -36,6 +51,10 @@
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
     </repository>
+    <packages type="bootstrap" profiles="SystemOverlayRoot">
+        <!-- this is stupid here, because no initrd, but to disable the runtime check we need an entry in /etc/kiwi.yml which requires a package to be added in the prjconf such that the obs worker actually consumes this information. The shortcut way is to install and delete later -->
+        <package name="dracut-kiwi-overlay"/>
+    </packages>
     <packages type="bootstrap">
         <package name="patterns-openSUSE-base"/>
         <package name="systemd"/>
@@ -64,5 +83,8 @@
         <package name="ca-certificates"/>
         <package name="ca-certificates-mozilla"/>
         <package name="openSUSE-release"/>
+    </packages>
+    <packages type="uninstall" profiles="SystemOverlayRoot">
+        <package name="dracut-kiwi-overlay"/>
     </packages>
 </image>

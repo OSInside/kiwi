@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Static device node for virtio use only
+mount /dev/vda2 /overlayroot
+
+mkdir -p \
+    /overlayroot/rootfs \
+    /overlayroot/rootfs_upper \
+    /overlayroot/rootfs_work
+
+mount -t overlay overlay /overlayroot/rootfs \
+    -o lowerdir=/,upperdir=/overlayroot/rootfs_upper,workdir=/overlayroot/rootfs_work
+
+cd /overlayroot/rootfs
+exec /usr/sbin/switch_root . /sbin/init
