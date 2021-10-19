@@ -1,9 +1,11 @@
 import logging
-from pytest import fixture
+from pytest import (
+    fixture, raises
+)
 from mock import (
     patch, call, Mock
 )
-
+from kiwi.exceptions import KiwiUmountBusyError
 from kiwi.mount_manager import MountManager
 
 
@@ -59,12 +61,58 @@ class TestMountManager:
         mock_command.side_effect = Exception
         mock_mounted.return_value = True
         with self._caplog.at_level(logging.WARNING):
-            assert self.mount_manager.umount() is False
+            assert self.mount_manager.umount(raise_on_busy=False) is False
         assert mock_command.call_args_list == [
-            call(['umount', '/some/mountpoint']),
-            call(['umount', '/some/mountpoint']),
-            call(['umount', '/some/mountpoint'])
+            call(['umount', '/some/mountpoint']),  # 1
+            call(['umount', '/some/mountpoint']),  # 2
+            call(['umount', '/some/mountpoint']),  # 3
+            call(['umount', '/some/mountpoint']),  # 4
+            call(['umount', '/some/mountpoint']),  # 5
+            call(['umount', '/some/mountpoint']),  # 6
+            call(['umount', '/some/mountpoint']),  # 7
+            call(['umount', '/some/mountpoint']),  # 8
+            call(['umount', '/some/mountpoint']),  # 9
+            call(['umount', '/some/mountpoint'])   # 10
         ]
+
+    @patch('kiwi.mount_manager.Command.run')
+    @patch('kiwi.mount_manager.MountManager.is_mounted')
+    @patch('time.sleep')
+    @patch('kiwi.mount_manager.Path.which')
+    def test_umount_with_errors_raises_no_lsof_present(
+        self, mock_Path_which, mock_sleep, mock_mounted, mock_command
+    ):
+        def command_call(args):
+            if 'umount' in args:
+                raise Exception
+
+        mock_Path_which.return_value = None
+        mock_command.side_effect = command_call
+        mock_mounted.return_value = True
+        with raises(KiwiUmountBusyError):
+            self.mount_manager.umount()
+
+    @patch('kiwi.mount_manager.Command.run')
+    @patch('kiwi.mount_manager.MountManager.is_mounted')
+    @patch('time.sleep')
+    @patch('kiwi.mount_manager.Path.which')
+    def test_umount_with_errors_raises_lsof_present(
+        self, mock_Path_which, mock_sleep, mock_mounted, mock_command
+    ):
+        def command_call(args, raise_on_error=None):
+            if 'umount' in args:
+                raise Exception
+            else:
+                call_return = Mock()
+                call_return.output = 'HEADLINE\ndata'
+                return call_return
+
+        mock_Path_which.return_value = 'lsof'
+        mock_command.side_effect = command_call
+        mock_mounted.return_value = True
+        with raises(KiwiUmountBusyError) as issue:
+            self.mount_manager.umount()
+        assert 'HEADLINE' in issue.value.message
 
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
