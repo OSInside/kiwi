@@ -55,6 +55,7 @@ class FileSystemBuilder:
         self.root_uuid = ''
         self.root_dir = root_dir
         self.target_dir = target_dir
+        self.bundle_format = xml_state.get_build_type_bundle_format()
         self.requested_image_type = xml_state.get_build_type_name()
         if self.requested_image_type in Defaults.get_kis_image_types():
             self.requested_filesystem = xml_state.build_type.get_filesystem()
@@ -125,6 +126,8 @@ class FileSystemBuilder:
             self.runtime_config.get_max_size_constraint(),
             self.filename
         )
+        if self.bundle_format:
+            self.result.add_bundle_format(self.bundle_format)
         self.result.add(
             key='filesystem_image',
             filename=self.filename,

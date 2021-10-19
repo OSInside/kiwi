@@ -121,19 +121,69 @@ class ResultBundleTask(CliTask):
             Path.wipe(bundle_directory)
         if not os.path.exists(bundle_directory):
             Path.create(bundle_directory)
+
+        bundle_file_format_name = ''
+        if 'bundle_format' in ordered_results:
+            bundle_format = ordered_results['bundle_format']
+            tags = bundle_format['tags']
+            bundle_file_format_name = bundle_format['pattern']
+            # Insert image name
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%N', tags.N
+            )
+            # Insert Concatenated profile name (_)
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%P', tags.P
+            )
+            # Insert Architecture name
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%A', tags.A
+            )
+            # Insert Image build type name
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%T', tags.T
+            )
+            # Insert Image Major version number
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%M', format(tags.M)
+            )
+            # Insert Image Minor version number
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%m', format(tags.m)
+            )
+            # Insert Image Patch version number
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%p', format(tags.p)
+            )
+            # Insert Bundle ID
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%I', self.command_args['--id']
+            )
+            del(ordered_results['bundle_format'])
+
         for result_file in list(ordered_results.values()):
             if result_file.use_for_bundle:
-                bundle_file_basename = os.path.basename(result_file.filename)
-                # The bundle id is only taken into account for image results
-                # which contains the image version appended in its file name
-                part_name = list(bundle_file_basename.partition(image_name))
-                bundle_file_basename = ''.join([
-                    part_name[0], part_name[1],
-                    part_name[2].replace(
-                        image_version,
-                        image_version + '-' + self.command_args['--id']
+                extension = result_file.filename.split('.').pop()
+                if bundle_file_format_name:
+                    bundle_file_basename = '.'.join(
+                        [bundle_file_format_name, extension]
                     )
-                ])
+                else:
+                    bundle_file_basename = os.path.basename(
+                        result_file.filename
+                    )
+                    # The bundle id is only taken into account for image results
+                    # which contains the image version appended in its file name
+                    part_name = list(bundle_file_basename.partition(image_name))
+                    bundle_file_basename = ''.join(
+                        [
+                            part_name[0], part_name[1],
+                            part_name[2].replace(
+                                image_version,
+                                image_version + '-' + self.command_args['--id']
+                            )
+                        ]
+                    )
                 log.info('Creating %s', bundle_file_basename)
                 bundle_file = ''.join(
                     [bundle_directory, '/', bundle_file_basename]
@@ -185,7 +235,9 @@ class ResultBundleTask(CliTask):
                         )
         if self.command_args['--package-as-rpm']:
             ResultBundleTask._build_rpm_package(
-                bundle_directory, image_name, image_version,
+                bundle_directory,
+                bundle_file_format_name or image_name,
+                image_version,
                 image_description.specification,
                 list(glob.iglob(f'{bundle_directory}/*'))
             )

@@ -40,6 +40,7 @@ class TestKisBuilder:
         self.filesystem.root_uuid = 'some_uuid'
         mock_filesystem.return_value = self.filesystem
         self.xml_state = Mock()
+        self.xml_state.profiles = None
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )

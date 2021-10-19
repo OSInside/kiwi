@@ -140,6 +140,19 @@ class XMLState:
             self.xml_data.get_users()
         )
 
+    def get_build_type_bundle_format(self) -> str:
+        """
+        Return bundle_format for build type
+
+        The bundle_format string is validated against the available
+        name tags from kiwi.system.result::result_name_tags.
+
+        :return: bundle format string
+
+        :rtype: str
+        """
+        return self.build_type.get_bundle_format()
+
     def get_build_type_name(self) -> str:
         """
         Default build type name

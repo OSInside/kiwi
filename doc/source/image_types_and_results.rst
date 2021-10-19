@@ -27,7 +27,8 @@ OEM Expandable Disk Image
   deployment the system can resize itself to the new disk geometry.
   The resize operation is configurable as part of the image description
   and an installation image for CD/DVD, USB stick and Network deployment
-  can be created in addition. For further details refer to: :ref:`expandable_disk`
+  can be created in addition. For further details refer to:
+  :ref:`expandable_disk`
 
 Docker Container Image
   An archive image suitable for the docker container engine.
@@ -52,9 +53,9 @@ Image Results
 
 {kiwi} execution results in an appliance image after a successful run of
 :ref:`kiwi_system_build` or :ref:`kiwi_system_create` command.
-The result is the image binary in addition a couple of metadata files that can
-be handy to describe or identify the resulting image. The output files follow
-this naming convention:
+The result is the image binary plus some additional metadata files
+which are needed for image deployment and/or exists for informative
+reasons. By default the output files follow this naming convention:
 
 `<image-name>.\<arch\>-\<version\>.\<extension\>`
 
@@ -66,12 +67,11 @@ and the `<extension>` is dependent on the image type and its definition.
 
 Any {kiwi} appliance build results in, at least, the following output files:
 
-
 1. The image binary, `<image-name>.\<arch\>-\<version\>.\<image-extension\>`:
 
    This is the file containig the actual image binary, depending
    on the image type and its definition it can be a virtual disk image
-   file, and ISO image, a tarball, etc.
+   file, an ISO image, a tarball, etc.
 
 2. The `<image-name>.<arch>-<version>.packages` file:
 
@@ -99,15 +99,7 @@ Any {kiwi} appliance build results in, at least, the following output files:
    provides an overview of all packages status right before any boot of
    the image.
 
-More specific  the result files for a given image name and version such
-as `{exc_image_base_name}` and `{exc_image_version}` will be:
-
-- **image packages**:
-  :file:`{exc_image_base_name}.x86_64-{exc_image_version}.packages`
-- **image verified**:
-  :file:`{exc_image_base_name}.x86_64-{exc_image_version}.verified`
-
-In addition to the image binaries itself that depend on the image type:
+Depending on the image type, the following output files exists:
 
 image="tbz"
   For this image type the result is mainly a root tree packed in a tarball:
@@ -169,7 +161,6 @@ image="oci"
   - **container**:
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.oci.tar.xz`
 
-
 image="appx"
   An archive image suitable for the Windows Subsystem For Linux
   container engine. The result is an `appx` binary file:
@@ -184,3 +175,73 @@ image="kis"
 
   - **kis archive**:
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.tar.xz`
+
+Image Bundle Format
+-------------------
+
+The result files as mentioned above are used in the {kiwi} result bundler.
+The `kiwi-ng result bundle` command can be used to copy or package the
+mandatory image files to create a customer release. In this process it's
+possible to apply a specific name pattern suitable for the requirements
+of the release. A typical result bundle call can look like the following:
+
+.. code:: bash
+
+   $ kiwi-ng result bundle --target-dir /path/to/image/build_result \
+         --bundle-dir=/path/to/image/release_result \
+         --id=release_identifier
+
+In this call and depending on the image type the required files as they
+exist in :file:`/path/to/image/build_result` are copied to
+:file:`/path/to/image/release_result/`. The only modification on the file
+names is the `--id` information which is appended with a `-` to at the
+end of the version substring. If we take
+:file:`{exc_image_base_name}.x86_64-{exc_image_version}.iso` as example.
+This file would be bundled as
+:file:`{exc_image_base_name}.x86_64-{exc_image_version}-release_identifier.iso`
+
+Depending on the use case and the customer requirements this naming
+schema and the default way how the kiwi bundler processes the result files
+is not appropriate. To allow for a more flexible naming schema when
+bundling results, {kiwi} allows to specify a bundle_format per type like
+in the following example:
+
+.. code:: xml
+
+   <type image="..." bundle_format="name_pattern">
+       <!-- type definition -->
+   </type>
+
+The specified `name_pattern` is used as the base name for the image
+files the bundler uses. As part of the `name_pattern` the following
+placeholders which gets replaced by their real value can be used:
+
+%N
+  Turns into the contents of the `name` attribute of the `<image>` section
+
+%P
+  Turns into the profile name used at build time of the image.
+  If multiple profiles were used to build the image the result
+  name consists out of the individual profile names concatenated
+  by a `_` in the order of their specification in the image
+  description and/or the commandline.
+
+%A
+  Turns into the architecture name at build time of the image.
+  Arch names are taken from Python's `platform.machine` information.
+
+%I
+  Turns into the identifier name given via the `--id` option at
+  call time of the bundler
+
+%T
+  Turns into the contents of the `image` attribute of the `<type>` section
+
+%M
+  Turns into the major number of the `<version>` section
+
+%m
+  Turns into the minor number of the `<version>` section
+
+%p
+  Turns into the patch number of the `<version>` section

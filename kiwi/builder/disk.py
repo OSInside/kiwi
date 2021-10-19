@@ -136,6 +136,7 @@ class DiskBuilder:
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
+        self.bundle_format = xml_state.get_build_type_bundle_format()
         self.diskname = ''.join(
             [
                 target_dir, '/',
@@ -462,6 +463,10 @@ class DiskBuilder:
             self.runtime_config.get_max_size_constraint(),
             self.diskname
         )
+        # store image bundle_format in result
+        if self.bundle_format:
+            self.result.add_bundle_format(self.bundle_format)
+
         # store image file name in result
         compression = self.runtime_config.get_bundle_compression(default=True)
         if self.luks is not None:

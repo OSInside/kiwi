@@ -85,6 +85,7 @@ class LiveImageBuilder:
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
+        self.bundle_format = xml_state.get_build_type_bundle_format()
         self.isoname = ''.join(
             [
                 target_dir, '/',
@@ -288,6 +289,8 @@ class LiveImageBuilder:
             self.runtime_config.get_max_size_constraint(),
             self.isoname
         )
+        if self.bundle_format:
+            self.result.add_bundle_format(self.bundle_format)
         self.result.add(
             key='live_image',
             filename=self.isoname,
