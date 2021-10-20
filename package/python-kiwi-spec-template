@@ -119,6 +119,7 @@ Requires:       kiwi-tools
 Requires:       mtools
 Requires:       rsync
 Requires:       tar >= 1.2.7
+Requires:       lsof
 Requires:       openssl
 
 %description -n kiwi-systemdeps-core
