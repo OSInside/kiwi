@@ -848,38 +848,6 @@ div {
 }
 
 #==========================================
-# common element <partition>
-#
-div {
-    k.partition.type.attribute =
-        ## Partition Type identifier, see parted for details
-        attribute type { text }
-    k.partition.number.attribute =
-        ## Partition ID
-        attribute number { text }
-    k.partition.size.attribute = k.size.attribute
-    k.partition.mountpoint.attribute = 
-        ## Mount path for this partition
-        attribute mountpoint { text }
-    k.partition.target.attribute =
-        ## Is a real target or not which means is part of
-        ## the /etc/fstab file or not
-        attribute target { xsd:boolean }
-    k.partition.attlist =
-        k.partition.type.attribute &
-        k.partition.number.attribute & 
-        k.partition.size.attribute? &
-        k.partition.mountpoint.attribute? &
-        k.partition.target.attribute?
-    k.partition =
-        ## A Partition
-        element partition {
-            k.partition.attlist,
-            empty
-        }
-}
-
-#==========================================
 # common element <profile>
 #
 div {
@@ -1914,6 +1882,7 @@ div {
             k.oemconfig? &
             k.size? &
             k.systemdisk? &
+            k.partitions? &
             k.vagrantconfig* &
             k.installmedia?
         }
@@ -2083,6 +2052,69 @@ div {
         ## The VM network interface definition
         element vmnic {
             k.vmnic.attlist &
+            empty
+        }
+}
+
+#==========================================
+# common element <partition>
+#
+div {
+    sch:pattern [
+        abstract = "true"
+        id = "partition_name_type"
+        sch:rule [
+            context = "partition[@name]"
+            sch:assert [
+                test = "not(contains('$reserved', @name))"
+                "partition(name) is reserved "
+                "Reserved names are '$reserved'"
+            ]
+        ]
+    ]
+    k.partition.name.attribute =
+        ## Partition map name. The name of the partition as handled
+        ## by KIWI. Note, that there are the following reserved
+        ## names which cannot be used because they are already
+        ## represented by existing KIWI attributes: root, readonly,
+        ## boot, prep, spare, swap, efi_csm and efi. The filesystem
+        ## created on the partition will also use this name in
+        ## uppercase as its label
+        attribute name { text }
+        >> sch:pattern [ id = "partition_name" is-a = "partition_name_type"
+            sch:param [ name = "reserved" value = "root readonly boot prep spare swap efi_csm efi" ]
+        ]
+    k.partition.size.attribute =
+        ## Absolute size of the partition.
+        ## The value is used as MB by default but you can
+        ## add "M" and/or "G" as postfix
+        attribute size { partition-size-type }
+    k.partition.partition_type.attribute =
+        ## Partition type name in the context of kiwi
+        ## Allowed values are: t.linux
+        attribute partition_type { "t.linux" | "t.raid" }
+    k.partition.partition_name.attribute =
+        ## Partition name as it appears in the table
+        attribute partition_name { safe-posix-short-name }
+    k.partition.mountpoint.attribute =
+        ## Mountpoint below which this partition should be mounted to
+        attribute mountpoint { text }
+    k.partition.filesystem.attribute =
+        ## Filesystem which should be created on the partition
+        attribute filesystem {
+            "btrfs" | "ext2" | "ext3" | "ext4" | "squashfs" | "xfs"
+        }
+    k.partition.attlist =
+        k.partition.name.attribute &
+        k.partition.size.attribute &
+        k.partition.partition_name.attribute? &
+        k.partition.partition_type.attribute? &
+        k.partition.mountpoint.attribute &
+        k.partition.filesystem.attribute
+    k.partition =
+        ## Specify custom partition in the partition table
+        element partition {
+            k.partition.attlist,
             empty
         }
 }
@@ -2532,6 +2564,20 @@ div {
         element volumes {
             k.volumes.attlist &
             k.volume+
+        }
+}
+
+#==========================================
+# main block: <partitions>
+#
+div {
+    k.partitions.attlist = empty
+    k.partitions =
+        ## Partition table entries within the custom area
+        ## of the storage device
+        element partitions {
+            k.partitions.attlist &
+            k.partition+
         }
 }
 

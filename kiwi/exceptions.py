@@ -814,3 +814,10 @@ class KiwiUmountBusyError(KiwiError):
     """
     Exception raised if the attempt to umount a resource has failed
     """
+
+
+class KiwiCustomPartitionConflictError(KiwiError):
+    """
+    Exception raised if the entry in a custom partition setup
+    conflicts with an existing partition table layout setting
+    """

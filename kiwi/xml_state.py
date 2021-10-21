@@ -27,6 +27,7 @@ from textwrap import dedent
 import kiwi.defaults as defaults
 
 from kiwi import xml_parse
+from kiwi.storage.disk import ptable_entry_type
 from kiwi.system.uri import Uri
 from kiwi.defaults import Defaults
 from kiwi.utils.size import StringToSize
@@ -727,6 +728,19 @@ class XMLState:
             return True
         return False
 
+    def get_build_type_partitions_section(self) -> Any:
+        """
+        First partitions section from the build type section
+
+        :return: <partitions> section reference
+
+        :rtype: xml_parse::partitions
+        """
+        partitions_sections = self.build_type.get_partitions()
+        if partitions_sections:
+            return partitions_sections[0]
+        return None
+
     def get_build_type_system_disk_section(self) -> Any:
         """
         First system disk section from the build type section
@@ -1331,6 +1345,47 @@ class XMLState:
             labels[0].add_label(xml_parse.label(label_name, value))
 
         container_config_section.set_labels(labels)
+
+    def get_partitions(self) -> Dict[str, ptable_entry_type]:
+        """
+        Dictionary of configured partitions.
+
+        Each entry in the dict references a ptable_entry_type
+        Each key in the dict references the name of the
+        partition entry as handled by KIWI
+
+        :return:
+            Contains dict of ptable_entry_type tuples
+
+            .. code:: python
+
+                {
+                    'NAME': ptable_entry_type(
+                        mbsize=int,
+                        partition_name=str,
+                        partition_type=str,
+                        mountpoint=str,
+                        filesystem=str
+                    )
+                }
+
+        :rtype: dict
+        """
+        partitions: Dict[str, ptable_entry_type] = {}
+        partitions_section = self.get_build_type_partitions_section()
+        if not partitions_section:
+            return partitions
+        for partition in partitions_section.get_partition():
+            name = partition.get_name()
+            partition_name = partition.get_partition_name() or f'p.lx{name}'
+            partitions[name] = ptable_entry_type(
+                mbsize=self._to_mega_byte(partition.get_size()),
+                partition_name=partition_name,
+                partition_type=partition.get_partition_type() or 't.linux',
+                mountpoint=partition.get_mountpoint(),
+                filesystem=partition.get_filesystem()
+            )
+        return partitions
 
     def get_volumes(self) -> List[volume_type]:
         """
