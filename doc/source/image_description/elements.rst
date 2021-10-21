@@ -707,8 +707,22 @@ that is being used as a vagrant box. For details see: :ref:`setup_vagrant`
 
 <preferences><type><systemdisk>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Used to describe the geometry, partitions and volumes, in a
-disk image. For details see: :ref:`custom_volumes`
+Used to describe the volumes of the disk area which
+contains the root filesystem. Volumes are either a feature
+of the used filesystem or LVM is used for this purpose.
+For details see: :ref:`custom_volumes`
+
+.. note::
+
+   If there is a `<partitions>` section in addition to the
+   `<systemdisk>`, the elements of the `<partitions>` section
+   creates independent slices of the disk and are no longer
+   available in the volumes setup.
+
+<preferences><type><partitions>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used to describe the geometry of the disk on the level of the
+partition table. For details see: :ref:`custom_partitions`
 
 <preferences><type><oemconfig>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

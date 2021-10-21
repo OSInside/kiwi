@@ -9,6 +9,7 @@ from pytest import (
 
 from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
+from kiwi.storage.disk import ptable_entry_type
 from kiwi.xml_description import XMLDescription
 
 from kiwi.exceptions import (
@@ -310,6 +311,22 @@ class TestXMLState:
         assert xml_state.profiles == [
             'composedProfile', 'vmxSimpleFlavour', 'xenDomUFlavour'
         ]
+
+    def test_get_partitions(self):
+        description = XMLDescription(
+            '../data/example_partitions_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.get_partitions() == {
+            'var': ptable_entry_type(
+                mbsize=100,
+                partition_name='p.lxvar',
+                partition_type='t.linux',
+                mountpoint='/var',
+                filesystem='ext3'
+            )
+        }
 
     def test_get_volumes_custom_root_volume_name(self):
         description = XMLDescription(

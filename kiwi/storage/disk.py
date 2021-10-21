@@ -18,7 +18,9 @@
 import os
 import logging
 from collections import OrderedDict
-from typing import Dict
+from typing import (
+    Dict, NamedTuple
+)
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -26,6 +28,17 @@ from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.partitioner import Partitioner
+from kiwi.exceptions import KiwiCustomPartitionConflictError
+
+ptable_entry_type = NamedTuple(
+    'ptable_entry_type', [
+        ('mbsize', int),
+        ('partition_name', str),
+        ('partition_type', str),
+        ('mountpoint', str),
+        ('filesystem', str)
+    ]
+)
 
 log = logging.getLogger('kiwi')
 
@@ -46,6 +59,21 @@ class Disk(DeviceProvider):
         # to this object (e.g loop) if present. This is done to guarantee
         # the correct destructor order when the device should be released.
         self.storage_provider = storage_provider
+
+        # list of protected map ids. If used in a custom partitions
+        # setup this will lead to a raise conditition in order to
+        # avoid conflicts with the existing partition layout and its
+        # customizaton capabilities
+        self.protected_map_ids = [
+            'root',
+            'readonly',
+            'boot',
+            'prep',
+            'spare',
+            'swap',
+            'efi_csm',
+            'efi'
+        ]
 
         self.partition_map: Dict[str, str] = {}
         self.public_partition_id_map: Dict[str, str] = {}
@@ -87,6 +115,33 @@ class Disk(DeviceProvider):
         :rtype: bool
         """
         return self.storage_provider.is_loop()
+
+    def create_custom_partitions(
+        self, table_entries: Dict[str, ptable_entry_type]
+    ) -> None:
+        """
+        Create partitions from custom data set
+
+        .. code:: python
+
+           table_entries = {
+               map_name: ptable_entry_type
+           }
+
+        :param dict table: partition table spec
+        """
+        for map_name in table_entries:
+            if map_name in self.protected_map_ids:
+                raise KiwiCustomPartitionConflictError(
+                    f'Cannot use reserved table entry name: {map_name!r}'
+                )
+            id_name = f'kiwi_{map_name.title()}Part'
+            entry = table_entries[map_name]
+            self.partitioner.create(
+                entry.partition_name, entry.mbsize, entry.partition_type
+            )
+            self._add_to_map(map_name)
+            self._add_to_public_id_map(id_name)
 
     def create_root_partition(self, mbsize: str):
         """
