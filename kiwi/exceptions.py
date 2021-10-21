@@ -808,3 +808,9 @@ class KiwiIncludFileNotFoundError(KiwiError):
     Exception raised if the file reference in an <include>
     statement could not be found
     """
+
+
+class KiwiUmountBusyError(KiwiError):
+    """
+    Exception raised if the attempt to umount a resource has failed
+    """
