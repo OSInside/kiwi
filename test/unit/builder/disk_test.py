@@ -196,6 +196,7 @@ class TestDiskBuilder:
             self.xml_state, 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
+        self.disk_builder.bundle_format = '%N'
         self.disk_builder.root_filesystem_is_overlay = False
         self.disk_builder.build_type_name = 'oem'
         self.disk_builder.image_format = None

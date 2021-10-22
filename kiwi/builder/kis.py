@@ -76,6 +76,7 @@ class KisBuilder:
             xml_state, target_dir, root_dir,
             signing_keys=self.boot_signing_keys
         )
+        self.bundle_format = xml_state.get_build_type_bundle_format()
         self.image_name = ''.join(
             [
                 target_dir, '/',
@@ -236,7 +237,11 @@ class KisBuilder:
             self.runtime_config.get_max_size_constraint(),
             self.archive_name
         )
-        # store results
+        # store image bundle_format in result
+        if self.bundle_format:
+            self.result.add_bundle_format(self.bundle_format)
+
+        # # store archive file name in result
         self.result.add(
             key='kis_archive',
             filename=self.archive_name,

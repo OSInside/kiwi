@@ -20,7 +20,7 @@ import simplejson
 import pickle
 import os
 from typing import (
-    Dict, NamedTuple, TypeVar
+    Dict, NamedTuple, TypeVar, Any
 )
 
 # project
@@ -40,6 +40,19 @@ result_file_type = NamedTuple(
         ('shasum', bool)
     ]
 )
+result_name_tags = NamedTuple(
+    'result_name_tags', [
+        ('N', str),  # image name
+        ('P', str),  # concatenated profile name (_)
+        ('A', str),  # architecture name
+        ('I', str),  # custom ID setting
+        ('T', str),  # image type name
+        ('M', int),  # Major version number
+        ('m', int),  # Minor version number
+        ('p', int)   # Patch version number
+    ]
+)
+
 result_type = TypeVar('result_type', bound='Result')
 
 
@@ -52,7 +65,7 @@ class Result:
     :param object xml_state: instance of :class:`XMLState`
     """
     def __init__(self, xml_state: XMLState):
-        self.result_files: Dict[str, result_file_type] = {}
+        self.result_files: Dict[str, Any] = {}
 
         # Instances of this class are stored as result reference.
         # In order to handle class format changes any instance
@@ -60,6 +73,25 @@ class Result:
         self.class_version: int = 1
 
         self.xml_state = xml_state
+
+    def add_bundle_format(self, pattern: str):
+        (major, minor, patch) = self.xml_state.get_image_version().split('.')
+        self.name_tags = result_name_tags(
+            N=self.xml_state.xml_data.get_name(),
+            P='_'.join(
+                self.xml_state.profiles
+            ) if self.xml_state.profiles else '',
+            A=self.xml_state.host_architecture,
+            I='',
+            T=self.xml_state.get_build_type_name(),
+            M=int(major),
+            m=int(minor),
+            p=int(patch)
+        )
+        self.result_files['bundle_format'] = {
+            'pattern': pattern,
+            'tags': self.name_tags
+        }
 
     def add(
         self, key: str, filename: str, use_for_bundle: bool = True,
@@ -95,7 +127,10 @@ class Result:
         if self.result_files:
             log.info('Result files:')
             for key, value in sorted(list(self.result_files.items())):
-                log.info('--> %s: %s', key, value.filename)
+                if key == 'bundle_format':
+                    log.info('--> {0}: {1}'.format(key, value.get('pattern')))
+                else:
+                    log.info('--> {0}: {1}'.format(key, value.filename))
 
     def dump(self, filename: str, portable: bool = True) -> None:
         """

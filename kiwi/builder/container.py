@@ -43,10 +43,14 @@ class ContainerBuilder:
     :param dict custom_args: Custom processing arguments defined as hash keys:
         * xz_options: string of XZ compression parameters
     """
-    def __init__(self, xml_state: XMLState, target_dir: str, root_dir: str, custom_args: Dict = None):
+    def __init__(
+        self, xml_state: XMLState, target_dir: str,
+        root_dir: str, custom_args: Dict = None
+    ):
         self.custom_args = custom_args or {}
         self.root_dir = root_dir
         self.target_dir = target_dir
+        self.bundle_format = xml_state.get_build_type_bundle_format()
         self.container_config = xml_state.get_container_config()
         self.requested_container_type = xml_state.get_build_type_name()
         self.base_image = None
@@ -142,6 +146,8 @@ class ContainerBuilder:
             self.runtime_config.get_max_size_constraint(),
             self.filename
         )
+        if self.bundle_format:
+            self.result.add_bundle_format(self.bundle_format)
         self.result.add(
             key='container',
             filename=self.filename,

@@ -16,6 +16,7 @@ class TestArchiveBuilder:
     def setup(self):
         Defaults.set_platform_name('x86_64')
         self.xml_state = mock.Mock()
+        self.xml_state.profiles = None
         self.xml_state.get_image_version = mock.Mock(
             return_value='1.2.3'
         )

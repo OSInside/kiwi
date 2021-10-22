@@ -2654,6 +2654,26 @@ default.</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.bundle_format.attribute">
+      <attribute name="bundle_format">
+        <a:documentation>Specifies the bundle format pattern
+The format string can contain placeholders for the
+following elements
+
+%N : Image name
+%P : Concatenated profile name (_)
+%A : Architecture name
+%I : Bundle ID
+%T : Image build type name
+%M : Image Major version number
+%m : Image Minor version number
+%p : Image Patch version number
+
+The specified bundle_format will be used as base name
+for all target image files at call time of:
+kiwi-ng result bundle ...</a:documentation>
+      </attribute>
+    </define>
     <define name="k.type.attlist">
       <interleave>
         <optional>
@@ -2838,6 +2858,9 @@ default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.disk_start_sector.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.bundle_format.attribute"/>
         </optional>
       </interleave>
     </define>

@@ -51,6 +51,7 @@ class ArchiveBuilder:
         self.target_dir = target_dir
         self.xml_state = xml_state
         self.requested_archive_type = xml_state.get_build_type_name()
+        self.bundle_format = xml_state.get_build_type_bundle_format()
         self.result = Result(xml_state)
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
@@ -96,6 +97,8 @@ class ArchiveBuilder:
                 self.runtime_config.get_max_size_constraint(),
                 self.filename
             )
+            if self.bundle_format:
+                self.result.add_bundle_format(self.bundle_format)
             self.result.add(
                 key='root_archive',
                 filename=self.filename,

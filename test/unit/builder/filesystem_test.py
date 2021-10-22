@@ -29,6 +29,7 @@ class TestFileSystemBuilder:
         self.filesystem.sync_data = Mock()
 
         self.xml_state = Mock()
+        self.xml_state.profiles = None
         self.xml_state.get_build_type_unpartitioned_bytes = Mock(
             return_value=0
         )
