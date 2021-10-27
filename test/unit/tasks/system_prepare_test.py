@@ -172,6 +172,17 @@ class TestSystemPrepareTask:
         )
         assert self.system_prepare.clean_package_manager_leftovers.called
 
+    @patch('kiwi.xml_state.XMLState.get_package_manager')
+    def test_process_system_prepare_run_debootstrap_only_once(
+        self, mock_get_package_manager
+    ):
+        self._init_command_args()
+        mock_get_package_manager.return_value = 'apt'
+        self.task.command_args['--allow-existing-root'] = True
+        with self._caplog.at_level(logging.WARNING):
+            self.task.process()
+        assert not self.system_prepare.install_bootstrap.called
+
     def test_process_system_prepare_add_package(self):
         self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
