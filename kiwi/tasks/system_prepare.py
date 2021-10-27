@@ -183,9 +183,15 @@ class SystemPrepareTask(CliTask):
             self.command_args['--signing-key'],
             self.global_args['--target-arch']
         )
-        system.install_bootstrap(
-            manager, self.command_args['--add-bootstrap-package']
-        )
+        if self.xml_state.get_package_manager() == 'apt' and \
+           self.command_args['--allow-existing-root']:
+            log.warning(
+                'debootstrap will only be called once on empty root, skipped'
+            )
+        else:
+            system.install_bootstrap(
+                manager, self.command_args['--add-bootstrap-package']
+            )
 
         setup = SystemSetup(
             self.xml_state, abs_root_path
