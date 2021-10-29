@@ -39,5 +39,6 @@
     <packages type="bootstrap">
         <package name="filesystem"/>
         <package name="basesystem"/>
+        <package name="fedora-release"/>
     </packages>
 </image>
