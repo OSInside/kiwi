@@ -1,6 +1,8 @@
 import logging
 from mock import patch
-from pytest import fixture
+from pytest import (
+    fixture, raises
+)
 import mock
 
 import kiwi
@@ -9,6 +11,10 @@ from kiwi.storage.setup import DiskSetup
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.defaults import Defaults
+from kiwi.exceptions import (
+    KiwiVolumeTooSmallError,
+    KiwiPartitionTooSmallError
+)
 
 
 class TestDiskSetup:
@@ -51,6 +57,20 @@ class TestDiskSetup:
         )
 
         description = XMLDescription(
+            '../data/example_disk_size_volume_too_small_config.xml'
+        )
+        self.setup_volume_too_small = DiskSetup(
+            XMLState(description.load()), 'root_dir'
+        )
+
+        description = XMLDescription(
+            '../data/example_disk_size_partition_too_small_config.xml'
+        )
+        self.setup_partition_too_small = DiskSetup(
+            XMLState(description.load()), 'root_dir'
+        )
+
+        description = XMLDescription(
             '../data/example_disk_size_empty_vol_config.xml'
         )
         self.setup_empty_volumes = DiskSetup(
@@ -61,6 +81,13 @@ class TestDiskSetup:
             '../data/example_disk_size_vol_root_config.xml'
         )
         self.setup_root_volume = DiskSetup(
+            XMLState(description.load()), 'root_dir'
+        )
+
+        description = XMLDescription(
+            '../data/example_disk_size_partitions_config.xml'
+        )
+        self.setup_partitions = DiskSetup(
             XMLState(description.load()), 'root_dir'
         )
 
@@ -167,22 +194,26 @@ class TestDiskSetup:
             self.size.accumulate_mbyte_file_sizes.return_value
 
     @patch('os.path.exists')
+    def test_get_disksize_mbytes_volume_too_small(self, mock_os_path_exists):
+        mock_os_path_exists.return_value = True
+        with raises(KiwiVolumeTooSmallError):
+            self.setup_volume_too_small.get_disksize_mbytes()
+
+    @patch('os.path.exists')
+    def test_get_disksize_mbytes_partition_too_small(self, mock_os_path_exists):
+        mock_os_path_exists.return_value = True
+        with raises(KiwiPartitionTooSmallError):
+            self.setup_partition_too_small.get_disksize_mbytes()
+
+    @patch('os.path.exists')
     def test_get_disksize_mbytes_volumes(self, mock_exists):
         mock_exists.side_effect = lambda path: path != 'root_dir/newfolder'
-        root_size = self.size.accumulate_mbyte_file_sizes.return_value
-        with self._caplog.at_level(logging.WARNING):
-            assert self.setup_volumes.get_disksize_mbytes() == \
-                Defaults.get_lvm_overhead_mbytes() + \
-                Defaults.get_default_legacy_bios_mbytes() + \
-                Defaults.get_default_efi_boot_mbytes() + \
-                Defaults.get_default_boot_mbytes() + \
-                root_size + \
-                1024 - root_size + \
-                500 + Defaults.get_min_volume_mbytes() + \
-                30 + Defaults.get_min_volume_mbytes() + \
-                Defaults.get_min_volume_mbytes() + \
-                Defaults.get_min_volume_mbytes() + \
-                Defaults.get_min_volume_mbytes()
+        assert self.setup_volumes.get_disksize_mbytes() == 2144
+
+    @patch('os.path.exists')
+    def test_get_disksize_mbytes_partitions(self, mock_exists):
+        mock_exists.side_effect = lambda path: path != 'root_dir/var/tmp'
+        assert self.setup_partitions.get_disksize_mbytes() == 622
 
     @patch('os.path.exists')
     def test_get_disksize_mbytes_oem_volumes(self, mock_exists):

@@ -821,3 +821,17 @@ class KiwiCustomPartitionConflictError(KiwiError):
     Exception raised if the entry in a custom partition setup
     conflicts with an existing partition table layout setting
     """
+
+
+class KiwiVolumeTooSmallError(KiwiError):
+    """
+    Exception raised if the specified volume size is smaller
+    than the required bytes to store the data
+    """
+
+
+class KiwiPartitionTooSmallError(KiwiError):
+    """
+    Exception raised if the specified partition size is smaller
+    than the required bytes to store the data
+    """

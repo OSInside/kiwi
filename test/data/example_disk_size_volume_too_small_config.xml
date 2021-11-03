@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.4" name="JeOS">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            Test volume setup too small
+        </specification>
+    </description>
+    <preferences>
+        <version>1.1.1</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="oem" filesystem="ext3" firmware="efi">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <systemdisk>
+<!-- this is too small -->
+                <volume name="usr/bin" size="5"/>
+            </systemdisk>
+        </type>
+    </preferences>
+    <repository>
+        <source path="obs://13.2/repo/oss"/>
+    </repository>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+    </packages>
+</image>
