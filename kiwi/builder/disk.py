@@ -25,6 +25,7 @@ from typing import (
 import kiwi.defaults as defaults
 
 from kiwi.utils.temporary import Temporary
+from kiwi.storage.disk import ptable_entry_type
 from kiwi.defaults import Defaults
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.bootloader.config import BootLoaderConfig
@@ -98,6 +99,7 @@ class DiskBuilder:
         self.blocksize = xml_state.build_type.get_target_blocksize()
         self.volume_manager_name = xml_state.get_volume_management()
         self.volumes = xml_state.get_volumes()
+        self.custom_partitions = xml_state.get_partitions()
         self.volume_group_name = xml_state.get_volume_group_name()
         self.mdraid = xml_state.build_type.get_mdraid()
         self.hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
@@ -208,6 +210,10 @@ class DiskBuilder:
         # representing the spare_part_mountpoint area of the disk
         system_spare: Optional[FileSystemBase] = None
 
+        # a list of instances with the sync_data capability
+        # representing the custom partitions area of the disk
+        system_custom_parts: List[FileSystemBase] = []
+
         if self.install_media and self.build_type_name != 'oem':
             raise KiwiInstallMediaError(
                 'Install media requires oem type setup, got {0}'.format(
@@ -315,6 +321,10 @@ class DiskBuilder:
 
         # create spare filesystem on spare partition if present
         system_spare = self._build_spare_filesystem(device_map)
+
+        system_custom_parts = self._build_custom_parts_filesystem(
+            device_map, self.custom_partitions
+        )
 
         # create filesystems on boot partition(s) if any
         system_boot, system_efi = self._build_boot_filesystems(device_map)
@@ -439,7 +449,8 @@ class DiskBuilder:
 
         # syncing system data to disk image
         self._sync_system_to_image(
-            device_map, system, system_boot, system_efi, system_spare
+            device_map, system, system_boot, system_efi, system_spare,
+            system_custom_parts
         )
 
         # run post sync script hook
@@ -630,11 +641,39 @@ class DiskBuilder:
         if 'efi' in device_map:
             exclude_list.append('boot/efi/*')
             exclude_list.append('boot/efi/.*')
+        if self.custom_partitions:
+            for map_name in sorted(self.custom_partitions.keys()):
+                if map_name in device_map:
+                    mountpoint = os.path.normpath(
+                        self.custom_partitions[map_name].mountpoint
+                    ).lstrip(os.sep)
+                    exclude_list.append(f'{mountpoint}/*')
+                    exclude_list.append(f'{mountpoint}/.*')
         return exclude_list
 
     @staticmethod
     def _get_exclude_list_for_boot_data_sync() -> list:
         return ['efi/*']
+
+    def _build_custom_parts_filesystem(
+        self, device_map: Dict,
+        custom_partitions: Dict['str', ptable_entry_type]
+    ) -> List[FileSystemBase]:
+        filesystem_list = []
+        if custom_partitions:
+            for map_name in sorted(custom_partitions.keys()):
+                if map_name in device_map:
+                    ptable_entry = custom_partitions[map_name]
+                    filesystem = FileSystem.new(
+                        ptable_entry.filesystem,
+                        device_map[map_name],
+                        f'{self.root_dir}{ptable_entry.mountpoint}/'
+                    )
+                    filesystem.create_on_device(
+                        label=map_name.upper()
+                    )
+                    filesystem_list.append(filesystem)
+        return filesystem_list
 
     def _build_spare_filesystem(self, device_map: Dict) -> Optional[FileSystemBase]:
         if 'spare' in device_map and self.spare_part_fs:
@@ -697,7 +736,9 @@ class DiskBuilder:
             system_boot = filesystem
         return system_boot, system_efi
 
-    def _build_and_map_disk_partitions(self, disk: Disk, disksize_mbytes: float) -> Dict:
+    def _build_and_map_disk_partitions(
+        self, disk: Disk, disksize_mbytes: float
+    ) -> Dict:
         disk.wipe()
         disksize_used_mbytes = 0
         if self.firmware.legacy_bios_mode():
@@ -739,6 +780,14 @@ class DiskBuilder:
                     f'{self.swap_mbytes}'
                 )
                 disksize_used_mbytes += self.swap_mbytes
+
+        if self.custom_partitions:
+            log.info(
+                '--> creating custom partition(s): {0}'.format(
+                    sorted(self.custom_partitions.keys())
+                )
+            )
+            disk.create_custom_partitions(self.custom_partitions)
 
         if self.spare_part_mbsize and not self.spare_part_is_last:
             log.info('--> creating spare partition')
@@ -914,6 +963,13 @@ class DiskBuilder:
             self._add_fstab_entry(
                 device_map['swap'].get_device(), 'swap'
             )
+        if self.custom_partitions:
+            for map_name in sorted(self.custom_partitions.keys()):
+                if device_map.get(map_name):
+                    self._add_fstab_entry(
+                        device_map[map_name].get_device(),
+                        self.custom_partitions[map_name].mountpoint
+                    )
         setup.create_fstab(
             self.fstab
         )
@@ -1040,11 +1096,17 @@ class DiskBuilder:
         self, device_map: Dict, system: Any,
         system_boot: Optional[FileSystemBase],
         system_efi: Optional[FileSystemBase],
-        system_spare: Optional[FileSystemBase]
+        system_spare: Optional[FileSystemBase],
+        system_custom_parts: List[FileSystemBase]
     ) -> None:
         log.info('Syncing system to image')
         if system_spare:
+            log.info('--> Syncing spare partition data')
             system_spare.sync_data()
+
+        for system_custom_part in system_custom_parts:
+            log.info('--> Syncing custom partition(s) data')
+            system_custom_part.sync_data()
 
         if system_efi:
             log.info('--> Syncing EFI boot data to EFI partition')

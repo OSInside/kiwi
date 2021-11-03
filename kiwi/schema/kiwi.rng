@@ -1302,60 +1302,6 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <partition>
-    
-  -->
-  <div>
-    <define name="k.partition.type.attribute">
-      <attribute name="type">
-        <a:documentation>Partition Type identifier, see parted for details</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.partition.number.attribute">
-      <attribute name="number">
-        <a:documentation>Partition ID</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.partition.size.attribute">
-      <ref name="k.size.attribute"/>
-    </define>
-    <define name="k.partition.mountpoint.attribute">
-      <attribute name="mountpoint">
-        <a:documentation>Mount path for this partition</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.partition.target.attribute">
-      <attribute name="target">
-        <a:documentation>Is a real target or not which means is part of
-the /etc/fstab file or not</a:documentation>
-        <data type="boolean"/>
-      </attribute>
-    </define>
-    <define name="k.partition.attlist">
-      <interleave>
-        <ref name="k.partition.type.attribute"/>
-        <ref name="k.partition.number.attribute"/>
-        <optional>
-          <ref name="k.partition.size.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.partition.mountpoint.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.partition.target.attribute"/>
-        </optional>
-      </interleave>
-    </define>
-    <define name="k.partition">
-      <element name="partition">
-        <a:documentation>A Partition</a:documentation>
-        <ref name="k.partition.attlist"/>
-        <empty/>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <profile>
     
   -->
@@ -2887,6 +2833,9 @@ kiwi-ng result bundle ...</a:documentation>
           <optional>
             <ref name="k.systemdisk"/>
           </optional>
+          <optional>
+            <ref name="k.partitions"/>
+          </optional>
           <zeroOrMore>
             <ref name="k.vagrantconfig"/>
           </zeroOrMore>
@@ -3183,6 +3132,95 @@ scsi CD or an ide CD drive</a:documentation>
           <ref name="k.vmnic.attlist"/>
           <empty/>
         </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <partition>
+    
+  -->
+  <div>
+    <sch:pattern abstract="true" id="partition_name_type">
+      <sch:rule context="partition[@name]">
+        <sch:assert test="not(contains('$reserved', @name))">partition(name) is reserved Reserved names are '$reserved'</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <define name="k.partition.name.attribute">
+      <attribute name="name">
+        <a:documentation>Partition map name. The name of the partition as handled
+by KIWI. Note, that there are the following reserved
+names which cannot be used because they are already
+represented by existing KIWI attributes: root, readonly,
+boot, prep, spare, swap, efi_csm and efi. The filesystem
+created on the partition will also use this name in
+uppercase as its label</a:documentation>
+      </attribute>
+      <sch:pattern id="partition_name" is-a="partition_name_type">
+        <sch:param name="reserved" value="root readonly boot prep spare swap efi_csm efi"/>
+      </sch:pattern>
+    </define>
+    <define name="k.partition.size.attribute">
+      <attribute name="size">
+        <a:documentation>Absolute size of the partition.
+The value is used as MB by default but you can
+add "M" and/or "G" as postfix</a:documentation>
+        <ref name="partition-size-type"/>
+      </attribute>
+    </define>
+    <define name="k.partition.partition_type.attribute">
+      <attribute name="partition_type">
+        <a:documentation>Partition type name in the context of kiwi
+Allowed values are: t.linux</a:documentation>
+        <choice>
+          <value>t.linux</value>
+          <value>t.raid</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.partition.partition_name.attribute">
+      <attribute name="partition_name">
+        <a:documentation>Partition name as it appears in the table</a:documentation>
+        <ref name="safe-posix-short-name"/>
+      </attribute>
+    </define>
+    <define name="k.partition.mountpoint.attribute">
+      <attribute name="mountpoint">
+        <a:documentation>Mountpoint below which this partition should be mounted to</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.partition.filesystem.attribute">
+      <attribute name="filesystem">
+        <a:documentation>Filesystem which should be created on the partition</a:documentation>
+        <choice>
+          <value>btrfs</value>
+          <value>ext2</value>
+          <value>ext3</value>
+          <value>ext4</value>
+          <value>squashfs</value>
+          <value>xfs</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.partition.attlist">
+      <interleave>
+        <ref name="k.partition.name.attribute"/>
+        <ref name="k.partition.size.attribute"/>
+        <optional>
+          <ref name="k.partition.partition_name.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.partition_type.attribute"/>
+        </optional>
+        <ref name="k.partition.mountpoint.attribute"/>
+        <ref name="k.partition.filesystem.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.partition">
+      <element name="partition">
+        <a:documentation>Specify custom partition in the partition table</a:documentation>
+        <ref name="k.partition.attlist"/>
+        <empty/>
       </element>
     </define>
   </div>
@@ -3823,6 +3861,28 @@ At least one volume must be configured</a:documentation>
           <ref name="k.volumes.attlist"/>
           <oneOrMore>
             <ref name="k.volume"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <partitions>
+    
+  -->
+  <div>
+    <define name="k.partitions.attlist">
+      <empty/>
+    </define>
+    <define name="k.partitions">
+      <element name="partitions">
+        <a:documentation>Partition table entries within the custom area
+of the storage device</a:documentation>
+        <interleave>
+          <ref name="k.partitions.attlist"/>
+          <oneOrMore>
+            <ref name="k.partition"/>
           </oneOrMore>
         </interleave>
       </element>

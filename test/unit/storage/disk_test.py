@@ -2,11 +2,15 @@ import logging
 from mock import (
     patch, mock_open
 )
-from pytest import fixture
+from pytest import (
+    fixture, raises
+)
 
 import mock
 
+from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.disk import Disk
+from kiwi.exceptions import KiwiCustomPartitionConflictError
 
 
 class TestDisk:
@@ -131,6 +135,36 @@ class TestDisk:
             'p.prep', 8, 't.prep'
         )
         assert self.disk.public_partition_id_map['kiwi_PrepPart'] == 1
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_create_custom_partitions(self, mock_command):
+        table_entries = {
+            'var': ptable_entry_type(
+                mbsize=100,
+                partition_name='p.lxvar',
+                partition_type='t.linux',
+                mountpoint='/var',
+                filesystem='ext3'
+            )
+        }
+        self.disk.create_custom_partitions(table_entries)
+        self.partitioner.create.assert_called_once_with(
+            'p.lxvar', 100, 't.linux'
+        )
+        assert self.disk.public_partition_id_map['kiwi_VarPart'] == 1
+
+    def test_create_custom_partitions_reserved_name(self):
+        table_entries = {
+            'root': ptable_entry_type(
+                mbsize=100,
+                partition_name='p.lxroot',
+                partition_type='t.linux',
+                mountpoint='/',
+                filesystem='ext3'
+            )
+        }
+        with raises(KiwiCustomPartitionConflictError):
+            self.disk.create_custom_partitions(table_entries)
 
     @patch('kiwi.storage.disk.Command.run')
     def test_device_map_efi_partition(self, mock_command):

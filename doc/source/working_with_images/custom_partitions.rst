@@ -5,132 +5,107 @@ Custom Disk Partitions
 
 .. sidebar:: Abstract
 
-   This page provides some details about what {kiwi} supports and does
-   not support regarding customization over the partition scheme. It also
-   provides some guidance in case the user requires some custom layout
-   beyond {kiwi} supported features.
-
-By design, {kiwi} does not support a customized partition table. Alternatively,
-{kiwi} supports the definition of user-defined volumes which covers most of
-common use cases. See :ref:`Custom Disk Volumes <custom_volumes>` for
-further details about that.
+   This page provides details about the opportunities and limitations
+   to customize the partition table in addition to the volume management
+   settings from :ref:`custom_volumes`.
 
 {kiwi} has its own partitioning schema which is defined according to several
 different user configurations: boot firmware, boot partition,
 expandable layouts, etc. Those supported features have an impact on the
-partitioning schema. MBR or GUID partition tables are not flexible,
-carry limitations and are tied to some specific disk geometry. Because
-of that the preferred alternative to disk layouts based on traditional
-partition tables is using flexible approaches like logic volumes.
+partitioning schema.
 
-As an example, expandable OEM images is a relevant {kiwi} feature that
-is incompatible with the idea of adding user defined partitions on the
-system area.
+MBR or GUID partition tables are not flexible, carry limitations and are
+tied to some specific disk geometry. Because of that the preferred alternative
+to disk layouts based on traditional partition tables is using flexible
+approaches like logic volumes.
 
-Despite no full customization is supported, some aspects of the partition
-schema can be customized. {kiwi} supports:
+However, on certain conditions additional entries to the low level
+partition table are needed. For this purpose the `<partitions>` section
+exists and allows to add custom entries like shown in the following
+example:
 
-1. Adding a spare partition *before* the root (`/`) partition.
+.. code:: xml
 
-     It can be achieved by using the `spare_part` type attribute.
+   <partitions>
+       <partition name="var" size="100" mountpoint="/var" filesystem="ext3"/>
+   </partitions>
 
-2. Leaving some unpartitioned area at the *end* of the disk.
+Each `<partition>` entry puts a partition of the configured size in the
+low level partition table, creates a filesystem on it and includes
+it to the system's fstab file. If parts of the root filesystem are
+moved into its own partition like it's the case in the above example,
+this partition will also contain the data that gets installed during
+the image creation process to that area.
+
+The following attributes must/can be set to configured a partition entry:
+
+name="identifier"
+  Mandatory name of the partition as handled by {kiwi}.
+
+  .. note::
+
+     There are the following reserved names which cannot be used
+     because they are already represented by existing attributes:
+     `root`, `readonly`, `boot`, `prep`, `spare`, `swap`, `efi_csm`
+     and `efi`.
+
+partition_name="name"
+  Optional name of the partition as it appears when listing the
+  table contents with tools like `gdisk`. If no name is set
+  {kiwi} constructs a name of the form `p.lx(identifier_from_name_attr)`
+
+partition_type="type_identifier"
+  Optional partition type identifier as handled by {kiwi}.
+  Allowed values are `t.linux` and `t.raid`. If not specified
+  `t.linux` is the default.
+
+size="size_string"
+  Mandatory size of the partition. A size string can end with `M` or
+  `G` to indicate a mega-Byte or giga-Byte value. Without a unit
+  specification mega-Byte is used.
+
+mountpoint="path"
+  Mandatory mountpoint to mount the partition in the system.
+
+filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs
+  Mandatory filesystem configuration to create one of the supported
+  filesystems on the partition.
+
+Despite the customization options of the partition table shown above
+there are the following limitations:
+
+1. The root partition is always the last one
+
+   Disk imags build with {kiwi} are designed to be expandable.
+   For this feature to work the partition containing the system
+   rootfs must always be the last one. If this is unwanted for
+   some reason {kiwi} offers an opportunity for one extra/spare
+   partition with the option to be also placed at the end of the
+   table. For details lookup `spare_part` in :ref:`image-description-elements`
+
+2. There can be no gaps in the partition table
+
+   The way partitions are configured does not allow for gaps in the
+   table. As of today there was no use case were it made sense to
+   leave a gap between table entries. However, leaving some space
+   free at the **end** of the partition geometry is possible in the
+   following ways:
+
+   * **Deploy with unpartitioned free space.**
+
+     To leave space unpartitioned on first boot of a disk image
+     it is possible to configured an `<oem-systemsize>` which is
+     smaller than the disk the image gets deployed to. Details
+     about this setting can be found in :ref:`image-description-elements`
+
+   * **Build with unpartitioned free space.**
 
      Setting some unpartitioned free space on the disk can be done using
-     the `unpartitioned` attribute of `size` element in type's section. [LINK]
+     the `unpartitioned` attribute of `size` element in type's section.
+     For details see :ref:`disk-the-size-element`
 
-3. Expand built disks to a new size adding unpartitioned free space at
-   the *end* of the disk.
+   * **Resize built image adding unpartitioned free space.**
 
      A built image can be resized by using the `kiwi-ng image resize` command
      and set a new extended size for the disk. See {kiwi} commands docs
      :ref:`here <db_kiwi_image_resize>`.
-
-Custom Partitioning at Boot Time
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Adding additional partitions at boot time of {kiwi} images is also possible,
-however, setting the tools and scripts for doing so needs to be handled by
-the user. A possible strategy to add partitions on system area are described
-below.
-
-The main idea consists on running a first boot service that creates the
-partitions that are needed. Adding custom services is simple, use the
-following steps:
-
-1. Create a unit file for a systemd service:
-
-    .. code:: shell
-
-      [Unit]
-      Description=Add a data partition
-      After=basic.target
-      Wants=basic.target
-
-      [Service]
-      Type=oneshot
-      ExecStart=/bin/bash /usr/local/bin/create_part
-
-
-    This systemd unit file will run at boot time once systemd reaches the basic
-    target. At this stage all basic services are up an running (devices mounted,
-    network interfaces up, etc.). In case the service is required to run on
-    earlier stages for some reason, default dependencies need to be disabled,
-    see `systemd man pages <https://www.freedesktop.org/software/systemd/man/systemd.service.html>`_.
-
-2. Create partitioner shell script matching your specific needs
-
-    Consider the following steps for a partitioner shell script that
-    creates a new partition. Following the above unit file example
-    the `/usr/local/bin/create_part` script should cover the following
-    steps:
-
-    a. Verify partition exists
-
-       Verify the required partition is not mounted neither exists. Exit
-       zero (0) if is already there.
-
-       Use tools such `findmnt` to find the root device and `blkid`
-       or `lsblk` to find a partition with certain label or similar
-       criteria.
-
-    b. Create a new partition
-
-       Create a new partition. On error, exit with non zero.
-
-       Use partitioner tools such as `sgdisk` that can be easily used
-       in non interactive scripts. Using `partprobe` to reload partition
-       table to make OS aware of the changes is handy.
-
-    c. Make filesystem
-
-       Add the desired filesystem to the new partitions. On error, exit
-       with non zero.
-
-       Regular filesystem formatting tools (`mkfs.ext4` just to mention one)
-       can be used to apply the desired filesystem to the just created
-       new partition. At this stage it is handy to add a label to the
-       filesystem for easy recognition on later stages or script reruns.
-
-    d. Update fstab file
-
-       Just echo and append the desired entry in /etc/fstab.
-
-    e. Mount partition
-
-       `mount --all` will try to mount all fstab volumes, it just omits
-       any already mounted device.
-
-
-3. Add additional files into the root overlay tree.
-
-     The above described unit files and partition creation shell script
-     need to be included into the overlay tree of the image, thus they should
-     be placed into the expected paths in root folder (or in
-     :file:`root.tar.gz` tarball).
-
-4. Activate the service in :file:`config.sh`
-
-     The service needs to be enabled during image built time to be
-     run during the very first boot. In can be done by adding the following
-     snipped inside the :file:`config.sh`.

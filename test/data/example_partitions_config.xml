@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.4" name="TestPartitions">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            test partitions setup
+        </specification>
+    </description>
+    <preferences>
+        <version>1.1.1</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="oem" filesystem="ext3" installiso="true" kernelcmdline="splash" firmware="efi">
+            <partitions>
+                <partition name="var" size="100" mountpoint="/var" filesystem="ext3"/>
+            </partitions>
+        </type>
+    </preferences>
+    <repository>
+        <source path="obs://13.2/repo/oss"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+    </packages>
+</image>

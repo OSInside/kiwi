@@ -18,6 +18,7 @@ from kiwi.defaults import Defaults
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder
+from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.mapped_device import MappedDevice
 
 from kiwi.exceptions import (
@@ -55,7 +56,8 @@ class TestDiskBuilder:
             'boot': MappedDevice('/dev/boot-device', Mock()),
             'prep': MappedDevice('/dev/prep-device', Mock()),
             'efi': MappedDevice('/dev/efi-device', Mock()),
-            'spare': MappedDevice('/dev/spare-device', Mock())
+            'spare': MappedDevice('/dev/spare-device', Mock()),
+            'var': MappedDevice('/dev/spare-device', Mock())
         }
         self.id_map = {
             'kiwi_RootPart': 1,
@@ -738,6 +740,38 @@ class TestDiskBuilder:
             config={'install_items': ['/.root.keyfile']},
             config_file='root_dir/etc/dracut.conf.d/99-luks-boot.conf'
         )
+
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    def test_create_disk_uses_custom_partitions(
+        self, mock_exists, mock_grub_dir, mock_command, mock_fs
+    ):
+        mock_exists.return_value = True
+        self.disk_builder.custom_partitions = {
+            'var': ptable_entry_type(
+                mbsize=100,
+                partition_name='p.lxvar',
+                partition_type='t.linux',
+                mountpoint='/var',
+                filesystem='ext3'
+            )
+        }
+        self.disk_builder.volume_manager_name = None
+        filesystem = Mock()
+        mock_fs.return_value = filesystem
+
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+
+        self.disk.create_custom_partitions.assert_called_once_with(
+            self.disk_builder.custom_partitions
+        )
+
+        assert [
+            call('UUID=blkid_result /var blkid_result_fs defaults 0 0')
+        ] in self.disk_builder.fstab.add_entry.call_args_list
 
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.VolumeManager.new')
