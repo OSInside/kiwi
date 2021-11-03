@@ -85,6 +85,7 @@
     </packages>
     <packages type="bootstrap">
         <package name="udev"/>
+        <package name="blog"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
