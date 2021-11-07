@@ -31,10 +31,10 @@ class Temporary:
     **Provides namespace to handle temporary files and directories**
     """
     def __init__(
-        self, dir: str = defaults.TEMP_DIR, prefix: str = ''
+        self, dir: str = '', prefix: str = ''
     ):
         self.prefix = prefix if prefix else 'kiwi_'
-        self.dir = dir
+        self.dir = dir or defaults.TEMP_DIR
 
     def new_file(self) -> IO[bytes]:
         return NamedTemporaryFile(
