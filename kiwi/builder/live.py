@@ -114,7 +114,7 @@ class LiveImageBuilder:
         """
         # media dir to store CD contents
         self.media_dir = Temporary(
-            prefix='live-media.', dir=self.target_dir
+            prefix='live-media.', path=self.target_dir
         ).new_dir()
 
         # unpack cdroot user files to media dir
@@ -249,7 +249,7 @@ class LiveImageBuilder:
 
         log.info('--> Creating squashfs container for root image')
         self.live_container_dir = Temporary(
-            prefix='live-container.', dir=self.target_dir
+            prefix='live-container.', path=self.target_dir
         ).new_dir()
         Path.create(self.live_container_dir.name + '/LiveOS')
         shutil.copy(

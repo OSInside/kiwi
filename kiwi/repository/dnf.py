@@ -93,7 +93,7 @@ class RepositoryDnf(RepositoryBase):
         }
 
         self.runtime_dnf_config_file = Temporary(
-            dir=self.root_dir
+            path=self.root_dir
         ).new_file()
 
         self.dnf_args = [

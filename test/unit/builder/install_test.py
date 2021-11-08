@@ -141,7 +141,7 @@ class TestInstallImageBuilder:
 
         tmpdir_name = [temp_squashfs, temp_media_dir]
 
-        def side_effect(prefix, dir):
+        def side_effect(prefix, path):
             return tmpdir_name.pop()
 
         bootloader_config = mock.Mock()
