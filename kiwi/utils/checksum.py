@@ -21,7 +21,6 @@ import hashlib
 import encodings.ascii as encoding
 
 # project
-from kiwi.command import Command
 from kiwi.utils.compress import Compress
 
 from kiwi.exceptions import (
@@ -168,11 +167,7 @@ class Checksum:
 
         :rtype: tuple
         """
-        blocksize = 1
-        for factor in self._prime_factors(file_size):
-            if blocksize * factor > 8192:
-                break
-            blocksize *= factor
+        blocksize = self._block_size(file_size)
         blocks = int(file_size / blocksize)
         block_list = namedtuple(
             'block_list', ['blocksize', 'blocks']
@@ -182,16 +177,63 @@ class Checksum:
             blocks=blocks
         )
 
-    def _prime_factors(self, number):
+    @staticmethod
+    def _block_size(number, max_size=8192):
         """
-        Get prime factors for the given number
+        Compute maximal block size equal to a product of the first
+        prime factors of the given number.
 
         :param int number: number to factorize
+        :param int max_size: maximal value for block size
 
-        :return: prime factors
+        :return: int: block size
+        :rtype: int
+        """
+        n = number
+        bs = 1
+        for i in Checksum.primes(max_size):
+            while n % i == 0:
+                _bs = bs * i
+                if _bs > max_size:
+                    return bs
+                bs = _bs
+                n = n // i
+                if n == 1:
+                    return bs
+        return bs
+
+    _primes = [2, 3, 5, 7, 11, 13]
+
+    @classmethod
+    def _update_primes(cls, n):
+        if n <= cls._primes[-1]:
+            return
+        _n = int(n**0.5) + 1
+        cls._update_primes(_n)
+
+        start = cls._primes[-1] + 1
+        for i in range(start, n + 1):
+            prime = True
+            for p in cls.primes(_n):
+                if i % p == 0:
+                    prime = False
+                    break
+            if prime:
+                cls._primes.append(i)
+
+    @classmethod
+    def primes(cls, number):
+        """
+        Get prime numbers no greater than given number.
+
+        :param int number: highest possible number to return.
 
         :rtype: int generator
         """
-        factor_call = Command.run(['factor', format(number)])
-        for factor in factor_call.output.split(':')[1].lstrip().split(' '):
-            yield int(factor)
+        if number > cls._primes[-1]:
+            cls._update_primes(number)
+        for p in cls._primes:
+            if p <= number:
+                yield p
+            else:
+                break
