@@ -53,7 +53,7 @@ class RepositoryPacman(RepositoryBase):
         self.repo_names: List = []
 
         self.runtime_pacman_config_file = Temporary(
-            dir=self.root_dir
+            path=self.root_dir
         ).new_file()
 
         if 'check_signatures' in self.custom_args:

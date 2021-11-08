@@ -57,7 +57,7 @@ class DiskFormatGce(DiskFormatBase):
         """
         gce_tar_ball_file_list = []
         temp_image_dir = Temporary(
-            prefix='kiwi_gce_subformat.', dir=self.target_dir
+            prefix='kiwi_gce_subformat.', path=self.target_dir
         ).new_dir()
         diskname = ''.join(
             [

@@ -87,7 +87,7 @@ class RepositoryApt(RepositoryBase):
         self.keyring = '{}/trusted.gpg'.format(self.manager_base)
 
         self.runtime_apt_get_config_file = Temporary(
-            dir=self.root_dir
+            path=self.root_dir
         ).new_file()
 
         self.apt_get_args = [

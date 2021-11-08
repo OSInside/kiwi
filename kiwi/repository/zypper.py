@@ -109,10 +109,10 @@ class RepositoryZypper(RepositoryBase):
         }
 
         self.runtime_zypper_config_file = Temporary(
-            dir=self.root_dir
+            path=self.root_dir
         ).new_file()
         self.runtime_zypp_config_file = Temporary(
-            dir=self.root_dir
+            path=self.root_dir
         ).new_file()
 
         self.zypper_args = [

@@ -74,7 +74,7 @@ class BootImageKiwi(BootImageBase):
         """
         if self.boot_xml_state:
             self.boot_root_directory_temporary = Temporary(
-                prefix='kiwi_boot_root.', dir=self.target_dir
+                prefix='kiwi_boot_root.', path=self.target_dir
             ).new_dir()
             self.boot_root_directory = self.boot_root_directory_temporary.name
             self.temp_directories.append(

@@ -146,7 +146,7 @@ class InstallImageBuilder:
         * installstick="true|false"
         """
         self.media_dir = Temporary(
-            prefix='kiwi_install_media.', dir=self.target_dir
+            prefix='kiwi_install_media.', path=self.target_dir
         ).new_dir()
         # unpack cdroot user files to media dir
         self.setup.import_cdroot_files(self.media_dir.name)
@@ -164,7 +164,7 @@ class InstallImageBuilder:
         # the system image transfer is checked against a checksum
         log.info('Creating disk image checksum')
         self.squashed_contents = Temporary(
-            prefix='kiwi_install_squashfs.', dir=self.target_dir
+            prefix='kiwi_install_squashfs.', path=self.target_dir
         ).new_dir()
         checksum = Checksum(self.diskname)
         checksum.md5(self.squashed_contents.name + '/' + self.md5name)
@@ -271,7 +271,7 @@ class InstallImageBuilder:
         * installpxe="true|false"
         """
         self.pxe_dir = Temporary(
-            prefix='kiwi_pxe_install_media.', dir=self.target_dir
+            prefix='kiwi_pxe_install_media.', path=self.target_dir
         ).new_dir()
         # the system image is transfered as xz compressed variant
         log.info('xz compressing disk image')
