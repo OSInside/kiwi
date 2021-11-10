@@ -22,6 +22,7 @@ import encodings.ascii as encoding
 
 # project
 from kiwi.utils.compress import Compress
+from kiwi.utils.primes import factors
 
 from kiwi.exceptions import (
     KiwiFileNotFound
@@ -167,7 +168,11 @@ class Checksum:
 
         :rtype: tuple
         """
-        blocksize = self._block_size(file_size)
+        blocksize = 1
+        for factor in factors(file_size, 8192):
+            if blocksize * factor > 8192:
+                break
+            blocksize *= factor
         blocks = int(file_size / blocksize)
         block_list = namedtuple(
             'block_list', ['blocksize', 'blocks']
@@ -176,64 +181,3 @@ class Checksum:
             blocksize=blocksize,
             blocks=blocks
         )
-
-    @staticmethod
-    def _block_size(number, max_size=8192):
-        """
-        Compute maximal block size equal to a product of the first
-        prime factors of the given number.
-
-        :param int number: number to factorize
-        :param int max_size: maximal value for block size
-
-        :return: int: block size
-        :rtype: int
-        """
-        n = number
-        bs = 1
-        for i in Checksum.primes(max_size):
-            while n % i == 0:
-                _bs = bs * i
-                if _bs > max_size:
-                    return bs
-                bs = _bs
-                n = n // i
-                if n == 1:
-                    return bs
-        return bs
-
-    _primes = [2, 3, 5, 7, 11, 13]
-
-    @classmethod
-    def _update_primes(cls, n):
-        if n <= cls._primes[-1]:
-            return
-        _n = int(n**0.5) + 1
-        cls._update_primes(_n)
-
-        start = cls._primes[-1] + 1
-        for i in range(start, n + 1):
-            prime = True
-            for p in cls.primes(_n):
-                if i % p == 0:
-                    prime = False
-                    break
-            if prime:
-                cls._primes.append(i)
-
-    @classmethod
-    def primes(cls, number):
-        """
-        Get prime numbers no greater than given number.
-
-        :param int number: highest possible number to return.
-
-        :rtype: int generator
-        """
-        if number > cls._primes[-1]:
-            cls._update_primes(number)
-        for p in cls._primes:
-            if p <= number:
-                yield p
-            else:
-                break

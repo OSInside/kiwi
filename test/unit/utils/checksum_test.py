@@ -3,7 +3,7 @@ import encodings.ascii as encoding
 from mock import (
     patch, call, Mock, mock_open
 )
-from pytest import (raises, mark)
+from pytest import raises
 
 from kiwi.utils.checksum import Checksum
 
@@ -174,25 +174,3 @@ class TestChecksum:
 
         with patch('builtins.open', self.m_open, create=True):
             assert self.checksum.md5() == digest.hexdigest.return_value
-
-    @mark.parametrize('file_size,block_size', [
-        [1343225856, 8192],     # block size should have same value as max block size
-        [8192, 8192],           # block size should have same value as max block size
-        [8999, 1],              # file size is prime and greater than max block size
-        [1, 1],                 # file size is prime and lower than max block size
-        [127, 127],             # file size is prime and lower than max block size
-        [1024, 1024]])          # file size is not prime and lower than max block size
-    def test_block_size_p(self, file_size, block_size):
-        assert block_size == self.checksum._block_size(file_size)
-
-    @mark.parametrize('highest,number,tail', [
-        [10, 4, [3, 5, 7]],
-        [11, 5, [5, 7, 11]],
-        [100, 25, [83, 89, 97]],
-        [1000, 168, [983, 991, 997]],
-        [8192, 1028, [8171, 8179, 8191]],
-        [9000, 1117, [8969, 8971, 8999]]])
-    def test_primes(self, highest, number, tail):
-        primes = list(self.checksum.primes(highest))
-        assert number == len(primes)
-        assert tail == primes[-3:]
