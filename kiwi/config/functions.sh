@@ -686,13 +686,13 @@ function baseQuoteFile {
     # create clean input, no empty lines and comments
     grep -v '^$' "${file}" | grep -v '^[ \t]*#' > "${conf}"
     # remove start/stop quoting from values
-    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=[\"']\(.*\)[\"']#\1=\2#" "${conf}"
+    sed -E -i -e s"#(^[a-zA-Z0-9_]+)=[\"'](.*)[\"']#\1=\2#" "${conf}"
     # remove backslash quotes if any
-    sed -i -e s"#\\\\\(.\)#\1#g" "${conf}"
+    sed -E -i -e s"#\\\\(.)#\1#g" "${conf}"
     # quote simple quotation marks
-    sed -i -e s"#'\+#'\\\\''#g" "${conf}"
+    sed -E -i -e s"#'+#'\\\\''#g" "${conf}"
     # add '...' quoting to values
-    sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=\(.*\)#\1='\2'#" "${conf}"
+    sed -E -i -e s"#(^[a-zA-Z0-9_]+)=(.*)#\1='\2'#" "${conf}"
     mv "${conf}" "${file}"
 }
 
