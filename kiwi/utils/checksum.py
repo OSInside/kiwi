@@ -21,8 +21,8 @@ import hashlib
 import encodings.ascii as encoding
 
 # project
-from kiwi.command import Command
 from kiwi.utils.compress import Compress
+from kiwi.utils.primes import factors
 
 from kiwi.exceptions import (
     KiwiFileNotFound
@@ -169,7 +169,7 @@ class Checksum:
         :rtype: tuple
         """
         blocksize = 1
-        for factor in self._prime_factors(file_size):
+        for factor in factors(file_size, 8192):
             if blocksize * factor > 8192:
                 break
             blocksize *= factor
@@ -181,17 +181,3 @@ class Checksum:
             blocksize=blocksize,
             blocks=blocks
         )
-
-    def _prime_factors(self, number):
-        """
-        Get prime factors for the given number
-
-        :param int number: number to factorize
-
-        :return: prime factors
-
-        :rtype: int generator
-        """
-        factor_call = Command.run(['factor', format(number)])
-        for factor in factor_call.output.split(':')[1].lstrip().split(' '):
-            yield int(factor)
