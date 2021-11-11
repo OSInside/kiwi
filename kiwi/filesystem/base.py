@@ -49,7 +49,7 @@ class FileSystemBase:
     """
     def __init__(
         self, device_provider: DeviceProvider,
-        root_dir: str = None, custom_args: Dict = {}
+        root_dir: str = '', custom_args: Dict = {}
     ):
         # filesystems created with a block device stores the mountpoint
         # here. The file name of the file containing the filesystem is

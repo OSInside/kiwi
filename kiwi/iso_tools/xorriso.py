@@ -16,6 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import (
+    Dict, List
+)
 
 # project
 from kiwi.iso_tools.base import IsoToolsBase
@@ -32,7 +35,7 @@ class IsoToolsXorrIso(IsoToolsBase):
     Implementation of Parameter API for iso creation tools using
     the libburnia project. Addressed here is the tool xorriso
     """
-    def has_iso_hybrid_capability(self):
+    def has_iso_hybrid_capability(self) -> bool:
         """
         Indicate if the iso tool has the capability to embed a
         partition table into the iso such that it can be
@@ -44,7 +47,7 @@ class IsoToolsXorrIso(IsoToolsBase):
         """
         return True
 
-    def get_tool_name(self):
+    def get_tool_name(self) -> str:
         """
         Lookup xorriso in search path
 
@@ -59,7 +62,9 @@ class IsoToolsXorrIso(IsoToolsBase):
 
         raise KiwiIsoToolError('xorriso tool not found')
 
-    def init_iso_creation_parameters(self, custom_args=None):
+    def init_iso_creation_parameters(
+        self, custom_args: Dict[str, str] = None
+    ) -> None:
         """
         Create a set of standard parameters
 
@@ -131,7 +136,7 @@ class IsoToolsXorrIso(IsoToolsBase):
             '-boot_image', 'any', 'load_size=2048'
         ]
 
-    def add_efi_loader_parameters(self):
+    def add_efi_loader_parameters(self) -> None:
         """
         Add ISO creation parameters to embed the EFI loader
 
@@ -153,7 +158,9 @@ class IsoToolsXorrIso(IsoToolsBase):
                 '-boot_image', 'any', 'emul_type=no_emulation'
             ]
 
-    def create_iso(self, filename, hidden_files=None):
+    def create_iso(
+        self, filename: str, hidden_files: List[str] = None
+    ) -> None:
         """
         Creates the iso file with the given filename using xorriso
 
