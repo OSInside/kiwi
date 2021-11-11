@@ -13,9 +13,9 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.iso_tools.cdrtools` Module
+`kiwi.iso_tools.xorriso` Module
 --------------------------------
-.. automodule:: kiwi.iso_tools.cdrtools
+.. automodule:: kiwi.iso_tools.xorriso
     :members:
     :undoc-members:
     :show-inheritance:

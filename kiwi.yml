@@ -47,7 +47,7 @@
 # Setup process parameters for ISO image creation
 #iso:
 #  # Specify tool category which should be used to build iso images
-#  # Possible values are cdrtools or xorriso
+#  # Possible values are: xorriso
 #  - tool_category: xorriso
 
 

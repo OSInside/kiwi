@@ -37,8 +37,7 @@ class IsoTools(metaclass=ABCMeta):
     @staticmethod
     def new(source_dir):
         name_map = {
-            'xorriso': 'XorrIso',
-            'cdrtools': 'CdrTools'
+            'xorriso': 'XorrIso'
         }
         runtime_config = RuntimeConfig()
         tool = runtime_config.get_iso_tool_category()

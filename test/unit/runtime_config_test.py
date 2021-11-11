@@ -60,7 +60,7 @@ class TestRuntimeConfig:
         assert runtime_config.get_obs_api_server_url() == \
             'https://api.example.com'
         assert runtime_config.get_container_compression() is None
-        assert runtime_config.get_iso_tool_category() == 'cdrtools'
+        assert runtime_config.get_iso_tool_category() == 'xorriso'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_package_changes() is True
         assert runtime_config.get_disabled_runtime_checks() == [

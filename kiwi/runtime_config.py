@@ -265,7 +265,7 @@ class RuntimeConfig:
         Return tool category which should be used to build iso images
 
         iso:
-          - tool_category: cdrtools|xorriso
+          - tool_category: xorriso
 
         if no or invalid configuration exists the default tool category
         from the Defaults class is returned
@@ -279,7 +279,7 @@ class RuntimeConfig:
         )
         if not iso_tool_category:
             return Defaults.get_iso_tool_category()
-        elif 'cdrtools' in iso_tool_category or 'xorriso' in iso_tool_category:
+        elif 'xorriso' in iso_tool_category:
             return iso_tool_category
         else:
             log.warning(
