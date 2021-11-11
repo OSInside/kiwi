@@ -102,48 +102,15 @@ Setting up the Bootloader of the Image
 .. code:: xml
 
    <preferences>
-     <bootloader name="grub2"/>
+     <type>
+        <bootloader name="grub2"/>
+     </type>
    </preferences>
 
-The `bootloader` element is used to select the bootloader. At the moment
-`grub2`, `isolinux`, `zipl` and `grub2_s390x_emu` (a combination of zipl
-and a userspace GRUB2) are supported. The special `custom` entry allows
-to skip the bootloader configuration and installation and leaves this up
-to the user which can be done by using the `editbootinstall` and
-`editbootconfig` custom scripts.
+The `bootloader` element defines which bootloader will be used in the
+image and offers several options for customizing its configuration.
 
-In addition to the mandatory name attribute the following optional
-attributes are supported:
-
-console="console|gfxterm|serial":
-  Specifies the bootloader console. The attribute is available for the
-  grub and isolinux bootloader types. By default a graphics console
-  setup is used
-
-serial_line="string":
-  Specifies the bootloader serial line setup. The setup
-  is effective if the bootloader console is set to use
-  the serial line. The attribute is available for the grub
-  bootloader only
-
-timeout="number":
-  Specifies the boot timeout in seconds prior to launching
-  the default boot option. By default the timeout is set to 10 seconds. It
-  makes sense to set this value to `0` for images intended to be started
-  non-interactively (e.g. virtual machines).
-
-timeout_style="countdown|hidden":
-  Specifies the boot timeout style to control the way in which
-  the timeout interacts with displaying the menu. If set the
-  display of the bootloader menu is delayed after the timeout
-  expired. In countdown mode an indication of the remaining time
-  is displayed. The attribute is available for the grub loader only
-
-targettype="CDL|LDL|FBA|SCSI":
-  Specifies the device type of the disk zipl should boot.
-  On zFCP devices use `SCSI`, on DASD devices use `CDL` or `LDL` on
-  emulated DASD devices use `FBA`. The attribute is available for the
-  zipl loader only
+For details, see: :ref:`preferences-type-bootloader`
 
 .. _disk-the-size-element:
 

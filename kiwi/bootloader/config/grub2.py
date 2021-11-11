@@ -28,6 +28,7 @@ from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.command import Command
 from kiwi.defaults import Defaults
+from kiwi.exceptions import KiwiFileNotFound
 from kiwi.firmware import FirmWare
 from kiwi.path import Path
 from kiwi.utils.sync import DataSync
@@ -372,7 +373,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'efi_image_name': Defaults.get_efi_image_name(self.arch),
             'terminal_setup': self.terminal
         }
-        if self.multiboot:
+        custom_template_path = self._get_custom_template()
+        if custom_template_path:
+            log.info('--> Using custom boot template')
+            with open(custom_template_path) as custom_template_file:
+                template = Template(custom_template_file.read())
+        elif self.multiboot:
             log.info('--> Using multiboot template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_iso_template(
@@ -1420,3 +1426,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     self.boot_directory_name, os.linesep
                 )
             )
+
+    def _get_custom_template(self) -> str:
+        if not self.xml_state.build_type.bootloader:
+            return ''
+        template_file = self.xml_state.build_type.bootloader[0].get_grub_template()
+        if not template_file:
+            return ''
+
+        template_path = os.path.join(os.path.abspath(self.xml_state.xml_data.description_dir),
+                                     self.xml_state.build_type.bootloader[0].get_grub_template())
+        if not os.path.exists(template_path):
+            raise KiwiFileNotFound('failed to locate custom GRUB template %s' % template_file)
+
+        return template_path
