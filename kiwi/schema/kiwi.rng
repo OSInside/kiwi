@@ -3590,6 +3590,20 @@ editbootconfig custom scripts</a:documentation>
         <sch:param name="types" value="oem iso"/>
       </sch:pattern>
     </define>
+    <define name="k.bootloader.grub_template.attribute">
+      <attribute name="grub_template">
+        <a:documentation>Specifies a custom grub bootloader template file which will be used
+instead of the one provided with Kiwi. A static bootloader template to
+create the grub config file is only used in Kiwi if the native method
+via the grub mkconfig toolchain does not work properly. As of today,
+this is only the case for live and install ISO images. Thus, this
+setting only affects the oem and iso image types.</a:documentation>
+      </attribute>
+      <sch:pattern id="loader_grub_template" is-a="bootloader_image_type">
+        <sch:param name="attr" value="grub_template"/>
+        <sch:param name="types" value="oem iso"/>
+      </sch:pattern>
+    </define>
     <define name="k.bootloader.console.attribute">
       <attribute name="console">
         <a:documentation>Specifies the bootloader console.
@@ -3676,6 +3690,9 @@ for 4k DASD devices use CDL</a:documentation>
         </optional>
         <optional>
           <ref name="k.bootloader.targettype.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.grub_template.attribute"/>
         </optional>
       </interleave>
     </define>
