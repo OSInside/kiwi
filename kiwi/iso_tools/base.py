@@ -18,6 +18,9 @@
 import os
 import shutil
 import logging
+from typing import (
+    Dict, List
+)
 
 # project
 from kiwi.defaults import Defaults
@@ -31,21 +34,21 @@ log = logging.getLogger('kiwi')
 class IsoToolsBase:
     """
     **Base Class for Parameter API for iso creation tools**
-
-    :param string source_dir: data source dir, usually root_dir
-    :param str boot_path: architecture specific boot path on the ISO
-    :param str iso_parameters: list of ISO creation parameters
-    :param str iso_loaders: list of ISO loaders to embed
     """
-    def __init__(self, source_dir):
+    def __init__(self, source_dir: str) -> None:
+        """
+        Base class for IsoTools
+
+        :param string source_dir: data source dir, usually root_dir
+        """
         self.arch = Defaults.get_platform_name()
         self.source_dir = source_dir
 
         self.boot_path = Defaults.get_iso_boot_path()
-        self.iso_parameters = []
-        self.iso_loaders = []
+        self.iso_parameters: List[str] = []
+        self.iso_loaders: List[str] = []
 
-    def get_tool_name(self):
+    def get_tool_name(self) -> str:
         """
         Return caller name for iso creation tool
 
@@ -57,7 +60,9 @@ class IsoToolsBase:
         """
         raise NotImplementedError
 
-    def init_iso_creation_parameters(self, custom_args=None):
+    def init_iso_creation_parameters(
+        self, custom_args: Dict[str, str] = None
+    ) -> None:
         """
         Create a set of standard parameters for the main isolinux loader
 
@@ -67,7 +72,7 @@ class IsoToolsBase:
         """
         raise NotImplementedError
 
-    def add_efi_loader_parameters(self):
+    def add_efi_loader_parameters(self) -> None:
         """
         Add ISO creation parameters to embed the EFI loader
 
@@ -75,7 +80,9 @@ class IsoToolsBase:
         """
         raise NotImplementedError
 
-    def create_iso(self, filename, hidden_files=None):
+    def create_iso(
+        self, filename: str, hidden_files: List[str] = None
+    ) -> None:
         """
         Create iso file
 
@@ -86,7 +93,7 @@ class IsoToolsBase:
         """
         raise NotImplementedError
 
-    def list_iso(self, isofile):
+    def list_iso(self, isofile: str) -> None:
         """
         List contents of an ISO image
 
@@ -94,7 +101,7 @@ class IsoToolsBase:
         """
         raise NotImplementedError
 
-    def has_iso_hybrid_capability(self):
+    def has_iso_hybrid_capability(self) -> bool:
         """
         Indicate if the iso tool has the capability to embed
         a partition table into the iso such that it can be
@@ -105,7 +112,9 @@ class IsoToolsBase:
         raise NotImplementedError
 
     @staticmethod
-    def setup_media_loader_directory(lookup_path, media_path, boot_theme):
+    def setup_media_loader_directory(
+        lookup_path: str, media_path: str, boot_theme: str
+    ):
         loader_data = lookup_path + '/image/loader/'
         media_boot_path = os.sep.join(
             [media_path, Defaults.get_iso_boot_path(), 'loader']

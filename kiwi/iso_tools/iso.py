@@ -27,7 +27,7 @@ class Iso:
     """
     **Implements helper methods around the creation of ISO filesystems**
     """
-    def __init__(self, source_dir):
+    def __init__(self, source_dir: str) -> None:
         """
         Create an instance of Iso helpers
 
@@ -38,7 +38,7 @@ class Iso:
         self.boot_path = Defaults.get_iso_boot_path()
 
     @staticmethod
-    def set_media_tag(isofile):
+    def set_media_tag(isofile: str) -> None:
         """
         Include checksum tag in the ISO so it can be verified with
         the mediacheck program.
@@ -55,7 +55,7 @@ class Iso:
             ]
         )
 
-    def setup_isolinux_boot_path(self):
+    def setup_isolinux_boot_path(self) -> None:
         """
         Write the base boot path into the isolinux loader binary
 
