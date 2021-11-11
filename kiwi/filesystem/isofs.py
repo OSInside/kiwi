@@ -15,10 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import os
 import logging
 from typing import List
-from textwrap import dedent
 
 # project
 from kiwi.filesystem.base import FileSystemBase
@@ -54,34 +52,8 @@ class FileSystemIsoFs(FileSystemBase):
         if not efi_mode and not ofw_mode:
             iso.setup_isolinux_boot_path()
 
-        if not iso_tool.has_iso_hybrid_capability():
-            iso.create_header_end_marker()
-
         iso_tool.init_iso_creation_parameters(meta_data)
 
         iso_tool.add_efi_loader_parameters()
 
         iso_tool.create_iso(filename)
-
-        if not iso_tool.has_iso_hybrid_capability():
-            if not efi_mode and not ofw_mode:
-                hybrid_offset = iso.create_header_end_block(filename)
-                iso_tool.create_iso(
-                    filename, hidden_files=[iso.header_end_name]
-                )
-                iso.relocate_boot_catalog(filename)
-                iso.fix_boot_catalog(filename)
-                mbr_id = meta_data['mbr_id'] if 'mbr_id' in meta_data else \
-                    '0xffffffff'
-                iso.create_hybrid(
-                    hybrid_offset, mbr_id, filename
-                )
-            else:
-                message = dedent('''
-                    Can't create hybrid ISO in EFI mode with cdrtools
-
-                    isohybrid requires isolinux as loader. In EFI mode
-                    the configured bootloader e.g grub is used and no
-                    isolinux signature exists.
-                ''').strip() + os.linesep
-                log.warning(message)

@@ -130,7 +130,6 @@
         <package name="fbiterm"/>
         <package name="file"/>
         <package name="fribidi"/>
-        <package name="genisoimage"/>
         <package name="gettext-runtime"/>
         <package name="grub2"/>
         <package name="grub2-x86_64-efi" arch="x86_64"/>

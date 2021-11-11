@@ -12,7 +12,7 @@ obs:
       - user_name: user_credentials
 
 iso:
-  - tool_category: cdrtools
+  - tool_category: xorriso
 
 oci:
   - archive_tool: umoci
