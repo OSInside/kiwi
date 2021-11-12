@@ -26,6 +26,9 @@ class TestSystemPrepareTask:
 
         self.abs_root_dir = os.path.abspath('../data/root-dir')
 
+        self.command = mock.Mock()
+        kiwi.tasks.system_prepare.Command = self.command
+
         kiwi.tasks.system_prepare.Privileges = mock.Mock()
 
         self.runtime_checker = mock.Mock()
@@ -179,6 +182,15 @@ class TestSystemPrepareTask:
         self._init_command_args()
         mock_get_package_manager.return_value = 'apt'
         self.task.command_args['--allow-existing-root'] = True
+
+        # debootstrap must be called if chroot with apt-get failed
+        self.command.run.side_effect = Exception
+        self.task.process()
+        assert self.system_prepare.install_bootstrap.called
+
+        # debootstrap must not be called if chroot looks good
+        self.command.run.side_effect = None
+        self.system_prepare.install_bootstrap.reset_mock()
         with self._caplog.at_level(logging.WARNING):
             self.task.process()
         assert not self.system_prepare.install_bootstrap.called

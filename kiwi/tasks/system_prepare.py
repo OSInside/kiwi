@@ -96,6 +96,7 @@ from kiwi.system.prepare import SystemPrepare
 from kiwi.system.setup import SystemSetup
 from kiwi.defaults import Defaults
 from kiwi.system.profile import Profile
+from kiwi.command import Command
 
 log = logging.getLogger('kiwi')
 
@@ -183,12 +184,24 @@ class SystemPrepareTask(CliTask):
             self.command_args['--signing-key'],
             self.global_args['--target-arch']
         )
+        run_bootstrap = True
         if self.xml_state.get_package_manager() == 'apt' and \
            self.command_args['--allow-existing-root']:
-            log.warning(
-                'debootstrap will only be called once on empty root, skipped'
-            )
-        else:
+            # try to call apt-get inside of the existing root.
+            # If the call succeeds we skip calling debootstrap again
+            # and assume the root to be ok to proceed with apt-get
+            # if it fails, treat the root as dirty and give the
+            # bootstrap a try
+            try:
+                Command.run(['chroot', abs_root_path, 'apt-get', '--version'])
+                run_bootstrap = False
+                log.warning(
+                    'debootstrap will only be called once, skipped'
+                )
+            except Exception:
+                run_bootstrap = True
+
+        if run_bootstrap:
             system.install_bootstrap(
                 manager, self.command_args['--add-bootstrap-package']
             )
