@@ -167,13 +167,17 @@
         <user groups="kiwi,admin,users" pwdformat="plain" password="mypwd" name="kiwi"/>
     </users>
     <repository priority="42" sourcetype="baseurl">
-        <source path="iso:///image/CDs/dvd.iso"/>
+        <source path="iso:///image/CDs/dvd.iso">
+            <signing key="key_a"/>
+        </source>
     </repository>
     <repository type="rpm-md" imageinclude="true" customize="script">
         <source path="obs://Devel:PubCloud:AmazonEC2/SLE_12_GA"/>
     </repository>
     <repository type="rpm-md" imageonly="true">
-        <source path="obs://Devel:Docker:Images:SLE12SP2/SLE_12_SP2_Docker"/>
+        <source path="obs://Devel:Docker:Images:SLE12SP2/SLE_12_SP2_Docker">
+            <signing key="key_b"/>
+        </source>
     </repository>
     <packages type="image" patternType="plusRecommended">
         <namedCollection name="base"/>

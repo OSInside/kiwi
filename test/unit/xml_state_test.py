@@ -1006,3 +1006,6 @@ class TestXMLState:
         xml_data = self.description.load()
         state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
         state.get_installmedia_initrd_modules('add') == []
+
+    def test_get_repositories_signing_keys(self):
+        assert self.state.get_repositories_signing_keys() == ['key_a', 'key_b']

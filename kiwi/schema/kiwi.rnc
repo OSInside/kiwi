@@ -1027,6 +1027,24 @@ div {
 }
 
 #==========================================
+# common element <signing>
+#
+div {
+    k.signing.key.attribute =
+        ## Specify path to a signing key for this repo
+        attribute key { text }
+    k.signing.attlist =
+        k.signing.key.attribute
+    k.signing =
+        ## The signing element holds information about
+        ## repo/package signing keys
+        element signing {
+            k.signing.attlist,
+            empty
+        }
+}
+
+#==========================================
 # common element <source>
 #
 div {
@@ -1037,7 +1055,7 @@ div {
         ## as well as a path specification
         element source {
             k.source.attlist,
-            empty
+            k.signing*
         }
 }
 

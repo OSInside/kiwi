@@ -89,7 +89,7 @@ class TestSystemPrepareTask:
         self.task.command_args['--set-container-derived-from'] = None
         self.task.command_args['--set-container-tag'] = None
         self.task.command_args['--add-container-label'] = []
-        self.task.command_args['--signing-key'] = None
+        self.task.command_args['--signing-key'] = []
 
     def test_process_system_prepare(self):
         self._init_command_args()
@@ -144,7 +144,7 @@ class TestSystemPrepareTask:
             check_architecture_supports_iso_firmware_setup.\
             assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            True, None, None
+            True, ['key_a', 'key_b'], None
         )
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager, []
@@ -200,7 +200,7 @@ class TestSystemPrepareTask:
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            False, None, None
+            False, ['key_a', 'key_b'], None
         )
         self.system_prepare.install_packages.assert_called_once_with(
             self.manager, ['vim']
@@ -211,7 +211,7 @@ class TestSystemPrepareTask:
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            False, None, None
+            False, ['key_a', 'key_b'], None
         )
         self.system_prepare.delete_packages.assert_called_once_with(
             self.manager, ['vim']

@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.6.13 (default, Mar 10 2021, 18:30:35) [GCC]
+# Python 3.6.12 (default, Dec 02 2020, 09:44:23) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -2208,14 +2208,89 @@ class repository(k_source):
 # end class repository
 
 
+class signing(GeneratedsSuper):
+    """The signing element holds information about repo/package signing
+    keys"""
+    subclass = None
+    superclass = None
+    def __init__(self, key=None):
+        self.original_tagname_ = None
+        self.key = _cast(None, key)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, signing)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if signing.subclass:
+            return signing.subclass(*args_, **kwargs_)
+        else:
+            return signing(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_key(self): return self.key
+    def set_key(self, key): self.key = key
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='signing', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('signing')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='signing')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='signing', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='signing'):
+        if self.key is not None and 'key' not in already_processed:
+            already_processed.add('key')
+            outfile.write(' key=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.key), input_name='key')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='signing', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('key', node)
+        if value is not None and 'key' not in already_processed:
+            already_processed.add('key')
+            self.key = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class signing
+
+
 class source(GeneratedsSuper):
     """A Pointer to a data source. This can be a remote location as well as
     a path specification"""
     subclass = None
     superclass = None
-    def __init__(self, path=None):
+    def __init__(self, path=None, signing=None):
         self.original_tagname_ = None
         self.path = _cast(None, path)
+        if signing is None:
+            self.signing = []
+        else:
+            self.signing = signing
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2227,11 +2302,16 @@ class source(GeneratedsSuper):
         else:
             return source(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_signing(self): return self.signing
+    def set_signing(self, signing): self.signing = signing
+    def add_signing(self, value): self.signing.append(value)
+    def insert_signing_at(self, index, value): self.signing.insert(index, value)
+    def replace_signing_at(self, index, value): self.signing[index] = value
     def get_path(self): return self.path
     def set_path(self, path): self.path = path
     def hasContent_(self):
         if (
-
+            self.signing
         ):
             return True
         else:
@@ -2253,6 +2333,7 @@ class source(GeneratedsSuper):
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
             self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='source', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
@@ -2261,7 +2342,12 @@ class source(GeneratedsSuper):
             already_processed.add('path')
             outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='source', fromsubclass_=False, pretty_print=True):
-        pass
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for signing_ in self.signing:
+            signing_.export(outfile, level, namespaceprefix_, name_='signing', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2275,7 +2361,11 @@ class source(GeneratedsSuper):
             already_processed.add('path')
             self.path = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        pass
+        if nodeName_ == 'signing':
+            obj_ = signing.factory()
+            obj_.build(child_)
+            self.signing.append(obj_)
+            obj_.original_tagname_ = 'signing'
 # end class source
 
 
@@ -8266,6 +8356,7 @@ __all__ = [
     "profiles",
     "repository",
     "requires",
+    "signing",
     "size",
     "source",
     "strip",
