@@ -101,7 +101,7 @@ Image Includes
 
 .. code:: xml
 
-   <include from="filename.xml"/>
+   <include from="file://filename.xml"/>
 
 The optional :ref:`sec.include` element allows to drop in the contents
 of the specified :file:`filename.xml` file at the place were the `include`

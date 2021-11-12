@@ -17,6 +17,7 @@
 #
 import os
 from lxml import etree
+from urllib.parse import urlparse
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -108,6 +109,9 @@ class MarkupBase:
 
 class FileResolver(etree.Resolver):
     def resolve(self, url, pubid, context):
+        uri = urlparse(url)
+        if uri.path and uri.netloc:
+            url = ''.join([uri.netloc, uri.path])
         if os.path.exists(url):
             return self.resolve_filename(url, context)
         else:

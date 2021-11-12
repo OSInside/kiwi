@@ -6,7 +6,7 @@
         <contact>ms@suse.com</contact>
         <specification>Test for missing include reference</specification>
     </description>
-    <include from="../data/nested_include.xml"/>
+    <include from="file://../data/nested_include.xml"/>
     <preferences>
         <version>1.1.0</version>
         <packagemanager>zypper</packagemanager>
