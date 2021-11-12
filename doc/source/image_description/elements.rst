@@ -51,7 +51,7 @@ Optional include of XML file content from file
 .. code:: xml
 
    <image schemaversion="{schema_version}" name="{exc_image_base_name}">
-       <include from="description.xml"/>
+       <include from="file://description.xml"/>
    </image> 
 
 with file :file:`description.xml` as follows:
@@ -68,7 +68,9 @@ with file :file:`description.xml` as follows:
 
 This will replace the `include` statement with the contents
 of :file:`description.xml`. The validation of the result happens
-after the inclusion of all `include` references.
+after the inclusion of all `include` references. The value for
+the `from` attribute is interpreted as an URI, as of now only
+local URI types are supported.
 
 .. note::
 
