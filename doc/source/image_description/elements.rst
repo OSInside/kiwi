@@ -793,7 +793,9 @@ repository_gpgcheck="true|false"
   to run repository signature validation. If not set, no value is
   appended into the repository configuration file. If set the
   relevant key information needs to be provided on the {kiwi}
-  commandline using the `--signing-key` option
+  commandline using the `--signing-key` option or via the `<signing>`
+  element as part of the `<repository><source>` setting in the
+  image description.
 
 customize="/path/to/custom_script"
   Custom script hook which is invoked with the repo file as parameter
@@ -916,6 +918,23 @@ the following location indicators:
 * ``obsrepositories:/``
   A placeholder for the Open Build Service (OBS) to indicate that all
   repositories are taken from the project configuration in OBS.
+
+A repository `<source>` element can optionally contain one ore more
+signing keys for the packages from this repository like shown in the
+following example:
+
+.. code:: xml
+
+   <repository alias="kiwi">
+     <source path="{exc_kiwi_repo}">
+       <signing key="/path/to/sign_key_a"/>
+       <signing key="/path/to/sign_key_b"/>
+     </source>
+   </repository>
+
+All signing keys from all repositories will be collected and
+incorporated into the keyring as used by the selected package
+manager.
 
 .. _sec.packages:
 

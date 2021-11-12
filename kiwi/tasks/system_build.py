@@ -281,7 +281,9 @@ class SystemBuildTask(CliTask):
             abs_target_dir_path,
             image_root,
             custom_args={
-                'signing_keys': self.command_args['--signing-key'],
+                'signing_keys': self.command_args[
+                    '--signing-key'
+                ] + self.xml_state.get_repositories_signing_keys(),
                 'xz_options': self.runtime_config.get_xz_options()
             }
         )

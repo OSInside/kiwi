@@ -1573,6 +1573,29 @@ last one is picked.</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <signing>
+    
+  -->
+  <div>
+    <define name="k.signing.key.attribute">
+      <attribute name="key">
+        <a:documentation>Specify path to a signing key for this repo</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.signing.attlist">
+      <ref name="k.signing.key.attribute"/>
+    </define>
+    <define name="k.signing">
+      <element name="signing">
+        <a:documentation>The signing element holds information about
+repo/package signing keys</a:documentation>
+        <ref name="k.signing.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <source>
     
   -->
@@ -1588,7 +1611,9 @@ last one is picked.</a:documentation>
         <a:documentation>A Pointer to a data source. This can be a remote location
 as well as a path specification</a:documentation>
         <ref name="k.source.attlist"/>
-        <empty/>
+        <zeroOrMore>
+          <ref name="k.signing"/>
+        </zeroOrMore>
       </element>
     </define>
   </div>

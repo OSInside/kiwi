@@ -1721,6 +1721,16 @@ class XMLState:
             ]
         )
 
+    def get_repositories_signing_keys(self) -> List[str]:
+        """
+        Get list of signing keys specified on the repositories
+        """
+        key_file_list: List[str] = []
+        for repository in self.get_repository_sections() or []:
+            for signing in repository.get_source().get_signing() or []:
+                key_file_list.append(signing.get_key())
+        return key_file_list
+
     def set_repository(
         self, repo_source: str, repo_type: str, repo_alias: str,
         repo_prio: str, repo_imageinclude: bool = False,
@@ -1755,7 +1765,8 @@ class XMLState:
     def add_repository(
         self, repo_source: str, repo_type: str, repo_alias: str = None,
         repo_prio: str = '', repo_imageinclude: bool = False,
-        repo_package_gpgcheck: Optional[bool] = None
+        repo_package_gpgcheck: Optional[bool] = None,
+        repo_signing_keys: List[str] = []
     ) -> None:
         """
         Add a new repository section at the end of the list
@@ -1778,7 +1789,12 @@ class XMLState:
                 type_=repo_type,
                 alias=repo_alias,
                 priority=priority_number,
-                source=xml_parse.source(path=repo_source),
+                source=xml_parse.source(
+                    path=repo_source,
+                    signing=[
+                        xml_parse.signing(key=k) for k in repo_signing_keys
+                    ]
+                ),
                 imageinclude=repo_imageinclude,
                 package_gpgcheck=repo_package_gpgcheck
             )
