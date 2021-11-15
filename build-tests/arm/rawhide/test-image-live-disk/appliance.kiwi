@@ -76,5 +76,6 @@
         <package name="grub2-efi-aa64"/>
         <package name="grub2-efi-aa64-modules"/>
         <package name="grub2-efi-aa64-cdboot"/>
+        <package name="fedora-release"/>
     </packages>
 </image>
