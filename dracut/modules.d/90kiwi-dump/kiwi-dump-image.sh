@@ -49,6 +49,8 @@ function get_disk_list {
     local kiwi_oem_maxdisk
     local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
     local message
+    local blk_opts_plus_label="${blk_opts},LABEL"
+    local kiwi_install_disk_part=$(lsblk "${blk_opts_plus_label}" | tr ' ' ":" | grep ":${kiwi_install_volid}$" | cut -f1 -d:)
     if [ -n "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
     fi
@@ -79,9 +81,7 @@ function get_disk_list {
         eval lsblk "${blk_opts}" | grep -E "disk|raid" | tr ' ' ":"
     );do
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
-        if [ "$(blkid "${disk_device}" -s LABEL -o value)" = \
-            "${kiwi_install_volid}" ]
-        then
+        if [[ "${kiwi_install_disk_part}" == "${disk_device}"* ]]; then
             # ignore install source device
             continue
         fi
