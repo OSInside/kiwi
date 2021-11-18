@@ -156,7 +156,7 @@ class TestSystemBuildTask:
             check_architecture_supports_iso_firmware_setup.\
             assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            False, [], None
+            False, ['key_a', 'key_b'], None
         )
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager, []
@@ -198,7 +198,7 @@ class TestSystemBuildTask:
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            False, [], None
+            False, ['key_a', 'key_b'], None
         )
         self.system_prepare.install_packages.assert_called_once_with(
             self.manager, ['vim']
@@ -210,7 +210,7 @@ class TestSystemBuildTask:
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            False, [], None
+            False, ['key_a', 'key_b'], None
         )
         self.system_prepare.delete_packages.assert_called_once_with(
             self.manager, ['vim']
