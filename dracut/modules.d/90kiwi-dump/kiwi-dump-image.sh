@@ -80,7 +80,7 @@ function get_disk_list {
     for disk_meta in $(
         eval lsblk "${blk_opts}" | grep -E "disk|raid" | tr ' ' ":"
     );do
-        kiwi_install_disk_part=$(lsblk ${blk_opts_plus_label} | tr ' ' ":" | grep ":${kiwi_install_volid}$" | cut -f1 -d:)
+        kiwi_install_disk_part=$(eval lsblk "${blk_opts_plus_label}" | tr ' ' ":" | grep ":${kiwi_install_volid}$" | cut -f1 -d:)
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
         if [[ "${kiwi_install_disk_part}" == "${disk_device}"* ]]; then
             # ignore install source device
