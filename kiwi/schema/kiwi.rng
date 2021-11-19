@@ -91,6 +91,11 @@
       <param name="pattern">(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}</param>
     </data>
   </define>
+  <define name="simple-uri-type">
+    <data type="token">
+      <param name="pattern">(file:|https:|http:|ftp:).*</param>
+    </data>
+  </define>
   <!--
     ==========================================
     start with image description
@@ -1580,6 +1585,7 @@ last one is picked.</a:documentation>
     <define name="k.signing.key.attribute">
       <attribute name="key">
         <a:documentation>Specify path to a signing key for this repo</a:documentation>
+        <ref name="simple-uri-type"/>
       </attribute>
     </define>
     <define name="k.signing.attlist">

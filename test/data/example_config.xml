@@ -168,7 +168,7 @@
     </users>
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso">
-            <signing key="key_a"/>
+            <signing key="file:key_a"/>
         </source>
     </repository>
     <repository type="rpm-md" imageinclude="true" customize="script">
@@ -176,7 +176,7 @@
     </repository>
     <repository type="rpm-md" imageonly="true">
         <source path="obs://Devel:Docker:Images:SLE12SP2/SLE_12_SP2_Docker">
-            <signing key="key_b"/>
+            <signing key="file:key_b"/>
         </source>
     </repository>
     <packages type="image" patternType="plusRecommended">

@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.6.12 (default, Dec 02 2020, 09:44:23) [GCC]
+# Python 3.6.13 (default, Mar 10 2021, 18:30:35) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/david/work/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2229,6 +2229,13 @@ class signing(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_key(self): return self.key
     def set_key(self, key): self.key = key
+    def validate_simple_uri_type(self, value):
+        # Validate type simple-uri-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_simple_uri_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_simple_uri_type_patterns_, ))
+    validate_simple_uri_type_patterns_ = [['^(file:|https:|http:|ftp:).*$']]
     def hasContent_(self):
         if (
 
@@ -2259,7 +2266,7 @@ class signing(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='signing'):
         if self.key is not None and 'key' not in already_processed:
             already_processed.add('key')
-            outfile.write(' key=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.key), input_name='key')), ))
+            outfile.write(' key=%s' % (quote_attrib(self.key), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='signing', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -2274,6 +2281,8 @@ class signing(GeneratedsSuper):
         if value is not None and 'key' not in already_processed:
             already_processed.add('key')
             self.key = value
+            self.key = ' '.join(self.key.split())
+            self.validate_simple_uri_type(self.key)    # validate type simple-uri-type
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class signing

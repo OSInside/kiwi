@@ -38,6 +38,7 @@ portnum-type = xsd:token {pattern = "(\d+|\d+/(udp|tcp))"}
 grub_console = xsd:token {pattern = "(console|gfxterm|serial)( (console|gfxterm|serial))*"}
 fs_attributes = xsd:token {pattern = "(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*"}
 package-version-type =  xsd:token {pattern = "(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}"}
+simple-uri-type = xsd:token {pattern = "(file:|https:|http:|ftp:).*"}
 
 #==========================================
 # start with image description
@@ -1032,7 +1033,7 @@ div {
 div {
     k.signing.key.attribute =
         ## Specify path to a signing key for this repo
-        attribute key { text }
+        attribute key { simple-uri-type }
     k.signing.attlist =
         k.signing.key.attribute
     k.signing =
