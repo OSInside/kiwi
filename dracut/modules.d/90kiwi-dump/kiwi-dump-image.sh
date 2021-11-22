@@ -77,10 +77,15 @@ function get_disk_list {
     elif [ "${kiwi_oemmultipath_scan}" = "true" ];then
         scan_multipath_devices
     fi
+    kiwi_install_disk_part=$(
+        eval lsblk "${blk_opts_plus_label}" | \
+        tr -s ' ' ":" | \
+        grep ":${kiwi_install_volid}$" | \
+        cut -f1 -d:
+    )
     for disk_meta in $(
         eval lsblk "${blk_opts}" | grep -E "disk|raid" | tr ' ' ":"
     );do
-        kiwi_install_disk_part=$(eval lsblk "${blk_opts_plus_label}" | tr ' ' ":" | grep ":${kiwi_install_volid}$" | cut -f1 -d:)
         disk_device="$(echo "${disk_meta}" | cut -f1 -d:)"
         if [[ "${kiwi_install_disk_part}" == "${disk_device}"* ]]; then
             # ignore install source device
