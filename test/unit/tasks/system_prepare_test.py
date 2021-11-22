@@ -91,7 +91,9 @@ class TestSystemPrepareTask:
         self.task.command_args['--add-container-label'] = []
         self.task.command_args['--signing-key'] = []
 
-    def test_process_system_prepare(self):
+    @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
+    def test_process_system_prepare(self, mock_keys):
+        mock_keys.return_value = ['some_key', 'some_other_key']
         self._init_command_args()
         self.task.command_args['prepare'] = True
         self.task.command_args['--clear-cache'] = True
@@ -144,7 +146,7 @@ class TestSystemPrepareTask:
             check_architecture_supports_iso_firmware_setup.\
             assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            True, ['key_a', 'key_b'], None
+            True, ['some_key', 'some_other_key'], None
         )
         self.system_prepare.install_bootstrap.assert_called_once_with(
             self.manager, []
@@ -195,23 +197,27 @@ class TestSystemPrepareTask:
             self.task.process()
         assert not self.system_prepare.install_bootstrap.called
 
-    def test_process_system_prepare_add_package(self):
+    @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
+    def test_process_system_prepare_add_package(self, mock_keys):
+        mock_keys.return_value = ['some_key', 'some_other_key']
         self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            False, ['key_a', 'key_b'], None
+            False, ['some_key', 'some_other_key'], None
         )
         self.system_prepare.install_packages.assert_called_once_with(
             self.manager, ['vim']
         )
 
-    def test_process_system_prepare_delete_package(self):
+    @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
+    def test_process_system_prepare_delete_package(self, mock_keys):
+        mock_keys.return_value = ['some_key', 'some_other_key']
         self._init_command_args()
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
         self.system_prepare.setup_repositories.assert_called_once_with(
-            False, ['key_a', 'key_b'], None
+            False, ['some_key', 'some_other_key'], None
         )
         self.system_prepare.delete_packages.assert_called_once_with(
             self.manager, ['vim']

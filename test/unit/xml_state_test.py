@@ -1007,5 +1007,7 @@ class TestXMLState:
         state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
         state.get_installmedia_initrd_modules('add') == []
 
-    def test_get_repositories_signing_keys(self):
-        assert self.state.get_repositories_signing_keys() == ['key_a', 'key_b']
+    @patch('kiwi.system.uri.os.path.abspath')
+    def test_get_repositories_signing_keys(self, mock_root_path):
+        mock_root_path.side_effect = lambda x: f'/some/path/{x}'
+        assert self.state.get_repositories_signing_keys() == ['/some/path/key_a', '/some/path/key_b']

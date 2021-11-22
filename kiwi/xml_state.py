@@ -1728,7 +1728,7 @@ class XMLState:
         key_file_list: List[str] = []
         for repository in self.get_repository_sections() or []:
             for signing in repository.get_source().get_signing() or []:
-                key_file_list.append(signing.get_key())
+                key_file_list.append(Uri(signing.get_key()).translate())
         return key_file_list
 
     def set_repository(

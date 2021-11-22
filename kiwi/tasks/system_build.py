@@ -196,7 +196,9 @@ class SystemBuildTask(CliTask):
         )
         manager = system.setup_repositories(
             self.command_args['--clear-cache'],
-            self.command_args['--signing-key'],
+            self.command_args[
+                '--signing-key'
+            ] + self.xml_state.get_repositories_signing_keys(),
             self.global_args['--target-arch']
         )
         system.install_bootstrap(
