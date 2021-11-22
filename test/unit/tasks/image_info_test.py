@@ -127,24 +127,24 @@ class TestImageInfoTask:
 
         assert self.solver.add_repository.called
         assert mock_uri.call_args_list == [
-            call('http://us.archive.ubuntu.com/ubuntu/'),
+            call(uri='http://us.archive.ubuntu.com/ubuntu/', source_type=''),
             call(
                 'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
-                'main/binary-amd64', 'apt-deb'
+                'main/binary-amd64', 'apt-deb', ''
             ),
             call(
                 'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
-                'multiverse/binary-amd64', 'apt-deb'
+                'multiverse/binary-amd64', 'apt-deb', ''
             ),
             call(
                 'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
-                'restricted/binary-amd64', 'apt-deb'
+                'restricted/binary-amd64', 'apt-deb', ''
             ),
             call(
                 'http://us.archive.ubuntu.com/ubuntu/dists/focal/'
-                'universe/binary-amd64', 'apt-deb'
+                'universe/binary-amd64', 'apt-deb', ''
             ),
-            call('obs://Devel:PubCloud:AmazonEC2/SLE_12_GA', 'rpm-md')
+            call('obs://Devel:PubCloud:AmazonEC2/SLE_12_GA', 'rpm-md', '')
         ]
         mock_out.assert_called_once_with(self.result_info)
 

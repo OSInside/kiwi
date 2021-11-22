@@ -243,3 +243,17 @@ class TestUri:
         mock_buildservice.return_value = True
         uri = Uri('obsrepositories:/')
         assert uri.translate() == '/usr/src/packages/SOURCES/repos'
+
+    @patch('kiwi.system.uri.urlopen')
+    @patch('kiwi.system.uri.Request')
+    def test_translate_metalink_uri(self, mock_Request, mock_urlopen):
+        with open('../data/metalink') as metalink:
+            mock_urlopen.return_value = metalink
+            uri = Uri('https://metalink.com/foo', source_type='metalink')
+            assert uri.translate() == \
+                'https://ftp.plusline.net/fedora/linux/releases/34/Everything/' \
+                'x86_64/os/'
+
+        mock_urlopen.side_effect = Exception
+        with raises(KiwiUriOpenError):
+            uri = Uri('https://metalink.com/foo', source_type='metalink')
