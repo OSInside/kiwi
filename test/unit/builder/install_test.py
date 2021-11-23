@@ -379,11 +379,11 @@ class TestInstallImageBuilder:
         assert mock_command.call_args_list[1] == call(
             [
                 'mv', 'initrd',
-                'tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd.xz'
+                'tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd'
             ]
         )
         mock_chmod.assert_called_once_with(
-            'tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd.xz', 420
+            'tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd', 420
         )
         mock_archive.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.install.tar'
@@ -409,7 +409,7 @@ class TestInstallImageBuilder:
         ]
         assert mock_chmod.call_args_list == [
             call('tmpdir/result-image.x86_64-1.2.3.initrd', 420),
-            call('tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd.xz', 420)
+            call('tmpdir/pxeboot.result-image.x86_64-1.2.3.initrd', 420)
         ]
         assert m_open.call_args_list == [
             call('tmpdir/result-image.x86_64-1.2.3.append', 'w'),

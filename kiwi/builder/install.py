@@ -363,7 +363,7 @@ class InstallImageBuilder:
 
     def _create_pxe_install_kernel_and_initrd(self) -> None:
         kernelname = 'pxeboot.{0}.kernel'.format(self.pxename)
-        initrdname = 'pxeboot.{0}.initrd.xz'.format(self.pxename)
+        initrdname = 'pxeboot.{0}.initrd'.format(self.pxename)
         kernel = Kernel(self.boot_image_task.boot_root_directory)
         if kernel.get_kernel():
             kernel.copy_kernel(self.pxe_dir.name, kernelname)

@@ -196,7 +196,6 @@ class BootImageDracut(BootImageBase):
             modules_args += [
                 '--omit', ' {0} '.format(' '.join(self.omit_modules))
             ] if self.omit_modules else []
-            dracut_initrd_basename += '.xz'
             options = self.dracut_options + modules_args + included_files
             if kernel_details:
                 self.device_mount = MountManager(
@@ -214,8 +213,7 @@ class BootImageDracut(BootImageBase):
                         'chroot', self.boot_root_directory,
                         'dracut', '--verbose',
                         '--no-hostonly',
-                        '--no-hostonly-cmdline',
-                        '--xz'
+                        '--no-hostonly-cmdline'
                     ] + options + [
                         dracut_initrd_basename,
                         kernel_details.version

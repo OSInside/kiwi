@@ -87,7 +87,7 @@ system. As diskless client, a QEMU virtual machine is used.
 
    .. code:: bash
 
-       $ cp *.initrd.xz /srv/tftpboot/boot/initrd
+       $ cp *.initrd /srv/tftpboot/boot/initrd
        $ cp *.kernel /srv/tftpboot/boot/linux
 
 5. Copy the system image and its MD5 sum to :file:`/srv/tftpboot/image`:

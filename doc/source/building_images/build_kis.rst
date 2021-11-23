@@ -77,7 +77,7 @@ tested with QEMU as follows:
 
    $ sudo qemu
        -kernel /tmp/myimage/*.kernel \
-       -initrd /tmp/myimage/*.initrd.xz \
+       -initrd /tmp/myimage/*.initrd \
        -append $(cat /tmp/myimage/*.append) \
        -hda /tmp/myimage/{exc_image_base_name_pxe}.*-{exc_image_version} \
        -serial stdio
