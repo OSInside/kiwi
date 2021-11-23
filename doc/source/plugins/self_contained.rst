@@ -77,5 +77,55 @@ shown in the following example:
 .. note::
 
    The provided `--description` and `--target-dir` options are
-   setup as shared folders between the host and the guest. No other
+   setup as shared folders between the host and the box. No other
    data will be shared with the host.
+
+Sharing Backends
+----------------
+
+As mentioned above, the `boxbuild` call shares the two host directories
+provided in `--description` and `--target-dir` with the box. To do this
+the following sharing backends are supported:
+
+``--9p-sharing``
+  With QEMU's `9pfs` you can create virtual filesystem devices
+  (virtio-9p-device) and expose them to the box. For more information
+  see `9pfs <https://wiki.qemu.org/Documentation/9psetup>`__. Using
+  this sharing backend does not require any setup procedure from the
+  user and is also the default for `boxbuild`
+   
+``--sshfs-sharing``
+  SSHFS is a FUSE-based filesystem client for mounting remote
+  directories over a Secure Shell connection (SSH). In `boxbuild`
+  this is used to mount directories from the host into the box.
+  Because this runs through an SSH connection the host must allow
+  connections from the box. If you plan to use `sshfs` add the
+  following SSH public key to the :file:`~/.ssh/authorized_keys`
+  file of the user which is expected to call `boxbuild`
+
+  .. code:: bash
+
+     echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCtiqDaYgEMkr7za7qc4iPXftgu/j3sodPOtpoG8PinwRX6/3xZteOJzCH2qCZjEgA5zsP9lxy/119cWXvdxFUvyEINjH77unzRnaHj/yTXPhHuhHgAiEubuHer2gZoOs+UH4cGJLKCrabjTjZdeK9KvL+hoAgJaWxDUvGsXYDQTBHXlKjniOL1MGbltDBHnYhu4k+PjjJ+UEBN+8+F74Y5fYgIovXXY88WQrybuEr1eAYjhvk/ln6TKw1P6uvVMuIbAGUgnZFntDCI91Qw8ps1j+lX3vNc8ZBoOwM6nHZqq4FAqbXuH+NvQFS/xDM6wwZQhAe+14dTQBA5F1mgCVf+fSbteb0/CraSGmgKIM8aPnK8rfF+BY6Jar3AJFKVRPshRzrQj6CWYu3BfmOLupCpqOK2XFyoU2lEpaZDejgPSJq/IBGZdjKplWJFF8ZRQ01a8eX8K2fjrQt/4k9c7Pjlg1aDH8Sf+5+vcehlSNs1d50wnFoaIPrgDdy04omiaJ8= kiwi@boxbuild" >> ~/.ssh/authorized_keys
+
+  The public key mentioned here is associated with an SSH key pair
+  we provide in the pre-built box images.
+
+  .. warning::
+
+     If the `sshfs` backend is used without the host trusting the box,
+     the `boxbuild` call will become interactive at the time of the sshfs
+     mount. In this case the user might be asked for a passphrase or
+     depending on the host `sshd` setup the request will be declined and
+     the boxbuild fails.
+
+``--virtiofs-sharing``
+  QEMU virtio-fs shared file system daemon. Share a host directory tree
+  with a box through a virtio-fs device. For more information
+  see `virtiofs <https://qemu.readthedocs.io/en/latest/tools/virtiofsd.html>`__.
+  Using this sharing backend does not require any setup procedure from the
+  user  
+
+  .. warning::
+
+     virtiofs support was added but considered experimental and
+     not yet stable across the distributions. Feedback welcome.
