@@ -80,7 +80,7 @@ function uri_fragment {
 #--------------------------------------
 function _is_compressed {
     local source_url=$1
-    [[ ${source_url} =~ .xz$ ]]
+    xz -l "${source_url}" &>/dev/null
 }
 
 function _is_dolly {

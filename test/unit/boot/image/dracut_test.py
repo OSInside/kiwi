@@ -131,37 +131,43 @@ class TestBootImageKiwi:
             call(device='/proc', mountpoint='system-directory/proc')
         ]
         assert mock_command.call_args_list == [
-            call([
-                'chroot', 'system-directory',
-                'dracut', '--verbose', '--no-hostonly',
-                '--no-hostonly-cmdline', '--xz',
-                '--add', ' foo ', '--omit', ' bar ',
-                '--install', 'system-directory/etc/foo',
-                'LimeJeOS.x86_64-1.13.2.initrd.xz', '1.2.3'
-            ], stderr_to_stdout=True),
-            call([
-                'mv',
-                'system-directory/'
-                'LimeJeOS.x86_64-1.13.2.initrd.xz',
-                'some-target-dir'
-            ])
+            call(
+                [
+                    'chroot', 'system-directory',
+                    'dracut', '--verbose', '--no-hostonly',
+                    '--no-hostonly-cmdline',
+                    '--add', ' foo ', '--omit', ' bar ',
+                    '--install', 'system-directory/etc/foo',
+                    'LimeJeOS.x86_64-1.13.2.initrd', '1.2.3'
+                ], stderr_to_stdout=True),
+            call(
+                [
+                    'mv',
+                    'system-directory/'
+                    'LimeJeOS.x86_64-1.13.2.initrd',
+                    'some-target-dir'
+                ]
+            )
         ]
         mock_command.reset_mock()
         self.boot_image.create_initrd(basename='foo')
         assert mock_command.call_args_list == [
-            call([
-                'chroot', 'system-directory',
-                'dracut', '--verbose', '--no-hostonly',
-                '--no-hostonly-cmdline', '--xz',
-                '--add', ' foo ', '--omit', ' bar ',
-                '--install', 'system-directory/etc/foo',
-                'foo.xz', '1.2.3'
-            ], stderr_to_stdout=True),
-            call([
-                'mv',
-                'system-directory/foo.xz',
-                'some-target-dir'
-            ])
+            call(
+                [
+                    'chroot', 'system-directory',
+                    'dracut', '--verbose', '--no-hostonly',
+                    '--no-hostonly-cmdline',
+                    '--add', ' foo ', '--omit', ' bar ',
+                    '--install', 'system-directory/etc/foo',
+                    'foo', '1.2.3'
+                ], stderr_to_stdout=True),
+            call(
+                [
+                    'mv',
+                    'system-directory/foo',
+                    'some-target-dir'
+                ]
+            )
         ]
 
     def test_has_initrd_support(self):

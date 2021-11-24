@@ -181,7 +181,7 @@ target system:
 
       .. code:: bash
 
-          scp pxeboot.{exc_image_base_name_disk}.x86_64-{exc_image_version}.initrd.xz PXE_SERVER_IP:/srv/tftpboot/boot/initrd
+          scp pxeboot.{exc_image_base_name_disk}.x86_64-{exc_image_version}.initrd PXE_SERVER_IP:/srv/tftpboot/boot/initrd
           scp pxeboot.{exc_image_base_name_disk}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
 3. Copy the disk image, MD5 file, system kernel, initrd and bootoptions to
