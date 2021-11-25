@@ -183,18 +183,29 @@ function check_repart_possible {
         fi
     fi
     if [ "${min_additional_mbytes}" -gt "${disk_free_mbytes}" ];then
-        # Requested size for root exceeds free space on disk
-        local requested_size
-        if [ -n "${kiwi_oemrootMB}" ];then
-            requested_size="root:($((kiwi_oemrootMB - disk_root_mbytes)) MB)"
+        if [ "${disk_free_mbytes}" -gt 2 ];then
+            # Requested size for root exceeds free space on disk
+            local requested_size
+            if [ -n "${kiwi_oemrootMB}" ];then
+                requested_size="root:($((kiwi_oemrootMB - disk_root_mbytes)) MB)"
+            else
+                requested_size="root:(keep)"
+            fi
+            warn "Requested OEM systemsize exceeds free space on the disk:"
+            warn "Disk won't be re-partitioned !"
+            echo
+            warn "Requested size(s): ${requested_size}"
+            warn "==> Free Space on disk: ${disk_free_mbytes} MB"
         else
-            requested_size="root:(keep)"
+            # The free space on disk calculated to a very small number.
+            # This usally indicates that the disk geometry was not
+            # intentionally changed and the rest free space is a
+            # rounding number on the partition alignment. In this case
+            # no warning message is shown because it's the typical
+            # situation on reboot of a machine without disk geometry
+            # changes.
+            :
         fi
-        warn "Requested OEM systemsize exceeds free space on the disk:"
-        warn "Disk won't be re-partitioned !"
-        echo
-        warn "Requested size(s): ${requested_size}"
-        warn "==> Free Space on disk: ${disk_free_mbytes} MB"
         return 1
     fi
     return 0
