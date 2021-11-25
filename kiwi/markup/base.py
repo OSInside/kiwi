@@ -35,7 +35,7 @@ class MarkupBase:
 
     Attributes
 
-    :param str description: description path or content
+    :param str description: description path
     """
     def __init__(self, description: str):
         self.description = description
@@ -69,7 +69,9 @@ class MarkupBase:
             )
 
         xslt_transform_parser = etree.XMLParser()
-        xslt_transform_parser.resolvers.add(FileResolver())
+        xslt_transform_parser.resolvers.add(
+            FileResolver(os.path.dirname(self.description))
+        )
         xslt_transform = etree.XSLT(
             etree.parse(
                 Defaults.get_xsl_stylesheet_file(), xslt_transform_parser
@@ -108,10 +110,20 @@ class MarkupBase:
 
 
 class FileResolver(etree.Resolver):
+    def __init__(self, description_dir):
+        self.description_dir = description_dir
+
     def resolve(self, url, pubid, context):
+        if url.startswith('this://'):
+            url = url.replace('this://', '')
+            url = 'dir://{0}'.format(
+                os.path.realpath(os.path.join(self.description_dir, url))
+            )
         uri = urlparse(url)
         if uri.path and uri.netloc:
             url = ''.join([uri.netloc, uri.path])
+        elif uri.path:
+            url = uri.path
         if os.path.exists(url):
             return self.resolve_filename(url, context)
         else:

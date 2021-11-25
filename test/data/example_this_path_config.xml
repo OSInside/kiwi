@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.4" name="JeOS">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            Test this path source in repo
+        </specification>
+    </description>
+    <preferences>
+        <version>1.1.1</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="oem" filesystem="ext3" firmware="efi"/>
+    </preferences>
+    <repository>
+        <source path="this://my_repo"/>
+    </repository>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+    </packages>
+</image>

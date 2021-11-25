@@ -1,3 +1,4 @@
+import os
 import logging
 from collections import namedtuple
 from mock import (
@@ -1010,4 +1011,13 @@ class TestXMLState:
     @patch('kiwi.system.uri.os.path.abspath')
     def test_get_repositories_signing_keys(self, mock_root_path):
         mock_root_path.side_effect = lambda x: f'/some/path/{x}'
-        assert self.state.get_repositories_signing_keys() == ['/some/path/key_a', '/some/path/key_b']
+        assert self.state.get_repositories_signing_keys() == [
+            '/some/path/key_a', '/some/path/key_b'
+        ]
+
+    def test_this_path_resolver(self):
+        description = XMLDescription('../data/example_this_path_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.xml_data.get_repository()[0].get_source().get_path() \
+            == 'dir://{0}/my_repo'.format(os.path.realpath('../data'))

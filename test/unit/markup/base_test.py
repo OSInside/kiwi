@@ -3,6 +3,8 @@ from mock import patch
 from pytest import raises
 
 from kiwi.markup.base import MarkupBase
+from kiwi.xml_description import XMLDescription
+from kiwi.xml_state import XMLState
 
 from kiwi.exceptions import (
     KiwiConfigFileFormatNotSupported,
@@ -51,3 +53,16 @@ class TestMarkupBase:
             markup.apply_xslt_stylesheets(
                 '../data/example_include_config_missing_reference.xml'
             )
+
+    def test_apply_xslt_stylesheets_include_from_image_description_dir(self):
+        markup = MarkupBase(
+            '../data/example_include_config_from_description_dir.xml'
+        )
+        xml_description = markup.apply_xslt_stylesheets(
+            '../data/example_include_config_from_description_dir.xml'
+        )
+        description = XMLDescription(xml_description)
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.xml_data.get_repository()[0].get_source().get_path() == \
+            'http://example.com'

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from typing import (
     List, Optional, Any, Dict, NamedTuple
 )
@@ -96,6 +97,7 @@ class XMLState:
         self.build_type = self._build_type_section(
             build_type
         )
+        self.resolve_this_path()
 
     def get_preferences_sections(self) -> List:
         """
@@ -1799,6 +1801,27 @@ class XMLState:
                 package_gpgcheck=repo_package_gpgcheck
             )
         )
+
+    def resolve_this_path(self) -> None:
+        """
+        Resolve any this:// repo source path into the path
+        representing the target inside of the image description
+        directory
+        """
+        for repository in self.get_repository_sections() or []:
+            repo_source = repository.get_source()
+            repo_path = repo_source.get_path()
+            if repo_path.startswith('this://'):
+                repo_path = repo_path.replace('this://', '')
+                repo_source.set_path(
+                    'dir://{0}'.format(
+                        os.path.realpath(
+                            os.path.join(
+                                self.xml_data.description_dir, repo_path
+                            )
+                        )
+                    )
+                )
 
     def copy_displayname(self, target_state: Any) -> None:
         """
