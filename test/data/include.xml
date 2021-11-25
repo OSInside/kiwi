@@ -1,0 +1,5 @@
+<image>
+    <repository>
+        <source path="http://example.com"/>
+    </repository>
+</image>

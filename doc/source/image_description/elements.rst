@@ -70,7 +70,9 @@ This will replace the `include` statement with the contents
 of :file:`description.xml`. The validation of the result happens
 after the inclusion of all `include` references. The value for
 the `from` attribute is interpreted as an URI, as of now only
-local URI types are supported.
+local URI types are supported as well as the `this://` resource
+locator which translates into the path to the KIWI image
+description.
 
 .. note::
 
