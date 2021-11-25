@@ -117,7 +117,7 @@ class FileResolver(etree.Resolver):
         if url.startswith('this://'):
             url = url.replace('this://', '')
             url = 'dir://{0}'.format(
-                os.path.abspath(os.path.join(self.description_dir, url))
+                os.path.realpath(os.path.join(self.description_dir, url))
             )
         uri = urlparse(url)
         if uri.path and uri.netloc:

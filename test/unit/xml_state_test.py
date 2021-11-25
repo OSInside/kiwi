@@ -1020,4 +1020,4 @@ class TestXMLState:
         xml_data = description.load()
         state = XMLState(xml_data)
         assert state.xml_data.get_repository()[0].get_source().get_path() \
-            == 'dir://{0}/my_repo'.format(os.path.abspath('../data'))
+            == 'dir://{0}/my_repo'.format(os.path.realpath('../data'))

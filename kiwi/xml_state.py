@@ -1815,7 +1815,7 @@ class XMLState:
                 repo_path = repo_path.replace('this://', '')
                 repo_source.set_path(
                     'dir://{0}'.format(
-                        os.path.abspath(
+                        os.path.realpath(
                             os.path.join(
                                 self.xml_data.description_dir, repo_path
                             )
