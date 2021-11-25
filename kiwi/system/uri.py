@@ -52,6 +52,23 @@ class Uri:
         standard URLs
 
         :param str uri: URI, remote, local or metalink repository location
+            The resource type as part of the URI can be set to one of:
+            * http:
+            * https:
+            * ftp:
+            * obs:
+            * dir:
+            * file:
+            * obsrepositories:
+            * this:
+            The special this:// type resolve to the image description
+            directory. The code to resolve this is not part of the Uri
+            class because it has no state information about the image
+            description directory. Therefore the resolving of the this://
+            path happens on construction of an XMLState object as
+            part of the resolve_this_path() method. The method resolves
+            the path into a native dir:// URI which can be properly
+            handled here.
         :param str repo_type:
             repository type name, defaults to 'rpm-md' and is only
             effectively used when building inside of the open
