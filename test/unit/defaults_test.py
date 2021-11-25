@@ -189,3 +189,11 @@ class TestDefaults:
             '/usr/lib/shim/shimx64.efi.signed',
             binaryname='shimx64.efi'
         )
+
+    @patch('os.path.exists')
+    def test_get_snapper_config_template_file(self, mock_os_path_exists):
+        mock_os_path_exists.return_value = False
+        assert Defaults.get_snapper_config_template_file('root') == ''
+        mock_os_path_exists.return_value = True
+        assert Defaults.get_snapper_config_template_file('root') == \
+            'root/etc/snapper/config-templates/default'

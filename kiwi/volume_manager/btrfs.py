@@ -387,10 +387,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
     def _create_snapper_quota_configuration(self):
         root_path = os.sep.join([self.mountpoint, '@/.snapshots/1/snapshot'])
-        snapper_default_conf = os.path.normpath(os.sep.join(
-            [root_path, Defaults.get_snapper_config_template_file()]
-        ))
-        if os.path.exists(snapper_default_conf):
+        snapper_default_conf = Defaults.get_snapper_config_template_file(
+            root_path
+        )
+        if snapper_default_conf:
             # snapper requires an extra parent qgroup to operate with quotas
             Command.run(
                 ['btrfs', 'qgroup', 'create', '1/0', self.mountpoint]

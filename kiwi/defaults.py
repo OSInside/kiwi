@@ -470,15 +470,26 @@ class Defaults:
         return 'INSTALL'
 
     @staticmethod
-    def get_snapper_config_template_file():
+    def get_snapper_config_template_file(root: str) -> str:
         """
-        Provides the default configuration template file for snapper
+        Provides the default configuration template file for snapper.
+        The location in etc/ are preferred over files in usr/
 
-        :return: file
+        :return: file path
 
         :rtype: str
         """
-        return '/etc/snapper/config-templates/default'
+        snapper_templates = [
+            'etc/snapper/config-templates/default',
+            'usr/share/snapper/config-templates/default'
+        ]
+        snapper_default_conf = ''
+        for snapper_template in snapper_templates:
+            template_config = os.path.join(root, snapper_template)
+            if os.path.exists(template_config):
+                snapper_default_conf = template_config
+                break
+        return snapper_default_conf
 
     @staticmethod
     def get_default_video_mode():
