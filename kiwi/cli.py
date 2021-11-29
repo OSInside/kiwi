@@ -24,6 +24,7 @@ usage: kiwi-ng -h | --help
                [--debug]
                [--color-output]
                [--config=<configfile>]
+               [--kiwi-file=<kiwifile>]
            image <command> [<args>...]
        kiwi-ng [--logfile=<filename>]
                [--debug]
@@ -39,6 +40,7 @@ usage: kiwi-ng -h | --help
                [--debug]
                [--color-output]
                [--config=<configfile>]
+               [--kiwi-file=<kiwifile>]
            system <command> [<args>...]
        kiwi-ng compat <legacy_args>...
        kiwi-ng --compat <legacy_args>...
@@ -80,6 +82,10 @@ global options for services: image, system
     --type=<build_type>
         image build type. If not set the default XML specified
         build type will be used
+    --kiwi-file=<kiwifile>
+        Basename of kiwi file which contains the main image
+        configuration elements. If not specified kiwi searches for
+        a file named config.xml or a file matching *.kiwi
 
 global options for services: system
     --target-arch=<name>

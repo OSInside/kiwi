@@ -18,6 +18,9 @@
 import os
 import logging
 import glob
+from typing import (
+    List, Dict, Optional, Union, Any
+)
 from operator import attrgetter
 
 # project
@@ -31,7 +34,7 @@ from kiwi.exceptions import (
     KiwiConfigFileNotFound
 )
 
-log = logging.getLogger('kiwi')
+log: Any = logging.getLogger('kiwi')
 
 
 class CliTask:
@@ -48,11 +51,11 @@ class CliTask:
         * setup logfile
         * setup color output
     """
-    def __init__(self, should_perform_task_setup=True):
+    def __init__(self, should_perform_task_setup: bool = True) -> None:
         self.cli = Cli()
 
         # initialize runtime checker
-        self.runtime_checker = None
+        self.runtime_checker: Optional[RuntimeChecker] = None
 
         # help requested
         self.cli.show_and_exit_on_help_request()
@@ -70,7 +73,7 @@ class CliTask:
         self.runtime_config = RuntimeConfig()
 
         # initialize generic runtime check dicts
-        self.checks_before_command_args = {
+        self.checks_before_command_args: Dict[str, List[str]] = {
             'check_image_version_provided': [],
             'check_efi_mode_for_disk_overlay_correctly_setup': [],
             'check_initrd_selection_required': [],
@@ -94,7 +97,7 @@ class CliTask:
             'check_image_type_unique': [],
             'check_include_references_unresolvable': []
         }
-        self.checks_after_command_args = {
+        self.checks_after_command_args: Dict[str, List[str]] = {
             'check_repositories_configured': [],
             'check_image_include_repos_publicly_resolvable': []
         }
@@ -115,32 +118,35 @@ class CliTask:
             if self.global_args['--color-output']:
                 log.set_color_format()
 
-    def load_xml_description(self, description_directory):
+    def load_xml_description(
+        self, description_directory: str, kiwi_file: str = ''
+    ) -> None:
         """
         Load, upgrade, validate XML description
 
-        Attributes
+        :param str description_directory:
+            Path to the image description
 
-        * :attr:`xml_data`
-            instance of XML data toplevel domain (image), stateless data
-
-        * :attr:`config_file`
-            used config file path
-
-        * :attr:`xml_state`
-            Instance of XMLState, stateful data
+        :param str kiwi_file:
+            Basename of kiwi file which contains the main
+            image configuration elements. If not specified
+            kiwi searches for a file named config.xml or
+            a file matching .kiwi
         """
         log.info('Loading XML description')
-        config_file = description_directory + '/config.xml'
-        if not os.path.exists(config_file):
-            # alternative config file lookup location
-            config_file = description_directory + '/image/config.xml'
-        if not os.path.exists(config_file):
-            # glob config file search, first match wins
-            glob_match = description_directory + '/*.kiwi'
-            for kiwi_file in sorted(glob.iglob(glob_match)):
-                config_file = kiwi_file
-                break
+        if kiwi_file:
+            config_file = os.sep.join([description_directory, kiwi_file])
+        else:
+            config_file = os.sep.join([description_directory, '/config.xml'])
+            if not os.path.exists(config_file):
+                # alternative config file lookup location
+                config_file = description_directory + '/image/config.xml'
+            if not os.path.exists(config_file):
+                # glob config file search, first match wins
+                glob_match = description_directory + '/*.kiwi'
+                for kiwi_file in sorted(glob.iglob(glob_match)):
+                    config_file = kiwi_file
+                    break
 
         if not os.path.exists(config_file):
             raise KiwiConfigFileNotFound(
@@ -172,7 +178,7 @@ class CliTask:
 
         self.runtime_checker = RuntimeChecker(self.xml_state)
 
-    def quadruple_token(self, option):
+    def quadruple_token(self, option: str) -> List[Union[bool, str, None]]:
         """
         Helper method for commandline options of the form --option a,b,c,d
 
@@ -187,7 +193,7 @@ class CliTask:
         """
         return self._ntuple_token(option, 4)
 
-    def sextuple_token(self, option):
+    def sextuple_token(self, option: str) -> List[Union[bool, str, None]]:
         """
         Helper method for commandline options of the form --option a,b,c,d,e,f
 
@@ -202,7 +208,7 @@ class CliTask:
         """
         return self._ntuple_token(option, 6)
 
-    def run_checks(self, checks):
+    def run_checks(self, checks: Dict[str, List[str]]) -> None:
         """
         This method runs the given runtime checks excluding the ones disabled
         in the runtime configuration file.
@@ -218,7 +224,7 @@ class CliTask:
             }.items():
                 attrgetter(method)(self.runtime_checker)(*args)
 
-    def _pop_token(self, tokens):
+    def _pop_token(self, tokens: List[str]) -> Union[bool, str]:
         token = tokens.pop(0)
         if len(token) > 0 and token == 'true':
             return True
@@ -227,7 +233,9 @@ class CliTask:
         else:
             return token
 
-    def _ntuple_token(self, option, tuple_count):
+    def _ntuple_token(
+        self, option: str, tuple_count: int
+    ) -> List[Union[bool, str, None]]:
         """
         Helper method for commandline options of the form --option a,b,c,d,e,f
 

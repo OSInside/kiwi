@@ -77,6 +77,8 @@ class TestCliTask:
     def test_load_xml_description_raises(self):
         with raises(KiwiConfigFileNotFound):
             self.task.load_xml_description('foo')
+        with raises(KiwiConfigFileNotFound):
+            self.task.load_xml_description('path', 'custom_kiwi_file')
 
     def teardown(self):
         sys.argv = argv_kiwi_tests

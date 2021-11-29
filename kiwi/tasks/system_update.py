@@ -74,7 +74,7 @@ class SystemUpdateTask(CliTask):
         abs_root_path = os.path.abspath(self.command_args['--root'])
 
         self.load_xml_description(
-            abs_root_path
+            abs_root_path, self.global_args['--kiwi-file']
         )
 
         package_requests = False

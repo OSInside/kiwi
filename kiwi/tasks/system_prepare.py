@@ -121,7 +121,7 @@ class SystemPrepareTask(CliTask):
         Privileges.check_for_root_permissions()
 
         self.load_xml_description(
-            self.command_args['--description']
+            self.command_args['--description'], self.global_args['--kiwi-file']
         )
 
         abs_root_path = os.path.abspath(self.command_args['--root'])
