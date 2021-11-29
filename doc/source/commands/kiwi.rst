@@ -18,6 +18,7 @@ SYNOPSIS
            [--debug]
            [--color-output]
            [--config=<configfile>]
+           [--kiwi-file=<kiwifile>]
        image <command> [<args>...]
    kiwi-ng [--debug]
            [--color-output]
@@ -32,6 +33,7 @@ SYNOPSIS
            [--debug]
            [--color-output]
            [--config=<configfile>]
+           [--kiwi-file=<kiwifile>]
        system <command> [<args>...]
    kiwi-ng compat <legacy_args>...
    kiwi-ng -v | --version
@@ -138,6 +140,12 @@ GLOBAL OPTIONS
 
   Select image build type. The specified build type must be configured
   as part of the XML description.
+
+--kiwi-file=<kiwifile>
+
+  Basename of kiwi file which contains the main image
+  configuration elements. If not specified kiwi searches for
+  a file named `config.xml` or a file matching `*.kiwi`
 
 --version
 

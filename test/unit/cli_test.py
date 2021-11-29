@@ -43,7 +43,8 @@ class TestCli:
             '--temp-dir': '/var/tmp',
             '--target-arch': None,
             '--help': False,
-            '--config': 'config-file'
+            '--config': 'config-file',
+            '--kiwi-file': None
         }
         self.command_args = {
             '--add-repo': [],

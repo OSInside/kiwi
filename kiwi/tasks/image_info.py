@@ -73,7 +73,7 @@ class ImageInfoTask(CliTask):
             return self.manual.show('kiwi::image::info')
 
         self.load_xml_description(
-            self.command_args['--description']
+            self.command_args['--description'], self.global_args['--kiwi-file']
         )
 
         if self.command_args['--ignore-repos']:

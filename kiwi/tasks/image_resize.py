@@ -94,7 +94,7 @@ class ImageResizeTask(CliTask):
             )
 
         self.load_xml_description(
-            image_root
+            image_root, self.global_args['--kiwi-file']
         )
 
         disk_format = self.xml_state.build_type.get_format()

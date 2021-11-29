@@ -137,7 +137,7 @@ class SystemBuildTask(CliTask):
             )
 
         self.load_xml_description(
-            self.command_args['--description']
+            self.command_args['--description'], self.global_args['--kiwi-file']
         )
 
         build_checks = self.checks_before_command_args

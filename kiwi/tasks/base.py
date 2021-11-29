@@ -118,32 +118,35 @@ class CliTask:
             if self.global_args['--color-output']:
                 log.set_color_format()
 
-    def load_xml_description(self, description_directory: str) -> None:
+    def load_xml_description(
+        self, description_directory: str, kiwi_file: str = ''
+    ) -> None:
         """
         Load, upgrade, validate XML description
 
-        Attributes
+        :param str description_directory:
+            Path to the image description
 
-        * :attr:`xml_data`
-            instance of XML data toplevel domain (image), stateless data
-
-        * :attr:`config_file`
-            used config file path
-
-        * :attr:`xml_state`
-            Instance of XMLState, stateful data
+        :param str kiwi_file:
+            Basename of kiwi file which contains the main
+            image configuration elements. If not specified
+            kiwi searches for a file named config.xml or
+            a file matching .kiwi
         """
         log.info('Loading XML description')
-        config_file = description_directory + '/config.xml'
-        if not os.path.exists(config_file):
-            # alternative config file lookup location
-            config_file = description_directory + '/image/config.xml'
-        if not os.path.exists(config_file):
-            # glob config file search, first match wins
-            glob_match = description_directory + '/*.kiwi'
-            for kiwi_file in sorted(glob.iglob(glob_match)):
-                config_file = kiwi_file
-                break
+        if kiwi_file:
+            config_file = os.sep.join([description_directory, kiwi_file])
+        else:
+            config_file = os.sep.join([description_directory, '/config.xml'])
+            if not os.path.exists(config_file):
+                # alternative config file lookup location
+                config_file = description_directory + '/image/config.xml'
+            if not os.path.exists(config_file):
+                # glob config file search, first match wins
+                glob_match = description_directory + '/*.kiwi'
+                for kiwi_file in sorted(glob.iglob(glob_match)):
+                    config_file = kiwi_file
+                    break
 
         if not os.path.exists(config_file):
             raise KiwiConfigFileNotFound(
