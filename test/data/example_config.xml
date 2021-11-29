@@ -41,6 +41,7 @@
     <preferences>
         <locale>en_US,de_DE</locale>
         <rpm-locale-filtering>true</rpm-locale-filtering>
+        <release-version>15.3</release-version>
     </preferences>
     <preferences>
         <version>1.13.2</version>

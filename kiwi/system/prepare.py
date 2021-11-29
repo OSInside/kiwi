@@ -124,6 +124,7 @@ class SystemPrepare:
         repository_sections = \
             self.xml_state.get_repository_sections_used_for_build()
         package_manager = self.xml_state.get_package_manager()
+        release_version = self.xml_state.get_release_version()
         rpm_locale_list = self.xml_state.get_rpm_locale()
         if self.xml_state.get_rpm_check_signatures():
             repository_options.append('check_signatures')
@@ -199,7 +200,9 @@ class SystemPrepare:
             self.uri_list.append(uri)
         repo.cleanup_unused_repos()
         return PackageManager.new(
-            repo, package_manager
+            repository=repo,
+            package_manager_name=package_manager,
+            release_version=release_version
         )
 
     def install_bootstrap(
@@ -374,9 +377,13 @@ class SystemPrepare:
             try:
                 if manager is None:
                     package_manager = self.xml_state.get_package_manager()
+                    release_version = self.xml_state.get_release_version()
                     manager = PackageManager.new(
-                        Repository.new(self.root_bind, package_manager),
-                        package_manager
+                        repository=Repository.new(
+                            self.root_bind, package_manager
+                        ),
+                        package_manager_name=package_manager,
+                        release_version=release_version
                     )
                 self.delete_packages(
                     manager, to_become_deleted_packages, force
@@ -497,9 +504,11 @@ class SystemPrepare:
         at run time such as macros
         """
         package_manager = self.xml_state.get_package_manager()
+        release_version = self.xml_state.get_release_version()
         manager = PackageManager.new(
-            Repository.new(self.root_bind, package_manager),
-            package_manager
+            repository=Repository.new(self.root_bind, package_manager),
+            package_manager_name=package_manager,
+            release_version=release_version
         )
         manager.clean_leftovers()
 

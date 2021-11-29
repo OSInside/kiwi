@@ -34,7 +34,8 @@ class PackageManagerBase:
     :param list product_requests: list of products to install
     """
     def __init__(
-        self, repository: RepositoryBase, custom_args: List = []
+        self, repository: RepositoryBase, custom_args: List = [],
+        release_version: str = ''
     ) -> None:
         self.repository = repository
         self.root_dir = repository.root_dir
@@ -42,6 +43,7 @@ class PackageManagerBase:
         self.collection_requests: List[str] = []
         self.product_requests: List[str] = []
         self.exclude_requests: List[str] = []
+        self.release_version = release_version or '0'
 
         self.post_init(custom_args or [])
 

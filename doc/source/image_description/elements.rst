@@ -289,6 +289,22 @@ bootloader has theme support.
 Along with the version and the packagemanager at least one image type
 element must be specified to indicate which image type should be build.
 
+<preferences><release-version>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Specifies the distribution global release version as consumed
+by package managers. Currently the release version is not set or
+set to `0` for package managers which requires a value to operate.
+With the optional `release-version` section, users have an
+opportunity to specify a custom value which is passed along the package
+manager to define the distribution release.
+
+.. note::
+
+   The release version information is currently
+   used in dnf and microdnf package managers only. It might
+   happen that it gets applied to the other package manager
+   backends as well. This will happen on demand though.
+
 <preferences><type>
 ~~~~~~~~~~~~~~~~~~~
 At least one type element must be configured. It is possible to

@@ -111,7 +111,8 @@ class PackageManagerMicroDnf(PackageManagerBase):
             'microdnf'
         ] + ['--refresh'] + self.dnf_args + [
             '--installroot', self.root_dir,
-            '--releasever=0', '--noplugins',
+            f'--releasever={self.release_version}',
+            '--noplugins',
             '--setopt=cachedir={0}'.format(
                 self.repository.shared_dnf_dir['cache-dir']
             ),
@@ -148,7 +149,9 @@ class PackageManagerMicroDnf(PackageManagerBase):
         )
         microdnf_command = [
             'chroot', self.root_dir, 'microdnf'
-        ] + chroot_dnf_args + self.custom_args + exclude_args + [
+        ] + chroot_dnf_args + [
+            f'--releasever={self.release_version}'
+        ] + self.custom_args + exclude_args + [
             'install'
         ] + self.package_requests
         self.cleanup_requests()
@@ -195,7 +198,9 @@ class PackageManagerMicroDnf(PackageManagerBase):
             chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
             dnf_command = [
                 'chroot', self.root_dir, 'microdnf'
-            ] + chroot_dnf_args + self.custom_args + [
+            ] + chroot_dnf_args + [
+                f'--releasever={self.release_version}'
+            ] + self.custom_args + [
                 'remove'
             ] + self.package_requests
             self.cleanup_requests()
@@ -215,7 +220,9 @@ class PackageManagerMicroDnf(PackageManagerBase):
         return Command.call(
             [
                 'chroot', self.root_dir, 'microdnf'
-            ] + chroot_dnf_args + self.custom_args + [
+            ] + chroot_dnf_args + [
+                f'--releasever={self.release_version}'
+            ] + self.custom_args + [
                 'upgrade'
             ],
             self.command_env

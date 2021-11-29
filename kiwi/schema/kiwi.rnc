@@ -849,6 +849,20 @@ div {
 }
 
 #==========================================
+# common element <release-version>
+#
+div {
+    k.release-version.content = text
+    k.release-version.attlist = empty
+    k.release-version =
+        ## Name of the Package Manager
+        element release-version {
+            k.release-version.attlist,
+            k.release-version.content
+        }
+}
+
+#==========================================
 # common element <profile>
 #
 div {
@@ -3011,6 +3025,7 @@ div {
             k.keytable? &
             k.locale? &
             k.packagemanager? &
+            k.release-version? &
             k.rpm-locale-filtering? &
             k.rpm-check-signatures? &
             k.rpm-excludedocs? &

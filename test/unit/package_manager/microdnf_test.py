@@ -68,7 +68,7 @@ class TestPackageManagerMicroDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'microdnf', '--config', '/dnf.conf',
-                '-y', '--exclude=skipme', 'install', 'vim'
+                '-y', '--releasever=0', '--exclude=skipme', 'install', 'vim'
             ], ['env']
         )
 
@@ -95,7 +95,8 @@ class TestPackageManagerMicroDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'microdnf',
-                '--config', '/dnf.conf', '-y', 'remove', 'vim'
+                '--config', '/dnf.conf', '-y',
+                '--releasever=0', 'remove', 'vim'
             ],
             ['env']
         )
@@ -119,7 +120,7 @@ class TestPackageManagerMicroDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'microdnf',
-                '--config', '/dnf.conf', '-y', 'upgrade'
+                '--config', '/dnf.conf', '-y', '--releasever=0', 'upgrade'
             ], ['env']
         )
 

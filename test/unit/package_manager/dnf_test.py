@@ -43,12 +43,16 @@ class TestPackageManagerDnf:
         self.manager.request_collection('collection')
         self.manager.process_install_requests_bootstrap()
         mock_run.assert_called_once_with(
-            ['dnf', '--config', '/root-dir/dnf.conf', '-y', 'makecache']
+            [
+                'dnf', '--config', '/root-dir/dnf.conf', '-y',
+                '--releasever=0', 'makecache'
+            ]
         )
         mock_call.assert_called_once_with(
             [
                 'dnf', '--config', '/root-dir/dnf.conf', '-y',
-                '--installroot', '/root-dir', 'install', 'vim', '@collection'
+                '--installroot', '/root-dir', '--releasever=0',
+                'install', 'vim', '@collection'
             ], ['env']
         )
 
@@ -61,7 +65,8 @@ class TestPackageManagerDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'dnf', '--config', '/dnf.conf', '-y',
-                '--exclude=skipme', 'install', 'vim', '@collection'
+                '--releasever=0', '--exclude=skipme',
+                'install', 'vim', '@collection'
             ], ['env']
         )
 
@@ -88,7 +93,8 @@ class TestPackageManagerDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'dnf',
-                '--config', '/dnf.conf', '-y', 'autoremove', 'vim'
+                '--config', '/dnf.conf', '-y',
+                '--releasever=0', 'autoremove', 'vim'
             ],
             ['env']
         )
@@ -112,7 +118,8 @@ class TestPackageManagerDnf:
         mock_call.assert_called_once_with(
             [
                 'chroot', '/root-dir', 'dnf',
-                '--config', '/dnf.conf', '-y', 'upgrade'
+                '--config', '/dnf.conf', '-y',
+                '--releasever=0', 'upgrade'
             ], ['env']
         )
 
