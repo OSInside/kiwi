@@ -198,7 +198,7 @@ function check_repart_possible {
             warn "==> Free Space on disk: ${disk_free_mbytes} MB"
         else
             # The free space on disk calculated to a very small number.
-            # This usally indicates that the disk geometry was not
+            # This usually indicates that the disk geometry was not
             # intentionally changed and the rest free space is a
             # rounding number on the partition alignment. In this case
             # no warning message is shown because it's the typical
