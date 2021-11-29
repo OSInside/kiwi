@@ -46,7 +46,7 @@ OPTIONS
 --signing-key=<key-file>
 
   set the key file to be trusted and imported into the package
-  manager database before performing any opertaion. This is useful
+  manager database before performing any operation. This is useful
   if an image build should take and validate repository and package
   signatures during build time. In create step this option only
   affects the boot image. This option can be specified multiple
