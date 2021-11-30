@@ -159,11 +159,10 @@ class TestContainerImageOCI:
             'result.tar', 'oci-archive', 'latest', []
         )
 
-    @patch('kiwi.container.oci.Compress')
     @patch('kiwi.container.oci.OCI')
     @patch('kiwi.container.oci.Defaults.get_shared_cache_location')
     def test_create_derived_docker_archive(
-        self, mock_cache, mock_OCI, mock_compress
+        self, mock_cache, mock_OCI
     ):
         mock_cache.return_value = 'var/cache/kiwi'
         mock_oci = mock.Mock()
@@ -200,5 +199,3 @@ class TestContainerImageOCI:
             'result.tar', 'docker-archive', 'foo/bar:latest',
             ['foo/bar:current', 'foo/bar:foobar']
         )
-
-        mock_compress.assert_called_once_with('result.tar')

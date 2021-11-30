@@ -152,7 +152,7 @@ class ContainerBuilder:
             key='container',
             filename=self.filename,
             use_for_bundle=True,
-            compress=False,
+            compress=self.runtime_config.get_container_compression(),
             shasum=True
         )
         self.result.add(

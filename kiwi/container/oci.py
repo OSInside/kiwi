@@ -20,9 +20,7 @@ import logging
 
 # project
 from kiwi.defaults import Defaults
-from kiwi.runtime_config import RuntimeConfig
 from kiwi.oci_tools import OCI
-from kiwi.utils.compress import Compress
 
 log = logging.getLogger('kiwi')
 
@@ -67,8 +65,6 @@ class ContainerImageOCI:
             self.oci_config = custom_args
         else:
             self.oci_config = {}
-
-        self.runtime_config = RuntimeConfig()
 
         # for builds inside the buildservice we include a reference to the
         # specific build. Thus disturl label only exists inside the
@@ -160,11 +156,7 @@ class ContainerImageOCI:
             filename, self.archive_transport, image_ref, additional_refs
         )
 
-        if self.runtime_config.get_container_compression():
-            compressor = Compress(filename)
-            return compressor.xz(self.runtime_config.get_xz_options())
-        else:
-            return filename
+        return filename
 
     def _append_buildservice_disturl_label(self):
         with open(os.sep + Defaults.get_buildservice_env_name()) as env:
