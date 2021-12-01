@@ -231,27 +231,27 @@ class RuntimeConfig:
 
     def get_container_compression(self):
         """
-        Return compression algorithm to use for compression of container images
+        Return compression for container images
 
         container:
-          - compress: xz|none
+          - compress: xz|none|true|false
 
         if no or invalid configuration data is provided, the default
-        compression algorithm from the Defaults class is returned
+        compression from the Defaults class is returned
 
-        :return: A name
+        :return: True or False
 
-        :rtype: str
+        :rtype: bool
         """
         container_compression = self._get_attribute(
             element='container', attribute='compress'
         )
-        if not container_compression:
+        if container_compression is None:
             return Defaults.get_container_compression()
-        elif 'xz' in container_compression:
-            return container_compression
-        elif 'none' in container_compression:
-            return None
+        elif 'xz' == container_compression or container_compression is True:
+            return True
+        elif 'none' == container_compression or container_compression is False:
+            return False
         else:
             log.warning(
                 'Skipping invalid container compression: {0}'.format(

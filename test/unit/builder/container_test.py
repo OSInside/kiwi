@@ -18,6 +18,9 @@ class TestContainerBuilder:
         self.runtime_config.get_max_size_constraint = mock.Mock(
             return_value=None
         )
+        self.runtime_config.get_container_compression = mock.Mock(
+            return_value=True
+        )
         kiwi.builder.container.RuntimeConfig = mock.Mock(
             return_value=self.runtime_config
         )
@@ -119,7 +122,7 @@ class TestContainerBuilder:
         mock_setup.new.return_value = container_setup
         container_image = mock.Mock()
         container_image.create = mock.Mock(
-            return_value='target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
+            return_value='target_dir/image_name.x86_64-1.2.3.docker.tar'
         )
         mock_image.new.return_value = container_image
         self.setup.export_package_verification.return_value = '.verified'
@@ -140,9 +143,9 @@ class TestContainerBuilder:
         assert self.container.result.add.call_args_list == [
             call(
                 key='container',
-                filename='target_dir/image_name.x86_64-1.2.3.docker.tar.xz',
+                filename='target_dir/image_name.x86_64-1.2.3.docker.tar',
                 use_for_bundle=True,
-                compress=False,
+                compress=True,
                 shasum=True
             ),
             call(
@@ -190,7 +193,7 @@ class TestContainerBuilder:
 
         container_image = mock.Mock()
         container_image.create = mock.Mock(
-            return_value='target_dir/image_name.x86_64-1.2.3.docker.tar.xz'
+            return_value='target_dir/image_name.x86_64-1.2.3.docker.tar'
         )
         mock_image.new.return_value = container_image
 
@@ -226,9 +229,9 @@ class TestContainerBuilder:
         assert container.result.add.call_args_list == [
             call(
                 key='container',
-                filename='target_dir/image_name.x86_64-1.2.3.docker.tar.xz',
+                filename='target_dir/image_name.x86_64-1.2.3.docker.tar',
                 use_for_bundle=True,
-                compress=False,
+                compress=True,
                 shasum=True
             ),
             call(

@@ -59,7 +59,7 @@ class TestRuntimeConfig:
             'http://example.com'
         assert runtime_config.get_obs_api_server_url() == \
             'https://api.example.com'
-        assert runtime_config.get_container_compression() is None
+        assert runtime_config.get_container_compression() is False
         assert runtime_config.get_iso_tool_category() == 'xorriso'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_package_changes() is True
@@ -84,7 +84,7 @@ class TestRuntimeConfig:
             Defaults.get_obs_download_server_url()
         assert runtime_config.get_obs_api_server_url() == \
             Defaults.get_obs_api_server_url()
-        assert runtime_config.get_container_compression() == 'xz'
+        assert runtime_config.get_container_compression() is True
         assert runtime_config.get_iso_tool_category() == 'xorriso'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_package_changes() is False
@@ -94,7 +94,7 @@ class TestRuntimeConfig:
             runtime_config = RuntimeConfig(reread=True)
 
         with self._caplog.at_level(logging.WARNING):
-            assert runtime_config.get_container_compression() == 'xz'
+            assert runtime_config.get_container_compression() is True
             assert 'Skipping invalid container compression: foo' in \
                 self._caplog.text
         with self._caplog.at_level(logging.WARNING):
@@ -106,5 +106,5 @@ class TestRuntimeConfig:
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/other'}):
             runtime_config = RuntimeConfig(reread=True)
 
-        assert runtime_config.get_container_compression() == 'xz'
+        assert runtime_config.get_container_compression() is True
         assert runtime_config.get_package_changes() is True

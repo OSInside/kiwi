@@ -1632,13 +1632,13 @@ class Defaults:
     @staticmethod
     def get_container_compression():
         """
-        Provides default container compression algorithm
+        Provides default container compression
 
-        :return: name
+        :return: True
 
-        :rtype: str
+        :rtype: bool
         """
-        return 'xz'
+        return True
 
     @staticmethod
     def get_default_container_name():

@@ -39,9 +39,9 @@
 
 # Setup process parameters for container image creation
 #container:
-#  # Specify compression algorithm for container images
-#  # Possible values are xz or none
-#  - compress: xz
+#  # Specify compression for container images
+#  # Possible values are true, false, xz or none.
+#  - compress: true
 
 
 # Setup process parameters for ISO image creation
