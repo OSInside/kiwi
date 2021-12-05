@@ -31,8 +31,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
+    'sphinx.ext.autodoc'
 ]
 
 docopt_ignore = [
@@ -291,8 +290,6 @@ man_pages = [
         8
     )
 ]
-
-intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
