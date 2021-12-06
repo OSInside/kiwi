@@ -99,12 +99,15 @@ class PackageManagerDnf(PackageManagerBase):
         :rtype: namedtuple
         """
         Command.run(
-            ['dnf'] + self.dnf_args + ['makecache']
+            ['dnf'] + self.dnf_args + [
+                f'--releasever={self.release_version}'
+            ] + ['makecache']
         )
         dnf_command = [
             'dnf'
         ] + self.dnf_args + [
-            '--installroot', self.root_dir
+            '--installroot', self.root_dir,
+            f'--releasever={self.release_version}'
         ] + self.custom_args + [
             'install'
         ] + self.package_requests + self.collection_requests
@@ -134,7 +137,9 @@ class PackageManagerDnf(PackageManagerBase):
         )
         dnf_command = [
             'chroot', self.root_dir, 'dnf'
-        ] + chroot_dnf_args + self.custom_args + exclude_args + [
+        ] + chroot_dnf_args + [
+            f'--releasever={self.release_version}'
+        ] + self.custom_args + exclude_args + [
             'install'
         ] + self.package_requests + self.collection_requests
         self.cleanup_requests()
@@ -181,7 +186,9 @@ class PackageManagerDnf(PackageManagerBase):
             chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
             dnf_command = [
                 'chroot', self.root_dir, 'dnf'
-            ] + chroot_dnf_args + self.custom_args + [
+            ] + chroot_dnf_args + [
+                f'--releasever={self.release_version}'
+            ] + self.custom_args + [
                 'autoremove'
             ] + self.package_requests
             self.cleanup_requests()
@@ -201,7 +208,9 @@ class PackageManagerDnf(PackageManagerBase):
         return Command.call(
             [
                 'chroot', self.root_dir, 'dnf'
-            ] + chroot_dnf_args + self.custom_args + [
+            ] + chroot_dnf_args + [
+                f'--releasever={self.release_version}'
+            ] + self.custom_args + [
                 'upgrade'
             ],
             self.command_env

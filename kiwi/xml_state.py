@@ -309,6 +309,22 @@ class XMLState:
                 return package_manager[0]
         return Defaults.get_default_package_manager()
 
+    def get_release_version(self) -> str:
+        """
+        Get configured release version from selected preferences section
+
+        :return: Content of the <release-version> section or ''
+
+        :rtype: str
+        """
+        release_version = ''
+        for preferences in self.get_preferences_sections():
+            release_version = preferences.get_release_version()
+            if release_version:
+                release_version = release_version[0]
+                break
+        return release_version
+
     def get_packages_sections(self, section_types: List) -> List:
         """
         List of packages sections matching given section type(s)

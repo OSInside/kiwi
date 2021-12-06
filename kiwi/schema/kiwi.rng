@@ -1307,6 +1307,26 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <release-version>
+    
+  -->
+  <div>
+    <define name="k.release-version.content">
+      <text/>
+    </define>
+    <define name="k.release-version.attlist">
+      <empty/>
+    </define>
+    <define name="k.release-version">
+      <element name="release-version">
+        <a:documentation>Name of the Package Manager</a:documentation>
+        <ref name="k.release-version.attlist"/>
+        <ref name="k.release-version.content"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <profile>
     
   -->
@@ -4626,6 +4646,9 @@ definition</a:documentation>
           </optional>
           <optional>
             <ref name="k.packagemanager"/>
+          </optional>
+          <optional>
+            <ref name="k.release-version"/>
           </optional>
           <optional>
             <ref name="k.rpm-locale-filtering"/>

@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.6.13 (default, Mar 10 2021, 18:30:35) [GCC]
+# Python 3.6.12 (default, Dec 02 2020, 09:44:23) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/david/work/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -7713,7 +7713,7 @@ class preferences(GeneratedsSuper):
     sections based on profiles combine to create on vaild definition"""
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, arch=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, rpm_locale_filtering=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
+    def __init__(self, profiles=None, arch=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, release_version=None, rpm_locale_filtering=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         self.arch = _cast(None, arch)
@@ -7737,6 +7737,10 @@ class preferences(GeneratedsSuper):
             self.packagemanager = []
         else:
             self.packagemanager = packagemanager
+        if release_version is None:
+            self.release_version = []
+        else:
+            self.release_version = release_version
         if rpm_locale_filtering is None:
             self.rpm_locale_filtering = []
         else:
@@ -7801,6 +7805,11 @@ class preferences(GeneratedsSuper):
     def add_packagemanager(self, value): self.packagemanager.append(value)
     def insert_packagemanager_at(self, index, value): self.packagemanager.insert(index, value)
     def replace_packagemanager_at(self, index, value): self.packagemanager[index] = value
+    def get_release_version(self): return self.release_version
+    def set_release_version(self, release_version): self.release_version = release_version
+    def add_release_version(self, value): self.release_version.append(value)
+    def insert_release_version_at(self, index, value): self.release_version.insert(index, value)
+    def replace_release_version_at(self, index, value): self.release_version[index] = value
     def get_rpm_locale_filtering(self): return self.rpm_locale_filtering
     def set_rpm_locale_filtering(self, rpm_locale_filtering): self.rpm_locale_filtering = rpm_locale_filtering
     def add_rpm_locale_filtering(self, value): self.rpm_locale_filtering.append(value)
@@ -7854,6 +7863,7 @@ class preferences(GeneratedsSuper):
             self.keytable or
             self.locale or
             self.packagemanager or
+            self.release_version or
             self.rpm_locale_filtering or
             self.rpm_check_signatures or
             self.rpm_excludedocs or
@@ -7913,6 +7923,9 @@ class preferences(GeneratedsSuper):
         for packagemanager_ in self.packagemanager:
             showIndent(outfile, level, pretty_print)
             outfile.write('<packagemanager>%s</packagemanager>%s' % (self.gds_encode(self.gds_format_string(quote_xml(packagemanager_), input_name='packagemanager')), eol_))
+        for release_version_ in self.release_version:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<release-version>%s</release-version>%s' % (self.gds_encode(self.gds_format_string(quote_xml(release_version_), input_name='release-version')), eol_))
         for rpm_locale_filtering_ in self.rpm_locale_filtering:
             showIndent(outfile, level, pretty_print)
             outfile.write('<rpm-locale-filtering>%s</rpm-locale-filtering>%s' % (self.gds_format_boolean(rpm_locale_filtering_, input_name='rpm-locale-filtering'), eol_))
@@ -7980,6 +7993,10 @@ class preferences(GeneratedsSuper):
                 packagemanager_ = ""
             packagemanager_ = self.gds_validate_string(packagemanager_, node, 'packagemanager')
             self.packagemanager.append(packagemanager_)
+        elif nodeName_ == 'release-version':
+            release_version_ = child_.text
+            release_version_ = self.gds_validate_string(release_version_, node, 'release_version')
+            self.release_version.append(release_version_)
         elif nodeName_ == 'rpm-locale-filtering':
             sval_ = child_.text
             if sval_ in ('true', '1'):
