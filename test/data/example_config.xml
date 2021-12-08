@@ -215,6 +215,9 @@
         <ignore name="baz"/>
     </packages>
     <packages type="bootstrap">
+        <collectionModule name="mod_a" stream="stream" enable="true"/>
+        <collectionModule name="mod_b" enable="true"/>
+        <collectionModule name="mod_c" enable="false"/>
         <package name="filesystem"/>
         <namedCollection name="bootstrap-collection"/>
         <product name="kiwi"/>

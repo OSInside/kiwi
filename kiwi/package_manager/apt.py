@@ -18,7 +18,9 @@
 import re
 import os
 import logging
-from typing import List
+from typing import (
+    List, Dict
+)
 
 # project
 from kiwi.command import command_call_type
@@ -108,6 +110,17 @@ class PackageManagerApt(PackageManagerBase):
         log.warning(
             'Package exclusion for (%s) not supported for apt-get', name
         )
+
+    def setup_repository_modules(
+        self, collection_modules: Dict[str, List[str]]
+    ) -> None:
+        """
+        Repository modules not supported for apt-get
+        The method does nothing in this scope
+
+        :param dict collection_modules: unused
+        """
+        pass
 
     def process_install_requests_bootstrap(
         self, root_bind: RootBind = None

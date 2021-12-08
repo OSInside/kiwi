@@ -1,4 +1,6 @@
-from mock import patch
+from mock import (
+    patch, call
+)
 from pytest import raises
 import mock
 
@@ -35,6 +37,46 @@ class TestPackageManagerDnf:
     def test_request_package_exclusion(self):
         self.manager.request_package_exclusion('name')
         assert self.manager.exclude_requests == ['name']
+
+    @patch('kiwi.command.Command.run')
+    def test_setup_repository_modules(self, mock_run):
+        self.manager.setup_repository_modules(
+            {
+                'disable': ['mod_c'],
+                'enable': ['mod_a:stream', 'mod_b']
+            }
+        )
+        dnf_call_args = [
+            'dnf', '--config', '/root-dir/dnf.conf',
+            '-y', '--installroot', '/root-dir', '--releasever=0'
+        ]
+        assert mock_run.call_args_list == [
+            call(
+                dnf_call_args + [
+                    'module', 'disable', 'mod_c'
+                ], ['env']
+            ),
+            call(
+                dnf_call_args + [
+                    'module', 'reset', 'mod_a'
+                ], ['env']
+            ),
+            call(
+                dnf_call_args + [
+                    'module', 'enable', 'mod_a:stream'
+                ], ['env']
+            ),
+            call(
+                dnf_call_args + [
+                    'module', 'reset', 'mod_b'
+                ], ['env']
+            ),
+            call(
+                dnf_call_args + [
+                    'module', 'enable', 'mod_b'
+                ], ['env']
+            )
+        ]
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')

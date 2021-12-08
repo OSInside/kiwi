@@ -48,6 +48,9 @@ class TestPackageManagerZypper:
         self.manager.request_package_exclusion('name')
         assert self.manager.exclude_requests == ['name']
 
+    def test_setup_repository_modules(self):
+        self.manager.setup_repository_modules({})
+
     @patch('kiwi.command.Command.call')
     def test_process_install_requests_bootstrap(self, mock_call):
         self.manager.request_package('vim')

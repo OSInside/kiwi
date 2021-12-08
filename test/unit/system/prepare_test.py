@@ -293,6 +293,9 @@ class TestSystemPrepare:
         self.manager.request_product.assert_called_once_with(
             'kiwi'
         )
+        self.manager.setup_repository_modules.assert_called_once_with(
+            {'disable': ['mod_c'], 'enable': ['mod_a:stream', 'mod_b']}
+        )
         self.manager.process_install_requests_bootstrap.assert_called_once_with(
             self.system.root_bind
         )

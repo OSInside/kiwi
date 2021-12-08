@@ -17,7 +17,9 @@
 #
 import re
 import os
-from typing import List
+from typing import (
+    List, Dict
+)
 
 
 # project
@@ -98,6 +100,17 @@ class PackageManagerZypper(PackageManagerBase):
         :param str name: package name
         """
         self.exclude_requests.append(name)
+
+    def setup_repository_modules(
+        self, collection_modules: Dict[str, List[str]]
+    ) -> None:
+        """
+        Repository modules not supported for zypper.
+        The method does nothing in this scope
+
+        :param dict collection_modules: unused
+        """
+        pass
 
     def process_install_requests_bootstrap(
         self, root_bind: RootBind = None
