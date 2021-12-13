@@ -57,5 +57,4 @@ python-dateutil
 twine
 
 # for scripts testing
-pytest-testinfra
-dataclasses ; python_version < "3.7"
+pytest-container
