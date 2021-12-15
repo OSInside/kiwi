@@ -246,6 +246,9 @@ class SystemPrepare:
             bootstrap_collections,
             bootstrap_products
         )
+        manager.setup_repository_modules(
+            self.xml_state.get_collection_modules()
+        )
         process = CommandProcess(
             command=manager.process_install_requests_bootstrap(self.root_bind),
             log_topic='bootstrap'

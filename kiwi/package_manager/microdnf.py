@@ -17,7 +17,9 @@
 #
 import re
 import logging
-from typing import List
+from typing import (
+    List, Dict
+)
 
 
 # project
@@ -94,6 +96,62 @@ class PackageManagerMicroDnf(PackageManagerBase):
         :param str name: package name
         """
         self.exclude_requests.append(name)
+
+    def setup_repository_modules(
+        self, collection_modules: Dict[str, List[str]]
+    ) -> None:
+        """
+        Setup repository modules and streams
+
+        :param dict collection_modules:
+            Expect dict of the form:
+
+            .. code:: python
+
+                {
+                    'enable': [
+                        "module:stream", "module"
+                    ],
+                    'disable': [
+                        "module"
+                    ]
+                }
+        """
+        microdnf_module_command = [
+            'microdnf'
+        ] + ['--refresh'] + self.dnf_args + [
+            '--installroot', self.root_dir,
+            f'--releasever={self.release_version}',
+            '--noplugins',
+            '--setopt=cachedir={0}'.format(
+                self.repository.shared_dnf_dir['cache-dir']
+            ),
+            '--setopt=reposdir={0}'.format(
+                self.repository.shared_dnf_dir['reposd-dir']
+            ),
+            '--setopt=varsdir={0}'.format(
+                self.repository.shared_dnf_dir['vars-dir']
+            )
+        ] + self.custom_args + [
+            'module'
+        ]
+        for disable_module in collection_modules['disable']:
+            Command.run(
+                microdnf_module_command + [
+                    'disable', disable_module
+                ], self.command_env
+            )
+        for enable_module in collection_modules['enable']:
+            Command.run(
+                microdnf_module_command + [
+                    'reset', enable_module.split(':')[0]
+                ], self.command_env
+            )
+            Command.run(
+                microdnf_module_command + [
+                    'enable', enable_module
+                ], self.command_env
+            )
 
     def process_install_requests_bootstrap(
         self, root_bind: RootBind = None

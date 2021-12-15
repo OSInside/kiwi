@@ -363,6 +363,53 @@ div {
         }
 }
 
+
+#==========================================
+# common element <collectionModule>
+#
+div {
+    sch:pattern [
+        id = "collection_module_scope"
+        sch:rule [
+            context = "collectionModule"
+            sch:assert [
+                test = "../@type='bootstrap'"
+                "collectionModule is only available in the bootstrap "~
+                "packages section"
+            ]
+        ]
+    ]
+    sch:pattern [
+        id = "collection_module_disable_constraint"
+        sch:rule [
+            context = "collectionModule"
+            sch:assert [
+                test = "@enable='true' or not(@stream)"
+                "@stream attribute is not allowed to disable a module"
+            ]
+        ]
+    ]
+    k.collectionModule.name.attribute =
+        attribute name { safe-posix-name }
+    k.collectionModule.stream.attribute =
+        attribute stream { safe-posix-name }
+    k.collectionModule.arch.attribute = k.arch.attribute
+    k.collectionModule.enable.attribute =
+        ## Specify the module to become enabled (for the optionally
+        ## given stream) or disabled.
+        attribute enable { xsd:boolean }
+    k.collectionModule.attlist =
+        k.collectionModule.name.attribute &
+        k.collectionModule.enable.attribute &
+        k.collectionModule.stream.attribute? &
+        k.collectionModule.arch.attribute?
+    k.collectionModule =
+        element collectionModule {
+            k.collectionModule.attlist,
+            empty
+        }
+}
+
 #==========================================
 # common element <oem-boot-title>
 #
@@ -2999,6 +3046,7 @@ div {
             k.archive* &
             k.ignore* &
             k.namedCollection* &
+            k.collectionModule* &
             k.product* &
             k.package*
         }

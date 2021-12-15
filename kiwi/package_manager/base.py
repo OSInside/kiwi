@@ -15,7 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import List
+from typing import (
+    List, Dict
+)
 
 from kiwi.api_helper import decommissioned
 from kiwi.command import command_call_type
@@ -98,6 +100,18 @@ class PackageManagerBase:
         Implementation in specialized package manager class
 
         :param str name: unused
+        """
+        raise NotImplementedError
+
+    def setup_repository_modules(
+        self, collection_modules: Dict[str, List[str]]
+    ) -> None:
+        """
+        Setup repository modules and streams
+
+        Implementation in specialized package manager class
+
+        :param dict collection_modules: unused
         """
         raise NotImplementedError
 

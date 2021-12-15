@@ -1027,7 +1027,7 @@ any of its required packages and any recommended packages.
 
 .. note:: Collections on SUSE
 
-   On SUSE based distributions collections are names patterns and are
+   On SUSE based distributions collections are called `patterns` and are
    just simple packages. To get the names of the patterns such that
    they can be used in a namedCollection type the following command:
    `$ zypper patterns`. If for some reason the collection name cannot
@@ -1039,10 +1039,41 @@ any of its required packages and any recommended packages.
 
 .. note:: Collections on RedHat
 
-   On RedHat based distributions collections are named groups and are
+   On RedHat based distributions collections are called `groups` and are
    extra metadata. To get the names of these groups type the following
    command: `$ dnf group list`. Please note that group names are allowed
    to contain whitespace characters.
+
+<packages><collectionModule>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code:: xml
+
+   <packages type="bootstrap">
+       <collectionModule name="module" stream="stream" enable="true|false"/>
+   </packages>
+
+In CentOS Stream >= 8 and Red Hat Enterprise Linux >= 8, there are
+Application Streams that are offered in the form of modules
+(using Fedora Modularity technology). To build images that use
+this content {kiwi} offers to enable/disable modules when using
+the `dnf` or `microdnf` package manager backend. Modules are setup
+prior the bootstrap phase and its setup persists as part of the
+image.
+
+There are the following constraints when adding `collectionModule`
+elements:
+
+* `collectionModule` elements can only be specified as part of the
+  `<packages type="bootstrap">` section. This is because the setup of
+  modules must be done once and as early as possible in the process
+  of installing the image root tree.
+
+* Disabling a module can only be done as a whole and therefore the
+  `stream` attribute is not allowed for disabling modules. For
+  enabling modules the stream` attribute is optional
+
+* The `enable` attribute is mandatory because it should be an explicit
+  setting if a module is effectively used or not.
 
 <packages><archive>
 ~~~~~~~~~~~~~~~~~~~

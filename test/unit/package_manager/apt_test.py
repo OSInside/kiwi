@@ -56,6 +56,9 @@ class TestPackageManagerApt:
         with self._caplog.at_level(logging.WARNING):
             assert self.manager.exclude_requests == []
 
+    def test_setup_repository_modules(self):
+        self.manager.setup_repository_modules({})
+
     def test_process_install_requests_bootstrap_no_dist(self):
         self.manager.distribution = None
         with raises(KiwiDebootstrapError):

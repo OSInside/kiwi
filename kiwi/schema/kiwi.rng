@@ -627,6 +627,61 @@ file was fetched</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <collectionModule>
+    
+  -->
+  <div>
+    <sch:pattern id="collection_module_scope">
+      <sch:rule context="collectionModule">
+        <sch:assert test="../@type='bootstrap'">collectionModule is only available in the bootstrap packages section</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <sch:pattern id="collection_module_disable_constraint">
+      <sch:rule context="collectionModule">
+        <sch:assert test="@enable='true' or not(@stream)">@stream attribute is not allowed to disable a module</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <define name="k.collectionModule.name.attribute">
+      <attribute name="name">
+        <ref name="safe-posix-name"/>
+      </attribute>
+    </define>
+    <define name="k.collectionModule.stream.attribute">
+      <attribute name="stream">
+        <ref name="safe-posix-name"/>
+      </attribute>
+    </define>
+    <define name="k.collectionModule.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
+    <define name="k.collectionModule.enable.attribute">
+      <attribute name="enable">
+        <a:documentation>Specify the module to become enabled (for the optionally
+given stream) or disabled.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
+    <define name="k.collectionModule.attlist">
+      <interleave>
+        <ref name="k.collectionModule.name.attribute"/>
+        <ref name="k.collectionModule.enable.attribute"/>
+        <optional>
+          <ref name="k.collectionModule.stream.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.collectionModule.arch.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.collectionModule">
+      <element name="collectionModule">
+        <ref name="k.collectionModule.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-boot-title>
     
   -->
@@ -4591,6 +4646,9 @@ or plusRecommended</a:documentation>
           </zeroOrMore>
           <zeroOrMore>
             <ref name="k.namedCollection"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.collectionModule"/>
           </zeroOrMore>
           <zeroOrMore>
             <ref name="k.product"/>

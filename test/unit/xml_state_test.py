@@ -1024,3 +1024,9 @@ class TestXMLState:
         state = XMLState(xml_data)
         assert state.xml_data.get_repository()[0].get_source().get_path() \
             == 'dir://{0}/my_repo'.format(os.path.realpath('../data'))
+
+    def test_get_collection_modules(self):
+        assert self.state.get_collection_modules() == {
+            'disable': ['mod_c'],
+            'enable': ['mod_a:stream', 'mod_b']
+        }

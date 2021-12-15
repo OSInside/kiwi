@@ -623,6 +623,43 @@ class XMLState:
         """
         return self.get_collection_type('image')
 
+    def get_collection_modules(self) -> Dict[str, List[str]]:
+        """
+        Dict of collection modules to enable and/or disable
+
+        :return:
+            Dict of the form:
+
+            .. code:: python
+
+                {
+                    'enable': [
+                        "module:stream", "module"
+                    ],
+                    'disable': [
+                        "module"
+                    ]
+                }
+
+        :rtype: dict
+        """
+        modules: Dict[str, List[str]] = {
+            'disable': [],
+            'enable': []
+        }
+        for packages in self.get_bootstrap_packages_sections():
+            for collection_module in packages.get_collectionModule():
+                module_name = collection_module.get_name()
+                if collection_module.get_enable() is False:
+                    modules['disable'].append(module_name)
+                else:
+                    stream = collection_module.get_stream()
+                    if stream:
+                        modules['enable'].append(f'{module_name}:{stream}')
+                    else:
+                        modules['enable'].append(module_name)
+        return modules
+
     def get_collections(self, section_type: str = 'image') -> List:
         """
         List of collection names from the packages sections matching

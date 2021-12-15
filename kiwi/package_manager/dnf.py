@@ -16,7 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
-from typing import List
+from typing import (
+    List, Dict
+)
 
 # project
 from kiwi.command import command_call_type
@@ -85,6 +87,52 @@ class PackageManagerDnf(PackageManagerBase):
         :param str name: package name
         """
         self.exclude_requests.append(name)
+
+    def setup_repository_modules(
+        self, collection_modules: Dict[str, List[str]]
+    ) -> None:
+        """
+        Setup repository modules and streams
+
+        :param dict collection_modules:
+            Expect dict of the form:
+
+            .. code:: python
+
+                {
+                    'enable': [
+                        "module:stream", "module"
+                    ],
+                    'disable': [
+                        "module"
+                    ]
+                }
+        """
+        dnf_module_command = [
+            'dnf'
+        ] + self.dnf_args + [
+            '--installroot', self.root_dir,
+            f'--releasever={self.release_version}'
+        ] + self.custom_args + [
+            'module'
+        ]
+        for disable_module in collection_modules['disable']:
+            Command.run(
+                dnf_module_command + [
+                    'disable', disable_module
+                ], self.command_env
+            )
+        for enable_module in collection_modules['enable']:
+            Command.run(
+                dnf_module_command + [
+                    'reset', enable_module.split(':')[0]
+                ], self.command_env
+            )
+            Command.run(
+                dnf_module_command + [
+                    'enable', enable_module
+                ], self.command_env
+            )
 
     def process_install_requests_bootstrap(
         self, root_bind: RootBind = None

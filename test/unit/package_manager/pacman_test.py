@@ -1,5 +1,7 @@
 from mock import patch, call
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 import mock
 
 from kiwi.package_manager.pacman import PackageManagerPacman
@@ -8,6 +10,10 @@ from kiwi.exceptions import KiwiRequestError
 
 
 class TestPackageManagerPacman:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = '/root-dir'
@@ -38,6 +44,9 @@ class TestPackageManagerPacman:
     def test_request_package_exclusion(self):
         self.manager.request_package_exclusion('name')
         assert self.manager.exclude_requests == ['name']
+
+    def test_setup_repository_modules(self):
+        self.manager.setup_repository_modules({})
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
