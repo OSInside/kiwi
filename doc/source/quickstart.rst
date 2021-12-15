@@ -5,9 +5,9 @@ Quick Start
 
 .. note:: **Abstract**
 
-   This document describes how to start working with {kiwi}, an OS appliance
-   builder.
-   This description applies for version |version|.
+   This document describes how to start working with {kiwi},
+   an OS appliance builder. This description applies for
+   version |version|.
 
 Before you start
 ----------------
@@ -25,6 +25,12 @@ Before you start
    .. code:: bash
 
       $ git clone https://github.com/OSInside/kiwi
+
+.. note:: 
+
+   In case the following procedure causes any trouble
+   please take a look at the :ref:`troubleshooting` chapter
+   and/or reach out at: :ref:`contact`
 
 Choose a First Image
 --------------------
@@ -60,7 +66,6 @@ with the suffix :file:`.raw`.
 If you don't wish to create a openSUSE Leap {exc_os_version} image,
 substitute the folder following the ``--description`` option with another
 folder that contains the image description which you selected.
-
 
 Run your Image
 --------------
