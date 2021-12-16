@@ -116,6 +116,8 @@ Embedded Systems
 And More
   ...
 
+.. _contact:
+
 Contact
 -------
 
