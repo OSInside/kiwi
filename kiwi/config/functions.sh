@@ -323,7 +323,7 @@ function baseStripFirmware {
     local kernel_module
     local firmware
     mkdir -p /lib/firmware-required
-    find "${base}" \( -name "*.ko" -o -name "*.ko.xz" \) -print0 | \
+    find "${base}" \( -name "*.ko" -o -name "*.ko.xz" -o -name "*.ko.zst" -o -name "*.ko.gz" \) -print0 | \
     while IFS= read -r -d $'\0' kernel_module; do
         firmware=$(modinfo "${kernel_module}" | grep ^firmware || :)
         if [ -z "${firmware}" ];then
@@ -335,10 +335,14 @@ function baseStripFirmware {
         fi
         # could be more than one, loop
         for fname in $name ; do
-            for match in /lib/firmware/"${fname}"      \
-                         /lib/firmware/"${fname}".xz   \
-                         /lib/firmware/*/"${fname}"    \
-                         /lib/firmware/*/"${fname}".xz ;do
+            for match in /lib/firmware/"${fname}"       \
+                         /lib/firmware/"${fname}".xz    \
+                         /lib/firmware/"${fname}".gz    \
+                         /lib/firmware/"${fname}".zst   \
+                         /lib/firmware/*/"${fname}"     \
+                         /lib/firmware/*/"${fname}".xz  \
+                         /lib/firmware/*/"${fname}".gz  \
+                         /lib/firmware/*/"${fname}".zst ;do
                 if [ -e "${match}" ];then
                     match="${match//\/lib\/firmware\//}"
                     bmdir=$(dirname "${match}")
