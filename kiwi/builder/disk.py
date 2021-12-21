@@ -129,6 +129,10 @@ class DiskBuilder:
         if custom_args and 'signing_keys' in custom_args:
             self.signing_keys = custom_args['signing_keys']
 
+        self.add_bootstrap_package = None
+        if custom_args and 'add_bootstrap_package' in custom_args:
+            self.add_bootstrap_package = custom_args['add_bootstrap_package']
+
         self.boot_image = BootImage.new(
             xml_state, target_dir, root_dir, signing_keys=self.signing_keys
         )
@@ -232,7 +236,7 @@ class DiskBuilder:
         # prepare initrd
         if self.boot_image.has_initrd_support():
             log.info('Preparing boot system')
-            self.boot_image.prepare()
+            self.boot_image.prepare(self.add_bootstrap_package)
 
         # precalculate needed disk size
         disksize_mbytes = self.disk_setup.get_disksize_mbytes()

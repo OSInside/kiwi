@@ -218,7 +218,7 @@ class BootImageBase:
             )
         )
 
-    def prepare(self) -> None:
+    def prepare(self, plus_packages=None) -> None:
         """
         Prepare new root system to create initrd from. Implementation
         is only needed if there is no other root system available

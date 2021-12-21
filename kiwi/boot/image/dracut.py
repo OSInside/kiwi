@@ -151,7 +151,7 @@ class BootImageDracut(BootImageBase):
             with open(config_file, 'w') as config_handle:
                 config_handle.writelines(dracut_config)
 
-    def prepare(self) -> None:
+    def prepare(self, plus_packages=None) -> None:
         """
         Prepare dracut caller environment
 

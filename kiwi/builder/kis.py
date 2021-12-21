@@ -72,6 +72,9 @@ class KisBuilder:
         self.xz_options = custom_args['xz_options'] if custom_args \
             and 'xz_options' in custom_args else None
 
+        self.add_bootstrap_package = custom_args['add_bootstrap_package'] if custom_args \
+            and 'add_bootstrap_package' in custom_args else None
+
         self.boot_image_task = BootImage.new(
             xml_state, target_dir, root_dir,
             signing_keys=self.boot_signing_keys
@@ -134,7 +137,7 @@ class KisBuilder:
         # prepare initrd
         if self.boot_image_task.has_initrd_support():
             log.info('Creating boot image')
-            self.boot_image_task.prepare()
+            self.boot_image_task.prepare(self.add_bootstrap_package)
 
         # export modprobe configuration to boot image
         self.system_setup.export_modprobe_setup(

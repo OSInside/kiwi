@@ -68,7 +68,7 @@ class BootImageKiwi(BootImageBase):
         self.temp_directories: List[str] = []
         self.load_boot_xml_description()
 
-    def prepare(self) -> None:
+    def prepare(self, plus_packages=None) -> None:
         """
         Prepare new root system suitable to create a kiwi initrd from it
         """
@@ -94,7 +94,7 @@ class BootImageKiwi(BootImageBase):
                 signing_keys=self.signing_keys, target_arch=self.target_arch
             )
             system.install_bootstrap(
-                manager
+                manager, plus_packages
             )
             system.install_system(
                 manager

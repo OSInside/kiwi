@@ -286,7 +286,8 @@ class SystemBuildTask(CliTask):
                 'signing_keys': self.command_args[
                     '--signing-key'
                 ] + self.xml_state.get_repositories_signing_keys(),
-                'xz_options': self.runtime_config.get_xz_options()
+                'xz_options': self.runtime_config.get_xz_options(),
+                'add_bootstrap_package': self.command_args['--add-bootstrap-package']
             }
         )
         result = image_builder.create()
