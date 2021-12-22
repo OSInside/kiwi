@@ -125,7 +125,9 @@ class TestKisBuilder:
         checksum.md5.assert_called_once_with(
             'target_dir/some-image.x86_64-1.2.3.md5'
         )
-        self.boot_image_task.prepare.assert_called_once_with()
+        self.boot_image_task.prepare.assert_called_once_with(
+            None
+        )
         self.setup.export_modprobe_setup.assert_called_once_with(
             'initrd_dir'
         )

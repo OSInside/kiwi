@@ -67,7 +67,7 @@ class TestBootImageKiwi:
             signing_keys=None, target_arch=None
         )
         self.system_prepare.install_bootstrap.assert_called_once_with(
-            self.manager
+            self.manager, None
         )
         self.system_prepare.install_system.assert_called_once_with(
             self.manager
