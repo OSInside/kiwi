@@ -1,7 +1,7 @@
 .. kiwi documentation master file
 
-{kiwi} Documentation
-=====================
+Building Linux System Appliances with {kiwi-product} |version|
+==============================================================================
 
 .. note::
    This documentation covers {kiwi-product} |version|- the command line
