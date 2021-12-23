@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-import simplejson
+import json
 import pickle
 import os
 from typing import (
@@ -152,7 +152,7 @@ class Result:
             if portable:
                 with open(filename + '.json', 'w') as result_portable:
                     result_portable.write(
-                        simplejson.dumps(
+                        json.dumps(
                             self.result_files, sort_keys=True, indent=4
                         ) + os.linesep
                     )

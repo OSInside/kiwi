@@ -19,6 +19,3 @@ requests
 
 # markup support
 anymarkup
-
-# json support that also knows about tuples
-simplejson

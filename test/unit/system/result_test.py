@@ -41,8 +41,8 @@ class TestResult:
             self.result.print_results()
 
     @patch('pickle.dump')
-    @patch('simplejson.dumps')
-    def test_dump(self, mock_simplejson_dumps, mock_pickle_dump):
+    @patch('json.dumps')
+    def test_dump(self, mock_json_dumps, mock_pickle_dump):
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
             assert self.result.dump('kiwi.result') is None
@@ -54,7 +54,7 @@ class TestResult:
         mock_pickle_dump.assert_called_once_with(
             self.result, m_open.return_value
         )
-        mock_simplejson_dumps.assert_called_once_with(
+        mock_json_dumps.assert_called_once_with(
             self.result.result_files, sort_keys=True, indent=4
         )
 

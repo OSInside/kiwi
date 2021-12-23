@@ -66,8 +66,7 @@ config = {
         'lxml',
         'pyxattr',
         'requests',
-        'PyYAML',
-        'simplejson'
+        'PyYAML'
     ],
     'packages': ['kiwi'],
     'cmdclass': {
