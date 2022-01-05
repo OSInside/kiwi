@@ -218,7 +218,7 @@ class BootImageBase:
             )
         )
 
-    def prepare(self) -> None:
+    def prepare(self, plus_packages: List[str] = []) -> None:
         """
         Prepare new root system to create initrd from. Implementation
         is only needed if there is no other root system available
@@ -296,7 +296,9 @@ class BootImageBase:
                 boot_image_profile, boot_kernel_profile
             )
 
-    def import_system_description_elements(self) -> None:
+    def import_system_description_elements(
+        self, plus_packages: List[str] = []
+    ) -> None:
         """
         Copy information from the system image relevant to create the
         boot image to the boot image state XML description
@@ -337,7 +339,7 @@ class BootImageBase:
             preferences_subsection_names, self.boot_xml_state
         )
         self.xml_state.copy_bootincluded_packages(
-            self.boot_xml_state
+            self.boot_xml_state, plus_packages
         )
         self.xml_state.copy_bootincluded_archives(
             self.boot_xml_state

@@ -68,9 +68,13 @@ class BootImageKiwi(BootImageBase):
         self.temp_directories: List[str] = []
         self.load_boot_xml_description()
 
-    def prepare(self) -> None:
+    def prepare(self, plus_packages: List[str] = []) -> None:
         """
         Prepare new root system suitable to create a kiwi initrd from it
+
+        :param list plus_packages:
+            additional packages to be added into the boot
+            image description
         """
         if self.boot_xml_state:
             self.boot_root_directory_temporary = Temporary(
@@ -82,7 +86,7 @@ class BootImageKiwi(BootImageBase):
             )
             boot_image_name = self.boot_xml_state.xml_data.get_name()
 
-            self.import_system_description_elements()
+            self.import_system_description_elements(plus_packages)
 
             log.info('Preparing boot image')
             system = SystemPrepare(

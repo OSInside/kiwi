@@ -97,6 +97,7 @@ class TestSystemBuildTask:
         self.task.command_args['--add-container-label'] = []
         self.task.command_args['--clear-cache'] = False
         self.task.command_args['--signing-key'] = []
+        self.task.command_args['--bootinclude'] = []
 
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')

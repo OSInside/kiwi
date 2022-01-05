@@ -73,6 +73,10 @@ class LiveImageBuilder:
             Defaults.get_publisher()
         self.custom_args = custom_args
 
+        self.kiwi_boot_image_plus_packages = custom_args[
+            'bootinclude'
+        ] if custom_args and 'bootinclude' in custom_args else []
+
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()
 
@@ -180,7 +184,7 @@ class LiveImageBuilder:
         )
 
         # prepare dracut initrd call
-        self.boot_image.prepare()
+        self.boot_image.prepare(self.kiwi_boot_image_plus_packages)
 
         # create dracut initrd for live image
         log.info('Creating live ISO boot image')

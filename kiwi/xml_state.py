@@ -2038,7 +2038,9 @@ class XMLState:
                 )
                 set_type_method(attribute_value)
 
-    def copy_bootincluded_packages(self, target_state: Any) -> None:
+    def copy_bootincluded_packages(
+        self, target_state: Any, plus_packages: List[str] = []
+    ) -> None:
         """
         Copy packages marked as bootinclude to the packages type=image
         (or type=bootstrap if no type=image was found) section in the
@@ -2047,6 +2049,7 @@ class XMLState:
         present there
 
         :param object target_state: XMLState instance
+        :param list plus_packages: List of additional packages
         """
         target_packages_sections = \
             target_state.get_image_packages_sections()
@@ -2075,6 +2078,12 @@ class XMLState:
                         package_names_added.append(
                             package.package_section.get_name()
                         )
+            if plus_packages:
+                for package_name in plus_packages:
+                    target_packages_section.add_package(
+                        xml_parse.package(name=package_name)
+                    )
+                    package_names_added.append(package_name)
             delete_packages_sections = target_state.get_packages_sections(
                 ['delete']
             )

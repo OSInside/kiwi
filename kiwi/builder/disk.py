@@ -129,6 +129,10 @@ class DiskBuilder:
         if custom_args and 'signing_keys' in custom_args:
             self.signing_keys = custom_args['signing_keys']
 
+        self.kiwi_boot_image_plus_packages = custom_args[
+            'bootinclude'
+        ] if custom_args and 'bootinclude' in custom_args else []
+
         self.boot_image = BootImage.new(
             xml_state, target_dir, root_dir, signing_keys=self.signing_keys
         )
@@ -232,7 +236,7 @@ class DiskBuilder:
         # prepare initrd
         if self.boot_image.has_initrd_support():
             log.info('Preparing boot system')
-            self.boot_image.prepare()
+            self.boot_image.prepare(self.kiwi_boot_image_plus_packages)
 
         # precalculate needed disk size
         disksize_mbytes = self.disk_setup.get_disksize_mbytes()

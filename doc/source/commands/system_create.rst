@@ -15,6 +15,7 @@ SYNOPSIS
    kiwi-ng system create -h | --help
    kiwi-ng system create --root=<directory> --target-dir=<directory>
        [--signing-key=<key-file>...]
+       [--bootinclude=<package>...]
    kiwi-ng system create help
 
 .. _db_kiwi_system_create_desc:
@@ -51,3 +52,9 @@ OPTIONS
   signatures during build time. In create step this option only
   affects the boot image. This option can be specified multiple
   times
+
+--bootinclude=<package>
+
+  adds the package to the custom kiwi boot image description.
+  This option is only effective if kiwi's builtin initrd system
+  is used.

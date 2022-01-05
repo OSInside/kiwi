@@ -350,7 +350,7 @@ class TestDiskBuilder:
             '/dev/boot-device'
         )
 
-        self.boot_image_task.prepare.assert_called_once_with()
+        self.boot_image_task.prepare.assert_called_once_with([])
 
         call = filesystem.create_on_device.call_args_list[0]
         assert filesystem.create_on_device.call_args_list[0] == \
@@ -480,7 +480,7 @@ class TestDiskBuilder:
             'target_dir/LimeJeOS-openSUSE-13.2.x86_64-1.13.2.raw',
             '/dev/boot-device'
         )
-        self.boot_image_task.prepare.assert_called_once_with()
+        self.boot_image_task.prepare.assert_called_once_with([])
         call = filesystem.create_on_device.call_args_list[0]
         assert filesystem.create_on_device.call_args_list[0] == \
             call(label='EFI')

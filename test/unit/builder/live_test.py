@@ -247,7 +247,7 @@ class TestLiveImageBuilder:
         )
         self.bootloader.write.assert_called_once_with()
 
-        self.boot_image_task.prepare.assert_called_once_with()
+        self.boot_image_task.prepare.assert_called_once_with([])
         self.boot_image_task.create_initrd.assert_called_once_with(
             self.mbrid
         )

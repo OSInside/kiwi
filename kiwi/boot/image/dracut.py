@@ -151,11 +151,13 @@ class BootImageDracut(BootImageBase):
             with open(config_file, 'w') as config_handle:
                 config_handle.writelines(dracut_config)
 
-    def prepare(self) -> None:
+    def prepare(self, plus_packages: List[str] = []) -> None:
         """
         Prepare dracut caller environment
 
         * Setup machine_id(s) to be generic and rebuild by dracut on boot
+
+        :param list plus_packages: unused
         """
         setup = SystemSetup(
             self.xml_state, self.boot_root_directory

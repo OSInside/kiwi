@@ -122,6 +122,10 @@ class InstallImageBuilder:
         self.xz_options = custom_args['xz_options'] if custom_args \
             and 'xz_options' in custom_args else None
 
+        self.kiwi_boot_image_plus_packages = custom_args[
+            'bootinclude'
+        ] if custom_args and 'bootinclude' in custom_args else []
+
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
 
@@ -131,7 +135,7 @@ class InstallImageBuilder:
             self.boot_image_task = BootImage.new(
                 xml_state, target_dir, root_dir
             )
-            self.boot_image_task.prepare()
+            self.boot_image_task.prepare(self.kiwi_boot_image_plus_packages)
         else:
             self.boot_image_task = boot_image_task
 

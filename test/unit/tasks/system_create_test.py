@@ -64,6 +64,7 @@ class TestSystemCreateTask:
         self.task.command_args['--root'] = '../data/root-dir'
         self.task.command_args['--target-dir'] = 'some-target'
         self.task.command_args['--signing-key'] = ['some-key-file']
+        self.task.command_args['--bootinclude'] = []
 
     def test_process_system_create(self):
         self._init_command_args()

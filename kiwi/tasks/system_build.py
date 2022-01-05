@@ -31,6 +31,7 @@ usage: kiwi-ng system build -h | --help
            [--set-container-tag=<name>]
            [--add-container-label=<label>...]
            [--signing-key=<key-file>...]
+           [--bootinclude=<package>...]
        kiwi-ng system build help
 
 commands:
@@ -84,6 +85,10 @@ options:
         priority, the imageinclude flag and the package_gpgcheck flag
     --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
+    --bootinclude=<package>
+        adds the package to the custom kiwi boot image description.
+        This option is only effective if kiwi's builtin initrd system
+        is used.
     --target-dir=<directory>
         the target directory to store the system image file(s)
 """
@@ -286,7 +291,8 @@ class SystemBuildTask(CliTask):
                 'signing_keys': self.command_args[
                     '--signing-key'
                 ] + self.xml_state.get_repositories_signing_keys(),
-                'xz_options': self.runtime_config.get_xz_options()
+                'xz_options': self.runtime_config.get_xz_options(),
+                'bootinclude': self.command_args['--bootinclude']
             }
         )
         result = image_builder.create()

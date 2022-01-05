@@ -69,6 +69,10 @@ class KisBuilder:
         self.boot_signing_keys = custom_args['signing_keys'] if custom_args \
             and 'signing_keys' in custom_args else None
 
+        self.kiwi_boot_image_plus_packages = custom_args[
+            'bootinclude'
+        ] if custom_args and 'bootinclude' in custom_args else []
+
         self.xz_options = custom_args['xz_options'] if custom_args \
             and 'xz_options' in custom_args else None
 
@@ -134,7 +138,7 @@ class KisBuilder:
         # prepare initrd
         if self.boot_image_task.has_initrd_support():
             log.info('Creating boot image')
-            self.boot_image_task.prepare()
+            self.boot_image_task.prepare(self.kiwi_boot_image_plus_packages)
 
         # export modprobe configuration to boot image
         self.system_setup.export_modprobe_setup(

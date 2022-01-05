@@ -19,6 +19,7 @@
 usage: kiwi-ng system create -h | --help
        kiwi-ng system create --root=<directory> --target-dir=<directory>
            [--signing-key=<key-file>...]
+           [--bootinclude=<package>...]
        kiwi-ng system create help
 
 commands:
@@ -37,6 +38,10 @@ options:
         the target directory to store the system image file(s)
     --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
+    --bootinclude=<package>
+        adds the package to the custom kiwi boot image description.
+        This option is only effective if kiwi's builtin initrd system
+        is used.
 """
 import os
 import logging
@@ -107,7 +112,8 @@ class SystemCreateTask(CliTask):
             abs_root_path,
             custom_args={
                 'signing_keys': self.command_args['--signing-key'],
-                'xz_options': self.runtime_config.get_xz_options()
+                'xz_options': self.runtime_config.get_xz_options(),
+                'bootinclude': self.command_args['--bootinclude']
             }
         )
         result = image_builder.create()

@@ -27,6 +27,7 @@ SYNOPSIS
        [--set-container-tag=<name>]
        [--add-container-label=<label>...]
        [--signing-key=<key-file>...]
+       [--bootinclude=<package>...]
    kiwi-ng system build help
 
 .. _db_kiwi_system_build_desc:
@@ -168,6 +169,12 @@ OPTIONS
   if an image build should take and validate repository and package
   signatures during build time. This option can be specified multiple
   times
+
+--bootinclude=<package>
+
+  adds the package to the custom kiwi boot image description.
+  This option is only effective if kiwi's builtin initrd system
+  is used.
 
 --target-dir=<directory>
 

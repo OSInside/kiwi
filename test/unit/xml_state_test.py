@@ -654,6 +654,14 @@ class TestXMLState:
         )
         assert self.boot_state.build_type.get_firmware() == 'efi'
 
+    def test_copy_bootincluded_packages_with_plus_packages(self):
+        self.state.copy_bootincluded_packages(
+            self.boot_state, ['plus_A', 'plus_B']
+        )
+        bootstrap_packages = self.boot_state.get_bootstrap_packages()
+        assert 'plus_A' in bootstrap_packages
+        assert 'plus_B' in bootstrap_packages
+
     def test_copy_bootincluded_packages_with_no_image_packages(self):
         self.state.copy_bootincluded_packages(self.boot_state)
         bootstrap_packages = self.boot_state.get_bootstrap_packages()
