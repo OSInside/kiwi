@@ -20,6 +20,7 @@ class TestCliTask:
         self._caplog = caplog
 
     @patch('kiwi.logger.Logger.setLogLevel')
+    @patch('kiwi.logger.Logger.setLogFlag')
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.logger.Logger.set_color_format')
     @patch('kiwi.cli.Cli.show_and_exit_on_help_request')
@@ -30,11 +31,12 @@ class TestCliTask:
     def setup(
         self, mock_runtime_config, mock_global_args, mock_command_args,
         mock_load_command, mock_help_check, mock_color,
-        mock_setlog, mock_setlevel
+        mock_setlog, mock_setLogFlag, mock_setLogLevel
     ):
         Defaults.set_platform_name('x86_64')
         mock_global_args.return_value = {
             '--debug': True,
+            '--debug-run-scripts-in-screen': True,
             '--logfile': 'log',
             '--color-output': True,
             '--profile': ['vmxFlavour'],
@@ -53,7 +55,8 @@ class TestCliTask:
         mock_load_command.assert_called_once_with()
         mock_command_args.assert_called_once_with()
         mock_global_args.assert_called_once_with()
-        mock_setlevel.assert_called_once_with(logging.DEBUG)
+        mock_setLogLevel.assert_called_once_with(logging.DEBUG)
+        mock_setLogFlag.assert_called_once_with('run-scripts-in-screen')
         mock_setlog.assert_called_once_with('log')
         mock_color.assert_called_once_with()
         mock_runtime_config.assert_called_once_with()

@@ -37,6 +37,7 @@ class TestCli:
             '<legacy_args>': [],
             '--version': False,
             '--debug': False,
+            '--debug-run-scripts-in-screen': False,
             'result': False,
             '--profile': [],
             '--shared-cache-dir': '/var/cache/kiwi',

@@ -70,6 +70,7 @@ class Logger(logging.Logger):
             sys.__stderr__
         )
         self.log_level = self.level
+        self.log_flags: Dict[str, bool] = {}
 
     def getLogLevel(self) -> int:
         """
@@ -81,6 +82,17 @@ class Logger(logging.Logger):
         """
         return self.log_level
 
+    def getLogFlags(self) -> Dict[str, bool]:
+        """
+        Return logging flags
+
+        :return:
+            Dictionary with flags and their activation status
+
+        :rtype: dict
+        """
+        return self.log_flags
+
     def setLogLevel(self, level: int) -> None:
         """
         Set custom log level for all console handlers
@@ -90,6 +102,17 @@ class Logger(logging.Logger):
         self.log_level = level
         for handler_type in self.console_handlers:
             self.console_handlers[handler_type].setLevel(level)
+
+    def setLogFlag(self, flag: str, value: bool = True) -> None:
+        """
+        Set logging flag for further properties of the logging facility
+        Available flags are:
+
+        * run-scripts-in-screen
+
+        :param str flag: name
+        """
+        self.log_flags[flag] = value
 
     def set_color_format(self) -> None:
         """

@@ -998,10 +998,8 @@ class SystemSetup:
         script_path = os.path.join(self.root_dir, 'image', name)
         if os.path.exists(script_path):
             options = option_list or []
-            if log.getLogLevel() == logging.DEBUG and not \
-               Defaults.is_buildservice_worker():
-                # In debug mode run scripts in a screen session to
-                # allow attaching and debugging
+            if log.getLogFlags().get('run-scripts-in-screen'):
+                # Run scripts in a screen session if requested
                 command = ['screen', '-t', '-X', 'chroot', self.root_dir]
             else:
                 # In standard mode run scripts without a terminal
@@ -1039,10 +1037,8 @@ class SystemSetup:
                 'cd', working_directory, '&&',
                 'bash', '--norc', script_path, ' '.join(option_list)
             ]
-            if log.getLogLevel() == logging.DEBUG and not \
-               Defaults.is_buildservice_worker():
-                # In debug mode run scripts in a screen session to
-                # allow attaching and debugging
+            if log.getLogFlags().get('run-scripts-in-screen'):
+                # Run scripts in a screen session if requested
                 config_script = Command.call(
                     ['screen', '-t', '-X', 'bash', '-c', ' '.join(bash_command)]
                 )
