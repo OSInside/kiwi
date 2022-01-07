@@ -3,8 +3,8 @@ KIWI - Next Generation
 
 .. |GitLab CI Pipeline| image:: https://gitlab.com/kiwi3/kiwi-ci/badges/master/pipeline.svg
    :target: https://gitlab.com/kiwi3/kiwi-ci/-/pipelines
-.. |Health| image:: https://api.codacy.com/project/badge/Grade/8ebd8ce362294fabb0870f50358e564f
-   :target: https://www.codacy.com/app/Appliances/kiwi?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OSInside/kiwi&amp;utm_campaign=Badge_Grade
+.. |Health| image:: https://app.codacy.com/project/badge/Grade/228f7e8cd15d448688a590c272ec3789
+   :target: https://www.codacy.com/gh/OSInside/kiwi/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OSInside/kiwi&amp;utm_campaign=Badge_Grade
 .. |Doc| replace:: `Documentation <https://osinside.github.io/kiwi/>`__
 .. |Installation| replace:: `Installation <https://osinside.github.io/kiwi/installation.html>`__
 .. |Contributing| replace:: `Contributing <https://osinside.github.io/kiwi/contributing.html>`__
