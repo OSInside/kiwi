@@ -27,7 +27,7 @@ function fetch_file {
     if _is_dolly "${source_url}";then
         fetch="dolly"
     fi
-    if _is_compressed "${source_url}";then
+    if _is_xz_compressed "${source_url}";then
         fetch="${fetch} | xz -d"
     fi
     if [ -z "${source_uncompressed_bytes}" ];then
@@ -78,9 +78,9 @@ function uri_fragment {
 #======================================
 # Methods considered private
 #--------------------------------------
-function _is_compressed {
+function _is_xz_compressed {
     local source_url=$1
-    xz -l "${source_url}" &>/dev/null
+    [[ ${source_url} =~ .xz$ ]]
 }
 
 function _is_dolly {
