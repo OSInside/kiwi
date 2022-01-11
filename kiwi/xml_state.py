@@ -2040,20 +2040,15 @@ class XMLState:
 
     def copy_bootincluded_packages(self, target_state: Any) -> None:
         """
-        Copy packages marked as bootinclude to the packages type=image
-        (or type=bootstrap if no type=image was found) section in the
-        target xml state. The package will also be removed from the
-        packages type=delete section in the target xml state if
-        present there
+        Copy packages marked as bootinclude to the packages
+        type=bootstrap section in the target xml state. The package
+        will also be removed from the packages type=delete section
+        in the target xml state if present there
 
         :param object target_state: XMLState instance
         """
         target_packages_sections = \
-            target_state.get_image_packages_sections()
-        if not target_packages_sections:
-            # no packages type=image section was found, add to bootstrap
-            target_packages_sections = \
-                target_state.get_bootstrap_packages_sections()
+            target_state.get_bootstrap_packages_sections()
         if target_packages_sections:
             target_packages_section = \
                 target_packages_sections[0]
