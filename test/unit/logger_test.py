@@ -67,3 +67,8 @@ class TestLogger:
     def test_getLogLevel(self):
         self.log.setLogLevel(42)
         assert self.log.getLogLevel() == 42
+
+    def test_getLogFlags(self):
+        assert self.log.getLogFlags().get('run-scripts-in-screen') is None
+        self.log.setLogFlag('run-scripts-in-screen')
+        assert self.log.getLogFlags().get('run-scripts-in-screen') is True

@@ -16,11 +16,13 @@ SYNOPSIS
            [--type=<build_type>]
            [--logfile=<filename>]
            [--debug]
+           [--debug-run-scripts-in-screen]
            [--color-output]
            [--config=<configfile>]
            [--kiwi-file=<kiwifile>]
        image <command> [<args>...]
    kiwi-ng [--debug]
+           [--debug-run-scripts-in-screen]
            [--color-output]
            [--config=<configfile>]
        result <command> [<args>...]
@@ -31,6 +33,7 @@ SYNOPSIS
            [--type=<build_type>]
            [--logfile=<filename>]
            [--debug]
+           [--debug-run-scripts-in-screen]
            [--color-output]
            [--config=<configfile>]
            [--kiwi-file=<kiwifile>]
@@ -99,6 +102,10 @@ GLOBAL OPTIONS
 --debug
 
   Print debug information on the commandline.
+
+--debug-run-scripts-in-screen
+
+  Run scripts called by kiwi in a screen session.
 
 --logfile=<filename>
 

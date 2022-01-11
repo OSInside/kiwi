@@ -109,6 +109,10 @@ class CliTask:
             else:
                 log.setLogLevel(logging.INFO)
 
+            # set log flags
+            if self.global_args['--debug-run-scripts-in-screen']:
+                log.setLogFlag('run-scripts-in-screen')
+
             # set log file
             if self.global_args['--logfile']:
                 log.set_logfile(
