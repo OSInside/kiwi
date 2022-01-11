@@ -46,7 +46,7 @@ class FirmWare:
         if not self.firmware:
             self.firmware = Defaults.get_default_firmware(self.arch)
 
-        if self.firmware:
+        if self.firmware and self.firmware != 'custom':
             firmware_types = Defaults.get_firmware_types()
             if self.firmware not in firmware_types[self.arch]:
                 raise KiwiNotImplementedError(

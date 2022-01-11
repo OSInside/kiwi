@@ -1195,6 +1195,7 @@ class Defaults:
             'ppc64': 'ofw',
             'ppc64le': 'ofw',
             'arm64': 'efi',
+            'aarch64': 'efi',
             'armv5el': 'efi',
             'armv5tel': 'efi',
             'armv6hl': 'efi',

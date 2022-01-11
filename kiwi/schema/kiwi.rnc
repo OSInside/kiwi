@@ -1543,10 +1543,12 @@ div {
         ## systems like efi, coreboot, etc.. This attribute is
         ## used to differentiate the image according to the firmware
         ## which boots up the system. It mostly has an impact on
-        ## the disk layout and the partition table type. By default
-        ## the standard x86 bios firmware setup is used
+        ## the disk layout and the partition table type. The default
+        ## firmware setting is based on the architecture. If no
+        ## action should be taken on behalf of a firmware setting
+        ## or kiwi's default selection, set the firmware to: custom
         attribute firmware {
-            "bios" | "ec2" | "efi" | "uefi" | "ofw" | "opal"
+            "bios" | "ec2" | "efi" | "uefi" | "ofw" | "opal" | "custom"
         }
         >> sch:pattern [ id = "firmware" is-a = "image_type"
             sch:param [ name = "attr" value = "firmware" ]

@@ -2245,8 +2245,10 @@ uses a standard BIOS but there are also other firmware
 systems like efi, coreboot, etc.. This attribute is
 used to differentiate the image according to the firmware
 which boots up the system. It mostly has an impact on
-the disk layout and the partition table type. By default
-the standard x86 bios firmware setup is used</a:documentation>
+the disk layout and the partition table type. The default
+firmware setting is based on the architecture. If no
+action should be taken on behalf of a firmware setting
+or kiwi's default selection, set the firmware to: custom</a:documentation>
         <choice>
           <value>bios</value>
           <value>ec2</value>
@@ -2254,6 +2256,7 @@ the standard x86 bios firmware setup is used</a:documentation>
           <value>uefi</value>
           <value>ofw</value>
           <value>opal</value>
+          <value>custom</value>
         </choice>
       </attribute>
       <sch:pattern id="firmware" is-a="image_type">
