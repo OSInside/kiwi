@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.4" name="kiwi-test-image-docker">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@gmail.com</contact>
+        <specification>docker test build</specification>
+    </description>
+    <preferences>
+        <version>2.1.0</version>
+        <packagemanager>apt</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <type image="docker">
+            <containerconfig name="buildsystem"/>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <users>
+        <user name="vagrant" password="vh4vw1N4alxKQ" home="/home/vagrant" groups="vagrant"/>
+    </users>
+    <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
+        <source path="obs://Virtualization:Appliances:Staging/xUbuntu_21.04"/>
+    </repository>
+    <repository type="apt-deb" alias="Ubuntu-Hirsute-Universe" distribution="hirsute" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:21.04/universe"/>
+    </repository>
+    <repository type="apt-deb" alias="Ubuntu-Hirsute" distribution="hirsute" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:21.04/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="gnupg"/>
+        <package name="iproute2"/>
+        <package name="iptables"/>
+        <package name="iputils-ping"/>
+        <package name="ifupdown"/>
+        <package name="isc-dhcp-client"/>
+        <package name="netbase"/>
+        <package name="dbus"/>
+        <package name="xz-utils"/>
+        <package name="usrmerge"/>
+        <!--
+            mawk is included so OBS adds it as a build dependency,
+            however this is installed by debootstrap
+        -->
+        <package name="mawk"/>
+    </packages>
+    <packages type="bootstrap"/>
+</image>
