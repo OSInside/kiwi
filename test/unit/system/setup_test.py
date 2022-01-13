@@ -1078,17 +1078,41 @@ class TestSystemSetup:
 
     @patch('kiwi.system.setup.os.path.exists')
     def test_setup_machine_id(self, mock_path_exists):
-        mock_path_exists.return_value = True
-
+        # No /etc/machine-id -> no creation
+        mock_path_exists.return_value = False
         with patch('builtins.open') as m_open:
             self.setup.setup_machine_id()
+            print(mock_path_exists.mock_calls)
+            m_open.assert_not_called()
+
+        mock_path_exists.return_value = True
+
+        # Empty /etc/machine-id -> truncate
+        m_open = mock_open(read_data='')
+        with patch('builtins.open', m_open):
+            self.setup.setup_machine_id()
             m_open.assert_called_once_with(
-                'root_dir/etc/machine-id', 'w'
+                'root_dir/etc/machine-id', 'r+'
             )
+            m_open().truncate.assert_called_once_with(0)
 
-        mock_path_exists.return_value = False
+        # Filled /etc/machine-id -> truncate
+        m_open = mock_open(read_data='9d75e31cca5943b3a527345e0684d5b6')
+        with patch('builtins.open', m_open):
+            self.setup.setup_machine_id()
+            m_open.assert_called_once_with(
+                'root_dir/etc/machine-id', 'r+'
+            )
+            m_open().truncate.assert_called_once_with(0)
 
-        self.setup.setup_machine_id()
+        # Explicitly uninitialized /etc/machine-id -> keep
+        m_open = mock_open(read_data='uninitialized')
+        with patch('builtins.open', m_open):
+            self.setup.setup_machine_id()
+            m_open.assert_called_once_with(
+                'root_dir/etc/machine-id', 'r+'
+            )
+            m_open().truncate.assert_not_called()
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.Path.which')
