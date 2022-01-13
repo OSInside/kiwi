@@ -30,7 +30,7 @@ class TestIsoToolsBase:
 
     def test_add_efi_loader_parameters(self):
         with raises(NotImplementedError):
-            self.iso_tool.add_efi_loader_parameters()
+            self.iso_tool.add_efi_loader_parameters('loader_file')
 
     def test_has_iso_hybrid_capability(self):
         with raises(NotImplementedError):

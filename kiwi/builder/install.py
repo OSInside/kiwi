@@ -237,6 +237,13 @@ class InstallImageBuilder:
         )
         bootloader_config.write()
 
+        if self.firmware.efi_mode():
+            efi_loader = Temporary(
+                prefix='efi-loader.', path=self.target_dir
+            ).new_file()
+            bootloader_config._create_embedded_fat_efi_image(efi_loader.name)
+            self.custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
+
         # create initrd for install image
         log.info('Creating install image boot image')
         self._create_iso_install_kernel_and_initrd()

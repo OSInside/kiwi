@@ -42,8 +42,6 @@ class TestFileSystemIsoFs:
 
         iso_tool.init_iso_creation_parameters.assert_called_once_with({})
 
-        iso_tool.add_efi_loader_parameters.assert_called_once_with()
-
         iso_tool.create_iso.assert_called_once_with('myimage')
 
     @patch('kiwi.filesystem.isofs.IsoTools')
@@ -61,6 +59,10 @@ class TestFileSystemIsoFs:
         iso.header_end_name = 'header_end'
         mock_iso.return_value = iso
         self.isofs.custom_args['meta_data']['efi_mode'] = 'uefi'
+        self.isofs.custom_args['meta_data']['efi_loader'] = 'esp-image-file'
         with self._caplog.at_level(logging.WARNING):
             self.isofs.create_on_file('myimage')
             iso_tool.create_iso.assert_called_once_with('myimage')
+            iso_tool.add_efi_loader_parameters.assert_called_once_with(
+                'esp-image-file'
+            )

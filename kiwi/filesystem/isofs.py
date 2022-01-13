@@ -46,6 +46,7 @@ class FileSystemIsoFs(FileSystemBase):
         meta_data = self.custom_args['meta_data']
         efi_mode = meta_data.get('efi_mode')
         ofw_mode = meta_data.get('ofw_mode')
+        efi_loader = meta_data.get('efi_loader')
         iso_tool = IsoTools.new(self.root_dir)
 
         iso = Iso(self.root_dir)
@@ -54,6 +55,7 @@ class FileSystemIsoFs(FileSystemBase):
 
         iso_tool.init_iso_creation_parameters(meta_data)
 
-        iso_tool.add_efi_loader_parameters()
+        if efi_loader:
+            iso_tool.add_efi_loader_parameters(efi_loader)
 
         iso_tool.create_iso(filename)
