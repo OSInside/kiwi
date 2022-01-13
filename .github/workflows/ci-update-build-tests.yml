@@ -1,0 +1,18 @@
+name: CI-Update-Build-Tests
+
+on:
+  push:
+    branches:
+      - "master"
+    paths:
+      - "build-tests/**"
+
+jobs:
+  trigger_obs_services:
+    name: Trigger OBS services connected to build-tests data
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Send API requests to Open Build Service
+        run: helper/update_obs_services.sh ${{ secrets.OBS_VIRT_APP_IMG_TOKEN }}
