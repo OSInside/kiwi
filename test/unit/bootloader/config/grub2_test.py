@@ -777,12 +777,13 @@ class TestBootLoaderConfigGrub2:
                     'set linux=linux\n'
                     'set initrd=initrd\n'
                     'if [ "${grub_cpu}" = "x86_64" -o '
-                    '"${grub_cpu}" = "i386" ];then\n'
+                    '"${grub_cpu}" = "i386" ]; then\n'
                     '    if [ "${grub_platform}" = "efi" ]; then\n'
                     '        set linux=linuxefi\n'
                     '        set initrd=initrdefi\n'
                     '    fi\n'
                     'fi\n'
+                    'export linux initrd\n'
                 ),
                 call(
                     'root=rootdev nomodeset console=ttyS0 console=tty0'
@@ -842,12 +843,13 @@ class TestBootLoaderConfigGrub2:
                     'set linux=linux\n'
                     'set initrd=initrd\n'
                     'if [ "${grub_cpu}" = "x86_64" -o '
-                    '"${grub_cpu}" = "i386" ];then\n'
+                    '"${grub_cpu}" = "i386" ]; then\n'
                     '    if [ "${grub_platform}" = "efi" ]; then\n'
                     '        set linux=linuxefi\n'
                     '        set initrd=initrdefi\n'
                     '    fi\n'
                     'fi\n'
+                    'export linux initrd\n'
                 ),
                 call(
                     '\t$linux ${rel_dirname}/${basename} ...\n'
