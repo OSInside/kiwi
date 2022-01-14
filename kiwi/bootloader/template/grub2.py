@@ -52,12 +52,13 @@ class BootLoaderTemplateGrub2:
         self.header_hybrid = dedent('''
             set linux=linux
             set initrd=initrd
-            if [ "$${grub_cpu}" = "x86_64" -o "$${grub_cpu}" = "i386" ];then
+            if [ "$${grub_cpu}" = "x86_64" -o "$${grub_cpu}" = "i386" ]; then
                 if [ "$${grub_platform}" = "efi" ]; then
                     set linux=linuxefi
                     set initrd=initrdefi
                 fi
             fi
+            export linux initrd
         ''').strip() + os.linesep
 
         self.header_gfxterm = dedent('''
