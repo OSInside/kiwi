@@ -104,6 +104,16 @@ class TestBootImageBase:
             self.boot_image.get_boot_names()
 
     @patch('kiwi.boot.image.base.Kernel')
+    def test_get_boot_names_with_initrd_system_set_to_none(self, mock_Kernel):
+        kernel = Mock()
+        mock_Kernel.return_value = kernel
+        kernel.get_kernel.return_value = None
+        self.xml_state.get_initrd_system.return_value = 'none'
+        boot_names = self.boot_image.get_boot_names()
+        assert boot_names.kernel_name == 'none'
+        assert boot_names.initrd_name == 'none'
+
+    @patch('kiwi.boot.image.base.Kernel')
     @patch('kiwi.boot.image.base.Path.which')
     @patch('kiwi.boot.image.base.log.warning')
     @patch('glob.iglob')
