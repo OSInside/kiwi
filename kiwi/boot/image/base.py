@@ -204,6 +204,8 @@ class BootImageBase:
         )
         kernel_info = kernel.get_kernel()
         if not kernel_info:
+            if self.xml_state.get_initrd_system() == 'none':
+                return boot_names_type(kernel_name='none', initrd_name='none')
             raise KiwiDiskBootImageError(
                 'No kernel in boot image tree %s found' %
                 self.boot_root_directory

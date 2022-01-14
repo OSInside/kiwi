@@ -10,7 +10,9 @@ from kiwi.exceptions import KiwiKernelLookupError
 
 class TestKernel:
     @patch('os.listdir')
-    def setup(self, mock_listdir):
+    @patch('os.path.isdir')
+    def setup(self, mock_path_isdir, mock_listdir):
+        mock_path_isdir.return_value = True
         mock_listdir.return_value = ['1.2.3-default']
         self.kernel = Kernel('root-dir')
         assert self.kernel.kernel_names == [

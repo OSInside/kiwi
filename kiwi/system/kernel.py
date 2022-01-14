@@ -161,9 +161,10 @@ class Kernel:
         :rtype: list
         """
         kernel_names = []
-        kernel_dirs = sorted(
-            os.listdir(''.join([self.root_dir, '/lib/modules']))
-        )
+        kernel_dirs = []
+        kernel_module_dir = ''.join([self.root_dir, '/lib/modules'])
+        if os.path.isdir(kernel_module_dir):
+            kernel_dirs = sorted(os.listdir(kernel_module_dir))
         if kernel_dirs:
             # append lookup for the real kernel image names
             # depending on the arch and os they are different
