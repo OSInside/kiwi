@@ -215,7 +215,7 @@ Obsoletes:      kiwi-filesystem-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:pxe
 Provides:       kiwi-image:kis
-%if ! 0%{?el8}
+%if ! 0%{?el8} && ! 0%{?el9}
 Provides:       kiwi-filesystem:btrfs
 %endif
 Provides:       kiwi-filesystem:ext2
@@ -230,7 +230,7 @@ Requires:       xfsprogs
 %if 0%{?suse_version}
 Requires:       btrfsprogs
 %else
-%if ! 0%{?el8}
+%if ! 0%{?el8} && ! 0%{?el9}
 Requires:       btrfs-progs
 %endif
 %endif
