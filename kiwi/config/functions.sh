@@ -25,6 +25,36 @@ export LC_ALL=C
 #======================================
 # Common Functions
 #--------------------------------------
+function mountCgroups {
+    mount -t tmpfs cgroup_root /sys/fs/cgroup
+    for group in devices blkio cpuset pids; do
+        mkdir -p /sys/fs/cgroup/"${group}"
+        mount -t cgroup "${group}" -o "${group}" /sys/fs/cgroup/"${group}"
+    done
+}
+
+function umountCgroups {
+    for group in devices blkio cpuset pids; do
+        umount /sys/fs/cgroup/"${group}"
+    done
+    umount /sys/fs/cgroup
+}
+
+function setupContainerRuntime {
+    cat >/etc/containers/containers.conf <<- EOF
+	[engine]
+	no_pivot_root = true
+	cgroups = "disabled"
+	events_logger = "none"
+	cgroup_manager = "cgroupfs"
+	EOF
+
+    cat >/etc/containers/storage.conf <<- EOF
+	[storage]
+	driver = "vfs"
+	EOF
+}
+
 function baseSystemdServiceInstalled {
     local service=$1
     local sd_dirs="
