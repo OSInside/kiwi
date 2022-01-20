@@ -270,9 +270,50 @@ class PackageManagerApt(PackageManagerBase):
                 'None of the requested packages to delete are installed'
             )
 
+        # deleting debs for some reason can also trigger package
+        # scripts from the libc-bin (glibc) package. This often
+        # results in calls like ldconfig which failed unless the
+        # system would be really running. Since the deletion
+        # happens via chroot and with the system in offline mode
+        # many attempts to uninstall a package, even cracefully
+        # failed for this reason. So far I only saw the workaround
+        # to make ldconfig a noop during the process of uninstall.
+        # This is not a nice solution and I dislike it. However,
+        # the only one I could come up with to turn the package
+        # uninstall in a useful feature in kiwi.
+        Command.run(
+            [
+                'cp',
+                f'{self.root_dir}/usr/sbin/ldconfig',
+                f'{self.root_dir}/usr/sbin/ldconfig.orig'
+            ]
+        )
+        Command.run(
+            [
+                'cp',
+                f'{self.root_dir}/usr/bin/true',
+                f'{self.root_dir}/usr/sbin/ldconfig'
+            ]
+        )
         if force:
+            # force deleting debs only worked well for me when ignoring
+            # the pre-inst and pre-remove codings. I don't know why this
+            # ends in so many conflicts but if you want to force get rid
+            # of stuff this was the only way I could come up with. There
+            # are still cases when it does not work depending on the many
+            # code that runs on deleting
+            for package in delete_items:
+                Path.wipe(f'/var/lib/dpkg/info/{package}.preinst')
+                Path.wipe(f'/var/lib/dpkg/info/{package}.prerm')
+
             apt_get_command = ['chroot', self.root_dir, 'dpkg']
-            apt_get_command.extend(['--force-all', '-r'])
+            apt_get_command.extend(
+                [
+                    '--remove',
+                    '--force-remove-reinstreq',
+                    '--force-remove-essential'
+                ]
+            )
             apt_get_command.extend(delete_items)
         else:
             apt_get_command = ['chroot', self.root_dir, 'apt-get']
@@ -285,6 +326,22 @@ class PackageManagerApt(PackageManagerBase):
 
         return Command.call(
             apt_get_command, self.command_env
+        )
+
+    def post_process_delete_requests(
+        self, root_bind: RootBind = None
+    ) -> None:
+        """
+        Revert system changes done prior deleting packages
+
+        :param object root_bind: unused
+        """
+        Command.run(
+            [
+                'mv',
+                f'{self.root_dir}/usr/sbin/ldconfig.orig',
+                f'{self.root_dir}/usr/sbin/ldconfig'
+            ]
         )
 
     def update(self) -> command_call_type:

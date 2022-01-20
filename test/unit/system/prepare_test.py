@@ -403,6 +403,9 @@ class TestSystemPrepare:
         self.manager.process_delete_requests.assert_has_calls(
             [call(False), call(True)]
         )
+        self.manager.post_process_delete_requests.assert_has_calls(
+            [call(self.system.root_bind), call(self.system.root_bind)]
+        )
 
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_pinch_system_raises(self, mock_poll):

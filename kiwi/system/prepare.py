@@ -469,6 +469,7 @@ class SystemPrepare:
                         manager.match_package_deleted
                     )
                 )
+                manager.post_process_delete_requests(self.root_bind)
             except Exception as issue:
                 raise KiwiSystemDeletePackagesFailed(
                     self.issue_message.format(
