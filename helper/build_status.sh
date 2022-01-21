@@ -25,13 +25,13 @@ do
     echo "${project}"
     if [ ! "$1" = "refresh" ];then
         while read -r line;do
-            echo -e "$(echo $line |\
+            echo -e "$(echo "${line}" |\
                 sed -e s@^F@'\\033[31mF\\e[0m'@ |\
                 sed -e s@^U@'\\033[33mU\\e[0m'@ |\
                 sed -e s@^D@'\\033[36mD\\e[0m'@ |\
                 sed -e s@^\\.@'\\033[32m.\\e[0m'@)"
         done < <(osc -A https://api.opensuse.org \
-            results -V "${project}" | sed -e 's@^   @  D @' |\
+            results -V "${project}" | sed -e 's@^(\s+)  test@D @' |\
             grep -B100 Legend | grep -v Legend
         )
     else
