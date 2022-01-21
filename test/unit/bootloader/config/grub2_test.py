@@ -1759,13 +1759,6 @@ class TestBootLoaderConfigGrub2:
                     ),
                     call(
                         [
-                            'rsync', '-a', '--exclude', '/*.module',
-                            'root_dir/usr/share/grub2/x86_64-efi/',
-                            'root_dir/boot/grub2/x86_64-efi'
-                        ]
-                    ),
-                    call(
-                        [
                             'cp', 'root_dir/usr/lib64/efi/shim.efi',
                             'root_dir/EFI/BOOT/bootx64.efi'
                         ]
