@@ -4,11 +4,13 @@ from mock import (
 import mock
 import kiwi
 
+from kiwi.defaults import Defaults
 from kiwi.storage.subformat.gce import DiskFormatGce
 
 
 class TestDiskFormatGce:
     def setup(self):
+        Defaults.set_platform_name('x86_64')
         xml_data = mock.Mock()
         xml_data.get_name = mock.Mock(
             return_value='some-disk-image'
