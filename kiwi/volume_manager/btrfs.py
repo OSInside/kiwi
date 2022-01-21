@@ -121,6 +121,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             Command.run(
                 ['btrfs', 'subvolume', 'create', snapshot_volume]
             )
+            os.chmod(snapshot_volume, 0o700)
             volume_mount = MountManager(
                 device=self.device,
                 mountpoint=self.mountpoint + '/.snapshots'
