@@ -777,7 +777,8 @@ class TestBootLoaderConfigGrub2:
                 'root=rootdev nomodeset console=ttyS0 console=tty0\n' \
                 'root=PARTUUID=xx'
             file_handle_grubenv.read.return_value = 'root=rootdev'
-            file_handle_menu.read.return_value = 'options foo bar'
+            file_handle_menu.read.return_value = \
+                'options foo\nlinux unexpected/boot/vmlinuz\ninitrd /boot/initrd'
 
             self.bootloader.setup_disk_image_config(
                 boot_options={
@@ -833,9 +834,12 @@ class TestBootLoaderConfigGrub2:
             file_handle_grubenv.write.assert_called_once_with(
                 'root=overlay:UUID=ID'
             )
-            file_handle_menu.write.assert_called_once_with(
-                'options some-cmdline root=UUID=foo'
-            )
+            assert 'options some-cmdline root=UUID=foo' in \
+                file_handle_menu.write.call_args_list[0][0][0].split(os.linesep)
+            assert 'linux /boot/vmlinuz' in \
+                file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
+            assert 'initrd /boot/initrd' in \
+                file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
 
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
