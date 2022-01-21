@@ -2377,6 +2377,18 @@ div {
             sch:param [ name = "attr" value = "name" ]
             sch:param [ name = "types" value = "oem iso" ]
         ]
+    k.bootloader.grub_template.attribute =
+        ## Specifies a custom grub bootloader template file which will be used
+        ## instead of the one provided with Kiwi. A static bootloader template to
+        ## create the grub config file is only used in Kiwi if the native method
+        ## via the grub mkconfig toolchain does not work properly. As of today,
+        ## this is only the case for live and install ISO images. Thus, this
+        ## setting only affects the oem and iso image types.
+        attribute grub_template { text }
+        >> sch:pattern [ id = "loader_grub_template" is-a = "bootloader_image_type"
+            sch:param [ name = "attr" value = "grub_template" ]
+            sch:param [ name = "types" value = "oem iso" ]
+        ]
     k.bootloader.console.attribute =
         ## Specifies the bootloader console.
         ## The value is available for grub and isolinux bootloader
@@ -2435,7 +2447,8 @@ div {
         k.bootloader.serial_line.attribute? &
         k.bootloader.timeout.attribute? &
         k.bootloader.timeout_style.attribute? &
-        k.bootloader.targettype.attribute?
+        k.bootloader.targettype.attribute? &
+        k.bootloader.grub_template.attribute?
 
     k.bootloader =
         ## The bootloader section is used to select the bootloader
