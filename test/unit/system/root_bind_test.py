@@ -89,10 +89,13 @@ class TestRootBind:
         shared_mount = Mock()
         mock_mount.return_value = shared_mount
         assert self.bind_root.mount_kernel_file_systems() is None
-        mock_mount.assert_called_once_with(
-            device='/proc', mountpoint='root-dir/proc'
-        )
-        shared_mount.bind_mount.assert_called_once_with()
+        assert mock_mount.call_args_list == [
+            call(device='root-dir', mountpoint='root-dir'),
+            call(device='/proc', mountpoint='root-dir/proc')
+        ]
+        assert shared_mount.bind_mount.call_args_list == [
+            call(), call()
+        ]
 
     @patch('kiwi.system.root_bind.MountManager')
     def test_umount_kernel_file_systems(self, mock_mount):
