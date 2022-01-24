@@ -15,6 +15,10 @@ function mount_ramdisk {
         die "Missing ${boot_options} file"
     fi
 
+    # Add a space to /config.bootoptions to make sure the
+    # following token based read captures all entries
+    echo -n ' ' >> "${boot_options}"
+
     root_dev=$(
         while read -r -d ' ' opt; do echo "${opt}";done < "${boot_options}" |\
         grep root= | cut -f2- -d=
