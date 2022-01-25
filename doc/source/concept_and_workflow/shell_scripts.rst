@@ -305,27 +305,38 @@ Configuration Tips
 
 #. **Stateless systemd UUIDs:**
 
-   Machine ID files are created and set (:file:`/etc/machine-id`,
-   :file:`/var/lib/dbus/machine-id`) during the image package installation
-   when *systemd* and/or *dbus* are installed. Those UUIDs are intended to
-   be unique and set only once in each deployment. {kiwi} follows the `systemd
-   recommendations
-   <https://www.freedesktop.org/software/systemd/man/machine-id.html>`_ and
-   wipes any :file:`/etc/machine-id` content, leaving it as an empty file.
-   Note, this only applies to images based on a dracut initrd, it does not
-   apply for container images.
+   Machine ID files (:file:`/etc/machine-id`, :file:`/var/lib/dbus/machine-id`)
+   may be created and set during the image package installation depending on
+   the distribution. Those UUIDs are intended to be unique and set only once
+   in each deployment.
 
-   In case this setting is also required for a non dracut based image,
-   the same result can achieved by removing :file:`/etc/machine-id` in
-   :file:`config.sh`.
+   If :file:`/etc/machine-id` does not exist or contains the string
+   `uninitialized` (systemd v249 and later), this triggers firstboot behaviour
+   in systemd and services using `ConditionFirstBoot=yes` will run. Unless the
+   file already contains a valid machine ID, systemd will generate one and
+   write it into the file, creating it if necessary. See the `machine-id man
+   page <https://www.freedesktop.org/software/systemd/man/machine-id.html>`_
+   for more details.
 
-   .. note:: Avoid interactive boot
+   Depending on whether firstboot behaviour should be triggered or not,
+   :file:`/etc/machine-id` can be created, removed or filled with
+   `uninitialized` by :file:`config.sh`.
 
-      It is important to remark that the file :file:`/etc/machine-id` is set
-      to an empty file instead of deleting it. :command:`systemd` may
-      trigger :command:`systemd-firstboot` service if this file is not
-      present, which leads to an interactive firstboot where the user is
-      asked to provide some data.
+   To prevent that images include a generated machine ID, KIWI will clear
+   :file:`/etc/machine-id` if it exists and does not contain the string
+   `uninitialized`. This only applies to images based on a dracut initrd, it
+   does not apply for container images.
+
+   .. note:: `rw` might be necessary if :file:`/etc/machine-id` does not exist
+
+      For systemd to be able to write :file:`/etc/machine-id` on boot,
+      it must either exist already (so that a bind mount can be created) or
+      :file:`/etc` must be writable.
+
+      By default, the root filesystem is mounted read-only by dracut/systemd,
+      thus a missing :file:`/etc/machine-id` will result in an error on boot.
+      The `rw` option can be added to the kernel commandline to force the
+      initial mount to be read-write.
 
    .. note:: Avoid inconsistent :file:`/var/lib/dbus/machine-id`
 
