@@ -277,9 +277,8 @@ class TestBootLoaderConfigGrub2:
 
     @patch('os.path.exists')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
-    @patch('kiwi.bootloader.config.grub2.Command.run')
     def test_write(
-        self, mock_command, mock_copy_grub_config_to_efi_path, mock_exists
+        self, mock_copy_grub_config_to_efi_path, mock_exists
     ):
         mock_exists.return_value = True
         self.bootloader.config = 'some-data'
@@ -298,20 +297,24 @@ class TestBootLoaderConfigGrub2:
             file_handle.write.assert_called_once_with(
                 'some-data'
             )
+
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_create_embedded_fat_efi_image(self, mock_command):
+        self.bootloader._create_embedded_fat_efi_image('tmp-esp-image')
         assert mock_command.call_args_list == [
             call(
                 [
-                    'qemu-img', 'create', 'root_dir/boot/x86_64/efi', '20M'
+                    'qemu-img', 'create', 'tmp-esp-image', '20M'
                 ]
             ),
             call(
                 [
-                    'mkdosfs', '-n', 'BOOT', 'root_dir/boot/x86_64/efi'
+                    'mkdosfs', '-n', 'BOOT', 'tmp-esp-image'
                 ]
             ),
             call(
                 [
-                    'mcopy', '-Do', '-s', '-i', 'root_dir/boot/x86_64/efi',
+                    'mcopy', '-Do', '-s', '-i', 'tmp-esp-image',
                     'root_dir/EFI', '::'
                 ]
             )

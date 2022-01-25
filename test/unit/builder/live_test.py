@@ -272,6 +272,7 @@ class TestLiveImageBuilder:
                     'publisher': 'Custom publisher',
                     'volume_id': 'volid',
                     'efi_mode': 'uefi',
+                    'efi_loader': 'kiwi-tmpfile',
                     'udf': True
                 }
             },

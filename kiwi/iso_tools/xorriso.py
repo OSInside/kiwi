@@ -136,7 +136,7 @@ class IsoToolsXorrIso(IsoToolsBase):
             '-boot_image', 'any', 'load_size=2048'
         ]
 
-    def add_efi_loader_parameters(self) -> None:
+    def add_efi_loader_parameters(self, loader_file: str) -> None:
         """
         Add ISO creation parameters to embed the EFI loader
 
@@ -147,16 +147,14 @@ class IsoToolsXorrIso(IsoToolsBase):
         file refer to _create_embedded_fat_efi_image() from
         bootloader/config/grub2.py
         """
-        loader_file = os.sep.join([self.source_dir, self.boot_path, 'efi'])
-        if os.path.exists(loader_file):
-            self.iso_loaders += [
-                '-append_partition', '2', '0xef', loader_file,
-                '-boot_image', 'any', 'next',
-                '-boot_image', 'any',
-                'efi_path=--interval:appended_partition_2:all::',
-                '-boot_image', 'any', 'platform_id=0xef',
-                '-boot_image', 'any', 'emul_type=no_emulation'
-            ]
+        self.iso_loaders += [
+            '-append_partition', '2', '0xef', loader_file,
+            '-boot_image', 'any', 'next',
+            '-boot_image', 'any',
+            'efi_path=--interval:appended_partition_2:all::',
+            '-boot_image', 'any', 'platform_id=0xef',
+            '-boot_image', 'any', 'emul_type=no_emulation'
+        ]
 
     def create_iso(
         self, filename: str, hidden_files: List[str] = None

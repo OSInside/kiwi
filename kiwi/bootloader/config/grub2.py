@@ -172,10 +172,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
-            if self.firmware.efi_mode():
-                if self.iso_boot:
-                    self._create_embedded_fat_efi_image()
-
     def write_meta_data(self, root_device=None, boot_options=''):
         """
         Write bootloader setup meta data files
@@ -833,20 +829,20 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ['bash', '-c', bash_command]
         )
 
-    def _create_embedded_fat_efi_image(self):
-        Path.create(self.boot_dir + '/boot/' + self.arch)
-        efi_fat_image = ''.join(
-            [self.boot_dir + '/boot/', self.arch, '/efi']
+    def _create_embedded_fat_efi_image(self, path):
+        """
+        Creates a EFI system partition image at the given path.
+        Must be called after setup_install_boot_images and write.
+        """
+        Command.run(
+            ['qemu-img', 'create', path, '20M']
         )
         Command.run(
-            ['qemu-img', 'create', efi_fat_image, '20M']
-        )
-        Command.run(
-            ['mkdosfs', '-n', 'BOOT', efi_fat_image]
+            ['mkdosfs', '-n', 'BOOT', path]
         )
         Command.run(
             [
-                'mcopy', '-Do', '-s', '-i', efi_fat_image,
+                'mcopy', '-Do', '-s', '-i', path,
                 self.boot_dir + '/EFI', '::'
             ]
         )

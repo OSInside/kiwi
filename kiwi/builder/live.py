@@ -179,6 +179,13 @@ class LiveImageBuilder:
             working_directory=self.root_dir
         )
 
+        if self.firmware.efi_mode():
+            efi_loader = Temporary(
+                prefix='efi-loader.', path=self.target_dir
+            ).new_file()
+            bootloader_config._create_embedded_fat_efi_image(efi_loader.name)
+            custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
+
         # prepare dracut initrd call
         self.boot_image.prepare()
 

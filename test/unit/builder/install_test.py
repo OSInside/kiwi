@@ -139,10 +139,13 @@ class TestInstallImageBuilder:
         temp_media_dir = Mock()
         temp_media_dir.new_dir.return_value.name = 'temp_media_dir'
 
-        tmpdir_name = [temp_squashfs, temp_media_dir]
+        temp_esp_file = Mock()
+        temp_esp_file.new_file.return_value.name = 'temp_esp'
+
+        tmp_names = [temp_esp_file, temp_squashfs, temp_media_dir]
 
         def side_effect(prefix, path):
-            return tmpdir_name.pop()
+            return tmp_names.pop()
 
         bootloader_config = mock.Mock()
         mock_BootLoaderConfig.return_value = bootloader_config
@@ -195,6 +198,9 @@ class TestInstallImageBuilder:
             mbrid=self.mbrid
         )
         bootloader_config.write.assert_called_once_with()
+        bootloader_config._create_embedded_fat_efi_image.assert_called_once_with(
+            'temp_esp'
+        )
         self.boot_image_task.create_initrd.assert_called_once_with(
             self.mbrid, 'initrd_kiwi_install', install_initrd=True
         )
@@ -222,7 +228,7 @@ class TestInstallImageBuilder:
             'target_dir/result-image.x86_64-1.2.3.install.iso'
         )
 
-        tmpdir_name = [temp_squashfs, temp_media_dir]
+        tmp_names = [temp_esp_file, temp_squashfs, temp_media_dir]
         self.install_image.initrd_system = 'dracut'
 
         m_open.reset_mock()
@@ -249,7 +255,7 @@ class TestInstallImageBuilder:
         ]
 
         mock_BootLoaderConfig.reset_mock()
-        tmpdir_name = [temp_squashfs, temp_media_dir]
+        tmp_names = [temp_esp_file, temp_squashfs, temp_media_dir]
         self.firmware.efi_mode.return_value = None
 
         with patch('builtins.open', m_open, create=True):
@@ -259,6 +265,7 @@ class TestInstallImageBuilder:
             'isolinux', self.xml_state, root_dir='root_dir',
             boot_dir='temp_media_dir'
         )
+        bootloader_config._create_embedded_fat_efi_image.assert_not_called()
 
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.Temporary')
