@@ -41,6 +41,9 @@ class TestPackageManagerBase:
     def test_post_process_install_requests_bootstrap(self):
         self.manager.post_process_install_requests_bootstrap()
 
+    def test_post_process_delete_requests(self):
+        self.manager.post_process_delete_requests()
+
     def test_process_install_requests(self):
         with raises(NotImplementedError):
             self.manager.process_install_requests()

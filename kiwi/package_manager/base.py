@@ -219,6 +219,16 @@ class PackageManagerBase:
         """
         pass
 
+    def post_process_delete_requests(
+        self, root_bind: RootBind = None
+    ) -> None:
+        """
+        Process extra code required after deleting packages
+
+        Implementation in specialized package manager class
+        """
+        pass
+
     @staticmethod
     def has_failed(returncode: int) -> bool:
         """
