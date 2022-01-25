@@ -1326,7 +1326,7 @@ class TestSystemSetup:
         mock_command.assert_called_once_with(
             [
                 'chroot', 'root_dir',
-                'setfiles', 'security_context_file', '/', '-v'
+                'setfiles', 'security_context_file', '/', '-v', '-F'
             ]
         )
 
