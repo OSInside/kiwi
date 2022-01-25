@@ -476,7 +476,7 @@ class SystemSetup:
         Command.run(
             [
                 'chroot', self.root_dir,
-                'setfiles', security_context_file, '/', '-v'
+                'setfiles', security_context_file, '/', '-v', '-F'
             ]
         )
 
