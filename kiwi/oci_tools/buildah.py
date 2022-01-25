@@ -161,7 +161,12 @@ class OCIBuildah(OCIBase):
         self._sync_data(
             ''.join([root_dir, os.sep]), self.oci_root_dir,
             exclude_list=exclude_list,
-            options=Defaults.get_sync_options() + ['--delete']
+            options=Defaults.get_sync_options() + [
+                '--filter', '-x! user.*',
+                '--filter', '-x! security.ima*',
+                '--filter', '-x! security.capability*',
+                '--delete'
+            ]
         )
 
     def import_rootfs(self, root_dir, exclude_list=None):

@@ -314,7 +314,10 @@ class Defaults:
 
         :rtype: list
         """
-        return ['-a', '-H', '-X', '-A', '--one-file-system', '--inplace']
+        return [
+            '--archive', '--hard-links', '--xattrs', '--acls',
+            '--one-file-system', '--inplace'
+        ]
 
     @staticmethod
     def get_exclude_list_for_root_data_sync():

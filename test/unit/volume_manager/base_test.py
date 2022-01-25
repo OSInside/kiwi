@@ -232,7 +232,10 @@ class TestVolumeManagerBase:
         )
         data_sync.sync_data.assert_called_once_with(
             exclude=['exclude_me'],
-            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace']
+            options=[
+                '--archive', '--hard-links', '--xattrs',
+                '--acls', '--one-file-system', '--inplace'
+            ]
         )
         assert self.volume_manager.get_mountpoint() == 'mountpoint'
 

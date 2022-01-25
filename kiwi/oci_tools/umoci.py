@@ -123,7 +123,12 @@ class OCIUmoci(OCIBase):
             ''.join([root_dir, os.sep]),
             os.sep.join([self.oci_root_dir, 'rootfs']),
             exclude_list=exclude_list,
-            options=Defaults.get_sync_options() + ['--delete']
+            options=Defaults.get_sync_options() + [
+                '--filter', '-x! user.*',
+                '--filter', '-x! security.ima*',
+                '--filter', '-x! security.capability*',
+                '--delete'
+            ]
         )
 
     def import_rootfs(self, root_dir, exclude_list=None):
