@@ -281,68 +281,68 @@ Configuration Tips
 
 #. **Locale configuration:**
 
-  KIWI in order to set the locale relies on :command:`systemd-firstboot`,
-  which in turn writes the locale configuration file :file:`/etc/locale.conf`.
-  The values for the locale settings are taken from the description XML
-  file in the `<locale>` element under `<preferences>`.
+   KIWI in order to set the locale relies on :command:`systemd-firstboot`,
+   which in turn writes the locale configuration file :file:`/etc/locale.conf`.
+   The values for the locale settings are taken from the description XML
+   file in the `<locale>` element under `<preferences>`.
 
-  KIWI assumes systemd adoption to handle these locale settings, in case the
-  build distribution does not honor `/etc/locale.conf` this is likely to not
-  produce any effect on the locale settings. As an example, in SLE12
-  distribution the locale configuration is already possible by using the
-  systemd toolchain, however this approach overlaps with SUSE specific
-  managers such as YaST. In that case using :command:`systemd-firstboot`
-  is only effective if locales in :file:`/etc/sysconfig/language` are
-  not set or if the file does not exist at all. In SLE12
-  :file:`/etc/sysconfig/language` has precendence over
-  :file:`/etc/locale.conf` for compatibility reasons and management tools
-  could still relay on `sysconfig` files for locale settings.
+   KIWI assumes systemd adoption to handle these locale settings, in case the
+   build distribution does not honor `/etc/locale.conf` this is likely to not
+   produce any effect on the locale settings. As an example, in SLE12
+   distribution the locale configuration is already possible by using the
+   systemd toolchain, however this approach overlaps with SUSE specific
+   managers such as YaST. In that case using :command:`systemd-firstboot`
+   is only effective if locales in :file:`/etc/sysconfig/language` are
+   not set or if the file does not exist at all. In SLE12
+   :file:`/etc/sysconfig/language` has precendence over
+   :file:`/etc/locale.conf` for compatibility reasons and management tools
+   could still relay on `sysconfig` files for locale settings.
 
-  In any case the configuration is still possible in KIWI by using
-  any distribution specific way to configure the locale setting inside the
-  :file:`config.sh` script or by adding any additional configuration file
-  as part of the overlay root-tree.
+   In any case the configuration is still possible in KIWI by using
+   any distribution specific way to configure the locale setting inside the
+   :file:`config.sh` script or by adding any additional configuration file
+   as part of the overlay root-tree.
 
 #. **Stateless systemd UUIDs:**
 
-  Machine ID files are created and set (:file:`/etc/machine-id`,
-  :file:`/var/lib/dbus/machine-id`) during the image package installation
-  when *systemd* and/or *dbus* are installed. Those UUIDs are intended to
-  be unique and set only once in each deployment. {kiwi} follows the `systemd
-  recommendations
-  <https://www.freedesktop.org/software/systemd/man/machine-id.html>`_ and
-  wipes any :file:`/etc/machine-id` content, leaving it as an empty file.
-  Note, this only applies to images based on a dracut initrd, it does not
-  apply for container images.
+   Machine ID files are created and set (:file:`/etc/machine-id`,
+   :file:`/var/lib/dbus/machine-id`) during the image package installation
+   when *systemd* and/or *dbus* are installed. Those UUIDs are intended to
+   be unique and set only once in each deployment. {kiwi} follows the `systemd
+   recommendations
+   <https://www.freedesktop.org/software/systemd/man/machine-id.html>`_ and
+   wipes any :file:`/etc/machine-id` content, leaving it as an empty file.
+   Note, this only applies to images based on a dracut initrd, it does not
+   apply for container images.
 
-  In case this setting is also required for a non dracut based image,
-  the same result can achieved by removing :file:`/etc/machine-id` in
-  :file:`config.sh`.
+   In case this setting is also required for a non dracut based image,
+   the same result can achieved by removing :file:`/etc/machine-id` in
+   :file:`config.sh`.
 
-  .. note:: Avoid interactive boot
+   .. note:: Avoid interactive boot
 
-     It is important to remark that the file :file:`/etc/machine-id` is set
-     to an empty file instead of deleting it. :command:`systemd` may
-     trigger :command:`systemd-firstboot` service if this file is not
-     present, which leads to an interactive firstboot where the user is
-     asked to provide some data.
+      It is important to remark that the file :file:`/etc/machine-id` is set
+      to an empty file instead of deleting it. :command:`systemd` may
+      trigger :command:`systemd-firstboot` service if this file is not
+      present, which leads to an interactive firstboot where the user is
+      asked to provide some data.
 
-  .. note:: Avoid inconsistent :file:`/var/lib/dbus/machine-id`
+   .. note:: Avoid inconsistent :file:`/var/lib/dbus/machine-id`
 
-     Note that :file:`/etc/machine-id` and :file:`/var/lib/dbus/machine-id`
-     **must** contain the same unique ID. On modern systems
-     :file:`/var/lib/dbus/machine-id` is already a symlink to
-     :file:`/etc/machine-id`. However on older systems those might be two
-     different files. This is the case for SLE-12 based images. If you are
-     targeting these older operating systems, it is recommended to add the
-     symlink creation into :file:`config.sh`:
+      Note that :file:`/etc/machine-id` and :file:`/var/lib/dbus/machine-id`
+      **must** contain the same unique ID. On modern systems
+      :file:`/var/lib/dbus/machine-id` is already a symlink to
+      :file:`/etc/machine-id`. However on older systems those might be two
+      different files. This is the case for SLE-12 based images. If you are
+      targeting these older operating systems, it is recommended to add the
+      symlink creation into :file:`config.sh`:
 
-     .. code:: bash
+      .. code:: bash
 
-        #======================================
-        # Make machine-id consistent with dbus
-        #--------------------------------------
-        if [ -e /var/lib/dbus/machine-id ]; then
-            rm /var/lib/dbus/machine-id
-        fi
-        ln -s /etc/machine-id /var/lib/dbus/machine-id
+         #======================================
+         # Make machine-id consistent with dbus
+         #--------------------------------------
+         if [ -e /var/lib/dbus/machine-id ]; then
+             rm /var/lib/dbus/machine-id
+         fi
+         ln -s /etc/machine-id /var/lib/dbus/machine-id
