@@ -200,7 +200,7 @@ class TestPackageManagerApt:
             [
                 'chroot', 'root-dir', 'dpkg',
                 '--remove', '--force-remove-reinstreq',
-                '--force-remove-essential', 'vim'
+                '--force-remove-essential', '--force-depends', 'vim'
             ],
             ['env']
         )

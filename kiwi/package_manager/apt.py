@@ -311,7 +311,8 @@ class PackageManagerApt(PackageManagerBase):
                 [
                     '--remove',
                     '--force-remove-reinstreq',
-                    '--force-remove-essential'
+                    '--force-remove-essential',
+                    '--force-depends'
                 ]
             )
             apt_get_command.extend(delete_items)
