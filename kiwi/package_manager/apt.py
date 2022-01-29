@@ -17,6 +17,7 @@
 #
 import re
 import os
+import glob
 import logging
 from typing import (
     List, Dict
@@ -303,8 +304,10 @@ class PackageManagerApt(PackageManagerBase):
             # are still cases when it does not work depending on the many
             # code that runs on deleting
             for package in delete_items:
-                Path.wipe(f'/var/lib/dpkg/info/{package}.preinst')
-                Path.wipe(f'/var/lib/dpkg/info/{package}.prerm')
+                delete_pattern = \
+                    f'{self.root_dir}/var/lib/dpkg/info/{package}*.pre*'
+                for delete_file in glob.iglob(delete_pattern):
+                    Path.wipe(delete_file)
 
             apt_get_command = ['chroot', self.root_dir, 'dpkg']
             apt_get_command.extend(

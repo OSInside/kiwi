@@ -172,9 +172,11 @@ class TestPackageManagerApt:
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.package_manager.apt.Path.wipe')
+    @patch('glob.iglob')
     def test_process_delete_requests_force(
-        self, mock_Path_wipe, mock_run, mock_call
+        self, mock_iglob, mock_Path_wipe, mock_run, mock_call
     ):
+        mock_iglob.return_value = ['glob-result']
         self.manager.request_package('vim')
         self.manager.process_delete_requests(True)
         assert mock_run.call_args_list == [
@@ -204,10 +206,10 @@ class TestPackageManagerApt:
             ],
             ['env']
         )
-        assert mock_Path_wipe.call_args_list == [
-            call('/var/lib/dpkg/info/vim.preinst'),
-            call('/var/lib/dpkg/info/vim.prerm')
-        ]
+        mock_iglob.assert_called_once_with(
+            'root-dir/var/lib/dpkg/info/vim*.pre*'
+        )
+        mock_Path_wipe.assert_called_once_with('glob-result')
 
     @patch('kiwi.command.Command.run')
     def test_post_process_delete_requests(self, mock_run):
