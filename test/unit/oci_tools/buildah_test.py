@@ -67,8 +67,12 @@ class TestOCIBuildah:
         sync.sync_data.assert_called_once_with(
             exclude=['/dev', '/proc'],
             options=[
-                '-a', '-H', '-X', '-A', '--one-file-system',
-                '--inplace', '--delete'
+                '--archive', '--hard-links', '--xattrs', '--acls',
+                '--one-file-system', '--inplace',
+                '--filter', '-x! user.*',
+                '--filter', '-x! security.ima*',
+                '--filter', '-x! security.capability*',
+                '--delete'
             ]
         )
 
@@ -83,7 +87,10 @@ class TestOCIBuildah:
         )
         sync.sync_data.assert_called_once_with(
             exclude=['/dev', '/proc'],
-            options=['-a', '-H', '-X', '-A', '--one-file-system', '--inplace']
+            options=[
+                '--archive', '--hard-links', '--xattrs', '--acls',
+                '--one-file-system', '--inplace'
+            ]
         )
 
     @patch('kiwi.oci_tools.umoci.Command.run')

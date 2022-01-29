@@ -89,11 +89,11 @@ class DataSync:
             rsync_options = options
         if not self.target_supports_extended_attributes():
             warn_me = False
-            if '-X' in rsync_options:
-                rsync_options.remove('-X')
+            if '--xattrs' in rsync_options:
+                rsync_options.remove('--xattrs')
                 warn_me = True
-            if '-A' in rsync_options:
-                rsync_options.remove('-A')
+            if '--acls' in rsync_options:
+                rsync_options.remove('--acls')
                 warn_me = True
             if warn_me:
                 log.warning(
