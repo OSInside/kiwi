@@ -1058,7 +1058,7 @@ class DiskBuilder:
             )
             boot_uuid_unmapped = disk.get_uuid(
                 device_map['luks_root'].get_device()
-            ) if self.luks else boot_uuid
+            ) if self.luks and self.boot_is_crypto else boot_uuid
             self.bootloader_config.setup_disk_boot_images(
                 boot_uuid_unmapped
             )
