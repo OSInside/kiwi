@@ -1170,6 +1170,7 @@ class Defaults:
             'armv6l': ['efi', 'uefi'],
             'armv7hl': ['efi', 'uefi'],
             'armv7l': ['efi', 'uefi'],
+            'armv8l': ['efi', 'uefi'],
             'ppc': ['ofw'],
             'ppc64': ['ofw', 'opal'],
             'ppc64le': ['ofw', 'opal'],
@@ -1205,6 +1206,7 @@ class Defaults:
             'armv6l': 'efi',
             'armv7hl': 'efi',
             'armv7l': 'efi',
+            'armv8l': 'efi',
             'riscv64': 'efi'
         }
         if arch in default_firmware:
@@ -1262,6 +1264,7 @@ class Defaults:
             'armv5tel': 'arm-efi',
             'armv6l': 'arm-efi',
             'armv7l': 'arm-efi',
+            'armv8l': 'arm-efi',
             'riscv64': 'riscv64-efi'
         }
         if arch in default_module_directory_names:
@@ -1297,6 +1300,7 @@ class Defaults:
             'armv5tel': 'bootarm.efi',
             'armv6l': 'bootarm.efi',
             'armv7l': 'bootarm.efi',
+            'armv8l': 'bootarm.efi',
             'riscv64': 'bootriscv64.efi'
         }
         if arch in default_efi_image_names:
