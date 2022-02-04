@@ -167,3 +167,17 @@ function bool {
         echo "false"
     fi
 }
+
+function initialize {
+    # """
+    # Source profile variables into runtime environment
+    # The method will exit from the initrd if the profile
+    # file does not exist
+    # """
+    local profile=/.profile
+
+    test -f ${profile} || \
+        report_and_quit "No profile setup found"
+
+    import_file ${profile}
+}
