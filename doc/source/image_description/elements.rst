@@ -926,11 +926,44 @@ the `dm_integrity` feature:
 <preferences><type><bootloader>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The `bootloader` element is used to select the bootloader. At the moment,
-`grub2`, `isolinux`, `zipl` and `grub2_s390x_emu` (a combination of zipl
-and a userspace GRUB2) are supported. The special `custom` entry allows
-to skip the bootloader configuration and installation and leaves this up
-to the user, which can be done by using the `editbootinstall` and
-`editbootconfig` custom scripts.
+`grub2`, `systemd_boot`, `isolinux` and the combination of zipl
+plus userspace grub2 `grub2_s390x_emu` are supported. The special
+`custom` entry allows to skip the bootloader configuration and installation
+and leaves this up to the user, which can be done by using
+the `editbootinstall` and `editbootconfig` custom scripts.
+
+.. note::
+
+   bootloaders provides a very different set of features and only
+   work within their individual implementation priorities. {kiwi}
+   provides an API for bootloaders but not all API methods can be
+   implemented for all bootloaders due to the fact that some
+   features only exists in one but not in another bootloader. If
+   a bootloader setting is used that is not understood by the
+   selected bootloader the image build process will fail with
+   an exception message.
+
+name="grub2|systemd_boot|isolinux|grub2_s390x_emu":
+  Specifies the bootloader to use for this image.
+
+  .. note:: systemd_boot ESP size
+
+     The implementation to support systemd-boot reads all
+     data from the ESP (EFI Standard Partition). This also
+     includes the kernel and initrd which requires the size
+     of the ESP to be configured appropriately. By default
+     {kiwi} configures the ESP with 20MB. For systemd_boot
+     this is usually too small and can be changed with the
+     `efipartsize` attribute. Reading boot relevant files
+     from another filesystem requires to provide alternative
+     EFI filesystem drivers e.g efifs and also needs
+     adaptions on the setup of `bootctl`.
+
+  .. note:: systemd_boot and shim
+
+     At the moment the EFI image provided along with systemd-boot
+     is not compatible with the shim signed loader provided in an
+     extra effort by the distributions.
 
 In addition to the mandatory name attribute, the following optional
 attributes are supported:
