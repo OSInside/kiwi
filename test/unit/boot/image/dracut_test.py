@@ -12,7 +12,7 @@ from kiwi.xml_state import XMLState
 class TestBootImageKiwi:
     @patch('kiwi.boot.image.dracut.Command.run')
     @patch('kiwi.boot.image.base.os.path.exists')
-    def setup(self, mock_exists, mock_cmd):
+    def setup(self, mock_BootImageDracut, mock_exists, mock_cmd):
         Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
         command_type = namedtuple('command', ['output'])

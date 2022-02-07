@@ -11,7 +11,9 @@ from kiwi.exceptions import KiwiContainerSetupError
 class TestContainerImageAppx:
     @patch('kiwi.container.appx.RuntimeConfig')
     @patch('os.path.exists')
-    def setup(self, mock_os_path_exists, mock_RuntimeConfig):
+    def setup(
+        self, mock_ContainerImageAppx, mock_os_path_exists, mock_RuntimeConfig
+    ):
         mock_os_path_exists.return_value = True
         self.appx = ContainerImageAppx(
             'root_dir', {

@@ -16,7 +16,7 @@ from kiwi.exceptions import (
 
 class TestDiskFormatBase:
     @patch('kiwi.storage.subformat.base.DiskFormatBase.post_init')
-    def setup(self, mock_post_init):
+    def setup(self, mock_DiskFormatBase, mock_post_init):
         Defaults.set_platform_name('x86_64')
         xml_data = Mock()
         xml_data.get_name = Mock(

@@ -30,7 +30,10 @@ class TestSystemPrepare:
     @patch('kiwi.system.prepare.RootInit')
     @patch('kiwi.system.prepare.RootBind')
     @patch('kiwi.logger.Logger.get_logfile')
-    def setup(self, mock_get_logfile, mock_root_bind, mock_root_init):
+    def setup(
+        self, mock_SystemPrepare, mock_get_logfile,
+        mock_root_bind, mock_root_init
+    ):
         Defaults.set_platform_name('x86_64')
         mock_get_logfile.return_value = None
         description = XMLDescription(

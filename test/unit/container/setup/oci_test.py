@@ -7,7 +7,7 @@ from kiwi.container.setup.oci import ContainerSetupOCI
 
 class TestContainerSetupOCI:
     @patch('os.path.exists')
-    def setup(self, mock_exists):
+    def setup(self, mock_ContainerSetupOCI, mock_exists):
         mock_exists.return_value = True
 
         self.container = ContainerSetupOCI(

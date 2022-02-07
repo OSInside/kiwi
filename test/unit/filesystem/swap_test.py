@@ -7,7 +7,7 @@ from kiwi.filesystem.swap import FileSystemSwap
 
 class TestFileSystemSwap:
     @patch('os.path.exists')
-    def setup(self, mock_exists):
+    def setup(self, mock_FileSystemSwap, mock_exists):
         mock_exists.return_value = True
         provider = mock.Mock()
         provider.get_device = mock.Mock(

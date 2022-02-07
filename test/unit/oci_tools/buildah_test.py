@@ -17,7 +17,7 @@ class TestOCIBuildah:
         self._caplog = caplog
 
     @patch('kiwi.oci_tools.base.datetime')
-    def setup(self, mock_datetime):
+    def setup(self, mock_OCIBuildah, mock_datetime):
         strftime = Mock()
         strftime.strftime = Mock(return_value='current_date')
         mock_datetime.utcnow = Mock(
@@ -26,7 +26,7 @@ class TestOCIBuildah:
         self.oci = OCIBuildah()
 
     @patch('kiwi.oci_tools.umoci.Command.run')
-    def teardown(self, mock_cmd_run):
+    def teardown(self, mock_OCIBuildah, mock_cmd_run):
         del self.oci
         mock_cmd_run.reset_mock()
 

@@ -19,7 +19,7 @@ class TestDisk:
         self._caplog = caplog
 
     @patch('kiwi.storage.disk.Partitioner.new')
-    def setup(self, mock_partitioner):
+    def setup(self, mock_Disk, mock_partitioner):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
 
