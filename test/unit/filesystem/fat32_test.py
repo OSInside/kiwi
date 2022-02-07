@@ -7,7 +7,7 @@ from kiwi.filesystem.fat32 import FileSystemFat32
 
 class TestFileSystemFat32:
     @patch('os.path.exists')
-    def setup(self, mock_exists):
+    def setup(self, mock_FileSystemFat32, mock_exists):
         mock_exists.return_value = True
         provider = mock.Mock()
         provider.get_device = mock.Mock(

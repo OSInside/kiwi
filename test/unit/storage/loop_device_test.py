@@ -15,7 +15,7 @@ class TestLoopDevice:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_exists):
+    def setup(self, mock_LoopDevice, mock_exists):
         mock_exists.return_value = False
         self.loop = LoopDevice('loop-file', 20, 4096)
 

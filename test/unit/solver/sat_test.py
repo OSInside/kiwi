@@ -22,7 +22,7 @@ class TestSat:
         self._caplog = caplog
 
     @patch('importlib.import_module')
-    def setup(self, mock_import_module):
+    def setup(self, mock_Sat, mock_import_module):
         self.sat = Sat()
         self.solver = MagicMock()
         self.transaction = Mock()

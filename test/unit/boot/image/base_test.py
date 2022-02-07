@@ -17,7 +17,7 @@ from kiwi.exceptions import (
 
 class TestBootImageBase:
     @patch('kiwi.boot.image.base.os.path.exists')
-    def setup(self, mock_exists):
+    def setup(self, mock_BootImageBase, mock_exists):
         Defaults.set_platform_name('x86_64')
         self.boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']

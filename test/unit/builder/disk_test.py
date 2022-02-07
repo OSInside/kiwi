@@ -34,7 +34,7 @@ class TestDiskBuilder:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_exists):
+    def setup(self, mock_DiskBuilder, mock_exists):
         Defaults.set_platform_name('x86_64')
 
         def side_effect(filename):

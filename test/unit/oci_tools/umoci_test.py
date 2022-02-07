@@ -9,7 +9,9 @@ class TestOCIUmoci:
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.oci_tools.base.datetime')
     @patch('kiwi.oci_tools.umoci.Temporary')
-    def setup(self, mock_Temporary, mock_datetime, mock_cmd_caps):
+    def setup(
+        self, mock_OCIUmoci, mock_Temporary, mock_datetime, mock_cmd_caps
+    ):
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         mock_cmd_caps.return_value = True
         strftime = Mock()

@@ -15,7 +15,7 @@ class TestRepositoryDnf:
     @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Path.create')
-    def setup(self, mock_path, mock_config, mock_temp):
+    def setup(self, mock_RepositoryDnf, mock_path, mock_config, mock_temp):
         runtime_dnf_config = mock.Mock()
         mock_config.return_value = runtime_dnf_config
         tmpfile = mock.Mock()

@@ -15,7 +15,7 @@ from kiwi.builder.filesystem import FileSystemBuilder
 
 class TestFileSystemBuilder:
     @patch('kiwi.builder.filesystem.FileSystemSetup')
-    def setup(self, mock_fs_setup):
+    def setup(self, mock_FileSystemBuilder, mock_fs_setup):
         Defaults.set_platform_name('x86_64')
         self.loop_provider = Mock()
         self.loop_provider.get_device = Mock(

@@ -12,7 +12,7 @@ class TestFileSystemIsoFs:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_exists):
+    def setup(self, mock_FileSystemIsoFs, mock_exists):
         mock_exists.return_value = True
         self.isofs = FileSystemIsoFs(mock.Mock(), 'root_dir')
 

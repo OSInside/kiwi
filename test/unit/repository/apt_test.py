@@ -11,7 +11,7 @@ class TestRepositoryApt:
     @patch('kiwi.repository.apt.Temporary.new_file')
     @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
     @patch('kiwi.repository.apt.Path.create')
-    def setup(self, mock_path, mock_template, mock_temp):
+    def setup(self, mock_RepositoryApt, mock_path, mock_template, mock_temp):
         self.apt_conf = mock.Mock()
         mock_template.return_value = self.apt_conf
 
