@@ -124,3 +124,31 @@ function _fbiterm_ok {
     fi
     return 0
 }
+
+function report_and_quit {
+    local text_message="$1"
+    run_dialog --timeout 60 --msgbox "\"${text_message}\"" 5 80
+    if getargbool 0 rd.debug; then
+        die "${text_message}"
+    else
+        reboot -f
+    fi
+}
+
+function ask_and_reboot {
+    local text_message="$1"
+    if ! run_dialog --yesno "\"${text_message}\"" 7 80; then
+        die "${text_message}"
+    else
+        reboot -f
+    fi
+}
+
+function ask_and_shutdown {
+    local text_message="$1"
+    if ! run_dialog --yesno "\"${text_message}\"" 7 80; then
+        die "${text_message}"
+    else
+        reboot -f -p
+    fi
+}

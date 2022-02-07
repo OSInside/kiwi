@@ -1,4 +1,5 @@
 #!/bin/bash
+type initialize >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type report_and_quit >/dev/null 2>&1 || . /lib/kiwi-dump-image.sh
 type get_selected_disk >/dev/null 2>&1 || . /lib/kiwi-dump-image.sh
 type run_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh
@@ -7,7 +8,31 @@ type run_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh
 # Functions
 #--------------------------------------
 function boot_installed_system {
+    declare kiwi_oemreboot=${kiwi_oemreboot}
+    declare kiwi_oemrebootinteractive=${kiwi_oemrebootinteractive}
+    declare kiwi_oemshutdown=${kiwi_oemshutdown}
+    declare kiwi_oemshutdowninteractive=${kiwi_oemshutdowninteractive}
+    local ask_reboot_text="Reboot System ?"
+    local ask_shutdown_text="Shutdown System ?"
     local boot_options
+    kiwi_oemreboot=$(bool "${kiwi_oemreboot}")
+    kiwi_oemrebootinteractive=$(bool "${kiwi_oemrebootinteractive}")
+    kiwi_oemshutdown=$(bool "${kiwi_oemshutdown}")
+    kiwi_oemshutdowninteractive=$(bool "${kiwi_oemshutdowninteractive}")
+
+    if [ "${kiwi_oemrebootinteractive}" = "true" ];then
+        ask_and_reboot "${ask_reboot_text}"
+    fi
+    if [ "${kiwi_oemreboot}" = "true" ];then
+        reboot -f
+    fi
+    if [ "${kiwi_oemshutdowninteractive}" = "true" ];then
+        ask_and_shutdown "${ask_shutdown_text}"
+    fi
+    if [ "${kiwi_oemshutdown}" = "true" ];then
+        reboot -f -p
+    fi
+
     # if rd.kiwi.install.pass.bootparam is given, pass on most
     # boot options to the kexec kernel
     if getargbool 0 rd.kiwi.install.pass.bootparam; then
@@ -36,6 +61,7 @@ function boot_installed_system {
 #======================================
 # Reboot into system
 #--------------------------------------
+initialize
 
 if getargbool 0 rd.kiwi.ramdisk; then
     # For ramdisk deployment a kexec boot is not possible as it

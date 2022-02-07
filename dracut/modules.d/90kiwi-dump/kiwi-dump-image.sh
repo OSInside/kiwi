@@ -8,25 +8,6 @@ type fetch_file >/dev/null 2>&1 || . /lib/kiwi-net-lib.sh
 #======================================
 # Functions
 #--------------------------------------
-function report_and_quit {
-    local text_message="$1"
-    run_dialog --timeout 60 --msgbox "\"${text_message}\"" 5 80
-    if getargbool 0 rd.debug; then
-        die "${text_message}"
-    else
-        reboot -f
-    fi
-}
-
-function initialize {
-    local profile=/.profile
-
-    test -f ${profile} || \
-        report_and_quit "No profile setup found"
-
-    import_file ${profile}
-}
-
 function scan_multipath_devices {
     # """
     # starts multipath daemon from multipath module
