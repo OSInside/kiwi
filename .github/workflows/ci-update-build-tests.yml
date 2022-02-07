@@ -15,4 +15,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Send API requests to Open Build Service
-        run: helper/update_obs_services.sh ${{ secrets.OBS_VIRT_APP_IMG_TOKEN }}
+        run: helper/update_obs_services.sh ${{ secrets.OBS_VIRT_APP_IMG }}
