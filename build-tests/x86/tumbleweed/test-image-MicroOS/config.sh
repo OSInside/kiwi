@@ -69,7 +69,7 @@ sed -i 's/^multiversion =.*/multiversion =/g' /etc/zypp/zypp.conf
 #-------------------------------------
 if [ "${kiwi_btrfs_root_is_snapshot-false}" = 'true' ]; then
         echo "creating initial snapper config ..."
-        cp /etc/snapper/config-templates/default /etc/snapper/configs/root
+        cp /usr/share/snapper/config-templates/default /etc/snapper/configs/root
         baseUpdateSysConfig /etc/sysconfig/snapper SNAPPER_CONFIGS root
 
 	# Adjust parameters
