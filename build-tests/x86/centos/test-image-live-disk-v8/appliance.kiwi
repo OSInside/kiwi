@@ -55,25 +55,22 @@
         <source path="obs://Virtualization:Appliances:Staging/CentOS_8"/>
     </repository>
     <repository type="rpm-md">
-        <source path="obs://CentOS:CentOS-8/update"/>
-    </repository>
-    <repository type="rpm-md">
-        <source path="obs://CentOS:CentOS-8/extras"/>
-    </repository>
-    <repository type="rpm-md">
-        <source path="obs://CentOS:CentOS-8/powertools"/>
-    </repository>
-    <repository type="rpm-md">
-        <source path="obs://CentOS:CentOS-8/appstream"/>
-    </repository>
-    <repository type="rpm-md">
-        <source path="obs://CentOS:CentOS-8/baseos"/>
-    </repository>
-    <repository type="rpm-md">
-        <source path="obs://CentOS:CentOS-8/standard"/>
+	<source path="obs://Fedora:EPEL:8/next"/>
     </repository>
     <repository type="rpm-md">
         <source path="obs://Fedora:EPEL:8/standard"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8:Stream/extras"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8:Stream/powertools"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8:Stream/appstream"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="obs://CentOS:CentOS-8:Stream/baseos"/>
     </repository>
     <packages type="image">
         <package name="syslinux"/>
