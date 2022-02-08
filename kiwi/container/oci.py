@@ -136,21 +136,18 @@ class ContainerImageOCI:
         oci.set_config(self.oci_config)
         oci.post_process()
 
+        image_ref = '{0}:{1}'.format(
+            self.oci_config['container_name'],
+            self.oci_config['container_tag']
+        )
+        additional_refs = []
         if self.archive_transport == 'docker-archive':
-            image_ref = '{0}:{1}'.format(
-                self.oci_config['container_name'],
-                self.oci_config['container_tag']
-            )
-            additional_refs = []
             if 'additional_tags' in self.oci_config:
                 additional_refs = []
                 for tag in self.oci_config['additional_tags']:
                     additional_refs.append('{0}:{1}'.format(
                         self.oci_config['container_name'], tag
                     ))
-        else:
-            image_ref = self.oci_config['container_tag']
-            additional_refs = []
 
         oci.export_container_image(
             filename, self.archive_transport, image_ref, additional_refs
