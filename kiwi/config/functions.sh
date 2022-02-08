@@ -44,7 +44,6 @@ function setupContainerRuntime {
     cat >/etc/containers/containers.conf <<- EOF
 	[engine]
 	no_pivot_root = true
-	cgroups = "disabled"
 	events_logger = "none"
 	cgroup_manager = "cgroupfs"
 	EOF
@@ -52,6 +51,8 @@ function setupContainerRuntime {
     cat >/etc/containers/storage.conf <<- EOF
 	[storage]
 	driver = "vfs"
+	graphroot = "/var/lib/containers/storage"
+	runroot = "/var/run/containers/storage"
 	EOF
 }
 
