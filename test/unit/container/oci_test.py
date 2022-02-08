@@ -156,7 +156,7 @@ class TestContainerImageOCI:
         })
         mock_oci.post_process.assert_called_once_with()
         mock_oci.export_container_image.assert_called_once_with(
-            'result.tar', 'oci-archive', 'latest', []
+            'result.tar', 'oci-archive', 'foo/bar:latest', []
         )
 
     @patch('kiwi.container.oci.OCI')
