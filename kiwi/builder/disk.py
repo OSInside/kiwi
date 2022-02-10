@@ -89,6 +89,8 @@ class DiskBuilder:
             xml_state.build_type.get_spare_part_mountpoint()
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
+        self.root_filesystem_has_write_partition = \
+            xml_state.build_type.get_overlayroot_write_partition()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
         self.custom_root_creation_args = xml_state.get_fs_create_option_list()
         self.build_type_name = xml_state.get_build_type_name()
@@ -268,6 +270,12 @@ class DiskBuilder:
         # create disk partitions and instance device map
         device_map = self._build_and_map_disk_partitions(disk, disksize_mbytes)
 
+        if self.root_filesystem_is_overlay and \
+           self.root_filesystem_has_write_partition is False:
+            device_map['root'] = device_map['readonly']
+            disk.public_partition_id_map['kiwi_RootPart'] = \
+                disk.public_partition_id_map['kiwi_ROPart']
+
         # create raid on current root device if requested
         raid_root = None
         if self.mdraid:
@@ -318,6 +326,9 @@ class DiskBuilder:
                 )
             device_map['luks_root'] = device_map['root']
             device_map['root'] = luks_root.get_device()
+            if self.root_filesystem_is_overlay and \
+               self.root_filesystem_has_write_partition is False:
+                device_map['readonly'] = device_map['root']
 
         # create spare filesystem on spare partition if present
         system_spare = self._build_spare_filesystem(device_map)
@@ -823,17 +834,21 @@ class DiskBuilder:
         else:
             rootfs_mbsize = 'all_free'
 
-        if self.volume_manager_name and self.volume_manager_name == 'lvm':
-            log.info('--> creating LVM root partition')
-            disk.create_root_lvm_partition(rootfs_mbsize)
-
-        elif self.mdraid:
-            log.info('--> creating mdraid root partition')
-            disk.create_root_raid_partition(rootfs_mbsize)
-
+        if self.root_filesystem_is_overlay and \
+           self.root_filesystem_has_write_partition is False:
+            log.warning(
+                '--> overlayroot explicitly requested no write partition'
+            )
         else:
-            log.info('--> creating root partition')
-            disk.create_root_partition(rootfs_mbsize)
+            if self.volume_manager_name and self.volume_manager_name == 'lvm':
+                log.info('--> creating LVM root partition')
+                disk.create_root_lvm_partition(rootfs_mbsize)
+            elif self.mdraid:
+                log.info('--> creating mdraid root partition')
+                disk.create_root_raid_partition(rootfs_mbsize)
+            else:
+                log.info('--> creating root partition')
+                disk.create_root_partition(rootfs_mbsize)
 
         if self.spare_part_mbsize and self.spare_part_is_last:
             log.info('--> creating spare partition')

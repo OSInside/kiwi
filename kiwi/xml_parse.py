@@ -2718,7 +2718,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2763,6 +2763,7 @@ class type_(GeneratedsSuper):
         self.luksOS = _cast(None, luksOS)
         self.mdraid = _cast(None, mdraid)
         self.overlayroot = _cast(bool, overlayroot)
+        self.overlayroot_write_partition = _cast(bool, overlayroot_write_partition)
         self.primary = _cast(bool, primary)
         self.ramonly = _cast(bool, ramonly)
         self.rootfs_label = _cast(None, rootfs_label)
@@ -2960,6 +2961,8 @@ class type_(GeneratedsSuper):
     def set_mdraid(self, mdraid): self.mdraid = mdraid
     def get_overlayroot(self): return self.overlayroot
     def set_overlayroot(self, overlayroot): self.overlayroot = overlayroot
+    def get_overlayroot_write_partition(self): return self.overlayroot_write_partition
+    def set_overlayroot_write_partition(self, overlayroot_write_partition): self.overlayroot_write_partition = overlayroot_write_partition
     def get_primary(self): return self.primary
     def set_primary(self, primary): self.primary = primary
     def get_ramonly(self): return self.ramonly
@@ -3192,6 +3195,9 @@ class type_(GeneratedsSuper):
         if self.overlayroot is not None and 'overlayroot' not in already_processed:
             already_processed.add('overlayroot')
             outfile.write(' overlayroot="%s"' % self.gds_format_boolean(self.overlayroot, input_name='overlayroot'))
+        if self.overlayroot_write_partition is not None and 'overlayroot_write_partition' not in already_processed:
+            already_processed.add('overlayroot_write_partition')
+            outfile.write(' overlayroot_write_partition="%s"' % self.gds_format_boolean(self.overlayroot_write_partition, input_name='overlayroot_write_partition'))
         if self.primary is not None and 'primary' not in already_processed:
             already_processed.add('primary')
             outfile.write(' primary="%s"' % self.gds_format_boolean(self.primary, input_name='primary'))
@@ -3549,6 +3555,15 @@ class type_(GeneratedsSuper):
                 self.overlayroot = True
             elif value in ('false', '0'):
                 self.overlayroot = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('overlayroot_write_partition', node)
+        if value is not None and 'overlayroot_write_partition' not in already_processed:
+            already_processed.add('overlayroot_write_partition')
+            if value in ('true', '1'):
+                self.overlayroot_write_partition = True
+            elif value in ('false', '0'):
+                self.overlayroot_write_partition = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('primary', node)

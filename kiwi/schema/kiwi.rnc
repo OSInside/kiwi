@@ -1537,6 +1537,22 @@ div {
             sch:param [ name = "attr" value = "overlayroot" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.overlayroot_write_partition.attribute =
+        ## Specifies to create an extra read-write partition
+        ## in combination with the overlayroot attribute on the
+        ## target disk. By default the partition is created
+        ## and the kiwi-overlay dracut module also expect it
+        ## to be present. However, the overlayroot feature could
+        ## also be used without an initrd and under certain
+        ## circumstances it is handy to configure if the
+        ## partition table should contain the read-write
+        ## partition or not. Available for the disk
+        ## image type oem
+        attribute overlayroot_write_partition { xsd:boolean }
+        >> sch:pattern [ id = "overlayroot_write_partition" is-a = "image_type"
+            sch:param [ name = "attr" value = "overlayroot_write_partition" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.firmware.attribute =
         ## Specifies the boot firmware of the system. Most systems
         ## uses a standard BIOS but there are also other firmware
@@ -1935,6 +1951,7 @@ div {
         k.type.luksOS.attribute? &
         k.type.mdraid.attribute? &
         k.type.overlayroot.attribute? &
+        k.type.overlayroot_write_partition.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &
