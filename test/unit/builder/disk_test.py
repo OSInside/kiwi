@@ -469,8 +469,12 @@ class TestDiskBuilder:
                 'prep_device': '/dev/prep-device'
             }
         )
-        self.setup.script_exists.assert_called_once_with('disk.sh')
+        assert self.setup.script_exists.call_args_list == [
+            call('pre_disk_sync.sh'),
+            call('disk.sh')
+        ]
         disk_system.import_description.assert_called_once_with()
+        disk_system.call_pre_disk_script.assert_called_once_with()
         disk_system.call_disk_script.assert_called_once_with()
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
@@ -481,23 +485,17 @@ class TestDiskBuilder:
             '/dev/boot-device'
         )
         self.boot_image_task.prepare.assert_called_once_with()
-        call = filesystem.create_on_device.call_args_list[0]
         assert filesystem.create_on_device.call_args_list[0] == \
             call(label='EFI')
-        call = filesystem.create_on_device.call_args_list[1]
         assert filesystem.create_on_device.call_args_list[1] == \
             call(label='BOOT')
-        call = filesystem.create_on_device.call_args_list[2]
         assert filesystem.create_on_device.call_args_list[2] == \
             call(label='ROOT')
 
-        call = filesystem.sync_data.call_args_list[0]
         assert filesystem.sync_data.call_args_list[0] == \
             call()
-        call = filesystem.sync_data.call_args_list[1]
         assert filesystem.sync_data.call_args_list[1] == \
             call(['efi/*'])
-        call = filesystem.sync_data.call_args_list[2]
         assert filesystem.sync_data.call_args_list[2] == \
             call([
                 'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
