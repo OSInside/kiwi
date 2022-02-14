@@ -298,15 +298,19 @@ class PackageManagerApt(PackageManagerBase):
         )
         if force:
             # force deleting debs only worked well for me when ignoring
-            # the pre-inst and pre-remove codings. I don't know why this
+            # the pre/post-inst and pre/post-remove codings. No idea why it
             # ends in so many conflicts but if you want to force get rid
             # of stuff this was the only way I could come up with. There
             # are still cases when it does not work depending on the many
             # code that runs on deleting
             for package in delete_items:
-                delete_pattern = \
+                pre_delete_pattern = \
                     f'{self.root_dir}/var/lib/dpkg/info/{package}*.pre*'
-                for delete_file in glob.iglob(delete_pattern):
+                post_delete_pattern = \
+                    f'{self.root_dir}/var/lib/dpkg/info/{package}*.post*'
+                for delete_file in glob.iglob(pre_delete_pattern):
+                    Path.wipe(delete_file)
+                for delete_file in glob.iglob(post_delete_pattern):
                     Path.wipe(delete_file)
 
             apt_get_command = ['chroot', self.root_dir, 'dpkg']
