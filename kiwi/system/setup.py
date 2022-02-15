@@ -597,6 +597,14 @@ class SystemSetup:
             defaults.POST_DISK_SYNC_SCRIPT
         )
 
+    def call_pre_disk_script(self) -> None:
+        """
+        Call pre_disk_sync.sh script chrooted
+        """
+        self._call_script(
+            defaults.PRE_DISK_SYNC_SCRIPT
+        )
+
     def call_post_bootstrap_script(self) -> None:
         """
         Call post_bootstrap.sh script chrooted
@@ -936,6 +944,10 @@ class SystemSetup:
             ),
             defaults.PRE_CREATE_SCRIPT: script_type(
                 filepath=defaults.PRE_CREATE_SCRIPT,
+                raise_if_not_exists=False
+            ),
+            defaults.PRE_DISK_SYNC_SCRIPT: script_type(
+                filepath=defaults.PRE_DISK_SYNC_SCRIPT,
                 raise_if_not_exists=False
             ),
             defaults.POST_DISK_SYNC_SCRIPT: script_type(

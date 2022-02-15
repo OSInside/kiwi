@@ -447,6 +447,15 @@ class DiskBuilder:
         # set SELinux file security contexts if context exists
         self._setup_selinux_file_contexts()
 
+        # run pre sync script hook
+        if self.system_setup.script_exists(
+            defaults.PRE_DISK_SYNC_SCRIPT
+        ):
+            disk_system = SystemSetup(
+                self.xml_state, self.root_dir
+            )
+            disk_system.call_pre_disk_script()
+
         # syncing system data to disk image
         self._sync_system_to_image(
             device_map, system, system_boot, system_efi, system_spare,

@@ -6,9 +6,10 @@ User Defined Scripts
 .. note:: **Abstract**
 
    This chapter describes the purpose of the user defined scripts
-   :file:`config.sh`, :file:`image.sh` and :file:`disk.sh`, which can
-   be used to further customize an image in ways that are not possible
-   via the image description alone.
+   :file:`config.sh`, :file:`image.sh`, :file:`pre_disk_sync.sh`
+   and :file:`disk.sh`, which can be used to further customize an
+   image in ways that are not possible via the image description
+   alone.
 
 {kiwi} supports the following optional scripts that it runs in a
 root environment (chroot) containing your new appliance:
@@ -37,16 +38,23 @@ images.sh
   a modification to a config file that should be done when building
   a live iso but not when building a virtual disk image.
 
+pre_disk_sync.sh
+  is executed for the disk image type `oem` only and runs
+  right before the synchronization of the root tree into the disk image
+  loop file. The :file:`pre_disk_sync.sh` can be used to change
+  content of the root tree as a last action before the sync to
+  the disk image is performed. This is useful for example to delete
+  components from the system which were needed before or cannot
+  be modified afterwards when syncing into a read-only filesystem.
+
 disk.sh
   is executed for the disk image type `oem` only and runs after the
-  synchronisation of the root tree into the disk image loop file.
-  At call time of the script the device name of the currently mapped
-  root device is passed as a parameter. The chroot environment for
-  this script call is the virtual disk itself and not the root tree
-  as with :file:`config.sh` and :file:`images.sh`. The script :file:`disk.sh`
-  is usually used to apply changes at parts of the system that are not an
-  element of the file based root tree such as the partition table, the
-  bootloader or filesystem attributes.
+  synchronization of the root tree into the disk image loop file.
+  The chroot environment for this script call is the virtual disk itself
+  and not the root tree as with :file:`config.sh` and :file:`images.sh`.
+  The script :file:`disk.sh` is usually used to apply changes at parts of
+  the system that are not an element of the file based root tree such as
+  the partition table, the bootloader or filesystem attributes.
 
 {kiwi} executes scripts via the operating system if their executable
 bit is set (in that case a shebang is mandatory) otherwise they will be

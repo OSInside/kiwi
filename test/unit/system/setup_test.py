@@ -135,6 +135,12 @@ class TestSystemSetup:
             ),
             call(
                 [
+                    'cp', '{0}/pre_disk_sync.sh'.format(self.description_dir),
+                    'root_dir/image/pre_disk_sync.sh'
+                ]
+            ),
+            call(
+                [
                     'cp', Defaults.project_file('config/functions.sh'),
                     'root_dir/.kconfig'
                 ]
@@ -162,7 +168,7 @@ class TestSystemSetup:
         self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
-            True, False, True, True, True, True, True, True, True
+            True, False, True, True, True, True, True, True, True, True
         ]
 
         def side_effect(arg):
@@ -209,6 +215,12 @@ class TestSystemSetup:
                 [
                     'cp', '{0}/post_bootstrap.sh'.format(self.description_dir),
                     'root_dir/image/post_bootstrap.sh'
+                ]
+            ),
+            call(
+                [
+                    'cp', '{0}/pre_disk_sync.sh'.format(self.description_dir),
+                    'root_dir/image/pre_disk_sync.sh'
                 ]
             ),
             call(
@@ -744,6 +756,45 @@ class TestSystemSetup:
             ], {}
         )
 
+    @patch('kiwi.system.setup.Defaults.is_buildservice_worker')
+    @patch('kiwi.logger.Logger.getLogFlags')
+    @patch('kiwi.system.setup.Profile')
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command_process.CommandProcess.poll_and_watch')
+    @patch('os.path.exists')
+    @patch('os.stat')
+    @patch('os.access')
+    @patch('copy.deepcopy')
+    def test_call_pre_disk_script(
+        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
+        mock_watch, mock_command, mock_Profile, mock_getLogFlags,
+        mock_is_buildservice_worker
+    ):
+        mock_is_buildservice_worker.return_value = False
+        mock_getLogFlags.return_value = {
+            'run-scripts-in-screen': True
+        }
+        mock_copy_deepcopy.return_value = {}
+        profile = Mock()
+        mock_Profile.return_value = profile
+        profile.get_settings.return_value = {}
+        result_type = namedtuple(
+            'result_type', ['stderr', 'returncode']
+        )
+        mock_result = result_type(stderr='stderr', returncode=0)
+        mock_os_path.return_value = True
+        mock_watch.return_value = mock_result
+        mock_access.return_value = False
+
+        self.setup.call_pre_disk_script()
+        mock_copy_deepcopy.assert_called_once_with(os.environ)
+        mock_command.assert_called_once_with(
+            [
+                'screen', '-t', '-X',
+                'chroot', 'root_dir', 'bash', 'image/pre_disk_sync.sh'
+            ], {}
+        )
+
     @patch('kiwi.system.setup.Profile')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
@@ -1082,7 +1133,6 @@ class TestSystemSetup:
         mock_path_exists.return_value = False
         with patch('builtins.open') as m_open:
             self.setup.setup_machine_id()
-            print(mock_path_exists.mock_calls)
             m_open.assert_not_called()
 
         mock_path_exists.return_value = True
