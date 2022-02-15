@@ -71,7 +71,7 @@
     </preferences>
     <preferences profiles="docker">
         <type image="docker">
-            <containerconfig name="container_name" additionaltags="foo,bar"/>
+            <containerconfig name="container_name" additionalnames="foo,bar"/>
         </type>
     </preferences>
     <preferences profiles="ec2Flavour">

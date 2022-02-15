@@ -62,7 +62,7 @@ class OCIUmoci(OCIBase):
         ])
 
     def export_container_image(
-        self, filename, transport, image_ref, additional_refs=None
+        self, filename, transport, image_ref, additional_names=None
     ):
         """
         Exports the working container to a container image archive
@@ -71,11 +71,11 @@ class OCIUmoci(OCIBase):
         :param str transport: The archive format
         :param str image_name: Name of the exported image
         :param str image_tag: Tag of the exported image
-        :param list additional_tags: List of additional references
+        :param list additional_names: List of additional references
         """
         extra_tags_opt = []
-        if additional_refs:
-            for ref in additional_refs:
+        if additional_names:
+            for ref in additional_names:
                 extra_tags_opt.extend(['--additional-tag', ref])
 
         # make sure the target tar file does not exist

@@ -845,7 +845,7 @@ class TestXMLState:
             'entry_subcommand': ['ls', '-l'],
             'container_name': 'container_name',
             'container_tag': 'container_tag',
-            'additional_tags': ['current', 'foobar'],
+            'additional_names': ['current', 'foobar'],
             'workingdir': '/root',
             'environment': {
                 'PATH': '/bin:/usr/bin:/home/user/bin',
