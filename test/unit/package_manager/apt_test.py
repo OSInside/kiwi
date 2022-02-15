@@ -206,10 +206,13 @@ class TestPackageManagerApt:
             ],
             ['env']
         )
-        mock_iglob.assert_called_once_with(
-            'root-dir/var/lib/dpkg/info/vim*.pre*'
-        )
-        mock_Path_wipe.assert_called_once_with('glob-result')
+        mock_iglob.call_args_list == [
+            call('root-dir/var/lib/dpkg/info/vim*.pre*'),
+            call('root-dir/var/lib/dpkg/info/vim*.post*')
+        ]
+        mock_Path_wipe.call_args_list == [
+            call('glob-result'), call('glob-result')
+        ]
 
     @patch('kiwi.command.Command.run')
     def test_post_process_delete_requests(self, mock_run):
