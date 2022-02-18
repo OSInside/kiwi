@@ -89,11 +89,16 @@ class TestRepositoryApt:
                 customization_script='custom_script'
             )
             assert mock_open.call_args_list == [
-                call('/shared-dir/apt-get/sources.list.d/foo.list', 'w'),
+                call('/shared-dir/apt-get/sources.list.d/foo.sources', 'w'),
                 call('/shared-dir/apt-get/preferences.d/foo.pref', 'w')
             ]
             assert file_handle.write.call_args_list == [
-                call('deb file:/srv/my-repo xenial a b\n'),
+                call(
+                    'Types: deb\n'
+                    'URIs: file:/srv/my-repo\n'
+                    'Suites: xenial\n'
+                    'Components: a b\n'
+                ),
                 call('Package: *\n'),
                 call('Pin: origin ""\n'),
                 call('Pin-Priority: 42\n')
@@ -102,7 +107,7 @@ class TestRepositoryApt:
                 call(
                     [
                         'bash', '--norc', 'custom_script',
-                        '/shared-dir/apt-get/sources.list.d/foo.list'
+                        '/shared-dir/apt-get/sources.list.d/foo.sources'
                     ]
                 ),
                 call(
@@ -123,8 +128,10 @@ class TestRepositoryApt:
             )
             assert file_handle.write.call_args_list == [
                 call(
-                    'deb http://download.opensuse.org/repositories/'
-                    'V:/A:/C/Debian_9.0/ xenial a b\n'
+                    'Types: deb\n'
+                    'URIs: http://download.opensuse.org/repositories/V:/A:/C/Debian_9.0/\n'
+                    'Suites: xenial\n'
+                    'Components: a b\n'
                 ),
                 call('Package: *\n'),
                 call('Pin: origin "download.opensuse.org"\n'),
@@ -141,10 +148,13 @@ class TestRepositoryApt:
                 'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b'
             )
             file_handle.write.assert_called_once_with(
-                'deb file:/kiwi_iso_mount/uri xenial a b\n'
+                'Types: deb\n'
+                'URIs: file:/kiwi_iso_mount/uri\n'
+                'Suites: xenial\n'
+                'Components: a b\n'
             )
             mock_open.assert_called_once_with(
-                '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+                '/shared-dir/apt-get/sources.list.d/foo.sources', 'w'
             )
 
     @patch('os.path.exists')
@@ -158,10 +168,15 @@ class TestRepositoryApt:
                 repo_gpgcheck=False, pkg_gpgcheck=False
             )
             file_handle.write.assert_called_once_with(
-                'deb [trusted=yes check-valid-until=no] file:/kiwi_iso_mount/uri xenial a b\n'
+                'Types: deb\n'
+                'URIs: file:/kiwi_iso_mount/uri\n'
+                'Suites: xenial\n'
+                'Components: a b\n'
+                'trusted: yes\n'
+                'check-valid-until: no\n'
             )
             mock_open.assert_called_once_with(
-                '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+                '/shared-dir/apt-get/sources.list.d/foo.sources', 'w'
             )
 
     @patch('os.path.exists')
@@ -174,10 +189,13 @@ class TestRepositoryApt:
                 'foo', '/kiwi_iso_mount/uri', 'deb', None, 'xenial'
             )
             file_handle.write.assert_called_once_with(
-                'deb file:/kiwi_iso_mount/uri xenial main\n'
+                'Types: deb\n'
+                'URIs: file:/kiwi_iso_mount/uri\n'
+                'Suites: xenial\n'
+                'Components: main\n'
             )
             mock_open.assert_called_once_with(
-                '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+                '/shared-dir/apt-get/sources.list.d/foo.sources', 'w'
             )
 
     @patch('os.path.exists')
@@ -190,10 +208,12 @@ class TestRepositoryApt:
                 'foo', 'http://repo.com', 'deb'
             )
             file_handle.write.assert_called_once_with(
-                'deb http://repo.com ./\n'
+                'Types: deb\n'
+                'URIs: http://repo.com\n'
+                'Suites: ./\n'
             )
             mock_open.assert_called_once_with(
-                '/shared-dir/apt-get/sources.list.d/foo.list', 'w'
+                '/shared-dir/apt-get/sources.list.d/foo.sources', 'w'
             )
 
     @patch('kiwi.repository.apt.os.unlink')
@@ -226,7 +246,7 @@ class TestRepositoryApt:
     def test_delete_repo(self, mock_wipe):
         self.repo.delete_repo('foo')
         mock_wipe.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d/foo.list'
+            '/shared-dir/apt-get/sources.list.d/foo.sources'
         )
 
     @patch('kiwi.path.Path.wipe')

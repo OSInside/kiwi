@@ -159,13 +159,13 @@ class RepositoryApt(RepositoryBase):
         :param str customization_script:
             custom script called after the repo file was created
         """
-        list_file = '/'.join(
-            [self.shared_apt_get_dir['sources-dir'], name + '.list']
+        sources_file = '/'.join(
+            [self.shared_apt_get_dir['sources-dir'], name + '.sources']
         )
         pref_file = '/'.join(
             [self.shared_apt_get_dir['preferences-dir'], name + '.pref']
         )
-        self.repo_names.append(name + '.list')
+        self.repo_names.append(name + '.sources')
         if os.path.exists(uri):
             # apt-get requires local paths to take the file: type
             uri = 'file:/' + uri
@@ -173,13 +173,9 @@ class RepositoryApt(RepositoryBase):
         if not components:
             components = 'main'
         self._add_components(components)
-        with open(list_file, 'w') as repo:
-            if repo_gpgcheck is False:
-                repo_line = 'deb [trusted=yes check-valid-until=no] {0}'.format(
-                    uri
-                )
-            else:
-                repo_line = 'deb {0}'.format(uri)
+        with open(sources_file, 'w') as repo:
+            repo_details = 'Types: deb' + os.linesep
+            repo_details += 'URIs: ' + uri + os.linesep
             if not dist:
                 # create a debian flat repository setup. We consider the
                 # repository metadata to exist on the toplevel of the
@@ -187,7 +183,7 @@ class RepositoryApt(RepositoryBase):
                 # service creates debian repositories and should be
                 # done in the same way for other repositories when used
                 # with kiwi
-                repo_line += ' ./\n'
+                repo_details += 'Suites: ./' + os.linesep
             else:
                 # create a debian distributon repository setup for the
                 # specified distributon name and components
@@ -195,10 +191,14 @@ class RepositoryApt(RepositoryBase):
                     self.distribution = dist
                     self.distribution_path = uri
                     self.debootstrap_repo_set = use_for_bootstrap
-                repo_line += ' {0} {1}\n'.format(dist, components)
-            repo.write(repo_line)
+                repo_details += 'Suites: ' + dist + os.linesep
+                repo_details += 'Components: ' + components + os.linesep
+            if repo_gpgcheck is False:
+                repo_details += 'trusted: yes' + os.linesep
+                repo_details += 'check-valid-until: no' + os.linesep
+            repo.write(repo_details)
         if customization_script:
-            self.run_repo_customize(customization_script, list_file)
+            self.run_repo_customize(customization_script, sources_file)
         if prio:
             uri_parsed = urlparse(uri.replace('file://', 'file:/'))
             with open(pref_file, 'w') as pref:
@@ -255,7 +255,7 @@ class RepositoryApt(RepositoryBase):
         :param str name: repository base file name
         """
         Path.wipe(
-            self.shared_apt_get_dir['sources-dir'] + '/' + name + '.list'
+            self.shared_apt_get_dir['sources-dir'] + '/' + name + '.sources'
         )
 
     def delete_all_repos(self) -> None:
