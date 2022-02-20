@@ -1543,11 +1543,11 @@ div {
         ## target disk. By default the partition is created
         ## and the kiwi-overlay dracut module also expect it
         ## to be present. However, the overlayroot feature could
-        ## also be used without an initrd and under certain
-        ## circumstances it is handy to configure if the
-        ## partition table should contain the read-write
-        ## partition or not. Available for the disk
-        ## image type oem
+        ## also be used without dracut (initrd_system="none")
+        ## and under certain circumstances it is handy to
+        ## configure if the partition table should contain
+        ## the read-write partition or not. Available for
+        ## the disk image type oem
         attribute overlayroot_write_partition { xsd:boolean }
         >> sch:pattern [ id = "overlayroot_write_partition" is-a = "image_type"
             sch:param [ name = "attr" value = "overlayroot_write_partition" ]

@@ -577,9 +577,9 @@ overlayroot_write_partition="true|false"
   partition in an `overlayroot` setup should be created or not.
   By default the partition is created and the kiwi-overlay dracut
   module also expect it to be present. However, the overlayroot
-  feature can also be used without an initrd and under certain
-  circumstances it is handy to configure if the partition table
-  should contain the read-write partition or not.
+  feature can also be used without dracut (`initrd_system="none"`)
+  and under certain circumstances it is handy to configure if the
+  partition table should contain the read-write partition or not.
 
 bootfilesystem="ext2|ext3|ext4|fat32|fat16":
   If an extra boot partition is required this attribute
