@@ -139,7 +139,7 @@ author = 'Marcus Schäfer'
 # built documents.
 #
 # The short X.Y version.
-version = '9.24.23'
+version = '9.24.24'
 # The full version, including alpha/beta/rc tags.
 release = version
 
