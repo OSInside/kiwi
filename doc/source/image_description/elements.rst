@@ -572,6 +572,15 @@ overlayroot="true|false"
   will not have any effect because the write partition will be
   resized on first boot to the available disk space.
 
+overlayroot_write_partition="true|false"
+  For the `oem` type only, allows to specify if the extra read-write
+  partition in an `overlayroot` setup should be created or not.
+  By default the partition is created and the kiwi-overlay dracut
+  module also expect it to be present. However, the overlayroot
+  feature can also be used without dracut (`initrd_system="none"`)
+  and under certain circumstances it is handy to configure if the
+  partition table should contain the read-write partition or not.
+
 bootfilesystem="ext2|ext3|ext4|fat32|fat16":
   If an extra boot partition is required this attribute
   specify which filesystem should be used for it. The

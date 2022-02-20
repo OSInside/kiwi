@@ -555,6 +555,7 @@ class TestDiskBuilder:
     ):
         mock_rand.return_value = 15
         self.disk_builder.root_filesystem_is_overlay = True
+        self.disk_builder.root_filesystem_has_write_partition = False
         self.disk_builder.volume_manager_name = None
         squashfs = Mock()
         mock_squashfs.return_value = squashfs
@@ -564,6 +565,8 @@ class TestDiskBuilder:
         mock_temp.return_value = tempfile
         mock_exists.return_value = True
         self.disk_builder.initrd_system = 'dracut'
+        self.disk.public_partition_id_map = self.id_map
+        self.disk.public_partition_id_map['kiwi_ROPart'] = 1
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
@@ -718,7 +721,11 @@ class TestDiskBuilder:
         self.disk_builder.volume_manager_name = None
         self.disk_builder.luks = 'passphrase'
         self.disk_setup.need_boot_partition.return_value = False
+        self.disk_builder.root_filesystem_is_overlay = True
+        self.disk_builder.root_filesystem_has_write_partition = False
         self.disk_builder.boot_is_crypto = True
+        self.disk.public_partition_id_map = self.id_map
+        self.disk.public_partition_id_map['kiwi_ROPart'] = 1
 
         with patch('builtins.open'):
             self.disk_builder.create_disk()
