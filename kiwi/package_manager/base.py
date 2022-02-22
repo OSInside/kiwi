@@ -245,6 +245,20 @@ class PackageManagerBase:
         """
         return True if returncode != 0 else False
 
+    def get_error_details(self) -> str:
+        """
+        Provide further error details
+
+        In case the package manager call failed this
+        method will return package manager specific error
+        information if there is any
+
+        :return: further error data as str or empty str
+
+        :rtype: str
+        """
+        return ''
+
     def clean_leftovers(self) -> None:
         """
         Cleans package manager related data not needed in the

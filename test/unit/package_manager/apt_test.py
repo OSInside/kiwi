@@ -85,6 +85,33 @@ class TestPackageManagerApt:
         with raises(KiwiDebootstrapError):
             self.manager.process_install_requests_bootstrap(mock_root_bind)
 
+    @patch('kiwi.package_manager.apt.os.path.exists')
+    def test_get_error_details(self, mock_exists):
+        mock_exists.return_value = True
+        with patch('builtins.open', create=True) as mock_open:
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = 'log-data'
+            assert self.manager.get_error_details() == \
+                file_handle.read.return_value
+        mock_open.assert_called_once_with(
+            'root-dir/debootstrap/debootstrap.log'
+        )
+
+    @patch('kiwi.package_manager.apt.os.path.exists')
+    def test_get_error_details_no_log_file(self, mock_exists):
+        mock_exists.return_value = False
+        assert self.manager.get_error_details() == \
+            "logfile 'root-dir/debootstrap/debootstrap.log' does not exist"
+
+    @patch('kiwi.package_manager.apt.os.path.exists')
+    def test_get_error_details_logfile_is_empty(self, mock_exists):
+        mock_exists.return_value = True
+        with patch('builtins.open', create=True) as mock_open:
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = ''
+            assert self.manager.get_error_details() == \
+                'logfile is empty'
+
     @patch('kiwi.command.Command.call')
     @patch('kiwi.package_manager.apt.Path.wipe')
     @patch('kiwi.package_manager.apt.os.path.exists')
