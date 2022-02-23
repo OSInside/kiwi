@@ -581,6 +581,20 @@ overlayroot_write_partition="true|false"
   and under certain circumstances it is handy to configure if the
   partition table should contain the read-write partition or not.
 
+overlayroot_readonly_partsize="mbsize"
+  Specifies the size in MB of the partition which stores the
+  squashfs compressed read-only root filesystem in an
+  overlayroot setup. If not specified kiwi calculates
+  the needed size by a preliminary creation of the
+  squashfs compressed file. However this is only accurate
+  if no changes to the root filesystem data happens
+  after this calculation, which cannot be guaranteed as
+  there is at least one optional script hook which is
+  allowed and applied after the calculation. In addition the
+  pre-calculation requires some time in the build process.
+  If the value can be provided beforehand this also speeds
+  up the build process significantly
+
 bootfilesystem="ext2|ext3|ext4|fat32|fat16":
   If an extra boot partition is required this attribute
   specify which filesystem should be used for it. The

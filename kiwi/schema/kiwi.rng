@@ -2245,15 +2245,33 @@ in combination with the overlayroot attribute on the
 target disk. By default the partition is created
 and the kiwi-overlay dracut module also expect it
 to be present. However, the overlayroot feature could
-also be used without an initrd and under certain
-circumstances it is handy to configure if the
-partition table should contain the read-write
-partition or not. Available for the disk
-image type oem</a:documentation>
+also be used without dracut (initrd_system="none")
+and under certain circumstances it is handy to
+configure if the partition table should contain
+the read-write partition or not. Available for
+the disk image type oem</a:documentation>
         <data type="boolean"/>
       </attribute>
       <sch:pattern id="overlayroot_write_partition" is-a="image_type">
         <sch:param name="attr" value="overlayroot_write_partition"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.overlayroot_readonly_partsize.attribute">
+      <attribute name="overlayroot_readonly_partsize">
+        <a:documentation>Specifies the size in MB of the partition which stores the
+squashfs compressed read-only root filesystem in an
+overlayroot setup. If not specified kiwi calculates
+the needed size by a preliminary creation of the
+squashfs compressed file. However this is only accurate
+if no changes to the root filesystem data happens
+after this calculation, which cannot be guaranteed as
+there is at least one optional script hook which is
+allowed and applied after the calculation.</a:documentation>
+        <data type="nonNegativeInteger"/>
+      </attribute>
+      <sch:pattern id="overlayroot_readonly_partsize" is-a="image_type">
+        <sch:param name="attr" value="overlayroot_readonly_partsize"/>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
@@ -2881,6 +2899,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.overlayroot_write_partition.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.overlayroot_readonly_partsize.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.primary.attribute"/>

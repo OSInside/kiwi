@@ -592,7 +592,7 @@ class TestDiskBuilder:
             ], filename='kiwi-tempname')
         ]
         self.disk.create_root_readonly_partition.assert_called_once_with(11)
-        assert mock_command.call_args_list[2] == call(
+        assert mock_command.call_args_list[3] == call(
             ['dd', 'if=kiwi-tempname', 'of=/dev/readonly-root-device']
         )
         assert m_open.return_value.write.call_args_list == [
