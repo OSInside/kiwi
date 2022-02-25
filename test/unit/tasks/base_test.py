@@ -29,8 +29,8 @@ class TestCliTask:
     @patch('kiwi.cli.Cli.get_global_args')
     @patch('kiwi.tasks.base.RuntimeConfig')
     def setup(
-        self, mock_CliTask, mock_runtime_config, mock_global_args,
-        mock_command_args, mock_load_command, mock_help_check, mock_color,
+        self, mock_runtime_config, mock_global_args, mock_command_args,
+        mock_load_command, mock_help_check, mock_color,
         mock_setlog, mock_setLogFlag, mock_setLogLevel
     ):
         Defaults.set_platform_name('x86_64')

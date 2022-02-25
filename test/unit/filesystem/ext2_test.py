@@ -7,7 +7,7 @@ from kiwi.filesystem.ext2 import FileSystemExt2
 
 class TestFileSystemExt2:
     @patch('os.path.exists')
-    def setup(self, mock_FileSystemExt2, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
         provider = mock.Mock()
         provider.get_device = mock.Mock(

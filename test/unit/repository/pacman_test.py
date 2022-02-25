@@ -12,7 +12,7 @@ class TestRepositorPacman(object):
     @patch('kiwi.repository.pacman.Temporary.new_file')
     @patch('kiwi.repository.pacman.ConfigParser')
     @patch('kiwi.repository.pacman.Path.create')
-    def setup(self, mock_RepositoryPacman, mock_path, mock_config, mock_temp):
+    def setup(self, mock_path, mock_config, mock_temp):
         runtime_pacman_config = Mock()
         mock_config.return_value = runtime_pacman_config
         tmpfile = Mock()

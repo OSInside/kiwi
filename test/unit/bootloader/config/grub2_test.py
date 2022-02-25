@@ -37,7 +37,7 @@ class TestBootLoaderConfigGrub2:
 
     @patch('kiwi.bootloader.config.grub2.FirmWare')
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_theme')
-    def setup(self, mock_BootLoaderConfigGrub2, mock_theme, mock_firmware):
+    def setup(self, mock_theme, mock_firmware):
         Defaults.set_platform_name('x86_64')
         self.command_type = namedtuple(
             'command_return_type', ['output']

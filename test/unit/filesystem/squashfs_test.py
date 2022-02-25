@@ -8,7 +8,7 @@ from kiwi.filesystem.squashfs import FileSystemSquashFs
 
 class TestFileSystemSquashfs:
     @patch('os.path.exists')
-    def setup(self, mock_FileSystemSquashFs, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
         self.squashfs = FileSystemSquashFs(mock.Mock(), 'root_dir')
 

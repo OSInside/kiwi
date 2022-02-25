@@ -11,7 +11,7 @@ from kiwi.exceptions import KiwiContainerSetupError
 
 class TestContainerSetupBase:
     @patch('os.path.exists')
-    def setup(self, mock_ContainerSetupBase, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
 
         self.container = ContainerSetupBase('root_dir')

@@ -12,7 +12,7 @@ class TestFileSystemSetup:
         self._caplog = caplog
 
     @patch('kiwi.filesystem.setup.SystemSize')
-    def setup(self, mock_FileSystemSetup, mock_size):
+    def setup(self, mock_size):
         size = mock.Mock()
         size.accumulate_mbyte_file_sizes = mock.Mock(
             return_value=42
