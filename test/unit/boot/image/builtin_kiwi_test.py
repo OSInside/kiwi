@@ -20,9 +20,7 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.Temporary')
     @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
     @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
-    def setup(
-        self, mock_BootImageKiwi, mock_boot_path, mock_exists, mock_Temporary
-    ):
+    def setup(self, mock_boot_path, mock_exists, mock_Temporary):
         mock_Temporary.return_value.new_dir.return_value.name = \
             'boot-root-directory'
         mock_boot_path.return_value = '../data'

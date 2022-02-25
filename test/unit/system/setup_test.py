@@ -29,7 +29,7 @@ class TestSystemSetup:
         self._caplog = caplog
 
     @patch('kiwi.system.setup.RuntimeConfig')
-    def setup(self, mock_SystemSetup, mock_RuntimeConfig):
+    def setup(self, mock_RuntimeConfig):
         Defaults.set_platform_name('x86_64')
         self.runtime_config = Mock()
         self.runtime_config.get_package_changes = Mock(

@@ -20,7 +20,7 @@ class TestCompress:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_Compress, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
         self.compress = Compress('some-file', True)
 

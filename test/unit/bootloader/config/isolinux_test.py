@@ -18,7 +18,7 @@ class TestBootLoaderConfigIsoLinux:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_BootLoaderConfigIsoLinux, mock_exists):
+    def setup(self, mock_exists):
         Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
         self.state = mock.Mock()

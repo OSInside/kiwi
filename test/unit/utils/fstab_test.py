@@ -13,11 +13,8 @@ class TestFstab(object):
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    def setup(self, mock_Fstab):
+    def setup(self):
         self.fstab = Fstab()
-        self.fstab.read('../data/fstab')
-
-    def test_read(self):
         with self._caplog.at_level(logging.WARNING):
             self.fstab.read('../data/fstab')
             assert format(

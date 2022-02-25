@@ -12,7 +12,7 @@ from kiwi.exceptions import KiwiContainerSetupError
 
 class TestContainerSetupAppx:
     @patch('os.path.exists')
-    def setup(self, mock_ContainerSetupAppx, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
         self.appx = ContainerSetupAppx(
             'root_dir', {

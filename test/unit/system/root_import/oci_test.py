@@ -18,7 +18,7 @@ class TestRootImportOCI:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_RootImportOCI, mock_path):
+    def setup(self, mock_path):
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.oci_import = RootImportOCI(

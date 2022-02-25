@@ -18,7 +18,7 @@ class TestContainerImageOCI:
         self._caplog = caplog
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
-    def setup(self, mock_ContainerImageOCI, mock_cmd_caps):
+    def setup(self, mock_cmd_caps):
         mock_cmd_caps.return_value = True
         self.runtime_config = mock.Mock()
         self.runtime_config.get_container_compression = mock.Mock(

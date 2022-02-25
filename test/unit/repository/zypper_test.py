@@ -14,7 +14,7 @@ from kiwi.exceptions import KiwiCommandError
 class TestRepositoryZypper:
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Temporary.new_file')
-    def setup(self, mock_RepositoryZypper, mock_temp, mock_command):
+    def setup(self, mock_temp, mock_command):
 
         self.context_manager_mock = mock.Mock()
         self.file_mock = mock.Mock()

@@ -19,7 +19,7 @@ class TestVolumeManagerLVM:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_VolumeManagerLVM, mock_path):
+    def setup(self, mock_path):
         self.volumes = [
             volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
