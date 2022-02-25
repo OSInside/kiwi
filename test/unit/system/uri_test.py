@@ -172,7 +172,11 @@ class TestUri:
         assert uri.translate() == 'http://example.com/foo'
 
     @patch('kiwi.system.uri.requests.get')
-    def test_translate_obs_project(self, mock_request_get):
+    @patch('kiwi.defaults.Defaults.is_buildservice_worker')
+    def test_translate_obs_project(
+        self, mock_is_buildservice_worker, mock_request_get
+    ):
+        mock_is_buildservice_worker.return_value = False
         uri = Uri('obs://openSUSE:Leap:42.2/standard', 'yast2')
         uri.runtime_config = self.runtime_config
         uri.translate()
