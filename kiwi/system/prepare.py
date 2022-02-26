@@ -265,7 +265,7 @@ class SystemPrepare:
                 raise KiwiBootStrapPhaseFailed(
                     self.issue_message.format(
                         headline='Bootstrap package installation failed',
-                        reason=issue
+                        reason=f'{issue}: {manager.get_error_details()}'
                     )
                 )
         manager.post_process_install_requests_bootstrap(self.root_bind)

@@ -94,5 +94,8 @@ class TestPackageManagerBase:
         assert self.manager.collection_requests == []
         assert self.manager.exclude_requests == []
 
+    def test_get_error_details(self):
+        assert self.manager.get_error_details() == ''
+
     def test_clean_leftovers(self):
         self.manager.clean_leftovers()

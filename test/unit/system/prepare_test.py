@@ -126,12 +126,13 @@ class TestSystemPrepare:
 
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     def test_install_bootstrap_packages_raises(self, mock_poll):
+        self.manager.get_error_details.return_value = 'error-details'
         mock_poll.side_effect = Exception('some_error')
         with raises(KiwiBootStrapPhaseFailed) as issue:
             self.system.install_bootstrap(self.manager)
         assert issue.value.message == self.system.issue_message.format(
             headline='Bootstrap package installation failed',
-            reason='some_error'
+            reason='some_error: error-details'
         )
 
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')

@@ -203,6 +203,22 @@ class PackageManagerApt(PackageManagerBase):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
+    def get_error_details(self) -> str:
+        """
+        Provide further error details
+
+        Read the debootstrap log if available
+
+        :rtype: str
+        """
+        debootstrap_log_file = os.path.join(
+            self.root_dir, 'debootstrap/debootstrap.log'
+        )
+        if os.path.exists(debootstrap_log_file):
+            with open(debootstrap_log_file) as log_fd:
+                return log_fd.read() or 'logfile is empty'
+        return f'logfile {debootstrap_log_file!r} does not exist'
+
     def post_process_install_requests_bootstrap(
         self, root_bind: RootBind = None
     ) -> None:
