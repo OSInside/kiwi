@@ -17,6 +17,9 @@ class TestMarkupBase:
     def setup(self):
         self.markup = MarkupBase('../data/example_config.xml')
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_xml_description(self):
         with raises(NotImplementedError):
             self.markup.get_xml_description()

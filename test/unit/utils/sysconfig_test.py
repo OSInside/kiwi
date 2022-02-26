@@ -9,6 +9,9 @@ class TestSysConfig:
     def setup(self):
         self.sysconfig = SysConfig('../data/sysconfig_example.txt')
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_item(self):
         assert self.sysconfig['name'] == ' "Marcus"'
         assert self.sysconfig.get('name') == ' "Marcus"'

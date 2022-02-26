@@ -31,6 +31,11 @@ class TestBootImageKiwi:
             '--list-modules', '--no-kernel'
         ])
 
+    @patch('kiwi.boot.image.dracut.Command.run')
+    @patch('kiwi.boot.image.base.os.path.exists')
+    def setup_method(self, cls, mock_exists, mock_cmd):
+        self.setup()
+
     @patch('kiwi.boot.image.dracut.SystemSetup')
     def test_prepare(self, mock_setup):
         setup = Mock()

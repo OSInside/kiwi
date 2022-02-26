@@ -15,7 +15,6 @@ class TestRepositoryZypper:
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Temporary.new_file')
     def setup(self, mock_temp, mock_command):
-
         self.context_manager_mock = mock.Mock()
         self.file_mock = mock.Mock()
         self.enter_mock = mock.Mock()
@@ -34,6 +33,11 @@ class TestRepositoryZypper:
             self.repo = RepositoryZypper(
                 self.root_bind, ['exclude_docs', '_install_langs%en_US:de_DE']
             )
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Temporary.new_file')
+    def setup_method(self, cls, mock_temp, mock_command):
+        self.setup()
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.repository.zypper.Temporary.new_file')

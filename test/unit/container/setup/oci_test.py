@@ -20,6 +20,10 @@ class TestContainerSetupOCI:
         self.container.setup_root_console = mock.Mock()
         self.container.deactivate_systemd_service = mock.Mock()
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_setup(self):
         self.container.setup()
         self.container.deactivate_bootloader_setup.assert_called_once_with()

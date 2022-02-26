@@ -11,6 +11,9 @@ class TestRpmDataBase:
         self.rpmdb.rpmdb_host = Mock()
         self.rpmdb.rpmdb_image = Mock()
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.utils.rpm_database.Path.which')
     def test_has_rpm(self, mock_Path_which):
         mock_Path_which.return_value = None

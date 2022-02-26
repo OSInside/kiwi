@@ -11,6 +11,10 @@ class TestFileSystemClicFs:
         mock_exists.return_value = True
         self.clicfs = FileSystemClicFs(mock.Mock(), 'root_dir')
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     @patch('kiwi.filesystem.clicfs.Command.run')
     @patch('kiwi.filesystem.clicfs.Temporary')
     @patch('kiwi.filesystem.clicfs.LoopDevice')

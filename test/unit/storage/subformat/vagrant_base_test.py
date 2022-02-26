@@ -48,6 +48,9 @@ class TestDiskFormatVagrantBase:
         assert self.disk_format.image_format == ''
         assert self.disk_format.provider is None
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_create_box_img_not_implemented(self):
         with raises(NotImplementedError):
             self.disk_format.create_box_img('arbitrary')

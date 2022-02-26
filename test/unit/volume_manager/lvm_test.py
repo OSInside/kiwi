@@ -63,6 +63,10 @@ class TestVolumeManagerLVM:
         )
         assert self.volume_manager.mount_options == 'a,b,c'
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
+
     def test_post_init_custom_args(self):
         self.volume_manager.post_init({'some-arg': 'some-val'})
         assert self.volume_manager.custom_args['some-arg'] == 'some-val'

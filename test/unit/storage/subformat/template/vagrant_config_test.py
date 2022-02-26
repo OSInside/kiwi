@@ -6,9 +6,11 @@ from textwrap import dedent
 
 
 class TestVagrantConfigTemplate:
-
     def setup(self):
         self.vagrant_config = VagrantConfigTemplate()
+
+    def setup_method(self, cls):
+        self.setup()
 
     def test_default_Vagrantfile(self):
         Vagrantfile = dedent('''

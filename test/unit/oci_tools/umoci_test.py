@@ -19,6 +19,12 @@ class TestOCIUmoci:
         )
         self.oci = OCIUmoci()
 
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.oci_tools.base.datetime')
+    @patch('kiwi.oci_tools.umoci.Temporary')
+    def setup_method(self, cls, mock_Temporary, mock_datetime, mock_cmd_caps):
+        self.setup()
+
     @patch('kiwi.oci_tools.umoci.Command.run')
     def test_init_container(self, mock_Command_run):
         self.oci.init_container()

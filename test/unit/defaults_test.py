@@ -20,8 +20,14 @@ class TestDefaults:
     def setup(self):
         self.defaults = Defaults()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()
 
     def test_get(self):
         assert self.defaults.get('kiwi_align') == 1048576

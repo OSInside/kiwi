@@ -11,7 +11,7 @@ setuptools
 tox
 
 # python unit testing framework
-pytest==6.2.5
+pytest
 pytest-cov
 pytest-xdist
 

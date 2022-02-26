@@ -18,6 +18,10 @@ class TestFileSystemExt4:
             return_value='some-mount-point'
         )
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     @patch('kiwi.filesystem.ext4.Command.run')
     def test_create_on_device(self, mock_command):
         self.ext4.create_on_device('label')

@@ -46,6 +46,10 @@ class TestBootImageBase:
             self.xml_state, 'some-target-dir', 'system-directory'
         )
 
+    @patch('kiwi.boot.image.base.os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_boot_image_raises(self):
         with raises(KiwiTargetDirectoryNotFound):
             BootImageBase(

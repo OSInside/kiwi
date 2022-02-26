@@ -42,6 +42,10 @@ class TestDiskFormatBase:
         )
         mock_post_init.assert_called_once_with({})
 
+    @patch('kiwi.storage.subformat.base.DiskFormatBase.post_init')
+    def setup_method(self, cls, mock_post_init):
+        self.setup()
+
     def test_create_image_format(self):
         with raises(NotImplementedError):
             self.disk_format.create_image_format()

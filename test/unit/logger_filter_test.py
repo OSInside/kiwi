@@ -14,6 +14,9 @@ class TestLoggerSchedulerFilter:
     def setup(self):
         self.scheduler_filter = LoggerSchedulerFilter()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_filter(self):
         MyRecord = namedtuple(
             'MyRecord',
@@ -32,6 +35,9 @@ class TestInfoFilter:
     def setup(self):
         self.info_filter = InfoFilter()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_filter(self):
         MyRecord = namedtuple(
             'MyRecord',
@@ -44,6 +50,9 @@ class TestInfoFilter:
 class TestDebugFilter:
     def setup(self):
         self.debug_filter = DebugFilter()
+
+    def setup_method(self, cls):
+        self.setup()
 
     def test_filter(self):
         MyRecord = namedtuple(
@@ -58,6 +67,9 @@ class TestErrorFilter:
     def setup(self):
         self.error_filter = ErrorFilter()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_filter(self):
         MyRecord = namedtuple(
             'MyRecord',
@@ -70,6 +82,9 @@ class TestErrorFilter:
 class TestWarningFilter:
     def setup(self):
         self.error_filter = WarningFilter()
+
+    def setup_method(self, cls):
+        self.setup()
 
     def test_filter(self):
         MyRecord = namedtuple(

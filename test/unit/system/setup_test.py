@@ -70,8 +70,15 @@ class TestSystemSetup:
             returncode=0
         )
 
+    @patch('kiwi.system.setup.RuntimeConfig')
+    def setup_method(self, cls, mock_RuntimeConfig):
+        self.setup()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()
 
     def test_setup_ix86(self):
         Defaults.set_platform_name('i686')

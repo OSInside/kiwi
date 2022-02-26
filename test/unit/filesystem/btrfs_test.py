@@ -18,6 +18,10 @@ class TestFileSystemBtrfs:
             return_value='some-mount-point'
         )
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     @patch('kiwi.filesystem.btrfs.Command.run')
     def test_create_on_device(self, mock_command):
         self.btrfs.create_on_device('label')

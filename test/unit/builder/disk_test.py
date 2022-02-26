@@ -203,8 +203,15 @@ class TestDiskBuilder:
         self.disk_builder.build_type_name = 'oem'
         self.disk_builder.image_format = None
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()
 
     def test_setup_warn_no_initrd_support(self):
         self.boot_image_task.has_initrd_support = Mock(

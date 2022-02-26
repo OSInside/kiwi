@@ -13,6 +13,9 @@ class TestSolverRepository:
         self.uri = Mock()
         self.uri.repo_type = 'some-unknown-type'
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_solver_repository_type_not_implemented(self):
         with raises(KiwiSolverRepositorySetupError):
             SolverRepository.new(self.uri)

@@ -31,6 +31,11 @@ class TestPartitionerDasd:
 
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.Temporary.new_file')
+    def setup_method(self, cls, mock_temp, mock_command):
+        self.setup()
+
+    @patch('kiwi.partitioner.dasd.Command.run')
+    @patch('kiwi.partitioner.dasd.Temporary.new_file')
     def test_create(self, mock_temp, mock_command):
         mock_command.side_effect = Exception
         mock_temp.return_value = self.tempfile

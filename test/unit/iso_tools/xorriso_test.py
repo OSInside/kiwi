@@ -12,6 +12,9 @@ class TestIsoToolsXorrIso:
         Defaults.set_platform_name('x86_64')
         self.iso_tool = IsoToolsXorrIso('source-dir')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.iso_tools.xorriso.Path.which')
     def test_get_tool_name(self, mock_which):
         mock_which.return_value = 'tool_found'

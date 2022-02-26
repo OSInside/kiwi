@@ -66,6 +66,10 @@ class TestFileSystemBuilder:
             return_value=self.setup
         )
 
+    @patch('kiwi.builder.filesystem.FileSystemSetup')
+    def setup_method(self, cls, mock_fs_setup):
+        self.setup()
+
     def test_create_unknown_filesystem(self):
         self.xml_state.get_build_type_name = Mock(
             return_value='super-fs'
@@ -163,3 +167,6 @@ class TestFileSystemBuilder:
 
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()

@@ -24,6 +24,11 @@ class TestKernel:
             'vmlinux-1.2.3-default'
         ]
 
+    @patch('os.listdir')
+    @patch('os.path.isdir')
+    def setup_method(self, cls, mock_path_isdir, mock_listdir):
+        self.setup()
+
     def test_get_kernel_raises_if_no_kernel_found(self):
         self.kernel.kernel_names = []
         with raises(KiwiKernelLookupError):

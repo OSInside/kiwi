@@ -38,6 +38,11 @@ class TestContainerImageOCI:
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
+    def setup_method(self, cls, mock_is_buildservice_worker, mock_cmd_caps):
+        self.setup()
+
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.defaults.Defaults.is_buildservice_worker')
     def test_init_custom_args(self, mock_is_buildservice_worker, mock_cmd_caps):
         mock_is_buildservice_worker.return_value = False
         mock_cmd_caps.return_value = True

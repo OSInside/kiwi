@@ -9,6 +9,9 @@ class TestSystemIdentifier:
     def setup(self):
         self.identifier = SystemIdentifier()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_id(self):
         assert self.identifier.get_id() is None
 

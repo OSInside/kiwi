@@ -12,6 +12,9 @@ class TestPartitionerBase:
         )
         self.partitioner = PartitionerBase(disk_provider)
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_id(self):
         assert self.partitioner.get_id() == 0
 

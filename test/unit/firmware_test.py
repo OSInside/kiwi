@@ -50,6 +50,9 @@ class TestFirmWare:
 
         Defaults.set_platform_name('x86_64')
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_firmware_unsupported(self):
         xml_state = mock.Mock()
         xml_state.build_type.get_firmware = mock.Mock(

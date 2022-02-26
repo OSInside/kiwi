@@ -18,6 +18,9 @@ class TestFileSystemBase:
         }
         self.fsbase = FileSystemBase(provider, 'root_dir', custom_args)
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_root_dir_does_not_exist(self):
         fsbase = FileSystemBase(mock.Mock(), 'root_dir_not_existing')
         with raises(KiwiFileSystemSyncError):

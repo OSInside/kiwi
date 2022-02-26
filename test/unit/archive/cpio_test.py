@@ -7,6 +7,9 @@ class TestArchiveCpio:
     def setup(self):
         self.archive = ArchiveCpio('foo.cpio')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.archive.cpio.Command.run')
     def test_create(self, mock_command):
         self.archive.create('source-dir', ['/boot', '/var/cache'])

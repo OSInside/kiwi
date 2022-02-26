@@ -18,6 +18,10 @@ class TestArchiveTar:
         self.archive = ArchiveTar('foo.tar')
 
     @patch('kiwi.archive.tar.Command.run')
+    def setup_method(self, cls, mock_command):
+        self.setup()
+
+    @patch('kiwi.archive.tar.Command.run')
     def test_invalid_tar_command_version(self, mock_command):
         command = mock.Mock()
         command.output = 'version cannot be parsed'

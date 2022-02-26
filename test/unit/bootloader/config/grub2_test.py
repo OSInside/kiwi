@@ -121,6 +121,11 @@ class TestBootLoaderConfigGrub2:
             [self.bootloader.cmdline, 'failsafe-options']
         )
 
+    @patch('kiwi.bootloader.config.grub2.FirmWare')
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_theme')
+    def setup_method(self, cls, mock_theme, mock_firmware):
+        self.setup()
+
     @patch('kiwi.bootloader.config.grub2.Path.which')
     def test_post_init_grub2_boot_directory(self, mock_which):
         Defaults.set_platform_name('i686')

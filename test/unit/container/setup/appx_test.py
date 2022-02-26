@@ -29,6 +29,10 @@ class TestContainerSetupAppx:
             }
         )
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_setup_raises_no_manifest_file(self):
         with patch('os.path.exists', return_value=True):
             appx = ContainerSetupAppx(

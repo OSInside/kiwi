@@ -61,6 +61,10 @@ class TestVolumeManagerBtrfs:
             self.device_map, 'root_dir', self.volumes
         )
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
+
     def test_post_init(self):
         self.volume_manager.post_init({'some-arg': 'some-val'})
         assert self.volume_manager.custom_args['some-arg'] == 'some-val'

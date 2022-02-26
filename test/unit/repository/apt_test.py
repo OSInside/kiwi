@@ -50,6 +50,12 @@ class TestRepositoryApt:
             assert repo.custom_args == []
             assert repo.unauthenticated == 'true'
 
+    @patch('kiwi.repository.apt.Temporary.new_file')
+    @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
+    @patch('kiwi.repository.apt.Path.create')
+    def setup_method(self, cls, mock_path, mock_template, mock_temp):
+        self.setup()
+
     def test_use_default_location(self):
         template = mock.Mock()
         template.substitute.return_value = 'template-data'

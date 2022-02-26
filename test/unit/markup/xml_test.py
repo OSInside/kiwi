@@ -9,6 +9,9 @@ class TestMarkupXML:
     def setup(self):
         self.markup = MarkupXML('../data/example_config.xml')
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_xml_description(self):
         assert 'xslt-' in self.markup.get_xml_description()
 

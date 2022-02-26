@@ -13,6 +13,9 @@ class TestLogger:
     def setup(self):
         self.log = Logger('kiwi')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('sys.stdout')
     def test_progress(self, mock_stdout):
         self.log.progress(50, 100, 'foo')

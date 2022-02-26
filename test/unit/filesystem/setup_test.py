@@ -32,6 +32,10 @@ class TestFileSystemSetup:
             self.xml_state, 'root_dir'
         )
 
+    @patch('kiwi.filesystem.setup.SystemSize')
+    def setup_method(self, cls, mock_size):
+        self.setup()
+
     def test_init_with_unpartitioned(self):
         self.xml_state.get_build_type_unpartitioned_bytes = mock.Mock(
             return_value=1024

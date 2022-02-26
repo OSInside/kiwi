@@ -19,6 +19,10 @@ class TestMappedDevice:
         )
 
     @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
+
+    @patch('os.path.exists')
     def test_device_not_existingr(self, mock_path):
         mock_path.return_value = False
         with raises(KiwiMappedDeviceError):

@@ -79,6 +79,11 @@ class TestKisBuilder:
 
     @patch('kiwi.builder.kis.FileSystemBuilder')
     @patch('kiwi.builder.kis.BootImage')
+    def setup_method(self, cls, mock_boot, mock_filesystem):
+        self.setup()
+
+    @patch('kiwi.builder.kis.FileSystemBuilder')
+    @patch('kiwi.builder.kis.BootImage')
     def test_setup_warn_no_initrd_support(self, mock_boot, mock_filesystem):
         boot_image_task = MagicMock()
         boot_image_task.has_initrd_support = Mock(

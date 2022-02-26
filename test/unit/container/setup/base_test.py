@@ -17,6 +17,10 @@ class TestContainerSetupBase:
         self.container = ContainerSetupBase('root_dir')
 
     @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
+    @patch('os.path.exists')
     def test_container_root_dir_does_not_exist(self, mock_exists):
         mock_exists.return_value = False
         with raises(KiwiContainerSetupError):

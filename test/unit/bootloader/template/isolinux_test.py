@@ -5,6 +5,9 @@ class TestBootLoaderTemplateIsoLinux:
     def setup(self):
         self.isolinux = BootLoaderTemplateIsoLinux()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_template(self):
         assert self.isolinux.get_template().substitute(
             default_boot='LimeJeOS-SLE12-Community',

@@ -40,6 +40,9 @@ class TestDiskFormatVagrantLibVirt:
         assert self.disk_format.image_format == 'vagrant.libvirt.box'
         assert self.disk_format.provider == 'libvirt'
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.storage.subformat.vagrant_libvirt.Command.run')
     @patch('kiwi.storage.subformat.vagrant_libvirt.DiskFormatQcow2')
     def test_create_box_img(

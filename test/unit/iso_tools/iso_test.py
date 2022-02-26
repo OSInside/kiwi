@@ -14,6 +14,9 @@ class TestIso:
         Defaults.set_platform_name('x86_64')
         self.iso = Iso('source-dir')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('os.path.exists')
     def test_setup_isolinux_boot_path_raises(self, mock_exists):
         mock_exists.return_value = False

@@ -37,6 +37,9 @@ class TestPackageManagerApt:
         )
         self.manager = PackageManagerApt(repository)
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_request_package(self):
         self.manager.request_package('name')
         assert self.manager.package_requests == ['name']

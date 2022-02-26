@@ -13,6 +13,9 @@ class TestMarkupXML:
     def setup(self):
         self.markup = MarkupAny('../data/example_config.xml')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('anymarkup.parse_file')
     def test_raises_markup_conversion_error(self, mock_anymarkup_parse_file):
         mock_anymarkup_parse_file.side_effect = Exception

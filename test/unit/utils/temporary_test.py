@@ -7,6 +7,9 @@ class TestTemporary:
     def setup(self):
         self.temporary = Temporary()
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.utils.temporary.NamedTemporaryFile')
     def test_new_file(self, mock_NamedTemporaryFile):
         self.temporary.new_file()

@@ -20,6 +20,9 @@ class TestDataOutput:
         )
         self.out = DataOutput(test_data)
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('sys.stdout')
     def test_display(self, mock_stdout):
         self.out.display()

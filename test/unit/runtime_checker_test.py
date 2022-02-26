@@ -37,6 +37,9 @@ class TestRuntimeChecker:
         )
         self.runtime_checker = RuntimeChecker(self.xml_state)
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.runtime_checker.Uri')
     def test_check_image_include_repos_publicly_resolvable(self, mock_Uri):
         uri = Mock()
@@ -440,3 +443,6 @@ class TestRuntimeChecker:
 
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()

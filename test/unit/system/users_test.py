@@ -7,6 +7,9 @@ class TestUsers:
     def setup(self):
         self.users = Users('root_dir')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.system.users.Command.run')
     def test_user_exists(self, mock_command):
         assert self.users.user_exists('user') is True

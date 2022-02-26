@@ -19,6 +19,10 @@ class TestLoopDevice:
         mock_exists.return_value = False
         self.loop = LoopDevice('loop-file', 20, 4096)
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_loop_setup_invalid(self):
         with raises(KiwiLoopSetupError):
             LoopDevice('loop-file-does-not-exist-and-no-size-given')

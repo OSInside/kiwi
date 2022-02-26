@@ -51,6 +51,12 @@ class TestRepositoryDnf:
         ]
 
     @patch('kiwi.repository.dnf.Temporary.new_file')
+    @patch('kiwi.repository.dnf.ConfigParser')
+    @patch('kiwi.repository.dnf.Path.create')
+    def setup_method(self, cls, mock_path, mock_config, mock_temp):
+        self.setup()
+
+    @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.Path.create')
     def test_post_init_no_custom_args(self, mock_path, mock_temp):
         with patch('builtins.open', create=True):

@@ -7,6 +7,9 @@ class TestVmwareSettingsTempla:
     def setup(self):
         self.vmware = VmwareSettingsTemplate()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_template_default(self):
         assert self.vmware.get_template().substitute(
             virtual_hardware_version='8',

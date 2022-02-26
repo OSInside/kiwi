@@ -23,6 +23,9 @@ class TestPartitionerGpt:
         )
         self.partitioner = PartitionerGpt(disk_provider)
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.partitioner.gpt.Command.run')
     @patch('kiwi.partitioner.gpt.PartitionerGpt.set_flag')
     def test_create(self, mock_flag, mock_command):

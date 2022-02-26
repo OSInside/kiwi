@@ -68,6 +68,9 @@ class TestDiskFormatOva:
             self.xml_state, 'root_dir', 'target_dir'
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_post_init(self):
         self.disk_format.post_init({})
 

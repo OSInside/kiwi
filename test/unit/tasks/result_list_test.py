@@ -22,8 +22,14 @@ class TestResultListTask:
         )
         self.task = ResultListTask()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()
 
     def _init_command_args(self):
         self.task.command_args = {}

@@ -36,6 +36,9 @@ class TestUri:
             return_value=self.runtime_config
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_is_remote_raises_style_error(self):
         uri = Uri('xxx', 'rpm-md')
         with raises(KiwiUriStyleUnknown):

@@ -110,8 +110,14 @@ class TestLiveImageBuilder:
         self.result = Mock()
         self.live_image.result = self.result
 
+    def setup_method(self, cls):
+        self.setup()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()
 
     def test_init_for_ix86_platform(self):
         Defaults.set_platform_name('i686')

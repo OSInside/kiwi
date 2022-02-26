@@ -15,6 +15,9 @@ class TestOCI:
         self.runtime_config = Mock()
         self.runtime_config.get_oci_archive_tool = Mock()
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.oci_tools.umoci.OCIUmoci')
     @patch('kiwi.oci_tools.RuntimeConfig')
     def test_oci_tool_umoci(

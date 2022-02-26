@@ -5,6 +5,9 @@ class TestPackageManagerTemplateAptGet:
     def setup(self):
         self.apt = PackageManagerTemplateAptGet()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_host_template(self):
         assert self.apt.get_host_template().substitute(
             apt_shared_base='/var/cache/kiwi/apt-get',

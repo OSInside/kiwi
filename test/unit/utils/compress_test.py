@@ -24,6 +24,10 @@ class TestCompress:
         mock_exists.return_value = True
         self.compress = Compress('some-file', True)
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_source_file_not_found(self):
         with raises(KiwiFileNotFound):
             Compress('some-file')

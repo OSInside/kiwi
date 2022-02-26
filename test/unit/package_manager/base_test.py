@@ -10,6 +10,9 @@ class TestPackageManagerBase:
         repository.root_dir = 'root-dir'
         self.manager = PackageManagerBase(repository)
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_request_package(self):
         with raises(NotImplementedError):
             self.manager.request_package('name')

@@ -19,6 +19,9 @@ class TestRaidDevice:
         )
         self.raid = RaidDevice(storage_device)
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_create_degraded_raid_invalid_level(self):
         with raises(KiwiRaidSetupError):
             self.raid.create_degraded_raid('bogus-level')

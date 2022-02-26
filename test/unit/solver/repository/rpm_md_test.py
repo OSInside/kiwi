@@ -14,6 +14,9 @@ class TestSolverRepositoryRpmMd:
         self.uri = mock.Mock()
         self.solver = SolverRepositoryRpmMd(self.uri)
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch.object(SolverRepositoryBase, 'download_from_repository')
     @patch.object(SolverRepositoryBase, '_create_solvables')
     @patch.object(SolverRepositoryBase, '_create_temporary_metadata_dir')

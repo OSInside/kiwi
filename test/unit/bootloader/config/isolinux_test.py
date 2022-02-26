@@ -93,6 +93,10 @@ class TestBootLoaderConfigIsoLinux:
             self.state, 'root_dir'
         )
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_post_init_ix86_platform(self):
         Defaults.set_platform_name('i686')
         bootloader = BootLoaderConfigIsoLinux(self.state, 'root_dir')

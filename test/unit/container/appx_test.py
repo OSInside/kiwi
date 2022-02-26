@@ -21,6 +21,11 @@ class TestContainerImageAppx:
 
     @patch('kiwi.container.appx.RuntimeConfig')
     @patch('os.path.exists')
+    def setup_method(self, cls, mock_os_path_exists, mock_RuntimeConfig):
+        self.setup()
+
+    @patch('kiwi.container.appx.RuntimeConfig')
+    @patch('os.path.exists')
     def test_init_raises(self, mock_os_path_exists, mock_RuntimeConfig):
         mock_os_path_exists.return_value = True
         with raises(KiwiContainerSetupError):

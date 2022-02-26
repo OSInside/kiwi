@@ -72,8 +72,14 @@ class TestCli:
         self.cli = Cli()
         self.loaded_command = self.cli.load_command()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()
 
     @patch('kiwi.cli.Help.show')
     def test_show_and_exit_on_help_request(self, help_show):

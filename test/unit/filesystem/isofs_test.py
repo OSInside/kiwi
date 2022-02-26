@@ -16,6 +16,10 @@ class TestFileSystemIsoFs:
         mock_exists.return_value = True
         self.isofs = FileSystemIsoFs(mock.Mock(), 'root_dir')
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_post_init(self):
         self.isofs.post_init({'some_args': 'data'})
         assert self.isofs.custom_args['meta_data'] == {}

@@ -62,6 +62,10 @@ class TestContainerBuilder:
         )
         self.container.result = mock.Mock()
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_init_derived(self):
         assert self.container.base_image == 'root_dir/image/imported_root'
 

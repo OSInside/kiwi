@@ -28,6 +28,10 @@ class TestRootImportOCI:
         assert self.oci_import.image_file == '/image.tar'
 
     @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
+
+    @patch('os.path.exists')
     def test_failed_init(self, mock_path):
         mock_path.return_value = False
         with raises(KiwiRootImportError):

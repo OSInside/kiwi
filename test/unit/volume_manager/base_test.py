@@ -50,6 +50,10 @@ class TestVolumeManagerBase:
         ]
 
     @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
+
+    @patch('os.path.exists')
     def test_init_custom_args(self, mock_exists):
         mock_exists.return_value = True
         volume_manager = VolumeManagerBase(

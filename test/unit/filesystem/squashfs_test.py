@@ -12,6 +12,10 @@ class TestFileSystemSquashfs:
         mock_exists.return_value = True
         self.squashfs = FileSystemSquashFs(mock.Mock(), 'root_dir')
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     @patch('kiwi.filesystem.squashfs.Command.run')
     def test_create_on_file(self, mock_command):
         Defaults.set_platform_name('x86_64')

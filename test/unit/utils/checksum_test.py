@@ -26,6 +26,10 @@ class TestChecksum:
         mock_exists.return_value = True
         self.checksum = Checksum('some-file')
 
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
+
     def test_checksum_file_not_found(self):
         with raises(KiwiFileNotFound):
             Checksum('some-file')

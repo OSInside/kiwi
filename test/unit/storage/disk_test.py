@@ -38,6 +38,10 @@ class TestDisk:
         )
         self.disk = Disk('gpt', self.storage_provider)
 
+    @patch('kiwi.storage.disk.Partitioner.new')
+    def setup_method(self, cls, mock_partitioner):
+        self.setup()
+
     @patch('os.path.exists')
     def test_get_device(self, mock_exists):
         mock_exists.return_value = True

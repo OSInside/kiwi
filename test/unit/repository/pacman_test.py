@@ -51,6 +51,12 @@ class TestRepositorPacman(object):
                 call('options', 'Include', '/shared-dir/pacman/repos/*.repo')
             ]
 
+    @patch('kiwi.repository.pacman.Temporary.new_file')
+    @patch('kiwi.repository.pacman.ConfigParser')
+    @patch('kiwi.repository.pacman.Path.create')
+    def setup_method(self, cls, mock_path, mock_config, mock_temp):
+        self.setup()
+
     def test_runtime_config(self):
         assert self.repo.runtime_config()['pacman_args'] == \
             self.repo.pacman_args

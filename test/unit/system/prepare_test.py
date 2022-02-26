@@ -69,6 +69,12 @@ class TestSystemPrepare:
         root_bind.setup_intermediate_config.assert_called_once_with()
         root_bind.mount_kernel_file_systems.assert_called_once_with()
 
+    @patch('kiwi.system.prepare.RootInit')
+    @patch('kiwi.system.prepare.RootBind')
+    @patch('kiwi.logger.Logger.get_logfile')
+    def setup_method(self, cls, mock_get_logfile, mock_root_bind, mock_root_init):
+        self.setup()
+
     @patch('kiwi.system.prepare.RootImport.new')
     @patch('kiwi.system.prepare.RootInit')
     @patch('kiwi.system.prepare.RootBind')
