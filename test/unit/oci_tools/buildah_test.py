@@ -31,7 +31,7 @@ class TestOCIBuildah:
 
     @patch('kiwi.oci_tools.umoci.Command.run')
     def teardown(self, mock_cmd_run):
-        del self.oci
+        self.oci.__del__()
         mock_cmd_run.reset_mock()
 
     @patch('kiwi.oci_tools.umoci.Command.run')
