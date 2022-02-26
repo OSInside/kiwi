@@ -19,10 +19,7 @@ class TestContainerImageOCI:
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')
-    def setup(
-        self, mock_ContainerImageOCI, mock_is_buildservice_worker,
-        mock_cmd_caps
-    ):
+    def setup(self, mock_is_buildservice_worker, mock_cmd_caps):
         mock_is_buildservice_worker.return_value = False
         mock_cmd_caps.return_value = True
         self.runtime_config = mock.Mock()
@@ -38,6 +35,11 @@ class TestContainerImageOCI:
                 'additional_tags': ['current', 'foobar']
             }
         )
+
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.defaults.Defaults.is_buildservice_worker')
+    def setup_method(self, cls, mock_is_buildservice_worker, mock_cmd_caps):
+        self.setup()
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
     @patch('kiwi.defaults.Defaults.is_buildservice_worker')

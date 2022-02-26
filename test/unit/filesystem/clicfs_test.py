@@ -7,9 +7,13 @@ from kiwi.filesystem.clicfs import FileSystemClicFs
 
 class TestFileSystemClicFs:
     @patch('os.path.exists')
-    def setup(self, mock_FileSystemClicFs, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
         self.clicfs = FileSystemClicFs(mock.Mock(), 'root_dir')
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
 
     @patch('kiwi.filesystem.clicfs.Command.run')
     @patch('kiwi.filesystem.clicfs.Temporary')

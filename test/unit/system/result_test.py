@@ -18,8 +18,10 @@ class TestResult:
 
     def setup(self):
         self.xml_state = MagicMock()
-
         self.result = Result(self.xml_state)
+
+    def setup_method(self, cls):
+        self.setup()
 
     def test_add(self):
         assert self.result.add('foo', 'bar') is None

@@ -18,6 +18,9 @@ class TestRpm:
             ]
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.utils.rpm.Command.run')
     def test_expand_query(self, mock_Command_run):
         self.rpm_host.expand_query('foo')

@@ -46,6 +46,9 @@ class TestDiskFormatVagrantVirtualBox:
             {'vagrantconfig': self.vagrantconfig}
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.storage.subformat.vagrant_virtualbox.Command.run')
     @patch('kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVmdk')
     def test_create_box_img(self, mock_vmdk, mock_command):

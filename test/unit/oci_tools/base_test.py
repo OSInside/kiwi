@@ -7,6 +7,9 @@ class TestOCIBase:
     def setup(self):
         self.oci = OCIBase()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_init_container(self):
         with raises(NotImplementedError):
             self.oci.init_container()

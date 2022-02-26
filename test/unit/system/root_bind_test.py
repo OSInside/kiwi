@@ -38,8 +38,14 @@ class TestRootBind:
         self.bind_root.mount_stack = [self.mount_manager]
         self.bind_root.dir_stack = ['/mountpoint']
 
+    def setup_method(self, cls):
+        self.setup()
+
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()
 
     @patch('kiwi.system.root_bind.MountManager.bind_mount')
     @patch('kiwi.system.root_bind.RootBind.cleanup')

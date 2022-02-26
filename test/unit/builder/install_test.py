@@ -92,6 +92,9 @@ class TestInstallImageBuilder:
             self.xml_state, 'root_dir', 'target_dir', self.boot_image_task
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.builder.install.BootImage')
     def test_init_dracut_based(self, mock_boot_image):
         InstallImageBuilder(

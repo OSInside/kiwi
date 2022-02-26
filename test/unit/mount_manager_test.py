@@ -19,6 +19,9 @@ class TestMountManager:
             '/dev/some-device', '/some/mountpoint'
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.mount_manager.Temporary')
     def test_setup_empty_mountpoint(self, mock_Temporary):
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'

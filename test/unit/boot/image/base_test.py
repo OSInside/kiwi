@@ -17,7 +17,7 @@ from kiwi.exceptions import (
 
 class TestBootImageBase:
     @patch('kiwi.boot.image.base.os.path.exists')
-    def setup(self, mock_BootImageBase, mock_exists):
+    def setup(self, mock_exists):
         Defaults.set_platform_name('x86_64')
         self.boot_names_type = namedtuple(
             'boot_names_type', ['kernel_name', 'initrd_name']
@@ -45,6 +45,10 @@ class TestBootImageBase:
         self.boot_image = BootImageBase(
             self.xml_state, 'some-target-dir', 'system-directory'
         )
+
+    @patch('kiwi.boot.image.base.os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
 
     def test_boot_image_raises(self):
         with raises(KiwiTargetDirectoryNotFound):

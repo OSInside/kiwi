@@ -15,7 +15,7 @@ class TestRepositoryDnf:
     @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Path.create')
-    def setup(self, mock_RepositoryDnf, mock_path, mock_config, mock_temp):
+    def setup(self, mock_path, mock_config, mock_temp):
         runtime_dnf_config = mock.Mock()
         mock_config.return_value = runtime_dnf_config
         tmpfile = mock.Mock()
@@ -49,6 +49,12 @@ class TestRepositoryDnf:
             call('main', 'ignorearch', '1'),
             call('main', 'enabled', '1')
         ]
+
+    @patch('kiwi.repository.dnf.Temporary.new_file')
+    @patch('kiwi.repository.dnf.ConfigParser')
+    @patch('kiwi.repository.dnf.Path.create')
+    def setup_method(self, cls, mock_path, mock_config, mock_temp):
+        self.setup()
 
     @patch('kiwi.repository.dnf.Temporary.new_file')
     @patch('kiwi.repository.dnf.Path.create')

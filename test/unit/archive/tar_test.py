@@ -11,11 +11,15 @@ from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 class TestArchiveTar:
     @patch('kiwi.archive.tar.Command.run')
-    def setup(self, mock_ArchiveTar, mock_command):
+    def setup(self, mock_command):
         command = mock.Mock()
         command.output = 'version 1.27.0'
         mock_command.return_value = command
         self.archive = ArchiveTar('foo.tar')
+
+    @patch('kiwi.archive.tar.Command.run')
+    def setup_method(self, cls, mock_command):
+        self.setup()
 
     @patch('kiwi.archive.tar.Command.run')
     def test_invalid_tar_command_version(self, mock_command):

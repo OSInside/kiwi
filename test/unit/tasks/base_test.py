@@ -29,8 +29,8 @@ class TestCliTask:
     @patch('kiwi.cli.Cli.get_global_args')
     @patch('kiwi.tasks.base.RuntimeConfig')
     def setup(
-        self, mock_CliTask, mock_runtime_config, mock_global_args,
-        mock_command_args, mock_load_command, mock_help_check, mock_color,
+        self, mock_runtime_config, mock_global_args, mock_command_args,
+        mock_load_command, mock_help_check, mock_color,
         mock_setlog, mock_setLogFlag, mock_setLogLevel
     ):
         Defaults.set_platform_name('x86_64')
@@ -61,6 +61,22 @@ class TestCliTask:
         mock_color.assert_called_once_with()
         mock_runtime_config.assert_called_once_with()
 
+    @patch('kiwi.logger.Logger.setLogLevel')
+    @patch('kiwi.logger.Logger.setLogFlag')
+    @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.logger.Logger.set_color_format')
+    @patch('kiwi.cli.Cli.show_and_exit_on_help_request')
+    @patch('kiwi.cli.Cli.load_command')
+    @patch('kiwi.cli.Cli.get_command_args')
+    @patch('kiwi.cli.Cli.get_global_args')
+    @patch('kiwi.tasks.base.RuntimeConfig')
+    def setup_method(
+        self, cls, mock_runtime_config, mock_global_args, mock_command_args,
+        mock_load_command, mock_help_check, mock_color,
+        mock_setlog, mock_setLogFlag, mock_setLogLevel
+    ):
+        self.setup()
+
     def test_quadruple_token(self):
         assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]
 
@@ -85,3 +101,6 @@ class TestCliTask:
 
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()

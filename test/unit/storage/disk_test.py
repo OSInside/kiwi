@@ -19,7 +19,7 @@ class TestDisk:
         self._caplog = caplog
 
     @patch('kiwi.storage.disk.Partitioner.new')
-    def setup(self, mock_Disk, mock_partitioner):
+    def setup(self, mock_partitioner):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
 
@@ -37,6 +37,10 @@ class TestDisk:
             return_value='/dev/loop0'
         )
         self.disk = Disk('gpt', self.storage_provider)
+
+    @patch('kiwi.storage.disk.Partitioner.new')
+    def setup_method(self, cls, mock_partitioner):
+        self.setup()
 
     @patch('os.path.exists')
     def test_get_device(self, mock_exists):

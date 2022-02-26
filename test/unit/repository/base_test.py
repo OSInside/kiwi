@@ -11,6 +11,9 @@ class TestRepositoryBase:
         self.repo.root_dir = 'root-dir'
         self.repo.shared_location = 'shared-dir'
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_use_default_location(self):
         with raises(NotImplementedError):
             self.repo.use_default_location()

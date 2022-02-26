@@ -10,6 +10,9 @@ class TestSolverRepositoryDeb:
         self.uri = Mock()
         self.solver = SolverRepositoryDeb(self.uri)
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch.object(SolverRepositoryBase, '_get_deb_packages')
     @patch.object(SolverRepositoryBase, '_create_solvables')
     @patch.object(SolverRepositoryBase, '_create_temporary_metadata_dir')

@@ -34,6 +34,9 @@ class TestArchiveBuilder:
             self.xml_state, 'target_dir', 'root_dir'
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_create_unknown_archive_type(self):
         xml_state = mock.Mock()
         xml_state.get_build_type_name = mock.Mock(
@@ -75,3 +78,6 @@ class TestArchiveBuilder:
 
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()

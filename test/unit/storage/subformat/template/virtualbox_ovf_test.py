@@ -6,9 +6,11 @@ from kiwi.storage.subformat.template.virtualbox_ovf import (
 
 
 class TestVirtualboxOvfTemplate:
-
     def setup(self):
         self.ovf_template = VirtualboxOvfTemplate()
+
+    def setup_method(self, cls):
+        self.setup()
 
     def test_ovf_parameters(self):
         args = {

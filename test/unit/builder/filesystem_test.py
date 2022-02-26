@@ -15,7 +15,7 @@ from kiwi.builder.filesystem import FileSystemBuilder
 
 class TestFileSystemBuilder:
     @patch('kiwi.builder.filesystem.FileSystemSetup')
-    def setup(self, mock_FileSystemBuilder, mock_fs_setup):
+    def setup(self, mock_fs_setup):
         Defaults.set_platform_name('x86_64')
         self.loop_provider = Mock()
         self.loop_provider.get_device = Mock(
@@ -65,6 +65,10 @@ class TestFileSystemBuilder:
         kiwi.builder.filesystem.SystemSetup = Mock(
             return_value=self.setup
         )
+
+    @patch('kiwi.builder.filesystem.FileSystemSetup')
+    def setup_method(self, cls, mock_fs_setup):
+        self.setup()
 
     def test_create_unknown_filesystem(self):
         self.xml_state.get_build_type_name = Mock(
@@ -163,3 +167,6 @@ class TestFileSystemBuilder:
 
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()

@@ -7,6 +7,9 @@ class TestBlockID:
     def setup(self):
         self.blkid = BlockID('device')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.utils.block.Command.run')
     def test_setup_with_uuid_format(self, mock_command):
         BlockID('UUID=uuid')

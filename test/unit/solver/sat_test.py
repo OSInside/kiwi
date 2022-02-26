@@ -22,7 +22,7 @@ class TestSat:
         self._caplog = caplog
 
     @patch('importlib.import_module')
-    def setup(self, mock_Sat, mock_import_module):
+    def setup(self, mock_import_module):
         self.sat = Sat()
         self.solver = MagicMock()
         self.transaction = Mock()
@@ -43,6 +43,10 @@ class TestSat:
         self.solv = mock_import_module.return_value
         self.sat.pool.setarch.assert_called_once_with()
         self.sat.pool.setarch.reset_mock()
+
+    @patch('importlib.import_module')
+    def setup_method(self, cls, mock_import_module):
+        self.setup()
 
     @patch('importlib.import_module')
     def test_setup_no_sat_plugin(self, mock_import_module):

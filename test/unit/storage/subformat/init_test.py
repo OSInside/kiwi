@@ -13,6 +13,9 @@ class TestDiskFormat:
         self.xml_state = Mock()
         self.xml_state.get_build_type_format_options.return_value = {}
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_format_not_implemented(self):
         with raises(KiwiDiskFormatSetupError):
             DiskFormat.new('foo', self.xml_state, 'root_dir', 'target_dir')

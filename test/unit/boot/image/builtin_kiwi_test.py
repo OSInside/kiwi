@@ -20,9 +20,7 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.Temporary')
     @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
     @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
-    def setup(
-        self, mock_BootImageKiwi, mock_boot_path, mock_exists, mock_Temporary
-    ):
+    def setup(self, mock_boot_path, mock_exists, mock_Temporary):
         mock_Temporary.return_value.new_dir.return_value.name = \
             'boot-root-directory'
         mock_boot_path.return_value = '../data'
@@ -53,6 +51,12 @@ class TestBootImageKiwi:
         self.boot_image = BootImageKiwi(
             self.xml_state, 'some-target-dir'
         )
+
+    @patch('kiwi.boot.image.builtin_kiwi.Temporary')
+    @patch('kiwi.boot.image.builtin_kiwi.os.path.exists')
+    @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
+    def setup_method(self, cls, mock_boot_path, mock_exists, mock_Temporary):
+        self.setup()
 
     def test_include_file(self):
         # is a nop for builtin kiwi initrd and does nothing
@@ -192,3 +196,6 @@ class TestBootImageKiwi:
 
     def teardown(self):
         sys.argv = argv_kiwi_tests
+
+    def teardown_method(self, cls):
+        self.teardown()

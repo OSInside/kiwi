@@ -17,6 +17,9 @@ class TestRuntimeConfig:
     def setup(self):
         Defaults.set_custom_runtime_config_file(None)
 
+    def setup_method(self, cls):
+        self.setup()
+
     @fixture(autouse=True)
     def inject_fixtures(self, caplog):
         self._caplog = caplog

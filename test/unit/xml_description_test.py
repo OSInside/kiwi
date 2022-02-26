@@ -144,6 +144,9 @@ class TestSchema:
             test_xml_extension_invalid_file.name
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_load_schema_from_xml_content(self):
         schema = etree.parse('../../kiwi/schema/kiwi.rng')
         lookup = '{http://relaxng.org/ns/structure/1.0}attribute'

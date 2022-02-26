@@ -107,6 +107,9 @@ class TestDiskSetup:
             XMLState(description.load()), 'root_dir'
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_need_boot_partition_on_request(self):
         self._init_bootpart_check()
         self.setup.bootpart_requested = True

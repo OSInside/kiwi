@@ -53,6 +53,9 @@ class TestXMLState:
         self.bootloader.get_console.return_value = 'some-console'
         self.bootloader.get_serial_line.return_value = 'some-serial'
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_description_section(self):
         description = self.state.get_description_section()
         assert description.author == 'Marcus'

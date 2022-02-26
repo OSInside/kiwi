@@ -24,7 +24,7 @@ class TestVolumeManagerBtrfs:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_VolumeManagerBtrfs, mock_path):
+    def setup(self, mock_path):
         self.volumes = [
             volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
@@ -60,6 +60,10 @@ class TestVolumeManagerBtrfs:
         self.volume_manager = VolumeManagerBtrfs(
             self.device_map, 'root_dir', self.volumes
         )
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
 
     def test_post_init(self):
         self.volume_manager.post_init({'some-arg': 'some-val'})

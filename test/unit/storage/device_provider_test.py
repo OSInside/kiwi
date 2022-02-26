@@ -12,6 +12,9 @@ class TestDeviceProvider:
     def setup(self):
         self.provider = DeviceProvider()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_device(self):
         with raises(KiwiDeviceProviderError):
             self.provider.get_device()

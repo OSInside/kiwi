@@ -84,6 +84,9 @@ class TestBootLoaderInstallGrub2:
             'root_dir', device_provider, self.custom_args
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     def test_post_init_ppc_no_prep_device(self, mock_grub_path):
         self.bootloader.arch = 'ppc64'

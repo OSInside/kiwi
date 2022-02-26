@@ -16,7 +16,7 @@ class TestPartitionerDasd:
 
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.Temporary.new_file')
-    def setup(self, mock_PartitionerDasd, mock_temp, mock_command):
+    def setup(self, mock_temp, mock_command):
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
 
@@ -28,6 +28,11 @@ class TestPartitionerDasd:
         )
 
         self.partitioner = PartitionerDasd(disk_provider)
+
+    @patch('kiwi.partitioner.dasd.Command.run')
+    @patch('kiwi.partitioner.dasd.Temporary.new_file')
+    def setup_method(self, cls, mock_temp, mock_command):
+        self.setup()
 
     @patch('kiwi.partitioner.dasd.Command.run')
     @patch('kiwi.partitioner.dasd.Temporary.new_file')

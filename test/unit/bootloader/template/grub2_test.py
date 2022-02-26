@@ -5,6 +5,9 @@ class TestBootLoaderTemplateGrub2:
     def setup(self):
         self.grub2 = BootLoaderTemplateGrub2()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_get_multiboot_install_template(self):
         assert self.grub2.get_multiboot_install_template().substitute(
             search_params='--fs-uuid --set=root 0815',

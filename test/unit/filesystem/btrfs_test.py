@@ -7,7 +7,7 @@ from kiwi.filesystem.btrfs import FileSystemBtrfs
 
 class TestFileSystemBtrfs:
     @patch('os.path.exists')
-    def setup(self, mock_FileSystemBtrfs, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
         provider = mock.Mock()
         provider.get_device = mock.Mock(
@@ -17,6 +17,10 @@ class TestFileSystemBtrfs:
         self.btrfs.setup_mountpoint = mock.Mock(
             return_value='some-mount-point'
         )
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
 
     @patch('kiwi.filesystem.btrfs.Command.run')
     def test_create_on_device(self, mock_command):

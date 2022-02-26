@@ -12,7 +12,7 @@ from kiwi.exceptions import KiwiFileNotFound
 
 class TestChecksum:
     @patch('os.path.exists')
-    def setup(self, mock_Checksum, mock_exists):
+    def setup(self, mock_exists):
         self.ascii = encoding.getregentry().name
         read_results = [bytes(b''), bytes(b'data'), bytes(b''), bytes(b'data')]
 
@@ -25,6 +25,10 @@ class TestChecksum:
 
         mock_exists.return_value = True
         self.checksum = Checksum('some-file')
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
 
     def test_checksum_file_not_found(self):
         with raises(KiwiFileNotFound):

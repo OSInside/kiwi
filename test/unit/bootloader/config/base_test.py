@@ -30,6 +30,9 @@ class TestBootLoaderConfigBase:
             self.state, 'root_dir'
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_write(self):
         with raises(NotImplementedError):
             self.bootloader.write()

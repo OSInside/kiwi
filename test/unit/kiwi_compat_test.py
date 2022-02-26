@@ -11,6 +11,9 @@ class TestKiwiCompat:
     def teardown(self):
         sys.argv = argv_kiwi_tests
 
+    def teardown_method(self, cls):
+        self.teardown()
+
     @patch('logging.error')
     def test_compat_mode_invalid_arguments(self, mock_log_error):
         sys.argv = [

@@ -9,6 +9,9 @@ class TestSystemSize:
     def setup(self):
         self.size = SystemSize('directory')
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_customize_ext(self):
         self.size.accumulate_files = mock.Mock(
             return_value=10000

@@ -10,13 +10,17 @@ from kiwi.exceptions import KiwiMappedDeviceError
 
 class TestMappedDevice:
     @patch('os.path.exists')
-    def setup(self, mock_MappedDevice, mock_path):
+    def setup(self, mock_path):
         mock_path.return_value = True
         self.device_provider = Mock()
         self.device_provider.is_loop = Mock()
         self.device = MappedDevice(
             '/dev/foo', self.device_provider
         )
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
 
     @patch('os.path.exists')
     def test_device_not_existingr(self, mock_path):

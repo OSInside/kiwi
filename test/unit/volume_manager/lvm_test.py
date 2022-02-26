@@ -19,7 +19,7 @@ class TestVolumeManagerLVM:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_VolumeManagerLVM, mock_path):
+    def setup(self, mock_path):
         self.volumes = [
             volume_type(
                 name='LVRoot', size='freespace:100', realpath='/',
@@ -62,6 +62,10 @@ class TestVolumeManagerLVM:
             {'some-arg': 'some-val', 'fs_mount_options': ['a,b,c']}
         )
         assert self.volume_manager.mount_options == 'a,b,c'
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
 
     def test_post_init_custom_args(self):
         self.volume_manager.post_init({'some-arg': 'some-val'})

@@ -17,8 +17,10 @@ from kiwi.exceptions import KiwiUriOpenError
 class TestSolverRepositoryBase:
     def setup(self):
         self.uri = mock.Mock()
-
         self.solver = SolverRepositoryBase(self.uri)
+
+    def setup_method(self, cls):
+        self.setup()
 
     @patch.object(SolverRepositoryBase, '_get_repomd_xml')
     @patch.object(SolverRepositoryBase, '_get_deb_packages')

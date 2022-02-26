@@ -15,6 +15,9 @@ class TestDataSync:
     def setup(self):
         self.sync = DataSync('source_dir', 'target_dir')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.utils.sync.Command.run')
     @patch('kiwi.utils.sync.DataSync.target_supports_extended_attributes')
     @patch('os.chmod')

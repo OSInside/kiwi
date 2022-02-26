@@ -7,7 +7,7 @@ from kiwi.filesystem.ext3 import FileSystemExt3
 
 class TestFileSystemExt3:
     @patch('os.path.exists')
-    def setup(self, mock_FileSystemExt3, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
         provider = mock.Mock()
         provider.get_device = mock.Mock(
@@ -17,6 +17,10 @@ class TestFileSystemExt3:
         self.ext3.setup_mountpoint = mock.Mock(
             return_value='some-mount-point'
         )
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
 
     @patch('kiwi.filesystem.ext3.Command.run')
     def test_create_on_device(self, mock_command):

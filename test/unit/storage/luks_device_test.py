@@ -25,6 +25,9 @@ class TestLuksDevice:
         )
         self.luks = LuksDevice(storage_device)
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_create_crypto_luks_unsupported_os_options(self):
         with raises(KiwiLuksSetupError):
             self.luks.create_crypto_luks('passphrase', 'some-os')

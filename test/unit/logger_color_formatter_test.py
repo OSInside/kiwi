@@ -8,6 +8,9 @@ class TestColorFormatter:
     def setup(self):
         self.color_formatter = ColorFormatter('%(levelname)s: %(message)s')
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('logging.Formatter.format')
     def test_format(self, mock_format):
         MyRecord = namedtuple(

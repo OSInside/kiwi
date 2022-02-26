@@ -12,6 +12,9 @@ class TestIsoToolsBase:
         Defaults.set_platform_name('x86_64')
         self.iso_tool = IsoToolsBase('source-dir')
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_create_iso(self):
         with raises(NotImplementedError):
             self.iso_tool.create_iso('filename')

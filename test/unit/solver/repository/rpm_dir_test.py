@@ -14,6 +14,9 @@ class TestSolverRepositoryRpmDir:
         self.uri = Mock()
         self.solver = SolverRepositoryRpmDir(self.uri)
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test__setup_repository_metadata_raises(self):
         with raises(KiwiRpmDirNotRemoteError):
             self.solver._setup_repository_metadata()

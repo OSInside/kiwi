@@ -56,6 +56,9 @@ class TestCommandProcess:
         self.flow_out = self.create_flow_method(self.outdata)
         self.flow_err = self.create_flow_method(self.errdata)
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.command.Command')
     def test_returncode(self, mock_command):
         command = mock.Mock()

@@ -16,7 +16,7 @@ from kiwi.exceptions import (
 
 class TestDiskFormatBase:
     @patch('kiwi.storage.subformat.base.DiskFormatBase.post_init')
-    def setup(self, mock_DiskFormatBase, mock_post_init):
+    def setup(self, mock_post_init):
         Defaults.set_platform_name('x86_64')
         xml_data = Mock()
         xml_data.get_name = Mock(
@@ -41,6 +41,10 @@ class TestDiskFormatBase:
             self.xml_state, 'root_dir', 'target_dir'
         )
         mock_post_init.assert_called_once_with({})
+
+    @patch('kiwi.storage.subformat.base.DiskFormatBase.post_init')
+    def setup_method(self, cls, mock_post_init):
+        self.setup()
 
     def test_create_image_format(self):
         with raises(NotImplementedError):

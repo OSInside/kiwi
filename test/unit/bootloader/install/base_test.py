@@ -10,6 +10,9 @@ class TestBootLoaderInstallBase:
             'root_dir', Mock()
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_install(self):
         with raises(NotImplementedError):
             self.bootloader.install()

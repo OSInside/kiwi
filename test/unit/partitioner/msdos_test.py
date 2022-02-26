@@ -24,6 +24,9 @@ class TestPartitionerMsDos:
         )
         self.partitioner = PartitionerMsDos(disk_provider)
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.Temporary.new_file')

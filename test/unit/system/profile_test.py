@@ -16,6 +16,9 @@ class TestProfile:
             XMLState(description.load())
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.path.Path.which')
     def test_create(self, mock_which):
         mock_which.return_value = 'cp'

@@ -12,7 +12,7 @@ from kiwi.exceptions import KiwiContainerBuilderError
 
 class TestContainerBuilder:
     @patch('os.path.exists')
-    def setup(self, mock_ContainerBuilder, mock_exists):
+    def setup(self, mock_exists):
         Defaults.set_platform_name('x86_64')
         self.runtime_config = mock.Mock()
         self.runtime_config.get_max_size_constraint = mock.Mock(
@@ -61,6 +61,10 @@ class TestContainerBuilder:
             self.xml_state, 'target_dir', 'root_dir'
         )
         self.container.result = mock.Mock()
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
 
     def test_init_derived(self):
         assert self.container.base_image == 'root_dir/image/imported_root'

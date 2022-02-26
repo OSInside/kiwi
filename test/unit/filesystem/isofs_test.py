@@ -12,9 +12,13 @@ class TestFileSystemIsoFs:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_FileSystemIsoFs, mock_exists):
+    def setup(self, mock_exists):
         mock_exists.return_value = True
         self.isofs = FileSystemIsoFs(mock.Mock(), 'root_dir')
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_exists):
+        self.setup()
 
     def test_post_init(self):
         self.isofs.post_init({'some_args': 'data'})

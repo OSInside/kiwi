@@ -18,7 +18,7 @@ class TestRootImportOCI:
         self._caplog = caplog
 
     @patch('os.path.exists')
-    def setup(self, mock_RootImportOCI, mock_path):
+    def setup(self, mock_path):
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.oci_import = RootImportOCI(
@@ -26,6 +26,10 @@ class TestRootImportOCI:
                 {'archive_transport': 'oci-archive'}
             )
         assert self.oci_import.image_file == '/image.tar'
+
+    @patch('os.path.exists')
+    def setup_method(self, cls, mock_path):
+        self.setup()
 
     @patch('os.path.exists')
     def test_failed_init(self, mock_path):

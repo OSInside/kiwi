@@ -10,6 +10,9 @@ class TestHelp:
     def setup(self):
         self.help = Help()
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_show(self):
         with raises(KiwiHelpNoCommandGiven):
             self.help.show(None)
