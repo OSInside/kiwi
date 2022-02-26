@@ -48,7 +48,9 @@ class TestRuntimeConfig:
             RuntimeConfig(reread=True)
             m_open.assert_called_once_with('/etc/kiwi.yml', 'r')
 
-    def test_config_sections_from_home_base_config(self):
+    @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
+    def test_config_sections_from_home_base_config(self, mock_is_buildservice_worker):
+        mock_is_buildservice_worker.return_value = False
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/ok'}):
             runtime_config = RuntimeConfig(reread=True)
 

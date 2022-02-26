@@ -18,7 +18,12 @@ class TestContainerImageOCI:
         self._caplog = caplog
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
-    def setup(self, mock_ContainerImageOCI, mock_cmd_caps):
+    @patch('kiwi.defaults.Defaults.is_buildservice_worker')
+    def setup(
+        self, mock_ContainerImageOCI, mock_is_buildservice_worker,
+        mock_cmd_caps
+    ):
+        mock_is_buildservice_worker.return_value = False
         mock_cmd_caps.return_value = True
         self.runtime_config = mock.Mock()
         self.runtime_config.get_container_compression = mock.Mock(
@@ -35,7 +40,9 @@ class TestContainerImageOCI:
         )
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
-    def test_init_custom_args(self, mock_cmd_caps):
+    @patch('kiwi.defaults.Defaults.is_buildservice_worker')
+    def test_init_custom_args(self, mock_is_buildservice_worker, mock_cmd_caps):
+        mock_is_buildservice_worker.return_value = False
         mock_cmd_caps.return_value = True
         custom_args = {
             'container_name': 'foo',
@@ -57,7 +64,11 @@ class TestContainerImageOCI:
         assert container.oci_config == custom_args
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
-    def test_init_without_custom_args(self, mock_cmd_caps):
+    @patch('kiwi.defaults.Defaults.is_buildservice_worker')
+    def test_init_without_custom_args(
+        self, mock_is_buildservice_worker, mock_cmd_caps
+    ):
+        mock_is_buildservice_worker.return_value = False
         mock_cmd_caps.return_value = True
         container = ContainerImageOCI('root_dir', 'oci-archive')
         assert container.oci_config == {
