@@ -1553,6 +1553,21 @@ div {
             sch:param [ name = "attr" value = "overlayroot_write_partition" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.overlayroot_readonly_partsize.attribute =
+        ## Specifies the size in MB of the partition which stores the
+        ## squashfs compressed read-only root filesystem in an
+        ## overlayroot setup. If not specified kiwi calculates
+        ## the needed size by a preliminary creation of the
+        ## squashfs compressed file. However this is only accurate
+        ## if no changes to the root filesystem data happens
+        ## after this calculation, which cannot be guaranteed as
+        ## there is at least one optional script hook which is
+        ## allowed and applied after the calculation.
+        attribute overlayroot_readonly_partsize { xsd:nonNegativeInteger }
+        >> sch:pattern [ id = "overlayroot_readonly_partsize" is-a = "image_type"
+            sch:param [ name = "attr" value = "overlayroot_readonly_partsize" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.firmware.attribute =
         ## Specifies the boot firmware of the system. Most systems
         ## uses a standard BIOS but there are also other firmware
@@ -1952,6 +1967,7 @@ div {
         k.type.mdraid.attribute? &
         k.type.overlayroot.attribute? &
         k.type.overlayroot_write_partition.attribute? &
+        k.type.overlayroot_readonly_partsize.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &

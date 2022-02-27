@@ -91,6 +91,8 @@ class DiskBuilder:
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.root_filesystem_has_write_partition = \
             xml_state.build_type.get_overlayroot_write_partition()
+        self.root_filesystem_read_only_partsize = \
+            xml_state.build_type.get_overlayroot_readonly_partsize()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
         self.custom_root_creation_args = xml_state.get_fs_create_option_list()
         self.build_type_name = xml_state.get_build_type_name()
@@ -817,21 +819,23 @@ class DiskBuilder:
 
         if self.root_filesystem_is_overlay:
             log.info('--> creating readonly root partition')
-            squashed_root_file = Temporary().new_file()
-            squashed_root = FileSystemSquashFs(
-                device_provider=DeviceProvider(), root_dir=self.root_dir,
-                custom_args={
-                    'compression':
-                        self.xml_state.build_type.get_squashfscompression()
-                }
-            )
-            squashed_root.create_on_file(
-                filename=squashed_root_file.name,
-                exclude=[Defaults.get_shared_cache_location()]
-            )
-            squashed_rootfs_mbsize = int(
-                os.path.getsize(squashed_root_file.name) / 1048576
-            ) + Defaults.get_min_partition_mbytes()
+            squashed_rootfs_mbsize = self.root_filesystem_read_only_partsize
+            if not self.root_filesystem_read_only_partsize:
+                squashed_root_file = Temporary().new_file()
+                squashed_root = FileSystemSquashFs(
+                    device_provider=DeviceProvider(), root_dir=self.root_dir,
+                    custom_args={
+                        'compression':
+                            self.xml_state.build_type.get_squashfscompression()
+                    }
+                )
+                squashed_root.create_on_file(
+                    filename=squashed_root_file.name,
+                    exclude=[Defaults.get_shared_cache_location()]
+                )
+                squashed_rootfs_mbsize = int(
+                    os.path.getsize(squashed_root_file.name) / 1048576
+                ) + Defaults.get_min_partition_mbytes()
             disk.create_root_readonly_partition(
                 squashed_rootfs_mbsize
             )
@@ -1156,11 +1160,21 @@ class DiskBuilder:
                 filename=squashed_root_file.name,
                 exclude=self._get_exclude_list_for_root_data_sync(device_map)
             )
+            readonly_target = device_map['readonly'].get_device()
+            readonly_target_bytesize = device_map['readonly'].get_byte_size(
+                readonly_target
+            )
+            log.info(
+                '--> Dumping rootfs file({0} bytes) -> to {1}({2} bytes)'.format(
+                    os.path.getsize(squashed_root_file.name),
+                    readonly_target, readonly_target_bytesize
+                )
+            )
             Command.run(
                 [
                     'dd',
                     'if=%s' % squashed_root_file.name,
-                    'of=%s' % device_map['readonly'].get_device()
+                    'of=%s' % readonly_target
                 ]
             )
         else:
