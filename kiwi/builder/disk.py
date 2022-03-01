@@ -378,23 +378,25 @@ class DiskBuilder:
             device_map['root'] = volume_manager.get_device().get('root')
             device_map['swap'] = volume_manager.get_device().get('swap')
         else:
-            log.info(
-                'Creating root(%s) filesystem on %s',
-                self.requested_filesystem, device_map['root'].get_device()
-            )
-            filesystem_custom_parameters = {
-                'mount_options': self.custom_root_mount_args,
-                'create_options': self.custom_root_creation_args
-            }
-            filesystem = FileSystem.new(
-                self.requested_filesystem, device_map['root'],
-                self.root_dir + '/',
-                filesystem_custom_parameters
-            )
-            filesystem.create_on_device(
-                label=self.disk_setup.get_root_label()
-            )
-            system = filesystem
+            if not self.root_filesystem_is_overlay or \
+               self.root_filesystem_has_write_partition is not False:
+                log.info(
+                    'Creating root(%s) filesystem on %s',
+                    self.requested_filesystem, device_map['root'].get_device()
+                )
+                filesystem_custom_parameters = {
+                    'mount_options': self.custom_root_mount_args,
+                    'create_options': self.custom_root_creation_args
+                }
+                filesystem = FileSystem.new(
+                    self.requested_filesystem, device_map['root'],
+                    self.root_dir + '/',
+                    filesystem_custom_parameters
+                )
+                filesystem.create_on_device(
+                    label=self.disk_setup.get_root_label()
+                )
+                system = filesystem
 
         # create swap on current root device if requested
         if self.swap_mbytes:
