@@ -572,6 +572,51 @@ overlayroot="true|false"
   will not have any effect because the write partition will be
   resized on first boot to the available disk space.
 
+overlayroot_verity_blocks="number|all"
+  For the `oem` type only, specifies to create a dm verity hash
+  from the number of given blocks (or all) placed at the end of the squashfs
+  compressed read-only root filesystem. For later verification of the device,
+  the credentials information produced by `veritysetup` from the
+  cryptsetup tools, is created as a file in `/boot/overlayroot.verity`
+  and is stored as such into the image by default. The verification
+  file contents looks like the following example:
+
+  .. code:: bash
+
+     Hash type:         1
+     Data blocks:       10
+     Data block size:   4096
+     Hash block size:   4096
+     Hash algorithm:    sha256
+     Salt:              -SECRET-
+     Root hash:         -SECRET-
+     PARTUUID:          56d4ec24-393b-4ef5-af6b-6a8e1130b2c6
+     Root hashoffset:   226885632
+     Superblock:        --no-superblock
+
+  For verification of the device using the above information the
+  following `veritysetup` call is required
+
+  .. code:: bash
+
+     veritysetup verify \
+         /dev/matching[PARTUUID] /dev/matching[PARTUUID] \
+         "Value of Root hash:" \
+         --debug \
+         --no-superblock \
+         --salt="Value of Salt:" \
+         --data-blocks="Value of Data Blocks:" \
+         --hash-offset="Value of Root hashoffset:"
+
+  .. note::
+
+     It is a responsibility of the author of the image description
+     how to handle the credentials file in the desired way. The
+     standard way of {kiwi} to place it in `/boot` is most probably
+     not appropriate. One option to handle the credentials data is
+     as part of a `disk.sh` script which would allow to access and
+     manage the information in a custom way.
+
 overlayroot_write_partition="true|false"
   For the `oem` type only, allows to specify if the extra read-write
   partition in an `overlayroot` setup should be created or not.
