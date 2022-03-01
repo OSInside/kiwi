@@ -54,7 +54,8 @@ disk.sh
   and not the root tree as with :file:`config.sh` and :file:`images.sh`.
   The script :file:`disk.sh` is usually used to apply changes at parts of
   the system that are not an element of the file based root tree such as
-  the partition table, the bootloader or filesystem attributes.
+  the partition table, the contents of the final initrd, the bootloader,
+  filesystem attributes and more.
 
 {kiwi} executes scripts via the operating system if their executable
 bit is set (in that case a shebang is mandatory) otherwise they will be

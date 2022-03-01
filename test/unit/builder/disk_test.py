@@ -286,9 +286,11 @@ class TestDiskBuilder:
     @patch('random.randrange')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.disk.ImageSystem')
     @patch('os.path.exists')
     def test_create_disk_standard_root_with_kiwi_initrd(
-        self, mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs
+        self, mock_path, mock_ImageSystem, mock_grub_dir,
+        mock_command, mock_rand, mock_fs
     ):
         mock_path.return_value = True
         mock_rand.return_value = 15
@@ -415,8 +417,9 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     @patch('kiwi.builder.disk.SystemSetup')
+    @patch('kiwi.builder.disk.ImageSystem')
     def test_create_disk_standard_root_with_dracut_initrd(
-        self, mock_SystemSetup, mock_path, mock_grub_dir,
+        self, mock_ImageSystem, mock_SystemSetup, mock_path, mock_grub_dir,
         mock_command, mock_rand, mock_fs
     ):
         self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
@@ -480,7 +483,6 @@ class TestDiskBuilder:
             call('pre_disk_sync.sh'),
             call('disk.sh')
         ]
-        disk_system.import_description.assert_called_once_with()
         disk_system.call_pre_disk_script.assert_called_once_with()
         disk_system.call_disk_script.assert_called_once_with()
         self.setup.call_edit_boot_config_script.assert_called_once_with(
@@ -593,9 +595,9 @@ class TestDiskBuilder:
         assert squashfs.create_on_file.call_args_list == [
             call(exclude=['var/cache/kiwi'], filename='kiwi-tempname'),
             call(exclude=[
-                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.profile', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi',
-                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
+                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*', 'image/*'
             ], filename='kiwi-tempname')
         ]
         self.disk.create_root_readonly_partition.assert_called_once_with(11)
@@ -789,9 +791,10 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.VolumeManager.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.disk.ImageSystem')
     @patch('os.path.exists')
     def test_create_disk_volume_managed_root(
-        self, mock_exists, mock_grub_dir, mock_command,
+        self, mock_exists, mock_ImageSystem, mock_grub_dir, mock_command,
         mock_volume_manager, mock_fs
     ):
         mock_exists.return_value = True
