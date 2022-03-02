@@ -25,6 +25,7 @@ from typing import (
 import kiwi.defaults as defaults
 
 from kiwi.utils.temporary import Temporary
+from kiwi.system.mount import ImageSystem
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.defaults import Defaults
 from kiwi.filesystem.base import FileSystemBase
@@ -378,23 +379,25 @@ class DiskBuilder:
             device_map['root'] = volume_manager.get_device().get('root')
             device_map['swap'] = volume_manager.get_device().get('swap')
         else:
-            log.info(
-                'Creating root(%s) filesystem on %s',
-                self.requested_filesystem, device_map['root'].get_device()
-            )
-            filesystem_custom_parameters = {
-                'mount_options': self.custom_root_mount_args,
-                'create_options': self.custom_root_creation_args
-            }
-            filesystem = FileSystem.new(
-                self.requested_filesystem, device_map['root'],
-                self.root_dir + '/',
-                filesystem_custom_parameters
-            )
-            filesystem.create_on_device(
-                label=self.disk_setup.get_root_label()
-            )
-            system = filesystem
+            if not self.root_filesystem_is_overlay or \
+               self.root_filesystem_has_write_partition is not False:
+                log.info(
+                    'Creating root(%s) filesystem on %s',
+                    self.requested_filesystem, device_map['root'].get_device()
+                )
+                filesystem_custom_parameters = {
+                    'mount_options': self.custom_root_mount_args,
+                    'create_options': self.custom_root_creation_args
+                }
+                filesystem = FileSystem.new(
+                    self.requested_filesystem, device_map['root'],
+                    self.root_dir + '/',
+                    filesystem_custom_parameters
+                )
+                filesystem.create_on_device(
+                    label=self.disk_setup.get_root_label()
+                )
+                system = filesystem
 
         # create swap on current root device if requested
         if self.swap_mbytes:
@@ -479,12 +482,18 @@ class DiskBuilder:
         if self.system_setup.script_exists(
             defaults.POST_DISK_SYNC_SCRIPT
         ):
-            disk_system = SystemSetup(
-                self.xml_state, system.get_mountpoint()
+            image_system = ImageSystem(
+                device_map, self.root_dir,
+                system.get_volumes() if self.volume_manager_name else {}
             )
-            disk_system.import_description()
-            disk_system.call_disk_script()
-            disk_system.cleanup()
+            image_system.mount()
+            disk_system = SystemSetup(
+                self.xml_state, image_system.mountpoint()
+            )
+            try:
+                disk_system.call_disk_script()
+            finally:
+                image_system.umount()
 
         # install boot loader
         self._install_bootloader(device_map, disk, system)
@@ -1156,16 +1165,23 @@ class DiskBuilder:
                         self.xml_state.build_type.get_squashfscompression()
                 }
             )
+            exclude_list = self._get_exclude_list_for_root_data_sync(device_map)
+            # To allow running custom scripts in a read-only root
+            # it's required to keep the /image mountpoint directory
+            # such that it can be bind mounted from the unpacked
+            # root tree
+            exclude_list.remove('image')
+            exclude_list.append('image/*')
             squashed_root.create_on_file(
                 filename=squashed_root_file.name,
-                exclude=self._get_exclude_list_for_root_data_sync(device_map)
+                exclude=exclude_list
             )
             readonly_target = device_map['readonly'].get_device()
             readonly_target_bytesize = device_map['readonly'].get_byte_size(
                 readonly_target
             )
             log.info(
-                '--> Dumping rootfs file({0} bytes) -> to {1}({2} bytes)'.format(
+                '--> Dumping rootfs file({0} bytes) -> {1}({2} bytes)'.format(
                     os.path.getsize(squashed_root_file.name),
                     readonly_target, readonly_target_bytesize
                 )

@@ -50,6 +50,7 @@ class MountManager:
             ).new_dir()
             self.mountpoint = self.mountpoint_tempdir.name
         else:
+            Path.create(mountpoint)
             self.mountpoint = mountpoint
 
     def bind_mount(self) -> None:
@@ -59,6 +60,15 @@ class MountManager:
         if not self.is_mounted():
             Command.run(
                 ['mount', '-n', '--bind', self.device, self.mountpoint]
+            )
+
+    def tmpfs_mount(self) -> None:
+        """
+        tmpfs mount the device to the mountpoint
+        """
+        if not self.is_mounted():
+            Command.run(
+                ['mount', '-t', 'tmpfs', 'tmpfs', self.mountpoint]
             )
 
     def mount(self, options: List[str] = []) -> None:
