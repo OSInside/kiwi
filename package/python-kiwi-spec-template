@@ -187,7 +187,9 @@ Recommends:     gfxboot
 Requires:       grub2-efi-x64
 %endif
 %endif
+%if ! (0%{?debian} || 0%{?ubuntu})
 Requires:       grub2
+%endif
 %ifarch %arm aarch64
 %if 0%{?fedora} || 0%{?rhel}
 Requires:       uboot-tools
