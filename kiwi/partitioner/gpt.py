@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
+from typing import List
 
 # project
 from kiwi.command import Command
@@ -32,7 +33,7 @@ class PartitionerGpt(PartitionerBase):
     """
     **Implements GPT partition setup**
     """
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -49,7 +50,9 @@ class PartitionerGpt(PartitionerBase):
             't.prep': '4100'
         }
 
-    def create(self, name, mbsize, type_name, flags=None):
+    def create(
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = None
+    ) -> None:
         """
         Create GPT partition
 
@@ -84,7 +87,7 @@ class PartitionerGpt(PartitionerBase):
             for flag_name in flags:
                 self.set_flag(self.partition_id, flag_name)
 
-    def set_flag(self, partition_id, flag_name):
+    def set_flag(self, partition_id: int, flag_name: str) -> None:
         """
         Set GPT partition flag
 
@@ -99,14 +102,19 @@ class PartitionerGpt(PartitionerBase):
             Command.run(
                 [
                     'sgdisk', '-t',
-                    ':'.join([format(partition_id), self.flag_map[flag_name]]),
+                    ':'.join(
+                        [
+                            format(partition_id),
+                            format(self.flag_map[flag_name])
+                        ]
+                    ),
                     self.disk_device
                 ]
             )
         else:
             log.warning('Flag %s ignored on GPT', flag_name)
 
-    def set_hybrid_mbr(self):
+    def set_hybrid_mbr(self) -> None:
         """
         Turn partition table into hybrid GPT/MBR table
         """
@@ -130,7 +138,7 @@ class PartitionerGpt(PartitionerBase):
             ['sgdisk', '-h', ':'.join(partition_ids), self.disk_device]
         )
 
-    def set_mbr(self):
+    def set_mbr(self) -> None:
         """
         Turn partition table into MBR (msdos table)
         """
@@ -150,7 +158,7 @@ class PartitionerGpt(PartitionerBase):
             ['sgdisk', '-m', ':'.join(partition_ids), self.disk_device]
         )
 
-    def resize_table(self, entries=128):
+    def resize_table(self, entries: int = 128) -> None:
         """
         Resize partition table
 

@@ -46,15 +46,19 @@ log = logging.getLogger('kiwi')
 class Disk(DeviceProvider):
     """
     **Implements storage disk and partition table setup**
-
-    :param string table_type: Partition table type name
-    :param object storage_provider: Instance of class based on DeviceProvider
-    :param int start_sector: sector number
     """
     def __init__(
         self, table_type: str, storage_provider: DeviceProvider,
         start_sector: int = None
     ):
+        """
+        Construct a new Disk layout object
+
+        :param string table_type: Partition table type name
+        :param object storage_provider:
+            Instance of class based on DeviceProvider
+        :param int start_sector: sector number
+        """
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
         # the correct destructor order when the device should be released.

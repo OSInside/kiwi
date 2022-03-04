@@ -43,7 +43,7 @@ class Partitioner(metaclass=ABCMeta):
     @staticmethod
     def new(
         table_type: str, storage_provider: object,
-        start_sector: int=None  # noqa: E252
+        start_sector: int = None
     ):
         name_map = {
             'msdos': 'MsDos',

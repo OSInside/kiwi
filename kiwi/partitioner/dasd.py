@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
+from typing import List
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -29,7 +30,7 @@ class PartitionerDasd(PartitionerBase):
     """
     **Implements DASD partition setup**
     """
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -45,7 +46,9 @@ class PartitionerDasd(PartitionerBase):
             't.csm': None
         }
 
-    def create(self, name, mbsize, type_name, flags=None):
+    def create(
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = None
+    ) -> None:
         """
         Create DASD partition
 
@@ -80,7 +83,7 @@ class PartitionerDasd(PartitionerBase):
             # that point.
             log.debug('potential fdasd errors were ignored')
 
-    def resize_table(self, entries=None):
+    def resize_table(self, entries: int = None) -> None:
         """
         Resize partition table
 

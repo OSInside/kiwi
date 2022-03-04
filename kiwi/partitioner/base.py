@@ -15,25 +15,36 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from typing import (
+    List, Dict, Union
+)
+
+# project
+from kiwi.storage.device_provider import DeviceProvider
 
 
 class PartitionerBase:
     """
     **Base class for partitioners**
-
-    :param object disk_provider: Instance of DeviceProvider
-    :param int start_sector: sector number
     """
-    def __init__(self, disk_provider, start_sector=None):
+    def __init__(
+        self, disk_provider: DeviceProvider, start_sector: int = None
+    ) -> None:
+        """
+        Base class constructor for partitioners
+
+        :param object disk_provider: Instance of DeviceProvider
+        :param int start_sector: sector number
+        """
         self.disk_device = disk_provider.get_device()
         self.partition_id = 0
         self.start_sector = start_sector
 
-        self.flag_map = None
+        self.flag_map: Dict[str, Union[bool, str, None]] = {}
 
         self.post_init()
 
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -41,7 +52,7 @@ class PartitionerBase:
         """
         pass
 
-    def get_id(self):
+    def get_id(self) -> int:
         """
         Current partition number
 
@@ -53,7 +64,9 @@ class PartitionerBase:
         """
         return self.partition_id
 
-    def create(self, name, mbsize, type_name, flags=None):
+    def create(
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = []
+    ):
         """
         Create partition
 
@@ -66,7 +79,7 @@ class PartitionerBase:
         """
         raise NotImplementedError
 
-    def set_flag(self, partition_id, flag_name):
+    def set_flag(self, partition_id: int, flag_name: str):
         """
         Set partition flag
 
@@ -93,7 +106,7 @@ class PartitionerBase:
         """
         raise NotImplementedError
 
-    def resize_table(self, entries=None):
+    def resize_table(self, entries: int = 0):
         """
         Resize partition table
 

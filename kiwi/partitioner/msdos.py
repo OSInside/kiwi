@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
+from typing import List
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -33,7 +34,7 @@ class PartitionerMsDos(PartitionerBase):
     """
     **Implement old style msdos partition setup**
     """
-    def post_init(self):
+    def post_init(self) -> None:
         """
         Post initialization method
 
@@ -50,7 +51,9 @@ class PartitionerMsDos(PartitionerBase):
             't.prep': '41'
         }
 
-    def create(self, name, mbsize, type_name, flags=None):
+    def create(
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = None
+    ) -> None:
         """
         Create msdos partition
 
@@ -97,7 +100,7 @@ class PartitionerMsDos(PartitionerBase):
             for flag_name in flags:
                 self.set_flag(self.partition_id, flag_name)
 
-    def set_flag(self, partition_id, flag_name):
+    def set_flag(self, partition_id: int, flag_name: str) -> None:
         """
         Set msdos partition flag
 
@@ -126,7 +129,7 @@ class PartitionerMsDos(PartitionerBase):
         else:
             log.warning('Flag %s ignored on msdos', flag_name)
 
-    def resize_table(self, entries=None):
+    def resize_table(self, entries: int = None) -> None:
         """
         Resize partition table
 
