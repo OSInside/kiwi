@@ -49,7 +49,7 @@ class Disk(DeviceProvider):
     """
     def __init__(
         self, table_type: str, storage_provider: DeviceProvider,
-        start_sector: int = None
+        start_sector: int = None, extended_layout: bool = False
     ):
         """
         Construct a new Disk layout object
@@ -58,6 +58,12 @@ class Disk(DeviceProvider):
         :param object storage_provider:
             Instance of class based on DeviceProvider
         :param int start_sector: sector number
+        :param bool extended_layout:
+            If set to true and on msdos table type when creating
+            more than 4 partitions, this will cause the fourth
+            partition to be an extended partition and all following
+            partitions will be placed as logical partitions inside
+            of that extended partition
         """
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
@@ -85,7 +91,7 @@ class Disk(DeviceProvider):
         self.is_mapped = False
 
         self.partitioner = Partitioner.new(
-            table_type, storage_provider, start_sector
+            table_type, storage_provider, start_sector, extended_layout
         )
 
         self.table_type = table_type
@@ -404,6 +410,9 @@ class Disk(DeviceProvider):
             try:
                 for device_node in self.partition_map.values():
                     Command.run(['dmsetup', 'remove', device_node])
+                Command.run(
+                    ['kpartx', '-d', self.storage_provider.get_device()]
+                )
             except Exception:
                 log.warning(
                     'cleanup of partition device maps failed, %s still busy',

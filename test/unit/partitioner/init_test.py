@@ -28,23 +28,23 @@ class TestPartitioner:
     def test_partitioner_gpt(self, mock_gpt):
         storage_provider = Mock()
         Partitioner.new('gpt', storage_provider)
-        mock_gpt.assert_called_once_with(storage_provider, None)
+        mock_gpt.assert_called_once_with(storage_provider, None, False)
 
     @patch('kiwi.partitioner.msdos.PartitionerMsDos')
     def test_partitioner_msdos(self, mock_dos):
         storage_provider = Mock()
         Partitioner.new('msdos', storage_provider)
-        mock_dos.assert_called_once_with(storage_provider, None)
+        mock_dos.assert_called_once_with(storage_provider, None, False)
 
     @patch('kiwi.partitioner.dasd.PartitionerDasd')
     def test_partitioner_dasd(self, mock_dasd):
         storage_provider = Mock()
         Partitioner.new('dasd', storage_provider)
-        mock_dasd.assert_called_once_with(storage_provider, None)
+        mock_dasd.assert_called_once_with(storage_provider, None, False)
 
     @patch('kiwi.partitioner.dasd.PartitionerDasd')
     def test_partitioner_dasd_with_custom_start_sector(self, mock_dasd):
         storage_provider = Mock()
         with self._caplog.at_level(logging.WARNING):
             Partitioner.new('dasd', storage_provider, 4096)
-            mock_dasd.assert_called_once_with(storage_provider, None)
+            mock_dasd.assert_called_once_with(storage_provider, None, False)

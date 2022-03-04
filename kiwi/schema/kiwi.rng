@@ -2119,6 +2119,22 @@ size is set to 20 MB</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.dosparttable_extended_layout.attribute">
+      <attribute name="dosparttable_extended_layout">
+        <a:documentation>Specify to make use of logical partitions inside of an
+extended one. If set to true and if the msdos table type
+is active, this will cause the fourth partition to be an
+extended partition and all following partitions will be
+placed as logical partitions inside of that extended
+partition. This setting is useful if more than 4 primary
+partitions needs to be created in an msdos table</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="dosparttable_extended_layout" is-a="image_type">
+        <sch:param name="attr" value="dosparttable_extended_layout"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.efiparttable.attribute">
       <attribute name="efiparttable">
         <a:documentation>For images with an EFI firmware specifies the partition
@@ -2821,6 +2837,9 @@ kiwi-ng result bundle ...</a:documentation>
           <ref name="k.type.efiparttable.attribute"/>
         </optional>
         <optional>
+          <ref name="k.type.dosparttable_extended_layout.attribute"/>
+        </optional>
+        <optional>
           <ref name="k.type.bootprofile.attribute"/>
         </optional>
         <optional>
@@ -3393,8 +3412,12 @@ Allowed values are: t.linux</a:documentation>
         <optional>
           <ref name="k.partition.partition_type.attribute"/>
         </optional>
-        <ref name="k.partition.mountpoint.attribute"/>
-        <ref name="k.partition.filesystem.attribute"/>
+        <optional>
+          <ref name="k.partition.mountpoint.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.filesystem.attribute"/>
+        </optional>
       </interleave>
     </define>
     <define name="k.partition">

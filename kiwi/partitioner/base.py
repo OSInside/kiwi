@@ -28,17 +28,25 @@ class PartitionerBase:
     **Base class for partitioners**
     """
     def __init__(
-        self, disk_provider: DeviceProvider, start_sector: int = None
+        self, disk_provider: DeviceProvider, start_sector: int = None,
+        extended_layout: bool = False
     ) -> None:
         """
         Base class constructor for partitioners
 
         :param object disk_provider: Instance of DeviceProvider
         :param int start_sector: sector number
+        :param bool extended_layout:
+            If set to true and on msdos table type when creating
+            more than 4 partitions, this will cause the fourth
+            partition to be an extended partition and all following
+            partitions will be placed as logical partitions inside
+            of that extended partition
         """
         self.disk_device = disk_provider.get_device()
         self.partition_id = 0
         self.start_sector = start_sector
+        self.extended_layout = extended_layout
 
         self.flag_map: Dict[str, Union[bool, str, None]] = {}
 

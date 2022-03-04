@@ -97,6 +97,8 @@ class DiskBuilder:
             xml_state.build_type.get_overlayroot_readonly_partsize()
         self.root_filesystem_verity_blocks = \
             xml_state.build_type.get_overlayroot_verity_blocks()
+        self.dosparttable_extended_layout = \
+            xml_state.build_type.get_dosparttable_extended_layout()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
         self.custom_root_creation_args = xml_state.get_fs_create_option_list()
         self.build_type_name = xml_state.get_build_type_name()
@@ -254,7 +256,8 @@ class DiskBuilder:
 
         disk = Disk(
             self.firmware.get_partition_table_type(), loop_provider,
-            self.xml_state.get_disk_start_sector()
+            self.xml_state.get_disk_start_sector(),
+            extended_layout=bool(self.dosparttable_extended_layout)
         )
 
         # create the bootloader instance
@@ -677,7 +680,8 @@ class DiskBuilder:
             exclude_list.append('boot/efi/.*')
         if self.custom_partitions:
             for map_name in sorted(self.custom_partitions.keys()):
-                if map_name in device_map:
+                if map_name in device_map and \
+                   self.custom_partitions[map_name].mountpoint:
                     mountpoint = os.path.normpath(
                         self.custom_partitions[map_name].mountpoint
                     ).lstrip(os.sep)
@@ -698,15 +702,16 @@ class DiskBuilder:
             for map_name in sorted(custom_partitions.keys()):
                 if map_name in device_map:
                     ptable_entry = custom_partitions[map_name]
-                    filesystem = FileSystem.new(
-                        ptable_entry.filesystem,
-                        device_map[map_name],
-                        f'{self.root_dir}{ptable_entry.mountpoint}/'
-                    )
-                    filesystem.create_on_device(
-                        label=map_name.upper()
-                    )
-                    filesystem_list.append(filesystem)
+                    if ptable_entry.filesystem:
+                        filesystem = FileSystem.new(
+                            ptable_entry.filesystem,
+                            device_map[map_name],
+                            f'{self.root_dir}{ptable_entry.mountpoint}/'
+                        )
+                        filesystem.create_on_device(
+                            label=map_name.upper()
+                        )
+                        filesystem_list.append(filesystem)
         return filesystem_list
 
     def _build_spare_filesystem(self, device_map: Dict) -> Optional[FileSystemBase]:
@@ -1005,7 +1010,8 @@ class DiskBuilder:
             )
         if self.custom_partitions:
             for map_name in sorted(self.custom_partitions.keys()):
-                if device_map.get(map_name):
+                if device_map.get(map_name) and \
+                   self.custom_partitions[map_name].mountpoint:
                     self._add_fstab_entry(
                         device_map[map_name].get_device(),
                         self.custom_partitions[map_name].mountpoint

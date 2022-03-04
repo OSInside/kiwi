@@ -1,6 +1,6 @@
 import logging
 from mock import (
-    patch, mock_open
+    patch, mock_open, call
 )
 from pytest import (
     fixture, raises
@@ -268,7 +268,7 @@ class TestDisk:
         )
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor(self, mock_command):
+    def test_destructor_dm_cleanup_failed(self, mock_command):
         self.disk.is_mapped = True
         self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
         mock_command.side_effect = Exception
@@ -277,6 +277,17 @@ class TestDisk:
             mock_command.assert_called_once_with(
                 ['dmsetup', 'remove', '/dev/mapper/loop0p1']
             )
+        self.disk.is_mapped = False
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_destructor(self, mock_command):
+        self.disk.is_mapped = True
+        self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
+        self.disk.__del__()
+        assert mock_command.call_args_list == [
+            call(['dmsetup', 'remove', '/dev/mapper/loop0p1']),
+            call(['kpartx', '-d', '/dev/loop0'])
+        ]
         self.disk.is_mapped = False
 
     def test_get_public_partition_id_map(self):

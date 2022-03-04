@@ -1453,6 +1453,19 @@ div {
             sch:param [ name = "attr" value = "efipartsize" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.dosparttable_extended_layout.attribute =
+        ## Specify to make use of logical partitions inside of an
+        ## extended one. If set to true and if the msdos table type
+        ## is active, this will cause the fourth partition to be an
+        ## extended partition and all following partitions will be
+        ## placed as logical partitions inside of that extended
+        ## partition. This setting is useful if more than 4 primary
+        ## partitions needs to be created in an msdos table
+        attribute dosparttable_extended_layout { xsd:boolean }
+        >> sch:pattern [ id = "dosparttable_extended_layout" is-a = "image_type"
+            sch:param [ name = "attr" value = "dosparttable_extended_layout" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.efiparttable.attribute =
         ## For images with an EFI firmware specifies the partition
         ## table type to use. If not set defaults to gpt partition 
@@ -1950,6 +1963,7 @@ div {
         k.type.bootpartsize.attribute? &
         k.type.efipartsize.attribute? &
         k.type.efiparttable.attribute? &
+        k.type.dosparttable_extended_layout.attribute? &
         k.type.bootprofile.attribute? &
         k.type.btrfs_quota_groups.attribute? &
         k.type.btrfs_root_is_snapshot.attribute? &
@@ -2244,8 +2258,8 @@ div {
         k.partition.size.attribute &
         k.partition.partition_name.attribute? &
         k.partition.partition_type.attribute? &
-        k.partition.mountpoint.attribute &
-        k.partition.filesystem.attribute
+        k.partition.mountpoint.attribute? &
+        k.partition.filesystem.attribute?
     k.partition =
         ## Specify custom partition in the partition table
         element partition {
