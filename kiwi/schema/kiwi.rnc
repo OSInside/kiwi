@@ -29,6 +29,7 @@ safe-posix-short-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]{1,32}"}
 locale-name = xsd:token {pattern = "(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "\d*|image"}
+blocks-type = xsd:token {pattern = "\d*|all"}
 volume-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G|all)"}
 partition-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G)"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
@@ -1537,6 +1538,24 @@ div {
             sch:param [ name = "attr" value = "overlayroot" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.overlayroot_verity_blocks.attribute =
+        ## Specifies to create a dm verity hash from the number of
+        ## given blocks and placed at the end of the squashfs
+        ## compressed read-only root filesystem. If the verity hash
+        ## should be calculated from the complete file the value 'all'
+        ## can be specified. The verification credentials information
+        ## produced by veritysetup for later verification is stored as
+        ## a file in /boot/overlayroot.verity and is put as such
+        ## into the image by default. It is a responsibility of the
+        ## author of the image description how to handle the
+        ## credentials file in the desired way. One option to handle
+        ## the credentials data is as part of a disk.sh script which
+        ## would allow to access and manage the information.
+        attribute overlayroot_verity_blocks { blocks-type }
+        >> sch:pattern [ id = "overlayroot_verity_blocks" is-a = "image_type"
+            sch:param [ name = "attr" value = "overlayroot_verity_blocks" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.overlayroot_write_partition.attribute =
         ## Specifies to create an extra read-write partition
         ## in combination with the overlayroot attribute on the
@@ -1968,6 +1987,7 @@ div {
         k.type.overlayroot.attribute? &
         k.type.overlayroot_write_partition.attribute? &
         k.type.overlayroot_readonly_partsize.attribute? &
+        k.type.overlayroot_verity_blocks.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &

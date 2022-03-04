@@ -557,14 +557,57 @@ class TestDiskBuilder:
     @patch('os.path.getsize')
     @patch('kiwi.builder.disk.Temporary.new_file')
     @patch('random.randrange')
-    def test_create_disk_standard_root_is_overlay(
-        self, mock_rand, mock_temp, mock_getsize, mock_exists,
-        mock_grub_dir, mock_command, mock_squashfs, mock_fs,
-        mock_DeviceProvider
+    @patch('kiwi.builder.disk.BlockID')
+    @patch('kiwi.builder.disk.VeritySetup')
+    def test_create_disk_standard_root_is_overlay_no_verity_write_space(
+        self, mock_VeritySetup, mock_BlockID, mock_rand, mock_temp,
+        mock_getsize, mock_exists, mock_grub_dir, mock_command,
+        mock_squashfs, mock_fs, mock_DeviceProvider
     ):
+        block_operation = Mock()
+        block_operation.get_blkid.return_value = 'partuuid'
+        block_operation.get_filesystem.return_value = 'ext3'
+        mock_BlockID.return_value = block_operation
+        self.disk_builder.root_filesystem_is_overlay = True
+        self.disk_builder.root_filesystem_has_write_partition = False
+        self.disk_builder.root_filesystem_verity_blocks = 'all'
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk.public_partition_id_map = self.id_map
+        self.disk.public_partition_id_map['kiwi_ROPart'] = 1
+        # no boot space doesn't allow to write verity credentials
+        del self.device_map['boot']
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            with self._caplog.at_level(logging.WARNING):
+                self.disk_builder.create_disk()
+                assert 'No write space for veritysetup credentials available' \
+                    in self._caplog.text
+
+    @patch('kiwi.builder.disk.DeviceProvider')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.FileSystemSquashFs')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.Temporary.new_file')
+    @patch('random.randrange')
+    @patch('kiwi.builder.disk.BlockID')
+    @patch('kiwi.builder.disk.VeritySetup')
+    def test_create_disk_standard_root_is_overlay(
+        self, mock_VeritySetup, mock_BlockID, mock_rand, mock_temp,
+        mock_getsize, mock_exists, mock_grub_dir, mock_command,
+        mock_squashfs, mock_fs, mock_DeviceProvider
+    ):
+        block_operation = Mock()
+        block_operation.get_blkid.return_value = 'partuuid'
+        block_operation.get_filesystem.return_value = 'ext3'
+        mock_BlockID.return_value = block_operation
         mock_rand.return_value = 15
         self.disk_builder.root_filesystem_is_overlay = True
         self.disk_builder.root_filesystem_has_write_partition = False
+        self.disk_builder.root_filesystem_verity_blocks = 10
         self.disk_builder.volume_manager_name = None
         squashfs = Mock()
         mock_squashfs.return_value = squashfs
@@ -576,7 +619,6 @@ class TestDiskBuilder:
         self.disk_builder.initrd_system = 'dracut'
         self.disk.public_partition_id_map = self.id_map
         self.disk.public_partition_id_map['kiwi_ROPart'] = 1
-
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
             self.disk_builder.create_disk()
@@ -601,14 +643,22 @@ class TestDiskBuilder:
             ], filename='kiwi-tempname')
         ]
         self.disk.create_root_readonly_partition.assert_called_once_with(11)
+        mock_VeritySetup.return_value.format.assert_called_once_with()
+        assert mock_command.call_args_list[2] == call(
+            ['blockdev', '--getsize64', '/dev/readonly-root-device']
+        )
         assert mock_command.call_args_list[3] == call(
             ['dd', 'if=kiwi-tempname', 'of=/dev/readonly-root-device']
         )
         assert m_open.return_value.write.call_args_list == [
+            # config.partids
             call('kiwi_BootPart="1"\n'),
             call('kiwi_RootPart="1"\n'),
+            # mbrid
             call('0x0f0f0f0f\n'),
+            # config.bootoptions
             call('boot_cmdline\n'),
+            # some-loop
             call(b'\x0f\x0f\x0f\x0f')
         ]
         assert self.boot_image_task.include_module.call_args_list == [

@@ -2718,7 +2718,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, overlayroot_verity_blocks=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2765,6 +2765,7 @@ class type_(GeneratedsSuper):
         self.overlayroot = _cast(bool, overlayroot)
         self.overlayroot_write_partition = _cast(bool, overlayroot_write_partition)
         self.overlayroot_readonly_partsize = _cast(int, overlayroot_readonly_partsize)
+        self.overlayroot_verity_blocks = _cast(None, overlayroot_verity_blocks)
         self.primary = _cast(bool, primary)
         self.ramonly = _cast(bool, ramonly)
         self.rootfs_label = _cast(None, rootfs_label)
@@ -2966,6 +2967,8 @@ class type_(GeneratedsSuper):
     def set_overlayroot_write_partition(self, overlayroot_write_partition): self.overlayroot_write_partition = overlayroot_write_partition
     def get_overlayroot_readonly_partsize(self): return self.overlayroot_readonly_partsize
     def set_overlayroot_readonly_partsize(self, overlayroot_readonly_partsize): self.overlayroot_readonly_partsize = overlayroot_readonly_partsize
+    def get_overlayroot_verity_blocks(self): return self.overlayroot_verity_blocks
+    def set_overlayroot_verity_blocks(self, overlayroot_verity_blocks): self.overlayroot_verity_blocks = overlayroot_verity_blocks
     def get_primary(self): return self.primary
     def set_primary(self, primary): self.primary = primary
     def get_ramonly(self): return self.ramonly
@@ -3004,6 +3007,13 @@ class type_(GeneratedsSuper):
     def set_disk_start_sector(self, disk_start_sector): self.disk_start_sector = disk_start_sector
     def get_bundle_format(self): return self.bundle_format
     def set_bundle_format(self, bundle_format): self.bundle_format = bundle_format
+    def validate_blocks_type(self, value):
+        # Validate type blocks-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_blocks_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_blocks_type_patterns_, ))
+    validate_blocks_type_patterns_ = [['^\\d*|all$']]
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3204,6 +3214,9 @@ class type_(GeneratedsSuper):
         if self.overlayroot_readonly_partsize is not None and 'overlayroot_readonly_partsize' not in already_processed:
             already_processed.add('overlayroot_readonly_partsize')
             outfile.write(' overlayroot_readonly_partsize="%s"' % self.gds_format_integer(self.overlayroot_readonly_partsize, input_name='overlayroot_readonly_partsize'))
+        if self.overlayroot_verity_blocks is not None and 'overlayroot_verity_blocks' not in already_processed:
+            already_processed.add('overlayroot_verity_blocks')
+            outfile.write(' overlayroot_verity_blocks=%s' % (quote_attrib(self.overlayroot_verity_blocks), ))
         if self.primary is not None and 'primary' not in already_processed:
             already_processed.add('primary')
             outfile.write(' primary="%s"' % self.gds_format_boolean(self.primary, input_name='primary'))
@@ -3581,6 +3594,12 @@ class type_(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.overlayroot_readonly_partsize < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('overlayroot_verity_blocks', node)
+        if value is not None and 'overlayroot_verity_blocks' not in already_processed:
+            already_processed.add('overlayroot_verity_blocks')
+            self.overlayroot_verity_blocks = value
+            self.overlayroot_verity_blocks = ' '.join(self.overlayroot_verity_blocks.split())
+            self.validate_blocks_type(self.overlayroot_verity_blocks)    # validate type blocks-type
         value = find_attr_value_('primary', node)
         if value is not None and 'primary' not in already_processed:
             already_processed.add('primary')
