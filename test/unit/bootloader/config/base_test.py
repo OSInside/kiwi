@@ -126,6 +126,36 @@ class TestBootLoaderConfigBase:
 
     @patch('kiwi.xml_parse.type_.get_initrd_system')
     @patch('kiwi.bootloader.config.base.BlockID')
+    def test_get_boot_cmdline_initrd_system_is_dracut_partuuid(
+        self, mock_BlockID, mock_initrd
+    ):
+        block_operation = Mock()
+        block_operation.get_blkid.return_value = 'uuid'
+        mock_BlockID.return_value = block_operation
+        mock_initrd.return_value = 'dracut'
+        self.bootloader.xml_state.build_type.set_devicepersistency(
+            'by-partuuid'
+        )
+        assert self.bootloader.get_boot_cmdline('uuid') == \
+            'splash root=PARTUUID=uuid'
+
+    @patch('kiwi.xml_parse.type_.get_initrd_system')
+    @patch('kiwi.bootloader.config.base.BlockID')
+    def test_get_boot_cmdline_initrd_system_is_dracut_label(
+        self, mock_BlockID, mock_initrd
+    ):
+        block_operation = Mock()
+        block_operation.get_blkid.return_value = 'label'
+        mock_BlockID.return_value = block_operation
+        mock_initrd.return_value = 'dracut'
+        self.bootloader.xml_state.build_type.set_devicepersistency(
+            'by-label'
+        )
+        assert self.bootloader.get_boot_cmdline('uuid') == \
+            'splash root=LABEL=label'
+
+    @patch('kiwi.xml_parse.type_.get_initrd_system')
+    @patch('kiwi.bootloader.config.base.BlockID')
     def test_get_boot_cmdline_initrd_system_is_dracut_with_overlay(
         self, mock_BlockID, mock_initrd
     ):

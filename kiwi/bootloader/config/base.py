@@ -560,7 +560,12 @@ class BootLoaderConfigBase:
                 return root_search.group(1)
         if boot_device:
             block_operation = BlockID(boot_device)
-            blkid_type = 'LABEL' if persistency_type == 'by-label' else 'UUID'
+            if persistency_type == 'by-label':
+                blkid_type = 'LABEL'
+            elif persistency_type == 'by-partuuid':
+                blkid_type = 'PARTUUID'
+            else:
+                blkid_type = 'UUID'
             location = block_operation.get_blkid(blkid_type)
             if self.xml_state.build_type.get_overlayroot():
                 return f'root=overlay:{blkid_type}={location}'

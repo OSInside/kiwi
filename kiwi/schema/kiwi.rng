@@ -2208,6 +2208,7 @@ storage device names. By default by-uuid is used.</a:documentation>
         <choice>
           <value>by-uuid</value>
           <value>by-label</value>
+          <value>by-partuuid</value>
         </choice>
       </attribute>
     </define>
