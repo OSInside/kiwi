@@ -1,9 +1,10 @@
-name: Scorecards supply-chain security
+name: CI-Scorecards-Supply-Chain-Security
 on:
   # Only the default branch is supported.
   branch_protection_rule:
   schedule:
-    - cron: '44 7 * * 3'
+    # Weekly on Saturdays.
+    - cron: '30 1 * * 6'
   push:
     branches: [ master ]
 
