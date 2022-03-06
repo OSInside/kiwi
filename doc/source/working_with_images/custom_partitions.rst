@@ -71,6 +71,16 @@ filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs
   Mandatory filesystem configuration to create one of the supported
   filesystems on the partition.
 
+clone="number"
+  Optional setting to indicate that this partition should be
+  cloned `number` of times. A clone partition is content wise an
+  exact byte for byte copy of the origin. However, to avoid conflicts at boot
+  time the UUID of any cloned partition will be made unique. In the
+  sequence of partitions, the clone(s) will always be created first
+  followed by the partition considered the origin. The origin
+  partition is the one that will be referenced and used by the
+  system
+
 Despite the customization options of the partition table shown above
 there are the following limitations:
 

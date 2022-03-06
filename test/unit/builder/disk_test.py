@@ -319,7 +319,9 @@ class TestDiskBuilder:
         self.setup.set_selinux_file_contexts.assert_called_once_with(
             '/etc/selinux/targeted/contexts/files/file_contexts'
         )
-        self.disk_setup.get_disksize_mbytes.assert_called_once_with()
+        self.disk_setup.get_disksize_mbytes.assert_called_once_with(
+            root_clone=0, boot_clone=0
+        )
         self.loop_provider.create.assert_called_once_with()
         self.disk.wipe.assert_called_once_with()
         self.disk.create_efi_csm_partition.assert_called_once_with(
@@ -329,7 +331,7 @@ class TestDiskBuilder:
             self.firmware.get_efi_partition_size()
         )
         self.disk.create_boot_partition.assert_called_once_with(
-            self.disk_setup.boot_partition_size()
+            self.disk_setup.boot_partition_size(), 0
         )
         self.disk.create_swap_partition.assert_called_once_with(
             '128'
@@ -338,7 +340,7 @@ class TestDiskBuilder:
             self.firmware.get_prep_partition_size()
         )
         self.disk.create_root_partition.assert_called_once_with(
-            'all_free'
+            'all_free', 0
         )
         self.disk.map_partitions.assert_called_once_with()
         self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
@@ -417,6 +419,103 @@ class TestDiskBuilder:
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
         )
+
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.SystemSetup')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('kiwi.builder.disk.Temporary.new_file')
+    @patch('kiwi.builder.disk.CloneDevice')
+    def test_create_disk_standard_root_with_clone(
+        self, mock_CloneDevice, mock_Temporary_new_file, mock_ImageSystem,
+        mock_SystemSetup, mock_os_path_getsize, mock_path,
+        mock_grub_dir, mock_command, mock_fs
+    ):
+        tempfile = Mock()
+        tempfile.name = 'tempfile'
+        mock_Temporary_new_file.return_value = tempfile
+        mock_os_path_getsize.return_value = 42
+        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
+            kernel_name='vmlinuz-1.2.3-default',
+            initrd_name='initramfs-1.2.3.img'
+        )
+        mock_path.return_value = True
+        filesystem = Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.custom_partitions = {
+            'var': ptable_entry_type(
+                mbsize=100,
+                clone=1,
+                partition_name='p.lxvar',
+                partition_type='t.linux',
+                mountpoint='/var',
+                filesystem='ext3'
+            )
+        }
+        self.disk_builder.root_clone_count = 1
+        self.disk_builder.boot_clone_count = 1
+        self.disk_builder.root_filesystem_is_overlay = False
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.initrd_system = 'dracut'
+        disk_system = Mock()
+        mock_SystemSetup.return_value = disk_system
+
+        self.device_map['rootclone1'] = MappedDevice('/dev/root-device', Mock())
+        self.device_map['bootclone1'] = MappedDevice('/dev/boot-device', Mock())
+        self.device_map['varclone1'] = MappedDevice('/dev/var-device', Mock())
+
+        # Test in standard mode (no root overlay)
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+
+        self.disk.create_boot_partition.assert_called_once_with(
+            self.disk_setup.boot_partition_size(), 1
+        )
+        self.disk.create_root_partition.assert_called_once_with(
+            'clone:all_free:458', 1
+        )
+        self.disk.create_custom_partitions.assert_called_once_with(
+            self.disk_builder.custom_partitions
+        )
+        assert mock_CloneDevice.return_value.clone.call_args_list == [
+            call([self.device_map['varclone1']]),
+            call([self.device_map['bootclone1']]),
+            call([self.device_map['rootclone1']])
+        ]
+
+        # Test in overlay mode a root clone is created from
+        # the root readonly partition and not from the root (rw)
+        # partition.
+        self.disk_builder.root_filesystem_is_overlay = True
+        self.disk.create_root_partition.reset_mock()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+
+        self.disk.create_root_readonly_partition.assert_called_once_with(
+            10, 1
+        )
+        self.disk.create_root_partition.assert_called_once_with(
+            'all_free', 0
+        )
+
+        # Test in verity mode
+        self.disk_builder.root_filesystem_verity_blocks = 10
+        self.disk_builder.root_filesystem_is_overlay = False
+        mock_CloneDevice.reset_mock()
+        self.disk.create_root_partition.reset_mock()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+
+        filesystem.create_verity_layer.assert_called_once_with(10, 'tempfile')
+        assert mock_CloneDevice.return_value.clone.call_args_list == [
+            call([self.device_map['varclone1']]),
+            call([self.device_map['bootclone1']]),
+            call([self.device_map['rootclone1']])
+        ]
 
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
@@ -512,7 +611,9 @@ class TestDiskBuilder:
         self.setup.set_selinux_file_contexts.assert_called_once_with(
             '/etc/selinux/targeted/contexts/files/file_contexts'
         )
-        self.disk_setup.get_disksize_mbytes.assert_called_once_with()
+        self.disk_setup.get_disksize_mbytes.assert_called_once_with(
+            root_clone=0, boot_clone=0
+        )
         assert self.loop_provider.create.call_args_list == [
             call(), call()
         ]
@@ -524,13 +625,13 @@ class TestDiskBuilder:
             self.firmware.get_efi_partition_size()
         )
         self.disk.create_boot_partition.assert_called_once_with(
-            self.disk_setup.boot_partition_size()
+            self.disk_setup.boot_partition_size(), 0
         )
         self.disk.create_prep_partition.assert_called_once_with(
             self.firmware.get_prep_partition_size()
         )
         self.disk.create_root_partition.assert_called_once_with(
-            'all_free'
+            'all_free', 0
         )
         self.disk.map_partitions.assert_called_once_with()
         self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
@@ -662,7 +763,6 @@ class TestDiskBuilder:
         self.disk.public_partition_id_map = self.id_map
         self.disk.public_partition_id_map['kiwi_ROPart'] = 1
         m_open = mock_open()
-# FIXME
         with patch('builtins.open', m_open, create=True):
             self.disk_builder.create_disk()
 
@@ -692,7 +792,9 @@ class TestDiskBuilder:
         self.integrity_root.create_integrity_metadata.assert_called_once_with()
         self.integrity_root.sign_integrity_metadata.assert_called_once_with()
         self.integrity_root.write_integrity_metadata.assert_called_once_with()
-        self.disk.create_root_readonly_partition.assert_called_once_with(11)
+        self.disk.create_root_readonly_partition.assert_called_once_with(
+            11, 0
+        )
         assert mock_command.call_args_list[2] == call(
             ['blockdev', '--getsize64', '/dev/integrityRoot']
         )
@@ -805,7 +907,7 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         self.disk.create_root_raid_partition.assert_called_once_with(
-            'all_free'
+            'all_free', 0
         )
         self.raid_root.create_degraded_raid.assert_called_once_with(
             raid_level='mirroring'
@@ -931,7 +1033,9 @@ class TestDiskBuilder:
         with patch('builtins.open'):
             self.disk_builder.create_disk()
 
-        self.disk.create_root_lvm_partition.assert_called_once_with('all_free')
+        self.disk.create_root_lvm_partition.assert_called_once_with(
+            'all_free', 0
+        )
         volume_manager.setup.assert_called_once_with('systemVG')
         volume_manager.create_volumes.assert_called_once_with('btrfs')
         volume_manager.mount_volumes.call_args_list[0].assert_called_once_with()

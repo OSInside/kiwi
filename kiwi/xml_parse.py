@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.10.4 (main, Apr  2 2022, 09:04:19) [GCC 11.2.0]
+# Python 3.6.15 (default, Sep 23 2021, 15:41:43) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /mnt/storage/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2798,7 +2798,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2872,6 +2872,8 @@ class type_(GeneratedsSuper):
         self.xen_server = _cast(bool, xen_server)
         self.publisher = _cast(None, publisher)
         self.disk_start_sector = _cast(int, disk_start_sector)
+        self.root_clone = _cast(None, root_clone)
+        self.boot_clone = _cast(None, boot_clone)
         self.bundle_format = _cast(None, bundle_format)
         if bootloader is None:
             self.bootloader = []
@@ -3118,6 +3120,10 @@ class type_(GeneratedsSuper):
     def set_publisher(self, publisher): self.publisher = publisher
     def get_disk_start_sector(self): return self.disk_start_sector
     def set_disk_start_sector(self, disk_start_sector): self.disk_start_sector = disk_start_sector
+    def get_root_clone(self): return self.root_clone
+    def set_root_clone(self, root_clone): self.root_clone = root_clone
+    def get_boot_clone(self): return self.boot_clone
+    def set_boot_clone(self, boot_clone): self.boot_clone = boot_clone
     def get_bundle_format(self): return self.bundle_format
     def set_bundle_format(self, bundle_format): self.bundle_format = bundle_format
     def validate_blocks_type(self, value):
@@ -3155,6 +3161,13 @@ class type_(GeneratedsSuper):
                     self.validate_safe_posix_short_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_short_name_patterns_, ))
     validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
+    def validate_number_type(self, value):
+        # Validate type number-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_number_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_number_type_patterns_, ))
+    validate_number_type_patterns_ = [['^\\d+$']]
     def hasContent_(self):
         if (
             self.bootloader or
@@ -3409,6 +3422,12 @@ class type_(GeneratedsSuper):
         if self.disk_start_sector is not None and 'disk_start_sector' not in already_processed:
             already_processed.add('disk_start_sector')
             outfile.write(' disk_start_sector="%s"' % self.gds_format_integer(self.disk_start_sector, input_name='disk_start_sector'))
+        if self.root_clone is not None and 'root_clone' not in already_processed:
+            already_processed.add('root_clone')
+            outfile.write(' root_clone=%s' % (quote_attrib(self.root_clone), ))
+        if self.boot_clone is not None and 'boot_clone' not in already_processed:
+            already_processed.add('boot_clone')
+            outfile.write(' boot_clone=%s' % (quote_attrib(self.boot_clone), ))
         if self.bundle_format is not None and 'bundle_format' not in already_processed:
             already_processed.add('bundle_format')
             outfile.write(' bundle_format=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bundle_format), input_name='bundle_format')), ))
@@ -3917,6 +3936,18 @@ class type_(GeneratedsSuper):
                 self.disk_start_sector = int(value)
             except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
+        value = find_attr_value_('root_clone', node)
+        if value is not None and 'root_clone' not in already_processed:
+            already_processed.add('root_clone')
+            self.root_clone = value
+            self.root_clone = ' '.join(self.root_clone.split())
+            self.validate_number_type(self.root_clone)    # validate type number-type
+        value = find_attr_value_('boot_clone', node)
+        if value is not None and 'boot_clone' not in already_processed:
+            already_processed.add('boot_clone')
+            self.boot_clone = value
+            self.boot_clone = ' '.join(self.boot_clone.split())
+            self.validate_number_type(self.boot_clone)    # validate type number-type
         value = find_attr_value_('bundle_format', node)
         if value is not None and 'bundle_format' not in already_processed:
             already_processed.add('bundle_format')
@@ -4447,7 +4478,7 @@ class partition(GeneratedsSuper):
     """Specify custom partition in the partition table"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, size=None, partition_name=None, partition_type=None, mountpoint=None, filesystem=None):
+    def __init__(self, name=None, size=None, partition_name=None, partition_type=None, mountpoint=None, filesystem=None, clone=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.size = _cast(None, size)
@@ -4455,6 +4486,7 @@ class partition(GeneratedsSuper):
         self.partition_type = _cast(None, partition_type)
         self.mountpoint = _cast(None, mountpoint)
         self.filesystem = _cast(None, filesystem)
+        self.clone = _cast(None, clone)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4478,6 +4510,8 @@ class partition(GeneratedsSuper):
     def set_mountpoint(self, mountpoint): self.mountpoint = mountpoint
     def get_filesystem(self): return self.filesystem
     def set_filesystem(self, filesystem): self.filesystem = filesystem
+    def get_clone(self): return self.clone
+    def set_clone(self, clone): self.clone = clone
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -4492,6 +4526,13 @@ class partition(GeneratedsSuper):
                     self.validate_safe_posix_short_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_short_name_patterns_, ))
     validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
+    def validate_number_type(self, value):
+        # Validate type number-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_number_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_number_type_patterns_, ))
+    validate_number_type_patterns_ = [['^\\d+$']]
     def hasContent_(self):
         if (
 
@@ -4538,6 +4579,9 @@ class partition(GeneratedsSuper):
         if self.filesystem is not None and 'filesystem' not in already_processed:
             already_processed.add('filesystem')
             outfile.write(' filesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.filesystem), input_name='filesystem')), ))
+        if self.clone is not None and 'clone' not in already_processed:
+            already_processed.add('clone')
+            outfile.write(' clone=%s' % (quote_attrib(self.clone), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='partition', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -4578,6 +4622,12 @@ class partition(GeneratedsSuper):
             already_processed.add('filesystem')
             self.filesystem = value
             self.filesystem = ' '.join(self.filesystem.split())
+        value = find_attr_value_('clone', node)
+        if value is not None and 'clone' not in already_processed:
+            already_processed.add('clone')
+            self.clone = value
+            self.clone = ' '.join(self.clone.split())
+            self.validate_number_type(self.clone)    # validate type number-type
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class partition

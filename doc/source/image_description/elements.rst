@@ -485,6 +485,20 @@ kernelcmdline="string":
   Additional kernel parameters passed to the kernel by the
   bootloader.
 
+root_clone="number"
+  For oem disk images, this attribute allows to create `number`
+  clone(s) of the root partition, with `number` >= 1. A clone partition
+  is content wise an exact byte for byte copy of the origin root partition.
+  However, to avoid conflicts at boot time the UUID of any
+  cloned partition will be made unique. In the sequence of partitions,
+  the clone(s) will always be created first followed by the
+  partition considered the origin. The origin partition is the
+  one that will be referenced and used by the system.
+  Also see :ref:`clone_partitions`
+
+boot_clone="number"
+  Same as `root_clone` but applied to the boot partition if present
+
 luks="passphrase|file:///path/to/keyfile":
   Supplying a value will trigger the encryption of the partition
   serving the root filesystem using the LUKS extension. The supplied
