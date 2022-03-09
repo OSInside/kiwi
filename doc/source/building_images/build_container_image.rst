@@ -1,33 +1,31 @@
-.. _building_docker_build:
+.. _building_container_build:
 
-Build a Docker Container Image
-==============================
+Build a Container Image
+=======================
 
 .. sidebar:: Abstract
 
-   This page explains how to build a Docker base image. It contains
+   This page explains how to build a Container Image. It contains
 
    * basic configuration explanation
-   * how to build a Docker image
-   * how to run it with the Docker daemon
+   * how to build a Container Image
+   * how to run it with a Container Runtime
 
-{kiwi} is capable of building native Docker images, from scratch and derived
-ones. {kiwi} Docker images are considered to be native since the {kiwi}
-tarball image is ready to be loaded to a Docker daemon, including common
-container configurations.
+{kiwi} is capable of building native Container Images from scratch and
+derived ones. {kiwi} Container images are considered to be native since the
+{kiwi} tarball image is ready to be loaded into a Container Runtime like
+Podman or Docker, including common container configurations.
 
-The Docker configuration metadata is provided to {kiwi} as part of the
+The Container configuration metadata is provided to {kiwi} as part of the
 :ref:`XML description file <description_components>` using the
 ``<containerconfig>`` tag. The following configuration metadata can be
 specified:
 
 `containerconfig` attributes:
 
-* ``name``: Specifies the repository name of the Docker
-  image.
-* ``tag``: Sets the tag of the Docker image.
-* ``maintainer``: Specifies the author field of
-  the container.
+* ``maintainer``: Specifies the author field of the container.
+* ``name``: Specifies the repository name of the Container Image.
+* ``tag``: Sets the tag of the Container Image.
 * ``user``: Sets the user name or user id (UID) to be used when
   running `entrypoint` and
   `subcommand`. Equivalent of the `USER` directive of a Docker file.
@@ -56,7 +54,7 @@ mapped to {kiwi} by using the :ref:`config.sh <description_components>`
 script file to run bash commands or the
 :ref:`overlay tree <description_components>` to include extra files.
 
-The following example shows how to build a Docker base image based on
+The following example shows how to build a Container Image based on
 openSUSE Leap:
 
 1. Make sure you have checked out the example image descriptions,
@@ -85,16 +83,16 @@ openSUSE Leap:
           --set-repo {exc_repo_leap} \
           --target-dir /tmp/myimage
 
-#. Test the Docker image.
+#. Test the Container image.
 
    First load the new image
 
    .. code:: bash
 
-      $ docker load -i {exc_image_base_name_docker}.x86_64-{exc_image_version}.docker.tar.xz
+      $ podman load -i {exc_image_base_name_docker}.x86_64-{exc_image_version}.docker.tar.xz
 
    then run the loaded image:
 
    .. code:: bash
 
-      $ docker run -it buildsystem /bin/bash
+      $ podman run --rm -it buildsystem /bin/bash

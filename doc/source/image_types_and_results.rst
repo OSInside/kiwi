@@ -34,7 +34,7 @@ Docker Container Image
   An archive image suitable for the docker container engine.
   The image can be loaded via the `docker load` command and
   works within the scope of the container engine.
-  For further details refer to: :ref:`building_docker_build`
+  For further details refer to: :ref:`building_container_build`
 
 WSL Container Image
   An archive image suitable for the Windows Subsystem For Linux

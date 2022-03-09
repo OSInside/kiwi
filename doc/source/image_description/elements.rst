@@ -882,7 +882,7 @@ targettype="CDL|LDL|FBA|SCSI":
 <preferences><type><containerconfig>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to describe the container configuration metadata in docker or wsl
-image types. For details see: :ref:`building_docker_build` and:
+image types. For details see: :ref:`building_container_build` and:
 :ref:`building_wsl_build`
 
 <preferences><type><vagrantconfig>
