@@ -35,7 +35,32 @@ from kiwi.version import (
 
 from kiwi.exceptions import KiwiBootLoaderGrubDataError
 
+shim_loader_type = NamedTuple(
+    'shim_loader_type', [
+        ('filename', str),
+        ('binaryname', str)
+    ]
+)
+
+grub_loader_type = NamedTuple(
+    'grub_loader_type', [
+        ('filename', str),
+        ('binaryname', str)
+    ]
+)
+
+unit_type = NamedTuple(
+    'unit_type', [
+        ('byte', str),
+        ('kb', str),
+        ('mb', str),
+        ('gb', str)
+    ]
+)
+
+
 # Default module variables
+UNIT = unit_type(byte='b', kb='k', mb='m', gb='g')
 POST_DISK_SYNC_SCRIPT = 'disk.sh'
 PRE_DISK_SYNC_SCRIPT = 'pre_disk_sync.sh'
 POST_BOOTSTRAP_SCRIPT = 'post_bootstrap.sh'
@@ -51,20 +76,6 @@ CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
 
 log = logging.getLogger('kiwi')
-
-shim_loader_type = NamedTuple(
-    'shim_loader_type', [
-        ('filename', str),
-        ('binaryname', str)
-    ]
-)
-
-grub_loader_type = NamedTuple(
-    'grub_loader_type', [
-        ('filename', str),
-        ('binaryname', str)
-    ]
-)
 
 
 class Defaults:

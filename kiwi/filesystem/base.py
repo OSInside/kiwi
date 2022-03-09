@@ -23,6 +23,8 @@ from typing import (
 )
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi.defaults import Defaults
 from kiwi.utils.sync import DataSync
 from kiwi.mount_manager import MountManager
@@ -107,14 +109,21 @@ class FileSystemBase:
         if not self.custom_args.get('fs_attributes'):
             self.custom_args['fs_attributes'] = []
 
-    def create_on_device(self, label: str = None):
+    def create_on_device(
+        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb
+    ):
         """
         Create filesystem on block device
 
         Implement in specialized filesystem class for filesystems which
         requires a block device for creation, e.g ext4.
 
-        :param string label: label name
+        :param str label: label name
+        :param int size:
+            size value, can also be counted from the end via -X
+            The value is interpreted in units of: unit
+        :param str unit:
+            unit name. Default unit is set to: defaults.UNIT.kb
         """
         raise NotImplementedError
 
@@ -198,6 +207,67 @@ class FileSystemBase:
             log.info('umount %s instance', type(self).__name__)
             self.filesystem_mount.umount()
             self.filesystem_mount = None
+
+    def _map_size(self, size: float, from_unit: str, to_unit: str) -> float:
+        """
+        Return byte size value for given size and unit
+
+        :param float size:
+            requested filesystem size. The value is interpreted
+            by the given from_unit.
+
+        :param str from_unit: source unit
+        :param str to_unit: target unit
+
+        :return: size value in unit: to_unit
+
+        :rtype: float
+        """
+        unit_map = {
+            defaults.UNIT.byte: 1,
+            defaults.UNIT.kb: 1024,
+            defaults.UNIT.mb: 1048576,
+            defaults.UNIT.gb: 1073741824
+        }
+        byte_size = size * unit_map[from_unit]
+        return byte_size / unit_map[to_unit]
+
+    def _fs_size(
+        self, size: float, blocksize: int = 1, unit: str = defaults.UNIT.kb
+    ) -> str:
+        """
+        Calculate filesystem size parameter in number of blocksize
+        blocks. If the given size is <= 0 the calculation is done from
+        the actual size of the block device reduced by the given size
+
+        :param float size:
+            requested filesystem size. The value is interpreted
+            by the given unit.
+
+        :param int blocksize:
+            blocksize as requested from the filesystem creation tool
+            for specifying the filesystem size. The value is interpreted
+            by the given unit. By default set to: 1
+
+        :param str unit:
+            Unit to use for calculations and return value
+            Default unit is set to: defaults.UNIT.kb
+
+        :return: an int block count of the specified unit as str
+
+        :rtype: str
+        """
+        if size > 0:
+            result_size = size / blocksize
+        else:
+            device_name = self.device_provider.get_device()
+            device_byte_size = self.device_provider.get_byte_size(device_name)
+            requested_byte_size = self._map_size(size, unit, defaults.UNIT.byte)
+            result_size = self._map_size(
+                (device_byte_size + requested_byte_size) / blocksize,
+                from_unit=defaults.UNIT.byte, to_unit=unit
+            )
+        return format(int(result_size))
 
     def _apply_attributes(self):
         """
