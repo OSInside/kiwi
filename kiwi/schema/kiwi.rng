@@ -3814,8 +3814,11 @@ image is imported via the docker load command</a:documentation>
     </define>
     <define name="k.containerconfig.additionalnames.attribute">
       <attribute name="additionalnames">
-        <a:documentation>Specifies additional tags for the container using a comma
-separated values string</a:documentation>
+        <a:documentation>Specifies additional names for the container using a comma
+separated values string. It supports '&lt;repo1&gt;:&lt;tag2&gt;,&lt;repo2:tag2&gt;'
+format. If any of the names does not include the repository or tag
+in that case `name` or `tag` attribute values from containerconfig
+will be used to build a complete image referrence.</a:documentation>
       </attribute>
       <sch:pattern id="additionalnames" is-a="container_type">
         <sch:param name="attr" value="additionalnames"/>
