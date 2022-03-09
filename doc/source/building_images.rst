@@ -14,6 +14,6 @@ Building Images for Supported Types
    building_images/build_live_iso
    building_images/build_simple_disk
    building_images/build_expandable_disk
-   building_images/build_docker_container
+   building_images/build_container_image
    building_images/build_wsl_container
    building_images/build_kis
