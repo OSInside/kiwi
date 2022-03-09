@@ -35,6 +35,7 @@ class Partitioner(metaclass=ABCMeta):
     :param string table_type: Table type name
     :param object storage_provider: Instance of class based on DeviceProvider
     :param int start_sector: sector number
+    :param bool extended_layout: support extended layout for msdos table
     """
     @abstractmethod
     def __init__(self) -> None:
@@ -43,7 +44,7 @@ class Partitioner(metaclass=ABCMeta):
     @staticmethod
     def new(
         table_type: str, storage_provider: object,
-        start_sector: int=None  # noqa: E252
+        start_sector: int = None, extended_layout: bool = False
     ):
         name_map = {
             'msdos': 'MsDos',
@@ -61,7 +62,7 @@ class Partitioner(metaclass=ABCMeta):
                 )
                 start_sector = None
             return partitioner.__dict__[module_name](
-                storage_provider, start_sector
+                storage_provider, start_sector, extended_layout
             )
         except Exception as issue:
             raise KiwiPartitionerSetupError(

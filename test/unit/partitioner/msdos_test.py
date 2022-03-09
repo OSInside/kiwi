@@ -23,6 +23,9 @@ class TestPartitionerMsDos:
             return_value='/dev/loop0'
         )
         self.partitioner = PartitionerMsDos(disk_provider)
+        self.partitioner_extended = PartitionerMsDos(
+            disk_provider, extended_layout=True
+        )
 
     def setup_method(self, cls):
         self.setup()
@@ -30,7 +33,7 @@ class TestPartitionerMsDos:
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
     @patch('kiwi.partitioner.msdos.Temporary.new_file')
-    def test_create(self, mock_temp, mock_flag, mock_command):
+    def test_create_primary(self, mock_temp, mock_flag, mock_command):
         mock_command.side_effect = Exception
         temp_type = namedtuple(
             'temp_type', ['name']
@@ -38,10 +41,12 @@ class TestPartitionerMsDos:
         mock_temp.return_value = temp_type(
             name='tempfile'
         )
-
         m_open = mock_open()
+
         with patch('builtins.open', m_open, create=True):
-            self.partitioner.create('name', 100, 't.linux', ['f.active'])
+            self.partitioner._create_primary(
+                'name', 100, 't.linux', ['f.active']
+            )
 
         m_open.return_value.write.assert_called_once_with(
             'n\np\n1\n\n+100M\nw\nq\n'
@@ -55,6 +60,88 @@ class TestPartitionerMsDos:
         call = mock_flag.call_args_list[1]
         assert mock_flag.call_args_list[1] == \
             call(1, 'f.active')
+
+    @patch('kiwi.partitioner.msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
+    @patch('kiwi.partitioner.msdos.Temporary.new_file')
+    def test_create_extended(self, mock_temp, mock_flag, mock_command):
+        mock_command.side_effect = Exception
+        temp_type = namedtuple(
+            'temp_type', ['name']
+        )
+        mock_temp.return_value = temp_type(
+            name='tempfile'
+        )
+        m_open = mock_open()
+
+        with patch('builtins.open', m_open, create=True):
+            self.partitioner._create_extended('name')
+
+        m_open.return_value.write.assert_called_once_with(
+            'n\ne\n1\n\n\nw\nq\n'
+        )
+        mock_command.assert_called_once_with(
+            ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
+        )
+
+    @patch('kiwi.partitioner.msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
+    @patch('kiwi.partitioner.msdos.Temporary.new_file')
+    def test_create_logical(self, mock_temp, mock_flag, mock_command):
+        mock_command.side_effect = Exception
+        temp_type = namedtuple(
+            'temp_type', ['name']
+        )
+        mock_temp.return_value = temp_type(
+            name='tempfile'
+        )
+        m_open = mock_open()
+
+        with patch('builtins.open', m_open, create=True):
+            self.partitioner._create_logical(
+                'name', 100, 't.linux', ['f.active']
+            )
+
+        m_open.return_value.write.assert_called_once_with(
+            'n\n1\n\n+100M\nw\nq\n'
+        )
+        mock_command.assert_called_once_with(
+            ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
+        )
+        call = mock_flag.call_args_list[0]
+        assert mock_flag.call_args_list[0] == \
+            call(1, 't.linux')
+        call = mock_flag.call_args_list[1]
+        assert mock_flag.call_args_list[1] == \
+            call(1, 'f.active')
+
+    @patch.object(PartitionerMsDos, '_create_primary')
+    @patch.object(PartitionerMsDos, '_create_extended')
+    @patch.object(PartitionerMsDos, '_create_logical')
+    def test_create(
+        self, mock_create_logical, mock_create_extended, mock_create_primary
+    ):
+        self.partitioner.create('name', 100, 't.linux')
+        mock_create_primary.assert_called_once_with(
+            'name', 100, 't.linux', []
+        )
+        mock_create_primary.reset_mock()
+        self.partitioner_extended.create('name', 100, 't.linux')
+        mock_create_primary.assert_called_once_with(
+            'name', 100, 't.linux', []
+        )
+        self.partitioner_extended.partition_id = 3
+        self.partitioner_extended.create('name', 100, 't.linux')
+        mock_create_extended.assert_called_once_with('name')
+        mock_create_logical.assert_called_once_with(
+            'name', 100, 't.linux', []
+        )
+        mock_create_logical.reset_mock()
+        self.partitioner_extended.partition_id = 7
+        self.partitioner_extended.create('name', 100, 't.linux')
+        mock_create_logical.assert_called_once_with(
+            'name', 100, 't.linux', []
+        )
 
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')

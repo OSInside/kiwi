@@ -2718,7 +2718,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, overlayroot_verity_blocks=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, overlayroot_verity_blocks=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2728,6 +2728,7 @@ class type_(GeneratedsSuper):
         self.bootpartsize = _cast(int, bootpartsize)
         self.efipartsize = _cast(int, efipartsize)
         self.efiparttable = _cast(None, efiparttable)
+        self.dosparttable_extended_layout = _cast(bool, dosparttable_extended_layout)
         self.bootprofile = _cast(None, bootprofile)
         self.btrfs_quota_groups = _cast(bool, btrfs_quota_groups)
         self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
@@ -2893,6 +2894,8 @@ class type_(GeneratedsSuper):
     def set_efipartsize(self, efipartsize): self.efipartsize = efipartsize
     def get_efiparttable(self): return self.efiparttable
     def set_efiparttable(self, efiparttable): self.efiparttable = efiparttable
+    def get_dosparttable_extended_layout(self): return self.dosparttable_extended_layout
+    def set_dosparttable_extended_layout(self, dosparttable_extended_layout): self.dosparttable_extended_layout = dosparttable_extended_layout
     def get_bootprofile(self): return self.bootprofile
     def set_bootprofile(self, bootprofile): self.bootprofile = bootprofile
     def get_btrfs_quota_groups(self): return self.btrfs_quota_groups
@@ -3103,6 +3106,9 @@ class type_(GeneratedsSuper):
         if self.efiparttable is not None and 'efiparttable' not in already_processed:
             already_processed.add('efiparttable')
             outfile.write(' efiparttable=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.efiparttable), input_name='efiparttable')), ))
+        if self.dosparttable_extended_layout is not None and 'dosparttable_extended_layout' not in already_processed:
+            already_processed.add('dosparttable_extended_layout')
+            outfile.write(' dosparttable_extended_layout="%s"' % self.gds_format_boolean(self.dosparttable_extended_layout, input_name='dosparttable_extended_layout'))
         if self.bootprofile is not None and 'bootprofile' not in already_processed:
             already_processed.add('bootprofile')
             outfile.write(' bootprofile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootprofile), input_name='bootprofile')), ))
@@ -3355,6 +3361,15 @@ class type_(GeneratedsSuper):
             already_processed.add('efiparttable')
             self.efiparttable = value
             self.efiparttable = ' '.join(self.efiparttable.split())
+        value = find_attr_value_('dosparttable_extended_layout', node)
+        if value is not None and 'dosparttable_extended_layout' not in already_processed:
+            already_processed.add('dosparttable_extended_layout')
+            if value in ('true', '1'):
+                self.dosparttable_extended_layout = True
+            elif value in ('false', '0'):
+                self.dosparttable_extended_layout = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('bootprofile', node)
         if value is not None and 'bootprofile' not in already_processed:
             already_processed.add('bootprofile')

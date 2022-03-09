@@ -394,6 +394,15 @@ efiparttable="msdos|gpt":
   table type to use. If not set defaults to the GPT partition
   table type
 
+dosparttable_extended_layout="true|false":
+  For oem disk images, specifies to make use of logical partitions
+  inside of an extended one. If set to true and if the msdos table type
+  is active, this will cause the fourth partition to be an
+  extended partition and all following partitions will be
+  placed as logical partitions inside of that extended
+  partition. This setting is useful if more than 4 primary
+  partitions needs to be created in an msdos table
+
 btrfs_quota_groups="true|false":
   Boolean parameter to activate filesystem quotas if
   the filesystem is `btrfs`. By default quotas are inactive.
