@@ -40,6 +40,7 @@ class FileSystemSquashFs(FileSystemBase):
         :param string label: unused
         :param list exclude: list of exclude dirs/files
         """
+        self.filename = filename
         exclude_options = []
         compression = self.custom_args.get('compression')
         if compression is None or compression == 'xz':
@@ -71,6 +72,7 @@ class FileSystemSquashFs(FileSystemBase):
 
         Command.run(
             [
-                'mksquashfs', self.root_dir, filename, '-noappend', '-b', '1M'
+                'mksquashfs', self.root_dir, self.filename,
+                '-noappend', '-b', '1M'
             ] + self.custom_args['create_options'] + exclude_options
         )

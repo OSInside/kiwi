@@ -43,6 +43,7 @@ class FileSystemIsoFs(FileSystemBase):
         :param string label: unused
         :param list exclude: unused
         """
+        self.filename = filename
         meta_data = self.custom_args['meta_data']
         efi_mode = meta_data.get('efi_mode')
         ofw_mode = meta_data.get('ofw_mode')
@@ -58,4 +59,4 @@ class FileSystemIsoFs(FileSystemBase):
         if efi_loader:
             iso_tool.add_efi_loader_parameters(efi_loader)
 
-        iso_tool.create_iso(filename)
+        iso_tool.create_iso(self.filename)

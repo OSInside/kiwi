@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from collections import namedtuple
+from typing import Optional
 import logging
 import os
 
@@ -23,6 +24,7 @@ import os
 from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
+from kiwi.utils.veritysetup import VeritySetup
 from kiwi.mount_manager import MountManager
 from kiwi.utils.sync import DataSync
 from kiwi.path import Path
@@ -344,6 +346,19 @@ class VolumeManagerBase(DeviceProvider):
             data.sync_data(
                 options=Defaults.get_sync_options(), exclude=exclude
             )
+
+    def create_verity_layer(self, blocks: Optional[int] = None):
+        veritysetup = VeritySetup(
+            self.device_provider_root.get_device(), blocks
+        )
+        log.info(
+            '--> Creating dm verity hash ({0} blocks)...'.format(
+                blocks or 'all'
+            )
+        )
+        log.debug(
+            '--> dm verity metadata: {0}'.format(veritysetup.format())
+        )
 
     def set_property_readonly_root(self):
         """

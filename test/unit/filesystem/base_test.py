@@ -77,6 +77,11 @@ class TestFileSystemBase:
         filesystem_mount.mount.assert_called_once_with([])
         assert self.fsbase.get_mountpoint() == 'tmpdir'
 
+    @patch('kiwi.filesystem.base.VeritySetup')
+    def test_create_verity_layer(self, mock_VeritySetup):
+        self.fsbase.create_verity_layer()
+        mock_VeritySetup.return_value.format.assert_called_once_with()
+
     def test_umount(self):
         mount = mock.Mock()
         self.fsbase.filesystem_mount = mount
