@@ -66,7 +66,7 @@ openSUSE Leap:
 
       $ zypper addrepo http://download.opensuse.org/repositories/Virtualization:/containers/<DIST> container-tools
 
-   where the placeholder `<DIST>` is the preferred distribution. 
+   where the placeholder `<DIST>` is the preferred distribution.
 
 #. Install :command:`umoci` and :command:`skopeo` tools
 
