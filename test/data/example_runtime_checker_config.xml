@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.4" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="7.5" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -71,7 +71,7 @@
     </preferences>
     <preferences profiles="docker">
         <type image="docker">
-            <containerconfig name="container_name" additionaltags="foo,bar"/>
+            <containerconfig name="container_name" additionalnames="foo,bar"/>
         </type>
     </preferences>
     <preferences profiles="ec2Flavour">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.4" name="kiwi-test-image-custom-partitions">
+<image schemaversion="7.5" name="kiwi-test-image-custom-partitions">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.de</contact>

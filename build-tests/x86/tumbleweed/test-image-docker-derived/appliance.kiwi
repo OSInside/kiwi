@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.4" name="kiwi-test-image-docker-derived">
+<image schemaversion="7.5" name="kiwi-test-image-docker-derived">
     <description type="system">
         <author>David Cassany</author>
         <contact>dcassany@suse.de</contact>
@@ -8,7 +8,7 @@
     </description>
     <preferences>
         <type image="docker" derived_from="obs://openSUSE:Containers:Tumbleweed/containers/opensuse/tumbleweed#latest">
-            <containerconfig name="builder" tag="1.0" additionaltags="latest"/>
+            <containerconfig name="builder" tag="1.0" additionalnames=":latest"/>
         </type>
         <version>1.0</version>
         <packagemanager>zypper</packagemanager>

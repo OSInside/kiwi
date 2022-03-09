@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.4" name="kiwi-test-image-docker-derived">
+<image schemaversion="7.5" name="kiwi-test-image-docker-derived">
     <description type="system">
         <author>David Cassany</author>
         <contact>dcassany@suse.de</contact>

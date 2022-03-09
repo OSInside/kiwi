@@ -69,7 +69,7 @@ class OCIBase:
         :param str filename: The resulting filename
         :param str transport: The archive format
         :param str image_ref: Image reference of the exported image
-        :param list additional_tags: List of additional references
+        :param list additional_names: List of additional references
         """
         raise NotImplementedError
 

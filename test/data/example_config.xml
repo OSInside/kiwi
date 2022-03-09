@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.4" name="LimeJeOS" displayname="Bob">
+<image schemaversion="7.5" name="LimeJeOS" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -127,7 +127,7 @@
     </preferences>
     <preferences profiles="containerFlavour">
         <type image="docker">
-            <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag" additionaltags="current,foobar">
+            <containerconfig name="container_name" maintainer="tux" user="root" workingdir="/root" tag="container_tag" additionalnames="current,foobar">
                 <entrypoint execute="/bin/bash">
                     <argument name="-x"/>
                 </entrypoint>

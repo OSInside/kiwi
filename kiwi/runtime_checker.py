@@ -352,7 +352,7 @@ class RuntimeChecker:
             --help').\n
             It is known to be present since v0.1.30
         ''')
-        if 'additional_tags' in self.xml_state.get_container_config():
+        if 'additional_names' in self.xml_state.get_container_config():
             if not CommandCapabilities.has_option_in_help(
                 'skopeo', '--additional-tag', ['copy', '--help'],
                 raise_on_error=False

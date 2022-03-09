@@ -2,7 +2,7 @@
 
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.4" name="kiwi-test-image-live-disk">
+<image schemaversion="7.5" name="kiwi-test-image-live-disk">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>

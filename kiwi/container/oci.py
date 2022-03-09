@@ -41,7 +41,7 @@ class ContainerImageOCI:
         {
             'container_name': 'name',
             'container_tag': '1.0',
-            'additional_tags': ['current', 'foobar'],
+            'additional_names': ['current', 'foobar'],
             'entry_command': ['/bin/bash', '-x'],
             'entry_subcommand': ['ls', '-l'],
             'maintainer': 'tux',
@@ -142,12 +142,22 @@ class ContainerImageOCI:
         )
         additional_refs = []
         if self.archive_transport == 'docker-archive':
-            if 'additional_tags' in self.oci_config:
+            if 'additional_names' in self.oci_config:
                 additional_refs = []
-                for tag in self.oci_config['additional_tags']:
-                    additional_refs.append('{0}:{1}'.format(
-                        self.oci_config['container_name'], tag
-                    ))
+                for name in self.oci_config['additional_names']:
+                    name_parts = name.partition(':')
+                    if not name_parts[0]:
+                        additional_refs.append('{0}:{1}'.format(
+                            self.oci_config['container_name'], name_parts[2]
+                        ))
+                    elif not name_parts[2]:
+                        additional_refs.append('{0}:{1}'.format(
+                            name_parts[0], self.oci_config['container_tag']
+                        ))
+                    else:
+                        additional_refs.append('{0}:{1}'.format(
+                            name_parts[0], name_parts[2]
+                        ))
 
         oci.export_container_image(
             filename, self.archive_transport, image_ref, additional_refs

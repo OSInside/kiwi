@@ -2368,15 +2368,15 @@ class XMLState:
             maintainer = container_config_section.get_maintainer()
             user = container_config_section.get_user()
             workingdir = container_config_section.get_workingdir()
-            additional_tags = container_config_section.get_additionaltags()
+            additional_names = container_config_section.get_additionalnames()
             if name:
                 container_base['container_name'] = name
 
             if tag:
                 container_base['container_tag'] = tag
 
-            if additional_tags:
-                container_base['additional_tags'] = additional_tags.split(',')
+            if additional_names:
+                container_base['additional_names'] = additional_names.split(',')
 
             if maintainer:
                 container_base['maintainer'] = maintainer

@@ -64,7 +64,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "7.4" }
+        attribute schemaversion { "7.5" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -2546,12 +2546,15 @@ div {
             sch:param [ name = "attr" value = "tag" ]
             sch:param [ name = "types" value = "docker oci" ]
         ]
-    k.containerconfig.additionaltags.attribute =
-        ## Specifies additional tags for the container using a comma
-        ## separated values string
-        attribute additionaltags { text }
-        >> sch:pattern [ id = "additionaltags" is-a = "container_type"
-            sch:param [ name = "attr" value = "additionaltags" ]
+    k.containerconfig.additionalnames.attribute =
+        ## Specifies additional names for the container using a comma
+        ## separated values string. It supports '<repo1>:<tag2>,<repo2:tag2>'
+        ## format. If any of the names does not include the repository or tag
+        ## in that case `name` or `tag` attribute values from containerconfig
+        ## will be used to build a complete image referrence.
+        attribute additionalnames { text }
+        >> sch:pattern [ id = "additionalnames" is-a = "container_type"
+            sch:param [ name = "attr" value = "additionalnames" ]
             sch:param [ name = "types" value = "docker oci" ]
         ]
     k.containerconfig.maintainer.attribute =
@@ -2578,7 +2581,7 @@ div {
     k.containerconfig.attlist =
         k.containerconfig.name.attribute &
         k.containerconfig.tag.attribute? &
-        k.containerconfig.additionaltags.attribute? &
+        k.containerconfig.additionalnames.attribute? &
         k.containerconfig.maintainer.attribute? &
         k.containerconfig.user.attribute? &
         k.containerconfig.workingdir.attribute?

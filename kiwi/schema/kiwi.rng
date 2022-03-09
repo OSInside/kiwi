@@ -140,7 +140,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>7.4</value>
+        <value>7.5</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -3812,13 +3812,16 @@ image is imported via the docker load command</a:documentation>
         <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
-    <define name="k.containerconfig.additionaltags.attribute">
-      <attribute name="additionaltags">
-        <a:documentation>Specifies additional tags for the container using a comma
-separated values string</a:documentation>
+    <define name="k.containerconfig.additionalnames.attribute">
+      <attribute name="additionalnames">
+        <a:documentation>Specifies additional names for the container using a comma
+separated values string. It supports '&lt;repo1&gt;:&lt;tag2&gt;,&lt;repo2:tag2&gt;'
+format. If any of the names does not include the repository or tag
+in that case `name` or `tag` attribute values from containerconfig
+will be used to build a complete image referrence.</a:documentation>
       </attribute>
-      <sch:pattern id="additionaltags" is-a="container_type">
-        <sch:param name="attr" value="additionaltags"/>
+      <sch:pattern id="additionalnames" is-a="container_type">
+        <sch:param name="attr" value="additionalnames"/>
         <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
@@ -3856,7 +3859,7 @@ separated values string</a:documentation>
           <ref name="k.containerconfig.tag.attribute"/>
         </optional>
         <optional>
-          <ref name="k.containerconfig.additionaltags.attribute"/>
+          <ref name="k.containerconfig.additionalnames.attribute"/>
         </optional>
         <optional>
           <ref name="k.containerconfig.maintainer.attribute"/>
