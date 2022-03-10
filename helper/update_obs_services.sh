@@ -14,6 +14,6 @@ while read -r build_test; do
     curl_target="${api_target}?project=${project}&package=${package}"
 
     echo "Updating Test: ${package} for: ${project}"
-    curl --fail-with-body -H "Authorization: Token ${api_token}" \
+    curl -H "Authorization: Token ${api_token}" \
         -X POST "${curl_target}"
 done < <(find build-tests -name "appliance.kiwi")
