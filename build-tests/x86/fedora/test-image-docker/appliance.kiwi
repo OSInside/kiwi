@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-docker">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@gmail.com</contact>
+        <specification>docker test build</specification>
+    </description>
+    <preferences>
+        <version>1.34.0</version>
+        <packagemanager>dnf</packagemanager>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <type image="docker">
+            <containerconfig name="jeos"/>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+        <package name="NetworkManager"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="fedora-release"/>
+    </packages>
+</image>
