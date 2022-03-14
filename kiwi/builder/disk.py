@@ -25,7 +25,6 @@ from typing import (
 import kiwi.defaults as defaults
 
 from kiwi.utils.temporary import Temporary
-from kiwi.utils.veritysetup import VeritySetup
 from kiwi.system.mount import ImageSystem
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.defaults import Defaults
@@ -1187,27 +1186,10 @@ class DiskBuilder:
             )
 
             if self.root_filesystem_verity_blocks:
-                veritysetup = VeritySetup(
-                    squashed_root_file.name,
+                squashed_root.create_verity_layer(
                     self.root_filesystem_verity_blocks if
                     self.root_filesystem_verity_blocks != 'all' else None
                 )
-                log.info(
-                    '--> Creating dm verity hash ({0} blocks)...'.format(
-                        self.root_filesystem_verity_blocks
-                    )
-                )
-                veritysetup.format()
-                if system_boot:
-                    veritysetup.store_credentials(
-                        '{0}/overlayroot.verity'.format(
-                            system_boot.get_mountpoint()
-                        ), BlockID(device_map['readonly'].get_device())
-                    )
-                else:
-                    log.warning(
-                        'No write space for veritysetup credentials available'
-                    )
 
             readonly_target = device_map['readonly'].get_device()
             readonly_target_bytesize = device_map['readonly'].get_byte_size(

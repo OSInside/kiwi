@@ -28,6 +28,7 @@ from kiwi.utils.sync import DataSync
 from kiwi.mount_manager import MountManager
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
+from kiwi.utils.veritysetup import VeritySetup
 
 from kiwi.exceptions import (
     KiwiFileSystemSyncError
@@ -67,7 +68,7 @@ class FileSystemBase:
 
         # filesystems created without a block device stores the result
         # filesystem file name here
-        self.filename = None
+        self.filename = ''
 
         self.custom_args: Dict = {}
         self.post_init(custom_args)
@@ -172,6 +173,21 @@ class FileSystemBase:
         )
         data.sync_data(
             exclude=exclude, options=Defaults.get_sync_options()
+        )
+
+    def create_verity_layer(self, blocks: Optional[int] = None):
+        veritysetup = VeritySetup(
+            self.filename if self.filename else
+            self.device_provider.get_device(),
+            blocks
+        )
+        log.info(
+            '--> Creating dm verity hash ({0} blocks)...'.format(
+                blocks or 'all'
+            )
+        )
+        log.debug(
+            '--> dm verity metadata: {0}'.format(veritysetup.format())
         )
 
     def umount(self):

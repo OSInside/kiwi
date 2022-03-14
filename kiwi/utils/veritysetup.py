@@ -16,7 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from typing import Optional
+from typing import (
+    Optional, Dict
+)
 
 # project
 from kiwi.command import Command
@@ -41,10 +43,19 @@ class VeritySetup:
         self.image_filepath = image_filepath
         self.data_blocks = data_blocks
         self.verity_hash_offset = os.path.getsize(self.image_filepath)
-        self.verity_call = None
+        self.verity_dict: Dict[str, str] = {}
 
-    def format(self) -> None:
-        self.verity_call = Command.run(
+    def format(self) -> Dict[str, str]:
+        """
+        Run veritysetup on the given device node or filename
+        and store the verification information onto the same
+        device node or filename
+
+        :return: veritysetup result information in key/value format
+
+        :rtype: dict
+        """
+        verity_call = Command.run(
             [
                 'veritysetup', 'format',
                 self.image_filepath, self.image_filepath,
@@ -56,15 +67,47 @@ class VeritySetup:
                 ] if self.data_blocks else []
             )
         )
+        for line in verity_call.output.split(os.linesep):
+            try:
+                (key, value) = line.replace(' ', '').split(':', 2)
+                self.verity_dict[key] = value
+            except ValueError:
+                # ignore any occurrence for which split failed
+                pass
+        return self.verity_dict
+
+    def get_block_storage_filesystem(self) -> str:
+        """
+        Retrieve filesystem type from image_filepath. The method
+        only returns a value if image_filepath at construction
+        time of the VeritySetup object is a block device containing
+        a filesystem
+
+        :rtype: blkid TYPE value or empty string
+
+        :return: str
+        """
+        try:
+            return BlockID(self.image_filepath).get_filesystem()
+        except Exception:
+            return ''
 
     def store_credentials(
         self, credentials_filepath: str, target_block_id: BlockID
     ) -> None:
-        if self.verity_call:
+        """
+        Store verification credentials and other metadata to
+        the given credentials_filepath
+
+        :param str credentials_filepath: file path name
+        :param BlockID target_block_id:
+            instance of BlockID of the target storage device
+        """
+        if self.verity_dict:
             partition_uuid = target_block_id.get_blkid('PARTUUID')
             with open(credentials_filepath, 'w') as verity:
-                verity.write(self.verity_call.output.strip())
-                verity.write(os.linesep)
+                for key in sorted(self.verity_dict.keys()):
+                    verity.write(f'{key}: {self.verity_dict[key]}{os.linesep}')
                 verity.write(
                     f'PARTUUID: {partition_uuid}')
                 verity.write(os.linesep)

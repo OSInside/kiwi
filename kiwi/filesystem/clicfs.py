@@ -62,6 +62,7 @@ class FileSystemClicFs(FileSystemBase):
         :param string label: unused
         :param list exclude: unused
         """
+        self.filename = filename
         container_dir = Temporary(prefix='kiwi_clicfs.').new_dir()
         clicfs_container_filesystem = container_dir.name + '/fsdata.ext4'
         loop_provider = LoopDevice(
@@ -83,7 +84,7 @@ class FileSystemClicFs(FileSystemBase):
         del filesystem
 
         Command.run(
-            ['mkclicfs', clicfs_container_filesystem, filename]
+            ['mkclicfs', clicfs_container_filesystem, self.filename]
         )
 
     def _get_container_filesystem_size_mbytes(self):
