@@ -93,6 +93,7 @@ class TestRuntimeConfig:
         assert runtime_config.get_iso_tool_category() == 'xorriso'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_package_changes() is False
+        assert runtime_config.get_credentials_signing_key_file() == ''
 
     def test_config_sections_invalid(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/invalid'}):

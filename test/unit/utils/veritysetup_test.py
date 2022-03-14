@@ -1,16 +1,23 @@
 import io
 from textwrap import dedent
+from pytest import raises
 from mock import (
     patch, Mock, MagicMock, call
 )
 
 from kiwi.utils.veritysetup import VeritySetup
+from kiwi.exceptions import (
+    KiwiOffsetError,
+    KiwiCredentialsError
+)
+
+import kiwi.defaults as defaults
 
 
 class TestVeritySetup:
     @patch('os.path.getsize')
     def setup(self, mock_os_path_getsize):
-        mock_os_path_getsize.return_value = 42
+        mock_os_path_getsize.return_value = 4096
         self.veritysetup = VeritySetup('image_file', data_blocks=10)
         self.veritysetup_full = VeritySetup('image_file')
         self.verity_dict = {
@@ -34,9 +41,9 @@ class TestVeritySetup:
         mock_Command_run.assert_called_once_with(
             [
                 'veritysetup', 'format', 'image_file', 'image_file',
-                '--no-superblock', '--hash-offset=42',
-                '--hash-block-size=1024', '--data-blocks=10',
-                '--data-block-size=1024',
+                '--no-superblock', '--hash-offset=4096',
+                '--hash-block-size=4096', '--data-blocks=10',
+                '--data-block-size=4096',
             ]
         )
 
@@ -54,8 +61,8 @@ class TestVeritySetup:
         mock_Command_run.assert_called_once_with(
             [
                 'veritysetup', 'format', 'image_file', 'tempfile',
-                '--no-superblock', '--hash-block-size=1024', '--data-blocks=10',
-                '--data-block-size=1024',
+                '--no-superblock', '--hash-block-size=4096', '--data-blocks=10',
+                '--data-block-size=4096',
             ]
         )
 
@@ -78,7 +85,8 @@ class TestVeritySetup:
         mock_Command_run.assert_called_once_with(
             [
                 'veritysetup', 'format', 'image_file', 'image_file',
-                '--no-superblock', '--hash-offset=42', '--hash-block-size=1024'
+                '--no-superblock', '--hash-offset=4096',
+                '--hash-block-size=4096'
             ]
         )
 
@@ -104,7 +112,7 @@ class TestVeritySetup:
             call('UUID: \n'),
             call('PARTUUID: uuid'),
             call('\n'),
-            call('Root hashoffset: 42'),
+            call('Root hashoffset: 4096'),
             call('\n'),
             call('Superblock: --no-superblock'),
             call('\n')
@@ -118,3 +126,103 @@ class TestVeritySetup:
         assert self.veritysetup.get_block_storage_filesystem() == 'ext3'
         block_id.get_filesystem.side_effect = Exception
         assert self.veritysetup.get_block_storage_filesystem() == ''
+
+    @patch('os.path.getsize')
+    def test_write_verification_metadata_raises(self, mock_os_path_getsize):
+        mock_os_path_getsize.return_value = 8192
+        metadata_file = Mock()
+        self.veritysetup.verification_metadata_file = metadata_file
+        with raises(KiwiOffsetError):
+            self.veritysetup.write_verification_metadata('/some/device')
+
+    @patch('os.path.getsize')
+    def test_write_verification_metadata(self, mock_os_path_getsize):
+        mock_os_path_getsize.return_value = 4096
+        metadata_file = Mock()
+        metadata_file.name = 'metadata_file'
+        self.veritysetup.verification_metadata_file = metadata_file
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.veritysetup.write_verification_metadata('/some/device')
+        assert mock_open.call_args_list == [
+            call('metadata_file', 'rb'),
+            call('/some/device', 'r+b')
+        ]
+        file_handle.seek.assert_called_once_with(
+            -defaults.VERIFICATION_METADATA_OFFSET, 2
+        )
+        file_handle.write.assert_called_once_with(
+            file_handle.read.return_value
+        )
+
+    @patch.object(VeritySetup, 'get_block_storage_filesystem')
+    def test_create_verity_verification_metadata(
+        self, mock_get_block_storage_filesystem
+    ):
+        mock_get_block_storage_filesystem.return_value = 'ext4'
+        self.veritysetup.verity_dict = self.verity_dict
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.veritysetup.create_verity_verification_metadata()
+        assert file_handle.write.call_args_list == [
+            call(b'1 ext4 rw verity'),
+            call(b'\xff'),
+            call(b'1 4096 4096 10 1 sha256 e2728628377... fb074d1db50...'),
+            call(b'\xff'),
+            call(b'\x00')
+        ]
+
+    @patch('kiwi.utils.veritysetup.RuntimeConfig')
+    def test_sign_verification_metadata_raises(self, mock_RuntimeConfig):
+        metadata_file = Mock()
+        metadata_file.name = 'metadata_file'
+        self.veritysetup.verification_metadata_file = metadata_file
+        runtime_config = Mock()
+        runtime_config.get_credentials_signing_key_file = Mock(
+            return_value=None
+        )
+        mock_RuntimeConfig.return_value = runtime_config
+        with raises(KiwiCredentialsError):
+            self.veritysetup.sign_verification_metadata()
+
+    @patch('kiwi.utils.veritysetup.RuntimeConfig')
+    @patch('kiwi.utils.veritysetup.Command')
+    @patch('kiwi.utils.veritysetup.Temporary.new_file')
+    def test_sign_verification_metadata(
+        self, mock_Temporary_new_file, mock_Command, mock_RuntimeConfig
+    ):
+        signature_file = Mock()
+        signature_file.name = 'signature_file'
+        mock_Temporary_new_file.return_value = signature_file
+        metadata_file = Mock()
+        metadata_file.name = 'metadata_file'
+        self.veritysetup.verification_metadata_file = metadata_file
+        runtime_config = Mock()
+        runtime_config.get_credentials_signing_key_file = Mock(
+            return_value='signing_key_file'
+        )
+        mock_RuntimeConfig.return_value = runtime_config
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.veritysetup.sign_verification_metadata()
+        mock_Command.run.assert_called_once_with(
+            [
+                'openssl', 'dgst', '-sha256',
+                '-sigopt', 'rsa_padding_mode:pss',
+                '-sigopt', 'rsa_pss_saltlen:-1',
+                '-sigopt', 'rsa_mgf1_md:sha256',
+                '-sign', 'signing_key_file',
+                '-out', 'signature_file',
+                'metadata_file'
+            ]
+        )
+        assert mock_open.call_args_list == [
+            call('signature_file', 'rb'),
+            call('metadata_file', 'ab')
+        ]
+        file_handle.write.assert_called_once_with(
+            file_handle.read.return_value
+        )

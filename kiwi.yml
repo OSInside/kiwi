@@ -10,6 +10,11 @@
 # to your needs
 #
 
+# Setup access to security keys
+#credentials:
+#  # Specify private key used for signing operations
+#  - rootfs_signing_key_file: /path/to/private.pem
+
 # Setup access options for the Open BuildService
 #obs:
 #  # Specify the URL of the Open BuildService download server

@@ -354,6 +354,12 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
+    def create_verification_metadata(self, device_node: str = '') -> None:
+        """
+        Write verification block on LVM devices is not supported
+        """
+        raise NotImplementedError
+
     def set_property_readonly_root(self):
         """
         Implements setup of read-only root property
