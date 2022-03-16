@@ -16,6 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
 
@@ -24,11 +26,15 @@ class FileSystemSwap(FileSystemBase):
     """
     **Implements creation of swap space**
     """
-    def create_on_device(self, label: str = None):
+    def create_on_device(
+        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb
+    ):
         """
         Create swap space on block device
 
         :param string label: label name
+        :param int size: unused
+        :param str unit: unused
         """
         device = self.device_provider.get_device()
         if label:

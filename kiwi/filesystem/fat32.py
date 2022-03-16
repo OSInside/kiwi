@@ -16,26 +16,43 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 
 # project
+import kiwi.defaults as defaults
+
 from kiwi.filesystem.base import FileSystemBase
 from kiwi.command import Command
 
 
 class FileSystemFat32(FileSystemBase):
     """
-    **Implements creation of fat16 filesystem**
+    **Implements creation of fat32 filesystem**
     """
-    def create_on_device(self, label: str = None):
+    def create_on_device(
+        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb
+    ):
         """
         Create fat32 filesystem on block device
 
-        :param string label: label name
+        :param str label: label name
+        :param int size:
+            size value, can also be counted from the end via -X
+            The value is interpreted in units of: unit
+        :param str unit:
+            unit name. Default unit is set to: defaults.UNIT.kb
         """
-        device = self.device_provider.get_device()
+        device_args = [self.device_provider.get_device()]
         if label:
             self.custom_args['create_options'].append('-n')
             self.custom_args['create_options'].append(label)
+        if size:
+            device_args.append(
+                self._fs_size(
+                    size=self._map_size(
+                        size, from_unit=unit, to_unit=defaults.UNIT.kb
+                    ), unit=defaults.UNIT.kb
+                )
+            )
         Command.run(
             [
                 'mkdosfs', '-F32', '-I'
-            ] + self.custom_args['create_options'] + [device]
+            ] + self.custom_args['create_options'] + device_args
         )

@@ -24,7 +24,7 @@ class TestFileSystemFat16:
 
     @patch('kiwi.filesystem.fat16.Command.run')
     def test_create_on_device(self, mock_command):
-        self.fat16.create_on_device('label')
+        self.fat16.create_on_device('label', 100)
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
-            call(['mkdosfs', '-F16', '-I', '-n', 'label', '/dev/foo'])
+            call(['mkdosfs', '-F16', '-I', '-n', 'label', '/dev/foo', '100'])

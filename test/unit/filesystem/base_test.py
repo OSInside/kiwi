@@ -2,6 +2,8 @@ from mock import patch
 from pytest import raises
 import mock
 
+import kiwi.defaults as defaults
+
 from kiwi.filesystem.base import FileSystemBase
 
 from kiwi.exceptions import KiwiFileSystemSyncError
@@ -12,6 +14,9 @@ class TestFileSystemBase:
         provider = mock.Mock()
         provider.get_device = mock.Mock(
             return_value='/dev/loop0'
+        )
+        provider.get_byte_size = mock.Mock(
+            return_value=1073741824  # 1GB
         )
         custom_args = {
             'fs_attributes': ['no-copy-on-write']
@@ -87,6 +92,20 @@ class TestFileSystemBase:
         self.fsbase.filesystem_mount = mount
         self.fsbase.umount()
         mount.umount.assert_called_once_with()
+
+    def test_fs_size(self):
+        # size of 100k must be 100k (default unit)
+        assert self.fsbase._fs_size(100) == '100'
+        # size of 1073741824b (see test init) - 100k must be 1048476k
+        assert self.fsbase._fs_size(-100) == '1048476'
+        # size of 1073741824b (see test init) - 102400b must be 1073639424b
+        assert self.fsbase._fs_size(
+            -102400, unit=defaults.UNIT.byte
+        ) == '1073639424'
+        # size of 1073741824b - 1024m must be zero
+        assert self.fsbase._fs_size(-1024, unit=defaults.UNIT.mb) == '0'
+        # size of 1073741824b - 1g must be zero
+        assert self.fsbase._fs_size(-1, unit=defaults.UNIT.gb) == '0'
 
     def test_destructor_valid_mountpoint(self):
         self.fsbase.filesystem_mount = mock.Mock()
