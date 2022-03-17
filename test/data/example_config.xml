@@ -58,7 +58,12 @@
         <type image="iso" firmware="efi"/>
     </preferences>
     <preferences profiles="vmxFlavour">
-        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" fscreateoptions="-O ^has_journal" btrfs_root_is_snapshot="true" spare_part="200M" spare_part_fs_attributes="no-copy-on-write" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4" installiso="true">
+        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" fscreateoptions="-O ^has_journal" btrfs_root_is_snapshot="true" spare_part="200M" spare_part_fs_attributes="no-copy-on-write" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4" installiso="true" luks="linux">
+            <luksformat>
+                <option name="--type" value="luks2"/>
+                <option name="--cipher" value="aes-gcm-random"/>
+                <option name="--integrity" value="aead"/>
+            </luksformat>
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
             <machine memory="512" xen_loader="hvmloader">

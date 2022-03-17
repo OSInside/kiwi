@@ -861,6 +861,25 @@ div {
 }
 
 #==========================================
+# common element <option>
+#
+div {
+    k.option.name.attribute =
+        attribute name { text }
+    k.option.value.attribute =
+        attribute value { text }
+    k.option.attlist =
+        k.option.name.attribute &
+        k.option.value.attribute?
+    k.option =
+        ## A commandline option specification
+        element option {
+            k.option.attlist,
+            empty
+        }
+}
+
+#==========================================
 # common element <package>
 #
 div {
@@ -1814,8 +1833,12 @@ div {
     k.type.luks.attribute =
         ## Setup cryptographic volume along with the given filesystem
         ## using the LUKS extension. The value of this attribute
-        ## represents the password string used to be able to
-        ## mount that filesystem while booting
+        ## represents either the password string or the location of
+        ## a key file if specified as file:// resource. When using
+        ## a key file it is in the responsibility of the user how
+        ## this key file is actually being used. By default any
+        ## distribution will just open an interactive dialog asking
+        ## for credentials at boot time.
         attribute luks { text }
         >> sch:pattern [ id = "luks" is-a = "image_type"
             sch:param [ name = "attr" value = "luks" ]
@@ -1827,7 +1850,7 @@ div {
         ## in order to create a format compatible to the specified
         ## distribution
         attribute luksOS {
-            "sle11"
+            "sle12"
         }
         >> sch:pattern [ id = "luksOS" is-a = "image_type"
             sch:param [ name = "attr" value = "luksOS" ]
@@ -2025,7 +2048,8 @@ div {
             k.systemdisk? &
             k.partitions? &
             k.vagrantconfig* &
-            k.installmedia?
+            k.installmedia? &
+            k.luksformat?
         }
 }
 
@@ -2735,6 +2759,29 @@ div {
         element partitions {
             k.partitions.attlist &
             k.partition+
+        }
+}
+
+#==========================================
+# main block: <luksformat>
+#
+div {
+    sch:pattern [
+        id = "luks_requirement"
+        sch:rule [
+            context = "luksformat"
+            sch:assert [
+                test = "../@luks"
+                "luks attribute must be set when using luksformat option(s)"
+            ]
+        ]
+    ]
+    k.luksformat.attlist = empty
+    k.luksformat =
+        ## luksFormat option settings
+        element luksformat {
+            k.luksformat.attlist &
+            k.option+
         }
 }
 

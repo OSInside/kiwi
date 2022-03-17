@@ -1301,6 +1301,34 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <option>
+    
+  -->
+  <div>
+    <define name="k.option.name.attribute">
+      <attribute name="name"/>
+    </define>
+    <define name="k.option.value.attribute">
+      <attribute name="value"/>
+    </define>
+    <define name="k.option.attlist">
+      <interleave>
+        <ref name="k.option.name.attribute"/>
+        <optional>
+          <ref name="k.option.value.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.option">
+      <element name="option">
+        <a:documentation>A commandline option specification</a:documentation>
+        <ref name="k.option.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <package>
     
   -->
@@ -2633,8 +2661,12 @@ kernel command line options</a:documentation>
       <attribute name="luks">
         <a:documentation>Setup cryptographic volume along with the given filesystem
 using the LUKS extension. The value of this attribute
-represents the password string used to be able to
-mount that filesystem while booting</a:documentation>
+represents either the password string or the location of
+a key file if specified as file:// resource. When using
+a key file it is in the responsibility of the user how
+this key file is actually being used. By default any
+distribution will just open an interactive dialog asking
+for credentials at boot time.</a:documentation>
       </attribute>
       <sch:pattern id="luks" is-a="image_type">
         <sch:param name="attr" value="luks"/>
@@ -2647,7 +2679,7 @@ mount that filesystem while booting</a:documentation>
 and hash format options is passed to the cryptsetup call
 in order to create a format compatible to the specified
 distribution</a:documentation>
-        <value>sle11</value>
+        <value>sle12</value>
       </attribute>
       <sch:pattern id="luksOS" is-a="image_type">
         <sch:param name="attr" value="luksOS"/>
@@ -3035,6 +3067,9 @@ kiwi-ng result bundle ...</a:documentation>
           </zeroOrMore>
           <optional>
             <ref name="k.installmedia"/>
+          </optional>
+          <optional>
+            <ref name="k.luksformat"/>
           </optional>
         </interleave>
       </element>
@@ -4101,6 +4136,32 @@ of the storage device</a:documentation>
           <ref name="k.partitions.attlist"/>
           <oneOrMore>
             <ref name="k.partition"/>
+          </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <luksformat>
+    
+  -->
+  <div>
+    <sch:pattern id="luks_requirement">
+      <sch:rule context="luksformat">
+        <sch:assert test="../@luks">luks attribute must be set when using luksformat option(s)</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <define name="k.luksformat.attlist">
+      <empty/>
+    </define>
+    <define name="k.luksformat">
+      <element name="luksformat">
+        <a:documentation>luksFormat option settings</a:documentation>
+        <interleave>
+          <ref name="k.luksformat.attlist"/>
+          <oneOrMore>
+            <ref name="k.option"/>
           </oneOrMore>
         </interleave>
       </element>
