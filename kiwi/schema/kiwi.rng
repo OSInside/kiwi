@@ -2361,9 +2361,11 @@ specify which filesystem should be used for it. The
 type of the bootloader might overwrite this setting
 e.g for the syslinux loader fat is required</a:documentation>
         <choice>
+          <value>btrfs</value>
           <value>ext2</value>
           <value>ext3</value>
           <value>ext4</value>
+          <value>xfs</value>
           <value>fat32</value>
           <value>fat16</value>
         </choice>
