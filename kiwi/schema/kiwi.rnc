@@ -1631,7 +1631,7 @@ div {
         ## type of the bootloader might overwrite this setting
         ## e.g for the syslinux loader fat is required
         attribute bootfilesystem {
-            "ext2" | "ext3" | "ext4" | "fat32" | "fat16"
+            "btrfs" | "ext2" | "ext3" | "ext4" | "xfs" | "fat32" | "fat16"
         }
         >> sch:pattern [ id = "bootfilesystem" is-a = "image_type"
             sch:param [ name = "attr" value = "bootfilesystem" ]

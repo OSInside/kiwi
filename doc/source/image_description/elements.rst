@@ -614,7 +614,7 @@ overlayroot_readonly_partsize="mbsize"
   If the value can be provided beforehand this also speeds
   up the build process significantly
 
-bootfilesystem="ext2|ext3|ext4|fat32|fat16":
+bootfilesystem="btrfs|ext2|ext3|ext4|xfs|fat32|fat16":
   If an extra boot partition is required this attribute
   specify which filesystem should be used for it. The
   type of the selected bootloader might overwrite this
