@@ -645,6 +645,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_TERMINAL
         * GRUB_DISTRIBUTOR
         * GRUB_DISABLE_LINUX_UUID
+        * GRUB_DISABLE_LINUX_PARTUUID
+        * GRUB_ENABLE_LINUX_LABEL
         """
         grub_default_entries = {
             'GRUB_TIMEOUT': self.timeout,
@@ -655,7 +657,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             r'(^root=[^\s]+)|( root=[^\s]+)', '', self.cmdline
         ).strip()
         if self.persistency_type == 'by-label':
+            grub_default_entries['GRUB_ENABLE_LINUX_LABEL'] = 'true'
             grub_default_entries['GRUB_DISABLE_LINUX_UUID'] = 'true'
+        elif self.persistency_type == 'by-partuuid':
+            grub_default_entries['GRUB_DISABLE_LINUX_UUID'] = 'true'
+            grub_default_entries['GRUB_DISABLE_LINUX_PARTUUID'] = 'false'
         if self.displayname:
             grub_default_entries['GRUB_DISTRIBUTOR'] = '"{0}"'.format(
                 self.displayname

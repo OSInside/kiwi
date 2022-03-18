@@ -582,6 +582,7 @@ class TestBootLoaderConfigGrub2:
             call('GRUB_DISTRIBUTOR', '"Bob"'),
             call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
+            call('GRUB_ENABLE_LINUX_LABEL', 'true'),
             call('GRUB_GFXMODE', '800x600'),
             call(
                 'GRUB_SERIAL_COMMAND', '"serial --speed=38400"'
@@ -621,6 +622,48 @@ class TestBootLoaderConfigGrub2:
                 'GRUB_BACKGROUND',
                 '/boot/grub2/themes/openSUSE/background.png'
             ),
+            call('GRUB_DISABLE_LINUX_UUID', 'true'),
+            call('GRUB_DISTRIBUTOR', '"Bob"'),
+            call('GRUB_ENABLE_BLSCFG', 'true'),
+            call('GRUB_ENABLE_CRYPTODISK', 'y'),
+            call('GRUB_ENABLE_LINUX_LABEL', 'true'),
+            call('GRUB_GFXMODE', '800x600'),
+            call(
+                'GRUB_SERIAL_COMMAND', '"serial --speed=38400"'
+            ),
+            call('GRUB_TERMINAL', '"serial"'),
+            call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
+            call('GRUB_TIMEOUT', 10),
+            call('GRUB_TIMEOUT_STYLE', 'countdown'),
+            call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true')
+        ]
+
+    @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.grub2.SysConfig')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_default_grub_use_of_by_partuuid(
+        self, mock_Command_run, mock_sysconfig, mock_exists
+    ):
+        grep_grub_option = Mock()
+        grep_grub_option.returncode = 0
+        mock_Command_run.return_value = grep_grub_option
+        grub_default = MagicMock()
+        mock_sysconfig.return_value = grub_default
+        mock_exists.return_value = True
+        self.bootloader.terminal = 'serial'
+        self.bootloader.theme = 'openSUSE'
+        self.bootloader.displayname = 'Bob'
+        self.bootloader.cmdline = 'root=UUID=foo'
+        self.bootloader.persistency_type = 'by-partuuid'
+
+        self.bootloader._setup_default_grub()
+
+        assert grub_default.__setitem__.call_args_list == [
+            call(
+                'GRUB_BACKGROUND',
+                '/boot/grub2/themes/openSUSE/background.png'
+            ),
+            call('GRUB_DISABLE_LINUX_PARTUUID', 'false'),
             call('GRUB_DISABLE_LINUX_UUID', 'true'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
             call('GRUB_ENABLE_BLSCFG', 'true'),
