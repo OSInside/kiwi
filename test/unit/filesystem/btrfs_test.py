@@ -24,11 +24,11 @@ class TestFileSystemBtrfs:
 
     @patch('kiwi.filesystem.btrfs.Command.run')
     def test_create_on_device(self, mock_command):
-        self.btrfs.create_on_device('label', 100)
+        self.btrfs.create_on_device('label', 100, uuid='uuid')
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == call(
             [
-                'mkfs.btrfs', '-L', 'label',
+                'mkfs.btrfs', '-L', 'label', '-U', 'uuid',
                 '--byte-count', '102400', '/dev/foo'
             ]
         )

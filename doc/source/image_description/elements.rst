@@ -554,6 +554,16 @@ devicepersistency="by-uuid|by-label":
 squashfscompression="uncompressed|gzip|lzo|lz4|xz|zstd":
   Specifies the compression type for mksquashfs
 
+verity_blocks="number|all"
+  For the `oem` type only, specifies to create a dm verity hash
+  from the number of given blocks (or all) placed at the end of the
+  root filesystem For later verification of the device,
+  the credentials information produced by `veritysetup` from the
+  cryptsetup tools are needed. This data as of now is only printed
+  as debugging information to the build log file. A concept to
+  persistently store the verification metadata as part of the
+  partition(s) will be a next step.
+
 overlayroot="true|false"
   For the `oem` type only, specifies to use an `overlayfs` based root
   filesystem consisting out of a squashfs compressed read-only root
@@ -580,16 +590,6 @@ overlayroot="true|false"
   element is set to `true` an eventually given `<size>` element
   will not have any effect because the write partition will be
   resized on first boot to the available disk space.
-
-overlayroot_verity_blocks="number|all"
-  For the `oem` type only, specifies to create a dm verity hash
-  from the number of given blocks (or all) placed at the end of the squashfs
-  compressed read-only root filesystem. For later verification of the device,
-  the credentials information produced by `veritysetup` from the
-  cryptsetup tools are needed. This data as of now is only printed
-  as debugging information to the build log file. A concept to
-  persistently store the verification metadata as part of the
-  partition(s) will be a next step.
 
 overlayroot_write_partition="true|false"
   For the `oem` type only, allows to specify if the extra read-write

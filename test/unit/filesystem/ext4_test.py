@@ -24,7 +24,7 @@ class TestFileSystemExt4:
 
     @patch('kiwi.filesystem.ext4.Command.run')
     def test_create_on_device(self, mock_command):
-        self.ext4.create_on_device('label', 100)
+        self.ext4.create_on_device('label', 100, uuid='uuid')
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
-            call(['mkfs.ext4', '-L', 'label', '/dev/foo', '100'])
+            call(['mkfs.ext4', '-L', 'label', '-U', 'uuid', '/dev/foo', '100'])

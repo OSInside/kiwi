@@ -24,6 +24,7 @@ from typing import (
 # project
 import kiwi.defaults as defaults
 
+from kiwi.utils.veritysetup import VeritySetup
 from kiwi.utils.temporary import Temporary
 from kiwi.system.mount import ImageSystem
 from kiwi.storage.disk import ptable_entry_type
@@ -95,7 +96,7 @@ class DiskBuilder:
         self.root_filesystem_read_only_partsize = \
             xml_state.build_type.get_overlayroot_readonly_partsize()
         self.root_filesystem_verity_blocks = \
-            xml_state.build_type.get_overlayroot_verity_blocks()
+            xml_state.build_type.get_verity_blocks()
         self.dosparttable_extended_layout = \
             xml_state.build_type.get_dosparttable_extended_layout()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
@@ -1206,6 +1207,58 @@ class DiskBuilder:
                     'dd',
                     'if=%s' % squashed_root_file.name,
                     'of=%s' % readonly_target
+                ]
+            )
+        elif self.root_filesystem_verity_blocks:
+            root_target = device_map['root'].get_device()
+            root_target_bytesize = device_map['root'].get_byte_size(
+                root_target
+            )
+            verity_root_file_bytes = root_target_bytesize - VeritySetup(
+                device_map['root'].get_device(),
+                self.root_filesystem_verity_blocks if
+                self.root_filesystem_verity_blocks != 'all' else None
+            ).get_hash_byte_size()
+            verity_root_file = Temporary().new_file()
+            loop_provider = LoopDevice(
+                verity_root_file.name,
+                int(verity_root_file_bytes / 1048576)
+            )
+            loop_provider.create()
+            filesystem_custom_parameters = {
+                'mount_options': self.custom_root_mount_args,
+                'create_options': self.custom_root_creation_args
+            }
+            filesystem = FileSystem.new(
+                self.requested_filesystem, loop_provider,
+                self.root_dir + '/',
+                filesystem_custom_parameters
+            )
+            filesystem.create_on_device(
+                label=self.disk_setup.get_root_label(),
+                uuid=BlockID(root_target).get_uuid()
+            )
+            filesystem.sync_data(
+                self._get_exclude_list_for_root_data_sync(device_map)
+            )
+            filesystem.umount()
+            filesystem.create_verity_layer(
+                self.root_filesystem_verity_blocks if
+                self.root_filesystem_verity_blocks != 'all' else None,
+                verity_root_file.name
+            )
+            del loop_provider
+            log.info(
+                '--> Dumping rootfs file({0} bytes) -> {1}({2} bytes)'.format(
+                    os.path.getsize(verity_root_file.name),
+                    root_target, root_target_bytesize
+                )
+            )
+            Command.run(
+                [
+                    'dd',
+                    'if=%s' % verity_root_file.name,
+                    'of=%s' % root_target
                 ]
             )
         else:

@@ -110,7 +110,8 @@ class FileSystemBase:
             self.custom_args['fs_attributes'] = []
 
     def create_on_device(
-        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb
+        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb,
+        uuid: str = None
     ):
         """
         Create filesystem on block device
@@ -124,6 +125,7 @@ class FileSystemBase:
             The value is interpreted in units of: unit
         :param str unit:
             unit name. Default unit is set to: defaults.UNIT.kb
+        :param str uuid: UUID name
         """
         raise NotImplementedError
 
@@ -184,10 +186,12 @@ class FileSystemBase:
             exclude=exclude, options=Defaults.get_sync_options()
         )
 
-    def create_verity_layer(self, blocks: Optional[int] = None):
+    def create_verity_layer(
+        self, blocks: Optional[int] = None, filename: str = None
+    ):
+        on_file_name = filename or self.filename
         veritysetup = VeritySetup(
-            self.filename if self.filename else
-            self.device_provider.get_device(),
+            on_file_name or self.device_provider.get_device(),
             blocks
         )
         log.info(

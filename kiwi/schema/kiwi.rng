@@ -43,12 +43,12 @@
   </define>
   <define name="size-type">
     <data type="token">
-      <param name="pattern">\d*|image</param>
+      <param name="pattern">(\d*|image)</param>
     </data>
   </define>
   <define name="blocks-type">
     <data type="token">
-      <param name="pattern">\d*|all</param>
+      <param name="pattern">(\d*|all)</param>
     </data>
   </define>
   <define name="volume-size-type">
@@ -2245,6 +2245,19 @@ structure</a:documentation>
         <sch:param name="types" value="oem pxe kis iso"/>
       </sch:pattern>
     </define>
+    <define name="k.type.verity_blocks.attribute">
+      <attribute name="verity_blocks">
+        <a:documentation>Specifies to create a dm verity hash from the number of
+given blocks and placed at the end of the root filesystem
+If the verity hash should be calculated from the complete
+file the value 'all' can be specified.</a:documentation>
+        <ref name="blocks-type"/>
+      </attribute>
+      <sch:pattern id="verity_blocks" is-a="image_type">
+        <sch:param name="attr" value="verity_blocks"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.overlayroot.attribute">
       <attribute name="overlayroot">
         <a:documentation>Specifies to use an overlay root system consisting
@@ -2256,20 +2269,6 @@ image type oem</a:documentation>
       </attribute>
       <sch:pattern id="overlayroot" is-a="image_type">
         <sch:param name="attr" value="overlayroot"/>
-        <sch:param name="types" value="oem"/>
-      </sch:pattern>
-    </define>
-    <define name="k.type.overlayroot_verity_blocks.attribute">
-      <attribute name="overlayroot_verity_blocks">
-        <a:documentation>Specifies to create a dm verity hash from the number of
-given blocks and placed at the end of the squashfs
-compressed read-only root filesystem. If the verity hash
-should be calculated from the complete file the value 'all'
-can be specified.</a:documentation>
-        <ref name="blocks-type"/>
-      </attribute>
-      <sch:pattern id="overlayroot_verity_blocks" is-a="image_type">
-        <sch:param name="attr" value="overlayroot_verity_blocks"/>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
@@ -2944,7 +2943,7 @@ kiwi-ng result bundle ...</a:documentation>
           <ref name="k.type.overlayroot_readonly_partsize.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.overlayroot_verity_blocks.attribute"/>
+          <ref name="k.type.verity_blocks.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.primary.attribute"/>

@@ -27,7 +27,8 @@ class FileSystemSwap(FileSystemBase):
     **Implements creation of swap space**
     """
     def create_on_device(
-        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb
+        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb,
+        uuid: str = None
     ):
         """
         Create swap space on block device
@@ -35,6 +36,7 @@ class FileSystemSwap(FileSystemBase):
         :param string label: label name
         :param int size: unused
         :param str unit: unused
+        :param str uuid: unused
         """
         device = self.device_provider.get_device()
         if label:

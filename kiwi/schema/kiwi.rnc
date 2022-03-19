@@ -28,8 +28,8 @@ safe-posix-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
 safe-posix-short-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]{1,32}"}
 locale-name = xsd:token {pattern = "(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
-size-type = xsd:token {pattern = "\d*|image"}
-blocks-type = xsd:token {pattern = "\d*|all"}
+size-type = xsd:token {pattern = "(\d*|image)"}
+blocks-type = xsd:token {pattern = "(\d*|all)"}
 volume-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G|all)"}
 partition-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G)"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
@@ -1540,6 +1540,16 @@ div {
             sch:param [ name = "attr" value = "squashfscompression" ]
             sch:param [ name = "types" value = "oem pxe kis iso" ]
         ]
+    k.type.verity_blocks.attribute =
+        ## Specifies to create a dm verity hash from the number of
+        ## given blocks and placed at the end of the root filesystem
+        ## If the verity hash should be calculated from the complete
+        ## file the value 'all' can be specified.
+        attribute verity_blocks { blocks-type }
+        >> sch:pattern [ id = "verity_blocks" is-a = "image_type"
+            sch:param [ name = "attr" value = "verity_blocks" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.overlayroot.attribute =
         ## Specifies to use an overlay root system consisting
         ## out of a squashfs compressed read-only root system
@@ -1549,17 +1559,6 @@ div {
         attribute overlayroot { xsd:boolean }
         >> sch:pattern [ id = "overlayroot" is-a = "image_type"
             sch:param [ name = "attr" value = "overlayroot" ]
-            sch:param [ name = "types" value = "oem" ]
-        ]
-    k.type.overlayroot_verity_blocks.attribute =
-        ## Specifies to create a dm verity hash from the number of
-        ## given blocks and placed at the end of the squashfs
-        ## compressed read-only root filesystem. If the verity hash
-        ## should be calculated from the complete file the value 'all'
-        ## can be specified.
-        attribute overlayroot_verity_blocks { blocks-type }
-        >> sch:pattern [ id = "overlayroot_verity_blocks" is-a = "image_type"
-            sch:param [ name = "attr" value = "overlayroot_verity_blocks" ]
             sch:param [ name = "types" value = "oem" ]
         ]
     k.type.overlayroot_write_partition.attribute =
@@ -1994,7 +1993,7 @@ div {
         k.type.overlayroot.attribute? &
         k.type.overlayroot_write_partition.attribute? &
         k.type.overlayroot_readonly_partsize.attribute? &
-        k.type.overlayroot_verity_blocks.attribute? &
+        k.type.verity_blocks.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &
