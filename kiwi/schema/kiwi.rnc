@@ -1556,14 +1556,7 @@ div {
         ## given blocks and placed at the end of the squashfs
         ## compressed read-only root filesystem. If the verity hash
         ## should be calculated from the complete file the value 'all'
-        ## can be specified. The verification credentials information
-        ## produced by veritysetup for later verification is stored as
-        ## a file in /boot/overlayroot.verity and is put as such
-        ## into the image by default. It is a responsibility of the
-        ## author of the image description how to handle the
-        ## credentials file in the desired way. One option to handle
-        ## the credentials data is as part of a disk.sh script which
-        ## would allow to access and manage the information.
+        ## can be specified.
         attribute overlayroot_verity_blocks { blocks-type }
         >> sch:pattern [ id = "overlayroot_verity_blocks" is-a = "image_type"
             sch:param [ name = "attr" value = "overlayroot_verity_blocks" ]
