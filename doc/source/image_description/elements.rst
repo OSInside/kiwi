@@ -485,11 +485,15 @@ kernelcmdline="string":
   Additional kernel parameters passed to the kernel by the
   bootloader.
 
-luks="passphrase":
-  Supplying a value will trigger the encryption of the partitions
-  using the LUKS extension and using the provided string as the
-  password. Note that the password must be entered when booting the
-  appliance!
+luks="passphrase|file:///path/to/keyfile":
+  Supplying a value will trigger the encryption of the partition
+  serving the root filesystem using the LUKS extension. The supplied
+  value represents either the passphrase string or the location of
+  a key file if specified as `file://...` resource. When using
+  a key file it is in the responsibility of the user how
+  this key file is actually being used. By default any
+  distribution will just open an interactive dialog asking
+  for the credentials at boot time !
 
 target_blocksize="number":
   Specifies the image blocksize in bytes which has to
@@ -750,6 +754,33 @@ publisher="string":
 
 The following sections shows the supported child elements of the `type`
 element including references to their usage in a detailed type setup:
+
+.. _preferences-type-luksformat:
+
+<preferences><type><luksformat>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The `luksformat` element is used to specify additional luks options
+passed on to the `cryptsetup luksFormat` call. The element requires
+the attribute `luks` to be set in the `<type>` section referring to
+`luksformat`. Several custom settings related to the LUKS and LUKS2
+format features can be setup. For example, making the switch to `LUKS2`:
+
+.. code:: xml
+
+   <luksformat>
+     <option name="--type" value="luks2"/>
+   </luksformat>
+
+Or to enable additional device mapper layers and features,
+for example `dm_integrity`:
+
+.. code:: xml
+
+   <luksformat>
+     <option name="--type" value="luks2"/>
+     <option name="--cipher" value="aes-gcm-random"/>
+     <option name="--integrity" value="aead"/>
+   </luksformat>
 
 .. _preferences-type-bootloader:
 

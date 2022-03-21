@@ -768,7 +768,8 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         self.luks_root.create_crypto_luks.assert_called_once_with(
-            passphrase='passphrase', os=None, keyfile='root_dir/.root.keyfile'
+            passphrase='passphrase', os=None,
+            options=[], keyfile='root_dir/.root.keyfile'
         )
         self.luks_root.create_crypttab.assert_called_once_with(
             'root_dir/etc/crypttab'

@@ -1762,6 +1762,86 @@ class product(GeneratedsSuper):
 # end class product
 
 
+class option(GeneratedsSuper):
+    """A commandline option specification"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, value=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.value = _cast(None, value)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, option)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if option.subclass:
+            return option.subclass(*args_, **kwargs_)
+        else:
+            return option(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='option', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('option')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='option')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='option', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='option'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='option', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('value', node)
+        if value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            self.value = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class option
+
+
 class package(GeneratedsSuper):
     """Name of an image Package"""
     subclass = None
@@ -2718,7 +2798,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2822,6 +2902,10 @@ class type_(GeneratedsSuper):
             self.installmedia = []
         else:
             self.installmedia = installmedia
+        if luksformat is None:
+            self.luksformat = []
+        else:
+            self.luksformat = luksformat
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2878,6 +2962,11 @@ class type_(GeneratedsSuper):
     def add_installmedia(self, value): self.installmedia.append(value)
     def insert_installmedia_at(self, index, value): self.installmedia.insert(index, value)
     def replace_installmedia_at(self, index, value): self.installmedia[index] = value
+    def get_luksformat(self): return self.luksformat
+    def set_luksformat(self, luksformat): self.luksformat = luksformat
+    def add_luksformat(self, value): self.luksformat.append(value)
+    def insert_luksformat_at(self, index, value): self.luksformat.insert(index, value)
+    def replace_luksformat_at(self, index, value): self.luksformat[index] = value
     def get_boot(self): return self.boot
     def set_boot(self, boot): self.boot = boot
     def get_bootfilesystem(self): return self.bootfilesystem
@@ -3055,7 +3144,8 @@ class type_(GeneratedsSuper):
             self.systemdisk or
             self.partitions or
             self.vagrantconfig or
-            self.installmedia
+            self.installmedia or
+            self.luksformat
         ):
             return True
         else:
@@ -3303,6 +3393,8 @@ class type_(GeneratedsSuper):
             vagrantconfig_.export(outfile, level, namespaceprefix_, name_='vagrantconfig', pretty_print=pretty_print)
         for installmedia_ in self.installmedia:
             installmedia_.export(outfile, level, namespaceprefix_, name_='installmedia', pretty_print=pretty_print)
+        for luksformat_ in self.luksformat:
+            luksformat_.export(outfile, level, namespaceprefix_, name_='luksformat', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3784,6 +3876,11 @@ class type_(GeneratedsSuper):
             obj_.build(child_)
             self.installmedia.append(obj_)
             obj_.original_tagname_ = 'installmedia'
+        elif nodeName_ == 'luksformat':
+            obj_ = luksformat.factory()
+            obj_.build(child_)
+            self.luksformat.append(obj_)
+            obj_.original_tagname_ = 'luksformat'
 # end class type_
 
 
@@ -5945,6 +6042,87 @@ class partitions(GeneratedsSuper):
             self.partition.append(obj_)
             obj_.original_tagname_ = 'partition'
 # end class partitions
+
+
+class luksformat(GeneratedsSuper):
+    """luksFormat option settings"""
+    subclass = None
+    superclass = None
+    def __init__(self, option=None):
+        self.original_tagname_ = None
+        if option is None:
+            self.option = []
+        else:
+            self.option = option
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, luksformat)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if luksformat.subclass:
+            return luksformat.subclass(*args_, **kwargs_)
+        else:
+            return luksformat(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_option(self): return self.option
+    def set_option(self, option): self.option = option
+    def add_option(self, value): self.option.append(value)
+    def insert_option_at(self, index, value): self.option.insert(index, value)
+    def replace_option_at(self, index, value): self.option[index] = value
+    def hasContent_(self):
+        if (
+            self.option
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='luksformat', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('luksformat')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='luksformat')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='luksformat', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='luksformat'):
+        pass
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='luksformat', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for option_ in self.option:
+            option_.export(outfile, level, namespaceprefix_, name_='option', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'option':
+            obj_ = option.factory()
+            obj_.build(child_)
+            self.option.append(obj_)
+            obj_.original_tagname_ = 'option'
+# end class luksformat
 
 
 class environment(GeneratedsSuper):
@@ -8584,9 +8762,11 @@ __all__ = [
     "k_source",
     "label",
     "labels",
+    "luksformat",
     "machine",
     "namedCollection",
     "oemconfig",
+    "option",
     "package",
     "packages",
     "partition",

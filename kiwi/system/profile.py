@@ -335,7 +335,7 @@ class Profile:
         self.dot_profile['kiwi_startsector'] = \
             self.xml_state.get_disk_start_sector()
         self.dot_profile['kiwi_luks_empty_passphrase'] = \
-            True if type_section.get_luks() == '' else False
+            self.xml_state.get_luks_credentials() == ''
 
     def _profile_names_to_profile(self):
         # kiwi_profiles

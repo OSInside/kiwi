@@ -36,7 +36,8 @@ from kiwi.utils.size import StringToSize
 from kiwi.exceptions import (
     KiwiProfileNotFound,
     KiwiTypeNotFound,
-    KiwiDistributionNameError
+    KiwiDistributionNameError,
+    KiwiFileAccessError
 )
 
 log = logging.getLogger('kiwi')
@@ -2211,6 +2212,52 @@ class XMLState:
             option_list = create_options.split()
 
         return option_list
+
+    def get_luks_credentials(self) -> Optional[str]:
+        """
+        Return key or passphrase credentials to open the luks pool
+
+        :return: data
+
+        :rtype: str
+        """
+        data = self.build_type.get_luks()
+        if data:
+            keyfile_name = None
+            try:
+                # try to interpret data as an URI
+                uri = Uri(data)
+                if not uri.is_remote():
+                    keyfile_name = uri.translate()
+            except Exception:
+                # this doesn't look like a valid URI, continue as just data
+                pass
+            if keyfile_name:
+                try:
+                    with open(keyfile_name) as keyfile:
+                        return keyfile.read()
+                except Exception as issue:
+                    raise KiwiFileAccessError(
+                        f'Failed to read from {keyfile_name!r}: {issue}'
+                    )
+        return data
+
+    def get_luks_format_options(self) -> List[str]:
+        """
+        Return list of luks format options
+
+        :return: list of options
+
+        :rtype: list
+        """
+        result = []
+        luksformat = self.build_type.get_luksformat()
+        if luksformat:
+            for option in luksformat[0].get_option():
+                result.append(option.get_name())
+                if option.get_value():
+                    result.append(option.get_value())
+        return result
 
     def get_derived_from_image_uri(self) -> Optional[Uri]:
         """

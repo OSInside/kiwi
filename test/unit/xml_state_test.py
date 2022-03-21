@@ -1,8 +1,9 @@
 import os
+import io
 import logging
 from collections import namedtuple
 from mock import (
-    patch, Mock
+    patch, Mock, MagicMock
 )
 from pytest import (
     raises, fixture
@@ -16,7 +17,8 @@ from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import (
     KiwiTypeNotFound,
     KiwiDistributionNameError,
-    KiwiProfileNotFound
+    KiwiProfileNotFound,
+    KiwiFileAccessError
 )
 
 
@@ -1037,3 +1039,27 @@ class TestXMLState:
             'disable': ['mod_c'],
             'enable': ['mod_a:stream', 'mod_b']
         }
+
+    @patch('kiwi.xml_parse.type_.get_luks')
+    def test_get_luks_credentials(self, mock_get_luks):
+        mock_get_luks.return_value = 'data'
+        assert self.state.get_luks_credentials() == 'data'
+        mock_get_luks.return_value = 'file:///some/data-file'
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = b'data'
+            assert self.state.get_luks_credentials() == b'data'
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.side_effect = Exception
+            with raises(KiwiFileAccessError):
+                self.state.get_luks_credentials()
+
+    def test_get_luks_format_options(self):
+        assert self.state.get_luks_format_options() == [
+            '--type', 'luks2',
+            '--cipher', 'aes-gcm-random',
+            '--integrity', 'aead'
+        ]

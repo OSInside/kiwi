@@ -66,4 +66,9 @@ Update the {kiwi} image description as follows:
        The value for the `luks` attribute sets the master passphrase
        for the LUKS keyring. Therefore the XML description becomes
        security critical and should only be readable by trustworthy
-       people
+       people. Alternatively the credentials information can be
+       stored in a key file and referenced as:
+
+       .. code:: xml
+
+          <type luks="file:///path/to/keyfile"/>
