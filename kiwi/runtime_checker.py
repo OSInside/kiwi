@@ -359,6 +359,30 @@ class RuntimeChecker:
             ):
                 raise KiwiRuntimeError(message)
 
+    def check_luksformat_options_valid(self) -> None:
+        """
+        Options set via the luksformat element are passed along
+        to the cryptsetup tool. Only options that are known to
+        the tool should be allowed. Thus this runtime check looks
+        up the provided option names if they exist in the cryptsetup
+        version used on the build host
+        """
+        message = dedent('''\n
+            Option {0!r} not found in cryptsetup
+
+            The Option {0!r} could not be found in the help output
+            of the cryptsetup tool.
+        ''')
+        luksformat = self.xml_state.build_type.get_luksformat()
+        if luksformat:
+            for option in luksformat[0].get_option():
+                argument = option.get_name()
+                if not CommandCapabilities.has_option_in_help(
+                    'cryptsetup', argument, ['--help'],
+                    raise_on_error=False
+                ):
+                    raise KiwiRuntimeError(message.format(argument))
+
     def check_appx_naming_conventions_valid(self) -> None:
         """
         When building wsl images there are some naming conventions that

@@ -179,6 +179,12 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_volume_setup_has_no_root_definition()
 
+    @patch('kiwi.runtime_checker.CommandCapabilities.has_option_in_help')
+    def test_check_luksformat_options_valid(self, mock_has_option_in_help):
+        mock_has_option_in_help.return_value = False
+        with raises(KiwiRuntimeError):
+            self.runtime_checker.check_luksformat_options_valid()
+
     @patch('kiwi.runtime_checker.Path.which')
     def test_check_container_tool_chain_installed(self, mock_which):
         mock_which.return_value = False

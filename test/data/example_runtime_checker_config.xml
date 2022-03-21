@@ -115,7 +115,10 @@
         </type>
     </preferences>
     <preferences profiles="vmxFlavour">
-        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="btrfs" initrd_system="dracut" installiso="true">
+        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="my_edit_boot_install" filesystem="btrfs" initrd_system="dracut" installiso="true" luks="">
+            <luksformat>
+                <option name="--bogus-option"/>
+            </luksformat>
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk">
                 <volume name="root" size="6G" mountpoint="/" label="foo"/>

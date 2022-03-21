@@ -135,3 +135,6 @@
 
 #      # check for unresolved include statements in the XML description
 #      - check_include_references_unresolvable
+
+#      # validate options passed to cryptsetup via luksformat element
+#      - check_luksformat_options_valid
