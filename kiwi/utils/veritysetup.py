@@ -21,8 +21,11 @@ from typing import (
 )
 
 # project
+from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.utils.block import BlockID
+
+import kiwi.defaults as defaults
 
 
 class VeritySetup:
@@ -30,7 +33,8 @@ class VeritySetup:
     **Create block level verification data on file or device**
     """
     def __init__(
-        self, image_filepath: str, data_blocks: Optional[int] = None
+        self, image_filepath: str, data_blocks: Optional[int] = None,
+        hash_offset: int = 0
     ) -> None:
         """
         Construct new VeritySetup
@@ -39,10 +43,16 @@ class VeritySetup:
         :param int data_blocks:
             Number of blocks to verify, if not provided the whole
             image_filepath is used
+        :param int hash_offset:
+            Optional offset to start writing verity hash.
+            If not specified it is assumed image_filepath
+            is a file and not a block special such that the
+            offset is calculated from the size of the file
         """
         self.image_filepath = image_filepath
         self.data_blocks = data_blocks
-        self.verity_hash_offset = os.path.getsize(self.image_filepath)
+        self.verity_hash_offset = \
+            hash_offset or os.path.getsize(self.image_filepath)
         self.verity_dict: Dict[str, str] = {}
 
     def format(self) -> Dict[str, str]:
@@ -60,10 +70,12 @@ class VeritySetup:
                 'veritysetup', 'format',
                 self.image_filepath, self.image_filepath,
                 '--no-superblock',
-                f'--hash-offset={self.verity_hash_offset}'
+                f'--hash-offset={self.verity_hash_offset}',
+                f'--hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}'
             ] + (
                 [
-                    f'--data-blocks={self.data_blocks}'
+                    f'--data-blocks={self.data_blocks}',
+                    f'--data-block-size={defaults.VERITY_DATA_BLOCKSIZE}'
                 ] if self.data_blocks else []
             )
         )
@@ -75,6 +87,31 @@ class VeritySetup:
                 # ignore any occurrence for which split failed
                 pass
         return self.verity_dict
+
+    def get_hash_byte_size(self) -> int:
+        """
+        Run veritysetup into a temporary file to estimate
+        the required bytesize
+
+        :return: a byte value
+
+        :rtype: int
+        """
+        temp_file = Temporary().new_file()
+        Command.run(
+            [
+                'veritysetup', 'format',
+                self.image_filepath, temp_file.name,
+                '--no-superblock',
+                f'--hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}'
+            ] + (
+                [
+                    f'--data-blocks={self.data_blocks}',
+                    f'--data-block-size={defaults.VERITY_DATA_BLOCKSIZE}'
+                ] if self.data_blocks else []
+            )
+        )
+        return os.path.getsize(temp_file.name)
 
     def get_block_storage_filesystem(self) -> str:
         """

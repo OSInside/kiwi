@@ -243,10 +243,9 @@ class TestVolumeManagerBase:
         )
         assert self.volume_manager.get_mountpoint() == 'mountpoint'
 
-    @patch('kiwi.volume_manager.base.VeritySetup')
-    def test_create_verity_layer(self, mock_VeritySetup):
-        self.volume_manager.create_verity_layer()
-        mock_VeritySetup.return_value.format.assert_called_once_with()
+    def test_create_verity_layer(self):
+        with raises(NotImplementedError):
+            self.volume_manager.create_verity_layer()
 
     @patch('kiwi.volume_manager.base.Temporary')
     def test_setup_mountpoint(self, mock_Temporary):

@@ -34,7 +34,28 @@ class TestVeritySetup:
         mock_Command_run.assert_called_once_with(
             [
                 'veritysetup', 'format', 'image_file', 'image_file',
-                '--no-superblock', '--hash-offset=42', '--data-blocks=10'
+                '--no-superblock', '--hash-offset=42',
+                '--hash-block-size=1024', '--data-blocks=10',
+                '--data-block-size=1024',
+            ]
+        )
+
+    @patch('kiwi.utils.veritysetup.Command.run')
+    @patch('kiwi.utils.veritysetup.Temporary.new_file')
+    @patch('os.path.getsize')
+    def test_get_hash_byte_size(
+        self, mock_os_path_getsize, mock_Temporary_new_file, mock_Command_run
+    ):
+        tempfile = Mock()
+        tempfile.name = 'tempfile'
+        mock_Temporary_new_file.return_value = tempfile
+        assert self.veritysetup.get_hash_byte_size() == \
+            mock_os_path_getsize.return_value
+        mock_Command_run.assert_called_once_with(
+            [
+                'veritysetup', 'format', 'image_file', 'tempfile',
+                '--no-superblock', '--hash-block-size=1024', '--data-blocks=10',
+                '--data-block-size=1024',
             ]
         )
 
@@ -57,7 +78,7 @@ class TestVeritySetup:
         mock_Command_run.assert_called_once_with(
             [
                 'veritysetup', 'format', 'image_file', 'image_file',
-                '--no-superblock', '--hash-offset=42'
+                '--no-superblock', '--hash-offset=42', '--hash-block-size=1024'
             ]
         )
 

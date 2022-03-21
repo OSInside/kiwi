@@ -27,7 +27,8 @@ class FileSystemBtrfs(FileSystemBase):
     **Implements creation of btrfs filesystem**
     """
     def create_on_device(
-        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb
+        self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb,
+        uuid: str = None
     ):
         """
         Create btrfs filesystem on block device
@@ -38,11 +39,15 @@ class FileSystemBtrfs(FileSystemBase):
             The value is interpreted in units of: unit
         :param str unit:
             unit name. Default unit is set to: defaults.UNIT.kb
+        :param str uuid: UUID name
         """
         device = self.device_provider.get_device()
         if label:
             self.custom_args['create_options'].append('-L')
             self.custom_args['create_options'].append(label)
+        if uuid:
+            self.custom_args['create_options'].append('-U')
+            self.custom_args['create_options'].append(uuid)
         if size:
             self.custom_args['create_options'].append('--byte-count')
             self.custom_args['create_options'].append(

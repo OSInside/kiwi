@@ -416,12 +416,20 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
+    @patch('os.path.getsize')
     @patch('kiwi.builder.disk.SystemSetup')
     @patch('kiwi.builder.disk.ImageSystem')
+    @patch('kiwi.builder.disk.VeritySetup')
+    @patch('kiwi.builder.disk.Temporary.new_file')
     def test_create_disk_standard_root_with_dracut_initrd(
-        self, mock_ImageSystem, mock_SystemSetup, mock_path, mock_grub_dir,
-        mock_command, mock_rand, mock_fs
+        self, mock_Temporary_new_file, mock_VeritySetup,
+        mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
+        mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs
     ):
+        tempfile = Mock()
+        tempfile.name = 'tempfile'
+        mock_Temporary_new_file.return_value = tempfile
+        mock_os_path_getsize.return_value = 42
         self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
             kernel_name='vmlinuz-1.2.3-default',
             initrd_name='initramfs-1.2.3.img'
@@ -430,6 +438,8 @@ class TestDiskBuilder:
         mock_rand.return_value = 15
         filesystem = Mock()
         mock_fs.return_value = filesystem
+        self.disk_builder.root_filesystem_verity_blocks = 10
+        self.disk_builder.root_filesystem_is_overlay = False
         self.disk_builder.volume_manager_name = None
         self.disk_builder.initrd_system = 'dracut'
         self.setup.script_exists.return_value = True
@@ -445,7 +455,9 @@ class TestDiskBuilder:
             '/etc/selinux/targeted/contexts/files/file_contexts'
         )
         self.disk_setup.get_disksize_mbytes.assert_called_once_with()
-        self.loop_provider.create.assert_called_once_with()
+        assert self.loop_provider.create.call_args_list == [
+            call(), call()
+        ]
         self.disk.wipe.assert_called_once_with()
         self.disk.create_efi_csm_partition.assert_called_once_with(
             self.firmware.get_legacy_bios_partition_size()
@@ -526,7 +538,9 @@ class TestDiskBuilder:
         ]
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
-            call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img'])
+            call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img']),
+            call(['blockdev', '--getsize64', '/dev/root-device']),
+            call(['dd', 'if=tempfile', 'of=/dev/root-device'])
         ]
         self.block_operation.get_blkid.assert_has_calls(
             [call('PARTUUID')]
@@ -547,6 +561,7 @@ class TestDiskBuilder:
         self.boot_image_task.omit_module.assert_called_once_with('multipath')
         assert self.boot_image_task.write_system_config_file.call_args_list == \
             []
+        filesystem.create_verity_layer.assert_called_once_with(10, 'tempfile')
 
     @patch('kiwi.builder.disk.DeviceProvider')
     @patch('kiwi.builder.disk.FileSystem.new')

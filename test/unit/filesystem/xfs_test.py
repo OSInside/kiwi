@@ -24,10 +24,11 @@ class TestFileSystemXfs:
 
     @patch('kiwi.filesystem.xfs.Command.run')
     def test_create_on_device(self, mock_command):
-        self.xfs.create_on_device('label', 100)
+        self.xfs.create_on_device('label', 100, uuid='uuid')
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == call(
             [
-                'mkfs.xfs', '-f', '-L', 'label', '-d', 'size=100k', '/dev/foo'
+                'mkfs.xfs', '-f', '-L', 'label',
+                '-m', 'uuid=uuid', '-d', 'size=100k', '/dev/foo'
             ]
         )
