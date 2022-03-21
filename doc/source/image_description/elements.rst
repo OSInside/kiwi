@@ -495,6 +495,13 @@ luks="passphrase|file:///path/to/keyfile":
   distribution will just open an interactive dialog asking
   for the credentials at boot time !
 
+luks_version="luks|luks2":
+  Specify which `LUKS` version should be used. If not set and by
+  default `luks` is used. The specification of the `LUKS` version
+  allows using a different set of `luksformat` options. To
+  investigate the differences between the two please consult the
+  `cryptsetup` manual page.
+
 target_blocksize="number":
   Specifies the image blocksize in bytes which has to
   match the logical blocksize of the target storage device. By default 512
@@ -763,21 +770,12 @@ The `luksformat` element is used to specify additional luks options
 passed on to the `cryptsetup luksFormat` call. The element requires
 the attribute `luks` to be set in the `<type>` section referring to
 `luksformat`. Several custom settings related to the LUKS and LUKS2
-format features can be setup. For example, making the switch to `LUKS2`:
+format features can be setup. For example the setup of
+the `dm_integrity` feature:
 
 .. code:: xml
 
    <luksformat>
-     <option name="--type" value="luks2"/>
-   </luksformat>
-
-Or to enable additional device mapper layers and features,
-for example `dm_integrity`:
-
-.. code:: xml
-
-   <luksformat>
-     <option name="--type" value="luks2"/>
      <option name="--cipher" value="aes-gcm-random"/>
      <option name="--integrity" value="aead"/>
    </luksformat>

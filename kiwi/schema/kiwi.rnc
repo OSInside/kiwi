@@ -1830,6 +1830,14 @@ div {
             sch:param [ name = "attr" value = "kernelcmdline" ]
             sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
+    k.type.luks_version.attribute =
+        ## Specify LUKS version. This can be either set to "luks"
+        ## or "luks2". By default "luks" is used.
+        attribute luks_version { "luks" | "luks2" }
+        >> sch:pattern [ id = "luksversion" is-a = "image_type"
+            sch:param [ name = "attr" value = "luksversion" ]
+            sch:param [ name = "types" value = "oem iso pxe kis" ]
+        ]
     k.type.luks.attribute =
         ## Setup cryptographic volume along with the given filesystem
         ## using the LUKS extension. The value of this attribute
@@ -2011,6 +2019,7 @@ div {
         k.type.mediacheck.attribute? &
         k.type.kernelcmdline.attribute? &
         k.type.luks.attribute? &
+        k.type.luks_version.attribute? &
         k.type.luksOS.attribute? &
         k.type.mdraid.attribute? &
         k.type.overlayroot.attribute? &

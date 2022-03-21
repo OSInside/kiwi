@@ -2798,7 +2798,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2841,6 +2841,7 @@ class type_(GeneratedsSuper):
         self.mediacheck = _cast(bool, mediacheck)
         self.kernelcmdline = _cast(None, kernelcmdline)
         self.luks = _cast(None, luks)
+        self.luks_version = _cast(None, luks_version)
         self.luksOS = _cast(None, luksOS)
         self.mdraid = _cast(None, mdraid)
         self.overlayroot = _cast(bool, overlayroot)
@@ -3049,6 +3050,8 @@ class type_(GeneratedsSuper):
     def set_kernelcmdline(self, kernelcmdline): self.kernelcmdline = kernelcmdline
     def get_luks(self): return self.luks
     def set_luks(self, luks): self.luks = luks
+    def get_luks_version(self): return self.luks_version
+    def set_luks_version(self, luks_version): self.luks_version = luks_version
     def get_luksOS(self): return self.luksOS
     def set_luksOS(self, luksOS): self.luksOS = luksOS
     def get_mdraid(self): return self.mdraid
@@ -3295,6 +3298,9 @@ class type_(GeneratedsSuper):
         if self.luks is not None and 'luks' not in already_processed:
             already_processed.add('luks')
             outfile.write(' luks=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luks), input_name='luks')), ))
+        if self.luks_version is not None and 'luks_version' not in already_processed:
+            already_processed.add('luks_version')
+            outfile.write(' luks_version=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luks_version), input_name='luks_version')), ))
         if self.luksOS is not None and 'luksOS' not in already_processed:
             already_processed.add('luksOS')
             outfile.write(' luksOS=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luksOS), input_name='luksOS')), ))
@@ -3664,6 +3670,11 @@ class type_(GeneratedsSuper):
         if value is not None and 'luks' not in already_processed:
             already_processed.add('luks')
             self.luks = value
+        value = find_attr_value_('luks_version', node)
+        if value is not None and 'luks_version' not in already_processed:
+            already_processed.add('luks_version')
+            self.luks_version = value
+            self.luks_version = ' '.join(self.luks_version.split())
         value = find_attr_value_('luksOS', node)
         if value is not None and 'luksOS' not in already_processed:
             already_processed.add('luksOS')

@@ -2251,7 +2251,11 @@ class XMLState:
         :rtype: list
         """
         result = []
+        luksversion = self.build_type.get_luks_version()
         luksformat = self.build_type.get_luksformat()
+        if luksversion:
+            result.append('--type')
+            result.append(luksversion)
         if luksformat:
             for option in luksformat[0].get_option():
                 result.append(option.get_name())

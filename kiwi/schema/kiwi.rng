@@ -2657,6 +2657,20 @@ kernel command line options</a:documentation>
         <sch:param name="types" value="oem iso pxe kis"/>
       </sch:pattern>
     </define>
+    <define name="k.type.luks_version.attribute">
+      <attribute name="luks_version">
+        <a:documentation>Specify LUKS version. This can be either set to "luks"
+or "luks2". By default "luks" is used.</a:documentation>
+        <choice>
+          <value>luks</value>
+          <value>luks2</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="luksversion" is-a="image_type">
+        <sch:param name="attr" value="luksversion"/>
+        <sch:param name="types" value="oem iso pxe kis"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.luks.attribute">
       <attribute name="luks">
         <a:documentation>Setup cryptographic volume along with the given filesystem
@@ -2958,6 +2972,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.luks.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.luks_version.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.luksOS.attribute"/>
