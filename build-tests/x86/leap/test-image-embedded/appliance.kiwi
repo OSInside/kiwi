@@ -13,6 +13,7 @@
         <profile name="Kernel" description="Provides kernel for kvm boot"/>
         <profile name="System" description="Provides system for kvm boot"/>
         <profile name="SystemOverlayRoot" description="Provides system for kvm boot using a squashfs compressed root overlay"/>
+        <profile name="SystemFeatures" description="Provides simple disk system with embedded features configured"/>
     </profiles>
     <preferences>
         <version>1.0.1</version>
@@ -45,15 +46,31 @@
             <size unit="M">200</size>
         </type>
     </preferences>
+    <preferences profiles="SystemFeatures">
+        <!-- simple disk image testing features useful in embedded projects -->
+        <type image="oem" filesystem="ext4" firmware="efi" overlayroot="true" bootpartition="true" devicepersistency="by-partuuid" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <size unit="M">500</size>
+        </type>
+    </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
     </repository>
-    <packages type="bootstrap" profiles="SystemOverlayRoot">
-        <!-- this is stupid here, because no initrd, but to disable the runtime check we need an entry in /etc/kiwi.yml which requires a package to be added in the prjconf such that the obs worker actually consumes this information. The shortcut way is to install and delete later -->
+    <packages type="bootstrap" profiles="Kernel,System,SystemOverlayRoot">
+        <package name="kernel-kvmsmall"/>
+    </packages>
+    <packages type="bootstrap" profiles="SystemFeatures">
         <package name="dracut-kiwi-overlay"/>
+        <package name="grub2"/>
+        <package name="grub2-i386-pc"/>
+        <package name="grub2-x86_64-efi"/>
+        <package name="kernel-default"/>
     </packages>
     <packages type="bootstrap">
         <package name="patterns-openSUSE-base"/>
@@ -70,7 +87,6 @@
         <package name="bind-utils"/>
         <package name="dhcp-client"/>
         <package name="which"/>
-        <package name="kernel-kvmsmall"/>
         <package name="timezone"/>
         <package name="gawk"/>
         <package name="grep"/>
@@ -83,8 +99,5 @@
         <package name="ca-certificates"/>
         <package name="ca-certificates-mozilla"/>
         <package name="openSUSE-release"/>
-    </packages>
-    <packages type="uninstall" profiles="SystemOverlayRoot">
-        <package name="dracut-kiwi-overlay"/>
     </packages>
 </image>
