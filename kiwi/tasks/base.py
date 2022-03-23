@@ -96,7 +96,8 @@ class CliTask:
             'check_syslinux_installed_if_isolinux_is_used': [],
             'check_image_type_unique': [],
             'check_include_references_unresolvable': [],
-            'check_luksformat_options_valid': []
+            'check_luksformat_options_valid': [],
+            'check_partuuid_persistency_type_used_with_mbr': []
         }
         self.checks_after_command_args: Dict[str, List[str]] = {
             'check_repositories_configured': [],

@@ -187,6 +187,47 @@ class RuntimeChecker:
                         message.format(volume_management)
                     )
 
+    def check_partuuid_persistency_type_used_with_mbr(self) -> None:
+        """
+        The devicepersistency setting by-partuuid can only be
+        used in combination with a partition table type that
+        supports UUIDs. In any other case Linux creates artificial
+        values for PTUUID and PARTUUID from the disk signature
+        which can change without touching the actual partition
+        table. We consider this unsafe and only allow the use
+        of by-partuuid in combination with partition tables that
+        actually supports it properly.
+        """
+        message = dedent('''\n
+            devicepersistency={0!r} used with non UUID capable partition table
+
+            PTUUID and PARTUUID exists in the GUID (GPT) partition table.
+            According to the firmware setting: {1!r}, the selected partition
+            table type is: {2!r}. This table type does not natively support
+            UUIDs. In such a case Linux creates artificial values for PTUUID
+            and PARTUUID from the disk signature which can change without
+            touching the actual partition table. This is considered unsafe
+            and KIWI only allows the use of by-partuuid in combination with
+            partition tables that actually supports UUIDs properly.
+
+            Please make sure to use one of the following firmware settings
+            which leads to an image using an UUID capable partition table
+            and therefore supporting consistent by-partuuid device names:
+
+            <type ... firmware="efi|uefi">
+        ''')
+        persistency_type = self.xml_state.build_type.get_devicepersistency()
+        if persistency_type and persistency_type == 'by-partuuid':
+            supported_table_types = ['gpt']
+            firmware = FirmWare(self.xml_state)
+            table_type = firmware.get_partition_table_type()
+            if table_type not in supported_table_types:
+                raise KiwiRuntimeError(
+                    message.format(
+                        persistency_type, firmware.firmware, table_type
+                    )
+                )
+
     def check_swap_name_used_with_lvm(self) -> None:
         """
         The optional oem-swapname is only effective if used together
