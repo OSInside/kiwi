@@ -12,8 +12,8 @@
 
 # Setup access to security keys
 #credentials:
-#  # Specify private key used for signing operations
-#  - rootfs_signing_key_file: /path/to/private.pem
+#  # Specify private key(s) used for signing operations
+#  - verification_metadata_signing_key_file: /path/to/private.pem
 
 # Setup access options for the Open BuildService
 #obs:

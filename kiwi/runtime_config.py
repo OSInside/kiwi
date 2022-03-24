@@ -74,13 +74,13 @@ class RuntimeConfig:
                 with open(config_file, 'r') as config:
                     RUNTIME_CONFIG = yaml.safe_load(config) or {}
 
-    def get_credentials_signing_key_file(self):
+    def get_credentials_verification_metadata_signing_key_file(self):
         """
-        Return rootfs signing key file, used for signature creation
-        of rootfs verification metadata:
+        Return verification metadata signing key file, used for
+        signature creation of rootfs verification metadata:
 
         credentials:
-          - rootfs_signing_key_file: ...
+          - verification_metadata_signing_key_file: ...
 
         There is no default value for this setting available
 
@@ -89,7 +89,8 @@ class RuntimeConfig:
         :rtype: str
         """
         signing_key_file = self._get_attribute(
-            element='credentials', attribute='rootfs_signing_key_file'
+            element='credentials',
+            attribute='verification_metadata_signing_key_file'
         )
         return signing_key_file if signing_key_file else ''
 
