@@ -1321,6 +1321,17 @@ div {
             ]
         ]
     ]
+    sch:pattern [
+        abstract = "true"
+        id = "image_verity_requirement"
+        sch:rule [
+            context = "type[@embed_verity_metadata]"
+            sch:assert [
+                test = "@$attr"
+                "$attr attribute must be set for embed_verity_metadata"
+            ]
+        ]
+    ]
     k.type.boot.attribute =
         ## Specifies the path of the boot image (initrd) description
         ## provided with KIWI
@@ -1568,6 +1579,20 @@ div {
         >> sch:pattern [ id = "verity_blocks" is-a = "image_type"
             sch:param [ name = "attr" value = "verity_blocks" ]
             sch:param [ name = "types" value = "oem" ]
+        ]
+    k.type.embed_verity_metadata.attribute =
+        ## In combination with the verity_blocks attribute, embed
+        ## a verification metadata block at the end of the partition
+        ## serving the root filesystem
+        attribute embed_verity_metadata { xsd:boolean }
+        >> sch:pattern [
+            id = "embed_verity_metadata" is-a = "image_type"
+            sch:param [ name = "attr" value = "embed_verity_metadata" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+        >> sch:pattern [
+            id = "verity_blocks_mandatory" is-a = "image_verity_requirement"
+            sch:param [ name = "attr" value = "verity_blocks" ]
         ]
     k.type.overlayroot.attribute =
         ## Specifies to use an overlay root system consisting
@@ -2026,6 +2051,7 @@ div {
         k.type.overlayroot_write_partition.attribute? &
         k.type.overlayroot_readonly_partsize.attribute? &
         k.type.verity_blocks.attribute? &
+        k.type.embed_verity_metadata.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &

@@ -97,6 +97,8 @@ class DiskBuilder:
             xml_state.build_type.get_overlayroot_readonly_partsize()
         self.root_filesystem_verity_blocks = \
             xml_state.build_type.get_verity_blocks()
+        self.root_filesystem_embed_verity_metadata = \
+            xml_state.build_type.get_embed_verity_metadata()
         self.dosparttable_extended_layout = \
             xml_state.build_type.get_dosparttable_extended_layout()
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
@@ -1211,6 +1213,10 @@ class DiskBuilder:
                     'of=%s' % readonly_target
                 ]
             )
+            if self.root_filesystem_embed_verity_metadata:
+                squashed_root.create_verification_metadata(
+                    readonly_target
+                )
         elif self.root_filesystem_verity_blocks:
             root_target = device_map['root'].get_device()
             root_target_bytesize = device_map['root'].get_byte_size(
@@ -1221,6 +1227,8 @@ class DiskBuilder:
                 self.root_filesystem_verity_blocks if
                 self.root_filesystem_verity_blocks != 'all' else None
             ).get_hash_byte_size()
+            if self.root_filesystem_embed_verity_metadata:
+                verity_root_file_bytes -= defaults.VERIFICATION_METADATA_OFFSET
             verity_root_file = Temporary().new_file()
             loop_provider = LoopDevice(
                 verity_root_file.name,
@@ -1263,6 +1271,10 @@ class DiskBuilder:
                     'of=%s' % root_target
                 ]
             )
+            if self.root_filesystem_embed_verity_metadata:
+                filesystem.create_verification_metadata(
+                    root_target
+                )
         else:
             system.sync_data(
                 self._get_exclude_list_for_root_data_sync(device_map)
