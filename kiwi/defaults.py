@@ -60,8 +60,10 @@ unit_type = NamedTuple(
 
 
 # Default module variables
-VERITY_DATA_BLOCKSIZE = 1024  # 1kb
-VERITY_HASH_BLOCKSIZE = 1024  # 1kb
+VERITY_DATA_BLOCKSIZE = 4096  # 4kb
+VERITY_HASH_BLOCKSIZE = 4096  # 4kb
+VERIFICATION_METADATA_FORMAT_VERSION = '1'
+VERIFICATION_METADATA_OFFSET = 4096  # 4kb
 UNIT = unit_type(byte='b', kb='k', mb='m', gb='g')
 POST_DISK_SYNC_SCRIPT = 'disk.sh'
 PRE_DISK_SYNC_SCRIPT = 'pre_disk_sync.sh'

@@ -835,3 +835,16 @@ class KiwiPartitionTooSmallError(KiwiError):
     Exception raised if the specified partition size is smaller
     than the required bytes to store the data
     """
+
+
+class KiwiCredentialsError(KiwiError):
+    """
+    Exception raised if required credentials information is missing
+    """
+
+
+class KiwiOffsetError(KiwiError):
+    """
+    Exception raised if the offset for a seek operation does not
+    match the expected data to write
+    """

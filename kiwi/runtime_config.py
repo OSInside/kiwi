@@ -74,6 +74,26 @@ class RuntimeConfig:
                 with open(config_file, 'r') as config:
                     RUNTIME_CONFIG = yaml.safe_load(config) or {}
 
+    def get_credentials_verification_metadata_signing_key_file(self):
+        """
+        Return verification metadata signing key file, used for
+        signature creation of rootfs verification metadata:
+
+        credentials:
+          - verification_metadata_signing_key_file: ...
+
+        There is no default value for this setting available
+
+        :return: file path name or ''
+
+        :rtype: str
+        """
+        signing_key_file = self._get_attribute(
+            element='credentials',
+            attribute='verification_metadata_signing_key_file'
+        )
+        return signing_key_file if signing_key_file else ''
+
     def get_obs_download_server_url(self):
         """
         Return URL of buildservice download server in:

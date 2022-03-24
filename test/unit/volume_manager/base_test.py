@@ -247,6 +247,10 @@ class TestVolumeManagerBase:
         with raises(NotImplementedError):
             self.volume_manager.create_verity_layer()
 
+    def test_create_verification_metadata(self):
+        with raises(NotImplementedError):
+            self.volume_manager.create_verification_metadata('/some/device')
+
     @patch('kiwi.volume_manager.base.Temporary')
     def test_setup_mountpoint(self, mock_Temporary):
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'

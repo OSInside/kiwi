@@ -87,6 +87,16 @@ class TestFileSystemBase:
         self.fsbase.create_verity_layer()
         mock_VeritySetup.return_value.format.assert_called_once_with()
 
+    def test_create_verification_metadata(self):
+        veritysetup = mock.Mock()
+        self.fsbase.veritysetup = veritysetup
+        self.fsbase.create_verification_metadata('/some/device')
+        veritysetup.create_verity_verification_metadata.assert_called_once_with()
+        veritysetup.sign_verification_metadata.assert_called_once_with()
+        veritysetup.write_verification_metadata.assert_called_once_with(
+            '/some/device'
+        )
+
     def test_umount(self):
         mount = mock.Mock()
         self.fsbase.filesystem_mount = mount
