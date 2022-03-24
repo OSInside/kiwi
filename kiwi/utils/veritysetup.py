@@ -269,13 +269,9 @@ class VeritySetup:
             instance of BlockID of the target storage device
         """
         if self.verity_dict:
-            partition_uuid = target_block_id.get_blkid('PARTUUID')
             with open(credentials_filepath, 'w') as verity:
                 for key in sorted(self.verity_dict.keys()):
                     verity.write(f'{key}: {self.verity_dict[key]}{os.linesep}')
-                verity.write(
-                    f'PARTUUID: {partition_uuid}')
-                verity.write(os.linesep)
                 verity.write(
                     f'Root hashoffset: {self.verity_hash_offset}')
                 verity.write(os.linesep)
