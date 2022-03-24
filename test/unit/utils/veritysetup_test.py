@@ -180,9 +180,10 @@ class TestVeritySetup:
         metadata_file.name = 'metadata_file'
         self.veritysetup.verification_metadata_file = metadata_file
         runtime_config = Mock()
-        runtime_config.get_credentials_signing_key_file = Mock(
-            return_value=None
-        )
+        runtime_config.\
+            get_credentials_verification_metadata_signing_key_file = Mock(
+                return_value=None
+            )
         mock_RuntimeConfig.return_value = runtime_config
         with raises(KiwiCredentialsError):
             self.veritysetup.sign_verification_metadata()
@@ -200,9 +201,10 @@ class TestVeritySetup:
         metadata_file.name = 'metadata_file'
         self.veritysetup.verification_metadata_file = metadata_file
         runtime_config = Mock()
-        runtime_config.get_credentials_signing_key_file = Mock(
-            return_value='signing_key_file'
-        )
+        runtime_config.\
+            get_credentials_verification_metadata_signing_key_file = Mock(
+                return_value='signing_key_file'
+            )
         mock_RuntimeConfig.return_value = runtime_config
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)

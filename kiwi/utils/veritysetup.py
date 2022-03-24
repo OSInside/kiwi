@@ -192,12 +192,17 @@ class VeritySetup:
                 metadata_format_version, filesystem, filesystem_mode
             )
 
+            hash_start_block = int(
+                self.verity_hash_offset / int(
+                    self.verity_dict['Hashblocksize']
+                )
+            )
             dm_verity_credentials = '{0} {1} {2} {3} {4} {5} {6} {7}'.format(
                 self.verity_dict['Hashtype'],
                 self.verity_dict['Datablocksize'],
                 self.verity_dict['Hashblocksize'],
                 self.verity_dict['Datablocks'],
-                int(self.verity_hash_offset / defaults.VERITY_HASH_BLOCKSIZE),
+                hash_start_block,
                 self.verity_dict['Hashalgorithm'],
                 self.verity_dict['Roothash'],
                 self.verity_dict['Salt']
@@ -220,15 +225,17 @@ class VeritySetup:
         following section:
 
         credentials:
-          - rootfs_signing_key_file: /path/to/pkey
+          - verification_metadata_signing_key_file: /path/to/pkey
         """
         if self.verification_metadata_file:
             runtime_config = RuntimeConfig()
-            signing_key_file = \
-                runtime_config.get_credentials_signing_key_file()
+            signing_key_file = runtime_config.\
+                get_credentials_verification_metadata_signing_key_file()
             if not signing_key_file:
                 raise KiwiCredentialsError(
-                    'No rootfs_signing_key_file configured in runtime config'
+                    '{0} not configured in runtime config'.format(
+                        'verification_metadata_signing_key_file'
+                    )
                 )
             signature_file = Temporary().new_file()
             Command.run(
