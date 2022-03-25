@@ -88,7 +88,10 @@ class VeritySetup:
         )
         for line in verity_call.output.split(os.linesep):
             try:
-                (key, value) = line.replace(' ', '').split(':', 2)
+                # strip out any space, tabs, newlines
+                line = ''.join(line.split())
+                # split out key:value based data
+                (key, value) = line.split(':', 2)
                 self.verity_dict[key] = value
             except ValueError:
                 # ignore any occurrence for which split failed
