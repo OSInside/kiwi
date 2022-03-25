@@ -72,9 +72,9 @@ class TestVeritySetup:
         verity_call.output = dedent('''\n
             VERITY header information for mysquash.img
             UUID:
-            Hash type:          1
+            Hash type:			1
             Data blocks:        10
-            Data block size:    4096
+            Data block size:	4096
             Hash block size:    4096
             Hash algorithm:     sha256
             Salt:               fb074d1db50...
