@@ -808,12 +808,26 @@ class TestDiskBuilder:
         with patch('builtins.open'):
             self.disk_builder.create_disk()
 
+        self.disk.persistency_type = 'by-uuid'
         self.disk.create_custom_partitions.assert_called_once_with(
             self.disk_builder.custom_partitions
         )
-
         assert [
             call('UUID=blkid_result /var blkid_result_fs defaults 0 0')
+        ] in self.disk_builder.fstab.add_entry.call_args_list
+
+        self.disk_builder.persistency_type = 'by-partuuid'
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+        assert [
+            call('PARTUUID=blkid_result /var blkid_result_fs defaults 0 0')
+        ] in self.disk_builder.fstab.add_entry.call_args_list
+
+        self.disk_builder.persistency_type = 'by-label'
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+        assert [
+            call('LABEL=blkid_result /var blkid_result_fs defaults 0 0')
         ] in self.disk_builder.fstab.add_entry.call_args_list
 
     @patch('kiwi.builder.disk.FileSystem.new')

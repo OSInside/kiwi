@@ -179,6 +179,14 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_volume_setup_has_no_root_definition()
 
+    def test_check_partuuid_persistency_type_used_with_mbr(self):
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'iso'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError):
+            runtime_checker.check_partuuid_persistency_type_used_with_mbr()
+
     @patch('kiwi.runtime_checker.CommandCapabilities.has_option_in_help')
     def test_check_luksformat_options_valid(self, mock_has_option_in_help):
         mock_has_option_in_help.return_value = False

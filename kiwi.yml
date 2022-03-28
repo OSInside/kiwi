@@ -143,3 +143,6 @@
 
 #      # validate options passed to cryptsetup via luksformat element
 #      - check_luksformat_options_valid
+
+#      # check devicepersistency compatible with partition table type
+#      - check_partuuid_persistency_type_used_with_mbr

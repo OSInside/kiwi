@@ -1,6 +1,8 @@
 #!/bin/bash
 # overlay images are specified with
 # root=overlay:UUID=uuid
+# root=overlay:PARTUUID=partuuid
+# root=overlay:LABEL=label
 # root=overlay:nbd=ip:exportname
 # root=overlay:aoe=interface
 
@@ -21,6 +23,16 @@ case "${overlayroot}" in
         root="${root#overlay:}"
         root="${root//\//\\x2f}"
         root="block:/dev/disk/by-uuid/${root#UUID=}"
+    ;;
+    overlay:PARTUUID=*|PARTUUID=*) \
+        root="${root#overlay:}"
+        root="${root//\//\\x2f}"
+        root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
+    ;;
+    overlay:LABEL=*|LABEL=*) \
+        root="${root#overlay:}"
+        root="${root//\//\\x2f}"
+        root="block:/dev/disk/by-label/${root#LABEL=}"
     ;;
     overlay:nbd=*) \
         root="block:/dev/nbd0"

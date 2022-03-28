@@ -1038,8 +1038,12 @@ class DiskBuilder:
                 ]
             )
         else:
-            blkid_type = 'LABEL' if self.persistency_type == 'by-label' \
-                else 'UUID'
+            if self.persistency_type == 'by-label':
+                blkid_type = 'LABEL'
+            elif self.persistency_type == 'by-partuuid':
+                blkid_type = 'PARTUUID'
+            else:
+                blkid_type = 'UUID'
             device_id = block_operation.get_blkid(blkid_type)
             fstab_entry = ' '.join(
                 [

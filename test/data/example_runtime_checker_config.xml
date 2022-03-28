@@ -136,7 +136,7 @@
                 <oem-swapname>swap</oem-swapname>
             </oemconfig>
         </type>
-        <type image="iso" mediacheck="true" firmware="bios"/>
+        <type image="iso" mediacheck="true" firmware="bios" devicepersistency="by-partuuid"/>
     </preferences>
     <users>
         <user groups="root" pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
