@@ -142,7 +142,7 @@ class TestContainerBuilder:
             'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(
-            'target_dir/image_name.x86_64-1.2.3.docker.tar', None
+            'target_dir/image_name.x86_64-1.2.3.docker.tar', None, True
         )
         assert self.container.result.add.call_args_list == [
             call(
@@ -228,7 +228,8 @@ class TestContainerBuilder:
         )
         container_image.create.assert_called_once_with(
             'target_dir/image_name.x86_64-1.2.3.docker.tar',
-            'root_dir/image/imported_root'
+            'root_dir/image/imported_root',
+            True
         )
         assert container.result.add.call_args_list == [
             call(
@@ -294,3 +295,40 @@ class TestContainerBuilder:
                 )
                 container.create()
                 assert 'open failed' in str(e)
+
+    @patch('kiwi.builder.container.Checksum')
+    @patch('kiwi.builder.container.ContainerImage')
+    @patch('os.path.exists')
+    def test_create_keep_tmpdirs(self, mock_exists, mock_image, mock_checksum):
+        def side_effect(filename):
+            if filename.endswith('.config/kiwi/config.yml'):
+                return False
+            elif filename.endswith('etc/kiwi.yml'):
+                return False
+            else:
+                return True
+
+        mock_exists.side_effect = side_effect
+
+        container_image = mock.Mock()
+        container_image.create = mock.Mock(
+            return_value='target_dir/image_name.x86_64-1.2.3.docker.tar'
+        )
+        mock_image.new.return_value = container_image
+
+        self.xml_state.build_type.get_ensure_empty_tmpdirs = mock.Mock(
+            return_value=False
+        )
+
+        container = ContainerBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+        container.result = mock.Mock()
+
+        container.create()
+
+        container_image.create.assert_called_once_with(
+            'target_dir/image_name.x86_64-1.2.3.docker.tar',
+            'root_dir/image/imported_root',
+            False
+        )

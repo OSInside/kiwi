@@ -68,12 +68,13 @@ class ContainerImageAppx:
                 )
             )
 
-    def create(self, filename, base_image=None):
+    def create(self, filename, base_image=None, ensure_empty_tmpdirs=None):
         """
         Create WSL/Appx archive
 
         :param string filename: archive file name
         :param string base_image: not-supported
+        :param string ensure_empty_tmpdirs: not-supported
         """
         exclude_list = Defaults.\
             get_exclude_list_for_root_data_sync() + Defaults.\

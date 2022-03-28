@@ -336,7 +336,7 @@ class Defaults:
         ]
 
     @staticmethod
-    def get_exclude_list_for_root_data_sync():
+    def get_exclude_list_for_root_data_sync(no_tmpdirs: bool = True):
         """
         Provides the list of files or folders that are created
         by KIWI for its own purposes. Those files should be not
@@ -347,7 +347,11 @@ class Defaults:
         :rtype: list
         """
         exclude_list = [
-            'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+            'image', '.profile', '.kconfig'
+        ]
+        if no_tmpdirs:
+            exclude_list += ['run/*', 'tmp/*']
+        exclude_list += [
             Defaults.get_buildservice_env_name(),
             Defaults.get_shared_cache_location()
         ]
