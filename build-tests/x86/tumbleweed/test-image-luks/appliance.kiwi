@@ -17,6 +17,11 @@
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" luks="linux" luks_version="luks" bootpartition="false">
+            <luksformat>
+                <option name="--cipher" value="aes-xts-plain64"/>
+                <option name="--key-size" value="256"/>
+                <option name="--hash" value="sha1"/>
+            </luksformat>
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
