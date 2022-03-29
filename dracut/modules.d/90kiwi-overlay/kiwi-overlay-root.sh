@@ -45,7 +45,7 @@ function initGlobalDevices {
         )
         read_only_partition=$(
             lsblk -p -r --fs -o NAME,FSTYPE "${root_disk}" |\
-            grep squashfs | cut -f1 -d ' '
+            grep squashfs | head -n 1 | cut -f1 -d ' '
         )
     fi
 }
