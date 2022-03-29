@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" luks="linux" luks_version="luks2" bootpartition="false">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" luks="linux" luks_version="luks" bootpartition="false">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
