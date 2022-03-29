@@ -82,6 +82,7 @@ class BlockID:
         :rtype: str
         """
         blkid_result = Command.run(
-            ['blkid', self.device, '-s', id_type, '-o', 'value']
+            ['blkid', self.device, '-s', id_type, '-o', 'value'],
+            raise_on_error=False
         )
-        return blkid_result.output.strip(os.linesep)
+        return blkid_result.output.strip(os.linesep) if blkid_result else ''

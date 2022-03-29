@@ -21,7 +21,8 @@ class TestBlockID:
     def test_get_blkid(self, mock_command):
         self.blkid.get_blkid('LABEL')
         mock_command.assert_called_once_with(
-            ['blkid', 'device', '-s', 'LABEL', '-o', 'value']
+            ['blkid', 'device', '-s', 'LABEL', '-o', 'value'],
+            raise_on_error=False
         )
 
     @patch('kiwi.utils.block.BlockID.get_blkid')

@@ -1950,6 +1950,11 @@ volume management system</a:documentation>
         <sch:assert test="oemconfig/oem-resize[contains(text(), 'false')]">$attr attribute also needs the setting: &lt;oem-resize&gt;false&lt;/oem-resize&gt; in the &lt;oemconfig&gt; section of the selected &lt;type&gt;</sch:assert>
       </sch:rule>
     </sch:pattern>
+    <sch:pattern abstract="true" id="image_verity_requirement">
+      <sch:rule context="type[@embed_verity_metadata]">
+        <sch:assert test="@$attr">$attr attribute must be set for embed_verity_metadata</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.type.boot.attribute">
       <attribute name="boot">
         <a:documentation>Specifies the path of the boot image (initrd) description
@@ -2285,6 +2290,21 @@ file the value 'all' can be specified.</a:documentation>
       <sch:pattern id="verity_blocks" is-a="image_type">
         <sch:param name="attr" value="verity_blocks"/>
         <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.embed_verity_metadata.attribute">
+      <attribute name="embed_verity_metadata">
+        <a:documentation>In combination with the verity_blocks attribute, embed
+a verification metadata block at the end of the partition
+serving the root filesystem</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="embed_verity_metadata" is-a="image_type">
+        <sch:param name="attr" value="embed_verity_metadata"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+      <sch:pattern id="verity_blocks_mandatory" is-a="image_verity_requirement">
+        <sch:param name="attr" value="verity_blocks"/>
       </sch:pattern>
     </define>
     <define name="k.type.overlayroot.attribute">
@@ -2994,6 +3014,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.verity_blocks.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.embed_verity_metadata.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.primary.attribute"/>

@@ -2798,7 +2798,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2848,6 +2848,7 @@ class type_(GeneratedsSuper):
         self.overlayroot_write_partition = _cast(bool, overlayroot_write_partition)
         self.overlayroot_readonly_partsize = _cast(int, overlayroot_readonly_partsize)
         self.verity_blocks = _cast(None, verity_blocks)
+        self.embed_verity_metadata = _cast(bool, embed_verity_metadata)
         self.primary = _cast(bool, primary)
         self.ramonly = _cast(bool, ramonly)
         self.rootfs_label = _cast(None, rootfs_label)
@@ -3064,6 +3065,8 @@ class type_(GeneratedsSuper):
     def set_overlayroot_readonly_partsize(self, overlayroot_readonly_partsize): self.overlayroot_readonly_partsize = overlayroot_readonly_partsize
     def get_verity_blocks(self): return self.verity_blocks
     def set_verity_blocks(self, verity_blocks): self.verity_blocks = verity_blocks
+    def get_embed_verity_metadata(self): return self.embed_verity_metadata
+    def set_embed_verity_metadata(self, embed_verity_metadata): self.embed_verity_metadata = embed_verity_metadata
     def get_primary(self): return self.primary
     def set_primary(self, primary): self.primary = primary
     def get_ramonly(self): return self.ramonly
@@ -3319,6 +3322,9 @@ class type_(GeneratedsSuper):
         if self.verity_blocks is not None and 'verity_blocks' not in already_processed:
             already_processed.add('verity_blocks')
             outfile.write(' verity_blocks=%s' % (quote_attrib(self.verity_blocks), ))
+        if self.embed_verity_metadata is not None and 'embed_verity_metadata' not in already_processed:
+            already_processed.add('embed_verity_metadata')
+            outfile.write(' embed_verity_metadata="%s"' % self.gds_format_boolean(self.embed_verity_metadata, input_name='embed_verity_metadata'))
         if self.primary is not None and 'primary' not in already_processed:
             already_processed.add('primary')
             outfile.write(' primary="%s"' % self.gds_format_boolean(self.primary, input_name='primary'))
@@ -3718,6 +3724,15 @@ class type_(GeneratedsSuper):
             self.verity_blocks = value
             self.verity_blocks = ' '.join(self.verity_blocks.split())
             self.validate_blocks_type(self.verity_blocks)    # validate type blocks-type
+        value = find_attr_value_('embed_verity_metadata', node)
+        if value is not None and 'embed_verity_metadata' not in already_processed:
+            already_processed.add('embed_verity_metadata')
+            if value in ('true', '1'):
+                self.embed_verity_metadata = True
+            elif value in ('false', '0'):
+                self.embed_verity_metadata = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('primary', node)
         if value is not None and 'primary' not in already_processed:
             already_processed.add('primary')

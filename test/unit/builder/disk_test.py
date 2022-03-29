@@ -439,6 +439,7 @@ class TestDiskBuilder:
         filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.root_filesystem_verity_blocks = 10
+        self.disk_builder.root_filesystem_embed_verity_metadata = True
         self.disk_builder.root_filesystem_is_overlay = False
         self.disk_builder.volume_manager_name = None
         self.disk_builder.initrd_system = 'dracut'
@@ -562,6 +563,9 @@ class TestDiskBuilder:
         assert self.boot_image_task.write_system_config_file.call_args_list == \
             []
         filesystem.create_verity_layer.assert_called_once_with(10, 'tempfile')
+        filesystem.create_verification_metadata.assert_called_once_with(
+            '/dev/root-device'
+        )
 
     @patch('kiwi.builder.disk.DeviceProvider')
     @patch('kiwi.builder.disk.FileSystem.new')
@@ -586,6 +590,7 @@ class TestDiskBuilder:
         self.disk_builder.root_filesystem_is_overlay = True
         self.disk_builder.root_filesystem_has_write_partition = False
         self.disk_builder.root_filesystem_verity_blocks = 10
+        self.disk_builder.root_filesystem_embed_verity_metadata = True
         self.disk_builder.volume_manager_name = None
         squashfs = Mock()
         mock_squashfs.return_value = squashfs
@@ -621,6 +626,9 @@ class TestDiskBuilder:
             ], filename='kiwi-tempname')
         ]
         squashfs.create_verity_layer.assert_called_once_with(10)
+        squashfs.create_verification_metadata.assert_called_once_with(
+            '/dev/readonly-root-device'
+        )
         self.disk.create_root_readonly_partition.assert_called_once_with(11)
         assert mock_command.call_args_list[2] == call(
             ['blockdev', '--getsize64', '/dev/readonly-root-device']

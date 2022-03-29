@@ -110,8 +110,6 @@ class TestVeritySetup:
             call('Roothash: e2728628377...\n'),
             call('Salt: fb074d1db50...\n'),
             call('UUID: \n'),
-            call('PARTUUID: uuid'),
-            call('\n'),
             call('Root hashoffset: 4096'),
             call('\n'),
             call('Superblock: --no-superblock'),

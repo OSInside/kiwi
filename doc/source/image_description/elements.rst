@@ -575,6 +575,37 @@ verity_blocks="number|all"
   persistently store the verification metadata as part of the
   partition(s) will be a next step.
 
+embed_verity_metadata="true|false"
+  For the `oem` type only, and in combination with the `verity_blocks`
+  attribute, specifies to write a binary block at the end of the
+  partition serving the root filesystem, containing information
+  for `dm_verity` verification in the following format:
+
+  .. code:: bash
+
+     |header|0xFF|dm_verity_credentials|0xFF|0x0|
+
+  header:
+    Is a string of the following information separated by spaces
+
+    * **version**: currently set to `1`
+    * **fstype**: name of `filesystem` attribute
+    * **access**: either `ro` or `rw` depending on the filesystem capabilities
+    * `verity`: fixed identifier value
+
+  dm_verity_credentials:
+    Is a string of the following information separated by spaces
+
+    * **hash_type**: hash type name as returned by `veritysetup`
+    * **data_blksize**: data blocksize as returned by `veritysetup`
+    * **hash_blksize**: hash blocksize as returned by `veritysetup`
+    * **data_blocks**: number of data blocks as returned by `veritysetup`
+    * **hash_start_block**:
+      hash start block as required by the kernel to construct the device map
+    * **algorithm**: hash algorithm as returned by `veritysetup`
+    * **root_hash**: root hash as returned by `veritysetup`
+    * **salt**: salt hash as returned by `veritysetup`
+
 overlayroot="true|false"
   For the `oem` type only, specifies to use an `overlayfs` based root
   filesystem consisting out of a squashfs compressed read-only root
