@@ -1322,14 +1322,15 @@ class DiskBuilder:
 
         if self.bootloader != 'custom':
             # create bootloader config prior bootloader installation
-            self.bootloader_config.setup_disk_image_config(
-                boot_options=custom_install_arguments
-            )
-            if 's390' in self.arch:
-                self.bootloader_config.write()
-
-            # cleanup bootloader config resources taken prior to next steps
-            del self.bootloader_config
+            try:
+                self.bootloader_config.setup_disk_image_config(
+                    boot_options=custom_install_arguments
+                )
+                if 's390' in self.arch:
+                    self.bootloader_config.write()
+            finally:
+                # cleanup bootloader config resources taken prior to next steps
+                del self.bootloader_config
 
             log.debug(
                 "custom arguments for bootloader installation %s",
