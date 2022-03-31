@@ -61,3 +61,12 @@ class FileSystemFat32(FileSystemBase):
                 'mkdosfs', '-F32', '-I'
             ] + self.custom_args['create_options'] + device_args
         )
+
+    def set_uuid(self):
+        """
+        Create new random filesystem UUID
+        """
+        device = self.device_provider.get_device()
+        Command.run(
+            ['mlabel', '-n', '-i', device, '::']
+        )

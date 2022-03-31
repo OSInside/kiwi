@@ -1,4 +1,6 @@
-from mock import patch
+from mock import (
+    patch, call
+)
 
 import mock
 
@@ -28,3 +30,11 @@ class TestFileSystemExt2:
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
             call(['mkfs.ext2', '-L', 'label', '-U', 'uuid', '/dev/foo', '100'])
+
+    @patch('kiwi.filesystem.ext2.Command.run')
+    def test_set_uuid(self, mock_command):
+        self.ext2.set_uuid()
+        assert mock_command.call_args_list == [
+            call(['e2fsck', '-y', '-f', '/dev/foo'], raise_on_error=False),
+            call(['tune2fs', '-f', '-U', 'random', '/dev/foo'])
+        ]

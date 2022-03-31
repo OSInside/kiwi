@@ -60,3 +60,12 @@ class FileSystemBtrfs(FileSystemBase):
         Command.run(
             ['mkfs.btrfs'] + self.custom_args['create_options'] + [device]
         )
+
+    def set_uuid(self):
+        """
+        Create new random filesystem UUID
+        """
+        device = self.device_provider.get_device()
+        Command.run(
+            ['btrfstune', '-u', device]
+        )
