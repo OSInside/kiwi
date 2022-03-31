@@ -110,6 +110,19 @@ class FileSystemBase:
         if not self.custom_args.get('fs_attributes'):
             self.custom_args['fs_attributes'] = []
 
+    def set_uuid(self):
+        """
+        Create new random filesystem UUID
+
+        Implement in specialized filesystem class for filesystems which
+        supports the concept of an UUID and allows to change it
+        """
+        log.warning(
+            'Instance {0} has no support for setting a new UUID label'.format(
+                type(self).__name__
+            )
+        )
+
     def create_on_device(
         self, label: str = None, size: int = 0, unit: str = defaults.UNIT.kb,
         uuid: str = None

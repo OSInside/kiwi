@@ -59,3 +59,15 @@ class FileSystemExt4(FileSystemBase):
         Command.run(
             ['mkfs.ext4'] + self.custom_args['create_options'] + device_args
         )
+
+    def set_uuid(self):
+        """
+        Create new random filesystem UUID
+        """
+        device = self.device_provider.get_device()
+        Command.run(
+            ['e2fsck', '-y', '-f', device], raise_on_error=False
+        )
+        Command.run(
+            ['tune2fs', '-f', '-U', 'random', device]
+        )

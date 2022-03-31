@@ -32,3 +32,10 @@ class TestFileSystemFat16:
                 '-i', 'uuid', '/dev/foo', '100'
             ]
         )
+
+    @patch('kiwi.filesystem.fat16.Command.run')
+    def test_set_uuid(self, mock_command):
+        self.fat16.set_uuid()
+        mock_command.assert_called_once_with(
+            ['mlabel', '-n', '-i', '/dev/foo', '::']
+        )
