@@ -787,6 +787,11 @@ derived_from="string":
   The image created by {kiwi} will use the specified container as the
   base root to work on.
 
+ensure_empty_tmpdirs="true|false":
+  For OCI container images, specifies whether to ensure /run and /tmp
+  directories are empty in the container image created by Kiwi.
+  Default is true.
+
 publisher="string":
   For ISO images, specifies the publisher name of the ISO.
 

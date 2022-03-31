@@ -2826,6 +2826,17 @@ to work on.</a:documentation>
         <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
+    <define name="k.type.ensure_empty_tmpdirs.attribute">
+      <attribute name="ensure_empty_tmpdirs">
+        <a:documentation>Whether to ensure /run and /tmp directories are empty in the
+container image created by Kiwi.  Default is true.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="ensure_empty_tmpdirs" is-a="image_type">
+        <sch:param name="attr" value="ensure_empty_tmpdirs"/>
+        <sch:param name="types" value="docker oci"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.publisher.attribute">
       <attribute name="publisher">
         <a:documentation>Specifies the publisher name of the ISO.</a:documentation>
@@ -3062,6 +3073,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.derived_from.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.ensure_empty_tmpdirs.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.xen_server.attribute"/>

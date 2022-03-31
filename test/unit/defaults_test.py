@@ -119,6 +119,17 @@ class TestDefaults:
                 '../data/root-dir'
             ) == []
 
+    def test_get_exclude_list_for_root_data_sync(self):
+        assert Defaults.get_exclude_list_for_root_data_sync() == [
+            'image', '.profile', '.kconfig',
+            'run/*', 'tmp/*',
+            '.buildenv', 'var/cache/kiwi'
+        ]
+        assert Defaults.get_exclude_list_for_root_data_sync(no_tmpdirs=False) == [
+            'image', '.profile', '.kconfig',
+            '.buildenv', 'var/cache/kiwi'
+        ]
+
     @patch('glob.iglob')
     def test_get_signed_grub_loader(self, mock_iglob):
         def iglob_no_matches(pattern):
