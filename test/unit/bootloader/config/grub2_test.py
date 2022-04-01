@@ -681,6 +681,50 @@ class TestBootLoaderConfigGrub2:
 
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.SysConfig')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_default_grub_use_of_by_label(
+        self, mock_Command_run, mock_sysconfig, mock_exists
+    ):
+        grep_grub_option = Mock()
+        grep_grub_option.returncode = 0
+        mock_Command_run.return_value = grep_grub_option
+        grub_default = MagicMock()
+        mock_sysconfig.return_value = grub_default
+        mock_exists.return_value = True
+        self.bootloader.terminal = 'serial'
+        self.bootloader.theme = 'openSUSE'
+        self.bootloader.displayname = 'Bob'
+        self.bootloader.cmdline = 'abcd root=LABEL=foo console=tty0'
+        self.bootloader.persistency_type = 'by-label'
+
+        self.bootloader._setup_default_grub()
+
+        assert grub_default.__setitem__.call_args_list == [
+            call(
+                'GRUB_BACKGROUND',
+                '/boot/grub2/themes/openSUSE/background.png'
+            ),
+            call('GRUB_CMDLINE_LINUX', '"root=LABEL=foo"'),
+            call('GRUB_CMDLINE_LINUX_DEFAULT', '"abcd console=tty0"'),
+            call('GRUB_DISABLE_LINUX_UUID', 'true'),
+            call('GRUB_DISTRIBUTOR', '"Bob"'),
+            call('GRUB_ENABLE_BLSCFG', 'true'),
+            call('GRUB_ENABLE_CRYPTODISK', 'y'),
+            call('GRUB_ENABLE_LINUX_LABEL', 'true'),
+            call('GRUB_GFXMODE', '800x600'),
+            call(
+                'GRUB_SERIAL_COMMAND', '"serial --speed=38400"'
+            ),
+            call('GRUB_TERMINAL', '"serial"'),
+            call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
+            call('GRUB_TIMEOUT', 10),
+            call('GRUB_TIMEOUT_STYLE', 'countdown'),
+            call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true'),
+            call('SUSE_REMOVE_LINUX_ROOT_PARAM', 'true'),
+        ]
+
+    @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.grub2.SysConfig')
     def test_setup_sysconfig_bootloader(self, mock_sysconfig, mock_exists):
         sysconfig_bootloader = MagicMock()
         mock_sysconfig.return_value = sysconfig_bootloader

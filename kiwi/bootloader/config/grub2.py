@@ -635,11 +635,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_TIMEOUT
         * GRUB_TIMEOUT_STYLE
         * SUSE_BTRFS_SNAPSHOT_BOOTING
+        * SUSE_REMOVE_LINUX_ROOT_PARAM
         * GRUB_BACKGROUND
         * GRUB_THEME
         * GRUB_USE_LINUXEFI
         * GRUB_USE_INITRDEFI
         * GRUB_SERIAL_COMMAND
+        * GRUB_CMDLINE_LINUX
         * GRUB_CMDLINE_LINUX_DEFAULT
         * GRUB_GFXMODE
         * GRUB_TERMINAL
@@ -657,6 +659,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             r'(^root=[^\s]+)|( root=[^\s]+)', '', self.cmdline
         ).strip()
         if self.persistency_type == 'by-label':
+            label = re.search(r'(^root=[^\s]+)|( root=[^\s]+)', self.cmdline)
+            if label and label.groups()[-1]:
+                label_definition = label.groups()[-1].strip()
+                if 'LABEL' in label_definition:
+                    grub_default_entries['GRUB_CMDLINE_LINUX'] = \
+                        '"{0}"'.format(label_definition)
+                    grub_default_entries['SUSE_REMOVE_LINUX_ROOT_PARAM'] = \
+                        'true'
             grub_default_entries['GRUB_ENABLE_LINUX_LABEL'] = 'true'
             grub_default_entries['GRUB_DISABLE_LINUX_UUID'] = 'true'
         elif self.persistency_type == 'by-partuuid':
