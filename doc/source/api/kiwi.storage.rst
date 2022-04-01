@@ -54,6 +54,14 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+`kiwi.storage.clone_device` Module
+----------------------------------
+
+.. automodule:: kiwi.storage.clone_device
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 `kiwi.storage.setup` Module
 ---------------------------
 
