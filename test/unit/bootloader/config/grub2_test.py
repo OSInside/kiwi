@@ -566,7 +566,6 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.firmware.efi_mode.return_value = 'efi'
-        self.bootloader.persistency_type = 'by-label'
 
         self.bootloader._setup_default_grub()
 
@@ -578,11 +577,9 @@ class TestBootLoaderConfigGrub2:
                 '/boot/grub2/themes/openSUSE/background.png'
             ),
             call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
-            call('GRUB_DISABLE_LINUX_UUID', 'true'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
             call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
-            call('GRUB_ENABLE_LINUX_LABEL', 'true'),
             call('GRUB_GFXMODE', '800x600'),
             call(
                 'GRUB_SERIAL_COMMAND', '"serial --speed=38400"'
@@ -611,7 +608,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.terminal = 'serial'
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
-        self.bootloader.cmdline = 'root=UUID=foo'
+        self.bootloader.cmdline = 'root=LABEL=some-label'
         self.bootloader.persistency_type = 'by-label'
 
         self.bootloader._setup_default_grub()
@@ -622,6 +619,7 @@ class TestBootLoaderConfigGrub2:
                 'GRUB_BACKGROUND',
                 '/boot/grub2/themes/openSUSE/background.png'
             ),
+            call('GRUB_CMDLINE_LINUX', '"root=LABEL=some-label"'),
             call('GRUB_DISABLE_LINUX_UUID', 'true'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
             call('GRUB_ENABLE_BLSCFG', 'true'),
@@ -635,7 +633,8 @@ class TestBootLoaderConfigGrub2:
             call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
             call('GRUB_TIMEOUT', 10),
             call('GRUB_TIMEOUT_STYLE', 'countdown'),
-            call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true')
+            call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true'),
+            call('SUSE_REMOVE_LINUX_ROOT_PARAM', 'true')
         ]
 
     @patch('os.path.exists')
