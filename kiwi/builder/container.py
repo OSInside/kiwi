@@ -152,11 +152,15 @@ class ContainerBuilder:
         )
         if self.bundle_format:
             self.result.add_bundle_format(self.bundle_format)
+        compress = False
+        # appx handles compression in container_image.create
+        if self.requested_container_type != 'appx':
+            compress = self.runtime_config.get_container_compression()
         self.result.add(
             key='container',
             filename=self.filename,
             use_for_bundle=True,
-            compress=self.runtime_config.get_container_compression(),
+            compress=compress,
             shasum=True
         )
         self.result.add(
