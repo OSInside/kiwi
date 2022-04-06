@@ -660,13 +660,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         ).strip()
         if self.persistency_type == 'by-label':
             label = re.search(r'(^root=[^\s]+)|( root=[^\s]+)', self.cmdline)
-            if label and label.groups()[-1]:
-                label_definition = label.groups()[-1].strip()
-                if 'LABEL' in label_definition:
-                    grub_default_entries['GRUB_CMDLINE_LINUX'] = \
-                        '"{0}"'.format(label_definition)
-                    grub_default_entries['SUSE_REMOVE_LINUX_ROOT_PARAM'] = \
-                        'true'
+            if label:
+                for match in label.groups():
+                    if match and 'LABEL' in match:
+                        grub_default_entries['GRUB_CMDLINE_LINUX'] = \
+                            '"{0}"'.format(match.strip())
+                        grub_default_entries['SUSE_REMOVE_LINUX_ROOT_PARAM'] = \
+                            'true'
             grub_default_entries['GRUB_ENABLE_LINUX_LABEL'] = 'true'
             grub_default_entries['GRUB_DISABLE_LINUX_UUID'] = 'true'
         elif self.persistency_type == 'by-partuuid':
