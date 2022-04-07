@@ -83,6 +83,7 @@
         <package name="kernel-default"/>
         <package name="ntp"/>
         <package name="bcm43xx-firmware"/>
+        <package name="ruby"/>
     </packages>
     <packages type="bootstrap">
         <package name="udev"/>
