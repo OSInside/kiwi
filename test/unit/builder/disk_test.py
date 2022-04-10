@@ -803,6 +803,7 @@ class TestDiskBuilder:
         self.disk_builder.custom_partitions = {
             'var': ptable_entry_type(
                 mbsize=100,
+                clone=0,
                 partition_name='p.lxvar',
                 partition_type='t.linux',
                 mountpoint='/var',
