@@ -169,7 +169,7 @@ class Disk(DeviceProvider):
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the root partition
         """
-        (mbsize, mbsize_clone) = self._parse_size(mbsize)
+        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
             self._create_clones('root', clone, 't.linux', mbsize_clone)
         self.partitioner.create('p.lxroot', mbsize, 't.linux')
@@ -189,7 +189,7 @@ class Disk(DeviceProvider):
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the lvm roo partition
         """
-        (mbsize, mbsize_clone) = self._parse_size(mbsize)
+        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
             self._create_clones('root', clone, 't.lvm', mbsize_clone)
         self.partitioner.create('p.lxlvm', mbsize, 't.lvm')
@@ -207,7 +207,7 @@ class Disk(DeviceProvider):
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the raid root partition
         """
-        (mbsize, mbsize_clone) = self._parse_size(mbsize)
+        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
             self._create_clones('root', clone, 't.raid', mbsize_clone)
         self.partitioner.create('p.lxraid', mbsize, 't.raid')
@@ -227,7 +227,7 @@ class Disk(DeviceProvider):
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the ro root partition
         """
-        (mbsize, mbsize_clone) = self._parse_size(mbsize)
+        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
             self._create_clones('root', clone, 't.linux', mbsize_clone)
         self.partitioner.create('p.lxreadonly', mbsize, 't.linux')
@@ -243,7 +243,7 @@ class Disk(DeviceProvider):
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the boot partition
         """
-        (mbsize, mbsize_clone) = self._parse_size(mbsize)
+        (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
             self._create_clones('boot', clone, 't.linux', mbsize_clone)
         self.partitioner.create('p.lxboot', mbsize, 't.linux')
@@ -258,7 +258,7 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         """
-        (mbsize, _) = self._parse_size(mbsize)
+        (mbsize, _) = Disk._parse_size(mbsize)
         self.partitioner.create('p.prep', mbsize, 't.prep')
         self._add_to_map('prep')
         self._add_to_public_id_map('kiwi_PrepPart')
@@ -271,7 +271,7 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         """
-        (mbsize, _) = self._parse_size(mbsize)
+        (mbsize, _) = Disk._parse_size(mbsize)
         self.partitioner.create('p.spare', mbsize, 't.linux')
         self._add_to_map('spare')
         self._add_to_public_id_map('kiwi_SparePart')
@@ -284,7 +284,7 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         """
-        (mbsize, _) = self._parse_size(mbsize)
+        (mbsize, _) = Disk._parse_size(mbsize)
         self.partitioner.create('p.swap', mbsize, 't.swap')
         self._add_to_map('swap')
         self._add_to_public_id_map('kiwi_SwapPart')
@@ -297,7 +297,7 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         """
-        (mbsize, _) = self._parse_size(mbsize)
+        (mbsize, _) = Disk._parse_size(mbsize)
         self.partitioner.create('p.legacy', mbsize, 't.csm')
         self._add_to_map('efi_csm')
         self._add_to_public_id_map('kiwi_BiosGrub')
@@ -310,7 +310,7 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         """
-        (mbsize, _) = self._parse_size(mbsize)
+        (mbsize, _) = Disk._parse_size(mbsize)
         self.partitioner.create('p.UEFI', mbsize, 't.efi')
         self._add_to_map('efi')
         self._add_to_public_id_map('kiwi_EfiPart')
@@ -431,7 +431,8 @@ class Disk(DeviceProvider):
             self._add_to_map(f'{name}clone{clone_id}')
             self._add_to_public_id_map(f'kiwi_{name}PartClone{clone_id}')
 
-    def _parse_size(self, value: str) -> Tuple[str, str]:
+    @staticmethod
+    def _parse_size(value: str) -> Tuple[str, str]:
         """
         parse size value. This can be one of the following
 
