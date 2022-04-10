@@ -893,7 +893,7 @@ class TestBootLoaderConfigGrub2:
                     [
                         'bash', '-c',
                         'cd root_mount_point/boot && rm -f boot && ln -s . boot'
-                    ]
+                    ], raise_on_error=False
                 )
             ]
             mock_copy_grub_config_to_efi_path.assert_called_once_with(
