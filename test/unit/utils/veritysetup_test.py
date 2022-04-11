@@ -6,10 +6,7 @@ from mock import (
 )
 
 from kiwi.utils.veritysetup import VeritySetup
-from kiwi.exceptions import (
-    KiwiOffsetError,
-    KiwiCredentialsError
-)
+from kiwi.exceptions import KiwiOffsetError
 
 import kiwi.defaults as defaults
 
@@ -148,7 +145,7 @@ class TestVeritySetup:
             call('/some/device', 'r+b')
         ]
         file_handle.seek.assert_called_once_with(
-            -defaults.VERIFICATION_METADATA_OFFSET, 2
+            -defaults.DM_METADATA_OFFSET, 2
         )
         file_handle.write.assert_called_once_with(
             file_handle.read.return_value
@@ -172,57 +169,10 @@ class TestVeritySetup:
             call(b'\x00')
         ]
 
-    @patch('kiwi.utils.veritysetup.RuntimeConfig')
-    def test_sign_verification_metadata_raises(self, mock_RuntimeConfig):
+    @patch('kiwi.utils.veritysetup.Signature')
+    def test_sign_verification_metadata(self, mock_Signature):
         metadata_file = Mock()
         metadata_file.name = 'metadata_file'
         self.veritysetup.verification_metadata_file = metadata_file
-        runtime_config = Mock()
-        runtime_config.\
-            get_credentials_verification_metadata_signing_key_file = Mock(
-                return_value=None
-            )
-        mock_RuntimeConfig.return_value = runtime_config
-        with raises(KiwiCredentialsError):
-            self.veritysetup.sign_verification_metadata()
-
-    @patch('kiwi.utils.veritysetup.RuntimeConfig')
-    @patch('kiwi.utils.veritysetup.Command')
-    @patch('kiwi.utils.veritysetup.Temporary.new_file')
-    def test_sign_verification_metadata(
-        self, mock_Temporary_new_file, mock_Command, mock_RuntimeConfig
-    ):
-        signature_file = Mock()
-        signature_file.name = 'signature_file'
-        mock_Temporary_new_file.return_value = signature_file
-        metadata_file = Mock()
-        metadata_file.name = 'metadata_file'
-        self.veritysetup.verification_metadata_file = metadata_file
-        runtime_config = Mock()
-        runtime_config.\
-            get_credentials_verification_metadata_signing_key_file = Mock(
-                return_value='signing_key_file'
-            )
-        mock_RuntimeConfig.return_value = runtime_config
-        with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=io.IOBase)
-            file_handle = mock_open.return_value.__enter__.return_value
-            self.veritysetup.sign_verification_metadata()
-        mock_Command.run.assert_called_once_with(
-            [
-                'openssl', 'dgst', '-sha256',
-                '-sigopt', 'rsa_padding_mode:pss',
-                '-sigopt', 'rsa_pss_saltlen:-1',
-                '-sigopt', 'rsa_mgf1_md:sha256',
-                '-sign', 'signing_key_file',
-                '-out', 'signature_file',
-                'metadata_file'
-            ]
-        )
-        assert mock_open.call_args_list == [
-            call('signature_file', 'rb'),
-            call('metadata_file', 'ab')
-        ]
-        file_handle.write.assert_called_once_with(
-            file_handle.read.return_value
-        )
+        self.veritysetup.sign_verification_metadata()
+        mock_Signature.return_value.sign.assert_called_once_with()

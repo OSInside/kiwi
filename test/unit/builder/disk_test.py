@@ -185,6 +185,13 @@ class TestDiskBuilder:
         kiwi.builder.disk.RaidDevice = Mock(
             return_value=self.raid_root
         )
+        self.integrity_root = Mock()
+        self.integrity_root.get_device.return_value = MappedDevice(
+            '/dev/integrityRoot', Mock()
+        )
+        kiwi.builder.disk.IntegrityDevice = Mock(
+            return_value=self.integrity_root
+        )
         self.luks_root = Mock()
         kiwi.builder.disk.LuksDevice = Mock(
             return_value=self.luks_root
@@ -412,6 +419,56 @@ class TestDiskBuilder:
         )
 
     @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.SystemSetup')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('kiwi.builder.disk.Temporary.new_file')
+    def test_create_disk_standard_root_with_dm_integrity(
+        self, mock_Temporary_new_file, mock_ImageSystem,
+        mock_SystemSetup, mock_os_path_getsize, mock_path,
+        mock_grub_dir, mock_command, mock_fs
+    ):
+        tempfile = Mock()
+        tempfile.name = 'tempfile'
+        mock_Temporary_new_file.return_value = tempfile
+        mock_os_path_getsize.return_value = 42
+        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
+            kernel_name='vmlinuz-1.2.3-default',
+            initrd_name='initramfs-1.2.3.img'
+        )
+        mock_path.return_value = True
+        filesystem = Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.integrity_root = True
+        self.disk_builder.root_filesystem_embed_integrity_metadata = True
+        self.disk_builder.root_filesystem_is_overlay = False
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.initrd_system = 'dracut'
+        disk_system = Mock()
+        mock_SystemSetup.return_value = disk_system
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+
+        self.integrity_root.create_integritytab.assert_called_once_with(
+            'root_dir/etc/integritytab'
+        )
+        self.integrity_root.create_integrity_metadata.assert_called_once_with()
+        self.integrity_root.sign_integrity_metadata.assert_called_once_with()
+        self.integrity_root.write_integrity_metadata.assert_called_once_with()
+        assert filesystem.create_on_device.call_args_list == [
+            call(label='EFI'),
+            call(label='BOOT'),
+            # root must be created DM_METADATA_OFFSET smaller
+            call(label='ROOT', size=-4096, unit='b'),
+            call(label='SWAP')
+        ]
+
+    @patch('kiwi.builder.disk.FileSystem.new')
     @patch('random.randrange')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
@@ -591,6 +648,8 @@ class TestDiskBuilder:
         self.disk_builder.root_filesystem_has_write_partition = False
         self.disk_builder.root_filesystem_verity_blocks = 10
         self.disk_builder.root_filesystem_embed_verity_metadata = True
+        self.disk_builder.integrity_root = True
+        self.disk_builder.root_filesystem_embed_integrity_metadata = True
         self.disk_builder.volume_manager_name = None
         squashfs = Mock()
         mock_squashfs.return_value = squashfs
@@ -603,6 +662,7 @@ class TestDiskBuilder:
         self.disk.public_partition_id_map = self.id_map
         self.disk.public_partition_id_map['kiwi_ROPart'] = 1
         m_open = mock_open()
+# FIXME
         with patch('builtins.open', m_open, create=True):
             self.disk_builder.create_disk()
 
@@ -627,14 +687,17 @@ class TestDiskBuilder:
         ]
         squashfs.create_verity_layer.assert_called_once_with(10)
         squashfs.create_verification_metadata.assert_called_once_with(
-            '/dev/readonly-root-device'
+            '/dev/integrityRoot'
         )
+        self.integrity_root.create_integrity_metadata.assert_called_once_with()
+        self.integrity_root.sign_integrity_metadata.assert_called_once_with()
+        self.integrity_root.write_integrity_metadata.assert_called_once_with()
         self.disk.create_root_readonly_partition.assert_called_once_with(11)
         assert mock_command.call_args_list[2] == call(
-            ['blockdev', '--getsize64', '/dev/readonly-root-device']
+            ['blockdev', '--getsize64', '/dev/integrityRoot']
         )
         assert mock_command.call_args_list[3] == call(
-            ['dd', 'if=kiwi-tempname', 'of=/dev/readonly-root-device']
+            ['dd', 'if=kiwi-tempname', 'of=/dev/integrityRoot']
         )
         assert m_open.return_value.write.call_args_list == [
             # config.partids

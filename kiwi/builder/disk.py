@@ -40,6 +40,7 @@ from kiwi.firmware import FirmWare
 from kiwi.storage.disk import Disk
 from kiwi.storage.raid_device import RaidDevice
 from kiwi.storage.luks_device import LuksDevice
+from kiwi.storage.integrity_device import IntegrityDevice
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.squashfs import FileSystemSquashFs
@@ -117,6 +118,9 @@ class DiskBuilder:
         self.hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
         self.force_mbr = xml_state.build_type.get_force_mbr()
         self.luks = xml_state.get_luks_credentials()
+        self.integrity_root = xml_state.build_type.get_standalone_integrity()
+        self.root_filesystem_embed_integrity_metadata = \
+            xml_state.build_type.get_embed_integrity_metadata()
         self.luks_format_options = xml_state.get_luks_format_options()
         self.luks_os = xml_state.build_type.get_luksOS()
         self.xen_server = xml_state.is_xen_server()
@@ -299,6 +303,16 @@ class DiskBuilder:
             disk.public_partition_id_map['kiwi_RaidDev'] = \
                 device_map['root'].get_device()
 
+        # create integrity on current root device if requested
+        if self.integrity_root:
+            self.integrity_root = IntegrityDevice(device_map['root'])
+            self.integrity_root.create_dm_integrity()
+            device_map['integrity_root'] = device_map['root']
+            device_map['root'] = self.integrity_root.get_device()
+            if self.root_filesystem_is_overlay and \
+               self.root_filesystem_has_write_partition is False:
+                device_map['readonly'] = device_map['root']
+
         # create luks on current root device if requested
         luks_root = None
         if self.luks is not None:
@@ -404,9 +418,16 @@ class DiskBuilder:
                     self.root_dir + '/',
                     filesystem_custom_parameters
                 )
-                filesystem.create_on_device(
-                    label=self.disk_setup.get_root_label()
-                )
+                if self.root_filesystem_embed_integrity_metadata:
+                    filesystem.create_on_device(
+                        label=self.disk_setup.get_root_label(),
+                        size=-defaults.DM_METADATA_OFFSET,
+                        unit=defaults.UNIT.byte
+                    )
+                else:
+                    filesystem.create_on_device(
+                        label=self.disk_setup.get_root_label(),
+                    )
                 system = filesystem
 
         # create swap on current root device if requested
@@ -443,6 +464,8 @@ class DiskBuilder:
         self._write_image_identifier_to_system_image()
 
         self._write_crypttab_to_system_image(luks_root)
+
+        self._write_integritytab_to_system_image(self.integrity_root)
 
         self._write_generic_fstab_to_system_image(device_map, system)
 
@@ -938,6 +961,19 @@ class DiskBuilder:
                 os.sep + os.sep.join(['etc', os.path.basename(filename)])
             )
 
+    def _write_integritytab_to_system_image(
+        self, integrity_root: Optional[IntegrityDevice]
+    ) -> None:
+        if integrity_root:
+            log.info('Creating etc/integritytab')
+            filename = ''.join(
+                [self.root_dir, '/etc/integritytab']
+            )
+            integrity_root.create_integritytab(filename)
+            self.boot_image.include_file(
+                os.sep + os.sep.join(['etc', os.path.basename(filename)])
+            )
+
     def _write_crypttab_to_system_image(
         self, luks_root: Optional[LuksDevice]
     ) -> None:
@@ -1232,7 +1268,7 @@ class DiskBuilder:
                 self.root_filesystem_verity_blocks != 'all' else None
             ).get_hash_byte_size()
             if self.root_filesystem_embed_verity_metadata:
-                verity_root_file_bytes -= defaults.VERIFICATION_METADATA_OFFSET
+                verity_root_file_bytes -= defaults.DM_METADATA_OFFSET
             verity_root_file = Temporary().new_file()
             loop_provider = LoopDevice(
                 verity_root_file.name,
@@ -1283,6 +1319,14 @@ class DiskBuilder:
             system.sync_data(
                 self._get_exclude_list_for_root_data_sync(device_map)
             )
+
+        if self.integrity_root and \
+           self.root_filesystem_embed_integrity_metadata:
+            log.info('--> Creating integrity metadata...')
+            self.integrity_root.create_integrity_metadata()
+            log.info('--> Signing integrity metadata...')
+            self.integrity_root.sign_integrity_metadata()
+            self.integrity_root.write_integrity_metadata()
 
     def _install_bootloader(
         self, device_map: Dict, disk, system: Any

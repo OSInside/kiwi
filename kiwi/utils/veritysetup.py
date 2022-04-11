@@ -23,15 +23,12 @@ from typing import (
 # project
 import kiwi.defaults as defaults
 
-from kiwi.runtime_config import RuntimeConfig
+from kiwi.utils.signature import Signature
 from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.utils.block import BlockID
 
-from kiwi.exceptions import (
-    KiwiCredentialsError,
-    KiwiOffsetError
-)
+from kiwi.exceptions import KiwiOffsetError
 
 
 class VeritySetup:
@@ -142,7 +139,7 @@ class VeritySetup:
     def write_verification_metadata(self, device_node: str) -> None:
         """
         Write metadata block beginning at
-        getsize64() - defaults.VERIFICATION_METADATA_OFFSET
+        getsize64() - defaults.DM_METADATA_OFFSET
         of the given device_node
 
         :param str device_node: block device node name
@@ -151,21 +148,21 @@ class VeritySetup:
             meta_data_size = os.path.getsize(
                 self.verification_metadata_file.name
             )
-            if meta_data_size > defaults.VERIFICATION_METADATA_OFFSET:
+            if meta_data_size > defaults.DM_METADATA_OFFSET:
                 raise KiwiOffsetError(
                     'Metadata size of {0}b exceeds {1}b limit'.format(
-                        meta_data_size, defaults.VERIFICATION_METADATA_OFFSET
+                        meta_data_size, defaults.DM_METADATA_OFFSET
                     )
                 )
             with open(self.verification_metadata_file.name, 'rb') as meta:
                 with open(device_node, 'r+b') as target:
-                    # seek --defaults.VERIFICATION_METADATA_OFFSET from the
+                    # seek --defaults.DM_METADATA_OFFSET from the
                     # end to reach the metadata start
                     # Please note, writing of the metadata block can destroy
                     # the filesystem on the device_node if it was not created
                     # with a smaller size than the device_node, you have been
                     # warned.
-                    target.seek(-defaults.VERIFICATION_METADATA_OFFSET, 2)
+                    target.seek(-defaults.DM_METADATA_OFFSET, 2)
                     target.write(meta.read())
 
     def create_verity_verification_metadata(self) -> None:
@@ -186,7 +183,7 @@ class VeritySetup:
         the filesystem on the device_node if it was not created
         with a smaller size than the device_node !
         """
-        metadata_format_version = defaults.VERIFICATION_METADATA_FORMAT_VERSION
+        metadata_format_version = defaults.DM_METADATA_FORMAT_VERSION
         filesystem = self.get_block_storage_filesystem()
         if filesystem and self.verity_dict:
             filesystem_mode = 'ro' if filesystem == 'squashfs' else 'rw'
@@ -222,40 +219,10 @@ class VeritySetup:
     def sign_verification_metadata(self) -> None:
         """
         Create an openssl based signature from the metadata block
-        and attach it at the end of the block. This method requires
-        access to a private key for signing. The path to the private
-        key is read from the kiwi runtime config file from the
-        following section:
-
-        credentials:
-          - verification_metadata_signing_key_file: /path/to/pkey
+        and attach it at the end of the block.
         """
         if self.verification_metadata_file:
-            runtime_config = RuntimeConfig()
-            signing_key_file = runtime_config.\
-                get_credentials_verification_metadata_signing_key_file()
-            if not signing_key_file:
-                raise KiwiCredentialsError(
-                    '{0} not configured in runtime config'.format(
-                        'verification_metadata_signing_key_file'
-                    )
-                )
-            signature_file = Temporary().new_file()
-            Command.run(
-                [
-                    'openssl', 'dgst', '-sha256',
-                    '-sigopt', 'rsa_padding_mode:pss',
-                    '-sigopt', 'rsa_pss_saltlen:-1',
-                    '-sigopt', 'rsa_mgf1_md:sha256',
-                    '-sign', signing_key_file,
-                    '-out', signature_file.name,
-                    self.verification_metadata_file.name
-                ]
-            )
-            with open(signature_file.name, 'rb') as sig_fd:
-                signature = sig_fd.read()
-                with open(self.verification_metadata_file.name, 'ab') as meta:
-                    meta.write(signature)
+            Signature(self.verification_metadata_file.name).sign()
 
     def store_credentials(
         self, credentials_filepath: str, target_block_id: BlockID

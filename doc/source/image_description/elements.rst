@@ -565,6 +565,51 @@ devicepersistency="by-uuid|by-label":
 squashfscompression="uncompressed|gzip|lzo|lz4|xz|zstd":
   Specifies the compression type for mksquashfs
 
+standalone_integrity="true|false"
+  For the `oem` type only, specifies to create a standalone
+  `dm_integrity` layer on top of the root filesystem
+
+embed_integrity_metadata="true|false"
+  For the `oem` type only, and in combination with the
+  `standalone_integrity` attribute, specifies to write a binary
+  block at the end of the partition serving the root filesystem,
+  containing information to create the `dm_integrity` device map
+  in the following format:
+
+  .. code:: bash
+
+     |header|0xFF|dm_integrity_meta|0xFF|0x0|
+
+  header:
+    Is a string of the following information separated by spaces
+
+    * **version**: currently set to `1`
+    * **fstype**: name of `filesystem` attribute
+    * **access**: either `ro` or `rw` depending on the filesystem capabilities
+    * `integrity`: fixed identifier value
+
+  dm_integrity_meta:
+    Is a string of the following information separated by spaces
+
+    * **provided_data_sectors**: number of data sectors
+    * **sector_size**: sector size in byte, defaults to 512
+    * **parameter_count**:
+      number of parameters needed to construct the integrity device map.
+      After the `parameter_count` a list of space separated parameters
+      follows and the `parameter_count` specifies the quantity of these
+      parameters
+    * **parameters**:
+      The first element of the parameter list contains information about
+      the used hash algorithm which is not part of the superblock and
+      provided according to the parameters passed along when {kiwi}
+      calls `integritysetup`. As of now this defaults to:
+
+      - internal_hash:sha256
+
+      All subsequent parameters are taken from the `flags` field of the
+      dm-integrity superblock. see the dm-integrity documentation on the
+      web for possible flag values.
+
 verity_blocks="number|all"
   For the `oem` type only, specifies to create a dm verity hash
   from the number of given blocks (or all) placed at the end of the
