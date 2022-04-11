@@ -255,8 +255,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'rm', '-f', 'boot', '&&',
                 'ln', '-s', '.', 'boot'
             ]
+            # not every filesystem supports symlinks, and the link is optional
+            # therefore don't fail in case the link cannot be created
             Command.run(
-                ['bash', '-c', ' '.join(bash_command)]
+                ['bash', '-c', ' '.join(bash_command)], raise_on_error=False
             )
 
         # Patch the written grub config file to actually work:
