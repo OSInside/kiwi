@@ -34,3 +34,5 @@ Working with Images
    working_with_images/build_with_profiles
    working_with_images/build_in_buildservice
    working_with_images/use_suse_media
+
+   working_with_images/grub_authorization
