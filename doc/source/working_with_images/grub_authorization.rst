@@ -17,7 +17,7 @@ To configure authorization in GRUB;, follow these steps:
 1. Create and encrypt one password for each user account you want to use in
    GRUB. Use the `grub2-mkpasswd-pbkdf2`:
 
-   .. code:: bash
+   .. code-block:: bash
 
    $ sudo grub2-mkpasswd-pbkdf2
    Password: ****
@@ -31,7 +31,7 @@ To configure authorization in GRUB;, follow these steps:
    menu entries manually. The following template is just an example, adjust
    it to better match your use case:
 
-   .. code:: bash
+   .. code-block:: bash
 
    set superusers=admin
    password admin ADMIN_PASSWORD
@@ -57,7 +57,7 @@ To configure authorization in GRUB;, follow these steps:
 
 4. Import the changes into the main configuration file:
 
-     .. code:: bash
+     .. code-block:: bash
 
      $ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 
