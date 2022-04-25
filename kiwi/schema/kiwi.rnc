@@ -1332,6 +1332,17 @@ div {
             ]
         ]
     ]
+    sch:pattern [
+        abstract = "true"
+        id = "image_integrity_requirement"
+        sch:rule [
+            context = "type[@embed_integrity_metadata]"
+            sch:assert [
+                test = "@$attr"
+                "$attr attribute must be set for embed_integrity_metadata"
+            ]
+        ]
+    ]
     k.type.boot.attribute =
         ## Specifies the path of the boot image (initrd) description
         ## provided with KIWI
@@ -1593,6 +1604,29 @@ div {
         >> sch:pattern [
             id = "verity_blocks_mandatory" is-a = "image_verity_requirement"
             sch:param [ name = "attr" value = "verity_blocks" ]
+        ]
+    k.type.standalone_integrity.attribute =
+        ## Specifies to create a standalone dm integrity layer on
+        ## top of the root filesystem
+        attribute standalone_integrity { xsd:boolean }
+        >> sch:pattern [ id = "standalone_integrity" is-a = "image_type"
+            sch:param [ name = "attr" value = "standalone_integrity" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+    k.type.embed_integrity_metadata.attribute =
+        ## In combination with the standalone_integrity attribute, embed
+        ## an integrity metadata block at the end of the partition
+        ## serving the root filesystem
+        attribute embed_integrity_metadata { xsd:boolean }
+        >> sch:pattern [
+            id = "embed_integrity_metadata" is-a = "image_type"
+            sch:param [ name = "attr" value = "embed_integrity_metadata" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+        >> sch:pattern [
+            id = "standalone_integrity_mandatory"
+            is-a = "image_integrity_requirement"
+            sch:param [ name = "attr" value = "standalone_integrity" ]
         ]
     k.type.overlayroot.attribute =
         ## Specifies to use an overlay root system consisting
@@ -2060,6 +2094,8 @@ div {
         k.type.overlayroot_readonly_partsize.attribute? &
         k.type.verity_blocks.attribute? &
         k.type.embed_verity_metadata.attribute? &
+        k.type.standalone_integrity.attribute? &
+        k.type.embed_integrity_metadata.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &

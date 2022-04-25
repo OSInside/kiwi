@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.8.12 (default, Aug 31 2021, 01:23:42) [GCC]
+# Python 3.6.15 (default, Sep 23 2021, 15:41:43) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/tserong/src/github/OSInside/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -2798,7 +2798,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2849,6 +2849,8 @@ class type_(GeneratedsSuper):
         self.overlayroot_readonly_partsize = _cast(int, overlayroot_readonly_partsize)
         self.verity_blocks = _cast(None, verity_blocks)
         self.embed_verity_metadata = _cast(bool, embed_verity_metadata)
+        self.standalone_integrity = _cast(bool, standalone_integrity)
+        self.embed_integrity_metadata = _cast(bool, embed_integrity_metadata)
         self.primary = _cast(bool, primary)
         self.ramonly = _cast(bool, ramonly)
         self.rootfs_label = _cast(None, rootfs_label)
@@ -3068,6 +3070,10 @@ class type_(GeneratedsSuper):
     def set_verity_blocks(self, verity_blocks): self.verity_blocks = verity_blocks
     def get_embed_verity_metadata(self): return self.embed_verity_metadata
     def set_embed_verity_metadata(self, embed_verity_metadata): self.embed_verity_metadata = embed_verity_metadata
+    def get_standalone_integrity(self): return self.standalone_integrity
+    def set_standalone_integrity(self, standalone_integrity): self.standalone_integrity = standalone_integrity
+    def get_embed_integrity_metadata(self): return self.embed_integrity_metadata
+    def set_embed_integrity_metadata(self, embed_integrity_metadata): self.embed_integrity_metadata = embed_integrity_metadata
     def get_primary(self): return self.primary
     def set_primary(self, primary): self.primary = primary
     def get_ramonly(self): return self.ramonly
@@ -3328,6 +3334,12 @@ class type_(GeneratedsSuper):
         if self.embed_verity_metadata is not None and 'embed_verity_metadata' not in already_processed:
             already_processed.add('embed_verity_metadata')
             outfile.write(' embed_verity_metadata="%s"' % self.gds_format_boolean(self.embed_verity_metadata, input_name='embed_verity_metadata'))
+        if self.standalone_integrity is not None and 'standalone_integrity' not in already_processed:
+            already_processed.add('standalone_integrity')
+            outfile.write(' standalone_integrity="%s"' % self.gds_format_boolean(self.standalone_integrity, input_name='standalone_integrity'))
+        if self.embed_integrity_metadata is not None and 'embed_integrity_metadata' not in already_processed:
+            already_processed.add('embed_integrity_metadata')
+            outfile.write(' embed_integrity_metadata="%s"' % self.gds_format_boolean(self.embed_integrity_metadata, input_name='embed_integrity_metadata'))
         if self.primary is not None and 'primary' not in already_processed:
             already_processed.add('primary')
             outfile.write(' primary="%s"' % self.gds_format_boolean(self.primary, input_name='primary'))
@@ -3737,6 +3749,24 @@ class type_(GeneratedsSuper):
                 self.embed_verity_metadata = True
             elif value in ('false', '0'):
                 self.embed_verity_metadata = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('standalone_integrity', node)
+        if value is not None and 'standalone_integrity' not in already_processed:
+            already_processed.add('standalone_integrity')
+            if value in ('true', '1'):
+                self.standalone_integrity = True
+            elif value in ('false', '0'):
+                self.standalone_integrity = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('embed_integrity_metadata', node)
+        if value is not None and 'embed_integrity_metadata' not in already_processed:
+            already_processed.add('embed_integrity_metadata')
+            if value in ('true', '1'):
+                self.embed_integrity_metadata = True
+            elif value in ('false', '0'):
+                self.embed_integrity_metadata = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('primary', node)
