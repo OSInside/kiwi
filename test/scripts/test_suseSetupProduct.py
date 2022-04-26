@@ -3,10 +3,12 @@ import pytest
 from .conftest import (
     LEAP_15_2,
     LEAP_15_3,
+    LEAP_15_4,
     SLE_12_SP5,
     SLE_15_SP1,
     SLE_15_SP2,
     SLE_15_SP3,
+    SLE_15_SP4,
     TUMBLEWEED,
 )
 
@@ -30,6 +32,8 @@ def test_does_nothing_when_product_correct(auto_container_per_test):
         (TUMBLEWEED, "openSUSE.prod"),
         (LEAP_15_2, "openSUSE.prod"),
         (LEAP_15_3, "Leap.prod"),
+        (LEAP_15_4, "Leap.prod"),
+        (SLE_15_SP4, "SLES.prod"),
         (SLE_15_SP3, "SLES.prod"),
         (SLE_15_SP2, "SLES.prod"),
         (SLE_15_SP1, "SLES.prod"),
