@@ -150,7 +150,7 @@ systemd calls the scripts as part of the :file:`dracut-pre-mount.service`.
 
 The dracut system offers a lot more possibilities to customize the
 initrd than shown in the example above. For more information, visit
-the `dracut project page <http://people.redhat.com/harald/dracut.html>`_.
+the `dracut project page <https://dracut.wiki.kernel.org/index.php/Main_Page>`_.
 
 
 Boot Image Parameters
