@@ -67,4 +67,4 @@ In the above example:
 * If no user is specified, both boot menu entries are accessible, but
   no one can access GRUB command line nor edit existing menu entries.
 * `admin` user can access GRUB command line and edit existing menu entries.
-* `maintenance` user can select the recovery menu item.
+* the `maintenance` user can select the recovery menu item.
