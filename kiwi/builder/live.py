@@ -167,6 +167,8 @@ class LiveImageBuilder:
             self.boot_image.boot_root_directory, self.media_dir.name,
             bootloader_config.get_boot_theme()
         )
+        if not self.firmware.efi_mode():
+            Iso(self.media_dir.name).setup_isolinux_boot_path()
         bootloader_config.write_meta_data()
         bootloader_config.setup_live_image_config(
             mbrid=self.mbrid
