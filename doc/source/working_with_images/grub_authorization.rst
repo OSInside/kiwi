@@ -66,5 +66,5 @@ In the above example:
 * The GRUB menu has two entries, *Operational mode* and *Maintenance mode*.
 * If no user is specified, both boot menu entries are accessible, but
   no one can access GRUB command line nor edit existing menu entries.
-* `admin` user can access GRUB command line and edit existing menu entries.
+* the `admin` user can access the GRUB command line and edit existing menu entries.
 * the `maintenance` user can select the recovery menu item.
