@@ -586,7 +586,7 @@ function baseVagrantSetup {
     chown -R vagrant:vagrant /home/vagrant/
 
     # apply recommended ssh settings for vagrant boxes
-    SSHD_CONFIG=/etc/ssh/sshd_config.d/99-vagrant.conf
+    SSHD_CONFIG=/etc/ssh/sshd_config.d/00-vagrant.conf
     if [[ ! -d "$(dirname ${SSHD_CONFIG})" ]]; then
         SSHD_CONFIG=/etc/ssh/sshd_config
         # prepend the settings, so that they take precedence
