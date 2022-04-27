@@ -138,6 +138,7 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.Temporary')
     @patch('kiwi.builder.live.shutil')
     @patch('kiwi.builder.live.Iso.set_media_tag')
+    @patch('kiwi.builder.live.Iso')
     @patch('kiwi.builder.live.FileSystemIsoFs')
     @patch('kiwi.builder.live.FileSystem.new')
     @patch('kiwi.builder.live.SystemSize')
@@ -145,8 +146,8 @@ class TestLiveImageBuilder:
     @patch('os.path.exists')
     def test_create_overlay_structure(
         self, mock_exists, mock_grub_dir, mock_size, mock_filesystem,
-        mock_isofs, mock_tag, mock_shutil, mock_Temporary,
-        mock_setup_media_loader_directory, mock_DeviceProvider
+        mock_isofs, mock_Iso, mock_tag, mock_shutil,
+        mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider
     ):
         mock_exists.return_value = True
         mock_grub_dir.return_value = 'grub2'
@@ -329,6 +330,7 @@ class TestLiveImageBuilder:
         tmpdir_name = [temp_squashfs, temp_media_dir]
         kiwi.builder.live.BootLoaderConfig.new.reset_mock()
         self.live_image.create()
+        mock_Iso.return_value.setup_isolinux_boot_path.assert_called_once_with()
         kiwi.builder.live.BootLoaderConfig.new.assert_called_once_with(
             'isolinux', self.xml_state, root_dir='root_dir',
             boot_dir='temp_media_dir'
