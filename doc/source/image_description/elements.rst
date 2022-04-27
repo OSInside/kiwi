@@ -495,9 +495,9 @@ luks="passphrase|file:///path/to/keyfile":
   distribution will just open an interactive dialog asking
   for the credentials at boot time !
 
-luks_version="luks|luks2":
+luks_version="luks1|luks2":
   Specify which `LUKS` version should be used. If not set and by
-  default `luks` is used. The specification of the `LUKS` version
+  default `luks1` is used. The specification of the `LUKS` version
   allows using a different set of `luksformat` options. To
   investigate the differences between the two please consult the
   `cryptsetup` manual page.
