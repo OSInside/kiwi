@@ -1,4 +1,6 @@
-from mock import patch
+from mock import (
+    patch, call
+)
 
 import mock
 
@@ -36,6 +38,7 @@ class TestFileSystemXfs:
     @patch('kiwi.filesystem.xfs.Command.run')
     def test_set_uuid(self, mock_command):
         self.xfs.set_uuid()
-        mock_command.assert_called_once_with(
-            ['xfs_admin', '-U', 'generate', '/dev/foo']
-        )
+        assert mock_command.call_args_list == [
+            call(['xfs_repair', '-L', '/dev/foo']),
+            call(['xfs_admin', '-U', 'generate', '/dev/foo'])
+        ]
