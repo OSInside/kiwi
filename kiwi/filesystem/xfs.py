@@ -69,5 +69,8 @@ class FileSystemXfs(FileSystemBase):
         """
         device = self.device_provider.get_device()
         Command.run(
+            ['xfs_repair', '-L', device]
+        )
+        Command.run(
             ['xfs_admin', '-U', 'generate', device]
         )
