@@ -11,6 +11,7 @@ from kiwi.storage.setup import DiskSetup
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.defaults import Defaults
+from kiwi.storage.disk import ptable_entry_type
 from kiwi.exceptions import (
     KiwiVolumeTooSmallError,
     KiwiPartitionTooSmallError
@@ -216,7 +217,22 @@ class TestDiskSetup:
     @patch('os.path.exists')
     def test_get_disksize_mbytes_partitions(self, mock_exists):
         mock_exists.side_effect = lambda path: path != 'root_dir/var/tmp'
-        assert self.setup_partitions.get_disksize_mbytes() == 622
+        assert self.setup_partitions.get_disksize_mbytes() == 632
+
+    @patch('os.path.exists')
+    def test_get_disksize_mbytes_clones(self, mock_exists):
+        mock_exists.side_effect = lambda path: path != 'root_dir/var/tmp'
+        self.setup_partitions.custom_partitions['var'] = ptable_entry_type(
+            mbsize=100,
+            clone=1,
+            partition_name='var',
+            partition_type='t.linux',
+            mountpoint='/var',
+            filesystem='ext3'
+        )
+        assert self.setup_partitions.get_disksize_mbytes(
+            root_clone=1, boot_clone=1
+        ) == 742
 
     @patch('os.path.exists')
     def test_get_disksize_mbytes_oem_volumes(self, mock_exists):
