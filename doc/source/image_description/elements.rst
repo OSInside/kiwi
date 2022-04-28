@@ -497,10 +497,11 @@ luks="passphrase|file:///path/to/keyfile":
 
 luks_version="luks|luks1|luks2":
   Specify which `LUKS` version should be used. If not set and by
-  default `luks` is used. The specification of the `LUKS` version
-  allows using a different set of `luksformat` options. To
-  investigate the differences between the two please consult the
-  `cryptsetup` manual page.
+  default `luks` is used. The interpretation of the default depends
+  on the distribution and could result in either 'luks1' or 'luks2'.
+  The specification of the `LUKS` version allows using a different
+  set of `luksformat` options. To investigate the differences between
+  the two please consult the `cryptsetup` manual page.
 
 target_blocksize="number":
   Specifies the image blocksize in bytes which has to
