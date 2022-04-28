@@ -11,7 +11,7 @@
     <preferences>
         <version>1.1.1</version>
         <packagemanager>zypper</packagemanager>
-        <type image="oem" filesystem="ext3" installiso="true" kernelcmdline="splash" firmware="efi">
+        <type image="oem" filesystem="ext3" installiso="true" kernelcmdline="splash" firmware="efi" bootpartition="true" bootpartsize="10">
             <partitions>
                 <partition name="var" size="100" mountpoint="/var" filesystem="ext3"/>
                 <partition name="var/tmp" size="500" mountpoint="/var/tmp" filesystem="xfs"/>
