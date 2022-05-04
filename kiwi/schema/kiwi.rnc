@@ -1890,9 +1890,9 @@ div {
             sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
     k.type.luks_version.attribute =
-        ## Specify LUKS version. This can be either set to "luks"
+        ## Specify LUKS version. This can be either set to "luks", "luks1"
         ## or "luks2". By default "luks" is used.
-        attribute luks_version { "luks" | "luks2" }
+        attribute luks_version { "luks" | "luks1" | "luks2" }
         >> sch:pattern [ id = "luksversion" is-a = "image_type"
             sch:param [ name = "attr" value = "luksversion" ]
             sch:param [ name = "types" value = "oem iso pxe kis" ]

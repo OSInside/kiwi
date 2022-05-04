@@ -2711,10 +2711,11 @@ kernel command line options</a:documentation>
     </define>
     <define name="k.type.luks_version.attribute">
       <attribute name="luks_version">
-        <a:documentation>Specify LUKS version. This can be either set to "luks"
+        <a:documentation>Specify LUKS version. This can be either set to "luks", "luks1"
 or "luks2". By default "luks" is used.</a:documentation>
         <choice>
           <value>luks</value>
+          <value>luks1</value>
           <value>luks2</value>
         </choice>
       </attribute>
