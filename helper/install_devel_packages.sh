@@ -13,7 +13,7 @@ case ${ID} in
             texlive-titlesec texlive-tabulary texlive-framed texlive-wrapfig \
             texlive-parskip texlive-upquote texlive-capt-of texlive-needspace \
             texlive-makeindex texlive-times texlive-helvetic texlive-courier \
-            texlive-gsftopk texlive-updmap-map texlive-dvips kiwi-systemdeps
+            texlive-gsftopk texlive-dvips trang kiwi-systemdeps
     ;;
     opensuse-*|sles)
         zypper install --no-recommends \
@@ -23,7 +23,7 @@ case ${ID} in
             texlive-times texlive-titlesec texlive-tabulary texlive-framed \
             texlive-float texlive-upquote texlive-parskip texlive-needspace \
             texlive-makeindex-bin texlive-collection-fontsrecommended \
-            texlive-psnfss libffi-devel enchant-devel kiwi-systemdeps
+            texlive-psnfss libffi-devel enchant-devel trang kiwi-systemdeps
     ;;
     *)
         echo "Unknown distribution: ${os}"
