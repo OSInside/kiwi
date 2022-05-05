@@ -886,8 +886,10 @@ class RuntimeChecker:
 
             <package name="{0}"/>
         ''')
+        initrd_system = self.xml_state.get_initrd_system()
         required_dracut_package = 'dracut-kiwi-overlay'
-        if self.xml_state.build_type.get_overlayroot():
+        if initrd_system == 'dracut' and \
+           self.xml_state.build_type.get_overlayroot():
             package_names = \
                 self.xml_state.get_bootstrap_packages() + \
                 self.xml_state.get_system_packages()
