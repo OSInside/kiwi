@@ -40,7 +40,10 @@ from kiwi.firmware import FirmWare
 from kiwi.storage.disk import Disk
 from kiwi.storage.raid_device import RaidDevice
 from kiwi.storage.luks_device import LuksDevice
-from kiwi.storage.integrity_device import IntegrityDevice
+from kiwi.storage.integrity_device import (
+    IntegrityDevice,
+    integrity_credentials_type
+)
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.squashfs import FileSystemSquashFs
@@ -119,6 +122,9 @@ class DiskBuilder:
         self.force_mbr = xml_state.build_type.get_force_mbr()
         self.luks = xml_state.get_luks_credentials()
         self.integrity_root = xml_state.build_type.get_standalone_integrity()
+        self.integrity_keyfile = xml_state.build_type.get_integrity_keyfile()
+        self.integrity_key_description = \
+            xml_state.build_type.get_integrity_metadata_key_description()
         self.root_filesystem_embed_integrity_metadata = \
             xml_state.build_type.get_embed_integrity_metadata()
         self.luks_format_options = xml_state.get_luks_format_options()
@@ -305,7 +311,14 @@ class DiskBuilder:
 
         # create integrity on current root device if requested
         if self.integrity_root:
-            self.integrity_root = IntegrityDevice(device_map['root'])
+            self.integrity_root = IntegrityDevice(
+                device_map['root'], defaults.INTEGRITY_ALGORITHM,
+                integrity_credentials_type(
+                    keydescription=self.integrity_key_description,
+                    keyfile=self.integrity_keyfile,
+                    keyfile_algorithm=defaults.INTEGRITY_KEY_ALGORITHM
+                )
+            )
             self.integrity_root.create_dm_integrity()
             device_map['integrity_root'] = device_map['root']
             device_map['root'] = self.integrity_root.get_device()

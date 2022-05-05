@@ -18,7 +18,7 @@
 import os
 import logging
 from typing import (
-    Optional, List, Dict, IO, Union
+    Optional, List, Dict, IO, Union, NamedTuple
 )
 
 # project
@@ -33,6 +33,14 @@ from kiwi.storage.mapped_device import MappedDevice
 
 from kiwi.exceptions import KiwiOffsetError
 
+integrity_credentials_type = NamedTuple(
+    'integrity_credentials_type', [
+        ('keydescription', str),
+        ('keyfile', str),
+        ('keyfile_algorithm', str)
+    ]
+)
+
 log = logging.getLogger('kiwi')
 
 
@@ -41,8 +49,17 @@ class IntegrityDevice(DeviceProvider):
     **Implements dm_integrity setup on a storage device**
 
     :param object storage_provider: Instance of class based on DeviceProvider
+    :param str integrity_algorithm:
+        Default integrity algorithm used unless further credentials
+        information is provided
+    :param integrity_credentials_type credentials:
+        Optional credentials specification to protect integrity blocks
+        with security key(s)
     """
-    def __init__(self, storage_provider: DeviceProvider) -> None:
+    def __init__(
+        self, storage_provider: DeviceProvider, integrity_algorithm: str,
+        credentials: integrity_credentials_type = None
+    ) -> None:
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
         # the correct destructor order when the device should be released.
@@ -50,7 +67,12 @@ class IntegrityDevice(DeviceProvider):
 
         self.integrity_device: Optional[str] = None
         self.integrity_name = 'integrityRoot'
-        self.integrity_algorithm = defaults.INTEGRITY_ALGORITHM
+        self.integrity_algorithm = integrity_algorithm
+
+        if credentials and \
+           credentials.keyfile and credentials.keyfile_algorithm:
+            self.integrity_algorithm = credentials.keyfile_algorithm
+
         self.integrity_format_options = [
             '--integrity', self.integrity_algorithm,
             '--sector-size', format(defaults.INTEGRITY_SECTOR_SIZE)
@@ -58,7 +80,18 @@ class IntegrityDevice(DeviceProvider):
         self.integrity_open_options = [
             '--integrity', self.integrity_algorithm
         ]
+        if credentials and credentials.keyfile:
+            integrity_key_options = [
+                '--integrity-key-file', credentials.keyfile,
+                '--integrity-key-size', format(
+                    os.path.getsize(credentials.keyfile)
+                )
+            ]
+            self.integrity_format_options += integrity_key_options
+            self.integrity_open_options += integrity_key_options
+
         self.integrity_metadata_file: Optional[IO[bytes]] = None
+        self.credentials = credentials
 
     def get_device(self) -> Optional[MappedDevice]:
         """
@@ -85,16 +118,16 @@ class IntegrityDevice(DeviceProvider):
 
         Command.run(
             [
-                'integritysetup', '-v', '--batch-mode'
+                'integritysetup', '-v', '--batch-mode', 'format'
             ] + self.integrity_format_options + options + [
-                'format', storage_device
+                storage_device
             ]
         )
         Command.run(
             [
-                'integritysetup', '-v', '--batch-mode'
+                'integritysetup', '-v', '--batch-mode', 'open'
             ] + self.integrity_open_options + options + [
-                'open', storage_device, self.integrity_name
+                storage_device, self.integrity_name
             ]
         )
         self.integrity_device = '/dev/mapper/' + self.integrity_name
@@ -117,7 +150,7 @@ class IntegrityDevice(DeviceProvider):
         dm_integrity superblock. From the flags field of the superblock
         a list of space separated parameters is created. The first
         element of the parameter list contains information about the
-        used hash algorithm which is not part of the superblock
+        used hash algorithm and secret, which are not part of the superblock
         and provided according to the parameters passed along with
         the integritysetup call. The number of parameters in the
         resulting parameter list is provided as value in parameter_count
@@ -136,10 +169,29 @@ class IntegrityDevice(DeviceProvider):
             header_string = '{0} {1} {2} integrity'.format(
                 metadata_format_version, filesystem, filesystem_mode
             )
+            if self.credentials and self.credentials.keyfile and \
+               self.integrity_algorithm == defaults.INTEGRITY_KEY_ALGORITHM:
+                # The internal_hash setup in case of a keyfile is currently
+                # only done for the key based algorithm configured in the
+                # kiwi defaults space. Thus the following split is safe as
+                # we know the name.
+                (keyformat, algorithm) = self.integrity_algorithm.split('-', 2)
+                keytype = f'{keyformat}({algorithm})'
 
-            parameters = [
-                f'internal_hash:{self.integrity_algorithm}'
-            ] + list(integrity_superblock['flags'])
+                keyfile_reference = \
+                    self.credentials.keydescription or ':{0}'.format(
+                        os.path.basename(self.credentials.keyfile).replace(
+                            '.bin', ''
+                        )
+                    )
+                parameters = [
+                    f'internal_hash:{keytype}:{keyfile_reference}'
+                ]
+            else:
+                parameters = [
+                    f'internal_hash:{self.integrity_algorithm}'
+                ]
+            parameters += list(integrity_superblock['flags'])
             dm_integrity_meta = '{0} {1} {2} {3}'.format(
                 integrity_superblock['provided_data_sectors'],
                 integrity_superblock['sector_size'],
@@ -199,12 +251,16 @@ class IntegrityDevice(DeviceProvider):
 
         """
         storage_device = self.storage_provider.get_device()
+        key_file = '-'
+        if self.credentials and self.credentials.keyfile:
+            key_file = self.credentials.keyfile
         with open(filename, 'w') as integritytab:
             block_operation = BlockID(storage_device)
             integritytab.write(
-                '{0} PARTUUID={1} - integrity-algorithm={2}{3}'.format(
+                '{0} PARTUUID={1} {2} integrity-algorithm={3}{4}'.format(
                     self.integrity_name,
                     block_operation.get_blkid('PARTUUID'),
+                    key_file,
                     self.integrity_algorithm,
                     os.linesep
                 )

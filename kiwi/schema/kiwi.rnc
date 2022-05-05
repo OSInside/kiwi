@@ -1628,6 +1628,30 @@ div {
             is-a = "image_integrity_requirement"
             sch:param [ name = "attr" value = "standalone_integrity" ]
         ]
+    k.type.integrity_keyfile.attribute =
+        ## In combination with the standalone_integrity attribute,
+        ## protect access to the integrity map using the given key.
+        attribute integrity_keyfile { text }
+        >> sch:pattern [
+            id = "integrity_keyfile" is-a = "image_type"
+            sch:param [ name = "attr" value = "integrity_keyfile" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+    k.type.integrity_metadata_key_description =
+        ## In combination with the embed_integrity_metadata attribute,
+        ## allows to specify a custom description of an integrity key
+        ## as it is expected to be present in the kernel keyring. The
+        ## information is placed in the integrity metadata block. If
+        ## not specified kiwi creates a key argument string instead
+        ## which is based on the given integrity_keyfile filename.
+        ## The format of this key argument is:
+        ## ':basename_of_integrity_keyfile_no_file_extension'
+        attribute integrity_metadata_key_description { text }
+        >> sch:pattern [
+            id = "integrity_metadata_key_description" is-a = "image_type"
+            sch:param [ name = "attr" value = "integrity_metadata_key_description" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.overlayroot.attribute =
         ## Specifies to use an overlay root system consisting
         ## out of a squashfs compressed read-only root system
@@ -2096,6 +2120,8 @@ div {
         k.type.embed_verity_metadata.attribute? &
         k.type.standalone_integrity.attribute? &
         k.type.embed_integrity_metadata.attribute? &
+        k.type.integrity_metadata_key_description? &
+        k.type.integrity_keyfile.attribute? &
         k.type.primary.attribute? &
         k.type.ramonly.attribute? &
         k.type.rootfs_label.attribute? &

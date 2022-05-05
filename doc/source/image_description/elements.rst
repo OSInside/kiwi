@@ -566,11 +566,28 @@ devicepersistency="by-uuid|by-label":
 squashfscompression="uncompressed|gzip|lzo|lz4|xz|zstd":
   Specifies the compression type for mksquashfs
 
-standalone_integrity="true|false"
+standalone_integrity="true|false":
   For the `oem` type only, specifies to create a standalone
   `dm_integrity` layer on top of the root filesystem
 
-embed_integrity_metadata="true|false"
+integrity_keyfile="filepath":
+  For the `oem` type only and in combination with the `standalone_integrity`
+  attribute, protects access to the integrity map using the given keyfile.
+
+integrity_metadata_key_description="string":
+  For the `oem` type only and in combination with
+  the `embed_integrity_metadata` attribute, specifies a custom
+  description of an integrity key as it is expected to be present
+  in the kernel keyring. The information is placed in the integrity
+  metadata block. If not specified kiwi creates a key argument
+  string instead which is based on the given `integrity_keyfile`
+  filename. The format of this key argument is:
+
+  .. code:: bash
+    
+     :BASENAME_OF_integrity_keyfile_WITHOUT_FILE_EXTENSION
+
+embed_integrity_metadata="true|false":
   For the `oem` type only, and in combination with the
   `standalone_integrity` attribute, specifies to write a binary
   block at the end of the partition serving the root filesystem,
@@ -611,7 +628,7 @@ embed_integrity_metadata="true|false"
       dm-integrity superblock. see the dm-integrity documentation on the
       web for possible flag values.
 
-verity_blocks="number|all"
+verity_blocks="number|all":
   For the `oem` type only, specifies to create a dm verity hash
   from the number of given blocks (or all) placed at the end of the
   root filesystem For later verification of the device,
@@ -621,7 +638,7 @@ verity_blocks="number|all"
   persistently store the verification metadata as part of the
   partition(s) will be a next step.
 
-embed_verity_metadata="true|false"
+embed_verity_metadata="true|false":
   For the `oem` type only, and in combination with the `verity_blocks`
   attribute, specifies to write a binary block at the end of the
   partition serving the root filesystem, containing information
@@ -652,7 +669,7 @@ embed_verity_metadata="true|false"
     * **root_hash**: root hash as returned by `veritysetup`
     * **salt**: salt hash as returned by `veritysetup`
 
-overlayroot="true|false"
+overlayroot="true|false":
   For the `oem` type only, specifies to use an `overlayfs` based root
   filesystem consisting out of a squashfs compressed read-only root
   filesystem combined with a write-partition or tmpfs.
@@ -679,7 +696,7 @@ overlayroot="true|false"
   will not have any effect because the write partition will be
   resized on first boot to the available disk space.
 
-overlayroot_write_partition="true|false"
+overlayroot_write_partition="true|false":
   For the `oem` type only, allows to specify if the extra read-write
   partition in an `overlayroot` setup should be created or not.
   By default the partition is created and the kiwi-overlay dracut
@@ -688,7 +705,7 @@ overlayroot_write_partition="true|false"
   and under certain circumstances it is handy to configure if the
   partition table should contain the read-write partition or not.
 
-overlayroot_readonly_partsize="mbsize"
+overlayroot_readonly_partsize="mbsize":
   Specifies the size in MB of the partition which stores the
   squashfs compressed read-only root filesystem in an
   overlayroot setup. If not specified kiwi calculates
@@ -708,7 +725,7 @@ bootfilesystem="btrfs|ext2|ext3|ext4|xfs|fat32|fat16":
   type of the selected bootloader might overwrite this
   setting if there is no alternative possible though.
 
-flags="overlay|dmsquash"
+flags="overlay|dmsquash":
   For the iso image type specifies the live iso technology and
   dracut module to use. If set to overlay the kiwi-live dracut
   module will be used to support a live iso system based on
