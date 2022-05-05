@@ -185,6 +185,7 @@ class TestLiveImageBuilder:
         self.setup.export_package_verification.return_value = '.verified'
         self.setup.export_package_list.return_value = '.packages'
 
+        self.firmware.bios_mode.return_value = False
         self.live_image.create()
 
         self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')
@@ -327,6 +328,7 @@ class TestLiveImageBuilder:
         )
 
         self.firmware.efi_mode.return_value = None
+        self.firmware.bios_mode.return_value = True
         tmpdir_name = [temp_squashfs, temp_media_dir]
         kiwi.builder.live.BootLoaderConfig.new.reset_mock()
         self.live_image.create()
@@ -343,6 +345,7 @@ class TestLiveImageBuilder:
         self, mock_shutil, mock_Temporary,
         mock_setup_media_loader_directory
     ):
+        self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         self.kernel.get_kernel.return_value = False
         with raises(KiwiLiveBootImageError):
@@ -355,6 +358,7 @@ class TestLiveImageBuilder:
         self, mock_shutil, mock_Temporary,
         mock_setup_media_loader_directory
     ):
+        self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         self.kernel.get_xen_hypervisor.return_value = False
         with raises(KiwiLiveBootImageError):
@@ -368,6 +372,7 @@ class TestLiveImageBuilder:
         self, mock_exists, mock_shutil, mock_Temporary,
         mock_setup_media_loader_directory
     ):
+        self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         mock_exists.return_value = False
         with raises(KiwiLiveBootImageError):
