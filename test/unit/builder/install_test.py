@@ -155,6 +155,8 @@ class TestInstallImageBuilder:
         mock_BootLoaderConfig.return_value = bootloader_config
         mock_Temporary.side_effect = side_effect
 
+        self.firmware.bios_mode.return_value = False
+
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
             self.install_image.create_install_iso()
@@ -261,6 +263,7 @@ class TestInstallImageBuilder:
         mock_BootLoaderConfig.reset_mock()
         tmp_names = [temp_esp_file, temp_squashfs, temp_media_dir]
         self.firmware.efi_mode.return_value = None
+        self.firmware.bios_mode.return_value = True
 
         with patch('builtins.open', m_open, create=True):
             self.install_image.create_install_iso()
@@ -278,6 +281,7 @@ class TestInstallImageBuilder:
     def test_create_install_iso_no_kernel_found(
         self, mock_command, mock_Temporary, mock_setup_media_loader_directory
     ):
+        self.firmware.bios_mode.return_value = False
         self.kernel.get_kernel.return_value = False
         with patch('builtins.open'):
             with raises(KiwiInstallBootImageError):
@@ -289,6 +293,7 @@ class TestInstallImageBuilder:
     def test_create_install_iso_no_hypervisor_found(
         self, mock_command, mock_Temporary, mock_setup_media_loader_directory
     ):
+        self.firmware.bios_mode.return_value = False
         self.kernel.get_xen_hypervisor.return_value = False
         with patch('builtins.open'):
             with raises(KiwiInstallBootImageError):
@@ -301,6 +306,7 @@ class TestInstallImageBuilder:
     def test_create_install_pxe_no_kernel_found(
         self, mock_compress, mock_md5, mock_command, mock_Temporary
     ):
+        self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         self.kernel.get_kernel.return_value = False
         with patch('builtins.open'):
@@ -316,6 +322,7 @@ class TestInstallImageBuilder:
         self, mock_symlink, mock_compress, mock_md5, mock_command,
         mock_Temporary
     ):
+        self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         self.kernel.get_xen_hypervisor.return_value = False
         with patch('builtins.open'):
