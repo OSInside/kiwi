@@ -7,7 +7,7 @@
         <specification>docker test build</specification>
     </description>
     <preferences>
-        <version>2.1.0</version>
+        <version>2.22.4</version>
         <packagemanager>apt</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
         <locale>en_US</locale>
@@ -24,13 +24,13 @@
         <user name="vagrant" password="vh4vw1N4alxKQ" home="/home/vagrant" groups="vagrant"/>
     </users>
     <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
-        <source path="obs://Virtualization:Appliances:Staging/xUbuntu_21.04"/>
+        <source path="obs://Virtualization:Appliances:Staging/xUbuntu_22.04"/>
     </repository>
-    <repository type="apt-deb" alias="Ubuntu-Hirsute-Universe" distribution="hirsute" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:21.04/universe"/>
+    <repository type="apt-deb" alias="Ubuntu-Jammy-Universe" distribution="jammy" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:22.04/universe"/>
     </repository>
-    <repository type="apt-deb" alias="Ubuntu-Hirsute" distribution="hirsute" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:21.04/standard"/>
+    <repository type="apt-deb" alias="Ubuntu-Jammy" distribution="jammy" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:22.04/standard"/>
     </repository>
     <packages type="image">
         <package name="gnupg"/>
