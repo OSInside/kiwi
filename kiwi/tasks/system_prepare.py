@@ -22,8 +22,8 @@ usage: kiwi-ng system prepare -h | --help
            [--clear-cache]
            [--ignore-repos]
            [--ignore-repos-used-for-build]
-           [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
-           [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
+           [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>]
+           [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>...]
            [--add-package=<name>...]
            [--add-bootstrap-package=<name>...]
            [--delete-package=<name>...]
@@ -44,9 +44,13 @@ options:
         install the given package name as part of the early bootstrap process
     --add-package=<name>
         install the given package name
-    --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
-        add repository with given source, type, alias, priority,
-        the imageinclude flag and the package_gpgcheck flag
+    --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
+        add repository with given source, type, alias,
+        priority, imageinclude(true|false), package_gpgcheck(true|false),
+        list of signing_keys enclosed in curly brackets delimited by a colon,
+        component list for debian based repos as string delimited by a space,
+        main distribution name for debian based repos and
+        repo_gpgcheck(true|false)
     --allow-existing-root
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
@@ -79,9 +83,13 @@ options:
         add a container label in the container configuration metadata. It
         overwrites the label with the provided key-value pair in case it was
         already defined in the XML description
-    --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
+    --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
         overwrite the first XML listed repository source, type, alias,
-        priority, the imageinclude flag and the package_gpgcheck flag
+        priority, imageinclude(true|false), package_gpgcheck(true|false),
+        list of signing_keys enclosed in curly brackets delimited by a colon,
+        component list for debian based repos as string delimited by a space,
+        main distribution name for debian based repos and
+        repo_gpgcheck(true|false)
      --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
 """
@@ -141,13 +149,13 @@ class SystemPrepareTask(CliTask):
 
         if self.command_args['--set-repo']:
             self.xml_state.set_repository(
-                *self.sextuple_token(self.command_args['--set-repo'])
+                *self._get_repo_parameters(self.command_args['--set-repo'])
             )
 
         if self.command_args['--add-repo']:
             for add_repo in self.command_args['--add-repo']:
                 self.xml_state.add_repository(
-                    *self.sextuple_token(add_repo)
+                    *self._get_repo_parameters(add_repo)
                 )
 
         if self.command_args['--set-container-tag']:
@@ -277,3 +285,11 @@ class SystemPrepareTask(CliTask):
         else:
             return False
         return self.manual
+
+    def _get_repo_parameters(self, tokens):
+        parameters = self.tentuple_token(tokens)
+        signing_keys_index = 6
+        if not parameters[signing_keys_index]:
+            # make sure to pass empty list for signing_keys param
+            parameters[signing_keys_index] = []
+        return parameters

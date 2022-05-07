@@ -202,7 +202,10 @@ class TestXMLState:
         assert self.state.get_bootstrap_collection_type() == 'onlyRequired'
 
     def test_set_repository(self):
-        self.state.set_repository('repo', 'type', 'alias', 1, True, False)
+        self.state.set_repository(
+            'repo', 'type', 'alias', 1, True, False, ['key_a', 'key_b'],
+            'main universe', 'jammy', False
+        )
         assert self.state.xml_data.get_repository()[0].get_source().get_path() \
             == 'repo'
         assert self.state.xml_data.get_repository()[0].get_type() == 'type'
@@ -212,9 +215,22 @@ class TestXMLState:
             .get_imageinclude() is True
         assert self.state.xml_data.get_repository()[0] \
             .get_package_gpgcheck() is False
+        assert self.state.xml_data.get_repository()[0] \
+            .get_source().get_signing()[0].get_key() == 'key_a'
+        assert self.state.xml_data.get_repository()[0] \
+            .get_source().get_signing()[1].get_key() == 'key_b'
+        assert self.state.xml_data.get_repository()[0].get_components() \
+            == 'main universe'
+        assert self.state.xml_data.get_repository()[0].get_distribution() \
+            == 'jammy'
+        assert self.state.xml_data.get_repository()[0] \
+            .get_repository_gpgcheck() is False
 
     def test_add_repository(self):
-        self.state.add_repository('repo', 'type', 'alias', 1, True)
+        self.state.add_repository(
+            'repo', 'type', 'alias', 1, True, None, ['key_a', 'key_b'],
+            'main universe', 'jammy', False
+        )
         assert self.state.xml_data.get_repository()[3].get_source().get_path() \
             == 'repo'
         assert self.state.xml_data.get_repository()[3].get_type() == 'type'
@@ -222,6 +238,16 @@ class TestXMLState:
         assert self.state.xml_data.get_repository()[3].get_priority() == 1
         assert self.state.xml_data.get_repository()[3] \
             .get_imageinclude() is True
+        assert self.state.xml_data.get_repository()[3] \
+            .get_source().get_signing()[0].get_key() == 'key_a'
+        assert self.state.xml_data.get_repository()[3] \
+            .get_source().get_signing()[1].get_key() == 'key_b'
+        assert self.state.xml_data.get_repository()[3].get_components() \
+            == 'main universe'
+        assert self.state.xml_data.get_repository()[3].get_distribution() \
+            == 'jammy'
+        assert self.state.xml_data.get_repository()[3] \
+            .get_repository_gpgcheck() is False
 
     def test_add_repository_with_empty_values(self):
         self.state.add_repository('repo', 'type', '', '', True)
