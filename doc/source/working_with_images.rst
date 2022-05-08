@@ -23,6 +23,7 @@ Working with Images
 
    working_with_images/custom_partitions
    working_with_images/custom_volumes
+   working_with_images/clone_partitions
 
    working_with_images/setup_network_bootserver
    working_with_images/legacy_netboot_root_filesystem

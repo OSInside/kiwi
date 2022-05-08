@@ -1437,11 +1437,7 @@ class XMLState:
             partition_name = partition.get_partition_name() or f'p.lx{name}'
             partitions[name] = ptable_entry_type(
                 mbsize=self._to_mega_byte(partition.get_size()),
-                # There is currently no clone attribute in the <partition>
-                # element. This will be added on completion of the partition
-                # clone feature. The internal API structure however, already
-                # knows about the capability
-                clone=0,
+                clone=int(partition.get_clone()) if partition.get_clone() else 0,
                 partition_name=partition_name,
                 partition_type=partition.get_partition_type() or 't.linux',
                 mountpoint=partition.get_mountpoint(),
