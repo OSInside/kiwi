@@ -184,7 +184,9 @@ class CliTask:
 
         self.runtime_checker = RuntimeChecker(self.xml_state)
 
-    def quadruple_token(self, option: str) -> List[Union[bool, str, None]]:
+    def quadruple_token(
+        self, option: str
+    ) -> List[Union[bool, str, List[str], None]]:
         """
         Helper method for commandline options of the form --option a,b,c,d
 
@@ -199,9 +201,12 @@ class CliTask:
         """
         return self._ntuple_token(option, 4)
 
-    def sextuple_token(self, option: str) -> List[Union[bool, str, None]]:
+    def tentuple_token(
+        self, option: str
+    ) -> List[Union[bool, str, List[str], None]]:
         """
-        Helper method for commandline options of the form --option a,b,c,d,e,f
+        Helper method for commandline options of the
+        form --option a,b,c,d,e,f,g,h,i,j
 
         Make sure to provide a common result for option values which
         separates the information in a comma separated list of values
@@ -212,7 +217,7 @@ class CliTask:
 
         :rtype: list
         """
-        return self._ntuple_token(option, 6)
+        return self._ntuple_token(option, 10)
 
     def run_checks(self, checks: Dict[str, List[str]]) -> None:
         """
@@ -230,18 +235,20 @@ class CliTask:
             }.items():
                 attrgetter(method)(self.runtime_checker)(*args)
 
-    def _pop_token(self, tokens: List[str]) -> Union[bool, str]:
+    def _pop_token(self, tokens: List[str]) -> Union[bool, str, List[str]]:
         token = tokens.pop(0)
         if len(token) > 0 and token == 'true':
             return True
         elif len(token) > 0 and token == 'false':
             return False
+        elif len(token) > 0 and token.startswith('{'):
+            return token.replace('{', '').replace('}', '').split(':')
         else:
             return token
 
     def _ntuple_token(
         self, option: str, tuple_count: int
-    ) -> List[Union[bool, str, None]]:
+    ) -> List[Union[bool, str, List[str], None]]:
         """
         Helper method for commandline options of the form --option a,b,c,d,e,f
 

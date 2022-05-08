@@ -274,7 +274,8 @@ class TestSystemPrepareTask:
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
         mock_state.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', None, None, None
+            'http://example.com', 'yast2', 'alias',
+            None, None, None, [], None, None, None
         )
 
     @patch('kiwi.xml_state.XMLState.add_repository')
@@ -285,7 +286,8 @@ class TestSystemPrepareTask:
         ]
         self.task.process()
         mock_state.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', '99', True, None
+            'http://example.com', 'yast2', 'alias', '99',
+            True, None, [], None, None, None
         )
 
     def test_process_system_prepare_help(self):

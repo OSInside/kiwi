@@ -16,8 +16,8 @@ SYNOPSIS
        [--clear-cache]
        [--ignore-repos]
        [--ignore-repos-used-for-build]
-       [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>]
-       [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>...]
+       [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>]
+       [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>...]
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
        [--delete-package=<name>...]
@@ -62,7 +62,7 @@ OPTIONS
   specify package to add(install). The option can be specified
   multiple times
 
---add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
+--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
 
   Add a new repository to the existing repository setup in the XML
   description. This option can be specified multiple times.
@@ -111,7 +111,7 @@ OPTIONS
 
   Path to create the new root system.
 
---set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck>
+--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
 
   Overwrite the first repository entry in the XML description with the
   provided information:
@@ -149,6 +149,23 @@ OPTIONS
 
     Set to either **true** or **false** to specify if this repository
     should validate the package signatures.
+
+    - **{signing_keys}**
+
+    List of signing_keys enclosed in curly brackets and delimited by a colon
+
+  - **components**
+
+    Component list for debian based repos as string delimited by a space
+
+  - **distribution**
+
+    Main distribution name for debian based repos
+
+  - **repo_gpgcheck**
+
+    Set to either **true** or **false** to specify if this repository
+    should validate the repository signature.
 
 --set-container-derived-from=<uri>
 

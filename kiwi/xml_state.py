@@ -1796,7 +1796,9 @@ class XMLState:
     def set_repository(
         self, repo_source: str, repo_type: str, repo_alias: str,
         repo_prio: str, repo_imageinclude: bool = False,
-        repo_package_gpgcheck: Optional[bool] = None
+        repo_package_gpgcheck: Optional[bool] = None,
+        repo_signing_keys: List[str] = [], components: str = None,
+        distribution: str = None, repo_gpgcheck: Optional[bool] = None
     ) -> None:
         """
         Overwrite repository data of the first repository
@@ -1807,6 +1809,10 @@ class XMLState:
         :param str repo_prio: priority number, package manager specific
         :param bool repo_imageinclude: setup repository inside of the image
         :param bool repo_package_gpgcheck: enable/disable package gpg checks
+        :param list repo_signing_keys: list of signing key file names
+        :param str components: component names for debian repos
+        :param str distribution: base distribution name for debian repos
+        :param bool repo_gpgcheck: enable/disable repo gpg checks
         """
         repository_sections = self.get_repository_sections()
         if repository_sections:
@@ -1823,12 +1829,23 @@ class XMLState:
                 repository.set_imageinclude(repo_imageinclude)
             if repo_package_gpgcheck is not None:
                 repository.set_package_gpgcheck(repo_package_gpgcheck)
+            if repo_signing_keys:
+                repository.get_source().set_signing(
+                    [xml_parse.signing(key=k) for k in repo_signing_keys]
+                )
+            if components:
+                repository.set_components(components)
+            if distribution:
+                repository.set_distribution(distribution)
+            if repo_gpgcheck is not None:
+                repository.set_repository_gpgcheck(repo_gpgcheck)
 
     def add_repository(
         self, repo_source: str, repo_type: str, repo_alias: str = None,
         repo_prio: str = '', repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None,
-        repo_signing_keys: List[str] = []
+        repo_signing_keys: List[str] = [], components: str = None,
+        distribution: str = None, repo_gpgcheck: Optional[bool] = None
     ) -> None:
         """
         Add a new repository section at the end of the list
@@ -1839,6 +1856,10 @@ class XMLState:
         :param str repo_prio: priority number, package manager specific
         :param bool repo_imageinclude: setup repository inside of the image
         :param bool repo_package_gpgcheck: enable/disable package gpg checks
+        :param list repo_signing_keys: list of signing key file names
+        :param str components: component names for debian repos
+        :param str distribution: base distribution name for debian repos
+        :param bool repo_gpgcheck: enable/disable repo gpg checks
         """
         priority_number: Optional[int] = None
         try:
@@ -1858,7 +1879,10 @@ class XMLState:
                     ]
                 ),
                 imageinclude=repo_imageinclude,
-                package_gpgcheck=repo_package_gpgcheck
+                package_gpgcheck=repo_package_gpgcheck,
+                repository_gpgcheck=repo_gpgcheck,
+                components=components,
+                distribution=distribution
             )
         )
 

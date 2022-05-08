@@ -80,6 +80,18 @@ class TestCliTask:
     def test_quadruple_token(self):
         assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]
 
+    def test_tentuple_token(self):
+        assert self.task.tentuple_token(
+            'a,b,,d,e,f,{1:2:3},x y z,jammy,false'
+        ) == [
+            'a', 'b', '', 'd', 'e', 'f', ['1', '2', '3'], 'x y z',
+            'jammy', False
+        ]
+        assert self.task.tentuple_token('a,b,,d,e,f,{1:2:3}') == [
+            'a', 'b', '', 'd', 'e', 'f', ['1', '2', '3'],
+            None, None, None
+        ]
+
     @patch('kiwi.tasks.base.RuntimeChecker')
     def test_load_xml_description(self, mock_runtime_checker):
         self.task.load_xml_description('../data/description')
