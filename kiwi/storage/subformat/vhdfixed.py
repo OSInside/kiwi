@@ -79,15 +79,16 @@ class DiskFormatVhdFixed(DiskFormatBase):
 
         :param object result: Instance of Result
         """
+        compression = self.runtime_config.get_bundle_compression(default=True)
+        if self.xml_state.get_luks_credentials() is not None:
+            compression = False
         result.add(
             key='disk_format_image',
             filename=self.get_target_file_path_for_format(
                 self.image_format
             ),
             use_for_bundle=True,
-            compress=self.runtime_config.get_bundle_compression(
-                default=True
-            ),
+            compress=compression,
             shasum=True
         )
 

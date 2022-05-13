@@ -91,6 +91,7 @@ class FileSystemBuilder:
         self.filesystems_no_device_node = [
             'squashfs'
         ]
+        self.luks = xml_state.get_luks_credentials()
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
 
@@ -128,13 +129,14 @@ class FileSystemBuilder:
         )
         if self.bundle_format:
             self.result.add_bundle_format(self.bundle_format)
+        compression = self.runtime_config.get_bundle_compression(default=True)
+        if self.luks is not None:
+            compression = False
         self.result.add(
             key='filesystem_image',
             filename=self.filename,
             use_for_bundle=True,
-            compress=self.runtime_config.get_bundle_compression(
-                default=True
-            ),
+            compress=compression,
             shasum=True
         )
         self.result.add(

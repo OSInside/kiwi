@@ -60,6 +60,9 @@ class TestDiskFormatVmdk:
         self.xml_state.get_build_type_vmdvd_section = Mock(
             return_value=self.iso_setup
         )
+        self.xml_state.get_luks_credentials = Mock(
+            return_value=None
+        )
         self.iso_setup.get_controller = Mock(
             return_value='ide'
         )
@@ -114,7 +117,7 @@ class TestDiskFormatVmdk:
             '-o', 'adapter_type=lsilogic', '-o', 'option=value'
         ]
 
-    def test_store_to_result(self):
+    def test_store_to_result_default(self):
         result = Mock()
         self.disk_format.store_to_result(result)
         assert result.add.call_args_list == [
@@ -133,6 +136,32 @@ class TestDiskFormatVmdk:
                 use_for_bundle=True
             )
         ]
+
+    def test_store_to_result_with_luks(self):
+        result = Mock()
+        self.xml_state.get_luks_credentials = Mock(
+            return_value='foo'
+        )
+        self.disk_format.store_to_result(result)
+        assert result.add.call_args_list == [
+            call(
+                compress=False,
+                filename='target_dir/some-disk-image.x86_64-1.2.3.vmdk',
+                key='disk_format_image',
+                shasum=True,
+                use_for_bundle=True
+            ),
+            call(
+                compress=False,
+                filename='target_dir/some-disk-image.x86_64-1.2.3.vmx',
+                key='disk_format_machine_settings',
+                shasum=False,
+                use_for_bundle=True
+            )
+        ]
+        self.xml_state.get_luks_credentials = Mock(
+            return_value=None
+        )
 
     @patch('kiwi.storage.subformat.vmdk.VmwareSettingsTemplate.get_template')
     @patch('kiwi.storage.subformat.vmdk.Command.run')
