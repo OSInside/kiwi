@@ -35,6 +35,12 @@ class TestXMLState:
         self.state = XMLState(
             self.description.load()
         )
+        apt_description = XMLDescription(
+            '../data/example_apt_config.xml'
+        )
+        self.apt_state = XMLState(
+            apt_description.load()
+        )
         boot_description = XMLDescription(
             '../data/isoboot/example-distribution/config.xml'
         )
@@ -1090,3 +1096,6 @@ class TestXMLState:
             '--cipher', 'aes-gcm-random',
             '--integrity', 'aead'
         ]
+
+    def test_get_bootstrap_package_name(self):
+        assert self.apt_state.get_bootstrap_package_name() == 'bootstrap-me'

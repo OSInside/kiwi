@@ -111,12 +111,13 @@ class PackageManagerPacman(PackageManagerBase):
         pass
 
     def process_install_requests_bootstrap(
-        self, root_bind: RootBind = None
+        self, root_bind: RootBind = None, bootstrap_package: str = None
     ) -> command_call_type:
         """
         Process package install requests for bootstrap phase (no chroot)
 
         :param object root_bind: unused
+        :param str bootstrap_package: unused
 
         :return: process results in command type
 

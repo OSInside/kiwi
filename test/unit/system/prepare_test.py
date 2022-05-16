@@ -304,7 +304,7 @@ class TestSystemPrepare:
             {'disable': ['mod_c'], 'enable': ['mod_a:stream', 'mod_b']}
         )
         self.manager.process_install_requests_bootstrap.assert_called_once_with(
-            self.system.root_bind
+            self.system.root_bind, None
         )
         mock_tar.assert_called_once_with(
             '{0}/bootstrap.tgz'.format(self.description_dir)

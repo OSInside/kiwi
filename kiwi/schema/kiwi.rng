@@ -4929,6 +4929,11 @@ running the image.</a:documentation>
     
   -->
   <div>
+    <sch:pattern abstract="true" id="packages_type">
+      <sch:rule context="packages[@$attr]">
+        <sch:assert test="contains('$types', @type)">$attr attribute is only available for the following packages type(s): $types</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.packages.type.attribute">
       <attribute name="type">
         <a:documentation>Specifies package collection type. `bootstrap` packages
@@ -4965,6 +4970,25 @@ or plusRecommended</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.packages.bootstrap_package.attribute">
+      <attribute name="bootstrap_package">
+        <a:documentation>Specify bootstrap package providing a bootstrap tarball
+in /var/cache/kiwi/bootstrap/PACKAGE_NAME.ARCH.tar.xz
+The tarball will be unpacked and used as the bootstrap
+rootfs to begin with. The feature is currently only
+available with the apt package manager to allow an
+alternative bootstrap method for debootstrap</a:documentation>
+      </attribute>
+      <sch:pattern id="bootstrap_package" is-a="packages_type">
+        <sch:param name="attr" value="bootstrap_package"/>
+        <sch:param name="types" value="bootstrap"/>
+      </sch:pattern>
+    </define>
+    <sch:pattern id="bootstrap_package_validation">
+      <sch:rule context="packages">
+        <sch:assert test="../preferences/packagemanager[text()='apt'] or not(@bootstrap_package)">bootstrap_package attribute only available for the apt packagemanager</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.packages.attlist">
       <interleave>
         <ref name="k.packages.type.attribute"/>
@@ -4973,6 +4997,9 @@ or plusRecommended</a:documentation>
         </optional>
         <optional>
           <ref name="k.packages.patternType.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.packages.bootstrap_package.attribute"/>
         </optional>
       </interleave>
     </define>

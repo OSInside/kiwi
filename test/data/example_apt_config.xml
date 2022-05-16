@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="apt-testing">
+    <description type="system">
+        <author>Bob</author>
+        <contact>user@example.com</contact>
+        <specification>
+            Testing various configuration for apt packagemanager
+        </specification>
+    </description>
+    <preferences>
+        <version>1.13.2</version>
+        <packagemanager>apt</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <type image="tbz"/>
+    </preferences>
+    <repository priority="42" sourcetype="baseurl">
+        <source path="iso:///image/CDs/dvd.iso">
+            <signing key="file:key_a"/>
+        </source>
+    </repository>
+    <packages type="image">
+        <package name="foo"/>
+    </packages>
+    <packages type="bootstrap" bootstrap_package="bootstrap-me">
+        <package name="filesystem"/>
+    </packages>
+</image>

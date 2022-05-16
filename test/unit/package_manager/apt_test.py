@@ -8,9 +8,12 @@ from pytest import (
 
 from kiwi.package_manager.apt import PackageManagerApt
 
+import kiwi.defaults as defaults
+
 from kiwi.exceptions import (
     KiwiDebootstrapError,
-    KiwiRequestError
+    KiwiRequestError,
+    KiwiFileNotFound
 )
 
 
@@ -62,13 +65,48 @@ class TestPackageManagerApt:
     def test_setup_repository_modules(self):
         self.manager.setup_repository_modules({})
 
-    def test_process_install_requests_bootstrap_no_dist(self):
+    @patch('kiwi.command.Command.run')
+    @patch.object(PackageManagerApt, 'process_install_requests')
+    @patch('os.path.isfile')
+    def test_process_install_requests_bootstrap_prebuild_root(
+        self, mock_os_path_isfile, mock_process_install_requests,
+        mock_Command_run
+    ):
+        mock_os_path_isfile.return_value = True
+        self.manager.process_install_requests_bootstrap(
+            bootstrap_package='bootstrap-package'
+        )
+        assert mock_Command_run.call_args_list == [
+            call(['apt-get', '-c', 'apt.conf', '-y', 'update'], ['env']),
+            call(
+                [
+                    'apt-get', '-c', 'apt.conf', '-y',
+                    'install', 'bootstrap-package'
+                ], ['env']
+            ),
+            call(
+                [
+                    'tar', '-C', 'root-dir', '-xf',
+                    '/var/lib/bootstrap/bootstrap-package.{0}.tar.xz'.format(
+                        defaults.PLATFORM_MACHINE
+                    )
+                ]
+            )
+        ]
+        mock_process_install_requests.assert_called_once_with()
+        mock_os_path_isfile.return_value = False
+        with raises(KiwiFileNotFound):
+            self.manager.process_install_requests_bootstrap(
+                bootstrap_package='bootstrap-package'
+            )
+
+    def test_process_install_requests_bootstrap_debootstrap_no_dist(self):
         self.manager.distribution = None
         with raises(KiwiDebootstrapError):
             self.manager.process_install_requests_bootstrap()
 
     @patch('os.path.exists')
-    def test_process_install_requests_bootstrap_no_debootstrap_script(
+    def test_process_install_requests_bootstrap_debootstrap_no_script(
         self, mock_exists
     ):
         mock_exists.return_value = False
@@ -78,7 +116,7 @@ class TestPackageManagerApt:
     @patch('kiwi.command.Command.call')
     @patch('kiwi.package_manager.apt.os.path.exists')
     @patch('kiwi.package_manager.apt.Path.wipe')
-    def test_process_install_requests_bootstrap_failed_debootstrap(
+    def test_process_install_requests_bootstrap_debootstrap_failed(
         self, mock_wipe, mock_exists, mock_call
     ):
         self.manager.request_package('apt')
@@ -118,7 +156,7 @@ class TestPackageManagerApt:
     @patch('kiwi.command.Command.call')
     @patch('kiwi.package_manager.apt.Path.wipe')
     @patch('kiwi.package_manager.apt.os.path.exists')
-    def test_process_install_requests_bootstrap(
+    def test_process_install_requests_bootstrap_debootstrap(
         self, mock_exists, mock_wipe, mock_call
     ):
         self.manager.request_package('apt')
@@ -151,7 +189,7 @@ class TestPackageManagerApt:
     @patch('kiwi.command.Command.call')
     @patch('kiwi.package_manager.apt.Path.wipe')
     @patch('kiwi.package_manager.apt.os.path.exists')
-    def test_process_install_requests_bootstrap_no_gpg_check(
+    def test_process_install_requests_bootstrap_debootstrap_no_gpg_check(
         self, mock_exists, mock_wipe, mock_call
     ):
         self.manager.request_package('apt')
