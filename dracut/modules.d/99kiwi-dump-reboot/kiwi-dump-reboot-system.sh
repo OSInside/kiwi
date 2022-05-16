@@ -7,6 +7,10 @@ type run_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh
 #======================================
 # Functions
 #--------------------------------------
+function get_kernel_version_majorminor {
+	printf "%d%02d" "$(uname -r | cut -f1 -d.)" "$(uname -r | cut -f2 -d.)"
+}
+
 function boot_installed_system {
     declare kiwi_oemreboot=${kiwi_oemreboot}
     declare kiwi_oemrebootinteractive=${kiwi_oemrebootinteractive}
@@ -50,7 +54,12 @@ function boot_installed_system {
     if getargbool 0 rd.kiwi.debug; then
         boot_options="${boot_options} rd.kiwi.debug"
     fi
-    kexec -l /run/install/boot/*/loader/linux \
+    options=""
+    if [ "$(get_kernel_version_majorminor)" -ge "317" ];then
+	# this variant is secure boot capable, but only available starting with Kernel 3.17+
+	options="--kexec-file-syscall"
+    fi
+    kexec $options -l /run/install/boot/*/loader/linux \
         --initrd /run/install/initrd.system_image \
         --command-line "${boot_options}"
     if ! kexec -e; then
