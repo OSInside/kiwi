@@ -28,7 +28,13 @@
 # Setup behaviour of the kiwi result bundle command
 #bundle:
 #  # Specify if the bundle tarball should contain compressed results.
-#  # Note: already compressed result information will not be touched
+#  # Note: Already compressed result information will not be touched.
+#  # Build results that generate an encrypted filesystem, i.e.
+#  # luks setup, will not be compressed. The intention for result compression
+#  # is to produce a smaller representation of the original. Encrypted data
+#  # generally grows when an attempt is made to compress the data. This is
+#  # due to the nature of compression algorithms. Therefore this setting is
+#  # ignored when encryption is enabled.
 #  - compress: false
 #  # Specify if the image build result and bundle should contain
 #  # a .changes file. The .changes file contains the package changelog
