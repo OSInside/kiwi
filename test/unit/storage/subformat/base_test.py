@@ -27,6 +27,9 @@ class TestDiskFormatBase:
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
+        self.xml_state.get_luks_credentials = Mock(
+            return_value=None
+        )
         self.runtime_config = Mock()
         self.runtime_config.get_bundle_compression.return_value = True
         kiwi.storage.subformat.base.RuntimeConfig = Mock(
@@ -71,7 +74,7 @@ class TestDiskFormatBase:
         assert self.disk_format.get_target_file_path_for_format('vhd') == \
             'target_dir/some-disk-image.x86_64-1.2.3.vhd'
 
-    def test_store_to_result(self):
+    def test_store_to_result_default(self):
         result = Mock()
         self.disk_format.image_format = 'qcow2'
         self.disk_format.store_to_result(result)
@@ -82,6 +85,20 @@ class TestDiskFormatBase:
             shasum=True,
             use_for_bundle=True
         )
+
+    def test_store_to_result_with_luks(self):
+        result = Mock()
+        self.xml_state.get_luks_credentials = Mock(return_value='foo')
+        self.disk_format.image_format = 'qcow2'
+        self.disk_format.store_to_result(result)
+        result.add.assert_called_once_with(
+            compress=False,
+            filename='target_dir/some-disk-image.x86_64-1.2.3.qcow2',
+            key='disk_format_image',
+            shasum=True,
+            use_for_bundle=True
+        )
+        self.xml_state.get_luks_credentials = Mock(return_value=None)
 
     @patch('os.path.getsize')
     def test_resize_raw_disk_raises_on_shrink_disk(self, mock_getsize):
