@@ -250,8 +250,9 @@ class SystemPrepare:
             self.xml_state.get_collection_modules()
         )
         process = CommandProcess(
-            command=manager.process_install_requests_bootstrap(self.root_bind),
-            log_topic='bootstrap'
+            command=manager.process_install_requests_bootstrap(
+                self.root_bind, self.xml_state.get_bootstrap_package_name()
+            ), log_topic='bootstrap'
         )
         try:
             process.poll_show_progress(

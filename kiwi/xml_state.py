@@ -579,6 +579,24 @@ class XMLState:
                     result.append(package.get_name().strip())
         return sorted(result)
 
+    def get_bootstrap_package_name(self) -> str:
+        """
+        bootstrap_package name from type="bootstrap" packages section
+
+        :return: bootstrap_package name
+
+        :rtype: str
+        """
+        typed_packages_sections = self.get_packages_sections(
+            ['bootstrap', self.get_build_type_name()]
+        )
+        bootstrap_package = ''
+        for packages in typed_packages_sections:
+            bootstrap_package = packages.get_bootstrap_package()
+            if bootstrap_package:
+                break
+        return bootstrap_package
+
     def get_collection_type(self, section_type: str = 'image') -> str:
         """
         Collection type from packages sections matching given section

@@ -3271,6 +3271,18 @@ div {
 # main block: <packages>
 #
 div {
+    sch:pattern [
+        abstract = "true"
+        id = "packages_type"
+        sch:rule [
+            context = "packages[@$attr]"
+            sch:assert [
+                test = "contains('$types', @type)"
+                "$attr attribute is only available for the following "
+                "packages type(s): $types"
+            ]
+        ]
+    ]
     k.packages.type.attribute =
         ## Specifies package collection type. `bootstrap` packages
         ## gets installed in the very first phase of an image build
@@ -3291,10 +3303,34 @@ div {
         attribute patternType {
             "onlyRequired" | "plusRecommended"
         }
+    k.packages.bootstrap_package.attribute =
+        ## Specify bootstrap package providing a bootstrap tarball
+        ## in /var/cache/kiwi/bootstrap/PACKAGE_NAME.ARCH.tar.xz
+        ## The tarball will be unpacked and used as the bootstrap
+        ## rootfs to begin with. The feature is currently only
+        ## available with the apt package manager to allow an
+        ## alternative bootstrap method for debootstrap
+        attribute bootstrap_package { text }
+        >> sch:pattern [ id = "bootstrap_package" is-a = "packages_type"
+            sch:param [ name = "attr" value = "bootstrap_package" ]
+            sch:param [ name = "types" value = "bootstrap" ]
+        ]
+        sch:pattern [
+            id = "bootstrap_package_validation"
+            sch:rule [
+                context = "packages"
+                sch:assert [
+                    test = "../preferences/packagemanager[text()='apt'] or not(@bootstrap_package)"
+                    "bootstrap_package attribute only available for "
+                    "the apt packagemanager"
+                ]
+            ]
+        ]
     k.packages.attlist =
         k.packages.type.attribute &
         k.packages.profiles.attribute? &
-        k.packages.patternType.attribute?
+        k.packages.patternType.attribute? &
+        k.packages.bootstrap_package.attribute?
     k.packages =
         ## Specifies Packages/Patterns Used in Different Stages
         element packages {

@@ -420,6 +420,15 @@ btrfs_root_is_readonly_snapshot="true|false":
   effective if `btrfs_root_is_snapshot` is also set to true. By default the
   root filesystem snapshot is writable.
 
+bootstrap_package="package_name":
+  For use with the `apt` packagemanager only. Specifies the name
+  of a bootstrap package which provides a bootstrap tarball
+  in :file:`/var/lib/bootstrap/PACKAGE_NAME.ARCH.tar.xz`.
+  The tarball will be unpacked and used as the bootstrap
+  rootfs to begin with. This allows for an alternative bootstrap
+  method preventing the use of `debootstrap`. For further details
+  see :ref:`debootstrap_alternative`.
+
 compressed="true|false":
   Specifies whether the image output file should be
   compressed or not. This option is only used for filesystem only images or

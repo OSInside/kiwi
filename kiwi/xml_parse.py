@@ -8049,11 +8049,12 @@ class packages(GeneratedsSuper):
     """Specifies Packages/Patterns Used in Different Stages"""
     subclass = None
     superclass = None
-    def __init__(self, type_=None, profiles=None, patternType=None, archive=None, ignore=None, namedCollection=None, collectionModule=None, product=None, package=None):
+    def __init__(self, type_=None, profiles=None, patternType=None, bootstrap_package=None, archive=None, ignore=None, namedCollection=None, collectionModule=None, product=None, package=None):
         self.original_tagname_ = None
         self.type_ = _cast(None, type_)
         self.profiles = _cast(None, profiles)
         self.patternType = _cast(None, patternType)
+        self.bootstrap_package = _cast(None, bootstrap_package)
         if archive is None:
             self.archive = []
         else:
@@ -8125,6 +8126,8 @@ class packages(GeneratedsSuper):
     def set_profiles(self, profiles): self.profiles = profiles
     def get_patternType(self): return self.patternType
     def set_patternType(self, patternType): self.patternType = patternType
+    def get_bootstrap_package(self): return self.bootstrap_package
+    def set_bootstrap_package(self, bootstrap_package): self.bootstrap_package = bootstrap_package
     def hasContent_(self):
         if (
             self.archive or
@@ -8168,6 +8171,9 @@ class packages(GeneratedsSuper):
         if self.patternType is not None and 'patternType' not in already_processed:
             already_processed.add('patternType')
             outfile.write(' patternType=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.patternType), input_name='patternType')), ))
+        if self.bootstrap_package is not None and 'bootstrap_package' not in already_processed:
+            already_processed.add('bootstrap_package')
+            outfile.write(' bootstrap_package=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.bootstrap_package), input_name='bootstrap_package')), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='packages', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8207,6 +8213,10 @@ class packages(GeneratedsSuper):
             already_processed.add('patternType')
             self.patternType = value
             self.patternType = ' '.join(self.patternType.split())
+        value = find_attr_value_('bootstrap_package', node)
+        if value is not None and 'bootstrap_package' not in already_processed:
+            already_processed.add('bootstrap_package')
+            self.bootstrap_package = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'archive':
             obj_ = archive.factory()
