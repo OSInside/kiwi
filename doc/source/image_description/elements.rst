@@ -1478,7 +1478,18 @@ groups="group_a,group_b,group_c:id":
   appended to the user's supplementary groups. When no groups are assigned
   then the system's default primary group will be used. If a group should
   be of a specific group id, it can be appended to the name separated by
-  a colon
+  a colon.
+
+  .. note::
+
+     Group ID's can only be set for groups that does not yet exist at
+     the time when {kiwi} creates them. A check is made if the desired
+     group is already present and if it exists the user will become a
+     member of that group but any given group ID from the {kiwi}
+     configuration will **not** be taken into account. Usually all
+     standard system groups are affected by this behavior because they
+     are provided by the OS itself. Thus it's by intention not possible
+     to overwrite the group ID of an existing group. 
 
 id="number":
   The numeric user id of this account.
