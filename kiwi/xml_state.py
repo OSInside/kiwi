@@ -1284,13 +1284,14 @@ class XMLState:
 
         return users_list
 
-    def get_user_groups(self, user_name) -> List:
+    def get_user_groups(self, user_name) -> List[str]:
         """
         List of group names matching specified user
 
-        Each entry in the list is the name of a group that the specified
-        user belongs to. The first item in the list is the login or primary
-        group. The list will be empty if no groups are specified in the
+        Each entry in the list is the name of a group and optionally its
+        group ID separated by a colon, that the specified user belongs to.
+        The first item in the list is the login or primary group. The
+        list will be empty if no groups are specified in the
         description file.
 
         :return: groups data for the given user

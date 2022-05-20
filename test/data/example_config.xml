@@ -169,7 +169,7 @@
     <users>
         <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
         <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
-        <user groups="kiwi,admin,users" pwdformat="plain" password="mypwd" name="kiwi"/>
+        <user groups="kiwi,admin:42,users" pwdformat="plain" password="mypwd" name="kiwi"/>
     </users>
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso">

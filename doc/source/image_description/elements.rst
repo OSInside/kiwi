@@ -1472,11 +1472,13 @@ Additionally, the following optional attributes can be specified:
 home="path":
   The path to the user's home directory
 
-groups="group_a,group_b":
+groups="group_a,group_b,group_c:id":
   A comma separated list of UNIX groups. The first element of the
   list is used as the user's primary group. The remaining elements are
   appended to the user's supplementary groups. When no groups are assigned
-  then the system's default primary group will be used.
+  then the system's default primary group will be used. If a group should
+  be of a specific group id, it can be appended to the name separated by
+  a colon
 
 id="number":
   The numeric user id of this account.
