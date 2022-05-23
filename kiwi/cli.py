@@ -19,6 +19,7 @@
 usage: kiwi-ng -h | --help
        kiwi-ng [--profile=<name>...]
                [--temp-dir=<directory>]
+               [--target-arch=<name>]
                [--type=<build_type>]
                [--logfile=<filename>]
                [--debug]
@@ -92,7 +93,7 @@ global options for services: image, system
         configuration elements. If not specified kiwi searches for
         a file named config.xml or a file matching *.kiwi
 
-global options for services: system
+global options for services: image, system
     --target-arch=<name>
         set the image architecture. By default the host architecture is
         used as the image architecture. If the specified architecture name
