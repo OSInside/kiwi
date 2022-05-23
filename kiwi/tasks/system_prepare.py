@@ -255,6 +255,7 @@ class SystemPrepareTask(CliTask):
         setup.setup_plymouth_splash()
         setup.setup_timezone()
         setup.setup_permissions()
+        setup.setup_selinux_file_contexts()
 
         # make sure manager instance is cleaned up now
         del manager

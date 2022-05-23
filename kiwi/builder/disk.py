@@ -513,9 +513,6 @@ class DiskBuilder:
             disk.storage_provider
         )
 
-        # set SELinux file security contexts if context exists
-        self._setup_selinux_file_contexts()
-
         # run pre sync script hook
         if self.system_setup.script_exists(
             defaults.PRE_DISK_SYNC_SCRIPT
@@ -692,13 +689,6 @@ class DiskBuilder:
                 )
 
         return result_instance
-
-    def _setup_selinux_file_contexts(self) -> None:
-        security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
-        if os.path.exists(self.root_dir + security_context):
-            self.system_setup.set_selinux_file_contexts(
-                security_context
-            )
 
     def _install_image_requested(self) -> bool:
         return bool(

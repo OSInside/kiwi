@@ -498,6 +498,14 @@ class SystemSetup:
             ]
         )
 
+    def setup_selinux_file_contexts(self) -> None:
+        """
+        Set SELinux file security contexts if the default context file is found
+        """
+        security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
+        if os.path.exists(self.root_dir + security_context):
+            self.set_selinux_file_contexts(security_context)
+
     def export_modprobe_setup(self, target_root_dir: str) -> None:
         """
         Export etc/modprobe.d to given root_dir
