@@ -73,7 +73,7 @@
   </define>
   <define name="groups-list">
     <data type="token">
-      <param name="pattern">[a-zA-Z0-9_\-\.]+(,[a-zA-Z0-9_\-\.]+)*</param>
+      <param name="pattern">[a-zA-Z0-9_\-\.:]+(,[a-zA-Z0-9_\-\.:]+)*</param>
     </data>
   </define>
   <define name="arch-name">
@@ -3253,8 +3253,8 @@ kiwi-ng result bundle ...</a:documentation>
     </define>
     <define name="k.user.groups.attribute">
       <attribute name="groups">
-        <a:documentation>The list of groups that he user belongs to. The
-frist item in the list is used as the login group.
+        <a:documentation>The list of groups that the user belongs to. The
+first item in the list is used as the login group.
 If 'groups' is not present a default group is assigned
 to the user according to he specifing toolchain behaviour.</a:documentation>
         <ref name="groups-list"/>

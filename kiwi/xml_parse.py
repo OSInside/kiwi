@@ -4053,7 +4053,7 @@ class user(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_groups_list_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_groups_list_patterns_, ))
-    validate_groups_list_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+(,[a-zA-Z0-9_\\-\\.]+)*$']]
+    validate_groups_list_patterns_ = [['^[a-zA-Z0-9_\\-\\.:]+(,[a-zA-Z0-9_\\-\\.:]+)*$']]
     def hasContent_(self):
         if (
 

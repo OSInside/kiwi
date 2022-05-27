@@ -507,7 +507,7 @@ class TestSystemSetup:
         calls = [
             call('users', []),
             call('kiwi', []),
-            call('admin', [])
+            call('admin', ['-g', '42'])
         ]
         users.group_add.assert_has_calls(calls)
 

@@ -1472,11 +1472,24 @@ Additionally, the following optional attributes can be specified:
 home="path":
   The path to the user's home directory
 
-groups="group_a,group_b":
+groups="group_a,group_b,group_c:id":
   A comma separated list of UNIX groups. The first element of the
   list is used as the user's primary group. The remaining elements are
   appended to the user's supplementary groups. When no groups are assigned
-  then the system's default primary group will be used.
+  then the system's default primary group will be used. If a group should
+  be of a specific group id, it can be appended to the name separated by
+  a colon.
+
+  .. note::
+
+     Group ID's can only be set for groups that does not yet exist at
+     the time when {kiwi} creates them. A check is made if the desired
+     group is already present and if it exists the user will become a
+     member of that group but any given group ID from the {kiwi}
+     configuration will **not** be taken into account. Usually all
+     standard system groups are affected by this behavior because they
+     are provided by the OS itself. Thus it's by intention not possible
+     to overwrite the group ID of an existing group. 
 
 id="number":
   The numeric user id of this account.

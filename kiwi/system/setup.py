@@ -22,7 +22,9 @@ import copy
 import pathlib
 from collections import OrderedDict
 from collections import namedtuple
-from typing import Any
+from typing import (
+    Any, List
+)
 
 # project
 import kiwi.defaults as defaults
@@ -381,10 +383,14 @@ class SystemSetup:
         system_users = Users(self.root_dir)
 
         for user in self.xml_state.get_users():
-            for group in self.xml_state.get_user_groups(user.get_name()):
+            group_dict = self._get_group_names_and_ids_for_user(user.get_name())
+            for group, group_id in group_dict.items():
                 if not system_users.group_exists(group):
                     log.info('Adding group {0}'.format(group))
-                    system_users.group_add(group, [])
+                    options = self._process_user_options(
+                        group_id=group_id
+                    )
+                    system_users.group_add(group, options)
 
     def setup_users(self) -> None:
         """
@@ -401,13 +407,21 @@ class SystemSetup:
             user_id = user.get_id()
             user_realname = user.get_realname()
             user_shell = user.get_shell()
-            user_groups = self.xml_state.get_user_groups(user.get_name())
+            user_groups = list(
+                self._get_group_names_and_ids_for_user(user.get_name()).keys()
+            )
 
             user_exists = system_users.user_exists(user_name)
 
             options = self._process_user_options(
-                password_format, password, user_shell, user_groups,
-                user_id, user_realname, user_exists, home_path
+                password_format=password_format,
+                password=password,
+                user_shell=user_shell,
+                user_groups=user_groups,
+                user_id=user_id,
+                user_realname=user_realname,
+                user_exists=user_exists,
+                home_path=home_path
             )
 
             group_msg = '--> Primary group for user {0}: {1}'.format(
@@ -828,8 +842,16 @@ class SystemSetup:
             Path.wipe(metadata['archive_name'] + '.gz')
 
     def _process_user_options(
-        self, password_format, password, user_shell, user_groups,
-        user_id, user_realname, user_exists, home_path
+        self,
+        password_format: str = '',
+        password: str = '',
+        user_shell: str = '',
+        user_groups: List[str] = [],
+        user_id: str = '',
+        group_id: str = '',
+        user_realname: str = '',
+        user_exists: bool = True,
+        home_path: str = ''
     ):
         options = []
         if password_format == 'plain':
@@ -849,6 +871,9 @@ class SystemSetup:
         if user_id:
             options.append('-u')
             options.append('{0}'.format(user_id))
+        if group_id:
+            options.append('-g')
+            options.append('{0}'.format(group_id))
         if user_realname:
             options.append('-c')
             options.append(user_realname)
@@ -1276,3 +1301,15 @@ class SystemSetup:
         if script_path and not os.path.isabs(script_path):
             script_path = os.path.join(self.description_dir, script_path)
         return script_path
+
+    def _get_group_names_and_ids_for_user(self, user: str) -> OrderedDict:
+        group: OrderedDict = OrderedDict()
+        for group_match in self.xml_state.get_user_groups(user):
+            group_and_id = group_match.split(':')
+            group.update(
+                [(
+                    group_and_id[0],
+                    group_and_id[1] if len(group_and_id) > 1 else ''
+                )]
+            )
+        return group
