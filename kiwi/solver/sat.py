@@ -65,6 +65,10 @@ class Sat:
             'deb-x86_64': {
                 'pool_dist': self.solv.Pool.DISTTYPE_DEB,
                 'arch': 'amd64'
+            },
+            'deb-aarch64': {
+                'pool_dist': self.solv.Pool.DISTTYPE_DEB,
+                'arch': 'arm64'
             }
         }
         dist_type = dist_types.get(f'{dist}-{arch}')
