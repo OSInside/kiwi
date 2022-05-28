@@ -1,0 +1,2 @@
+FIRMWARE_RELEASE_STATUS="default"
+BOOTFS=/boot/efi

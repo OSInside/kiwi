@@ -50,6 +50,7 @@ Building Linux System Appliances with {kiwi-product} |version|
    * `Build Tests CentOS(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:centos>`__
 
    * `Build Tests Ubuntu(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:ubuntu>`__
+   * `Build Tests Ubuntu(arm) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_arm:ubuntu>`__
 
    * `Build Tests Debian(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:debian>`__
 

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-rpi">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@gmail.com</contact>
+        <specification>Disk image for RaspberryPi test build</specification>
+    </description>
+    <preferences>
+        <version>1.22.4</version>
+        <packagemanager>apt</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <type image="oem" filesystem="xfs" firmware="efi" bootpartition="false" efipartsize="128" devicepersistency="by-label" editbootinstall="editbootinstall_rpi.sh">
+            <bootloader name="custom"/>
+            <oemconfig>
+                <oem-resize>true</oem-resize>
+                <oem-swap>false</oem-swap>
+                <oem-skip-verify>true</oem-skip-verify>
+            </oemconfig>
+        </type>
+    </preferences>
+
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/home/ms" name="ms" groups="users" shell="/bin/bash"/>
+    </users>
+
+    <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
+        <source path="obs://Virtualization:Appliances:Builder/xUbuntu_22.04"/>
+    </repository>
+    <repository type="apt-deb" alias="Ubuntu-Jammy-Universe" distribution="jammy" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:22.04/universe"/>
+    </repository>
+    <repository type="apt-deb" alias="Ubuntu-Jammy" distribution="jammy" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:22.04/standard"/>
+    </repository>
+    
+    <packages type="image">
+        <!-- raspi packages -->
+        <package name="linux-raspi"/>
+        <package name="ubuntu-raspi-settings"/>
+        <package name="linux-firmware"/>
+        <package name="u-boot-rpi"/>
+        <package name="u-boot-tools"/>
+        <package name="rpi-eeprom"/>
+        <package name="libraspberrypi-bin"/>
+        <!-- system packages -->
+        <package name="bash-completion"/>
+        <package name="git"/>
+        <package name="sudo"/>
+        <package name="net-tools"/>
+        <package name="tzdata"/>
+        <package name="apt-utils"/>
+        <package name="systemd"/>
+        <package name="systemd-timesyncd"/>
+        <package name="gnupg"/>
+        <package name="iproute2"/>
+        <package name="iptables"/>
+        <package name="iputils-ping"/>
+        <package name="ifupdown"/>
+        <package name="netbase"/>
+        <package name="dbus"/>
+        <package name="xfsprogs"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="usrmerge"/>
+        <package name="mawk"/>
+        <package name="openssh-client"/>
+        <package name="openssh-server"/>
+        <package name="netcat"/>
+        <package name="zstd"/>
+        <package name="util-linux"/>
+        <package name="less"/>
+        <package name="vim"/>
+        <!-- image building -->
+        <package name="python3-kiwi"/>
+        <package name="python3-kiwi-boxed-plugin"/>
+        <package name="kiwi-systemdeps"/>
+        <package name="jing"/>
+        <package name="qemu-kvm"/>
+        <package name="fdisk"/>
+    </packages>
+    <packages type="bootstrap"/>
+</image>
