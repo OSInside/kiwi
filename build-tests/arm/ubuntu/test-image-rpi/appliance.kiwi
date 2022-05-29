@@ -27,7 +27,7 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <users>
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/home/ms" name="ms" groups="users" shell="/bin/bash"/>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/home/ubuntu" name="ubuntu" groups="users,kvm" shell="/bin/bash"/>
     </users>
 
     <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
