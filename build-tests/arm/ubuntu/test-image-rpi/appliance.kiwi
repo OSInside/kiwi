@@ -82,6 +82,8 @@
         <package name="kiwi-systemdeps"/>
         <package name="jing"/>
         <package name="qemu-kvm"/>
+        <package name="qemu-system-x86"/>
+        <package name="qemu-system-arm"/>
         <package name="fdisk"/>
     </packages>
     <packages type="bootstrap"/>
