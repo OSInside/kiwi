@@ -38,7 +38,7 @@ types-simplejson
 generateDS==2.29.24
 
 # for building documentation
-sphinx>=4.0.2
+sphinx>=5.0.0
 
 git+https://github.com/openSUSE/rstxml2docbook.git@feature/kiwi
 
