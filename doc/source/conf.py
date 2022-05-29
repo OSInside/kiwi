@@ -178,9 +178,9 @@ pygments_style = 'sphinx'
 todo_include_todos = True
 
 extlinks = {
-    'issue': ('https://github.com/OSInside/kiwi/issues/%s', '#'),
-    'pr': ('https://github.com/OSInside/kiwi/pull/%s', 'PR #'),
-    'ghkiwi': ('https://github.com/OSInside/kiwi/blob/master/%s', '')
+    'issue': ('https://github.com/OSInside/kiwi/issues/%%s', '#'),
+    'pr': ('https://github.com/OSInside/kiwi/pull/%%s', 'PR #'),
+    'ghkiwi': ('https://github.com/OSInside/kiwi/blob/master/%%s', '')
 }
 
 
