@@ -1387,6 +1387,17 @@ class TestSystemSetup:
             ]
         )
 
+    @patch('os.path.exists')
+    @patch.object(SystemSetup, 'set_selinux_file_contexts')
+    def test_setup_selinux_file_contexts(
+        self, mock_os_path_exists, mock_set
+    ):
+        mock_os_path_exists.return_value = True
+        self.setup.setup_selinux_file_contexts()
+        mock_set.assert_called_once_with(
+            'root_dir/etc/selinux/targeted/contexts/files/file_contexts'
+        )
+
     @patch('kiwi.system.setup.Repository.new')
     @patch('kiwi.system.setup.Uri')
     def test_import_repositories_marked_as_imageinclude(
