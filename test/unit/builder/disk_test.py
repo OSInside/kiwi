@@ -316,9 +316,6 @@ class TestDiskBuilder:
         assert self.setup.export_modprobe_setup.call_args_list[0] == \
             call('boot_dir')
 
-        self.setup.set_selinux_file_contexts.assert_called_once_with(
-            '/etc/selinux/targeted/contexts/files/file_contexts'
-        )
         self.disk_setup.get_disksize_mbytes.assert_called_once_with(
             root_clone=0, boot_clone=0
         )
@@ -608,9 +605,6 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         self.setup.create_recovery_archive.assert_called_once_with()
-        self.setup.set_selinux_file_contexts.assert_called_once_with(
-            '/etc/selinux/targeted/contexts/files/file_contexts'
-        )
         self.disk_setup.get_disksize_mbytes.assert_called_once_with(
             root_clone=0, boot_clone=0
         )
