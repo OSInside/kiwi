@@ -178,6 +178,11 @@ class TestBootImageBase:
                 kernel_name='kernel_name',
                 initrd_name='initrd-kernel_version'
             )
+            file_handle.read.return_value = 'outfile="/boot/initrd-${kernel}"'
+            assert self.boot_image.get_boot_names() == self.boot_names_type(
+                kernel_name='kernel_name',
+                initrd_name='initrd-kernel_version'
+            )
 
     def test_noop_methods(self):
         self.boot_image.include_module('module')

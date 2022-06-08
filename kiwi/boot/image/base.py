@@ -461,11 +461,15 @@ class BootImageBase:
             'dracut', root_dir=self.boot_root_directory, access_mode=os.X_OK
         )
         if dracut_tool:
-            outfile_expression = r'outfile="/boot/(init.*\$kernel.*)"'
+            outfile_expression = r'outfile=".*/boot/(init.*kernel.*)"'
             with open(dracut_tool) as dracut:
                 matches = re.findall(outfile_expression, dracut.read())
                 if matches:
-                    return matches[0].replace('$kernel', '{kernel_version}')
+                    return matches[0].replace(
+                        '$kernel', '{kernel_version}'
+                    ).replace(
+                        '${kernel}', '{kernel_version}'
+                    )
         return None
 
     def _get_boot_image_output_file_format_from_existing_file(
