@@ -2062,6 +2062,17 @@ expected to be non-removable</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.selinux_policy.attribute">
+      <attribute name="selinux_policy">
+        <a:documentation>On systems using selinux use the given policy.
+by default 'targeted' is used</a:documentation>
+        <choice>
+          <value>targeted</value>
+          <value>mls</value>
+          <value>minimum</value>
+        </choice>
+      </attribute>
+    </define>
     <define name="k.type.spare_part.attribute">
       <attribute name="spare_part">
         <a:documentation>Request a spare partition right before the root partition
@@ -3158,6 +3169,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.target_removable.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.selinux_policy.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.vga.attribute"/>
