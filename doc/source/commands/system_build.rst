@@ -151,7 +151,9 @@ OPTIONS
 
   - **{signing_keys}**
 
-    List of signing_keys enclosed in curly brackets and delimited by a colon
+    List of signing_keys enclosed in curly brackets and delimited by 
+    semicolon. The reference to a signing key must be provided as URI
+    format
 
   - **components**
 

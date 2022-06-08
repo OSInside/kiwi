@@ -242,7 +242,7 @@ class CliTask:
         elif len(token) > 0 and token == 'false':
             return False
         elif len(token) > 0 and token.startswith('{'):
-            return token.replace('{', '').replace('}', '').split(':')
+            return token.replace('{', '').replace('}', '').split(';')
         else:
             return token
 
