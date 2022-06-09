@@ -82,12 +82,12 @@ class TestCliTask:
 
     def test_tentuple_token(self):
         assert self.task.tentuple_token(
-            'a,b,,d,e,f,{1:2:3},x y z,jammy,false'
+            'a,b,,d,e,f,{1;2;3},x y z,jammy,false'
         ) == [
             'a', 'b', '', 'd', 'e', 'f', ['1', '2', '3'], 'x y z',
             'jammy', False
         ]
-        assert self.task.tentuple_token('a,b,,d,e,f,{1:2:3}') == [
+        assert self.task.tentuple_token('a,b,,d,e,f,{1;2;3}') == [
             'a', 'b', '', 'd', 'e', 'f', ['1', '2', '3'],
             None, None, None
         ]
