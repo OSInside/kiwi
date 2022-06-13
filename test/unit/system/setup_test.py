@@ -19,7 +19,8 @@ from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
     KiwiScriptFailed,
-    KiwiImportDescriptionError
+    KiwiImportDescriptionError,
+    KiwiFileNotFound
 )
 
 
@@ -39,6 +40,9 @@ class TestSystemSetup:
         self.xml_state = MagicMock()
         self.xml_state.get_package_manager = Mock(
             return_value='zypper'
+        )
+        self.xml_state.build_type.get_selinux_policy = Mock(
+            return_value=None
         )
         self.xml_state.build_type.get_filesystem = Mock(
             return_value='ext3'
@@ -68,6 +72,9 @@ class TestSystemSetup:
             output='password-hash\n',
             error='stderr',
             returncode=0
+        )
+        self.selinux_policies = os.scandir(
+            '../data/etc/selinux/targeted/policy'
         )
 
     @patch('kiwi.system.setup.RuntimeConfig')
@@ -1378,14 +1385,27 @@ class TestSystemSetup:
         )
 
     @patch('kiwi.system.setup.Command.run')
-    def test_set_selinux_file_contexts(self, mock_command):
+    @patch('os.scandir')
+    def test_set_selinux_file_contexts(self, mock_os_scandir, mock_command):
+        mock_os_scandir.return_value = self.selinux_policies
         self.setup.set_selinux_file_contexts('security_context_file')
         mock_command.assert_called_once_with(
             [
                 'chroot', 'root_dir',
-                'setfiles', 'security_context_file', '/', '-v', '-F'
+                'setfiles', '-F', '-p',
+                '-c', '/etc/selinux/targeted/policy/policy.some_policy',
+                '-e', '/proc', '-e', '/sys', '-e', '/dev',
+                'security_context_file', '/'
             ]
         )
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch('os.scandir')
+    def test_set_selinux_file_contexts_raises(
+        self, mock_os_scandir, mock_command
+    ):
+        with raises(KiwiFileNotFound):
+            self.setup.set_selinux_file_contexts('security_context_file')
 
     @patch('os.path.exists')
     @patch.object(SystemSetup, 'set_selinux_file_contexts')

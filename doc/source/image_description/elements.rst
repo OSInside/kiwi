@@ -544,6 +544,11 @@ target_removable="true|false":
   of the target machine. By default the target disk is
   expected to be non-removable
 
+selinux_policy.attribute="targeted|mls|minimum":
+  The `selinux_policy` attribute sets the SELinux policy to use.
+  `targeted` policy is the default policy. Only change this option
+  if you want to use the `mls` or `minimum` policy.
+
 spare_part="number":
   Request a spare partition right before the root partition
   of the requested size. The attribute takes a size value

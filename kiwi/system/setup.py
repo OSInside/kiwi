@@ -53,7 +53,8 @@ from kiwi.system.profile import Profile
 
 from kiwi.exceptions import (
     KiwiImportDescriptionError,
-    KiwiScriptFailed
+    KiwiScriptFailed,
+    KiwiFileNotFound
 )
 
 log: Any = logging.getLogger('kiwi')
@@ -491,10 +492,18 @@ class SystemSetup:
         :param str security_context_file: path file name
         """
         log.info('Processing SELinux file security contexts')
+        exclude = []
+        for devname in Defaults.get_exclude_list_for_non_physical_devices():
+            exclude.append('-e')
+            exclude.append(f'/{devname}')
         Command.run(
             [
-                'chroot', self.root_dir,
-                'setfiles', security_context_file, '/', '-v', '-F'
+                'chroot', self.root_dir, 'setfiles',
+                '-F', '-p', '-c', self._find_selinux_policy_file(
+                    self.xml_state.build_type.get_selinux_policy() or 'targeted'
+                )
+            ] + exclude + [
+                security_context_file, '/'
             ]
         )
 
@@ -1321,3 +1330,13 @@ class SystemSetup:
                 )]
             )
         return group
+
+    def _find_selinux_policy_file(self, policy_name: str) -> str:
+        policy_dir = f'/etc/selinux/{policy_name}/policy'
+        with os.scandir(os.path.join(self.root_dir, policy_dir)) as policy_path:
+            for entry in policy_path:
+                if entry.is_file() and entry.name.startswith('policy.'):
+                    return os.path.join(policy_dir, entry.name)
+        raise KiwiFileNotFound(
+            f'Unable to find SELinux binary policy file in {policy_dir!r}'
+        )
