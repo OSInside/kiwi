@@ -175,7 +175,7 @@ class ImageSystem:
             volume_mount = MountManager(
                 device=self.volumes[volume_path]['volume_device'],
                 mountpoint=os.path.join(
-                    mountpoint, volume_path
+                    mountpoint, os.path.relpath(volume_path, '/')
                 )
             )
             self.mount_list.append(volume_mount)
