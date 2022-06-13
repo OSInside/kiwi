@@ -58,3 +58,7 @@ twine
 
 # for scripts testing
 pytest-container
+
+# for binary compile
+nuitka
+orderedset
