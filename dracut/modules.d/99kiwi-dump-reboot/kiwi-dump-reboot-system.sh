@@ -50,7 +50,17 @@ function boot_installed_system {
     if getargbool 0 rd.kiwi.debug; then
         boot_options="${boot_options} rd.kiwi.debug"
     fi
-    kexec -l /run/install/boot/*/loader/linux \
+    kexec_options=""
+    if kexec --help | grep -q kexec-syscall-auto;then
+        # try file based syscall first and fall back to kexec_load
+        # syscall if not present. On systems using kexec that does
+        # provide --kexec-syscall-auto the assumption is made that
+        # neither kexec nor the kernel supports file based syscall
+        # and thus no syscall selection is made
+        kexec_options="${kexec_options} --kexec-syscall-auto"
+    fi
+    kexec "${kexec_options}" \
+        --load /run/install/boot/*/loader/linux \
         --initrd /run/install/initrd.system_image \
         --command-line "${boot_options}"
     if ! kexec -e; then
