@@ -1333,10 +1333,17 @@ class SystemSetup:
 
     def _find_selinux_policy_file(self, policy_name: str) -> str:
         policy_dir = f'/etc/selinux/{policy_name}/policy'
-        with os.scandir(os.path.join(self.root_dir, policy_dir)) as policy_path:
-            for entry in policy_path:
-                if entry.is_file() and entry.name.startswith('policy.'):
-                    return os.path.join(policy_dir, entry.name)
+        policy_dir_in_root = self.root_dir + policy_dir
+        scandir_error = ''
+        try:
+            with os.scandir(policy_dir_in_root) as policy_path:
+                for entry in policy_path:
+                    if entry.is_file() and entry.name.startswith('policy.'):
+                        return os.path.join(policy_dir, entry.name)
+        except Exception as issue:
+            scandir_error = format(issue)
         raise KiwiFileNotFound(
-            f'Unable to find SELinux binary policy file in {policy_dir!r}'
+            'Unable to find SELinux policy in {0!r} {1}'.format(
+                policy_dir_in_root, scandir_error
+            )
         )
