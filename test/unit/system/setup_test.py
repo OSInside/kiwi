@@ -1404,6 +1404,7 @@ class TestSystemSetup:
     def test_set_selinux_file_contexts_raises(
         self, mock_os_scandir, mock_command
     ):
+        mock_os_scandir.side_effect = Exception
         with raises(KiwiFileNotFound):
             self.setup.set_selinux_file_contexts('security_context_file')
 
