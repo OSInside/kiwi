@@ -496,16 +496,44 @@ class SystemSetup:
         for devname in Defaults.get_exclude_list_for_non_physical_devices():
             exclude.append('-e')
             exclude.append(f'/{devname}')
-        Command.run(
-            [
-                'chroot', self.root_dir, 'setfiles',
-                '-F', '-p', '-c', self._find_selinux_policy_file(
-                    self.xml_state.build_type.get_selinux_policy() or 'targeted'
-                )
-            ] + exclude + [
-                security_context_file, '/'
-            ]
-        )
+        # setfiles doesn't come with a stable command API and older versions
+        # needs a different invocation syntax. On older versions the usage
+        # information explicitly lists "setfiles -c policyfile" which is not
+        # present in newer versions. As setfiles doesn't come with a simple
+        # --version option, checking for this extra element in the usage
+        # was the only pointer I could come up with to differentiate the
+        # call options.
+        if CommandCapabilities.has_option_in_help(
+            'setfiles', 'setfiles -c policyfile', ['--help'],
+            root=self.root_dir, raise_on_error=False
+        ):
+            Command.run(
+                [
+                    'chroot', self.root_dir, 'setfiles',
+                    '-c', self._find_selinux_policy_file(
+                        self.xml_state.build_type.get_selinux_policy() or 'targeted'
+                    ), security_context_file
+                ]
+            )
+            Command.run(
+                [
+                    'chroot', self.root_dir, 'setfiles',
+                    '-F', '-p'
+                ] + exclude + [
+                    security_context_file, '/'
+                ]
+            )
+        else:
+            Command.run(
+                [
+                    'chroot', self.root_dir, 'setfiles',
+                    '-F', '-p', '-c', self._find_selinux_policy_file(
+                        self.xml_state.build_type.get_selinux_policy() or 'targeted'
+                    )
+                ] + exclude + [
+                    security_context_file, '/'
+                ]
+            )
 
     def setup_selinux_file_contexts(self) -> None:
         """
