@@ -73,12 +73,16 @@ class TestImageSystem:
                 mountpoint=os.path.join(root_mount_mountpoint, 'var', 'tmp')
             ),
             call(
-                device='/dev',
-                mountpoint=os.path.join(root_mount_mountpoint, 'dev')
-            ),
-            call(
                 device='/proc',
                 mountpoint=os.path.join(root_mount_mountpoint, 'proc')
+            ),
+            call(
+                device='/sys',
+                mountpoint=os.path.join(root_mount_mountpoint, 'sys')
+            ),
+            call(
+                device='/dev',
+                mountpoint=os.path.join(root_mount_mountpoint, 'dev')
             )
         ]
 
