@@ -430,7 +430,9 @@ class TestSystemSetup:
         ])
 
     @patch('os.path.exists')
-    def test_setup_keyboard_skipped(self, mock_exists):
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
+    def test_setup_keyboard_skipped(self, mock_caps, mock_exists):
+        mock_caps.return_value = False
         mock_exists.return_value = False
         self.setup.preferences['keytable'] = 'keytable'
         with self._caplog.at_level(logging.WARNING):

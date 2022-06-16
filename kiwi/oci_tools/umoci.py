@@ -43,7 +43,8 @@ class OCIUmoci(OCIBase):
             self.container_dir, Defaults.get_container_base_image_tag()
         )
         if CommandCapabilities.has_option_in_help(
-            'umoci', '--no-history', ['config', '--help']
+            'umoci', '--no-history', ['config', '--help'],
+            raise_on_error=False
         ):
             self.no_history_flag = ['--no-history']
         else:
