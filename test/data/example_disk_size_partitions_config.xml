@@ -15,6 +15,7 @@
             <partitions>
                 <partition name="var" size="100" mountpoint="/var" filesystem="ext3"/>
                 <partition name="var/tmp" size="500" mountpoint="/var/tmp" filesystem="xfs"/>
+                <partition name="tmp" size="100" mountpoint="/tmp" filesystem="squashfs"/>
             </partitions>
         </type>
     </preferences>

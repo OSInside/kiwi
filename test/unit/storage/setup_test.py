@@ -217,7 +217,7 @@ class TestDiskSetup:
     @patch('os.path.exists')
     def test_get_disksize_mbytes_partitions(self, mock_exists):
         mock_exists.side_effect = lambda path: path != 'root_dir/var/tmp'
-        assert self.setup_partitions.get_disksize_mbytes() == 632
+        assert self.setup_partitions.get_disksize_mbytes() == 732
 
     @patch('os.path.exists')
     def test_get_disksize_mbytes_clones(self, mock_exists):
@@ -232,7 +232,7 @@ class TestDiskSetup:
         )
         assert self.setup_partitions.get_disksize_mbytes(
             root_clone=1, boot_clone=1
-        ) == 742
+        ) == 842
 
     @patch('os.path.exists')
     def test_get_disksize_mbytes_oem_volumes(self, mock_exists):

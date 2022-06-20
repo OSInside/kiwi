@@ -745,9 +745,33 @@ class DiskBuilder:
                             device_map[map_name],
                             f'{self.root_dir}{ptable_entry.mountpoint}/'
                         )
-                        filesystem.create_on_device(
-                            label=map_name.upper()
-                        )
+                        if ptable_entry.filesystem == 'squashfs':
+                            squashed_root_file = Temporary().new_file()
+                            filesystem.create_on_file(
+                                filename=squashed_root_file.name,
+                                exclude=[Defaults.get_shared_cache_location()]
+                            )
+                            readonly_target = device_map[map_name].get_device()
+                            readonly_target_bytesize = device_map[map_name].get_byte_size(
+                                readonly_target
+                            )
+                            log.info(
+                                '--> Dumping {0!r} file({1} bytes) -> {2}({3} bytes)'.format(
+                                    map_name, os.path.getsize(squashed_root_file.name),
+                                    readonly_target, readonly_target_bytesize
+                                )
+                            )
+                            Command.run(
+                                [
+                                    'dd',
+                                    'if=%s' % squashed_root_file.name,
+                                    'of=%s' % readonly_target
+                                ]
+                            )
+                        else:
+                            filesystem.create_on_device(
+                                label=map_name.upper()
+                            )
                         filesystem_dict[map_name] = filesystem
         return filesystem_dict
 
@@ -1113,16 +1137,20 @@ class DiskBuilder:
         if not options:
             options = ['defaults']
         block_operation = BlockID(device)
+        filesystem = block_operation.get_filesystem()
         if self.volume_manager_name and self.volume_manager_name == 'lvm' \
            and (mount_point == '/' or mount_point == 'swap'):
             fstab_entry = ' '.join(
                 [
                     device, mount_point,
-                    block_operation.get_filesystem(), ','.join(options), check
+                    filesystem, ','.join(options), check
                 ]
             )
         else:
-            if self.persistency_type == 'by-label':
+            if filesystem == 'squashfs':
+                # squashfs does not provide a label or uuid
+                blkid_type = 'PARTUUID'
+            elif self.persistency_type == 'by-label':
                 blkid_type = 'LABEL'
             elif self.persistency_type == 'by-partuuid':
                 blkid_type = 'PARTUUID'
@@ -1132,7 +1160,7 @@ class DiskBuilder:
             fstab_entry = ' '.join(
                 [
                     blkid_type + '=' + device_id, mount_point,
-                    block_operation.get_filesystem(), ','.join(options), check
+                    filesystem, ','.join(options), check
                 ]
             )
         self.fstab.add_entry(fstab_entry)
@@ -1243,10 +1271,11 @@ class DiskBuilder:
         for map_name in sorted(system_custom_parts.keys()):
             system_custom_part = system_custom_parts[map_name]
             log.info('--> Syncing custom partition(s) data')
-            system_custom_part.sync_data()
+            if not system_custom_part.filename:
+                system_custom_part.sync_data()
             if device_map.get(f'{map_name}clone1'):
                 log.info(
-                    f'--> Dumping {map_name} clone data at extra partition'
+                    f'--> Dumping {map_name!r} clone data at extra partition'
                 )
                 system_custom_part_clone = CloneDevice(
                     system_custom_part.device_provider, self.root_dir
