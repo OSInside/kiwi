@@ -132,23 +132,15 @@ class ImageSystem:
         self.mount_list.append(var_tmp_mount)
         var_tmp_mount.tmpfs_mount()
 
-        # mount dev as bind
-        device_mount = MountManager(
-            device='/dev', mountpoint=os.path.join(
-                root_mount.mountpoint, 'dev'
+        # mount kernel interfaces as bind
+        for location in ('proc', 'sys', 'dev'):
+            shared_mount = MountManager(
+                device=os.path.join('/', location), mountpoint=os.path.join(
+                    root_mount.mountpoint, location
+                )
             )
-        )
-        self.mount_list.append(device_mount)
-        device_mount.bind_mount()
-
-        # mount proc as bind
-        proc_mount = MountManager(
-            device='/proc', mountpoint=os.path.join(
-                root_mount.mountpoint, 'proc'
-            )
-        )
-        self.mount_list.append(proc_mount)
-        proc_mount.bind_mount()
+            self.mount_list.append(shared_mount)
+            shared_mount.bind_mount()
 
     def umount(self) -> None:
         """
@@ -175,7 +167,7 @@ class ImageSystem:
             volume_mount = MountManager(
                 device=self.volumes[volume_path]['volume_device'],
                 mountpoint=os.path.join(
-                    mountpoint, volume_path
+                    mountpoint, volume_path.lstrip(os.sep)
                 )
             )
             self.mount_list.append(volume_mount)
