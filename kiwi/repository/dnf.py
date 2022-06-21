@@ -104,7 +104,7 @@ class RepositoryDnf(RepositoryBase):
 
         # config file parameters for dnf tool
         self._create_runtime_config_parser()
-        self._create_runtime_plugin_config_parser()
+        self._create_runtime_plugin_config_parsers()
         self._write_runtime_config()
 
     def setup_package_database_configuration(self) -> None:
@@ -170,7 +170,7 @@ class RepositoryDnf(RepositoryBase):
         self.shared_dnf_dir['vars-dir'] = \
             self.root_dir + '/etc/dnf/vars'
         self._create_runtime_config_parser()
-        self._create_runtime_plugin_config_parser()
+        self._create_runtime_plugin_config_parsers()
         self._write_runtime_config()
 
     def runtime_config(self) -> Dict:
@@ -318,63 +318,38 @@ class RepositoryDnf(RepositoryBase):
 
     def _create_runtime_config_parser(self) -> None:
         self.runtime_dnf_config = ConfigParser()
-        self.runtime_dnf_config.add_section('main')
-
-        self.runtime_dnf_config.set(
-            'main', 'cachedir', self.shared_dnf_dir['cache-dir']
-        )
-        self.runtime_dnf_config.set(
-            'main', 'reposdir', self.shared_dnf_dir['reposd-dir']
-        )
-        self.runtime_dnf_config.set(
-            'main', 'varsdir', self.shared_dnf_dir['vars-dir']
-        )
-        self.runtime_dnf_config.set(
-            'main', 'pluginconfpath', self.shared_dnf_dir['pluginconf-dir']
-        )
-        self.runtime_dnf_config.set(
-            'main', 'keepcache', '1'
-        )
-        self.runtime_dnf_config.set(
-            'main', 'debuglevel', '2'
-        )
-        self.runtime_dnf_config.set(
-            'main', 'best', '1'
-        )
-        self.runtime_dnf_config.set(
-            'main', 'obsoletes', '1'
-        )
-        self.runtime_dnf_config.set(
-            'main', 'plugins', '1'
-        )
-        self.runtime_dnf_config.set(
-            'main', 'gpgcheck', self.gpg_check
-        )
+        self.runtime_dnf_config["main"] = {
+            "cachedir": self.shared_dnf_dir['cache-dir'],
+            "reposdir": self.shared_dnf_dir['reposd-dir'],
+            "varsdir": self.shared_dnf_dir['vars-dir'],
+            "pluginconfpath": self.shared_dnf_dir['pluginconf-dir'],
+            "keepcache": "1",
+            "debuglevel": "2",
+            "best": "1",
+            "obsoletes": "1",
+            "plugins": "1",
+            "gpgcheck": self.gpg_check,
+        }
         if self.exclude_docs:
-            self.runtime_dnf_config.set(
-                'main', 'tsflags', 'nodocs'
-            )
+            self.runtime_dnf_config["main"]["tsflags"] = "nodocs"
         if self.target_arch:
-            self.runtime_dnf_config.set(
-                'main', 'arch', self.target_arch
-            )
-            self.runtime_dnf_config.set(
-                'main', 'ignorearch', '1'
-            )
+            self.runtime_dnf_config["main"].update({
+                "arch": self.target_arch,
+                "ignorearch": "1",
+            })
 
-    def _create_runtime_plugin_config_parser(self) -> None:
-        self.runtime_dnf_plugin_config = ConfigParser()
-        self.runtime_dnf_plugin_config.add_section('main')
-
-        self.runtime_dnf_plugin_config.set(
-            'main', 'enabled', '1'
-        )
+    def _create_runtime_plugin_config_parsers(self) -> None:
+        self.runtime_dnf_plugin_configs = {
+            plugin: ConfigParser() for plugin in ("priorities", "versionlock")
+        }
+        self.runtime_dnf_plugin_configs["priorities"]["main"] = {"enabled": "1"}
+        self.runtime_dnf_plugin_configs["versionlock"]["main"] = {"enabled": "0"}
 
     def _write_runtime_config(self) -> None:
         with open(self.runtime_dnf_config_file.name, 'w') as config:
             self.runtime_dnf_config.write(config)
         if os.path.exists(self.shared_dnf_dir['pluginconf-dir']):
-            dnf_plugin_config_file = \
-                self.shared_dnf_dir['pluginconf-dir'] + '/priorities.conf'
-            with open(dnf_plugin_config_file, 'w') as pluginconfig:
-                self.runtime_dnf_plugin_config.write(pluginconfig)
+            for plugin_name, plugin_config in self.runtime_dnf_plugin_configs.items():
+                path = f"{self.shared_dnf_dir['pluginconf-dir']}/{plugin_name}.conf"
+                with open(path, "w") as plugin_config_fobj:
+                    plugin_config.write(plugin_config_fobj)

@@ -75,7 +75,8 @@ class TestRepositoryDnf:
             self.repo.post_init(['check_signatures'])
             assert m_open.call_args_list == [
                 call(mock_temp.return_value.name, 'w'),
-                call('/shared-dir/dnf/pluginconf/priorities.conf', 'w')
+                call('/shared-dir/dnf/pluginconf/priorities.conf', 'w'),
+                call('/shared-dir/dnf/pluginconf/versionlock.conf', 'w'),
             ]
         assert self.repo.custom_args == []
         assert self.repo.gpg_check == '1'
