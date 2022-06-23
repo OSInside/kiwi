@@ -26,34 +26,37 @@ class TestCommandCapabilities:
         )
         assert CommandCapabilities.has_option_in_help(
             'command', '--some-flag'
-        )
+        ) is True
         assert CommandCapabilities.has_option_in_help(
             'command', '--error-flag'
-        )
+        ) is True
         assert CommandCapabilities.has_option_in_help(
             'command', '--some-flag', help_flags=['subcommand', '-h']
-        )
+        ) is True
         assert CommandCapabilities.has_option_in_help(
             'command', '--some-other-flag',
             help_flags=['subcommand', '-h'], root='root_dir'
+        ) is True
+        assert CommandCapabilities.has_option_in_help(
+            'command', '--non-existing-flag', raise_on_error=False
+        ) is False
+        mock_run.assert_has_calls(
+            [
+                call(['command', '--help'], raise_on_error=False),
+                call(['command', '--help'], raise_on_error=False),
+                call(['command', 'subcommand', '-h'], raise_on_error=False),
+                call(
+                    ['chroot', 'root_dir', 'command', 'subcommand', '-h'],
+                    raise_on_error=False
+                ),
+                call(['command', '--help'], raise_on_error=False)
+            ]
         )
-        assert not CommandCapabilities.has_option_in_help(
-            'command', '--non-existing-flag'
-        )
-        mock_run.assert_has_calls([
-            call(['command', '--help']),
-            call(['command', '--help']),
-            call(['command', 'subcommand', '-h']),
-            call(['chroot', 'root_dir', 'command', 'subcommand', '-h']),
-            call(['command', '--help'])
-        ])
 
     @patch('kiwi.command.Command.run')
     def test_has_option_in_help_command_failure_warning(self, mock_run):
-        def side_effect():
-            raise Exception("Something went wrong")
-
-        mock_run.side_effect = side_effect
+        mock_run.return_value.output = ''
+        mock_run.return_value.error = ''
         with self._caplog.at_level(logging.WARNING):
             CommandCapabilities.has_option_in_help(
                 'command_that_fails', '--non-existing-flag',
@@ -62,10 +65,8 @@ class TestCommandCapabilities:
 
     @patch('kiwi.command.Command.run')
     def test_has_option_in_help_command_failure_exception(self, mock_run):
-        def side_effect():
-            raise Exception("Something went wrong")
-
-        mock_run.side_effect = side_effect
+        mock_run.return_value.output = ''
+        mock_run.return_value.error = ''
         with raises(KiwiCommandCapabilitiesError):
             CommandCapabilities.has_option_in_help(
                 'command_that_fails', '--non-existing-flag'

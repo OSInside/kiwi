@@ -430,7 +430,9 @@ class TestSystemSetup:
         ])
 
     @patch('os.path.exists')
-    def test_setup_keyboard_skipped(self, mock_exists):
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
+    def test_setup_keyboard_skipped(self, mock_caps, mock_exists):
+        mock_caps.return_value = False
         mock_exists.return_value = False
         self.setup.preferences['keytable'] = 'keytable'
         with self._caplog.at_level(logging.WARNING):
@@ -1384,9 +1386,13 @@ class TestSystemSetup:
             raise_on_error=False
         )
 
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.scandir')
-    def test_set_selinux_file_contexts(self, mock_os_scandir, mock_command):
+    def test_set_selinux_file_contexts_new_version(
+        self, mock_os_scandir, mock_command, mock_has_option_in_help
+    ):
+        mock_has_option_in_help.return_value = False
         mock_os_scandir.return_value = self.selinux_policies
         self.setup.set_selinux_file_contexts('security_context_file')
         mock_command.assert_called_once_with(
@@ -1398,6 +1404,32 @@ class TestSystemSetup:
                 'security_context_file', '/'
             ]
         )
+
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.system.setup.Command.run')
+    @patch('os.scandir')
+    def test_set_selinux_file_contexts_old_version(
+        self, mock_os_scandir, mock_command, mock_has_option_in_help
+    ):
+        mock_has_option_in_help.return_value = True
+        mock_os_scandir.return_value = self.selinux_policies
+        self.setup.set_selinux_file_contexts('security_context_file')
+        assert mock_command.call_args_list == [
+            call(
+                [
+                    'chroot', 'root_dir', 'setfiles', '-c',
+                    '/etc/selinux/targeted/policy/policy.some_policy',
+                    'security_context_file'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root_dir', 'setfiles', '-F', '-p',
+                    '-e', '/proc', '-e', '/sys', '-e', '/dev',
+                    'security_context_file', '/'
+                ]
+            )
+        ]
 
     @patch('kiwi.system.setup.Command.run')
     @patch('os.scandir')
