@@ -297,6 +297,7 @@ class PackageManagerZypper(PackageManagerBase):
         """
         rpmdb = RpmDataBase(self.root_dir)
         if rpmdb.has_rpm():
+            rpmdb.rebuild_database()
             rpmdb.set_database_to_image_path()
 
     @staticmethod

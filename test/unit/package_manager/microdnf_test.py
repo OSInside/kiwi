@@ -195,6 +195,7 @@ class TestPackageManagerMicroDnf:
         rpmdb.has_rpm.return_value = True
         mock_RpmDataBase.return_value = rpmdb
         self.manager.post_process_install_requests_bootstrap()
+        rpmdb.rebuild_database.assert_called_once_with()
         rpmdb.set_database_to_image_path.assert_called_once_with()
 
     @patch('kiwi.package_manager.microdnf.Rpm')
