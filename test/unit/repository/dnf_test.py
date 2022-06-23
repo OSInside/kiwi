@@ -16,7 +16,7 @@ class TestRepositoryDnf:
     @patch('kiwi.repository.dnf.ConfigParser')
     @patch('kiwi.repository.dnf.Path.create')
     def setup(self, mock_path, mock_config, mock_temp):
-        runtime_dnf_config = mock.Mock()
+        runtime_dnf_config = mock.MagicMock()
         mock_config.return_value = runtime_dnf_config
         tmpfile = mock.Mock()
         tmpfile.name = 'tmpfile'
@@ -33,21 +33,21 @@ class TestRepositoryDnf:
                 ]
             )
 
-        assert runtime_dnf_config.set.call_args_list == [
-            call('main', 'cachedir', '/shared-dir/dnf/cache'),
-            call('main', 'reposdir', '/shared-dir/dnf/repos'),
-            call('main', 'varsdir', '/shared-dir/dnf/vars'),
-            call('main', 'pluginconfpath', '/shared-dir/dnf/pluginconf'),
-            call('main', 'keepcache', '1'),
-            call('main', 'debuglevel', '2'),
-            call('main', 'best', '1'),
-            call('main', 'obsoletes', '1'),
-            call('main', 'plugins', '1'),
-            call('main', 'gpgcheck', '0'),
-            call('main', 'tsflags', 'nodocs'),
-            call('main', 'arch', 'x86_64'),
-            call('main', 'ignorearch', '1'),
-            call('main', 'enabled', '1')
+        assert runtime_dnf_config.__setitem__.call_args_list == [
+            call('main', {
+                'cachedir': '/shared-dir/dnf/cache',
+                'reposdir': '/shared-dir/dnf/repos',
+                'varsdir': '/shared-dir/dnf/vars',
+                'pluginconfpath': '/shared-dir/dnf/pluginconf',
+                'keepcache': '1',
+                'debuglevel': '2',
+                'best': '1',
+                'obsoletes': '1',
+                'plugins': '1',
+                'gpgcheck': '0'
+            }),
+            call('main', {'enabled': '1'}),
+            call('main', {'enabled': '0'})
         ]
 
     @patch('kiwi.repository.dnf.Temporary.new_file')
@@ -75,34 +75,35 @@ class TestRepositoryDnf:
             self.repo.post_init(['check_signatures'])
             assert m_open.call_args_list == [
                 call(mock_temp.return_value.name, 'w'),
-                call('/shared-dir/dnf/pluginconf/priorities.conf', 'w')
+                call('/shared-dir/dnf/pluginconf/priorities.conf', 'w'),
+                call('/shared-dir/dnf/pluginconf/versionlock.conf', 'w'),
             ]
         assert self.repo.custom_args == []
         assert self.repo.gpg_check == '1'
 
     @patch('kiwi.repository.dnf.ConfigParser')
     def test_use_default_location(self, mock_config):
-        runtime_dnf_config = mock.Mock()
+        runtime_dnf_config = mock.MagicMock()
         mock_config.return_value = runtime_dnf_config
 
         with patch('builtins.open', create=True):
             self.repo.use_default_location()
 
-        assert runtime_dnf_config.set.call_args_list == [
-            call('main', 'cachedir', '../data/var/cache/dnf'),
-            call('main', 'reposdir', '../data/etc/yum.repos.d'),
-            call('main', 'varsdir', '../data/etc/dnf/vars'),
-            call('main', 'pluginconfpath', '../data/etc/dnf/plugins'),
-            call('main', 'keepcache', '1'),
-            call('main', 'debuglevel', '2'),
-            call('main', 'best', '1'),
-            call('main', 'obsoletes', '1'),
-            call('main', 'plugins', '1'),
-            call('main', 'gpgcheck', '0'),
-            call('main', 'tsflags', 'nodocs'),
-            call('main', 'arch', 'x86_64'),
-            call('main', 'ignorearch', '1'),
-            call('main', 'enabled', '1')
+        assert runtime_dnf_config.__setitem__.call_args_list == [
+            call('main', {
+                'cachedir': '../data/var/cache/dnf',
+                'reposdir': '../data/etc/yum.repos.d',
+                'varsdir': '../data/etc/dnf/vars',
+                'pluginconfpath': '../data/etc/dnf/plugins',
+                'keepcache': '1',
+                'debuglevel': '2',
+                'best': '1',
+                'obsoletes': '1',
+                'plugins': '1',
+                'gpgcheck': '0'
+            }),
+            call('main', {'enabled': '1'}),
+            call('main', {'enabled': '0'})
         ]
 
     def test_runtime_config(self):
