@@ -310,11 +310,17 @@ class DiskSetup:
         data_partition_mbytes = self._calculate_partition_mbytes()
         for map_name in sorted(self.custom_partitions.keys()):
             partition_mount_path = self.custom_partitions[map_name].mountpoint
+            partition_filesystem = self.custom_partitions[map_name].filesystem
             partition_clone = self.custom_partitions[map_name].clone
             if partition_mount_path:
                 partition_mbsize = self.custom_partitions[map_name].mbsize
-                disk_add_mbytes = int(partition_mbsize) - \
-                    data_partition_mbytes.partition[partition_mount_path]
+                if partition_filesystem == 'squashfs':
+                    # cannot predict compressed size prior compressing
+                    # use size as configured
+                    disk_add_mbytes = int(partition_mbsize)
+                else:
+                    disk_add_mbytes = int(partition_mbsize) - \
+                        data_partition_mbytes.partition[partition_mount_path]
                 if disk_add_mbytes > 0:
                     if partition_clone:
                         partition_clone += 1

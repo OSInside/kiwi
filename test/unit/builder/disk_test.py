@@ -441,6 +441,7 @@ class TestDiskBuilder:
         )
         mock_path.return_value = True
         filesystem = Mock()
+        filesystem.filename = ''
         mock_fs.return_value = filesystem
         self.disk_builder.custom_partitions = {
             'var': ptable_entry_type(
@@ -955,9 +956,35 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
+    @patch('kiwi.builder.disk.BlockID')
     def test_create_disk_uses_custom_partitions(
-        self, mock_exists, mock_grub_dir, mock_command, mock_fs
+        self, mock_BlockID, mock_exists, mock_grub_dir, mock_command, mock_fs
     ):
+        self.fstype_mock_list = [
+            'ext3',
+            'squashfs',
+            'some_fs',
+            'some_fs',
+            'some_fs',
+            'some_fs',
+            'some_fs',
+            'some_fs',
+            'some_fs',
+            'some_fs',
+            'some_fs',
+            'some_fs'
+        ]
+        fstype = list(self.fstype_mock_list)
+
+        def get_filesystem():
+            return fstype.pop()
+
+        block_operation = Mock()
+        block_operation.get_filesystem.side_effect = get_filesystem
+        block_operation.get_blkid.return_value = 'blkid_result'
+
+        mock_BlockID.return_value = block_operation
+
         mock_exists.return_value = True
         self.disk_builder.custom_partitions = {
             'var': ptable_entry_type(
@@ -967,9 +994,18 @@ class TestDiskBuilder:
                 partition_type='t.linux',
                 mountpoint='/var',
                 filesystem='ext3'
+            ),
+            'spare': ptable_entry_type(
+                mbsize=100,
+                clone=0,
+                partition_name='p.lxtmp',
+                partition_type='t.linux',
+                mountpoint='/spare',
+                filesystem='squashfs'
             )
         }
         self.disk_builder.volume_manager_name = None
+
         filesystem = Mock()
         mock_fs.return_value = filesystem
 
@@ -981,21 +1017,27 @@ class TestDiskBuilder:
             self.disk_builder.custom_partitions
         )
         assert [
-            call('UUID=blkid_result /var blkid_result_fs defaults 0 0')
+            call('PARTUUID=blkid_result /spare squashfs defaults 0 0')
+        ] in self.disk_builder.fstab.add_entry.call_args_list
+
+        assert [
+            call('UUID=blkid_result /var ext3 defaults 0 0')
         ] in self.disk_builder.fstab.add_entry.call_args_list
 
         self.disk_builder.persistency_type = 'by-partuuid'
+        fstype = list(self.fstype_mock_list)
         with patch('builtins.open'):
             self.disk_builder.create_disk()
         assert [
-            call('PARTUUID=blkid_result /var blkid_result_fs defaults 0 0')
+            call('PARTUUID=blkid_result /var ext3 defaults 0 0')
         ] in self.disk_builder.fstab.add_entry.call_args_list
 
         self.disk_builder.persistency_type = 'by-label'
+        fstype = list(self.fstype_mock_list)
         with patch('builtins.open'):
             self.disk_builder.create_disk()
         assert [
-            call('LABEL=blkid_result /var blkid_result_fs defaults 0 0')
+            call('LABEL=blkid_result /var ext3 defaults 0 0')
         ] in self.disk_builder.fstab.add_entry.call_args_list
 
     @patch('kiwi.builder.disk.FileSystem.new')
