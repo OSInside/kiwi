@@ -37,3 +37,6 @@ class TestPartitionerBase:
     def test_resize_table(self):
         with raises(NotImplementedError):
             self.partitioner.resize_table()
+
+    def test_set_start_sector(self):
+        assert self.partitioner.set_start_sector(4096) is None

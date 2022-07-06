@@ -1129,6 +1129,26 @@ class TestDiskBuilder:
 
         self.disk.create_mbr.assert_called_once_with()
 
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    def test_create_disk_custom_start_sector_requested(
+        self, mock_grub_dir, mock_command, mock_fs
+    ):
+        filesystem = Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.install_media = False
+        self.disk_builder.disk_start_sector = 4096
+        self.firmware.efi_mode = Mock(
+            return_value=None
+        )
+
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+
+        self.disk.set_start_sector.assert_called_once_with(4096)
+
     def test_create(self):
         result = Mock()
         create_disk = Mock(return_value=result)

@@ -316,6 +316,10 @@ class TestDisk:
         self.disk.create_mbr()
         self.partitioner.set_mbr.assert_called_once_with()
 
+    def test_set_start_sector(self):
+        self.disk.set_start_sector(4096)
+        self.partitioner.set_start_sector.assert_called_once_with(4096)
+
     def test_parse_size(self):
         (size, _) = self.disk._parse_size('100')
         assert size == '100'

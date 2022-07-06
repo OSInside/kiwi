@@ -146,6 +146,7 @@ class DiskBuilder:
         self.disk_resize_requested = \
             xml_state.get_oemconfig_oem_resize()
         self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
+        self.disk_start_sector = xml_state.get_disk_start_sector()
         self.disk_setup = DiskSetup(
             xml_state, root_dir
         )
@@ -276,7 +277,7 @@ class DiskBuilder:
 
         disk = Disk(
             self.firmware.get_partition_table_type(), loop_provider,
-            self.xml_state.get_disk_start_sector(),
+            self.disk_start_sector,
             extended_layout=bool(self.dosparttable_extended_layout)
         )
 
@@ -986,6 +987,10 @@ class DiskBuilder:
         if self.firmware.ofw_mode():
             log.info('--> setting active flag to primary PReP partition')
             disk.activate_boot_partition()
+
+        if not self.firmware.efi_mode() and self.disk_start_sector:
+            log.info(f'--> setting start sector to: {self.disk_start_sector}')
+            disk.set_start_sector(self.disk_start_sector)
 
         if self.firmware.efi_mode():
             if self.force_mbr:

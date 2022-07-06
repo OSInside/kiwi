@@ -114,6 +114,16 @@ class PartitionerBase:
         """
         raise NotImplementedError
 
+    def set_start_sector(self, start_sector: int):
+        """
+        Set start sector of first partition as configured
+
+        :param int start_sector: unused
+
+        Does nothing by default
+        """
+        pass
+
     def resize_table(self, entries: int = 0):
         """
         Resize partition table

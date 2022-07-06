@@ -348,6 +348,14 @@ class Disk(DeviceProvider):
         """
         self.partitioner.set_mbr()
 
+    def set_start_sector(self, start_sector: int):
+        """
+        Set start sector
+
+        Note: only effective on DOS tables
+        """
+        self.partitioner.set_start_sector(start_sector)
+
     def wipe(self):
         """
         Zap (destroy) any GPT and MBR data structures if present
