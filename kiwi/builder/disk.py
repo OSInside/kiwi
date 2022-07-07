@@ -1277,12 +1277,14 @@ class DiskBuilder:
                 log.info(
                     f'--> Dumping {map_name!r} clone data at extra partition'
                 )
+                system_custom_part.umount()
                 system_custom_part_clone = CloneDevice(
                     system_custom_part.device_provider, self.root_dir
                 )
                 system_custom_part_clone.clone(
                     self._get_clone_devices(f'{map_name}clone', device_map)
                 )
+                system_custom_part.mount()
 
         if system_efi:
             log.info('--> Syncing EFI boot data to EFI partition')
@@ -1297,9 +1299,11 @@ class DiskBuilder:
                 log.info(
                     '--> Dumping boot clone data at extra partition'
                 )
+                system_boot.umount()
                 CloneDevice(system_boot.device_provider, self.root_dir).clone(
                     self._get_clone_devices('bootclone', device_map)
                 )
+                system_boot.mount()
 
         log.info('--> Syncing root filesystem data')
         if self.root_filesystem_is_overlay:
@@ -1430,9 +1434,17 @@ class DiskBuilder:
                 log.info(
                     '--> Dumping root clone data at extra partition'
                 )
+                if self.volume_manager_name:
+                    system.umount_volumes()
+                else:
+                    system.umount()
                 CloneDevice(device_map['origin_root'], self.root_dir).clone(
                     self._get_clone_devices('rootclone', device_map)
                 )
+                if self.volume_manager_name:
+                    system.mount_volumes()
+                else:
+                    system.mount()
 
         if self.integrity_root and \
            self.root_filesystem_embed_integrity_metadata:
