@@ -64,7 +64,7 @@ Overlay Files
    :file:`root`. Additional overlay directories for selected profiles
    are supported too and are taken into account if the directory
    name matches the name of the profile. The content of each of the
-   directory structures is copied on top of the the existing file
+   directory structures is copied on top of the existing file
    system (overlayed) of the appliance root. This also includes
    permissions and attributes as a supplement.
 
