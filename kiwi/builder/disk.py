@@ -806,11 +806,11 @@ class DiskBuilder:
         system_efi = None
         if 'efi' in device_map:
             log.info(
-                'Creating EFI(fat16) filesystem on %s',
+                'Creating EFI(fat32) filesystem on %s',
                 device_map['efi'].get_device()
             )
             filesystem = FileSystem.new(
-                'fat16', device_map['efi'], self.root_dir + '/boot/efi/'
+                'fat32', device_map['efi'], self.root_dir + '/boot/efi/'
             )
             filesystem.create_on_device(
                 label=self.disk_setup.get_efi_label()
