@@ -22,7 +22,7 @@ class TestPartitionerMsDos:
         disk_provider.get_device = Mock(
             return_value='/dev/loop0'
         )
-        self.partitioner = PartitionerMsDos(disk_provider)
+        self.partitioner = PartitionerMsDos(disk_provider, 4096)
         self.partitioner_extended = PartitionerMsDos(
             disk_provider, extended_layout=True
         )
@@ -49,10 +49,7 @@ class TestPartitionerMsDos:
             )
 
         m_open.return_value.write.assert_called_once_with(
-            'n\np\n1\n\n+100M\nw\nq\n'
-        )
-        mock_command.assert_called_once_with(
-            ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
+            'n\np\n1\n\n+101M\nw\nq\n'
         )
         call = mock_flag.call_args_list[0]
         assert mock_flag.call_args_list[0] == \
@@ -60,6 +57,9 @@ class TestPartitionerMsDos:
         call = mock_flag.call_args_list[1]
         assert mock_flag.call_args_list[1] == \
             call(1, 'f.active')
+        mock_command.assert_called_once_with(
+            ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
+        )
 
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
@@ -105,15 +105,15 @@ class TestPartitionerMsDos:
         m_open.return_value.write.assert_called_once_with(
             'n\n1\n\n+100M\nw\nq\n'
         )
-        mock_command.assert_called_once_with(
-            ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
-        )
         call = mock_flag.call_args_list[0]
         assert mock_flag.call_args_list[0] == \
             call(1, 't.linux')
         call = mock_flag.call_args_list[1]
         assert mock_flag.call_args_list[1] == \
             call(1, 'f.active')
+        mock_command.assert_called_once_with(
+            ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
+        )
 
     @patch.object(PartitionerMsDos, '_create_primary')
     @patch.object(PartitionerMsDos, '_create_extended')
@@ -142,44 +142,6 @@ class TestPartitionerMsDos:
         mock_create_logical.assert_called_once_with(
             'name', 100, 't.linux', []
         )
-
-    @patch('kiwi.partitioner.msdos.Command.run')
-    @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
-    @patch('kiwi.partitioner.msdos.Temporary.new_file')
-    def test_create_custom_start_sector(
-        self, mock_temp, mock_flag, mock_command
-    ):
-        disk_provider = Mock()
-        disk_provider.get_device = Mock(
-            return_value='/dev/loop0'
-        )
-        partitioner = PartitionerMsDos(disk_provider, 4096)
-        mock_command.side_effect = Exception
-        temp_type = namedtuple(
-            'temp_type', ['name']
-        )
-        mock_temp.return_value = temp_type(
-            name='tempfile'
-        )
-
-        m_open = mock_open()
-        with patch('builtins.open', m_open, create=True):
-            partitioner.create('name', 100, 't.linux', ['f.active'])
-            partitioner.create('name', 100, 't.linux', ['f.active'])
-
-        mock_command.assert_has_calls([
-            call(['bash', '-c', 'cat tempfile | fdisk /dev/loop0']),
-            call(['bash', '-c', 'cat tempfile | fdisk /dev/loop0'])
-        ])
-        assert mock_flag.call_args_list[0] == \
-            call(1, 't.linux')
-        assert mock_flag.call_args_list[1] == \
-            call(1, 'f.active')
-
-        m_open.return_value.write.assert_has_calls([
-            call('n\np\n1\n4096\n+100M\nw\nq\n'),
-            call('n\np\n2\n\n+100M\nw\nq\n')
-        ])
 
     @patch('kiwi.partitioner.msdos.Command.run')
     @patch('kiwi.partitioner.msdos.PartitionerMsDos.set_flag')
@@ -227,3 +189,31 @@ class TestPartitionerMsDos:
 
     def test_resize_table(self):
         self.partitioner.resize_table()
+
+    @patch('kiwi.partitioner.msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.Temporary.new_file')
+    @patch('kiwi.partitioner.msdos.BlockID')
+    def test_set_start_sector(self, mock_BlockID, mock_temp, mock_Command_run):
+        temp_type = namedtuple(
+            'temp_type', ['name']
+        )
+        mock_temp.return_value = temp_type(
+            name='tempfile'
+        )
+        m_open = mock_open()
+        mock_BlockID.return_value.get_partition_count.return_value = 4
+        with patch('builtins.open', m_open, create=True):
+            self.partitioner.set_start_sector(4096)
+        assert m_open.return_value.write.call_args_list == [
+            call('d\n1\nn\np\n4096\n\nw\nq\n')
+        ]
+        mock_Command_run.assert_called_once_with(
+            ['bash', '-c', 'cat tempfile | fdisk /dev/loop0']
+        )
+        mock_BlockID.return_value.get_partition_count.return_value = 3
+        m_open.reset_mock()
+        with patch('builtins.open', m_open, create=True):
+            self.partitioner.set_start_sector(4096)
+        assert m_open.return_value.write.call_args_list == [
+            call('d\n1\nn\np\n1\n4096\n\nw\nq\n')
+        ]
