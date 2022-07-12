@@ -417,6 +417,72 @@ class TestDiskBuilder:
             'target_dir'
         )
 
+    @patch('kiwi.builder.disk.VolumeManager.new')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.SystemSetup')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('kiwi.builder.disk.Temporary.new_file')
+    @patch('kiwi.builder.disk.CloneDevice')
+    def test_create_lvm_disk_standard_root_with_clone(
+        self, mock_CloneDevice, mock_Temporary_new_file, mock_ImageSystem,
+        mock_SystemSetup, mock_os_path_getsize, mock_path,
+        mock_grub_dir, mock_command, mock_fs, mock_volume_manager
+    ):
+        tempfile = Mock()
+        tempfile.name = 'tempfile'
+        mock_Temporary_new_file.return_value = tempfile
+        mock_os_path_getsize.return_value = 42
+        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
+            kernel_name='vmlinuz-1.2.3-default',
+            initrd_name='initramfs-1.2.3.img'
+        )
+        mock_path.return_value = True
+        filesystem = Mock()
+        filesystem.filename = ''
+        mock_fs.return_value = filesystem
+        self.disk_builder.custom_partitions = {
+            'var': ptable_entry_type(
+                mbsize=100,
+                clone=1,
+                partition_name='p.lxvar',
+                partition_type='t.linux',
+                mountpoint='/var',
+                filesystem='ext3'
+            )
+        }
+        volume_manager = Mock()
+        volume_manager.get_device = Mock(
+            return_value={
+                'root': MappedDevice('/dev/systemVG/LVRoot', Mock()),
+                'swap': MappedDevice('/dev/systemVG/LVSwap', Mock())
+            }
+        )
+        volume_manager.get_fstab = Mock(
+            return_value=['fstab_volume_entries']
+        )
+        mock_volume_manager.return_value = volume_manager
+        self.disk_builder.root_clone_count = 1
+        self.disk_builder.boot_clone_count = 1
+        self.disk_builder.volume_manager_name = 'lvm'
+        self.disk_builder.root_filesystem_is_overlay = False
+        self.disk_builder.initrd_system = 'dracut'
+        disk_system = Mock()
+        mock_SystemSetup.return_value = disk_system
+
+        self.device_map['rootclone1'] = MappedDevice('/dev/root-device', Mock())
+        self.device_map['bootclone1'] = MappedDevice('/dev/boot-device', Mock())
+        self.device_map['varclone1'] = MappedDevice('/dev/var-device', Mock())
+        # Test in lvm mode (no root overlay)
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+        volume_manager.\
+            umount_volumes.call_args_list[0].assert_called_once_with()
+
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')

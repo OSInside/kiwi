@@ -245,14 +245,22 @@ class FileSystemBase:
                 device_node or self.device_provider.get_device()
             )
 
-    def umount(self):
+    def mount(self) -> None:
+        """
+        Mount the filesystem
+        """
+        if self.filesystem_mount:
+            self.filesystem_mount.mount(
+                self.custom_args['mount_options']
+            )
+
+    def umount(self) -> None:
         """
         Umounts the filesystem in case it is mounted, does nothing otherwise
         """
         if self.filesystem_mount:
             log.info('umount %s instance', type(self).__name__)
             self.filesystem_mount.umount()
-            self.filesystem_mount = None
 
     def _map_size(self, size: float, from_unit: str, to_unit: str) -> float:
         """

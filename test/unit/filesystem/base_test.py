@@ -110,6 +110,12 @@ class TestFileSystemBase:
         self.fsbase.umount()
         mount.umount.assert_called_once_with()
 
+    def test_mount(self):
+        mount = mock.Mock()
+        self.fsbase.filesystem_mount = mount
+        self.fsbase.mount()
+        mount.mount.assert_called_once_with([])
+
     def test_fs_size(self):
         # size of 100k must be 100k (default unit)
         assert self.fsbase._fs_size(100) == '100'
@@ -131,4 +137,3 @@ class TestFileSystemBase:
     def test_destructor_valid_mountpoint(self):
         self.fsbase.filesystem_mount = mock.Mock()
         self.fsbase.__del__()
-        assert self.fsbase.filesystem_mount is None
