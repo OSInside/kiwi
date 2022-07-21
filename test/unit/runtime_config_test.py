@@ -30,8 +30,8 @@ class TestRuntimeConfig:
             with raises(KiwiRuntimeConfigFormatError):
                 runtime_config._get_attribute('foo', 'bar')
 
+    @patch('kiwi.defaults.CUSTOM_RUNTIME_CONFIG_FILE', 'some-config-file')
     def test_init_raises_custom_config_file_not_found(self):
-        Defaults.set_custom_runtime_config_file('some-config-file')
         with patch('os.path.isfile', return_value=False):
             with raises(KiwiRuntimeConfigFileError):
                 RuntimeConfig(reread=True)
