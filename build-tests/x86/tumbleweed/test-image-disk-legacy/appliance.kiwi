@@ -27,6 +27,7 @@
             <systemdisk>
                 <volume name="home"/>
             </systemdisk>
+            <size unit="G">3</size>
         </type>
     </preferences>
     <users>
