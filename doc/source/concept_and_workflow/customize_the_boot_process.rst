@@ -144,6 +144,27 @@ right before the system rootfs gets mounted.
            inst_hook pre-mount 30 "${moddir}/my-script.sh"
        }
 
+.. note:: Declaring Extra Tools for Hook Scripts
+
+   The install() function called by dracut can define extra tools needed by
+   a defined hook script. The "inst_multiple" command and its parameters
+   inform dracut to include these extra tools/items in the initrd.
+
+   The tools/items defined here can be any file, but are usually executables
+   and libraries needed by the hook script.
+
+   * Each file MUST be included in the Kiwi description either in a
+     package, archive, or in the "root" tree in the image description
+     directory.
+
+   * The parameters of the inst_multiple command are space separated.
+
+   * Each parameter can be a single executable name if it exists in /bin,
+     /sbin, /usr/bin, or /usr/sbin directories.
+
+   * Otherwise, a full pathname to the file is required. This is usually
+     true for libraries and other special files.
+
 That's it! At the time {kiwi} calls dracut the :file:`90my-module` will be taken
 into account and is installed into the generated initrd. At boot time
 systemd calls the scripts as part of the :file:`dracut-pre-mount.service`.
