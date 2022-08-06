@@ -159,7 +159,7 @@ class ResultBundleTask(CliTask):
             bundle_file_format_name = bundle_file_format_name.replace(
                 '%I', self.command_args['--id']
             )
-            del(ordered_results['bundle_format'])
+            del ordered_results['bundle_format']
 
         for result_file in list(ordered_results.values()):
             if result_file.use_for_bundle:
