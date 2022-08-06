@@ -852,8 +852,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Creates a EFI system partition image at the given path.
         Must be called after setup_install_boot_images and write.
         """
+        fat_image_mbsize = int(
+            self.xml_state.build_type.get_efifatimagesize() or 20
+        )
         Command.run(
-            ['qemu-img', 'create', path, '20M']
+            ['qemu-img', 'create', path, f'{fat_image_mbsize}M']
         )
         Command.run(
             ['mkdosfs', '-n', 'BOOT', path]

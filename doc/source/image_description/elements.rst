@@ -389,6 +389,11 @@ efipartsize="nonNegativeInteger":
   specifies the size in MB. If not set the EFI partition
   size is set to 20 MB
 
+efifatimagesize="nonNegativeInteger":
+  For ISO images (live and install) the EFI boot requires
+  an embedded FAT image. This attribute specifies the size
+  in MB. If not set the FAT image size is set to 20 MB
+
 efiparttable="msdos|gpt":
   For images with an EFI firmware specifies the partition
   table type to use. If not set defaults to the GPT partition
