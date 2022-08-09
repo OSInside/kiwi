@@ -23,6 +23,7 @@ from lxml import etree
 import random
 import glob
 import os
+import re
 
 # project
 import kiwi.defaults as defaults
@@ -43,8 +44,19 @@ class SolverRepositoryBase:
     """
     def __init__(self, uri, user=None, secret=None):
         self.uri = uri
-        self.user = user
-        self.secret = secret
+        # check if the URI string contains credentials and
+        # extract/trim them from the uri object. The urlparse
+        # class does not recognize this information as a valid
+        # URI and throws an exception
+        secret_format = re.match(r'^(.*)://(.*):(.*)@(.*)', uri.uri)
+        if secret_format:
+            self.user = secret_format.group(2)
+            self.secret = secret_format.group(3)
+            self.uri.uri = \
+                f'{secret_format.group(1)}://{secret_format.group(4)}'
+        else:
+            self.user = user
+            self.secret = secret
         self.repository_metadata_dirs = []
         self.repository_solvable_dir = None
 

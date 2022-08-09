@@ -12,6 +12,7 @@ class TestSolverRepositoryRpmMd:
     def setup(self):
         self.xml_data = etree.parse('../data/repomd.xml')
         self.uri = mock.Mock()
+        self.uri.uri = 'http://example.org/some/path'
         self.solver = SolverRepositoryRpmMd(self.uri)
 
     def setup_method(self, cls):

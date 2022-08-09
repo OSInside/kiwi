@@ -122,6 +122,9 @@ class TestImageInfoTask:
     def test_process_image_info_resolve_package_list(
         self, mock_get_repo_type, mock_uri, mock_solver_repo_new, mock_out
     ):
+        uri = Mock()
+        uri.uri = 'http://example.org/some/path'
+        mock_uri.return_value = uri
         mock_get_repo_type.return_value = 'apt-deb'
         self.solver.set_dist_type.return_value = {
             'arch': 'amd64'
