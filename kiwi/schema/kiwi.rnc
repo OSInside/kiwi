@@ -1501,6 +1501,15 @@ div {
             sch:param [ name = "attr" value = "efipartsize" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.efifatimagesize.attribute =
+        ## For ISO images (live and install) the EFI boot requires
+        ## an embedded FAT image. This attribute specifies the size
+        ## in MB. If not set the min efifatimage size is set to 20 MB
+        attribute efifatimagesize { xsd:nonNegativeInteger }
+        >> sch:pattern [ id = "efifatimagesize" is-a = "image_type"
+            sch:param [ name = "attr" value = "efifatimagesize" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.dosparttable_extended_layout.attribute =
         ## Specify to make use of logical partitions inside of an
         ## extended one. If set to true and if the msdos table type
@@ -2102,6 +2111,7 @@ div {
         k.type.bootpartition.attribute? &
         k.type.bootpartsize.attribute? &
         k.type.efipartsize.attribute? &
+        k.type.efifatimagesize.attribute? &
         k.type.efiparttable.attribute? &
         k.type.dosparttable_extended_layout.attribute? &
         k.type.bootprofile.attribute? &
