@@ -12,6 +12,7 @@ class TestSolverRepositorySUSE:
     def setup(self):
         self.xml_data = etree.parse('../data/repomd.xml')
         self.uri = mock.Mock()
+        self.uri.uri = 'http://example.org/some/path'
         self.solver = SolverRepositorySUSE(self.uri)
 
     def setup_method(self, cls):

@@ -17,10 +17,19 @@ from kiwi.exceptions import KiwiUriOpenError
 class TestSolverRepositoryBase:
     def setup(self):
         self.uri = mock.Mock()
+        self.uri.uri = 'http://example.org/some/path'
         self.solver = SolverRepositoryBase(self.uri)
 
     def setup_method(self, cls):
         self.setup()
+
+    def test_uri_has_credentials(self):
+        self.uri = mock.Mock()
+        self.uri.uri = 'http://user:pass@example.org/some/path'
+        self.solver = SolverRepositoryBase(self.uri)
+        assert self.solver.user == 'user'
+        assert self.solver.secret == 'pass'
+        assert self.solver.uri.uri == 'http://example.org/some/path'
 
     @patch.object(SolverRepositoryBase, '_get_repomd_xml')
     @patch.object(SolverRepositoryBase, '_get_deb_packages')
