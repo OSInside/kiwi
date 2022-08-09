@@ -59,6 +59,8 @@ function boot_installed_system {
         # and thus no syscall selection is made
         kexec_options="${kexec_options} --kexec-syscall-auto"
     fi
+    # shellcheck disable=SC2116,SC2086
+    kexec_options=$(echo ${kexec_options}) # strip spaces
     kexec "${kexec_options}" \
         --load /run/install/boot/*/loader/linux \
         --initrd /run/install/initrd.system_image \
