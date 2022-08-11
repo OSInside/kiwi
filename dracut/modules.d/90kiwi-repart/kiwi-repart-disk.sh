@@ -240,7 +240,11 @@ setup_debug
 # More details: https://github.com/SUSE/kiwi/issues/1034
 
 # make sure we unmask the fsck service
-trap unmask_fsck_root_service EXIT
+trap "
+until [ -e \"${root_device}\" ]; do
+     sleep .5
+done
+unmask_fsck_root_service" EXIT
 
 mask_fsck_root_service
 
