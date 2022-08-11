@@ -241,7 +241,7 @@ setup_debug
 
 # make sure we unmask the fsck service
 trap '
-until [ -e ${root_device} ]; do
+until [ -e "${root_device}" ]; do
      sleep .5
 done
 unmask_fsck_root_service' EXIT
