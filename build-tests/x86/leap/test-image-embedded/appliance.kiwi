@@ -53,7 +53,7 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <size unit="M">500</size>
+            <size unit="M">700</size>
         </type>
     </preferences>
     <users>
