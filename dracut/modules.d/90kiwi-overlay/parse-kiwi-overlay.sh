@@ -23,25 +23,30 @@ case "${overlayroot}" in
         root="${root#overlay:}"
         root="${root//\//\\x2f}"
         root="block:/dev/disk/by-uuid/${root#UUID=}"
+        rootok=1
     ;;
     overlay:PARTUUID=*|PARTUUID=*) \
         root="${root#overlay:}"
         root="${root//\//\\x2f}"
         root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
+        rootok=1
     ;;
     overlay:LABEL=*|LABEL=*) \
         root="${root#overlay:}"
         root="${root//\//\\x2f}"
         root="block:/dev/disk/by-label/${root#LABEL=}"
+        rootok=1
     ;;
     overlay:nbd=*) \
         root="block:/dev/nbd0"
         need_network=1
+        rootok=1
     ;;
     overlay:aoe=*) \
         root="${root#overlay:aoe=}"
         root="block:/dev/etherd/${root}"
         need_network=1
+        rootok=1
     ;;
 esac
 
@@ -51,9 +56,6 @@ if [ "${need_network}" = "1" ];then
         echo "ip=dhcp" >> /etc/cmdline.d/kiwi-generated.conf
     fi
 fi
-
-# Done, all good!
-rootok=1
 
 [ "${rootok}" = "1" ] || return 1
 
