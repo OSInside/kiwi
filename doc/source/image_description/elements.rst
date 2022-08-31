@@ -1090,7 +1090,8 @@ the following optional attributes:
 alias="name"
   Specifies an alternative name for the configured repository. If the
   attribute is not specified {kiwi} will generate a random alias name
-  for the repository.
+  for the repository. The specified name must match the pattern:
+  `[a-zA-Z0-9_\-\.]+`
 
 components="name"
   Used for Debian (apt) based repositories only. Specifies the

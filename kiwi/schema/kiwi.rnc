@@ -1002,12 +1002,13 @@ div {
         }
     k.repository.alias.attribute =
         ## Alias name to be used for this repository. This is an
-        ## optional free form text. If not set the source attribute
+        ## optional free-form text restricted to characters from the
+        ## POSIX standard. If not set the source attribute
         ## value is used and builds the alias name by running a md5 digest
         ## of the defined URI of the repository. An alias name should be
         ## set if the source argument doesn't really explain what this
         ## repository contains.
-        attribute alias { text }
+        attribute alias { safe-posix-name }
     k.repository.components.attribute =
         ## Distribution components, used for deb repositories. If
         ## not set it defaults to main
