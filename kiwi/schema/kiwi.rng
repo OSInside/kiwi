@@ -1521,11 +1521,13 @@ definition can be composed by other existing profiles.</a:documentation>
     <define name="k.repository.alias.attribute">
       <attribute name="alias">
         <a:documentation>Alias name to be used for this repository. This is an
-optional free form text. If not set the source attribute
+optional free-form text restricted to characters from the
+POSIX standard. If not set the source attribute
 value is used and builds the alias name by running a md5 digest
 of the defined URI of the repository. An alias name should be
 set if the source argument doesn't really explain what this
 repository contains.</a:documentation>
+        <ref name="safe-posix-name"/>
       </attribute>
     </define>
     <define name="k.repository.components.attribute">

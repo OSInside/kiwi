@@ -2230,6 +2230,13 @@ class repository(k_source):
     def set_username(self, username): self.username = username
     def get_use_for_bootstrap(self): return self.use_for_bootstrap
     def set_use_for_bootstrap(self, use_for_bootstrap): self.use_for_bootstrap = use_for_bootstrap
+    def validate_safe_posix_name(self, value):
+        # Validate type safe-posix-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_safe_posix_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_name_patterns_, ))
+    validate_safe_posix_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]+$']]
     def hasContent_(self):
         if (
             super(repository, self).hasContent_()
@@ -2268,7 +2275,7 @@ class repository(k_source):
             outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
         if self.alias is not None and 'alias' not in already_processed:
             already_processed.add('alias')
-            outfile.write(' alias=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.alias), input_name='alias')), ))
+            outfile.write(' alias=%s' % (quote_attrib(self.alias), ))
         if self.sourcetype is not None and 'sourcetype' not in already_processed:
             already_processed.add('sourcetype')
             outfile.write(' sourcetype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.sourcetype), input_name='sourcetype')), ))
@@ -2328,6 +2335,8 @@ class repository(k_source):
         if value is not None and 'alias' not in already_processed:
             already_processed.add('alias')
             self.alias = value
+            self.alias = ' '.join(self.alias.split())
+            self.validate_safe_posix_name(self.alias)    # validate type safe-posix-name
         value = find_attr_value_('sourcetype', node)
         if value is not None and 'sourcetype' not in already_processed:
             already_processed.add('sourcetype')
