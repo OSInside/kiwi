@@ -37,7 +37,8 @@ integrity_credentials_type = NamedTuple(
     'integrity_credentials_type', [
         ('keydescription', str),
         ('keyfile', str),
-        ('keyfile_algorithm', str)
+        ('keyfile_algorithm', str),
+        ('options', List[str])
     ]
 )
 
@@ -80,6 +81,15 @@ class IntegrityDevice(DeviceProvider):
         self.integrity_open_options = [
             '--integrity', self.integrity_algorithm
         ]
+        if credentials and credentials.options:
+            if 'legacy_hmac' in credentials.options:
+                self.integrity_format_options.append(
+                    '--integrity-legacy-hmac'
+                )
+            if 'legacy_padding' in credentials.options:
+                self.integrity_format_options.append(
+                    '--integrity-legacy-padding'
+                )
         if credentials and credentials.keyfile:
             integrity_key_options = [
                 '--integrity-key-file', credentials.keyfile,

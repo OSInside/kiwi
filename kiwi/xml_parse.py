@@ -2807,7 +2807,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_legacy_padding=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -2861,6 +2861,8 @@ class type_(GeneratedsSuper):
         self.embed_verity_metadata = _cast(bool, embed_verity_metadata)
         self.standalone_integrity = _cast(bool, standalone_integrity)
         self.embed_integrity_metadata = _cast(bool, embed_integrity_metadata)
+        self.integrity_legacy_hmac = _cast(bool, integrity_legacy_hmac)
+        self.integrity_legacy_padding = _cast(bool, integrity_legacy_padding)
         self.integrity_metadata_key_description = _cast(None, integrity_metadata_key_description)
         self.integrity_keyfile = _cast(None, integrity_keyfile)
         self.primary = _cast(bool, primary)
@@ -3091,6 +3093,10 @@ class type_(GeneratedsSuper):
     def set_standalone_integrity(self, standalone_integrity): self.standalone_integrity = standalone_integrity
     def get_embed_integrity_metadata(self): return self.embed_integrity_metadata
     def set_embed_integrity_metadata(self, embed_integrity_metadata): self.embed_integrity_metadata = embed_integrity_metadata
+    def get_integrity_legacy_hmac(self): return self.integrity_legacy_hmac
+    def set_integrity_legacy_hmac(self, integrity_legacy_hmac): self.integrity_legacy_hmac = integrity_legacy_hmac
+    def get_integrity_legacy_padding(self): return self.integrity_legacy_padding
+    def set_integrity_legacy_padding(self, integrity_legacy_padding): self.integrity_legacy_padding = integrity_legacy_padding
     def get_integrity_metadata_key_description(self): return self.integrity_metadata_key_description
     def set_integrity_metadata_key_description(self, integrity_metadata_key_description): self.integrity_metadata_key_description = integrity_metadata_key_description
     def get_integrity_keyfile(self): return self.integrity_keyfile
@@ -3377,6 +3383,12 @@ class type_(GeneratedsSuper):
         if self.embed_integrity_metadata is not None and 'embed_integrity_metadata' not in already_processed:
             already_processed.add('embed_integrity_metadata')
             outfile.write(' embed_integrity_metadata="%s"' % self.gds_format_boolean(self.embed_integrity_metadata, input_name='embed_integrity_metadata'))
+        if self.integrity_legacy_hmac is not None and 'integrity_legacy_hmac' not in already_processed:
+            already_processed.add('integrity_legacy_hmac')
+            outfile.write(' integrity_legacy_hmac="%s"' % self.gds_format_boolean(self.integrity_legacy_hmac, input_name='integrity_legacy_hmac'))
+        if self.integrity_legacy_padding is not None and 'integrity_legacy_padding' not in already_processed:
+            already_processed.add('integrity_legacy_padding')
+            outfile.write(' integrity_legacy_padding="%s"' % self.gds_format_boolean(self.integrity_legacy_padding, input_name='integrity_legacy_padding'))
         if self.integrity_metadata_key_description is not None and 'integrity_metadata_key_description' not in already_processed:
             already_processed.add('integrity_metadata_key_description')
             outfile.write(' integrity_metadata_key_description=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.integrity_metadata_key_description), input_name='integrity_metadata_key_description')), ))
@@ -3828,6 +3840,24 @@ class type_(GeneratedsSuper):
                 self.embed_integrity_metadata = True
             elif value in ('false', '0'):
                 self.embed_integrity_metadata = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('integrity_legacy_hmac', node)
+        if value is not None and 'integrity_legacy_hmac' not in already_processed:
+            already_processed.add('integrity_legacy_hmac')
+            if value in ('true', '1'):
+                self.integrity_legacy_hmac = True
+            elif value in ('false', '0'):
+                self.integrity_legacy_hmac = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('integrity_legacy_padding', node)
+        if value is not None and 'integrity_legacy_padding' not in already_processed:
+            already_processed.add('integrity_legacy_padding')
+            if value in ('true', '1'):
+                self.integrity_legacy_padding = True
+            elif value in ('false', '0'):
+                self.integrity_legacy_padding = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('integrity_metadata_key_description', node)

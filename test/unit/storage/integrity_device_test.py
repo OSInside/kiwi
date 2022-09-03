@@ -37,7 +37,8 @@ class TestIntegrityDevice:
             integrity_credentials_type(
                 keydescription=None,
                 keyfile='/etc/pki/storage/dm-integrity-hmac-secret.bin',
-                keyfile_algorithm=defaults.INTEGRITY_KEY_ALGORITHM
+                keyfile_algorithm=defaults.INTEGRITY_KEY_ALGORITHM,
+                options=['legacy_hmac', 'legacy_padding']
             )
         )
 
@@ -85,6 +86,8 @@ class TestIntegrityDevice:
                 [
                     'integritysetup', '-v', '--batch-mode', 'format',
                     '--integrity', 'hmac-sha256', '--sector-size', '512',
+                    '--integrity-legacy-hmac',
+                    '--integrity-legacy-padding',
                     '--integrity-key-file',
                     '/etc/pki/storage/dm-integrity-hmac-secret.bin',
                     '--integrity-key-size', '42',

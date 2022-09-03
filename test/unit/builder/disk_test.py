@@ -606,6 +606,8 @@ class TestDiskBuilder:
         filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.integrity_root = True
+        self.disk_builder.integrity_legacy_padding = True
+        self.disk_builder.integrity_legacy_hmac = True
         self.disk_builder.root_filesystem_embed_integrity_metadata = True
         self.disk_builder.root_filesystem_is_overlay = False
         self.disk_builder.volume_manager_name = None

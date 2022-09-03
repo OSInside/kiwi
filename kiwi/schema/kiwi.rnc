@@ -1645,6 +1645,34 @@ div {
             is-a = "image_integrity_requirement"
             sch:param [ name = "attr" value = "standalone_integrity" ]
         ]
+    k.type.integrity_legacy_hmac.attribute =
+        ## In combination with the standalone_integrity attribute,
+        ## Allow to use old flawed HMAC calculation (does not protect superblock)
+        attribute integrity_legacy_hmac { xsd:boolean }
+        >> sch:pattern [
+            id = "integrity_legacy_hmac" is-a = "image_type"
+            sch:param [ name = "attr" value = "integrity_legacy_hmac" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+        >> sch:pattern [
+            id = "standalone_integrity_mandatory"
+            is-a = "integrity_legacy_hmac_requirement"
+            sch:param [ name = "attr" value = "standalone_integrity" ]
+        ]
+    k.type.integrity_legacy_padding.attribute =
+        ## In combination with the standalone_integrity attribute,
+        ## use inefficient legacy padding.
+        attribute integrity_legacy_padding { xsd:boolean }
+        >> sch:pattern [
+            id = "integrity_legacy_padding" is-a = "image_type"
+            sch:param [ name = "attr" value = "integrity_legacy_padding" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+        >> sch:pattern [
+            id = "standalone_integrity_mandatory"
+            is-a = "integrity_legacy_padding_requirement"
+            sch:param [ name = "attr" value = "standalone_integrity" ]
+        ]
     k.type.integrity_keyfile.attribute =
         ## In combination with the standalone_integrity attribute,
         ## protect access to the integrity map using the given key.
@@ -2157,6 +2185,8 @@ div {
         k.type.embed_verity_metadata.attribute? &
         k.type.standalone_integrity.attribute? &
         k.type.embed_integrity_metadata.attribute? &
+        k.type.integrity_legacy_hmac.attribute? &
+        k.type.integrity_legacy_padding.attribute? &
         k.type.integrity_metadata_key_description? &
         k.type.integrity_keyfile.attribute? &
         k.type.primary.attribute? &
