@@ -128,7 +128,6 @@ class DiskBuilder:
         self.luks = xml_state.get_luks_credentials()
         self.integrity_root = xml_state.build_type.get_standalone_integrity()
         self.integrity_legacy_hmac = xml_state.build_type.get_integrity_legacy_hmac()
-        self.integrity_legacy_padding = xml_state.build_type.get_integrity_legacy_padding()
         self.integrity_keyfile = xml_state.build_type.get_integrity_keyfile()
         self.integrity_key_description = \
             xml_state.build_type.get_integrity_metadata_key_description()
@@ -322,8 +321,6 @@ class DiskBuilder:
         # create integrity on current root device if requested
         if self.integrity_root:
             options = []
-            if self.integrity_legacy_padding:
-                options.append('legacy_padding')
             if self.integrity_legacy_hmac:
                 options.append('legacy_hmac')
             self.integrity_root = IntegrityDevice(

@@ -612,15 +612,6 @@ integrity_legacy_hmac="true|false":
      Do not use this attribute until compatibility with
      a specific old kernel is required!
 
-integrity_legacy_padding="true|false":
-  For the `oem` type only and in combination with the `standalone_integrity`
-  attribute, allow to use inefficient legacy padding.
-
-  .. warning::
-
-     Do not use this attribute until compatibility with
-     a specific old kernel is required!
-
 integrity_keyfile="filepath":
   For the `oem` type only and in combination with the `standalone_integrity`
   attribute, protects access to the integrity map using the given keyfile.

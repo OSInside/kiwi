@@ -86,10 +86,6 @@ class IntegrityDevice(DeviceProvider):
                 self.integrity_format_options.append(
                     '--integrity-legacy-hmac'
                 )
-            if 'legacy_padding' in credentials.options:
-                self.integrity_format_options.append(
-                    '--integrity-legacy-padding'
-                )
         if credentials and credentials.keyfile:
             integrity_key_options = [
                 '--integrity-key-file', credentials.keyfile,
