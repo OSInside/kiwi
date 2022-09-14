@@ -603,6 +603,15 @@ standalone_integrity="true|false":
   For the `oem` type only, specifies to create a standalone
   `dm_integrity` layer on top of the root filesystem
 
+integrity_legacy_hmac="true|false":
+  For the `oem` type only and in combination with the `standalone_integrity`
+  attribute, Allow to use old flawed HMAC calculation (does not protect superblock).
+
+  .. warning::
+
+     Do not use this attribute unless compatibility with
+     a specific old kernel is required!
+
 integrity_keyfile="filepath":
   For the `oem` type only and in combination with the `standalone_integrity`
   attribute, protects access to the integrity map using the given keyfile.
