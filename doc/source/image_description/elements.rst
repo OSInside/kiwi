@@ -609,7 +609,7 @@ integrity_legacy_hmac="true|false":
 
   .. warning::
 
-     Do not use this attribute until compatibility with
+     Do not use this attribute unless compatibility with
      a specific old kernel is required!
 
 integrity_keyfile="filepath":
