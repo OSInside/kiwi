@@ -20,7 +20,6 @@ import os
 
 # project
 from kiwi.command import Command
-from kiwi.utils.sync import DataSync
 
 from kiwi.exceptions import (
     KiwiContainerSetupError
@@ -144,28 +143,6 @@ class ContainerSetupBase:
                 'console': 'console'
             }
         )
-
-    def setup_static_device_nodes(self):
-        """
-        Container device node setup
-
-        Without subsystems like udev running in a container it is
-        required to provide a set of device nodes to let the
-        system in the container function correctly. This is
-        done by syncing the host system nodes to the container.
-        That this will also create device nodes which are not
-        necessarily present in the container later is a know
-        limitation of this method and considered harmless
-        """
-        try:
-            data = DataSync('/dev/', self.root_dir + '/dev/')
-            data.sync_data(
-                options=['-a', '-x', '--devices', '--specials']
-            )
-        except Exception as e:
-            raise KiwiContainerSetupError(
-                'Failed to create static container nodes %s' % format(e)
-            )
 
     def get_container_name(self):
         """
