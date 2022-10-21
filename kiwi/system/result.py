@@ -162,7 +162,7 @@ class Result:
             )
 
     @staticmethod
-    def load(filename: str) -> result_type:
+    def load(filename: str) -> result_type:  # type: ignore
         """
         Load pickle dumped filename into a Result instance
 
