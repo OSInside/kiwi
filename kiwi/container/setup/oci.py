@@ -50,7 +50,6 @@ class ContainerSetupOCI(ContainerSetupBase):
 
         self.deactivate_bootloader_setup()
         self.deactivate_root_filesystem_check()
-        self.setup_static_device_nodes()
         self.setup_root_console()
 
         for service in services_to_deactivate:

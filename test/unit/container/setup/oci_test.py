@@ -16,7 +16,6 @@ class TestContainerSetupOCI:
 
         self.container.deactivate_bootloader_setup = mock.Mock()
         self.container.deactivate_root_filesystem_check = mock.Mock()
-        self.container.setup_static_device_nodes = mock.Mock()
         self.container.setup_root_console = mock.Mock()
         self.container.deactivate_systemd_service = mock.Mock()
 
@@ -28,7 +27,6 @@ class TestContainerSetupOCI:
         self.container.setup()
         self.container.deactivate_bootloader_setup.assert_called_once_with()
         self.container.deactivate_root_filesystem_check.assert_called_once_with()
-        self.container.setup_static_device_nodes.assert_called_once_with()
         assert self.container.deactivate_systemd_service.call_args_list == [
             call('device-mapper.service'),
             call('kbd.service'),
