@@ -406,6 +406,12 @@ class KiwiLogFileSetupFailed(KiwiError):
     """
 
 
+class KiwiLogSocketSetupFailed(KiwiError):
+    """
+    Exception raised if the Unix Domain log socket could not be created.
+    """
+
+
 class KiwiLoopSetupError(KiwiError):
     """
     Exception raised if not enough user data to create a

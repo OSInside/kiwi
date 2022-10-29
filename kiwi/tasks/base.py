@@ -121,6 +121,12 @@ class CliTask:
                     self.global_args['--logfile']
                 )
 
+            # set log socket
+            if self.global_args['--logsocket']:
+                log.set_log_socket(
+                    self.global_args['--logsocket']
+                )
+
             if self.global_args['--color-output']:
                 log.set_color_format()
 

@@ -19,6 +19,7 @@ from typing import (
     Dict, Optional
 )
 import logging
+from kiwi.logger_socket import PlainTextSocketHandler
 import sys
 
 # project
@@ -31,7 +32,10 @@ from kiwi.logger_filter import (
     WarningFilter
 )
 
-from kiwi.exceptions import KiwiLogFileSetupFailed
+from kiwi.exceptions import (
+    KiwiLogFileSetupFailed,
+    KiwiLogSocketSetupFailed
+)
 
 
 class Logger(logging.Logger):
@@ -160,6 +164,30 @@ class Logger(logging.Logger):
         except Exception as e:
             raise KiwiLogFileSetupFailed(
                 '%s: %s' % (type(e).__name__, format(e))
+            )
+
+    def set_log_socket(self, filename: str) -> None:
+        """
+        Set log socket handler
+
+        :param str filename:
+            UDS socket file path. Note if there is no server
+            listening on the socket the log handler setup
+            will fail
+        """
+        try:
+            handler = PlainTextSocketHandler(filename, None)
+            handler.makeSocket()
+            handler.setFormatter(
+                logging.Formatter(
+                    '%(levelname)s: %(asctime)-8s | %(message)s', '%H:%M:%S'
+                )
+            )
+            handler.addFilter(LoggerSchedulerFilter())
+            self.addHandler(handler)
+        except Exception as e:
+            raise KiwiLogSocketSetupFailed(
+                'UDS socket: {0}:{1}: {2}'.format(filename, type(e).__name__, e)
             )
 
     def get_logfile(self) -> Optional[str]:

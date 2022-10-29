@@ -22,6 +22,7 @@ class TestCliTask:
     @patch('kiwi.logger.Logger.setLogLevel')
     @patch('kiwi.logger.Logger.setLogFlag')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.logger.Logger.set_log_socket')
     @patch('kiwi.logger.Logger.set_color_format')
     @patch('kiwi.cli.Cli.show_and_exit_on_help_request')
     @patch('kiwi.cli.Cli.load_command')
@@ -31,13 +32,14 @@ class TestCliTask:
     def setup(
         self, mock_runtime_config, mock_global_args, mock_command_args,
         mock_load_command, mock_help_check, mock_color,
-        mock_setlog, mock_setLogFlag, mock_setLogLevel
+        mock_set_log_socket, mock_setlog, mock_setLogFlag, mock_setLogLevel
     ):
         Defaults.set_platform_name('x86_64')
         mock_global_args.return_value = {
             '--debug': True,
             '--debug-run-scripts-in-screen': True,
             '--logfile': 'log',
+            '--logsocket': 'log_socket',
             '--color-output': True,
             '--profile': ['vmxFlavour'],
             '--type': None
@@ -64,6 +66,7 @@ class TestCliTask:
     @patch('kiwi.logger.Logger.setLogLevel')
     @patch('kiwi.logger.Logger.setLogFlag')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.logger.Logger.set_log_socket')
     @patch('kiwi.logger.Logger.set_color_format')
     @patch('kiwi.cli.Cli.show_and_exit_on_help_request')
     @patch('kiwi.cli.Cli.load_command')
@@ -73,7 +76,7 @@ class TestCliTask:
     def setup_method(
         self, cls, mock_runtime_config, mock_global_args, mock_command_args,
         mock_load_command, mock_help_check, mock_color,
-        mock_setlog, mock_setLogFlag, mock_setLogLevel
+        mock_set_log_socket, mock_setlog, mock_setLogFlag, mock_setLogLevel
     ):
         self.setup()
 

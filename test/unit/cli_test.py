@@ -33,6 +33,7 @@ class TestCli:
             'system': True,
             '-h': False,
             '--logfile': None,
+            '--logsocket': None,
             '--color-output': False,
             '<legacy_args>': [],
             '--version': False,
