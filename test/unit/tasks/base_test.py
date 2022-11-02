@@ -1,5 +1,7 @@
 import sys
-from mock import patch
+from mock import (
+    patch, call
+)
 from pytest import (
     raises, fixture
 )
@@ -38,7 +40,7 @@ class TestCliTask:
         mock_global_args.return_value = {
             '--debug': True,
             '--debug-run-scripts-in-screen': True,
-            '--logfile': 'log',
+            '--logfile': 'stdout',
             '--logsocket': 'log_socket',
             '--color-output': True,
             '--profile': ['vmxFlavour'],
@@ -57,9 +59,11 @@ class TestCliTask:
         mock_load_command.assert_called_once_with()
         mock_command_args.assert_called_once_with()
         mock_global_args.assert_called_once_with()
-        mock_setLogLevel.assert_called_once_with(logging.DEBUG)
+        assert mock_setLogLevel.call_args_list == [
+            call(logging.DEBUG), call(logging.CRITICAL, except_for=['file', 'socket'])
+        ]
         mock_setLogFlag.assert_called_once_with('run-scripts-in-screen')
-        mock_setlog.assert_called_once_with('log')
+        mock_setlog.assert_called_once_with('stdout')
         mock_color.assert_called_once_with()
         mock_runtime_config.assert_called_once_with()
 

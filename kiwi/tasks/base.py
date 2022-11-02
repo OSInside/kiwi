@@ -105,16 +105,6 @@ class CliTask:
         }
 
         if should_perform_task_setup:
-            # set log level
-            if self.global_args['--debug']:
-                log.setLogLevel(logging.DEBUG)
-            else:
-                log.setLogLevel(logging.INFO)
-
-            # set log flags
-            if self.global_args['--debug-run-scripts-in-screen']:
-                log.setLogFlag('run-scripts-in-screen')
-
             # set log file
             if self.global_args['--logfile']:
                 log.set_logfile(
@@ -126,6 +116,20 @@ class CliTask:
                 log.set_log_socket(
                     self.global_args['--logsocket']
                 )
+
+            # set log level
+            if self.global_args['--debug']:
+                log.setLogLevel(logging.DEBUG)
+            else:
+                log.setLogLevel(logging.INFO)
+            if self.global_args['--logfile'] == 'stdout':
+                # deactivate standard console logger by setting
+                # the highest possible log entry level
+                log.setLogLevel(logging.CRITICAL, except_for=['file', 'socket'])
+
+            # set log flags
+            if self.global_args['--debug-run-scripts-in-screen']:
+                log.setLogFlag('run-scripts-in-screen')
 
             if self.global_args['--color-output']:
                 log.set_color_format()
