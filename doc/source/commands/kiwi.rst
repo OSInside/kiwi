@@ -15,13 +15,16 @@ SYNOPSIS
            [--temp-dir=<directory>]
            [--type=<build_type>]
            [--logfile=<filename>]
+           [--logsocket=<socketfile>]
            [--debug]
            [--debug-run-scripts-in-screen]
            [--color-output]
            [--config=<configfile>]
            [--kiwi-file=<kiwifile>]
        image <command> [<args>...]
-   kiwi-ng [--debug]
+   kiwi-ng [--logfile=<filename>]
+           [--logsocket=<socketfile>]
+           [--debug]
            [--debug-run-scripts-in-screen]
            [--color-output]
            [--config=<configfile>]
@@ -32,6 +35,7 @@ SYNOPSIS
            [--target-arch=<name>]
            [--type=<build_type>]
            [--logfile=<filename>]
+           [--logsocket=<socketfile>]
            [--debug]
            [--debug-run-scripts-in-screen]
            [--color-output]
@@ -112,6 +116,11 @@ GLOBAL OPTIONS
   Specify log file. the logfile contains detailed information about
   the process. The special call: `--logfile stdout` sends all
   information to standard out instead of writing to a file
+
+--logsocket=<socketfile>
+
+  send log data to the given Unix Domain socket in the same
+  format as with --logfile
 
 --profile=<name>
 

@@ -22,6 +22,7 @@ usage: kiwi-ng -h | --help
                [--target-arch=<name>]
                [--type=<build_type>]
                [--logfile=<filename>]
+               [--logsocket=<socketfile>]
                [--debug]
                [--debug-run-scripts-in-screen]
                [--color-output]
@@ -29,6 +30,7 @@ usage: kiwi-ng -h | --help
                [--kiwi-file=<kiwifile>]
            image <command> [<args>...]
        kiwi-ng [--logfile=<filename>]
+               [--logsocket=<socketfile>]
                [--debug]
                [--debug-run-scripts-in-screen]
                [--color-output]
@@ -40,6 +42,7 @@ usage: kiwi-ng -h | --help
                [--target-arch=<name>]
                [--type=<build_type>]
                [--logfile=<filename>]
+               [--logsocket=<socketfile>]
                [--debug]
                [--debug-run-scripts-in-screen]
                [--color-output]
@@ -63,6 +66,9 @@ global options:
         debug information even if this is was not requested by the
         debug switch. The special call: '--logfile stdout' sends all
         information to standard out instead of writing to a file
+    --logsocket=<socketfile>
+        send log data to the given Unix Domain socket in the same
+        format as with --logfile
     --debug
         print debug information
     --debug-run-scripts-in-screen
