@@ -34,6 +34,7 @@ class TestCli:
             '-h': False,
             '--logfile': None,
             '--logsocket': None,
+            '--loglevel': None,
             '--color-output': False,
             '<legacy_args>': [],
             '--version': False,

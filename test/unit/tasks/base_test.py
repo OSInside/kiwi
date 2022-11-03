@@ -30,7 +30,7 @@ class TestCliTask:
     @patch('kiwi.cli.Cli.load_command')
     @patch('kiwi.cli.Cli.get_command_args')
     @patch('kiwi.cli.Cli.get_global_args')
-    @patch('kiwi.tasks.base.RuntimeConfig')
+    @patch('kiwi.runtime_config.RuntimeConfig')
     def setup(
         self, mock_runtime_config, mock_global_args, mock_command_args,
         mock_load_command, mock_help_check, mock_color,
@@ -42,6 +42,7 @@ class TestCliTask:
             '--debug-run-scripts-in-screen': True,
             '--logfile': 'stdout',
             '--logsocket': 'log_socket',
+            '--loglevel': None,
             '--color-output': True,
             '--profile': ['vmxFlavour'],
             '--type': None
@@ -76,13 +77,55 @@ class TestCliTask:
     @patch('kiwi.cli.Cli.load_command')
     @patch('kiwi.cli.Cli.get_command_args')
     @patch('kiwi.cli.Cli.get_global_args')
-    @patch('kiwi.tasks.base.RuntimeConfig')
+    @patch('kiwi.runtime_config.RuntimeConfig')
     def setup_method(
         self, cls, mock_runtime_config, mock_global_args, mock_command_args,
         mock_load_command, mock_help_check, mock_color,
         mock_set_log_socket, mock_setlog, mock_setLogFlag, mock_setLogLevel
     ):
         self.setup()
+
+    @patch('kiwi.logger.Logger.setLogLevel')
+    @patch('kiwi.cli.Cli.load_command')
+    @patch('kiwi.cli.Cli.get_command_args')
+    @patch('kiwi.cli.Cli.get_global_args')
+    @patch('kiwi.runtime_config.RuntimeConfig')
+    def test_setup_custom_log_level(
+        self, mock_runtime_config, mock_global_args, mock_command_args,
+        mock_load_command, mock_setLogLevel
+    ):
+        Defaults.set_platform_name('x86_64')
+        mock_global_args.return_value = {
+            '--debug': None,
+            '--logfile': None,
+            '--logsocket': None,
+            '--debug-run-scripts-in-screen': None,
+            '--color-output': None,
+            '--loglevel': '10',
+        }
+        self.task = CliTask()
+        mock_setLogLevel.assert_called_once_with(10)
+
+    @patch('kiwi.logger.Logger.setLogLevel')
+    @patch('kiwi.cli.Cli.load_command')
+    @patch('kiwi.cli.Cli.get_command_args')
+    @patch('kiwi.cli.Cli.get_global_args')
+    @patch('kiwi.runtime_config.RuntimeConfig')
+    def test_setup_custom_log_level_invalid(
+        self, mock_runtime_config, mock_global_args, mock_command_args,
+        mock_load_command, mock_setLogLevel
+    ):
+        Defaults.set_platform_name('x86_64')
+        mock_global_args.return_value = {
+            '--debug': None,
+            '--logfile': None,
+            '--logsocket': None,
+            '--debug-run-scripts-in-screen': None,
+            '--color-output': None,
+            '--loglevel': 'bogus',
+        }
+        self.task = CliTask()
+        mock_setLogLevel.assert_called_once_with(20)
 
     def test_quadruple_token(self):
         assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]
