@@ -16,6 +16,7 @@ SYNOPSIS
            [--type=<build_type>]
            [--logfile=<filename>]
            [--logsocket=<socketfile>]
+           [--loglevel=<number>]
            [--debug]
            [--debug-run-scripts-in-screen]
            [--color-output]
@@ -24,6 +25,7 @@ SYNOPSIS
        image <command> [<args>...]
    kiwi-ng [--logfile=<filename>]
            [--logsocket=<socketfile>]
+           [--loglevel=<number>]
            [--debug]
            [--debug-run-scripts-in-screen]
            [--color-output]
@@ -36,6 +38,7 @@ SYNOPSIS
            [--type=<build_type>]
            [--logfile=<filename>]
            [--logsocket=<socketfile>]
+           [--loglevel=<number>]
            [--debug]
            [--debug-run-scripts-in-screen]
            [--color-output]
@@ -105,7 +108,7 @@ GLOBAL OPTIONS
 
 --debug
 
-  Print debug information on the commandline.
+  Print debug information on the commandline. Same as: '--loglevel 10'
 
 --debug-run-scripts-in-screen
 
@@ -121,6 +124,27 @@ GLOBAL OPTIONS
 
   send log data to the given Unix Domain socket in the same
   format as with --logfile
+
+--loglevel=<number>
+
+  specify logging level as number. Details about the
+  available log levels can be found at:
+  https://docs.python.org/3/library/logging.html#logging-levels
+  Setting a log level causes all message >= level to be
+  displayed.
+
+  .. code:: bash
+
+     ----------------------------
+     | Level    | Numeric value |
+     ----------------------------
+     | CRITICAL | 50            |
+     | ERROR    | 40            |
+     | WARNING  | 30            |
+     | INFO     | 20            |
+     | DEBUG    | 10            |
+     | NOTSET   | 0             |
+     ----------------------------
 
 --profile=<name>
 

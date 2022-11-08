@@ -23,6 +23,7 @@ usage: kiwi-ng -h | --help
                [--type=<build_type>]
                [--logfile=<filename>]
                [--logsocket=<socketfile>]
+               [--loglevel=<number>]
                [--debug]
                [--debug-run-scripts-in-screen]
                [--color-output]
@@ -31,6 +32,7 @@ usage: kiwi-ng -h | --help
            image <command> [<args>...]
        kiwi-ng [--logfile=<filename>]
                [--logsocket=<socketfile>]
+               [--loglevel=<number>]
                [--debug]
                [--debug-run-scripts-in-screen]
                [--color-output]
@@ -43,6 +45,7 @@ usage: kiwi-ng -h | --help
                [--type=<build_type>]
                [--logfile=<filename>]
                [--logsocket=<socketfile>]
+               [--loglevel=<number>]
                [--debug]
                [--debug-run-scripts-in-screen]
                [--color-output]
@@ -69,8 +72,14 @@ global options:
     --logsocket=<socketfile>
         send log data to the given Unix Domain socket in the same
         format as with --logfile
+    --loglevel=<number>
+        specify logging level as number. Details about the
+        available log levels can be found at:
+        https://docs.python.org/3/library/logging.html#logging-levels
+        Setting a log level causes all message >= level to be
+        displayed.
     --debug
-        print debug information
+        print debug information, same as: '--loglevel 10'
     --debug-run-scripts-in-screen
         run scripts called by kiwi in a screen session
     -v --version

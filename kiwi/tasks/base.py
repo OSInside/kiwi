@@ -28,7 +28,6 @@ from kiwi.cli import Cli
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.runtime_checker import RuntimeChecker
-from kiwi.runtime_config import RuntimeConfig
 
 from kiwi.exceptions import (
     KiwiConfigFileNotFound
@@ -69,9 +68,6 @@ class CliTask:
         # get global args
         self.global_args = self.cli.get_global_args()
 
-        # initialize runtime configuration
-        self.runtime_config = RuntimeConfig()
-
         # initialize generic runtime check dicts
         self.checks_before_command_args: Dict[str, List[str]] = {
             'check_image_version_provided': [],
@@ -105,16 +101,6 @@ class CliTask:
         }
 
         if should_perform_task_setup:
-            # set log level
-            if self.global_args['--debug']:
-                log.setLogLevel(logging.DEBUG)
-            else:
-                log.setLogLevel(logging.INFO)
-
-            # set log flags
-            if self.global_args['--debug-run-scripts-in-screen']:
-                log.setLogFlag('run-scripts-in-screen')
-
             # set log file
             if self.global_args['--logfile']:
                 log.set_logfile(
@@ -127,8 +113,34 @@ class CliTask:
                     self.global_args['--logsocket']
                 )
 
+            # set log level
+            if self.global_args['--loglevel']:
+                try:
+                    log.setLogLevel(int(self.global_args['--loglevel']))
+                except ValueError:
+                    # Not a numeric log level, stick with the default
+                    # which is INFO
+                    log.setLogLevel(logging.INFO)
+            elif self.global_args['--debug']:
+                log.setLogLevel(logging.DEBUG)
+            else:
+                log.setLogLevel(logging.INFO)
+            if self.global_args['--logfile'] == 'stdout':
+                # deactivate standard console logger by setting
+                # the highest possible log entry level
+                log.setLogLevel(logging.CRITICAL, except_for=['file', 'socket'])
+
+            # set log flags
+            if self.global_args['--debug-run-scripts-in-screen']:
+                log.setLogFlag('run-scripts-in-screen')
+
             if self.global_args['--color-output']:
                 log.set_color_format()
+
+        # initialize runtime configuration
+        # import RuntimeConfig late to make sure the logging setup applies
+        from kiwi.runtime_config import RuntimeConfig
+        self.runtime_config = RuntimeConfig()
 
     def load_xml_description(
         self, description_directory: str, kiwi_file: str = ''
