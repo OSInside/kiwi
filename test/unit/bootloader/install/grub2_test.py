@@ -377,19 +377,22 @@ class TestBootLoaderInstallGrub2:
 
         assert mock_command.call_args_list == [
             call([
-                'cp', '-p', 'tmp_root/usr/sbin/grub2-install',
-                'tmp_root/usr/sbin/grub2-install.orig'
+                'chroot', 'tmp_root',
+                'cp', '-p', '/usr/sbin/grub2-install',
+                '/usr/sbin/grub2-install.orig'
             ]),
             call([
-                'cp', 'tmp_root/bin/true', 'tmp_root/usr/sbin/grub2-install'
+                'chroot', 'tmp_root',
+                'cp', '/bin/true', '/usr/sbin/grub2-install'
             ]),
             call([
                 'chroot', 'tmp_root', 'shim-install', '--removable',
                 '/dev/some-device'
             ]),
             call([
-                'mv', 'tmp_root/usr/sbin/grub2-install.orig',
-                'tmp_root/usr/sbin/grub2-install'
+                'chroot', 'tmp_root',
+                'mv', '/usr/sbin/grub2-install.orig',
+                '/usr/sbin/grub2-install'
             ])
         ]
         self.root_mount.mount.assert_called_once_with()

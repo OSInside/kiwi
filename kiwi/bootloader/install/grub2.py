@@ -335,28 +335,32 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         if os.access(root_path, os.W_OK):
             grub2_install = ''.join(
                 [
-                    root_path, '/usr/sbin/',
+                    '/usr/sbin/',
                     self._get_grub2_install_tool_name(root_path)
                 ]
             )
             grub2_install_backup = ''.join(
                 [grub2_install, '.orig']
             )
-            grub2_install_noop = ''.join(
-                [root_path, '/bin/true']
+            grub2_install_noop = '/bin/true'
+            Command.run(
+                [
+                    'chroot', root_path,
+                    'cp', '-p', grub2_install, grub2_install_backup
+                ]
             )
             Command.run(
-                ['cp', '-p', grub2_install, grub2_install_backup]
-            )
-            Command.run(
-                ['cp', grub2_install_noop, grub2_install]
+                [
+                    'chroot', root_path,
+                    'cp', grub2_install_noop, grub2_install
+                ]
             )
 
     def _enable_grub2_install(self, root_path):
         if os.access(root_path, os.W_OK):
             grub2_install = ''.join(
                 [
-                    root_path, '/usr/sbin/',
+                    '/usr/sbin/',
                     self._get_grub2_install_tool_name(root_path)
                 ]
             )
@@ -365,7 +369,10 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             )
             if os.path.exists(grub2_install_backup):
                 Command.run(
-                    ['mv', grub2_install_backup, grub2_install]
+                    [
+                        'chroot', root_path,
+                        'mv', grub2_install_backup, grub2_install
+                    ]
                 )
 
     def _get_grub2_install_tool_name(self, root_path):
