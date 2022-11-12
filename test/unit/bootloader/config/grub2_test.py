@@ -17,6 +17,7 @@ from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
+from kiwi.utils.sysconfig import SysConfig
 
 from kiwi.exceptions import (
     KiwiBootLoaderGrubPlatformError,
@@ -559,7 +560,9 @@ class TestBootLoaderConfigGrub2:
         grep_grub_option = Mock()
         grep_grub_option.returncode = 0
         mock_Command_run.return_value = grep_grub_option
-        grub_default = MagicMock()
+        mock_exists.return_value = False
+        grub_default = SysConfig('some-file')
+        grub_default.write = Mock()
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
         self.bootloader.terminal = 'serial'
@@ -571,27 +574,24 @@ class TestBootLoaderConfigGrub2:
 
         mock_sysconfig.assert_called_once_with('root_dir/etc/default/grub')
         grub_default.write.assert_called_once_with()
-        assert grub_default.__setitem__.call_args_list == [
-            call(
-                'GRUB_BACKGROUND',
-                '/boot/grub2/themes/openSUSE/background.png'
-            ),
-            call('GRUB_CMDLINE_LINUX_DEFAULT', '"some-cmdline"'),
-            call('GRUB_DISTRIBUTOR', '"Bob"'),
-            call('GRUB_ENABLE_BLSCFG', 'true'),
-            call('GRUB_ENABLE_CRYPTODISK', 'y'),
-            call('GRUB_GFXMODE', '800x600'),
-            call(
-                'GRUB_SERIAL_COMMAND', '"serial --speed=38400"'
-            ),
-            call('GRUB_TERMINAL', '"serial"'),
-            call('GRUB_THEME', '/boot/grub2/themes/openSUSE/theme.txt'),
-            call('GRUB_TIMEOUT', 10),
-            call('GRUB_TIMEOUT_STYLE', 'countdown'),
-            call('GRUB_USE_INITRDEFI', 'true'),
-            call('GRUB_USE_LINUXEFI', 'true'),
-            call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true')
-        ]
+
+        assert grub_default.data_dict == {
+            'GRUB_BACKGROUND': '/boot/grub2/themes/openSUSE/background.png',
+            'GRUB_CMDLINE_LINUX_DEFAULT': '"some-cmdline"',
+            'GRUB_DISTRIBUTOR': '"Bob"',
+            'GRUB_ENABLE_BLSCFG': 'true',
+            'GRUB_ENABLE_CRYPTODISK': 'y',
+            'GRUB_GFXMODE': '800x600',
+            'GRUB_SERIAL_COMMAND': '"serial --speed=38400"',
+            'GRUB_TERMINAL': '"serial"',
+            'GRUB_THEME': '/boot/grub2/themes/openSUSE/theme.txt',
+            'GRUB_TIMEOUT': 10,
+            'GRUB_TIMEOUT_STYLE': 'countdown',
+            'GRUB_USE_INITRDEFI': 'true',
+            'GRUB_USE_LINUXEFI': 'true',
+            'SUSE_BTRFS_SNAPSHOT_BOOTING': 'true',
+            'GRUB_DEFAULT': 'saved'
+        }
 
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.SysConfig')
