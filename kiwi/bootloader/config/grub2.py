@@ -634,6 +634,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Create or update etc/default/grub by parameters required
         according to the root filesystem setup
 
+        * GRUB_DEFAULT
         * GRUB_TIMEOUT
         * GRUB_TIMEOUT_STYLE
         * SUSE_BTRFS_SNAPSHOT_BOOTING
@@ -652,6 +653,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_DISABLE_LINUX_PARTUUID
         * GRUB_ENABLE_LINUX_LABEL
         """
+        # elements to set only if not already in etc/default/grub
+        grub_default_if_not_set_entries = {
+            'GRUB_DEFAULT': 'saved'
+        }
+        # elements to set in any case
         grub_default_entries = {
             'GRUB_TIMEOUT': self.timeout,
             'GRUB_GFXMODE': self.gfxmode,
@@ -739,6 +745,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 for key, value in list(grub_default_entries_sorted.items()):
                     log.info('--> {0}:{1}'.format(key, value))
                     grub_default[key] = value
+                grub_default_if_not_set_entries_sorted = OrderedDict(
+                    sorted(grub_default_if_not_set_entries.items())
+                )
+                for key, value in list(grub_default_if_not_set_entries_sorted.items()):
+                    if not grub_default.get(key):
+                        log.info('--> {0}:{1}'.format(key, value))
+                        grub_default[key] = value
                 grub_default.write()
 
     def _setup_secure_boot_efi_image(self, lookup_path, uuid=None, mbrid=None):
