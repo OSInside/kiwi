@@ -312,6 +312,7 @@ class TestBootLoaderConfigBase:
     def test_mount_system_s390(self, mock_MountManager):
         tmp_mount = MagicMock()
         proc_mount = MagicMock()
+        sys_mount = MagicMock()
         dev_mount = MagicMock()
         root_mount = MagicMock()
         root_mount.mountpoint = 'root_mount_point'
@@ -320,7 +321,7 @@ class TestBootLoaderConfigBase:
         boot_mount.device = 'bootdev'
 
         mount_managers = [
-            proc_mount, dev_mount, tmp_mount, boot_mount, root_mount
+            proc_mount, sys_mount, dev_mount, tmp_mount, boot_mount, root_mount
         ]
 
         def mount_managers_effect(**args):
@@ -336,13 +337,15 @@ class TestBootLoaderConfigBase:
             call(device='rootdev'),
             call(device='bootdev', mountpoint='root_mount_point/boot/zipl'),
             call(device='/dev', mountpoint='root_mount_point/dev'),
-            call(device='/proc', mountpoint='root_mount_point/proc')
+            call(device='/proc', mountpoint='root_mount_point/proc'),
+            call(device='/sys', mountpoint='root_mount_point/sys')
         ]
 
     @patch('kiwi.bootloader.config.base.MountManager')
     def test_mount_system(self, mock_MountManager):
         tmp_mount = MagicMock()
         proc_mount = MagicMock()
+        sys_mount = MagicMock()
         dev_mount = MagicMock()
         root_mount = MagicMock()
         root_mount.mountpoint = 'root_mount_point'
@@ -354,7 +357,7 @@ class TestBootLoaderConfigBase:
         volume_mount = MagicMock()
 
         mount_managers = [
-            proc_mount, dev_mount, tmp_mount, volume_mount,
+            proc_mount, sys_mount, dev_mount, tmp_mount, volume_mount,
             efi_mount, boot_mount, root_mount
         ]
 
@@ -378,7 +381,8 @@ class TestBootLoaderConfigBase:
             call(device='device', mountpoint='root_mount_point/boot/grub2'),
             call(device='/tmp', mountpoint='root_mount_point/tmp'),
             call(device='/dev', mountpoint='root_mount_point/dev'),
-            call(device='/proc', mountpoint='root_mount_point/proc')
+            call(device='/proc', mountpoint='root_mount_point/proc'),
+            call(device='/sys', mountpoint='root_mount_point/sys')
         ]
         root_mount.mount.assert_called_once_with()
         boot_mount.mount.assert_called_once_with()
@@ -387,6 +391,7 @@ class TestBootLoaderConfigBase:
             options=['subvol=@/boot/grub2']
         )
         proc_mount.bind_mount.assert_called_once_with()
+        sys_mount.bind_mount.assert_called_once_with()
         dev_mount.bind_mount.assert_called_once_with()
 
         del self.bootloader
@@ -395,6 +400,7 @@ class TestBootLoaderConfigBase:
         tmp_mount.umount.assert_called_once_with()
         dev_mount.umount.assert_called_once_with()
         proc_mount.umount.assert_called_once_with()
+        sys_mount.umount.assert_called_once_with()
         efi_mount.umount.assert_called_once_with()
         boot_mount.umount.assert_called_once_with()
         root_mount.umount.assert_called_once_with()

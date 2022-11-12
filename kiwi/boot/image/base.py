@@ -41,7 +41,8 @@ from kiwi.exceptions import (
 boot_names_type = NamedTuple(
     'boot_names_type', [
         ('kernel_name', str),
-        ('initrd_name', str)
+        ('initrd_name', str),
+        ('kernel_version', str)
     ]
 )
 
@@ -194,7 +195,8 @@ class BootImageBase:
 
                 boot_names_type(
                     kernel_name='INSTALLED_KERNEL',
-                    initrd_name='DRACUT_OUTPUT_NAME'
+                    initrd_name='DRACUT_OUTPUT_NAME',
+                    kernel_version='KERNEL_VERSION'
                 )
 
         :rtype: boot_names_type
@@ -205,7 +207,9 @@ class BootImageBase:
         kernel_info = kernel.get_kernel()
         if not kernel_info:
             if self.xml_state.get_initrd_system() == 'none':
-                return boot_names_type(kernel_name='none', initrd_name='none')
+                return boot_names_type(
+                    kernel_name='none', initrd_name='none', kernel_version='none'
+                )
             raise KiwiDiskBootImageError(
                 'No kernel in boot image tree %s found' %
                 self.boot_root_directory
@@ -214,6 +218,7 @@ class BootImageBase:
             kernel_info.version
         )
         return boot_names_type(
+            kernel_version=kernel_info.version,
             kernel_name=kernel_info.name,
             initrd_name=dracut_output_format.format(
                 kernel_version=kernel_info.version

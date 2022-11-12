@@ -2612,14 +2612,14 @@ div {
     ]
     k.bootloader.name.attribute =
         ## Specifies the bootloader used for booting the image.
-        ## At the moment grub2, isolinux, and the combination of
-        ## zipl plus userspace grub2(grub2_s390x_emu) are supported.
+        ## At the moment grub2, systemd_boot(EFI only), isolinux, and the
+        ## combination of zipl plus userspace grub2(grub2_s390x_emu) are supported.
         ## The special custom entry allows to skip the bootloader
         ## configuration and installation and leaves this up to the
         ## user which can be done by using the editbootinstall and
         ## editbootconfig custom scripts
         attribute name {
-            "grub2" | "isolinux" | "grub2_s390x_emu" | "custom"
+            "grub2" | "isolinux" | "grub2_s390x_emu" | "systemd_boot" | "custom"
         }
         >> sch:pattern [ id = "loader_name" is-a = "bootloader_image_type"
             sch:param [ name = "attr" value = "name" ]
@@ -2663,7 +2663,7 @@ div {
         attribute timeout { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "timeout" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "timeout" ]
-            sch:param [ name = "types" value = "grub2 isolinux grub2_s390x_emu" ]
+            sch:param [ name = "types" value = "grub2 isolinux grub2_s390x_emu systemd_boot" ]
         ]
     k.bootloader.timeout_style.attribute =
         ## Specifies the boot timeout style to control the way in which

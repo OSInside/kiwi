@@ -42,7 +42,7 @@ class BootLoaderConfigBase:
     :param string root_dir: root directory path name
     :param dict custom_args: custom bootloader arguments dictionary
     """
-    def __init__(self, xml_state, root_dir, boot_dir=None, custom_args=None):
+    def __init__(self, xml_state, root_dir, boot_dir=None, custom_args={}):
         self.root_dir = root_dir
         self.boot_dir = boot_dir or root_dir
         self.xml_state = xml_state
@@ -54,6 +54,7 @@ class BootLoaderConfigBase:
         self.efi_mount = None
         self.device_mount = None
         self.proc_mount = None
+        self.sys_mount = None
         self.tmp_mount = None
 
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
@@ -545,8 +546,13 @@ class BootLoaderConfigBase:
             device='/proc',
             mountpoint=self.root_mount.mountpoint + '/proc'
         )
+        self.sys_mount = MountManager(
+            device='/sys',
+            mountpoint=self.root_mount.mountpoint + '/sys'
+        )
         self.device_mount.bind_mount()
         self.proc_mount.bind_mount()
+        self.sys_mount.bind_mount()
 
     def _get_root_cmdline_parameter(self, boot_device):
         cmdline = self.xml_state.build_type.get_kernelcmdline()
@@ -584,6 +590,8 @@ class BootLoaderConfigBase:
             self.device_mount.umount()
         if self.proc_mount:
             self.proc_mount.umount()
+        if self.sys_mount:
+            self.sys_mount.umount()
         if self.efi_mount:
             self.efi_mount.umount()
         if self.tmp_mount:
