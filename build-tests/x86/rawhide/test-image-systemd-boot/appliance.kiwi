@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-systemd-boot">
+    <description type="system">
+        <author>Marcus Schaefer</author>
+        <contact>marcus.schaefer@gmail.com</contact>
+        <specification>Fedora Rawhide Appliance</specification>
+    </description>
+    <preferences>
+        <version>2.0.0</version>
+        <packagemanager>dnf</packagemanager>
+        <bootsplash-theme>charge</bootsplash-theme>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences>
+        <type image="oem" filesystem="xfs" kernelcmdline="console=ttyS0" firmware="efi" format="qcow2" efipartsize="200">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="systemd_boot" timeout="10"/>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
+        <source path="obs://Virtualization:Appliances:Staging/Fedora_Rawhide"/>
+    </repository>
+    <repository type="rpm-md" alias="Fedora_Rawhide">
+        <source path="obs://Fedora:Rawhide/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="kernel-core"/>
+        <package name="kernel-modules"/>
+        <package name="patch"/>
+        <package name="plymouth-theme-charge"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+        <package name="NetworkManager"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="fedora-release"/>
+    </packages>
+</image>
