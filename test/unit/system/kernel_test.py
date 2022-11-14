@@ -15,14 +15,6 @@ class TestKernel:
         mock_path_isdir.return_value = True
         mock_listdir.return_value = ['1.2.3-default']
         self.kernel = Kernel('root-dir')
-        assert self.kernel.kernel_names == [
-            'uImage-1.2.3-default',
-            'Image-1.2.3-default',
-            'zImage-1.2.3-default',
-            'vmlinuz-1.2.3-default',
-            'image-1.2.3-default',
-            'vmlinux-1.2.3-default'
-        ]
 
     @patch('os.listdir')
     @patch('os.path.isdir')

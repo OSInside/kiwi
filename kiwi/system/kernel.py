@@ -18,7 +18,7 @@
 import re
 import os
 from typing import (
-    NamedTuple, Optional
+    NamedTuple, Optional, List
 )
 
 # project
@@ -70,26 +70,30 @@ class Kernel:
 
         :rtype: tuple|None
         """
+        kernel_patterns = [
+            '.*/boot/.*?-(.*)',
+            '.*/lib/modules/(.*)/.*'
+        ]
         for kernel_name in self.kernel_names:
             kernel_file = os.sep.join(
-                [self.root_dir, 'boot', kernel_name]
+                [self.root_dir, kernel_name]
             )
             if os.path.exists(kernel_file):
-                version_match = re.match(
-                    '.*?-(.*)', os.path.basename(kernel_file)
-                )
-                if version_match:
-                    version = version_match.group(1)
-                    return kernel_type(
-                        name=os.path.basename(os.path.realpath(kernel_file)),
-                        filename=kernel_file,
-                        version=version
-                    )
+                for kernel_pattern in kernel_patterns:
+                    version_match = re.match(kernel_pattern, kernel_file)
+                    if version_match:
+                        version = version_match.group(1)
+                        return kernel_type(
+                            name=os.path.basename(
+                                os.path.realpath(kernel_file)
+                            ),
+                            filename=kernel_file,
+                            version=version
+                        )
         if raise_on_not_found:
             raise KiwiKernelLookupError(
                 'No kernel found in {0}, searched for {1}'.format(
-                    os.sep.join([self.root_dir, 'boot']),
-                    ','.join(self.kernel_names)
+                    self.root_dir, self.kernel_names
                 )
             )
         return None
@@ -150,7 +154,7 @@ class Kernel:
             )
             Command.run(['cp', xen.filename, target_file])
 
-    def _setup_kernel_names_for_lookup(self):
+    def _setup_kernel_names_for_lookup(self) -> List[str]:
         """
         The kernel image name is different per arch and distribution
         This method returns a list of possible kernel image names in
@@ -162,9 +166,15 @@ class Kernel:
         """
         kernel_names = []
         kernel_dirs = []
-        kernel_module_dir = ''.join([self.root_dir, '/lib/modules'])
-        if os.path.isdir(kernel_module_dir):
-            kernel_dirs = sorted(os.listdir(kernel_module_dir))
+        kernel_module_dirs = [
+            os.sep.join([self.root_dir, 'lib/modules']),
+            os.sep.join([self.root_dir, 'usr/lib/modules'])
+        ]
+        for kernel_module_dir in kernel_module_dirs:
+            if os.path.isdir(kernel_module_dir):
+                kernel_entries = sorted(os.listdir(kernel_module_dir))
+                if kernel_entries:
+                    kernel_dirs += kernel_entries
         if kernel_dirs:
             # append lookup for the real kernel image names
             # depending on the arch and os they are different
@@ -172,12 +182,17 @@ class Kernel:
             kernel_prefixes = [
                 'uImage', 'Image', 'zImage', 'vmlinuz', 'image', 'vmlinux'
             ]
-            kernel_name_pattern = '{prefix}-{name}'
             for kernel_prefix in kernel_prefixes:
                 for kernel_dir in kernel_dirs:
+                    # add kernel names to be found in boot
                     kernel_names.append(
-                        kernel_name_pattern.format(
-                            prefix=kernel_prefix, name=kernel_dir
-                        )
+                        f'boot/{kernel_prefix}-{kernel_dir}'
+                    )
+                    # add kernel names to be found in modules
+                    kernel_names.append(
+                        f'lib/modules/{kernel_dir}/{kernel_prefix}'
+                    )
+                    kernel_names.append(
+                        f'usr/lib/modules/{kernel_dir}/{kernel_prefix}'
                     )
         return kernel_names

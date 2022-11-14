@@ -56,7 +56,7 @@ class TestBootLoaderSystemdBoot:
     ):
         kernel_info = Mock()
         kernel_info.kernel_version = 'kernel-version'
-        kernel_info.kernel_name = 'kernel-name'
+        kernel_info.kernel_filename = 'kernel-filename'
         kernel_info.initrd_name = 'initrd-name'
         mock_os_path_exists.return_value = True
         mock_BootImageBase_get_boot_names.return_value = kernel_info
@@ -80,7 +80,7 @@ class TestBootLoaderSystemdBoot:
             call(
                 [
                     'chroot', 'system_root_mount', 'kernel-install', 'add',
-                    'kernel-version', '/boot/kernel-name',
+                    'kernel-version', 'kernel-filename',
                     '/boot/initrd-name'
                 ]
             )
