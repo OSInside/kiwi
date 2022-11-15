@@ -91,7 +91,9 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             [
                 'chroot', self.root_mount.mountpoint,
                 'kernel-install', 'add', kernel_info.kernel_version,
-                f'/boot/{kernel_info.kernel_name}',
+                kernel_info.kernel_filename.replace(
+                    self.root_mount.mountpoint, ''
+                ),
                 f'/boot/{kernel_info.initrd_name}'
             ]
         )

@@ -20,12 +20,16 @@ class TestBootImageBase:
     def setup(self, mock_exists):
         Defaults.set_platform_name('x86_64')
         self.boot_names_type = namedtuple(
-            'boot_names_type', ['kernel_name', 'initrd_name', 'kernel_version']
+            'boot_names_type', [
+                'kernel_name', 'initrd_name',
+                'kernel_version', 'kernel_filename'
+            ]
         )
         self.kernel = Mock()
         kernel_info = Mock
         kernel_info.name = 'kernel_name'
         kernel_info.version = 'kernel_version'
+        kernel_info.filename = 'kernel_filename'
         self.kernel.get_kernel.return_value = kernel_info
         self.boot_xml_state = Mock()
         self.xml_state = Mock()
@@ -132,13 +136,15 @@ class TestBootImageBase:
         assert self.boot_image.get_boot_names() == self.boot_names_type(
             kernel_name='kernel_name',
             initrd_name='initrd-kernel_version',
-            kernel_version='kernel_version'
+            kernel_version='kernel_version',
+            kernel_filename='kernel_filename'
         )
         self.xml_state.get_initrd_system.return_value = 'dracut'
         assert self.boot_image.get_boot_names() == self.boot_names_type(
             kernel_name='kernel_name',
             initrd_name='initramfs-kernel_version.img',
-            kernel_version='kernel_version'
+            kernel_version='kernel_version',
+            kernel_filename='kernel_filename'
         )
 
     @patch('kiwi.boot.image.base.Kernel')
@@ -160,7 +166,8 @@ class TestBootImageBase:
         assert self.boot_image.get_boot_names() == self.boot_names_type(
             kernel_name='kernel_name',
             initrd_name='initrd.img-kernel_version',
-            kernel_version='kernel_version'
+            kernel_version='kernel_version',
+            kernel_filename='kernel_filename'
         )
 
     @patch('kiwi.boot.image.base.Kernel')
@@ -181,13 +188,15 @@ class TestBootImageBase:
             assert self.boot_image.get_boot_names() == self.boot_names_type(
                 kernel_name='kernel_name',
                 initrd_name='initrd-kernel_version',
-                kernel_version='kernel_version'
+                kernel_version='kernel_version',
+                kernel_filename='kernel_filename'
             )
             file_handle.read.return_value = 'outfile="/boot/initrd-${kernel}"'
             assert self.boot_image.get_boot_names() == self.boot_names_type(
                 kernel_name='kernel_name',
                 initrd_name='initrd-kernel_version',
-                kernel_version='kernel_version'
+                kernel_version='kernel_version',
+                kernel_filename='kernel_filename'
             )
 
     def test_noop_methods(self):
