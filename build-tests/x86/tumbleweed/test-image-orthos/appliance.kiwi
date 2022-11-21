@@ -20,7 +20,7 @@
                 <oem-unattended>true</oem-unattended>
                 <oem-swap>false</oem-swap>
             </oemconfig>
-            <size unit="G">2</size>
+            <size unit="G">5</size>
         </type>
     </preferences>
     <users>
