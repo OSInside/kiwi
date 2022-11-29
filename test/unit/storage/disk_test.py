@@ -189,14 +189,14 @@ class TestDisk:
     def test_device_map_efi_partition(self, mock_command):
         self.disk.create_efi_partition('100')
         self.disk.map_partitions()
-        assert self.disk.partition_map == {'efi': '/dev/mapper/loop0p1'}
+        assert self.disk.partition_map == {'efi': '/dev/loop0p1'}
         self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
     def test_device_map_prep_partition(self, mock_command):
         self.disk.create_prep_partition('8')
         self.disk.map_partitions()
-        assert self.disk.partition_map == {'prep': '/dev/mapper/loop0p1'}
+        assert self.disk.partition_map == {'prep': '/dev/loop0p1'}
         self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
@@ -270,7 +270,7 @@ class TestDisk:
     def test_map_partitions_loop(self, mock_command):
         self.disk.map_partitions()
         mock_command.assert_called_once_with(
-            ['kpartx', '-s', '-a', '/dev/loop0']
+            ['partx', '--add', '/dev/loop0']
         )
         self.disk.is_mapped = False
 
@@ -283,25 +283,25 @@ class TestDisk:
         )
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor_dm_cleanup_failed(self, mock_command):
+    def test_destructor_loop_partition_cleanup_failed(self, mock_command):
         self.disk.is_mapped = True
-        self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
+        self.disk.partition_map = {'root': '/dev/loop0p1'}
         mock_command.side_effect = Exception
         self.disk.__del__()
         with self._caplog.at_level(logging.WARNING):
             mock_command.assert_called_once_with(
-                ['dmsetup', 'remove', '/dev/mapper/loop0p1']
+                ['partx', '--delete', '/dev/loop0p1']
             )
         self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
     def test_destructor(self, mock_command):
         self.disk.is_mapped = True
-        self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
+        self.disk.partition_map = {'root': '/dev/loop0p1'}
         self.disk.__del__()
         assert mock_command.call_args_list == [
-            call(['dmsetup', 'remove', '/dev/mapper/loop0p1']),
-            call(['kpartx', '-d', '/dev/loop0'])
+            call(['partx', '--delete', '/dev/loop0p1']),
+            call(['partx', '--delete', '/dev/loop0'])
         ]
         self.disk.is_mapped = False
 

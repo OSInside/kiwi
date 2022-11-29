@@ -400,7 +400,7 @@ class Disk(DeviceProvider):
         """
         if self.storage_provider.is_loop():
             Command.run(
-                ['kpartx', '-s', '-a', self.storage_provider.get_device()]
+                ['partx', '--add', self.storage_provider.get_device()]
             )
             self.is_mapped = True
         else:
@@ -482,7 +482,7 @@ class Disk(DeviceProvider):
         if self.storage_provider.is_loop():
             device_base = os.path.basename(self.storage_provider.get_device())
             device_node = ''.join(
-                ['/dev/mapper/', device_base, 'p', partition_number]
+                ['/dev/', device_base, 'p', partition_number]
             )
         else:
             device = self.storage_provider.get_device()
@@ -503,9 +503,9 @@ class Disk(DeviceProvider):
             log.info('Cleaning up %s instance', type(self).__name__)
             try:
                 for device_node in self.partition_map.values():
-                    Command.run(['dmsetup', 'remove', device_node])
+                    Command.run(['partx', '--delete', device_node])
                 Command.run(
-                    ['kpartx', '-d', self.storage_provider.get_device()]
+                    ['partx', '--delete', self.storage_provider.get_device()]
                 )
             except Exception:
                 log.warning(
