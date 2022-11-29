@@ -1,8 +1,6 @@
 KIWI - Next Generation
 ======================
 
-.. |GitLab CI Pipeline| image:: https://gitlab.com/kiwi3/kiwi-ci/badges/master/pipeline.svg
-   :target: https://gitlab.com/kiwi3/kiwi-ci/-/pipelines
 .. |GitHub Action Code Style| image:: https://github.com/OSInside/kiwi/actions/workflows/ci-code-style.yml/badge.svg
    :target: https://github.com/OSInside/kiwi/actions
 .. |GitHub Action Config Functions| image:: https://github.com/OSInside/kiwi/actions/workflows/ci-config-functions.yml/badge.svg
@@ -23,7 +21,7 @@ KIWI - Next Generation
 .. |Donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif
    :target: https://www.paypal.me/SchaeferMarcus
 
-|GitLab CI Pipeline| |GitHub Action Config Functions| |GitHub Action Documentation| |GitHub Action Publish Pages| |GitHub Action Publish PyPi| |GitHub Action Unit Types| |Health|
+|GitHub Action Config Functions| |GitHub Action Documentation| |GitHub Action Publish Pages| |GitHub Action Publish PyPi| |GitHub Action Unit Types| |Health|
 
 **KIWI, the OS image and appliance builder.**
 
