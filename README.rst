@@ -21,7 +21,7 @@ KIWI - Next Generation
 .. |Donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif
    :target: https://www.paypal.me/SchaeferMarcus
 
-|GitHub Action Config Functions| |GitHub Action Documentation| |GitHub Action Publish Pages| |GitHub Action Publish PyPi| |GitHub Action Unit Types| |Health|
+|GitHub Action Code Style| |GitHub Action Config Functions| |GitHub Action Documentation| |GitHub Action Publish Pages| |GitHub Action Publish PyPi| |GitHub Action Unit Types| |Health|
 
 **KIWI, the OS image and appliance builder.**
 
