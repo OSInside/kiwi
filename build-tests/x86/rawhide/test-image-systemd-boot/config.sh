@@ -15,15 +15,6 @@ declare kiwi_iname
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Fix kernel-install
-#--------------------------------------
-# patch sent upstream and merged. This patching here can
-# be deleted as soon as the main distro has an update for
-# systemd available
-patch -p0 < kernel-install.patch
-rm -f kernel-install.patch
-
-#======================================
 # Activate services
 #--------------------------------------
 baseInsertService dbus-broker
