@@ -83,7 +83,6 @@
     </packages>
     <packages type="image" profiles="virtualbox">
         <package name="virtualbox-guest-tools"/>
-        <package name="virtualbox-guest-x11"/>
         <package name="virtualbox-kmp-default"/>
     </packages>
     <packages type="bootstrap">
