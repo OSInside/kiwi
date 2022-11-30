@@ -23,7 +23,9 @@ usage: kiwi-ng system prepare -h | --help
            [--ignore-repos]
            [--ignore-repos-used-for-build]
            [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>]
+           [--set-repo-credentials=<user:pass>]
            [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>...]
+           [--add-repo-credentials=<user:pass>...]
            [--add-package=<name>...]
            [--add-bootstrap-package=<name>...]
            [--delete-package=<name>...]
@@ -51,6 +53,11 @@ options:
         component list for debian based repos as string delimited by a space,
         main distribution name for debian based repos and
         repo_gpgcheck(true|false)
+    --add-repo-credentials=<user:pass>
+        for uri://user:pass@location type repositories, set the user and
+        password connected with an add-repo specification. The first
+        add-repo-credentials is connected with the first add-repo
+        specification and so on.
     --allow-existing-root
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
@@ -90,11 +97,16 @@ options:
         component list for debian based repos as string delimited by a space,
         main distribution name for debian based repos and
         repo_gpgcheck(true|false)
+     --set-repo-credentials=<user:pass>
+        for uri://user:pass@location type repositories, set the user and
+        password connected to the set-repo specification
      --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
 """
 import os
 import logging
+from itertools import zip_longest
+from urllib.parse import urlparse
 
 # project
 from kiwi.tasks.base import CliTask
@@ -149,13 +161,19 @@ class SystemPrepareTask(CliTask):
 
         if self.command_args['--set-repo']:
             self.xml_state.set_repository(
-                *self._get_repo_parameters(self.command_args['--set-repo'])
+                *self._get_repo_parameters(
+                    self.command_args['--set-repo'],
+                    self.command_args['--set-repo-credentials']
+                )
             )
 
         if self.command_args['--add-repo']:
-            for add_repo in self.command_args['--add-repo']:
+            for add_repo, add_credentials in zip_longest(
+                self.command_args['--add-repo'],
+                self.command_args['--add-repo-credentials']
+            ):
                 self.xml_state.add_repository(
-                    *self._get_repo_parameters(add_repo)
+                    *self._get_repo_parameters(add_repo, add_credentials)
                 )
 
         if self.command_args['--set-container-tag']:
@@ -287,10 +305,18 @@ class SystemPrepareTask(CliTask):
             return False
         return self.manual
 
-    def _get_repo_parameters(self, tokens):
+    def _get_repo_parameters(self, tokens, credentials):
         parameters = self.tentuple_token(tokens)
         signing_keys_index = 6
+        repo_source_index = 0
         if not parameters[signing_keys_index]:
             # make sure to pass empty list for signing_keys param
             parameters[signing_keys_index] = []
+        if credentials:
+            repo_source = parameters[repo_source_index]
+            repo_scheme = urlparse(repo_source).scheme
+            if repo_scheme:
+                repo_source = repo_source.replace(f'{repo_scheme}://', '')
+                repo_source = f'{repo_scheme}://{credentials}@{repo_source}'
+                parameters[repo_source_index] = repo_source
         return parameters

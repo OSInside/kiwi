@@ -19,7 +19,9 @@ SYNOPSIS
        [--ignore-repos]
        [--ignore-repos-used-for-build]
        [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>]
+       [--set-repo-credentials=<user:pass>]
        [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>...]
+       [--add-repo-credentials=<user:pass>...]
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
        [--delete-package=<name>...]
@@ -68,6 +70,13 @@ OPTIONS
   description. This option can be specified multiple times.
   For details about the provided option values see the **--set-repo**
   information below
+
+--add-repo-credentials=<user:pass>
+
+  For **uri://user:pass@location** type repositories, set the user and
+  password connected with an add-repo specification. The first
+  add-repo-credentials is connected with the first add-repo
+  specification and so on.
 
 --allow-existing-root
 
@@ -168,17 +177,22 @@ OPTIONS
     Set to either **true** or **false** to specify if this repository
     should validate the repository signature.
 
+--set-repo-credentials=<user:pass>
+
+  For **uri://user:pass@location** type repositories, set the user and
+  password connected to the set-repo specification
+
 --set-container-derived-from=<uri>
 
-    overwrite the source location of the base container for the selected
-    image type. The setting is only effective if the configured image type
-    is setup with an initial derived_from reference
+  Overwrite the source location of the base container for the selected
+  image type. The setting is only effective if the configured image type
+  is setup with an initial derived_from reference
 
 --set-container-tag=<name>
 
-    overwrite the container tag in the container configuration.
-    The setting is only effective if the container configuraiton
-    provides an initial tag value
+  Overwrite the container tag in the container configuration.
+  The setting is only effective if the container configuraiton
+  provides an initial tag value
 
 --signing-key=<key-file>
 

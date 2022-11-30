@@ -51,6 +51,7 @@ class TestCli:
         }
         self.command_args = {
             '--add-repo': [],
+            '--add-repo-credentials': [],
             '--allow-existing-root': False,
             '--description': 'description',
             '--help': False,
@@ -59,6 +60,7 @@ class TestCli:
             '--clear-cache': False,
             '--root': 'directory',
             '--set-repo': None,
+            '--set-repo-credentials': None,
             '--add-package': [],
             '--add-bootstrap-package': [],
             '--delete-package': [],
