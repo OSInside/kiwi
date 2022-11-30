@@ -283,14 +283,14 @@ class TestDisk:
         )
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor_loop_partition_cleanup_failed(self, mock_command):
+    def test_destructor_loop_cleanup_failed(self, mock_command):
         self.disk.is_mapped = True
         self.disk.partition_map = {'root': '/dev/loop0p1'}
         mock_command.side_effect = Exception
         self.disk.__del__()
         with self._caplog.at_level(logging.WARNING):
             mock_command.assert_called_once_with(
-                ['partx', '--delete', '/dev/loop0p1']
+                ['partx', '--delete', '/dev/loop0']
             )
         self.disk.is_mapped = False
 
@@ -300,7 +300,6 @@ class TestDisk:
         self.disk.partition_map = {'root': '/dev/loop0p1'}
         self.disk.__del__()
         assert mock_command.call_args_list == [
-            call(['partx', '--delete', '/dev/loop0p1']),
             call(['partx', '--delete', '/dev/loop0'])
         ]
         self.disk.is_mapped = False

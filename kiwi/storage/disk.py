@@ -502,8 +502,6 @@ class Disk(DeviceProvider):
         if self.storage_provider.is_loop() and self.is_mapped:
             log.info('Cleaning up %s instance', type(self).__name__)
             try:
-                for device_node in self.partition_map.values():
-                    Command.run(['partx', '--delete', device_node])
                 Command.run(
                     ['partx', '--delete', self.storage_provider.get_device()]
                 )
