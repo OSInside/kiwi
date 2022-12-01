@@ -17,6 +17,9 @@ iso:
 oci:
   - archive_tool: umoci
 
+mapper:
+  - part_mapper: partx
+
 container:
   - compress: none
 

@@ -1708,6 +1708,17 @@ class Defaults:
         return 'umoci'
 
     @staticmethod
+    def get_part_mapper_tool():
+        """
+        Provides the default partition mapper tool name.
+
+        :return: name
+
+        :rtype: str
+        """
+        return 'partx'
+
+    @staticmethod
     def get_default_container_tag():
         """
         Provides the default container tag.

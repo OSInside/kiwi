@@ -28,6 +28,7 @@ from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.partitioner import Partitioner
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.exceptions import KiwiCustomPartitionConflictError
 
 ptable_entry_type = NamedTuple(
@@ -66,6 +67,7 @@ class Disk(DeviceProvider):
             partitions will be placed as logical partitions inside
             of that extended partition
         """
+        self.partition_mapper = RuntimeConfig().get_mapper_tool()
         # bind the underlaying block device providing class instance
         # to this object (e.g loop) if present. This is done to guarantee
         # the correct destructor order when the device should be released.
@@ -399,9 +401,14 @@ class Disk(DeviceProvider):
         required to map them if the storage provider is loop based
         """
         if self.storage_provider.is_loop():
-            Command.run(
-                ['partx', '--add', self.storage_provider.get_device()]
-            )
+            if self.partition_mapper == 'kpartx':
+                Command.run(
+                    ['kpartx', '-s', '-a', self.storage_provider.get_device()]
+                )
+            else:
+                Command.run(
+                    ['partx', '--add', self.storage_provider.get_device()]
+                )
             self.is_mapped = True
         else:
             Command.run(
@@ -481,9 +488,14 @@ class Disk(DeviceProvider):
         partition_number = format(self.partitioner.get_id())
         if self.storage_provider.is_loop():
             device_base = os.path.basename(self.storage_provider.get_device())
-            device_node = ''.join(
-                ['/dev/', device_base, 'p', partition_number]
-            )
+            if self.partition_mapper == 'kpartx':
+                device_node = ''.join(
+                    ['/dev/mapper/', device_base, 'p', partition_number]
+                )
+            else:
+                device_node = ''.join(
+                    ['/dev/', device_base, 'p', partition_number]
+                )
         else:
             device = self.storage_provider.get_device()
             if device[-1].isdigit():
@@ -502,9 +514,16 @@ class Disk(DeviceProvider):
         if self.storage_provider.is_loop() and self.is_mapped:
             log.info('Cleaning up %s instance', type(self).__name__)
             try:
-                Command.run(
-                    ['partx', '--delete', self.storage_provider.get_device()]
-                )
+                if self.partition_mapper == 'kpartx':
+                    for device_node in self.partition_map.values():
+                        Command.run(['dmsetup', 'remove', device_node])
+                    Command.run(
+                        ['kpartx', '-d', self.storage_provider.get_device()]
+                    )
+                else:
+                    Command.run(
+                        ['partx', '--delete', self.storage_provider.get_device()]
+                    )
             except Exception:
                 log.warning(
                     'cleanup of partition device maps failed, %s still busy',

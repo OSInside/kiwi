@@ -79,6 +79,11 @@
 #  # is checked prior to the result bundle creation
 #  - max_size: 700m
 
+# Setup process parameters for partition mapping
+#mapper:
+#  # Specify tool to use for creating partition maps
+#  # Possible values are: kpartx and partx
+#  - part_mapper: partx
 
 # Setup process parameters to handle runtime checks
 #runtime_checks:

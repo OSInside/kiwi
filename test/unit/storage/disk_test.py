@@ -1,6 +1,6 @@
 import logging
 from mock import (
-    patch, mock_open, call
+    patch, mock_open, call, Mock
 )
 from pytest import (
     fixture, raises
@@ -19,7 +19,11 @@ class TestDisk:
         self._caplog = caplog
 
     @patch('kiwi.storage.disk.Partitioner.new')
-    def setup(self, mock_partitioner):
+    @patch('kiwi.storage.disk.RuntimeConfig')
+    def setup(self, mock_RuntimeConfig, mock_partitioner):
+        runtime_config = Mock()
+        runtime_config.get_mapper_tool.return_value = 'partx'
+        mock_RuntimeConfig.return_value = runtime_config
         self.tempfile = mock.Mock()
         self.tempfile.name = 'tempfile'
 
@@ -39,7 +43,8 @@ class TestDisk:
         self.disk = Disk('gpt', self.storage_provider)
 
     @patch('kiwi.storage.disk.Partitioner.new')
-    def setup_method(self, cls, mock_partitioner):
+    @patch('kiwi.storage.disk.RuntimeConfig')
+    def setup_method(self, cls, mock_RuntimeConfig, mock_partitioner):
         self.setup()
 
     @patch('os.path.exists')
@@ -186,10 +191,18 @@ class TestDisk:
             self.disk.create_custom_partitions(table_entries)
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_device_map_efi_partition(self, mock_command):
+    def test_device_map_efi_partition_partx(self, mock_command):
         self.disk.create_efi_partition('100')
         self.disk.map_partitions()
         assert self.disk.partition_map == {'efi': '/dev/loop0p1'}
+        self.disk.is_mapped = False
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_device_map_efi_partition_kpartx(self, mock_command):
+        self.disk.partition_mapper = 'kpartx'
+        self.disk.create_efi_partition('100')
+        self.disk.map_partitions()
+        assert self.disk.partition_map == {'efi': '/dev/mapper/loop0p1'}
         self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
@@ -267,10 +280,19 @@ class TestDisk:
             )
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_map_partitions_loop(self, mock_command):
+    def test_map_partitions_loop_partx(self, mock_command):
         self.disk.map_partitions()
         mock_command.assert_called_once_with(
             ['partx', '--add', '/dev/loop0']
+        )
+        self.disk.is_mapped = False
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_map_partitions_loop_kpartx(self, mock_command):
+        self.disk.partition_mapper = 'kpartx'
+        self.disk.map_partitions()
+        mock_command.assert_called_once_with(
+            ['kpartx', '-s', '-a', '/dev/loop0']
         )
         self.disk.is_mapped = False
 
@@ -283,7 +305,7 @@ class TestDisk:
         )
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor_loop_cleanup_failed(self, mock_command):
+    def test_destructor_partx_loop_cleanup_failed(self, mock_command):
         self.disk.is_mapped = True
         self.disk.partition_map = {'root': '/dev/loop0p1'}
         mock_command.side_effect = Exception
@@ -295,12 +317,37 @@ class TestDisk:
         self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor(self, mock_command):
+    def test_destructor_dm_loop_cleanup_failed(self, mock_command):
+        self.disk.partition_mapper = 'kpartx'
+        self.disk.is_mapped = True
+        self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
+        mock_command.side_effect = Exception
+        self.disk.__del__()
+        with self._caplog.at_level(logging.WARNING):
+            mock_command.assert_called_once_with(
+                ['dmsetup', 'remove', '/dev/mapper/loop0p1']
+            )
+        self.disk.is_mapped = False
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_destructor_partx(self, mock_command):
         self.disk.is_mapped = True
         self.disk.partition_map = {'root': '/dev/loop0p1'}
         self.disk.__del__()
         assert mock_command.call_args_list == [
             call(['partx', '--delete', '/dev/loop0'])
+        ]
+        self.disk.is_mapped = False
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_destructor_kpartx(self, mock_command):
+        self.disk.partition_mapper = 'kpartx'
+        self.disk.is_mapped = True
+        self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
+        self.disk.__del__()
+        assert mock_command.call_args_list == [
+            call(['dmsetup', 'remove', '/dev/mapper/loop0p1']),
+            call(['kpartx', '-d', '/dev/loop0'])
         ]
         self.disk.is_mapped = False
 
