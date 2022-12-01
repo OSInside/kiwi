@@ -67,6 +67,7 @@ class TestRuntimeConfig:
         assert runtime_config.get_container_compression() is False
         assert runtime_config.get_iso_tool_category() == 'xorriso'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
+        assert runtime_config.get_mapper_tool() == 'partx'
         assert runtime_config.get_package_changes() is True
         assert runtime_config.get_disabled_runtime_checks() == [
             'check_dracut_module_for_oem_install_in_package_list',
@@ -92,6 +93,7 @@ class TestRuntimeConfig:
         assert runtime_config.get_container_compression() is True
         assert runtime_config.get_iso_tool_category() == 'xorriso'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
+        assert runtime_config.get_mapper_tool() == 'partx'
         assert runtime_config.get_package_changes() is False
         assert runtime_config.\
             get_credentials_verification_metadata_signing_key_file() == ''

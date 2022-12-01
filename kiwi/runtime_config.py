@@ -329,6 +329,25 @@ class RuntimeConfig:
         )
         return oci_archive_tool or Defaults.get_oci_archive_tool()
 
+    def get_mapper_tool(self):
+        """
+        Return partition mapper tool
+
+        mapper:
+          - part_mapper: partx
+
+        if no configuration exists the default tool from the
+        Defaults class is returned
+
+        :return: A name
+
+        :rtype: str
+        """
+        part_mapper_tool = self._get_attribute(
+            element='mapper', attribute='part_mapper'
+        )
+        return part_mapper_tool or Defaults.get_part_mapper_tool()
+
     def get_max_size_constraint(self):
         """
         Returns the maximum allowed size of the built image. The value is
