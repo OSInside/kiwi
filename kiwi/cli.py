@@ -270,7 +270,7 @@ class Cli:
                     Defaults.set_temp_location(value)
                 if arg == '--target-arch' and value:
                     Defaults.set_platform_name(value)
-                if arg == '--config' and value:
+                if arg == '--config' and value:  # pragma: no cover
                     Defaults.set_custom_runtime_config_file(value)
                 result[arg] = value
         return result
