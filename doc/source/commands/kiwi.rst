@@ -116,7 +116,7 @@ GLOBAL OPTIONS
 
 --logfile=<filename>
 
-  Specify log file. the logfile contains detailed information about
+  Specify log file. The logfile contains detailed information about
   the process. The special call: `--logfile stdout` sends all
   information to standard out instead of writing to a file
 
