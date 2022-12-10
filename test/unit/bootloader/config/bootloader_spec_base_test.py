@@ -1,4 +1,6 @@
-from mock import patch
+from mock import (
+    patch, Mock
+)
 from pytest import (
     raises, fixture
 )
@@ -34,6 +36,7 @@ class TestBootLoaderSpecBase:
     def test_setup_disk_image_config(
         self, mock_setup_loader, mock_set_loader_entry
     ):
+        self.bootloader.get_boot_cmdline = Mock(return_value='')
         self.bootloader.setup_disk_image_config(
             'boot_uuid', 'root_uuid', 'hypervisor',
             'kernel', 'initrd', boot_options={
