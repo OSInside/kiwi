@@ -17,6 +17,9 @@
 #
 import os
 import logging
+from typing import (
+    Dict, List
+)
 
 # project
 from kiwi.defaults import Defaults
@@ -58,7 +61,7 @@ class ContainerImageOCI:
             }
         }
     """
-    def __init__(self, root_dir, transport, custom_args=None):
+    def __init__(self, root_dir: str, transport: str, custom_args: Dict = {}):
         self.root_dir = root_dir
         self.archive_transport = transport
         if custom_args:
@@ -97,7 +100,10 @@ class ContainerImageOCI:
             self.oci_config['history']['created_by'] = \
                 Defaults.get_default_container_created_by()
 
-    def create(self, filename, base_image, ensure_empty_tmpdirs=True):
+    def create(
+        self, filename: str, base_image: str,
+        ensure_empty_tmpdirs: bool = True
+    ):
         """
         Create compressed oci system container tar archive
 
@@ -140,7 +146,7 @@ class ContainerImageOCI:
             self.oci_config['container_name'],
             self.oci_config['container_tag']
         )
-        additional_refs = []
+        additional_refs: List[str] = []
         if self.archive_transport == 'docker-archive':
             if 'additional_names' in self.oci_config:
                 additional_refs = []
