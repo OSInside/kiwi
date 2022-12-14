@@ -272,7 +272,12 @@ class TestSystemPrepareTask:
         )
 
     @patch('kiwi.xml_state.XMLState.set_repository')
-    def test_process_system_prepare_set_repo(self, mock_set_repo):
+    @patch('os.path.isfile')
+    @patch('os.unlink')
+    def test_process_system_prepare_set_repo(
+        self, mock_os_unlink, mock_os_path_is_file, mock_set_repo
+    ):
+        mock_os_path_is_file.return_value = False
         self._init_command_args()
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
@@ -287,6 +292,15 @@ class TestSystemPrepareTask:
             'http://user:pass@example.com', 'yast2', 'alias',
             None, None, None, [], None, None, None
         )
+        self.task.command_args['--set-repo-credentials'] = '../data/credentials'
+        mock_os_path_is_file.return_value = True
+        mock_set_repo.reset_mock()
+        self.task.process()
+        mock_set_repo.assert_called_once_with(
+            'http://user:pass@example.com', 'yast2', 'alias',
+            None, None, None, [], None, None, None
+        )
+        mock_os_unlink.assert_called_once_with('../data/credentials')
 
     @patch('kiwi.xml_state.XMLState.add_repository')
     def test_process_system_prepare_add_repo(self, mock_add_repo):

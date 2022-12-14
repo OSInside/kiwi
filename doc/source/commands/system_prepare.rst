@@ -17,9 +17,9 @@ SYNOPSIS
        [--ignore-repos]
        [--ignore-repos-used-for-build]
        [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>]
-       [--set-repo-credentials=<user:pass>]
+       [--set-repo-credentials=<user:pass_or_filename>]
        [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>...]
-       [--add-repo-credentials=<user:pass>...]
+       [--add-repo-credentials=<user:pass_or_filename>...]
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
        [--delete-package=<name>...]
@@ -71,12 +71,14 @@ OPTIONS
   For details about the provided option values see the **--set-repo**
   information below
 
---add-repo-credentials=<user:pass>
+--add-repo-credentials=<user:pass_or_filename>
 
   For **uri://user:pass@location** type repositories, set the user and
   password connected with an add-repo specification. The first
   add-repo-credentials is connected with the first add-repo
-  specification and so on.
+  specification and so on. If the provided value describes a filename
+  in the filesystem, the first line of that file is read and used
+  as credentials information.
 
 --allow-existing-root
 
@@ -178,10 +180,12 @@ OPTIONS
     Set to either **true** or **false** to specify if this repository
     should validate the repository signature.
 
---set-repo-credentials=<user:pass>
+--set-repo-credentials=<user:pass_or_filename>
 
   For **uri://user:pass@location** type repositories, set the user and
-  password connected to the set-repo specification
+  password connected to the set-repo specification. If the provided value
+  describes a filename in the filesystem, the first line of that file is
+  read and used as credentials information.
 
 --set-container-derived-from=<uri>
 
