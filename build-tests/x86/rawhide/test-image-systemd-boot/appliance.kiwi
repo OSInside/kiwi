@@ -35,6 +35,7 @@
     <packages type="image">
         <package name="kernel-core"/>
         <package name="kernel-modules"/>
+        <package name="systemd-boot-unsigned"/>
         <package name="patch"/>
         <package name="plymouth-theme-charge"/>
         <package name="selinux-policy-targeted"/>
