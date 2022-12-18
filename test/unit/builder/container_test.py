@@ -19,7 +19,7 @@ class TestContainerBuilder:
             return_value=None
         )
         self.runtime_config.get_container_compression = mock.Mock(
-            return_value=True
+            return_value=False
         )
         kiwi.builder.container.RuntimeConfig = mock.Mock(
             return_value=self.runtime_config
@@ -142,14 +142,14 @@ class TestContainerBuilder:
             'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(
-            'target_dir/image_name.x86_64-1.2.3.docker.tar', None, True
+            'target_dir/image_name.x86_64-1.2.3.docker.tar', None, True, False
         )
         assert self.container.result.add.call_args_list == [
             call(
                 key='container',
                 filename='target_dir/image_name.x86_64-1.2.3.docker.tar',
                 use_for_bundle=True,
-                compress=True,
+                compress=False,
                 shasum=True
             ),
             call(
@@ -229,14 +229,14 @@ class TestContainerBuilder:
         container_image.create.assert_called_once_with(
             'target_dir/image_name.x86_64-1.2.3.docker.tar',
             'root_dir/image/imported_root',
-            True
+            True, False
         )
         assert container.result.add.call_args_list == [
             call(
                 key='container',
                 filename='target_dir/image_name.x86_64-1.2.3.docker.tar',
                 use_for_bundle=True,
-                compress=True,
+                compress=False,
                 shasum=True
             ),
             call(
@@ -330,5 +330,5 @@ class TestContainerBuilder:
         container_image.create.assert_called_once_with(
             'target_dir/image_name.x86_64-1.2.3.docker.tar',
             'root_dir/image/imported_root',
-            False
+            False, False
         )

@@ -144,7 +144,10 @@ class ContainerBuilder:
             self.requested_container_type, self.root_dir, self.container_config
         )
         self.filename = container_image.create(
-            self.filename, self.base_image, self.ensure_empty_tmpdirs
+            self.filename, self.base_image, self.ensure_empty_tmpdirs,
+            self.runtime_config.get_container_compression()
+            # appx containers already contains a compressed root
+            if self.requested_container_type != 'appx' else False
         )
         Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(),
@@ -152,15 +155,11 @@ class ContainerBuilder:
         )
         if self.bundle_format:
             self.result.add_bundle_format(self.bundle_format)
-        compress = False
-        # appx handles compression in container_image.create
-        if self.requested_container_type != 'appx':
-            compress = self.runtime_config.get_container_compression()
         self.result.add(
             key='container',
             filename=self.filename,
             use_for_bundle=True,
-            compress=compress,
+            compress=False,
             shasum=True
         )
         self.result.add(

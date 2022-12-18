@@ -1,10 +1,8 @@
 import logging
 from pytest import fixture
 from mock import (
-    patch, mock_open
+    patch, mock_open, Mock
 )
-
-import mock
 
 import kiwi
 
@@ -22,11 +20,11 @@ class TestContainerImageOCI:
     def setup(self, mock_is_buildservice_worker, mock_cmd_caps):
         mock_is_buildservice_worker.return_value = False
         mock_cmd_caps.return_value = True
-        self.runtime_config = mock.Mock()
-        self.runtime_config.get_container_compression = mock.Mock(
+        self.runtime_config = Mock()
+        self.runtime_config.get_container_compression = Mock(
             return_value=None
         )
-        kiwi.container.oci.RuntimeConfig = mock.Mock(
+        kiwi.container.oci.RuntimeConfig = Mock(
             return_value=self.runtime_config
         )
         self.oci = ContainerImageOCI(
@@ -137,13 +135,16 @@ class TestContainerImageOCI:
 
     @patch('kiwi.container.oci.OCI')
     @patch('kiwi.container.oci.Defaults.get_shared_cache_location')
-    def test_create_oci_archive(self, mock_cache, mock_OCI):
+    @patch('kiwi.container.oci.Compress')
+    def test_create_oci_archive(self, mock_Compress, mock_cache, mock_OCI):
+        compress = Mock()
+        mock_Compress.return_value = compress
         mock_cache.return_value = 'var/cache/kiwi'
-        mock_oci = mock.Mock()
+        mock_oci = Mock()
         mock_OCI.new.return_value = mock_oci
 
         self.oci.archive_transport = 'oci-archive'
-        self.oci.create('result.tar', None)
+        self.oci.create('result.tar', '', True, True)
 
         mock_oci.init_container.assert_called_once_with()
         mock_oci.unpack.assert_called_once_with()
@@ -153,23 +154,30 @@ class TestContainerImageOCI:
                 '.buildenv', 'var/cache/kiwi', 'dev/*', 'sys/*', 'proc/*'
             ]
         )
-        mock_oci.repack.assert_called_once_with({
-            'container_name': 'foo/bar',
-            'additional_names': [':current', 'name:foobar', 'newname'],
-            'container_tag': 'latest',
-            'entry_subcommand': ['/bin/bash'],
-            'history': {'created_by': 'KIWI {0}'.format(__version__)}
-        })
-        mock_oci.set_config.assert_called_once_with({
-            'container_name': 'foo/bar',
-            'additional_names': [':current', 'name:foobar', 'newname'],
-            'container_tag': 'latest',
-            'entry_subcommand': ['/bin/bash'],
-            'history': {'created_by': 'KIWI {0}'.format(__version__)}
-        })
+        mock_oci.repack.assert_called_once_with(
+            {
+                'container_name': 'foo/bar',
+                'additional_names': [':current', 'name:foobar', 'newname'],
+                'container_tag': 'latest',
+                'entry_subcommand': ['/bin/bash'],
+                'history': {'created_by': 'KIWI {0}'.format(__version__)}
+            }
+        )
+        mock_oci.set_config.assert_called_once_with(
+            {
+                'container_name': 'foo/bar',
+                'additional_names': [':current', 'name:foobar', 'newname'],
+                'container_tag': 'latest',
+                'entry_subcommand': ['/bin/bash'],
+                'history': {'created_by': 'KIWI {0}'.format(__version__)}
+            }
+        )
         mock_oci.post_process.assert_called_once_with()
         mock_oci.export_container_image.assert_called_once_with(
             'result.tar', 'oci-archive', 'foo/bar:latest', []
+        )
+        compress.xz.assert_called_once_with(
+            self.runtime_config.get_xz_options.return_value
         )
 
     @patch('kiwi.container.oci.OCI')
@@ -178,7 +186,7 @@ class TestContainerImageOCI:
         self, mock_cache, mock_OCI
     ):
         mock_cache.return_value = 'var/cache/kiwi'
-        mock_oci = mock.Mock()
+        mock_oci = Mock()
         mock_OCI.new.return_value = mock_oci
 
         self.runtime_config.get_container_compression.return_value = 'xz'
