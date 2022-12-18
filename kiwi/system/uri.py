@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import logging
 from lxml import etree
 from urllib.parse import (
@@ -164,6 +165,15 @@ class Uri:
             raise KiwiUriStyleUnknown(
                 'URI schema %s not supported' % self.uri
             )
+
+    @staticmethod
+    def print_sensitive(location: str) -> str:
+        uri_with_credentials_pattern = '^.*://(.*:.*)@.*'
+        sensitive_match = re.match(uri_with_credentials_pattern, location)
+        if sensitive_match:
+            return location.replace(sensitive_match.group(1), '******')
+        else:
+            return location
 
     def credentials_file_name(self) -> str:
         """

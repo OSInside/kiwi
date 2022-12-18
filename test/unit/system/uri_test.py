@@ -264,3 +264,9 @@ class TestUri:
         mock_urlopen.side_effect = Exception
         with raises(KiwiUriOpenError):
             uri = Uri('https://metalink.com/foo', source_type='metalink')
+
+    def test_print_sensitive(self):
+        assert Uri.print_sensitive('https://user:pass@location') == \
+            'https://******@location'
+        assert Uri.print_sensitive('https://server.example.com/location') == \
+            'https://server.example.com/location'

@@ -51,6 +51,7 @@ class TestCli:
         }
         self.command_args = {
             '--add-repo': [],
+            '--add-repo-credentials': [],
             '--allow-existing-root': False,
             '--description': 'description',
             '--help': False,
@@ -59,6 +60,7 @@ class TestCli:
             '--clear-cache': False,
             '--root': 'directory',
             '--set-repo': None,
+            '--set-repo-credentials': None,
             '--add-package': [],
             '--add-bootstrap-package': [],
             '--delete-package': [],
@@ -164,18 +166,6 @@ class TestCli:
 
     def test_get_command_args(self):
         assert self.cli.get_command_args() == self.command_args
-
-    def test_get_global_args(self):
-        self.cli.all_args['--config'] = 'config-file'
-        sys.argv = [
-            sys.argv[0],
-            '--config', 'config-file',
-            'system', 'build',
-            '--description', 'description',
-            '--target-dir', 'directory'
-        ]
-        cli = Cli()
-        assert cli.get_global_args() == self.expected_global_args
 
     def test_load_command(self):
         assert self.cli.load_command() == self.loaded_command

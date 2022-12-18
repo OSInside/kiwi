@@ -161,7 +161,9 @@ class SystemPrepare:
             repo_sourcetype = xml_repo.get_sourcetype()
             repo_use_for_bootstrap = \
                 True if xml_repo.get_use_for_bootstrap() else False
-            log.info('Setting up repository %s', repo_source)
+            log.info(
+                'Setting up repository %s', Uri.print_sensitive(repo_source)
+            )
             log.info('--> Type: {0}'.format(repo_type))
             if repo_sourcetype:
                 log.info('--> SourceType: {0}'.format(repo_sourcetype))
@@ -170,7 +172,11 @@ class SystemPrepare:
 
             uri = Uri(repo_source, repo_type)
             repo_source_translated = uri.translate()
-            log.info('--> Translated: {0}'.format(repo_source_translated))
+            log.info(
+                '--> Translated: {0}'.format(
+                    Uri.print_sensitive(repo_source_translated)
+                )
+            )
             if not repo_alias:
                 repo_alias = uri.alias()
             log.info('--> Alias: {0}'.format(repo_alias))

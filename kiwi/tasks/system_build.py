@@ -23,7 +23,9 @@ usage: kiwi-ng system build -h | --help
            [--ignore-repos]
            [--ignore-repos-used-for-build]
            [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>]
+           [--set-repo-credentials=<user:pass_or_filename>]
            [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>...]
+           [--add-repo-credentials=<user:pass_or_filename>...]
            [--add-package=<name>...]
            [--add-bootstrap-package=<name>...]
            [--delete-package=<name>...]
@@ -52,6 +54,13 @@ options:
         component list for debian based repos as string delimited by a space,
         main distribution name for debian based repos and
         repo_gpgcheck(true|false)
+    --add-repo-credentials=<user:pass_or_filename>
+        for uri://user:pass@location type repositories, set the user and
+        password connected with an add-repo specification. The first
+        add-repo-credentials is connected with the first add-repo
+        specification and so on. If the provided value describes a
+        filename in the filesystem, the first line of that file is read
+        and used as credentials information.
     --allow-existing-root
         allow to use an existing root directory from an earlier
         build attempt. Use with caution this could cause an inconsistent
@@ -90,6 +99,11 @@ options:
         component list for debian based repos as string delimited by a space,
         main distribution name for debian based repos and
         repo_gpgcheck(true|false)
+    --set-repo-credentials=<user:pass_or_filename>
+        for uri://user:pass@location type repositories, set the user and
+        password connected to the set-repo specification. If the provided
+        value describes a filename in the filesystem, the first line of that
+        file is read and used as credentials information.
     --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
     --target-dir=<directory>
@@ -97,6 +111,8 @@ options:
 """
 import os
 import logging
+from itertools import zip_longest
+from urllib.parse import urlparse
 
 # project
 from kiwi.tasks.base import CliTask
@@ -164,13 +180,19 @@ class SystemBuildTask(CliTask):
 
         if self.command_args['--set-repo']:
             self.xml_state.set_repository(
-                *self._get_repo_parameters(self.command_args['--set-repo'])
+                *self._get_repo_parameters(
+                    self.command_args['--set-repo'],
+                    self.command_args['--set-repo-credentials']
+                )
             )
 
         if self.command_args['--add-repo']:
-            for add_repo in self.command_args['--add-repo']:
+            for add_repo, add_credentials in zip_longest(
+                self.command_args['--add-repo'],
+                self.command_args['--add-repo-credentials']
+            ):
                 self.xml_state.add_repository(
-                    *self._get_repo_parameters(add_repo)
+                    *self._get_repo_parameters(add_repo, add_credentials)
                 )
 
         if self.command_args['--set-container-tag']:
@@ -311,10 +333,22 @@ class SystemBuildTask(CliTask):
             return False
         return self.manual
 
-    def _get_repo_parameters(self, tokens):
+    def _get_repo_parameters(self, tokens, credentials):
         parameters = self.tentuple_token(tokens)
         signing_keys_index = 6
+        repo_source_index = 0
         if not parameters[signing_keys_index]:
             # make sure to pass empty list for signing_keys param
             parameters[signing_keys_index] = []
+        if credentials:
+            if os.path.isfile(credentials):
+                credentials_data = open(credentials).readline().strip(os.linesep)
+                os.unlink(credentials)
+                credentials = credentials_data
+            repo_source = parameters[repo_source_index]
+            repo_scheme = urlparse(repo_source).scheme
+            if repo_scheme:
+                repo_source = repo_source.replace(f'{repo_scheme}://', '')
+                repo_source = f'{repo_scheme}://{credentials}@{repo_source}'
+                parameters[repo_source_index] = repo_source
         return parameters

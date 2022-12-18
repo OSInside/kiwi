@@ -280,7 +280,7 @@ class CliTask:
 
         :rtype: list
         """
-        tokens = option.split(',', tuple_count - 1)
+        tokens = option.split(',', tuple_count - 1) if option else []
         return [
             self._pop_token(tokens) if len(tokens) else None for _ in range(
                 0, tuple_count

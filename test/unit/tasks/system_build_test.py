@@ -3,7 +3,9 @@ import sys
 import mock
 import os
 from pytest import fixture
-from mock import patch, call
+from mock import (
+    patch, call
+)
 
 import kiwi
 
@@ -92,7 +94,9 @@ class TestSystemBuildTask:
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--target-dir'] = 'some-target'
         self.task.command_args['--set-repo'] = None
+        self.task.command_args['--set-repo-credentials'] = None
         self.task.command_args['--add-repo'] = []
+        self.task.command_args['--add-repo-credentials'] = []
         self.task.command_args['--add-package'] = []
         self.task.command_args['--add-bootstrap-package'] = []
         self.task.command_args['--delete-package'] = []
@@ -279,9 +283,12 @@ class TestSystemBuildTask:
 
     @patch('kiwi.xml_state.XMLState.set_repository')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('os.path.isfile')
+    @patch('os.unlink')
     def test_process_system_build_prepare_stage_set_repo(
-        self, mock_log, mock_set_repo
+        self, mock_os_unlink, mock_os_path_is_file, mock_log, mock_set_repo
     ):
+        mock_os_path_is_file.return_value = False
         self._init_command_args()
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
@@ -289,6 +296,22 @@ class TestSystemBuildTask:
             'http://example.com', 'yast2', 'alias',
             None, None, None, [], None, None, None
         )
+        self.task.command_args['--set-repo-credentials'] = 'user:pass'
+        mock_set_repo.reset_mock()
+        self.task.process()
+        mock_set_repo.assert_called_once_with(
+            'http://user:pass@example.com', 'yast2', 'alias',
+            None, None, None, [], None, None, None
+        )
+        self.task.command_args['--set-repo-credentials'] = '../data/credentials'
+        mock_os_path_is_file.return_value = True
+        mock_set_repo.reset_mock()
+        self.task.process()
+        mock_set_repo.assert_called_once_with(
+            'http://user:pass@example.com', 'yast2', 'alias',
+            None, None, None, [], None, None, None
+        )
+        mock_os_unlink.assert_called_once_with('../data/credentials')
 
     @patch('kiwi.xml_state.XMLState.add_repository')
     @patch('kiwi.logger.Logger.set_logfile')
@@ -297,13 +320,45 @@ class TestSystemBuildTask:
     ):
         self._init_command_args()
         self.task.command_args['--add-repo'] = [
-            'http://example.com,yast2,alias,99,false,true'
+            'http://example1.com,yast2,alias,99,false,true',
+            'http://example2.com,yast2,alias,99,false,true',
+            'http://example3.com,yast2,alias,99,false,true'
         ]
         self.task.process()
-        mock_add_repo.assert_called_once_with(
-            'http://example.com', 'yast2', 'alias', '99',
-            False, True, [], None, None, None
-        )
+        assert mock_add_repo.call_args_list == [
+            call(
+                'http://example1.com', 'yast2', 'alias', '99',
+                False, True, [], None, None, None
+            ),
+            call(
+                'http://example2.com', 'yast2', 'alias', '99',
+                False, True, [], None, None, None
+            ),
+            call(
+                'http://example3.com', 'yast2', 'alias', '99',
+                False, True, [], None, None, None
+            )
+        ]
+        self.task.command_args['--add-repo-credentials'] = [
+            'user1:pass1',
+            'user2:pass2'
+        ]
+        mock_add_repo.reset_mock()
+        self.task.process()
+        assert mock_add_repo.call_args_list == [
+            call(
+                'http://user1:pass1@example1.com', 'yast2', 'alias', '99',
+                False, True, [], None, None, None
+            ),
+            call(
+                'http://user2:pass2@example2.com', 'yast2', 'alias', '99',
+                False, True, [], None, None, None
+            ),
+            call(
+                'http://example3.com', 'yast2', 'alias', '99',
+                False, True, [], None, None, None
+            )
+        ]
 
     def test_process_system_build_help(self):
         self._init_command_args()
