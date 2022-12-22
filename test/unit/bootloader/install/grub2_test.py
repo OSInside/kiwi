@@ -33,7 +33,9 @@ class TestBootLoaderInstallGrub2:
                 'volume_device': 'device'
             }},
             'firmware': self.firmware,
-            'target_removable': None
+            'target_removable': None,
+            'install_options': [],
+            'shim_options': []
         }
 
         self.root_mount = mock.Mock()

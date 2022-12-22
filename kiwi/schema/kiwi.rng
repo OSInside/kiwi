@@ -1334,6 +1334,90 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <shimoption>
+    
+  -->
+  <div>
+    <define name="k.shimoption.name.attribute">
+      <attribute name="name"/>
+    </define>
+    <define name="k.shimoption.value.attribute">
+      <attribute name="value"/>
+    </define>
+    <define name="k.shimoption.attlist">
+      <interleave>
+        <ref name="k.shimoption.name.attribute"/>
+        <optional>
+          <ref name="k.shimoption.value.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.shimoption">
+      <element name="shimoption">
+        <a:documentation>A shim setup option specification</a:documentation>
+        <ref name="k.shimoption.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <installoption>
+    
+  -->
+  <div>
+    <define name="k.installoption.name.attribute">
+      <attribute name="name"/>
+    </define>
+    <define name="k.installoption.value.attribute">
+      <attribute name="value"/>
+    </define>
+    <define name="k.installoption.attlist">
+      <interleave>
+        <ref name="k.installoption.name.attribute"/>
+        <optional>
+          <ref name="k.installoption.value.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.installoption">
+      <element name="installoption">
+        <a:documentation>A install command option specification</a:documentation>
+        <ref name="k.installoption.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <configoption>
+    
+  -->
+  <div>
+    <define name="k.configoption.name.attribute">
+      <attribute name="name"/>
+    </define>
+    <define name="k.configoption.value.attribute">
+      <attribute name="value"/>
+    </define>
+    <define name="k.configoption.attlist">
+      <interleave>
+        <ref name="k.configoption.name.attribute"/>
+        <optional>
+          <ref name="k.configoption.value.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.configoption">
+      <element name="configoption">
+        <a:documentation>A config command option specification</a:documentation>
+        <ref name="k.configoption.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <package>
     
   -->
@@ -4047,7 +4131,9 @@ for 4k DASD devices use CDL</a:documentation>
 and to provide configuration parameters for it</a:documentation>
         <interleave>
           <ref name="k.bootloader.attlist"/>
-          <empty/>
+          <optional>
+            <ref name="k.bootloadersettings"/>
+          </optional>
         </interleave>
       </element>
     </define>
@@ -4384,6 +4470,33 @@ of the storage device</a:documentation>
           <oneOrMore>
             <ref name="k.option"/>
           </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <bootloadersettings>
+    
+  -->
+  <div>
+    <define name="k.bootloadersettings.attlist">
+      <empty/>
+    </define>
+    <define name="k.bootloadersettings">
+      <element name="bootloadersettings">
+        <a:documentation>Additional bootloader settings</a:documentation>
+        <interleave>
+          <ref name="k.bootloadersettings.attlist"/>
+          <zeroOrMore>
+            <ref name="k.shimoption"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.installoption"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.configoption"/>
+          </zeroOrMore>
         </interleave>
       </element>
     </define>

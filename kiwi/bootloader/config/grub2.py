@@ -62,6 +62,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 {'grub_directory_name': 'grub|grub2'}
         """
         self.custom_args = custom_args
+        self.config_options = []
         arch = Defaults.get_platform_name()
         if arch == 'x86_64':
             # grub2 support for bios and efi systems
@@ -90,6 +91,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.boot_directory_name = self.custom_args['grub_directory_name']
         else:
             self.boot_directory_name = 'grub'
+
+        if self.custom_args and 'config_options' in self.custom_args:
+            self.config_options = self.custom_args['config_options']
 
         self.terminal = self.xml_state.get_build_type_bootloader_console() \
             or 'gfxterm'
@@ -549,6 +553,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * DEFAULT_APPEND
         * FAILSAFE_APPEND
         * SECURE_BOOT
+        * TRUSTED_BOOT
         """
         sysconfig_bootloader_entries = {
             'LOADER_TYPE':
@@ -556,6 +561,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'LOADER_LOCATION':
                 'none' if self.firmware.efi_mode() else 'mbr'
         }
+        if '--set-trusted-boot' in self.config_options:
+            sysconfig_bootloader_entries['TRUSTED_BOOT'] = 'yes'
         if self.firmware.efi_mode() == 'uefi':
             sysconfig_bootloader_entries['SECURE_BOOT'] = 'yes'
         if self.cmdline:

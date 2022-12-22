@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -1840,6 +1840,246 @@ class option(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class option
+
+
+class shimoption(GeneratedsSuper):
+    """A shim setup option specification"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, value=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.value = _cast(None, value)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, shimoption)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if shimoption.subclass:
+            return shimoption.subclass(*args_, **kwargs_)
+        else:
+            return shimoption(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='shimoption', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('shimoption')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='shimoption')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='shimoption', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='shimoption'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='shimoption', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('value', node)
+        if value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            self.value = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class shimoption
+
+
+class installoption(GeneratedsSuper):
+    """A install command option specification"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, value=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.value = _cast(None, value)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, installoption)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if installoption.subclass:
+            return installoption.subclass(*args_, **kwargs_)
+        else:
+            return installoption(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='installoption', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('installoption')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='installoption')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='installoption', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='installoption'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='installoption', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('value', node)
+        if value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            self.value = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class installoption
+
+
+class configoption(GeneratedsSuper):
+    """A config command option specification"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, value=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.value = _cast(None, value)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, configoption)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if configoption.subclass:
+            return configoption.subclass(*args_, **kwargs_)
+        else:
+            return configoption(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='configoption', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('configoption')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='configoption')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='configoption', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='configoption'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            outfile.write(' value=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value), input_name='value')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='configoption', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('value', node)
+        if value is not None and 'value' not in already_processed:
+            already_processed.add('value')
+            self.value = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class configoption
 
 
 class package(GeneratedsSuper):
@@ -5238,7 +5478,7 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, grub_template=None):
+    def __init__(self, name=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, grub_template=None, bootloadersettings=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.console = _cast(None, console)
@@ -5247,6 +5487,7 @@ class bootloader(GeneratedsSuper):
         self.timeout_style = _cast(None, timeout_style)
         self.targettype = _cast(None, targettype)
         self.grub_template = _cast(None, grub_template)
+        self.bootloadersettings = bootloadersettings
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5258,6 +5499,8 @@ class bootloader(GeneratedsSuper):
         else:
             return bootloader(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_bootloadersettings(self): return self.bootloadersettings
+    def set_bootloadersettings(self, bootloadersettings): self.bootloadersettings = bootloadersettings
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
     def get_console(self): return self.console
@@ -5281,7 +5524,7 @@ class bootloader(GeneratedsSuper):
     validate_grub_console_patterns_ = [['^(console|gfxterm|serial)( (console|gfxterm|serial))*$']]
     def hasContent_(self):
         if (
-
+            self.bootloadersettings is not None
         ):
             return True
         else:
@@ -5303,6 +5546,7 @@ class bootloader(GeneratedsSuper):
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
             self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='bootloader', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
@@ -5329,7 +5573,12 @@ class bootloader(GeneratedsSuper):
             already_processed.add('grub_template')
             outfile.write(' grub_template=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.grub_template), input_name='grub_template')), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='bootloader', fromsubclass_=False, pretty_print=True):
-        pass
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.bootloadersettings is not None:
+            self.bootloadersettings.export(outfile, level, namespaceprefix_, name_='bootloadersettings', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5377,7 +5626,11 @@ class bootloader(GeneratedsSuper):
             already_processed.add('grub_template')
             self.grub_template = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        pass
+        if nodeName_ == 'bootloadersettings':
+            obj_ = bootloadersettings.factory()
+            obj_.build(child_)
+            self.bootloadersettings = obj_
+            obj_.original_tagname_ = 'bootloadersettings'
 # end class bootloader
 
 
@@ -6314,6 +6567,121 @@ class luksformat(GeneratedsSuper):
             self.option.append(obj_)
             obj_.original_tagname_ = 'option'
 # end class luksformat
+
+
+class bootloadersettings(GeneratedsSuper):
+    """Additional bootloader settings"""
+    subclass = None
+    superclass = None
+    def __init__(self, shimoption=None, installoption=None, configoption=None):
+        self.original_tagname_ = None
+        if shimoption is None:
+            self.shimoption = []
+        else:
+            self.shimoption = shimoption
+        if installoption is None:
+            self.installoption = []
+        else:
+            self.installoption = installoption
+        if configoption is None:
+            self.configoption = []
+        else:
+            self.configoption = configoption
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, bootloadersettings)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if bootloadersettings.subclass:
+            return bootloadersettings.subclass(*args_, **kwargs_)
+        else:
+            return bootloadersettings(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_shimoption(self): return self.shimoption
+    def set_shimoption(self, shimoption): self.shimoption = shimoption
+    def add_shimoption(self, value): self.shimoption.append(value)
+    def insert_shimoption_at(self, index, value): self.shimoption.insert(index, value)
+    def replace_shimoption_at(self, index, value): self.shimoption[index] = value
+    def get_installoption(self): return self.installoption
+    def set_installoption(self, installoption): self.installoption = installoption
+    def add_installoption(self, value): self.installoption.append(value)
+    def insert_installoption_at(self, index, value): self.installoption.insert(index, value)
+    def replace_installoption_at(self, index, value): self.installoption[index] = value
+    def get_configoption(self): return self.configoption
+    def set_configoption(self, configoption): self.configoption = configoption
+    def add_configoption(self, value): self.configoption.append(value)
+    def insert_configoption_at(self, index, value): self.configoption.insert(index, value)
+    def replace_configoption_at(self, index, value): self.configoption[index] = value
+    def hasContent_(self):
+        if (
+            self.shimoption or
+            self.installoption or
+            self.configoption
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='bootloadersettings', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('bootloadersettings')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='bootloadersettings')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='bootloadersettings', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='bootloadersettings'):
+        pass
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='bootloadersettings', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for shimoption_ in self.shimoption:
+            shimoption_.export(outfile, level, namespaceprefix_, name_='shimoption', pretty_print=pretty_print)
+        for installoption_ in self.installoption:
+            installoption_.export(outfile, level, namespaceprefix_, name_='installoption', pretty_print=pretty_print)
+        for configoption_ in self.configoption:
+            configoption_.export(outfile, level, namespaceprefix_, name_='configoption', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'shimoption':
+            obj_ = shimoption.factory()
+            obj_.build(child_)
+            self.shimoption.append(obj_)
+            obj_.original_tagname_ = 'shimoption'
+        elif nodeName_ == 'installoption':
+            obj_ = installoption.factory()
+            obj_.build(child_)
+            self.installoption.append(obj_)
+            obj_.original_tagname_ = 'installoption'
+        elif nodeName_ == 'configoption':
+            obj_ = configoption.factory()
+            obj_.build(child_)
+            self.configoption.append(obj_)
+            obj_.original_tagname_ = 'configoption'
+# end class bootloadersettings
 
 
 class environment(GeneratedsSuper):
@@ -8943,7 +9311,9 @@ __all__ = [
     "archive",
     "argument",
     "bootloader",
+    "bootloadersettings",
     "collectionModule",
+    "configoption",
     "containerconfig",
     "description",
     "dracut",
@@ -8960,6 +9330,7 @@ __all__ = [
     "include",
     "initrd",
     "installmedia",
+    "installoption",
     "k_source",
     "label",
     "labels",
@@ -8979,6 +9350,7 @@ __all__ = [
     "profiles",
     "repository",
     "requires",
+    "shimoption",
     "signing",
     "size",
     "source",

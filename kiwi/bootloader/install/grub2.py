@@ -61,6 +61,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.arch = Defaults.get_platform_name()
         self.custom_args = custom_args
         self.install_arguments = []
+        self.shim_install_arguments = []
         self.firmware = None
         self.efi_mount = None
         self.root_mount = None
@@ -77,6 +78,10 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.volumes = custom_args['system_volumes']
         if custom_args and 'firmware' in custom_args:
             self.firmware = custom_args['firmware']
+        if custom_args and 'install_options' in custom_args:
+            self.install_arguments = custom_args['install_options']
+        if custom_args and 'shim_options' in custom_args:
+            self.shim_install_arguments = custom_args['shim_options']
 
         if self.firmware and self.firmware.efi_mode():
             if not custom_args or 'efi_device' not in custom_args:
@@ -265,7 +270,8 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 Command.run(
                     [
                         'chroot', self.root_mount.mountpoint,
-                        'shim-install', '--removable',
+                        'shim-install', '--removable'
+                    ] + self.shim_install_arguments + [
                         self.device
                     ]
                 )

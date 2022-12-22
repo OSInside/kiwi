@@ -1026,6 +1026,61 @@ class XMLState:
             return bootloader.get_targettype()
         return None
 
+    def get_build_type_bootloader_settings_section(self) -> Any:
+        """
+        First bootloadersettings section from the build
+        type bootloader section
+
+        :return: <bootloadersettings> section reference
+
+        :rtype: xml_parse::bootloadersettings
+        """
+        bootloader_section = self.get_build_type_bootloader_section()
+        bootloader_settings_section = None
+        if bootloader_section:
+            bootloader_settings_section = \
+                bootloader_section.get_bootloadersettings()
+        return bootloader_settings_section
+
+    def get_bootloader_options(self, option_type: str) -> List[str]:
+        """
+        List of custom options used in the process to
+        run bootloader setup workloads
+        """
+        result: List[str] = []
+        bootloader_settings = self.get_build_type_bootloader_settings_section()
+        if bootloader_settings:
+            options = []
+            if option_type == 'shim':
+                options = bootloader_settings.get_shimoption()
+            elif option_type == 'install':
+                options = bootloader_settings.get_installoption()
+            elif option_type == 'config':
+                options = bootloader_settings.get_configoption()
+            for option in options:
+                result.append(option.get_name())
+                if option.get_value():
+                    result.append(option.get_value())
+        return result
+
+    def get_bootloader_shim_options(self) -> List[str]:
+        """
+        List of custom options used in the process to setup secure boot
+        """
+        return self.get_bootloader_options('shim')
+
+    def get_bootloader_install_options(self) -> List[str]:
+        """
+        List of custom options used in the bootloader installation
+        """
+        return self.get_bootloader_options('install')
+
+    def get_bootloader_config_options(self) -> List[str]:
+        """
+        List of custom options used in the bootloader configuration
+        """
+        return self.get_bootloader_options('config')
+
     def get_build_type_oemconfig_section(self) -> Any:
         """
         First oemconfig section from the build type section

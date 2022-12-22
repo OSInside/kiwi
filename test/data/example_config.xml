@@ -115,6 +115,16 @@
     </preferences>
     <preferences profiles="vmxSimpleFlavour">
         <type image="oem" filesystem="ext3" format="vmdk" kernelcmdline="splash" bootpartition="false">
+            <bootloader name="grub2">
+                <bootloadersettings>
+                    <shimoption name="--foo" value="bar"/>
+                    <shimoption name="--suse-we-adapt-you-succeed"/>
+                    <installoption name="--A" value="123"/>
+                    <installoption name="B"/>
+                    <configoption name="--joe"/>
+                    <configoption name="-x"/>
+                </bootloadersettings>
+            </bootloader>
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>

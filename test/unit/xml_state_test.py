@@ -1104,3 +1104,16 @@ class TestXMLState:
 
     def test_get_bootstrap_package_name(self):
         assert self.apt_state.get_bootstrap_package_name() == 'bootstrap-me'
+
+    def test_get_bootloader_options(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
+        assert state.get_bootloader_shim_options() == [
+            '--foo', 'bar', '--suse-we-adapt-you-succeed'
+        ]
+        assert state.get_bootloader_install_options() == [
+            '--A', '123', 'B'
+        ]
+        assert state.get_bootloader_config_options() == [
+            '--joe', '-x'
+        ]
