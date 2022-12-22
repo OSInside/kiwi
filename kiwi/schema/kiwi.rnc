@@ -2428,7 +2428,7 @@ div {
     k.partition.filesystem.attribute =
         ## Filesystem which should be created on the partition
         attribute filesystem {
-            "btrfs" | "ext2" | "ext3" | "ext4" | "squashfs" | "xfs"
+            "btrfs" | "ext2" | "ext3" | "ext4" | "squashfs" | "xfs" | "fat32" | "fat16"
         }
     k.partition.clone.attribute =
         ## Clone this partition N times
