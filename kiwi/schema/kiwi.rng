@@ -3637,6 +3637,8 @@ Allowed values are: t.linux</a:documentation>
           <value>ext4</value>
           <value>squashfs</value>
           <value>xfs</value>
+          <value>fat32</value>
+          <value>fat16</value>
         </choice>
       </attribute>
     </define>
