@@ -56,11 +56,15 @@ class OCIUmoci(OCIBase):
 
         :param str container_image_ref: container image reference
         """
-        Command.run([
-            'skopeo', 'copy', container_image_ref, 'oci:{0}:{1}'.format(
-                self.container_dir, Defaults.get_container_base_image_tag()
-            )
-        ])
+        Command.run(
+            [
+                'skopeo', 'copy', container_image_ref, 'oci:{0}:{1}'.format(
+                    self.container_dir, Defaults.get_container_base_image_tag()
+                )
+            ] + [
+                '--tmpdir', Defaults.get_temp_location()
+            ] if self._skopeo_provides_tmpdir_option() else []
+        )
 
     def export_container_image(
         self, filename, transport, image_ref, additional_names=None
@@ -82,10 +86,14 @@ class OCIUmoci(OCIBase):
         # make sure the target tar file does not exist
         # skopeo doesn't support force overwrite
         Path.wipe(filename)
-        Command.run([
-            'skopeo', 'copy', 'oci:{0}'.format(self.working_image),
-            '{0}:{1}:{2}'.format(transport, filename, image_ref)
-        ] + extra_tags_opt)
+        Command.run(
+            [
+                'skopeo', 'copy', 'oci:{0}'.format(self.working_image),
+                '{0}:{1}:{2}'.format(transport, filename, image_ref)
+            ] + extra_tags_opt + [
+                '--tmpdir', Defaults.get_temp_location()
+            ] if self._skopeo_provides_tmpdir_option() else []
+        )
 
     def init_container(self):
         """

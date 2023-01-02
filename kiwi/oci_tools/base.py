@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 from datetime import datetime
 
 # project
+from kiwi.path import Path
+from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.utils.sync import DataSync
 
 
@@ -154,3 +157,18 @@ class OCIBase:
         sync.sync_data(
             options=options, exclude=exclude_list
         )
+
+    @staticmethod
+    def _skopeo_provides_tmpdir_option() -> bool:
+        """
+        Check if skopeo provides the --tmpdir option
+        Beginning with version >= 0.2 skopeo provides it.
+        """
+        tool = 'skopeo'
+        expected_version = (0, 2, 0)
+        if Path.which(filename=tool, access_mode=os.X_OK):
+            if CommandCapabilities.check_version(
+                tool, expected_version, raise_on_error=False
+            ):
+                return True
+        return False
