@@ -20,7 +20,6 @@ for project in \
     Virtualization:Appliances:Images:Testing_arm:fedora \
     Virtualization:Appliances:Images:Testing_ppc:tumbleweed \
     Virtualization:Appliances:Images:Testing_ppc:sle15 \
-    Virtualization:Appliances:Images:Testing_ppc:fedora \
     Virtualization:Appliances:Images:Testing_x86:archlinux
 do
     echo "${project}"
