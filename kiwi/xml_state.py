@@ -1054,6 +1054,20 @@ class XMLState:
         else:
             return True
 
+    def get_oemconfig_oem_systemsize(self) -> int:
+        """
+        State value to retrieve root partition size
+
+        :return: Content of <oem-systemsize> section value
+
+        :rtype: int
+        """
+        oemconfig = self.get_build_type_oemconfig_section()
+        if oemconfig and oemconfig.get_oem_systemsize():
+            return int(oemconfig.get_oem_systemsize()[0])
+        else:
+            return 0
+
     def get_oemconfig_oem_multipath_scan(self) -> bool:
         """
         State value to activate multipath maps. Returns a boolean

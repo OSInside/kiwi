@@ -144,6 +144,8 @@ class DiskBuilder:
         self.target_removable = xml_state.build_type.get_target_removable()
         self.root_filesystem_is_multipath = \
             xml_state.get_oemconfig_oem_multipath_scan()
+        self.oem_systemsize = xml_state.get_oemconfig_oem_systemsize()
+        self.oem_resize = xml_state.get_oemconfig_oem_resize()
         self.disk_resize_requested = \
             xml_state.get_oemconfig_oem_resize()
         self.swap_mbytes = xml_state.get_oemconfig_swap_mbytes()
@@ -937,7 +939,13 @@ class DiskBuilder:
             rootfs_mbsize = disksize_mbytes - disksize_used_mbytes - \
                 self.spare_part_mbsize - Defaults.get_min_partition_mbytes()
         else:
-            rootfs_mbsize = 'all_free'
+            if self.oem_systemsize and not self.oem_resize:
+                rootfs_mbsize = self.oem_systemsize
+            else:
+                rootfs_mbsize = 'all_free'
+            log.info(
+                f'--> using {rootfs_mbsize}MB for the root(rw) partition if present'
+            )
 
         if self.root_filesystem_is_overlay and \
            self.root_filesystem_has_write_partition is False:
@@ -953,10 +961,13 @@ class DiskBuilder:
                 # case
                 root_clone_count = 0
             if root_clone_count:
-                clone_rootfs_mbsize = int(
-                    (disksize_mbytes - disksize_used_mbytes) / (root_clone_count + 1)
-                ) + Defaults.get_min_partition_mbytes()
-                rootfs_mbsize = f'clone:all_free:{clone_rootfs_mbsize}'
+                if rootfs_mbsize == 'all_free':
+                    clone_rootfs_mbsize = int(
+                        (disksize_mbytes - disksize_used_mbytes) / (root_clone_count + 1)
+                    ) + Defaults.get_min_partition_mbytes()
+                    rootfs_mbsize = f'clone:all_free:{clone_rootfs_mbsize}'
+                else:
+                    rootfs_mbsize = f'clone:{rootfs_mbsize}:{rootfs_mbsize}'
             if self.volume_manager_name and self.volume_manager_name == 'lvm':
                 log.info(
                     '--> creating {0} partition [with {1} clone(s)]'.format(

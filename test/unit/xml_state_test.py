@@ -576,6 +576,11 @@ class TestXMLState:
         state = XMLState(xml_data)
         assert state.get_oemconfig_oem_resize() is False
 
+    def test_get_oemconfig_oem_systemsize(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['vmxFlavour'], 'oem')
+        assert state.get_oemconfig_oem_systemsize() == 2048
+
     def test_get_oemconfig_oem_multipath_scan(self):
         xml_data = self.description.load()
         state = XMLState(xml_data, ['vmxFlavour'], 'oem')

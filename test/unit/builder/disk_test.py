@@ -787,6 +787,37 @@ class TestDiskBuilder:
             '/dev/root-device'
         )
 
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('random.randrange')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.SystemSetup')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('kiwi.builder.disk.Temporary.new_file')
+    def test_create_disk_standard_root_with_fixed_rootfs_size(
+        self, mock_Temporary_new_file,
+        mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
+        mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs
+    ):
+        self.disk_builder.root_filesystem_embed_verity_metadata = False
+        self.disk_builder.root_filesystem_is_overlay = False
+        self.disk_builder.volume_manager_name = None
+        self.setup.script_exists.return_value = False
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.root_clone_count = 1
+        self.disk_builder.oem_systemsize = 1024
+        self.disk_builder.oem_resize = False
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+
+        self.disk.create_root_partition.assert_called_once_with(
+            'clone:1024:1024', 1
+        )
+
     @patch('kiwi.builder.disk.DeviceProvider')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.FileSystemSquashFs')
