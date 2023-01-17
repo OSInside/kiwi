@@ -47,7 +47,6 @@ class TestRootImportOCI:
     def test_sync_data(self, mock_OCI, mock_path, mock_md5, mock_compress):
         oci = Mock()
         mock_OCI.new.return_value = oci
-        md5 = Mock()
         mock_md5.return_value = Mock()
 
         uncompress = Mock()
@@ -63,7 +62,6 @@ class TestRootImportOCI:
             'root_dir'
         )
         mock_md5.assert_called_once_with('root_dir/image/imported_root')
-        md5.md5.called_once_with('root_dir/image/imported_root.md5')
         uncompress.get_format.assert_called_once_with()
 
     @patch('kiwi.system.root_import.oci.Compress')
@@ -75,7 +73,6 @@ class TestRootImportOCI:
     ):
         oci = Mock()
         mock_OCI.new.return_value = oci
-        md5 = Mock()
         mock_md5.return_value = Mock()
 
         uncompress = Mock()
@@ -91,7 +88,6 @@ class TestRootImportOCI:
             'root_dir'
         )
         mock_md5.assert_called_once_with('root_dir/image/imported_root')
-        md5.md5.called_once_with('root_dir/image/imported_root.md5')
         uncompress.get_format.assert_called_once_with()
         uncompress.uncompress.assert_called_once_with(True)
 
@@ -105,7 +101,6 @@ class TestRootImportOCI:
         mock_exists.return_value = True
         oci = Mock()
         mock_OCI.new.return_value = oci
-        md5 = Mock()
         mock_md5.return_value = Mock()
         with patch.dict('os.environ', {'HOME': '../data'}):
             oci_import = RootImportOCI(
@@ -124,4 +119,3 @@ class TestRootImportOCI:
                 'root_dir'
             )
             mock_md5.assert_called_once_with('root_dir/image/imported_root')
-            md5.md5.called_once_with('root_dir/image/imported_root.md5')

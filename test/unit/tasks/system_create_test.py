@@ -77,10 +77,10 @@ class TestSystemCreateTask:
         self.task.process()
         self.runtime_checker.\
             check_target_directory_not_in_shared_cache.\
-            called_once_with(self.abs_target_dir)
+            assert_called_once_with(self.abs_root_dir)
         self.runtime_checker.\
             check_dracut_module_versions_compatible_to_kiwi.\
-            called_once_with(self.abs_target_dir)
+            assert_called_once_with(self.abs_root_dir)
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()
