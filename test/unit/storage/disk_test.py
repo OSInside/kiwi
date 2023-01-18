@@ -55,7 +55,7 @@ class TestDisk:
 
     def test_is_loop(self):
         self.disk.is_loop()
-        self.storage_provider.is_loop.called_once_with()
+        self.storage_provider.is_loop.assert_called_once_with()
 
     def test_create_root_partition(self):
         self.disk.create_root_partition('100', 1)
