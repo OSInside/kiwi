@@ -137,7 +137,7 @@ class TestBootImageKiwi:
         mock_os_chmod.assert_called_once_with(
             'temp-boot-directory', 0o755
         )
-        data.sync_data.assert_called_once_with(options=['-a'])
+        data.sync_data.assert_called_once_with(options=['--archive', '--hard-links', '--xattrs', '--acls', '--one-file-system', '--inplace'])
         mock_cpio.assert_called_once_with(
             ''.join(
                 [
