@@ -2311,7 +2311,7 @@ structure</a:documentation>
       </attribute>
       <sch:pattern id="squashfscompression" is-a="image_type">
         <sch:param name="attr" value="squashfscompression"/>
-        <sch:param name="types" value="oem pxe kis iso"/>
+        <sch:param name="types" value="oem pxe kis iso squashfs"/>
       </sch:pattern>
     </define>
     <define name="k.type.verity_blocks.attribute">
