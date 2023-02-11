@@ -1203,7 +1203,7 @@ class SystemSetup:
                         '%{RELEASE}', '%{ARCH}', '%{DISTURL}', '%{LICENSE}'
                     ]
                 ) + '\\n'
-            ] + dbpath_option
+            ] + dbpath_option, raise_on_error=False
         )
         with open(filename, 'w', encoding='utf-8') as packages:
             packages.write(
@@ -1258,7 +1258,7 @@ class SystemSetup:
             [
                 'rpm', '--root', self.root_dir,
                 '-qa', '--qf', '%{NAME}|\\n', '--changelog'
-            ] + dbpath_option
+            ] + dbpath_option, raise_on_error=False
         )
         with open(filename, 'w', encoding='utf-8') as changelog:
             changelog.write(query_call.output)
