@@ -133,6 +133,18 @@ class Path:
         )
 
     @staticmethod
+    def rename(cur, new):
+        """
+        Move path from cur name to new name
+
+        :param string cur: current path name
+        :param string new: new path name
+        """
+        Command.run(
+            ['mv', cur, new]
+        )
+
+    @staticmethod
     def remove_hierarchy(root, path):
         """
         Recursively remove an empty path and its sub directories

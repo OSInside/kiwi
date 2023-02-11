@@ -20,6 +20,7 @@ import logging
 
 # project
 from kiwi.system.root_import.base import RootImportBase
+from kiwi.mount_manager import MountManager
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.utils.compress import Compress
@@ -34,6 +35,7 @@ class RootImportOCI(RootImportBase):
     a oci image tarball file.
     """
     def post_init(self, custom_args):
+        self.overlay = None
         self.archive_transport = custom_args['archive_transport']
 
     def sync_data(self):
@@ -41,19 +43,7 @@ class RootImportOCI(RootImportBase):
         Synchronize data from the given base image to the target root
         directory.
         """
-        if not self.unknown_uri:
-            compressor = Compress(self.image_file)
-            if compressor.get_format():
-                compressor.uncompress(True)
-                self.uncompressed_image = compressor.uncompressed_filename
-            else:
-                self.uncompressed_image = self.image_file
-            image_uri = '{0}:{1}'.format(
-                self.archive_transport, self.uncompressed_image
-            )
-        else:
-            log.warning('Bypassing base image URI to OCI tools')
-            image_uri = self.unknown_uri
+        image_uri = self._get_image_uri()
 
         oci = OCI.new()
         oci.import_container_image(image_uri)
@@ -70,3 +60,50 @@ class RootImportOCI(RootImportBase):
             image_copy, 'oci-archive', Defaults.get_container_base_image_tag()
         )
         self._make_checksum(image_copy)
+
+    def overlay_data(self) -> None:
+        """
+        Synchronize data from the given base image to the target root
+        directory as an overlayfs mounted target.
+        """
+        image_uri = self._get_image_uri()
+
+        root_dir_ro = f'{self.root_dir}_ro'
+
+        oci = OCI.new()
+        oci.import_container_image(image_uri)
+        oci.unpack()
+        oci.import_rootfs(self.root_dir)
+        Path.rename(self.root_dir, root_dir_ro)
+        Path.create(self.root_dir)
+
+        self.overlay = MountManager(device=None, mountpoint=self.root_dir)
+        self.overlay.overlay_mount(root_dir_ro)
+
+    def overlay_finalize(self) -> None:
+        """
+        Umount the overlay root, delete lower and work directories
+        and move the upper (delta) to represent the final root_dir
+        """
+        if self.overlay:
+            self.overlay.umount()
+            Path.wipe(self.root_dir)
+            Path.rename(self.overlay.upper, self.root_dir)
+            Path.wipe(self.overlay.lower)
+            Path.wipe(self.overlay.work)
+
+    def _get_image_uri(self) -> str:
+        if not self.unknown_uri:
+            compressor = Compress(self.image_file)
+            if compressor.get_format():
+                compressor.uncompress(True)
+                self.uncompressed_image = compressor.uncompressed_filename
+            else:
+                self.uncompressed_image = self.image_file
+            image_uri = '{0}:{1}'.format(
+                self.archive_transport, self.uncompressed_image
+            )
+        else:
+            log.warning('Bypassing base image URI to OCI tools')
+            image_uri = self.unknown_uri
+        return image_uri

@@ -62,6 +62,24 @@ class MountManager:
                 ['mount', '-n', '--bind', self.device, self.mountpoint]
             )
 
+    def overlay_mount(self, lower: str) -> None:
+        self.device = 'overlay'
+        self.lower = lower
+        self.upper = f'{self.mountpoint}_cow'
+        self.work = f'{self.mountpoint}_work'
+        Path.create(self.upper)
+        Path.create(self.work)
+        if not self.is_mounted():
+            Command.run(
+                [
+                    'mount', '-t', 'overlay',
+                    self.device, self.mountpoint, '-o',
+                    'lowerdir={0},upperdir={1},workdir={2}'.format(
+                        lower, self.upper, self.work
+                    )
+                ]
+            )
+
     def tmpfs_mount(self) -> None:
         """
         tmpfs mount the device to the mountpoint

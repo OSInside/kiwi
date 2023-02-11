@@ -63,7 +63,10 @@ class ContainerBuilder:
         self.container_config['metadata_path'] = \
             xml_state.build_type.get_metadata_path()
 
-        if xml_state.get_derived_from_image_uri():
+        # FIXME
+        image_delta = True
+
+        if xml_state.get_derived_from_image_uri() and not image_delta:
             # The base image is expected to be unpacked by the kiwi
             # prepare step and stored inside of the root_dir/image directory.
             # In addition a md5 file of the image is expected too

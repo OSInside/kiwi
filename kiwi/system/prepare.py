@@ -61,6 +61,8 @@ class SystemPrepare:
         """
         Setup and host bind new root system at given root_dir directory
         """
+        self.root_import = None
+
         log.info('Setup root directory: %s', root_dir)
         if not log.getLogLevel() == logging.DEBUG and not log.get_logfile():
             self.issue_message = dedent('''
@@ -79,11 +81,18 @@ class SystemPrepare:
         )
         root.create()
         image_uri = xml_state.get_derived_from_image_uri()
+
+        # FIXME
+        image_delta = True
+
         if image_uri:
-            root_import = RootImport.new(
+            self.root_import = RootImport.new(
                 root_dir, image_uri, xml_state.build_type.get_image()
             )
-            root_import.sync_data()
+            if image_delta:
+                self.root_import.overlay_data()
+            else:
+                self.root_import.sync_data()
         root_bind = RootBind(
             root
         )
@@ -592,6 +601,8 @@ class SystemPrepare:
         try:
             if hasattr(self, 'root_bind'):
                 self.root_bind.cleanup()
+            if self.root_import:
+                self.root_import.overlay_finalize()
         except Exception as exc:
             log.info(
                 'Cleaning up {self_name:s} instance failed, got an exception '
