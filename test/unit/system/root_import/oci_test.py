@@ -65,6 +65,37 @@ class TestRootImportOCI:
         uncompress.get_format.assert_called_once_with()
 
     @patch('kiwi.system.root_import.oci.Compress')
+    @patch('kiwi.system.root_import.oci.Path.create')
+    @patch('kiwi.system.root_import.oci.Path.rename')
+    @patch('kiwi.system.root_import.oci.MountManager')
+    @patch('kiwi.system.root_import.oci.OCI')
+    def test_overlay_data(
+        self, mock_OCI, mock_MountManager, mock_path_rename,
+        mock_path_create, mock_compress
+    ):
+        oci = Mock()
+        mock_OCI.new.return_value = oci
+
+        self.oci_import.overlay_data()
+
+        mock_OCI.new.assert_called_once_with()
+
+        oci.import_container_image.assert_called_once_with(
+            f'oci-archive:{mock_compress.return_value.uncompressed_filename}'
+        )
+        oci.unpack.assert_called_once_with()
+        oci.import_rootfs.assert_called_once_with(
+            'root_dir'
+        )
+        mock_path_rename.assert_called_once_with(
+            'root_dir', 'root_dir_ro'
+        )
+        mock_path_create.assert_called_once_with('root_dir')
+        mock_MountManager.return_value.overlay_mount.assert_called_once_with(
+            'root_dir_ro'
+        )
+
+    @patch('kiwi.system.root_import.oci.Compress')
     @patch('kiwi.system.root_import.base.Checksum')
     @patch('kiwi.system.root_import.oci.Path.create')
     @patch('kiwi.system.root_import.oci.OCI')

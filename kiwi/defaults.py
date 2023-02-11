@@ -74,6 +74,7 @@ POST_DISK_SYNC_SCRIPT = 'disk.sh'
 PRE_DISK_SYNC_SCRIPT = 'pre_disk_sync.sh'
 POST_BOOTSTRAP_SCRIPT = 'post_bootstrap.sh'
 POST_PREPARE_SCRIPT = 'config.sh'
+POST_PREPARE_OVERLAY_SCRIPT = 'config-overlay.sh'
 PRE_CREATE_SCRIPT = 'images.sh'
 EDIT_BOOT_CONFIG_SCRIPT = 'edit_boot_config.sh'
 EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
@@ -338,6 +339,30 @@ class Defaults:
         return [
             '--archive', '--hard-links', '--xattrs', '--acls',
             '--one-file-system', '--inplace'
+        ]
+
+    @staticmethod
+    def get_removed_files_name():
+        """
+        Provides base file name to store removed files
+        in a delta root build
+        """
+        return 'removed'
+
+    @staticmethod
+    def get_exclude_list_for_removed_files_detection() -> List[str]:
+        """
+        Provides list of files/dirs to exclude from the removed
+        files detection in a delta root build
+        """
+        return [
+            'etc/hosts.kiwi',
+            'etc/hosts.sha',
+            'etc/resolv.conf.kiwi',
+            'etc/resolv.conf.sha',
+            'etc/sysconfig/proxy.kiwi',
+            'etc/sysconfig/proxy.sha',
+            'usr/lib/sysimage/rpm'
         ]
 
     @staticmethod

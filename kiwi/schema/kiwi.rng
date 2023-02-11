@@ -3012,6 +3012,16 @@ to work on.</a:documentation>
         <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
+    <define name="k.type.delta_root.attribute">
+      <attribute name="delta_root">
+        <a:documentation>Together with derived_from create a delta root tree</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="delta_root" is-a="image_type">
+        <sch:param name="attr" value="delta_root"/>
+        <sch:param name="types" value="docker oci"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.ensure_empty_tmpdirs.attribute">
       <attribute name="ensure_empty_tmpdirs">
         <a:documentation>Whether to ensure /run and /tmp directories are empty in the
@@ -3305,6 +3315,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.derived_from.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.delta_root.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.ensure_empty_tmpdirs.attribute"/>

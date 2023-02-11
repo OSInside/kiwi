@@ -48,6 +48,13 @@ class TestPath:
         assert not mock_command.called
 
     @patch('kiwi.command.Command.run')
+    def test_rename(self, mock_command):
+        Path.rename('cur', 'new')
+        mock_command.assert_called_once_with(
+            ['mv', 'cur', 'new']
+        )
+
+    @patch('kiwi.command.Command.run')
     def test_remove(self, mock_command):
         Path.remove('foo')
         mock_command.assert_called_once_with(

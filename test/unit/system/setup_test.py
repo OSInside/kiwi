@@ -109,7 +109,14 @@ class TestSystemSetup:
         mock_iglob.assert_called_once_with(
             '{0}/config-cdroot.tar*'.format(self.description_dir)
         )
+        print(mock_command.call_args_list)
         assert mock_command.call_args_list == [
+            call(
+                [
+                    'cp', '{0}/config-overlay.sh'.format(self.description_dir),
+                    'root_dir/image/config-overlay.sh'
+                ]
+            ),
             call(
                 [
                     'cp', '{0}/config.sh'.format(self.description_dir),
@@ -182,7 +189,7 @@ class TestSystemSetup:
         self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
-            True, False, True, True, True, True, True, True, True, True
+            True, False, True, True, True, True, True, True, True, True, True
         ]
 
         def side_effect(arg):
@@ -194,6 +201,12 @@ class TestSystemSetup:
             self.setup_with_real_xml.import_description()
 
         assert mock_command.call_args_list == [
+            call(
+                [
+                    'cp', '{0}/config-overlay.sh'.format(self.description_dir),
+                    'root_dir/image/config-overlay.sh'
+                ]
+            ),
             call(
                 [
                     'cp', '{0}/config.sh'.format(self.description_dir),
@@ -257,7 +270,7 @@ class TestSystemSetup:
     def test_import_description_configured_editboot_scripts_not_found(
         self, mock_path, mock_command
     ):
-        path_return_values = [False, True, True, True]
+        path_return_values = [False, True, True, True, True]
 
         def side_effect(arg):
             return path_return_values.pop()
@@ -274,7 +287,7 @@ class TestSystemSetup:
         self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
-            False, False, True, True, True, True, True, True
+            False, False, True, True, True, True, True, True, True
         ]
 
         def side_effect(arg):
@@ -838,6 +851,35 @@ class TestSystemSetup:
         mock_copy_deepcopy.assert_called_once_with(os.environ)
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'bash', 'image/images.sh'], {}
+        )
+
+    @patch('kiwi.system.setup.Profile')
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command_process.CommandProcess.poll_and_watch')
+    @patch('os.path.exists')
+    @patch('os.stat')
+    @patch('os.access')
+    @patch('copy.deepcopy')
+    def test_call_config_overlay_script(
+        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
+        mock_watch, mock_command, mock_Profile
+    ):
+        mock_copy_deepcopy.return_value = {}
+        profile = Mock()
+        mock_Profile.return_value = profile
+        profile.get_settings.return_value = {}
+        result_type = namedtuple(
+            'result_type', ['stderr', 'returncode']
+        )
+        mock_result = result_type(stderr='stderr', returncode=0)
+        mock_os_path.return_value = True
+        mock_watch.return_value = mock_result
+        mock_access.return_value = False
+
+        self.setup.call_config_overlay_script()
+        mock_copy_deepcopy.assert_called_once_with(os.environ)
+        mock_command.assert_called_once_with(
+            ['chroot', 'root_dir', 'bash', 'image/config-overlay.sh'], {}
         )
 
     @patch('kiwi.command.Command.call')

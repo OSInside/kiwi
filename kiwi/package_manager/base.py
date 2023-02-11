@@ -210,7 +210,7 @@ class PackageManagerBase:
         pass  # pragma: no cover
 
     def post_process_install_requests_bootstrap(
-        self, root_bind: RootBind = None
+        self, root_bind: RootBind = None, delta_root: bool = False
     ) -> None:
         """
         Process extra code required after bootstrapping
