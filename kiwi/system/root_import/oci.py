@@ -94,10 +94,10 @@ class RootImportOCI(RootImportBase):
 
     def _get_image_uri(self) -> str:
         if not self.unknown_uri:
-            compressor = Compress(self.image_file)
-            if compressor.get_format():
-                compressor.uncompress(True)
-                self.uncompressed_image = compressor.uncompressed_filename
+            self.compressor = Compress(self.image_file)
+            if self.compressor.get_format():
+                self.compressor.uncompress(True)
+                self.uncompressed_image = self.compressor.uncompressed_filename
             else:
                 self.uncompressed_image = self.image_file
             image_uri = '{0}:{1}'.format(
