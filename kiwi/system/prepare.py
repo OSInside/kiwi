@@ -81,15 +81,13 @@ class SystemPrepare:
         )
         root.create()
         image_uri = xml_state.get_derived_from_image_uri()
-
-        # FIXME
-        image_delta = True
+        delta_root = xml_state.build_type.get_delta_root()
 
         if image_uri:
             self.root_import = RootImport.new(
                 root_dir, image_uri, xml_state.build_type.get_image()
             )
-            if image_delta:
+            if delta_root:
                 self.root_import.overlay_data()
             else:
                 self.root_import.sync_data()

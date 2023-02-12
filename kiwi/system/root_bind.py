@@ -82,20 +82,17 @@ class RootBind:
             fails to mount
         """
         try:
-            # FIXME
-            image_delta = True
-
-            if not image_delta:
-                # Yes this bind mount to yourself looks weird and should not
-                # be needed at all. The reason why it exists is to overcome
-                # an issue that appears if you run containers in kiwi scripts
-                # via e.g podman or docker. There is some information about the
-                # topic here: https://github.com/moby/moby/issues/34817
-                shared_mount = MountManager(
-                    device=self.root_dir, mountpoint=self.root_dir
-                )
-                shared_mount.bind_mount()
-                self.mount_stack.append(shared_mount)
+            # FIXME: this should not be needed at all
+            # Yes this bind mount to yourself looks weird and should not
+            # be needed at all. The reason why it exists is to overcome
+            # an issue that appears if you run containers in kiwi scripts
+            # via e.g podman or docker. There is some information about the
+            # topic here: https://github.com/moby/moby/issues/34817
+            # shared_mount = MountManager(
+            #     device=self.root_dir, mountpoint=self.root_dir
+            # )
+            # shared_mount.bind_mount()
+            # self.mount_stack.append(shared_mount)
 
             for location in self.bind_locations:
                 location_mount_target = os.path.normpath(os.sep.join([
