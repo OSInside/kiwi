@@ -19,6 +19,7 @@ import os
 import logging
 
 # project
+from kiwi.command import Command
 from kiwi.system.root_import.base import RootImportBase
 from kiwi.mount_manager import MountManager
 from kiwi.path import Path
@@ -89,6 +90,12 @@ class RootImportOCI(RootImportBase):
             self.overlay.umount()
             Path.wipe(self.root_dir)
             Path.rename(self.overlay.upper, self.root_dir)
+            # delete character device nodes from delta tree.
+            # (c) device nodes are used to track deleted files
+            # and directories in an overlayfs tree.
+            Command.run(
+                ['find', self.root_dir, '-type', 'c', '-delete']
+            )
             Path.wipe(self.overlay.lower)
             Path.wipe(self.overlay.work)
 
