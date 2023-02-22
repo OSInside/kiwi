@@ -95,7 +95,7 @@ class SystemPrepare:
             root
         )
         root_bind.setup_intermediate_config()
-        root_bind.mount_kernel_file_systems()
+        root_bind.mount_kernel_file_systems(delta_root)
         root_bind.mount_shared_directory()
 
         self.xml_state = xml_state
@@ -282,7 +282,9 @@ class SystemPrepare:
                         reason=f'{issue}: {manager.get_error_details()}'
                     )
                 )
-        manager.post_process_install_requests_bootstrap(self.root_bind)
+        manager.post_process_install_requests_bootstrap(
+            self.root_bind, self.xml_state.build_type.get_delta_root()
+        )
         # process archive installations
         if bootstrap_archives:
             try:
