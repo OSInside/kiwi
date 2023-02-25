@@ -84,7 +84,11 @@ class RootImportOCI(RootImportBase):
     def overlay_finalize(self) -> None:
         """
         Umount the overlay root, delete lower and work directories
-        and move the upper (delta) to represent the final root_dir
+        and move the upper (delta) to represent the final root_dir.
+        All files that got deleted will be reported in a metadata
+        file named /vanished. This information can be used by other
+        tools to know about actively deleted files and maybe bring
+        them back
         """
         if self.overlay:
             self.overlay.umount()
@@ -94,7 +98,16 @@ class RootImportOCI(RootImportBase):
             # (c) device nodes are used to track deleted files
             # and directories in an overlayfs tree.
             Command.run(
-                ['find', self.root_dir, '-type', 'c', '-delete']
+                [
+                    'find', self.root_dir, '-type', 'c',
+                    '-delete', '-fprint', f'{self.root_dir}/vanished'
+                ]
+            )
+            Command.run(
+                [
+                    'sed', '-i', '-e', f's@{self.root_dir}@@',
+                    f'{self.root_dir}/vanished'
+                ]
             )
             Path.wipe(self.overlay.lower)
             Path.wipe(self.overlay.work)
