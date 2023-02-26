@@ -19,7 +19,6 @@ import os
 import logging
 
 # project
-from kiwi.command import Command
 from kiwi.system.root_import.base import RootImportBase
 from kiwi.mount_manager import MountManager
 from kiwi.path import Path
@@ -36,7 +35,6 @@ class RootImportOCI(RootImportBase):
     a oci image tarball file.
     """
     def post_init(self, custom_args):
-        self.overlay = None
         self.archive_transport = custom_args['archive_transport']
 
     def sync_data(self):
@@ -80,37 +78,6 @@ class RootImportOCI(RootImportBase):
 
         self.overlay = MountManager(device=None, mountpoint=self.root_dir)
         self.overlay.overlay_mount(root_dir_ro)
-
-    def overlay_finalize(self) -> None:
-        """
-        Umount the overlay root, delete lower and work directories
-        and move the upper (delta) to represent the final root_dir.
-        All files that got deleted will be reported in a metadata
-        file named /vanished. This information can be used by other
-        tools to know about actively deleted files and maybe bring
-        them back
-        """
-        if self.overlay:
-            self.overlay.umount()
-            Path.wipe(self.root_dir)
-            Path.rename(self.overlay.upper, self.root_dir)
-            # delete character device nodes from delta tree.
-            # (c) device nodes are used to track deleted files
-            # and directories in an overlayfs tree.
-            Command.run(
-                [
-                    'find', self.root_dir, '-type', 'c',
-                    '-delete', '-fprint', f'{self.root_dir}/vanished'
-                ]
-            )
-            Command.run(
-                [
-                    'sed', '-i', '-e', f's@{self.root_dir}@@',
-                    f'{self.root_dir}/vanished'
-                ]
-            )
-            Path.wipe(self.overlay.lower)
-            Path.wipe(self.overlay.work)
 
     def _get_image_uri(self) -> str:
         if not self.unknown_uri:

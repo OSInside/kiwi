@@ -688,6 +688,14 @@ class SystemSetup:
             defaults.POST_PREPARE_SCRIPT
         )
 
+    def call_config_overlay_script(self) -> None:
+        """
+        Call config-overlay.sh script chrooted
+        """
+        self._call_script(
+            defaults.POST_PREPARE_OVERLAY_SCRIPT
+        )
+
     def call_image_script(self) -> None:
         """
         Call images.sh script chrooted
@@ -1018,6 +1026,10 @@ class SystemSetup:
             ),
             defaults.POST_PREPARE_SCRIPT: script_type(
                 filepath=defaults.POST_PREPARE_SCRIPT,
+                raise_if_not_exists=False
+            ),
+            defaults.POST_PREPARE_OVERLAY_SCRIPT: script_type(
+                filepath=defaults.POST_PREPARE_OVERLAY_SCRIPT,
                 raise_if_not_exists=False
             ),
             defaults.PRE_CREATE_SCRIPT: script_type(

@@ -23,6 +23,7 @@ from typing import (
 from textwrap import dedent
 
 # project
+from kiwi.command import Command
 from kiwi.xml_parse import repository
 from kiwi.xml_state import XMLState
 from kiwi.system.root_init import RootInit
@@ -98,6 +99,8 @@ class SystemPrepare:
         root_bind.mount_kernel_file_systems(delta_root)
         root_bind.mount_shared_directory()
 
+        self.delta_root = delta_root
+        self.root_dir = root_dir
         self.xml_state = xml_state
         self.profiles = xml_state.profiles
         self.root_bind = root_bind
@@ -283,7 +286,7 @@ class SystemPrepare:
                     )
                 )
         manager.post_process_install_requests_bootstrap(
-            self.root_bind, self.xml_state.build_type.get_delta_root()
+            self.root_bind, self.delta_root
         )
         # process archive installations
         if bootstrap_archives:
@@ -385,6 +388,16 @@ class SystemPrepare:
         :raises KiwiPackagesDeletePhaseFailed:
             if the deletion packages process fails
         """
+        if self.delta_root:
+            # In delta mode create a reference tree to allow
+            # to diff on deleted data
+            Command.run(
+                [
+                    'rsync', '-a',
+                    f'{self.root_dir}_cow/',
+                    f'{self.root_dir}_cow_before_pinch'
+                ]
+            )
         to_become_deleted_packages = \
             self.xml_state.get_to_become_deleted_packages(force)
         if to_become_deleted_packages:
@@ -602,7 +615,7 @@ class SystemPrepare:
             if hasattr(self, 'root_bind'):
                 self.root_bind.cleanup()
             if self.root_import:
-                self.root_import.overlay_finalize()
+                self.root_import.overlay_finalize(self.xml_state)
         except Exception as exc:
             log.info(
                 'Cleaning up {self_name:s} instance failed, got an exception '

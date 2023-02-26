@@ -29,6 +29,13 @@ config.sh
   change of data in the root tree, such as modifying a package provided
   config file.
 
+config-overlay.sh
+  Available only if `delta_root="true"` is set. In this case the
+  script runs at the end of the :ref:`prepare step <prepare-step>`
+  prior the umount of the overlay root tree. It runs after an
+  eventually given `config.sh` and is the latest entry point to
+  change the delta root tree.
+
 images.sh
   is executed at the beginning of the :ref:`image
   creation process <create-step>`. It runs in the same image root tree
