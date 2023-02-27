@@ -33,7 +33,7 @@ config-overlay.sh
   Available only if `delta_root="true"` is set. In this case the
   script runs at the end of the :ref:`prepare step <prepare-step>`
   prior the umount of the overlay root tree. It runs after an
-  eventually given `config.sh` and is the latest entry point to
+  eventually given `config.sh` and is the last entry point to
   change the delta root tree.
 
 images.sh
