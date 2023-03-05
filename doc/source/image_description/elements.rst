@@ -1083,6 +1083,27 @@ For details see: :ref:`custom_volumes`
    or mount points. As a result, whatever is written in `<partitions>`
    cannot be expressed in the same way in `<volumes>`.
 
+<preferences><type><bootloader><bootloadersettings>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used to specify custom arguments for the tools called to setup
+secure boot e.g `shiminstall`, installation of the bootloader
+e.g `grub-install` or configuration of the bootloader e.g `grub-mkconfig`.
+
+.. code:: xml
+
+   <bootloadersettings>
+       <shimoption name="--suse-enable-tpm"/>
+       <shimoption name="--bootloader-id" value="some-id"/>
+       <installoption name="--suse-enable-tpm"/>
+       <configoption name="--debug"/>
+   </bootloadersettings>
+
+.. note::
+
+   {kiwi-ng} does not judge on the given parameters and if the provided
+   data is effectively used depends on the individual bootloader
+   implementation.
+
 <preferences><type><partitions>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to describe the geometry of the disk on the level of the

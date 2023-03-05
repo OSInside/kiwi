@@ -296,7 +296,9 @@ class DiskBuilder:
                     'crypto_disk':
                         True if self.luks is not None else False,
                     'boot_is_crypto':
-                        self.boot_is_crypto
+                        self.boot_is_crypto,
+                    'config_options':
+                        self.xml_state.get_bootloader_config_options()
                 }
             )
 
@@ -1490,7 +1492,9 @@ class DiskBuilder:
             'boot_device': boot_device.get_device(),
             'root_device': root_device.get_device(),
             'firmware': self.firmware,
-            'target_removable': self.target_removable
+            'target_removable': self.target_removable,
+            'install_options': self.xml_state.get_bootloader_install_options(),
+            'shim_options': self.xml_state.get_bootloader_shim_options()
         }
 
         if 'efi' in device_map:

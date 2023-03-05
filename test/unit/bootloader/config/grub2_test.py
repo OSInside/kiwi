@@ -114,7 +114,8 @@ class TestBootLoaderConfigGrub2:
                 'grub_directory_name': 'grub2',
                 'boot_is_crypto': True,
                 'crypto_disk': True,
-                'targetbase': 'rootdev'
+                'targetbase': 'rootdev',
+                'config_options': ['--set-trusted-boot']
             }
         )
         self.bootloader.cmdline = 'some-cmdline root=UUID=foo'
@@ -740,7 +741,8 @@ class TestBootLoaderConfigGrub2:
                 '"some-cmdline root=UUID=foo failsafe-options"'
             ),
             call('LOADER_LOCATION', 'mbr'),
-            call('LOADER_TYPE', 'grub2')
+            call('LOADER_TYPE', 'grub2'),
+            call('TRUSTED_BOOT', 'yes')
         ]
         self.firmware.efi_mode = Mock(
             return_value='uefi'
@@ -755,7 +757,8 @@ class TestBootLoaderConfigGrub2:
             ),
             call('LOADER_LOCATION', 'none'),
             call('LOADER_TYPE', 'grub2-efi'),
-            call('SECURE_BOOT', 'yes')
+            call('SECURE_BOOT', 'yes'),
+            call('TRUSTED_BOOT', 'yes')
         ]
 
     @patch('os.path.exists')

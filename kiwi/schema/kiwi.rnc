@@ -881,6 +881,63 @@ div {
 }
 
 #==========================================
+# common element <shimoption>
+#
+div {
+    k.shimoption.name.attribute =
+        attribute name { text }
+    k.shimoption.value.attribute =
+        attribute value { text }
+    k.shimoption.attlist =
+        k.shimoption.name.attribute &
+        k.shimoption.value.attribute?
+    k.shimoption =
+        ## A shim setup option specification
+        element shimoption {
+            k.shimoption.attlist,
+            empty
+        }
+}
+
+#==========================================
+# common element <installoption>
+#
+div {
+    k.installoption.name.attribute =
+        attribute name { text }
+    k.installoption.value.attribute =
+        attribute value { text }
+    k.installoption.attlist =
+        k.installoption.name.attribute &
+        k.installoption.value.attribute?
+    k.installoption =
+        ## A install command option specification
+        element installoption {
+            k.installoption.attlist,
+            empty
+        }
+}
+
+#==========================================
+# common element <configoption>
+#
+div {
+    k.configoption.name.attribute =
+        attribute name { text }
+    k.configoption.value.attribute =
+        attribute value { text }
+    k.configoption.attlist =
+        k.configoption.name.attribute &
+        k.configoption.value.attribute?
+    k.configoption =
+        ## A config command option specification
+        element configoption {
+            k.configoption.attlist,
+            empty
+        }
+}
+
+#==========================================
 # common element <package>
 #
 div {
@@ -2703,7 +2760,7 @@ div {
         ## and to provide configuration parameters for it
         element bootloader {
             k.bootloader.attlist &
-            empty
+            k.bootloadersettings?
         }
 }
 
@@ -2947,6 +3004,21 @@ div {
         element luksformat {
             k.luksformat.attlist &
             k.option+
+        }
+}
+
+#==========================================
+# main block: <bootloadersettings>
+#
+div {
+    k.bootloadersettings.attlist = empty
+    k.bootloadersettings =
+        ## Additional bootloader settings
+        element bootloadersettings {
+            k.bootloadersettings.attlist &
+            k.shimoption* &
+            k.installoption* &
+            k.configoption*
         }
 }
 

@@ -353,7 +353,9 @@ class TestDiskBuilder:
                 'firmware': self.firmware,
                 'target_removable': None,
                 'efi_device': '/dev/efi-device',
-                'prep_device': '/dev/prep-device'
+                'prep_device': '/dev/prep-device',
+                'install_options': [],
+                'shim_options': []
             }
         )
         self.setup.call_edit_boot_config_script.assert_called_once_with(
@@ -709,7 +711,9 @@ class TestDiskBuilder:
                 'firmware': self.firmware,
                 'target_removable': None,
                 'efi_device': '/dev/efi-device',
-                'prep_device': '/dev/prep-device'
+                'prep_device': '/dev/prep-device',
+                'install_options': [],
+                'shim_options': []
             }
         )
         assert self.setup.script_exists.call_args_list == [
