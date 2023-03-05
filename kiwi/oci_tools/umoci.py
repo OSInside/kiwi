@@ -61,9 +61,11 @@ class OCIUmoci(OCIBase):
                 'skopeo', 'copy', container_image_ref, 'oci:{0}:{1}'.format(
                     self.container_dir, Defaults.get_container_base_image_tag()
                 )
-            ] + [
-                '--tmpdir', Defaults.get_temp_location()
-            ] if self._skopeo_provides_tmpdir_option() else []
+            ] + (
+                [
+                    '--tmpdir', Defaults.get_temp_location()
+                ] if self._skopeo_provides_tmpdir_option() else []
+            )
         )
 
     def export_container_image(
@@ -90,9 +92,11 @@ class OCIUmoci(OCIBase):
             [
                 'skopeo', 'copy', 'oci:{0}'.format(self.working_image),
                 '{0}:{1}:{2}'.format(transport, filename, image_ref)
-            ] + extra_tags_opt + [
-                '--tmpdir', Defaults.get_temp_location()
-            ] if self._skopeo_provides_tmpdir_option() else []
+            ] + extra_tags_opt + (
+                [
+                    '--tmpdir', Defaults.get_temp_location()
+                ] if self._skopeo_provides_tmpdir_option() else []
+            )
         )
 
     def init_container(self):

@@ -68,9 +68,11 @@ class OCIBuildah(OCIBase):
             [
                 'skopeo', 'copy', container_image_ref,
                 'containers-storage:{0}'.format(self.imported_image)
-            ] + [
-                '--tmpdir', Defaults.get_temp_location()
-            ] if self._skopeo_provides_tmpdir_option() else []
+            ] + (
+                [
+                    '--tmpdir', Defaults.get_temp_location()
+                ] if self._skopeo_provides_tmpdir_option() else []
+            )
         )
 
         if not self.working_container:
@@ -123,9 +125,11 @@ class OCIBuildah(OCIBase):
             [
                 'skopeo', 'copy', 'containers-storage:{0}'.format(export_image),
                 '{0}:{1}:{2}'.format(transport, filename, image_ref)
-            ] + extra_tags_opt + [
-                '--tmpdir', Defaults.get_temp_location()
-            ] if self._skopeo_provides_tmpdir_option() else []
+            ] + extra_tags_opt + (
+                [
+                    '--tmpdir', Defaults.get_temp_location()
+                ] if self._skopeo_provides_tmpdir_option() else []
+            )
         )
 
     def init_container(self):
