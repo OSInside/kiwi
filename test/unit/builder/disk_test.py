@@ -344,12 +344,15 @@ class TestDiskBuilder:
             '0815'
         )
         self.bootloader_config.write_meta_data.assert_called_once_with(
-            root_device='/dev/root-device', boot_options=''
+            root_device='/dev/readonly-root-device',
+            write_device='/dev/root-device',
+            boot_options=''
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
             boot_options={
                 'boot_device': '/dev/boot-device',
                 'root_device': '/dev/readonly-root-device',
+                'write_device': '/dev/root-device',
                 'firmware': self.firmware,
                 'target_removable': None,
                 'efi_device': '/dev/efi-device',
@@ -702,12 +705,15 @@ class TestDiskBuilder:
             '0815'
         )
         self.bootloader_config.write_meta_data.assert_called_once_with(
-            root_device='/dev/root-device', boot_options=''
+            root_device='/dev/readonly-root-device',
+            write_device='/dev/root-device',
+            boot_options=''
         )
         self.bootloader_config.setup_disk_image_config.assert_called_once_with(
             boot_options={
                 'boot_device': '/dev/boot-device',
                 'root_device': '/dev/readonly-root-device',
+                'write_device': '/dev/root-device',
                 'firmware': self.firmware,
                 'target_removable': None,
                 'efi_device': '/dev/efi-device',

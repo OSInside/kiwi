@@ -1235,6 +1235,7 @@ class DiskBuilder:
             boot_options = []
             if self.mdraid:
                 boot_options.append('rd.auto')
+            ro_device = device_map.get('readonly')
             root_device = device_map['root']
             boot_device = root_device
             if 'boot' in device_map:
@@ -1250,7 +1251,8 @@ class DiskBuilder:
                 boot_uuid_unmapped
             )
             self.bootloader_config.write_meta_data(
-                root_device=device_map['root'].get_device(),
+                root_device=ro_device.get_device() if ro_device else root_device.get_device(),
+                write_device=root_device.get_device(),
                 boot_options=' '.join(boot_options)
             )
 
@@ -1261,6 +1263,7 @@ class DiskBuilder:
             kexec_boot_options = ' '.join(
                 [
                     self.bootloader_config.get_boot_cmdline(
+                        ro_device.get_device() if ro_device else root_device.get_device(),
                         device_map['root'].get_device()
                     )
                 ] + boot_options
@@ -1482,15 +1485,18 @@ class DiskBuilder:
     ) -> None:
         root_device = device_map['root']
         boot_device = root_device
+        readonly_device = None
         if 'boot' in device_map:
             boot_device = device_map['boot']
 
         if 'readonly' in device_map:
-            root_device = device_map['readonly']
+            readonly_device = device_map['readonly']
 
         custom_install_arguments = {
             'boot_device': boot_device.get_device(),
-            'root_device': root_device.get_device(),
+            'root_device':
+                readonly_device.get_device() if readonly_device else root_device.get_device(),
+            'write_device': root_device.get_device(),
             'firmware': self.firmware,
             'target_removable': self.target_removable,
             'install_options': self.xml_state.get_bootloader_install_options(),

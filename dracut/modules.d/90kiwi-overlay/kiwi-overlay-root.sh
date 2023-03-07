@@ -38,15 +38,7 @@ function initGlobalDevices {
     elif [[ "${root_cmdline}" =~ "overlay:aoe=" ]];then
         read_only_partition="/dev/etherd/$(echo "${root_cmdline}"|cut -f2 -d=)"
     else
-        write_partition="$1"
-        root_disk=$(
-            lsblk -p -n -r -s -o NAME,TYPE "${write_partition}" \
-                | grep disk | cut -f1 -d ' '
-        )
-        read_only_partition=$(
-            lsblk -p -r --fs -o NAME,FSTYPE "${root_disk}" \
-                | grep squashfs | head -n 1 | cut -f1 -d ' '
-        )
+        read_only_partition="$1"
     fi
 }
 
