@@ -31,6 +31,12 @@ case "${overlayroot}" in
         root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
         rootok=1
     ;;
+    overlay:PARTLABEL=*|PARTLABEL=*) \
+        root="${root#overlay:}"
+        root="${root//\//\\x2f}"
+        root="block:/dev/disk/by-partlabel/${root#PARTLABEL=}"
+        rootok=1
+    ;;
     overlay:LABEL=*|LABEL=*) \
         root="${root#overlay:}"
         root="${root//\//\\x2f}"
