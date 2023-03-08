@@ -100,7 +100,10 @@ loadKernelModules
 mountReadOnlyRootImage
 
 # prepare overlay for generated systemd OverlayOS_rootfs service
-if [ -z "${write_partition}" ] || getargbool 0 rd.root.overlay.readonly; then
+if getargbool 0 rd.root.overlay.readonly; then
+    # no overlay requested, readonly system
+    :
+elif [ -z "${write_partition}" ] || getargbool 0 rd.root.overlay.temporary; then
     prepareTemporaryOverlay
 else
     preparePersistentOverlay
