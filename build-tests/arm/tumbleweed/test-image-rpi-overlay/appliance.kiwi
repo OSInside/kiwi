@@ -13,7 +13,7 @@
         <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
-        <type image="oem" filesystem="xfs" firmware="efi" kernelcmdline="loglevel=3 splash=silent plymouth.enable=0 console=tty0 rd.root.overlay.readonly" efipartsize="64" efiparttable="msdos" editbootinstall="uboot-image-raspberrypi4-install" overlayroot="true">
+        <type image="oem" filesystem="xfs" firmware="efi" kernelcmdline="loglevel=3 splash=silent plymouth.enable=0 console=tty0 rd.root.overlay.temporary" efipartsize="64" efiparttable="msdos" editbootinstall="uboot-image-raspberrypi4-install" overlayroot="true">
             <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-swap>false</oem-swap>
