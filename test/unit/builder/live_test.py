@@ -144,9 +144,10 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.SystemSize')
     @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
+    @patch('os.chmod')
     def test_create_overlay_structure(
-        self, mock_exists, mock_grub_dir, mock_size, mock_filesystem,
-        mock_isofs, mock_Iso, mock_tag, mock_shutil,
+        self, mock_chmod, mock_exists, mock_grub_dir, mock_size,
+        mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
         mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider
     ):
         mock_exists.return_value = True
@@ -217,6 +218,9 @@ class TestLiveImageBuilder:
         assert mock_shutil.copy.call_args_list == [
             call('kiwi-tmpfile', 'temp-squashfs/LiveOS/rootfs.img'),
             call('kiwi-tmpfile', 'temp_media_dir/LiveOS/squashfs.img')
+        ]
+        assert mock_chmod.call_args_list == [
+            call('initrd', 0o644), call('kiwi-tmpfile', 0o644)
         ]
 
         self.setup.call_edit_boot_config_script.assert_called_once_with(

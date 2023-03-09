@@ -278,6 +278,7 @@ class LiveImageBuilder:
             container_image.name
         )
         Path.create(self.media_dir.name + '/LiveOS')
+        os.chmod(container_image.name, 0o644)
         shutil.copy(
             container_image.name, self.media_dir.name + '/LiveOS/squashfs.img'
         )
@@ -367,6 +368,7 @@ class LiveImageBuilder:
 
         # Move initrd to iso filesystem structure
         if os.path.exists(self.boot_image.initrd_filename):
+            os.chmod(self.boot_image.initrd_filename, 0o644)
             shutil.move(
                 self.boot_image.initrd_filename, boot_path + '/initrd'
             )
