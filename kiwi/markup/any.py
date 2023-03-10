@@ -40,7 +40,7 @@ class MarkupAny(MarkupBase):
         input format and can convert YAML, JSON and INI to XML
         """
         try:
-            self.anymarkup: Any = importlib.import_module('anymarkup')
+            self.anymarkup: Any = importlib.import_module('anymarkup_core')
         except Exception as issue:
             raise KiwiAnyMarkupPluginError(issue)
         try:

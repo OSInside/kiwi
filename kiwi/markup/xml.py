@@ -42,5 +42,5 @@ class MarkupXML(MarkupBase):
         Conversion into YAML format not supported by base XML markup
         """
         raise KiwiMarkupConversionError(
-            'Conversion to YAML not supported, install anymarkup module'
+            'Conversion to YAML not supported, install anymarkup-core module'
         )

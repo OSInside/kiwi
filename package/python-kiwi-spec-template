@@ -300,7 +300,7 @@ Recommends:     jing
 Requires:       python%{python3_pkgversion}-solv
 %endif
 %if ! (0%{?rhel} && 0%{?rhel} < 8)
-Recommends:     python%{python3_pkgversion}-anymarkup
+Recommends:     python%{python3_pkgversion}-anymarkup-core
 %endif
 
 %description -n kiwi-systemdeps-image-validation
