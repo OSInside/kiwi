@@ -28,6 +28,11 @@ if getargbool 0 rd.root.overlay.readonly; then
             root="${root//\//\\x2f}"
             root="block:/dev/disk/by-partlabel/${root#PARTLABEL=}"
         ;;
+        overlay:UNIXNODE=*|UNIXNODE=*) \
+            root="${root#overlay:}"
+            root="${root//\//\\x2f}"
+            root="block:/dev/${root#UNIXNODE=}"
+        ;;
     esac
     {
         echo "[Unit]"
