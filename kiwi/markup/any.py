@@ -17,6 +17,7 @@
 #
 from typing import Any
 import importlib
+import importlib.util
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -40,7 +41,10 @@ class MarkupAny(MarkupBase):
         input format and can convert YAML, JSON and INI to XML
         """
         try:
-            self.anymarkup: Any = importlib.import_module('anymarkup_core')
+            anymarkup_mod = 'anymarkup'
+            if importlib.util.find_spec('anymarkup_core'):
+                anymarkup_mod = 'anymarkup_core'
+            self.anymarkup: Any = importlib.import_module(anymarkup_mod)
         except Exception as issue:
             raise KiwiAnyMarkupPluginError(issue)
         try:
