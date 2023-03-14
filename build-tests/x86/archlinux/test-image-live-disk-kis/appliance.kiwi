@@ -46,12 +46,11 @@
     <preferences profiles="Disk">
         <!--
              KIWI does not natively provide EFI support for Arch Linux,
-             because of that the editbootinstall script is used to hot pacth
-             grub.cfg file. This hotpatch only applies for disk images
-             therefore the installation ISO does not support EFI
+             because of that the editbootinstall script and iso_boot.template
+             is used to hot patch grub.cfg file.
         -->
         <type image="oem" filesystem="ext4" installiso="true" installboot="install" kernelcmdline="console=ttyS0" editbootinstall="editbootinstall_arch.sh" firmware="efi">
-            <bootloader name="grub2" console="serial" timeout="10"/>
+            <bootloader name="grub2" console="serial" timeout="10" grub_template="iso_boot.template"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
             </oemconfig>
