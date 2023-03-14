@@ -18,7 +18,8 @@ xattr==0.9.3
 requests
 
 # markup support
-anymarkup
+anymarkup-core
+xmltodict
 
 # json support that also knows about tuples
 simplejson
