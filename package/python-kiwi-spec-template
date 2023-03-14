@@ -560,6 +560,26 @@ This package contains the kiwi-overlay dracut module which is used
 for booting vmx images built with KIWI and configured to use an
 overlay root filesystem
 
+%package -n dracut-kiwi-verity
+Summary:        KIWI - Dracut module for disk with embedded verity metadata
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} || 0%{?debian}
+# Ubuntu 16.04 OBS environments refuse to set up due to
+# initramfs-tools / dracut conflict and initramfs-tools is required
+# to set up the build environment...
+BuildRequires:  dracut
+%endif
+Requires:       dracut-kiwi-lib = %{version}-%{release}
+Requires:       dracut
+BuildRequires:  gcc
+License:        GPL-3.0-or-later
+Group:          %{sysgroup}
+
+%description -n dracut-kiwi-verity
+This package contains the kiwi-verity dracut module which is used
+for booting oem images built with KIWI and configured to use an
+embedded verity metadata block via the embed_verity_metadata
+type attribute
+
 %package -n kiwi-man-pages
 Summary:        KIWI - manual pages
 License:        GPL-3.0-or-later
