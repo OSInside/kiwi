@@ -31,8 +31,8 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0">
-            <bootloader name="grub2" console="serial"/>
+        <type image="iso" firmware="efi" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial" grub_template="iso_boot.template"/>
         </type>
     </preferences>
     <preferences profiles="Virtual">
