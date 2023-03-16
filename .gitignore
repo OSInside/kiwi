@@ -86,3 +86,7 @@ target/
 
 # Editors
 .vscode/
+
+# Rust
+Cargo.lock
+vendor/
