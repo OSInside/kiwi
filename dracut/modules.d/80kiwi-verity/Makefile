@@ -2,7 +2,7 @@ buildroot ?= /
 
 CROSS_COMPILE ?=
 CC ?= $(CROSS_COMPILE)gcc
-CFLAGS += -Werror -Wall -Wextra -std=c17
+CFLAGS += -Werror -Wall -Wextra
 
 BINARY := kiwi-parse-verity
 
