@@ -84,6 +84,12 @@ class TestRootImportBase:
                 mock_SystemSetup.return_value.\
                     call_config_overlay_script.assert_called_once_with()
 
+                # run config-host-overlay.sh
+                mock_SystemSetup.return_value.\
+                    call_config_host_overlay_script.assert_called_once_with(
+                        working_directory='root_dir'
+                    )
+
                 # umount and create the new upper
                 root.overlay.umount.assert_called_once_with()
                 assert mock_Path.wipe.call_args_list == [

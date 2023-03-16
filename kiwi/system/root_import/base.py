@@ -96,8 +96,13 @@ class RootImportBase:
             pinch_reference = f'{self.root_dir}_cow_before_pinch'
             removed = f'{self.root_dir}/{Defaults.get_removed_files_name()}'
 
+            system = SystemSetup(xml_state, self.root_dir)
+
             # Run config-overlay.sh
-            SystemSetup(xml_state, self.root_dir).call_config_overlay_script()
+            system.call_config_overlay_script()
+
+            # Run config-host-overlay.sh
+            system.call_config_host_overlay_script(working_directory=self.root_dir)
 
             # Umount and rename upper to be the new root
             self.overlay.umount()
