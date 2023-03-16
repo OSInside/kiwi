@@ -712,6 +712,10 @@ fi
 %files -n dracut-kiwi-overlay
 %{_usr}/lib/dracut/modules.d/90kiwi-overlay
 
+%files -n dracut-kiwi-verity
+%{_usr}/lib/dracut/modules.d/80kiwi-verity
+%{_bindir}/kiwi-parse-verity
+
 %if "%{_vendor}" != "debbuild"
 %ifarch %{ix86} x86_64
 %files -n kiwi-pxeboot
