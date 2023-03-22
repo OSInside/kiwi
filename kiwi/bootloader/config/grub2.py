@@ -1018,9 +1018,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:
-            early_boot.write(
-                'set btrfs_relative_path="yes"{0}'.format(os.linesep)
-            )
+            if self.xml_state.build_type.get_btrfs_root_is_snapshot():
+                early_boot.write(
+                    'set btrfs_relative_path="yes"{0}'.format(os.linesep)
+                )
             if self.custom_args.get('boot_is_crypto'):
                 early_boot.write(
                     'insmod cryptodisk{0}'.format(os.linesep)
@@ -1054,9 +1055,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _create_early_boot_script_for_mbrid_search(self, filename, mbrid):
         with open(filename, 'w') as early_boot:
-            early_boot.write(
-                'set btrfs_relative_path="yes"{0}'.format(os.linesep)
-            )
+            if self.xml_state.build_type.get_btrfs_root_is_snapshot():
+                early_boot.write(
+                    'set btrfs_relative_path="yes"{0}'.format(os.linesep)
+                )
             early_boot.write(
                 'search --file --set=root /boot/{0}{1}'.format(
                     mbrid.get_id(), os.linesep
