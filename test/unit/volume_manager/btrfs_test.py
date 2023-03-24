@@ -127,7 +127,7 @@ class TestVolumeManagerBtrfs:
 
         assert mock_mount.call_args_list == [
             call(device='/dev/storage', mountpoint='tmpdir'),
-            call(device='/dev/storage', mountpoint='tmpdir/.snapshots')
+            call(device='/dev/storage', mountpoint='tmpdir/@/.snapshots/1/snapshot/.snapshots')
         ]
         toplevel_mount.mount.assert_called_once_with([])
         assert mock_command.call_args_list == [
@@ -135,10 +135,7 @@ class TestVolumeManagerBtrfs:
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots']),
             call(['mkdir', '-p', 'tmpdir/@/.snapshots/1']),
-            call([
-                'btrfs', 'subvolume', 'snapshot', 'tmpdir/@',
-                'tmpdir/@/.snapshots/1/snapshot'
-            ]),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots/1/snapshot']),
             call(['btrfs', 'subvolume', 'list', 'tmpdir']),
             call(['btrfs', 'subvolume', 'set-default', '258', 'tmpdir'])
         ]
