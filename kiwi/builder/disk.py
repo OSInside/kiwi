@@ -1533,17 +1533,22 @@ class DiskBuilder:
                 # cleanup bootloader config resources taken prior to next steps
                 del self.bootloader_config
 
-            log.debug(
-                "custom arguments for bootloader installation %s",
-                custom_install_arguments
-            )
-            bootloader = BootLoaderInstall.new(
-                self.bootloader, self.root_dir, disk.storage_provider,
-                custom_install_arguments
-            )
-            if bootloader.install_required():
-                bootloader.install()
-            bootloader.secure_boot_install()
+            if self.root_filesystem_has_write_partition is not False:
+                log.debug(
+                    "custom arguments for bootloader installation %s",
+                    custom_install_arguments
+                )
+                bootloader = BootLoaderInstall.new(
+                    self.bootloader, self.root_dir, disk.storage_provider,
+                    custom_install_arguments
+                )
+                if bootloader.install_required():
+                    bootloader.install()
+                bootloader.secure_boot_install()
+            else:
+                log.warning(
+                    'No install of bootcode on read-only root possible'
+                )
 
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()

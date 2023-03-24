@@ -626,6 +626,7 @@ class Defaults:
             'all_video',
             'xfs',
             'btrfs',
+            'squash4',
             'lvm',
             'luks',
             'gcry_rijndael',

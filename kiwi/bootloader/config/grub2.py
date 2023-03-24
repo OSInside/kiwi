@@ -276,10 +276,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         # More details can be found in the individual methods.
         # One fine day the following fix methods can hopefully
         # be deleted...
-        self._fix_grub_to_support_dynamic_efi_and_bios_boot(config_file)
-        self._fix_grub_root_device_reference(config_file, boot_options)
-        self._fix_grub_loader_entries_boot_cmdline()
-        self._fix_grub_loader_entries_linux_and_initrd_paths()
+        if self.xml_state.build_type.get_overlayroot_write_partition() is not False:
+            self._fix_grub_to_support_dynamic_efi_and_bios_boot(config_file)
+            self._fix_grub_root_device_reference(config_file, boot_options)
+            self._fix_grub_loader_entries_boot_cmdline()
+            self._fix_grub_loader_entries_linux_and_initrd_paths()
 
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
@@ -828,7 +829,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if not lookup_path:
             lookup_path = self.boot_dir
         grub_image = Defaults.get_unsigned_grub_loader(lookup_path)
-        if grub_image:
+        if grub_image and self.xml_state.build_type.get_overlayroot_write_partition() is not False:
             log.info('--> Using prebuilt unsigned efi image')
             Command.run(
                 ['cp', grub_image, self._get_efi_image_name()]
@@ -1063,8 +1064,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'set btrfs_relative_path="yes"{0}'.format(os.linesep)
             )
             early_boot.write(
-                'search --file --set=root /boot/{0}{1}'.format(
-                    mbrid.get_id(), os.linesep
+                'search --file --set=root /boot/mbrid{0}'.format(
+                    os.linesep
                 )
             )
             early_boot.write(
