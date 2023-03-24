@@ -23,6 +23,7 @@ from typing import (
 from textwrap import dedent
 
 # project
+from kiwi.command import Command
 from kiwi.xml_parse import repository
 from kiwi.xml_state import XMLState
 from kiwi.system.root_init import RootInit
@@ -61,6 +62,8 @@ class SystemPrepare:
         """
         Setup and host bind new root system at given root_dir directory
         """
+        self.root_import = None
+
         log.info('Setup root directory: %s', root_dir)
         if not log.getLogLevel() == logging.DEBUG and not log.get_logfile():
             self.issue_message = dedent('''
@@ -79,18 +82,25 @@ class SystemPrepare:
         )
         root.create()
         image_uri = xml_state.get_derived_from_image_uri()
+        delta_root = xml_state.build_type.get_delta_root()
+
         if image_uri:
-            root_import = RootImport.new(
+            self.root_import = RootImport.new(
                 root_dir, image_uri, xml_state.build_type.get_image()
             )
-            root_import.sync_data()
+            if delta_root:
+                self.root_import.overlay_data()
+            else:
+                self.root_import.sync_data()
         root_bind = RootBind(
             root
         )
         root_bind.setup_intermediate_config()
-        root_bind.mount_kernel_file_systems()
+        root_bind.mount_kernel_file_systems(delta_root)
         root_bind.mount_shared_directory()
 
+        self.delta_root = delta_root
+        self.root_dir = root_dir
         self.xml_state = xml_state
         self.profiles = xml_state.profiles
         self.root_bind = root_bind
@@ -275,7 +285,9 @@ class SystemPrepare:
                         reason=f'{issue}: {manager.get_error_details()}'
                     )
                 )
-        manager.post_process_install_requests_bootstrap(self.root_bind)
+        manager.post_process_install_requests_bootstrap(
+            self.root_bind, self.delta_root
+        )
         # process archive installations
         if bootstrap_archives:
             try:
@@ -376,6 +388,16 @@ class SystemPrepare:
         :raises KiwiPackagesDeletePhaseFailed:
             if the deletion packages process fails
         """
+        if self.delta_root:
+            # In delta mode create a reference tree to allow
+            # to diff on deleted data
+            Command.run(
+                [
+                    'rsync', '-a',
+                    f'{self.root_dir}_cow/',
+                    f'{self.root_dir}_cow_before_pinch'
+                ]
+            )
         to_become_deleted_packages = \
             self.xml_state.get_to_become_deleted_packages(force)
         if to_become_deleted_packages:
@@ -592,6 +614,8 @@ class SystemPrepare:
         try:
             if hasattr(self, 'root_bind'):
                 self.root_bind.cleanup()
+            if self.root_import:
+                self.root_import.overlay_finalize(self.xml_state)
         except Exception as exc:
             log.info(
                 'Cleaning up {self_name:s} instance failed, got an exception '

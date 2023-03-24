@@ -40,6 +40,23 @@ class TestMountManager:
             ['mount', '-n', '--bind', '/dev/some-device', '/some/mountpoint']
         )
 
+    @patch('kiwi.mount_manager.Path.create')
+    @patch('kiwi.mount_manager.Command.run')
+    @patch('kiwi.mount_manager.MountManager.is_mounted')
+    def test_overlay_mount(self, mock_mounted, mock_command, mock_path_create):
+        mock_mounted.return_value = False
+        self.mount_manager.overlay_mount('lower_path')
+        assert mock_path_create.call_args_list == [
+            call('/some/mountpoint_cow'), call('/some/mountpoint_work')
+        ]
+        mock_command.assert_called_once_with(
+            [
+                'mount', '-t', 'overlay', 'overlay', '/some/mountpoint',
+                '-o', 'lowerdir=lower_path,'
+                'upperdir=/some/mountpoint_cow,workdir=/some/mountpoint_work'
+            ]
+        )
+
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
     def test_tmpfs_mount(self, mock_mounted, mock_command):

@@ -892,6 +892,19 @@ derived_from="string":
   The image created by {kiwi} will use the specified container as the
   base root to work on.
 
+delta_root="true|false":
+  For container images and in combination with the `derived_from`
+  attribute. If `delta_root` is set to `true`, {kiwi-ng} creates
+  a container image which only contains the differences compared
+  to the given `derived_from` container. Such a container is on
+  its own no longer functional and requires a tool which is able
+  to provision a container instance from the `derived_from`
+  container combined with the `delta_root` application container.
+  Such a tool exists with the
+  `oci-pilot <https://github.com/Elektrobit/oci-pilot>`_
+  project and allows to manage applications as containers
+  that feels like native applications on the host system.
+
 ensure_empty_tmpdirs="true|false":
   For OCI container images, specifies whether to ensure /run and /tmp
   directories are empty in the container image created by Kiwi.

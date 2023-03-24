@@ -19,6 +19,11 @@ import os
 import logging
 
 # project
+from kiwi.xml_state import XMLState
+from kiwi.defaults import Defaults
+from kiwi.system.setup import SystemSetup
+from kiwi.path import Path
+from kiwi.command import Command
 from kiwi.utils.checksum import Checksum
 from kiwi.exceptions import (
     KiwiRootImportError,
@@ -43,6 +48,7 @@ class RootImportBase:
     """
     def __init__(self, root_dir, image_uri, custom_args=None):
         self.unknown_uri = None
+        self.overlay = None
         self.root_dir = root_dir
         try:
             if image_uri.is_remote():
@@ -74,6 +80,78 @@ class RootImportBase:
         Implementation in specialized root import class
         """
         pass
+
+    def overlay_finalize(self, xml_state: XMLState) -> None:
+        """
+        Umount the overlay root, delete lower and work directories
+        and move the upper (delta) to represent the final root_dir.
+        All files that got deleted will be reported in a metadata
+        file named Defaults.get_removed_files_name(). This information
+        can be used by other tools to know about actively deleted
+        files and bring them back at a later point in time.
+
+        :param XMLState xml_state: Instance of XML state
+        """
+        if self.overlay:
+            pinch_reference = f'{self.root_dir}_cow_before_pinch'
+            removed = f'{self.root_dir}/{Defaults.get_removed_files_name()}'
+
+            system = SystemSetup(xml_state, self.root_dir)
+
+            # Run config-overlay.sh
+            system.call_config_overlay_script()
+
+            # Run config-host-overlay.sh
+            system.call_config_host_overlay_script(working_directory=self.root_dir)
+
+            # Umount and rename upper to be the new root
+            self.overlay.umount()
+            Path.wipe(self.root_dir)
+            Path.rename(self.overlay.upper, self.root_dir)
+
+            # Create removed files metadata
+            exclude_options = []
+            removed_files = []
+            for item in Defaults.get_exclude_list_for_removed_files_detection():
+                exclude_options.append('--exclude')
+                exclude_options.append(item)
+            get_removed = [
+                'rsync', '-av', '--dry-run', '--out-format=%n'
+            ] + exclude_options + [
+                f'{pinch_reference}/', f'{self.root_dir}/'
+            ]
+            for item in Command.run(get_removed).output.split(os.linesep):
+                entry = f'{pinch_reference}/{item}'
+                if item and os.path.exists(entry) and not os.path.isdir(entry):
+                    removed_files.append(item)
+            Path.wipe(pinch_reference)
+            if removed_files:
+                with open(removed, 'w') as removed_fd:
+                    for filename in removed_files:
+                        removed_fd.write(filename)
+                        removed_fd.write(os.linesep)
+
+            # delete character device nodes from delta tree.
+            # (c) device nodes are used to track deleted files
+            # and directories from the lower path of the overlayfs
+            # tree. Since we extract the upper path of the overlay
+            # any changes to the lower tree cannot be tracked.
+            Command.run(
+                [
+                    'find', self.root_dir, '-type', 'c', '-delete'
+                ]
+            )
+            Path.wipe(self.overlay.lower)
+            Path.wipe(self.overlay.work)
+
+    def overlay_data(self):
+        """
+        Synchronize data from the given base image to the target root
+        directory as an overlayfs mounted target.
+
+        Implementation in specialized root import class
+        """
+        raise NotImplementedError
 
     def sync_data(self):
         """

@@ -20,6 +20,7 @@ import logging
 
 # project
 from kiwi.system.root_import.base import RootImportBase
+from kiwi.mount_manager import MountManager
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.utils.compress import Compress
@@ -41,19 +42,7 @@ class RootImportOCI(RootImportBase):
         Synchronize data from the given base image to the target root
         directory.
         """
-        if not self.unknown_uri:
-            compressor = Compress(self.image_file)
-            if compressor.get_format():
-                compressor.uncompress(True)
-                self.uncompressed_image = compressor.uncompressed_filename
-            else:
-                self.uncompressed_image = self.image_file
-            image_uri = '{0}:{1}'.format(
-                self.archive_transport, self.uncompressed_image
-            )
-        else:
-            log.warning('Bypassing base image URI to OCI tools')
-            image_uri = self.unknown_uri
+        image_uri = self._get_image_uri()
 
         oci = OCI.new()
         oci.import_container_image(image_uri)
@@ -70,3 +59,38 @@ class RootImportOCI(RootImportBase):
             image_copy, 'oci-archive', Defaults.get_container_base_image_tag()
         )
         self._make_checksum(image_copy)
+
+    def overlay_data(self) -> None:
+        """
+        Synchronize data from the given base image to the target root
+        directory as an overlayfs mounted target.
+        """
+        image_uri = self._get_image_uri()
+
+        root_dir_ro = f'{self.root_dir}_ro'
+
+        oci = OCI.new()
+        oci.import_container_image(image_uri)
+        oci.unpack()
+        oci.import_rootfs(self.root_dir)
+        Path.rename(self.root_dir, root_dir_ro)
+        Path.create(self.root_dir)
+
+        self.overlay = MountManager(device='', mountpoint=self.root_dir)
+        self.overlay.overlay_mount(root_dir_ro)
+
+    def _get_image_uri(self) -> str:
+        if not self.unknown_uri:
+            self.compressor = Compress(self.image_file)
+            if self.compressor.get_format():
+                self.compressor.uncompress(True)
+                self.uncompressed_image = self.compressor.uncompressed_filename
+            else:
+                self.uncompressed_image = self.image_file
+            image_uri = '{0}:{1}'.format(
+                self.archive_transport, self.uncompressed_image
+            )
+        else:
+            log.warning('Bypassing base image URI to OCI tools')
+            image_uri = self.unknown_uri
+        return image_uri

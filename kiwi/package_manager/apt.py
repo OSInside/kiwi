@@ -302,7 +302,7 @@ class PackageManagerApt(PackageManagerBase):
         return f'logfile {debootstrap_log_file!r} does not exist'
 
     def post_process_install_requests_bootstrap(
-        self, root_bind: RootBind = None
+        self, root_bind: RootBind = None, delta_root: bool = False
     ) -> None:
         """
         Mounts the kernel file systems to the chroot environment is
@@ -310,9 +310,11 @@ class PackageManagerApt(PackageManagerBase):
 
         :param object root_bind:
             instance of RootBind to manage kernel file systems
+        :param bool delta_root:
+            root is derived from a base system
         """
         if root_bind:
-            root_bind.mount_kernel_file_systems()
+            root_bind.mount_kernel_file_systems(delta_root)
 
     def process_install_requests(self) -> command_call_type:
         """

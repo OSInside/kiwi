@@ -74,7 +74,7 @@ class RootBind:
         # share the following directory with the host
         self.shared_location = '/' + Defaults.get_shared_cache_location()
 
-    def mount_kernel_file_systems(self) -> None:
+    def mount_kernel_file_systems(self, delta_root: bool = False) -> None:
         """
         Bind mount kernel filesystems
 
@@ -82,16 +82,18 @@ class RootBind:
             fails to mount
         """
         try:
-            # Yes this bind mount to yourself looks weird and should not
-            # be needed at all. The reason why it exists is to overcome
-            # an issue that appears if you run containers in kiwi scripts
-            # via e.g podman or docker. There is some information about the
-            # topic here: https://github.com/moby/moby/issues/34817
-            shared_mount = MountManager(
-                device=self.root_dir, mountpoint=self.root_dir
-            )
-            shared_mount.bind_mount()
-            self.mount_stack.append(shared_mount)
+            if not delta_root:
+                # Yes this bind mount to yourself looks weird and should not
+                # be needed at all. The reason why it exists is to overcome
+                # an issue that appears if you run containers in kiwi scripts
+                # via e.g podman or docker. There is some information about the
+                # topic here: https://github.com/moby/moby/issues/34817
+                shared_mount = MountManager(
+                    device=self.root_dir, mountpoint=self.root_dir
+                )
+                shared_mount.bind_mount()
+                self.mount_stack.append(shared_mount)
+
             for location in self.bind_locations:
                 location_mount_target = os.path.normpath(os.sep.join([
                     self.root_dir, location

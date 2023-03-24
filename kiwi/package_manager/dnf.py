@@ -325,13 +325,14 @@ class PackageManagerDnf(PackageManagerBase):
         )
 
     def post_process_install_requests_bootstrap(
-        self, root_bind: RootBind = None
+        self, root_bind: RootBind = None, delta_root: bool = False
     ) -> None:
         """
         Move the rpm database to the place as it is expected by the
         rpm package installed during bootstrap phase
 
         :param object root_bind: unused
+        :param bool delta_root: unused
         """
         rpmdb = RpmDataBase(self.root_dir)
         if rpmdb.has_rpm():

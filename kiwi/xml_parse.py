@@ -3047,7 +3047,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3120,6 +3120,7 @@ class type_(GeneratedsSuper):
         self.volid = _cast(None, volid)
         self.wwid_wait_timeout = _cast(int, wwid_wait_timeout)
         self.derived_from = _cast(None, derived_from)
+        self.delta_root = _cast(bool, delta_root)
         self.ensure_empty_tmpdirs = _cast(bool, ensure_empty_tmpdirs)
         self.xen_server = _cast(bool, xen_server)
         self.publisher = _cast(None, publisher)
@@ -3370,6 +3371,8 @@ class type_(GeneratedsSuper):
     def set_wwid_wait_timeout(self, wwid_wait_timeout): self.wwid_wait_timeout = wwid_wait_timeout
     def get_derived_from(self): return self.derived_from
     def set_derived_from(self, derived_from): self.derived_from = derived_from
+    def get_delta_root(self): return self.delta_root
+    def set_delta_root(self, delta_root): self.delta_root = delta_root
     def get_ensure_empty_tmpdirs(self): return self.ensure_empty_tmpdirs
     def set_ensure_empty_tmpdirs(self, ensure_empty_tmpdirs): self.ensure_empty_tmpdirs = ensure_empty_tmpdirs
     def get_xen_server(self): return self.xen_server
@@ -3677,6 +3680,9 @@ class type_(GeneratedsSuper):
         if self.derived_from is not None and 'derived_from' not in already_processed:
             already_processed.add('derived_from')
             outfile.write(' derived_from=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.derived_from), input_name='derived_from')), ))
+        if self.delta_root is not None and 'delta_root' not in already_processed:
+            already_processed.add('delta_root')
+            outfile.write(' delta_root="%s"' % self.gds_format_boolean(self.delta_root, input_name='delta_root'))
         if self.ensure_empty_tmpdirs is not None and 'ensure_empty_tmpdirs' not in already_processed:
             already_processed.add('ensure_empty_tmpdirs')
             outfile.write(' ensure_empty_tmpdirs="%s"' % self.gds_format_boolean(self.ensure_empty_tmpdirs, input_name='ensure_empty_tmpdirs'))
@@ -4197,6 +4203,15 @@ class type_(GeneratedsSuper):
         if value is not None and 'derived_from' not in already_processed:
             already_processed.add('derived_from')
             self.derived_from = value
+        value = find_attr_value_('delta_root', node)
+        if value is not None and 'delta_root' not in already_processed:
+            already_processed.add('delta_root')
+            if value in ('true', '1'):
+                self.delta_root = True
+            elif value in ('false', '0'):
+                self.delta_root = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('ensure_empty_tmpdirs', node)
         if value is not None and 'ensure_empty_tmpdirs' not in already_processed:
             already_processed.add('ensure_empty_tmpdirs')

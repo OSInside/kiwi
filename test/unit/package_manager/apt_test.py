@@ -184,7 +184,7 @@ class TestPackageManagerApt:
     def test_post_process_install_requests_bootstrap(self):
         mock_root_bind = Mock()
         self.manager.post_process_install_requests_bootstrap(mock_root_bind)
-        mock_root_bind.mount_kernel_file_systems.assert_called_once_with()
+        mock_root_bind.mount_kernel_file_systems.assert_called_once_with(False)
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.package_manager.apt.Path.wipe')

@@ -42,6 +42,9 @@ class TestContainerBuilder:
         self.xml_state.xml_data.get_name = mock.Mock(
             return_value='image_name'
         )
+        self.xml_state.build_type.get_delta_root = mock.Mock(
+            return_value=False
+        )
         self.setup = mock.Mock()
         kiwi.builder.container.SystemSetup = mock.Mock(
             return_value=self.setup

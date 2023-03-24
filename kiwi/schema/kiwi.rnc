@@ -2113,6 +2113,13 @@ div {
             sch:param [ name = "attr" value = "derived_from" ]
             sch:param [ name = "types" value = "docker oci" ]
         ]
+    k.type.delta_root.attribute =
+        ## Together with derived_from create a delta root tree
+        attribute delta_root { xsd:boolean }
+        >> sch:pattern [ id = "delta_root" is-a = "image_type"
+            sch:param [ name = "attr" value = "delta_root" ]
+            sch:param [ name = "types" value = "docker oci" ]
+        ]
     k.type.ensure_empty_tmpdirs.attribute =
         ## Whether to ensure /run and /tmp directories are empty in the
         ## container image created by Kiwi.  Default is true.
@@ -2247,6 +2254,7 @@ div {
         k.type.volid.attribute? &
         k.type.wwid_wait_timeout.attribute? &
         k.type.derived_from.attribute? &
+        k.type.delta_root.attribute? &
         k.type.ensure_empty_tmpdirs.attribute? &
         k.type.xen_server.attribute? &
         k.type.publisher.attribute? &
