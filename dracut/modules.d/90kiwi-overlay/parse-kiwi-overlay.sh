@@ -31,14 +31,27 @@ case "${overlayroot}" in
         root="block:/dev/disk/by-partuuid/${root#PARTUUID=}"
         rootok=1
     ;;
+    overlay:PARTLABEL=*|PARTLABEL=*) \
+        root="${root#overlay:}"
+        root="${root//\//\\x2f}"
+        root="block:/dev/disk/by-partlabel/${root#PARTLABEL=}"
+        rootok=1
+    ;;
     overlay:LABEL=*|LABEL=*) \
         root="${root#overlay:}"
         root="${root//\//\\x2f}"
         root="block:/dev/disk/by-label/${root#LABEL=}"
         rootok=1
     ;;
+    overlay:UNIXNODE=*|UNIXNODE=*) \
+        root="${root#overlay:}"
+        root="${root//\//\\x2f}"
+        root="block:/dev/${root#UNIXNODE=}"
+        rootok=1
+    ;;
     overlay:nbd=*) \
-        root="block:/dev/nbd0"
+        root="${root#overlay:nbd=}"
+        root="block:/dev/${root}"
         need_network=1
         rootok=1
     ;;

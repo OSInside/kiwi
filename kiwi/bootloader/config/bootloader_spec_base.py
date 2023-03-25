@@ -100,7 +100,12 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.custom_args['initrd'] = initrd
         self.custom_args['boot_options'] = boot_options
         self.cmdline = ' '.join(
-            [self.get_boot_cmdline(boot_options.get('root_device'))]
+            [
+                self.get_boot_cmdline(
+                    boot_options.get('root_device'),
+                    boot_options.get('write_device')
+                )
+            ]
         )
         self.setup_loader(self.target.disk)
         self.set_loader_entry(self.target.disk)

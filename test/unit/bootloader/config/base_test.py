@@ -105,12 +105,37 @@ class TestBootLoaderConfigBase:
         assert self.bootloader.failsafe_boot_entry_requested() is False
 
     def test_get_boot_cmdline(self):
-        assert self.bootloader.get_boot_cmdline() == 'splash'
+        assert self.bootloader.get_boot_cmdline(None) == 'splash'
 
     @patch('kiwi.xml_parse.type_.get_kernelcmdline')
     def test_get_boot_cmdline_custom_root(self, mock_cmdline):
         mock_cmdline.return_value = 'root=/dev/myroot'
-        assert self.bootloader.get_boot_cmdline() == 'root=/dev/myroot'
+        with self._caplog.at_level(logging.WARNING):
+            assert self.bootloader.get_boot_cmdline(
+                '/dev/myroot'
+            ) == 'root=/dev/myroot'
+            assert 'Kernel root device explicitly set via kernelcmdline' \
+                in self._caplog.text
+
+    @patch('kiwi.xml_parse.type_.get_kernelcmdline')
+    @patch('kiwi.bootloader.config.base.BlockID')
+    def test_get_boot_cmdline_custom_root_overlay_write(
+        self, mock_BlockID, mock_cmdline
+    ):
+        block_operation = Mock()
+        block_operation.get_blkid.return_value = 'mock'
+        mock_BlockID.return_value = block_operation
+        mock_cmdline.return_value = 'rd.root.overlay.write=/dev/myrw'
+        self.state.build_type.get_overlayroot = Mock(
+            return_value=True
+        )
+        with self._caplog.at_level(logging.WARNING):
+            assert self.bootloader.get_boot_cmdline(
+                '/dev/myroot'
+            ) == 'rd.root.overlay.write=/dev/myrw root=overlay:PARTUUID=mock'
+            print(self._caplog.text)
+            assert 'Overlay write device explicitly set via kernelcmdline' \
+                in self._caplog.text
 
     @patch('kiwi.xml_parse.type_.get_initrd_system')
     @patch('kiwi.bootloader.config.base.BlockID')
@@ -160,14 +185,14 @@ class TestBootLoaderConfigBase:
         self, mock_BlockID, mock_initrd
     ):
         block_operation = Mock()
-        block_operation.get_blkid.return_value = 'uuid'
+        block_operation.get_blkid.return_value = 'mock'
         mock_BlockID.return_value = block_operation
         mock_initrd.return_value = 'dracut'
         self.state.build_type.get_overlayroot = Mock(
             return_value=True
         )
-        assert self.bootloader.get_boot_cmdline('uuid') == \
-            'splash root=overlay:UUID=uuid'
+        assert self.bootloader.get_boot_cmdline('/dev/ro', '/dev/rw') == \
+            'splash rd.root.overlay.write=/dev/disk/by-uuid/mock root=overlay:PARTUUID=mock'
 
     @patch('kiwi.xml_parse.type_.get_installboot')
     def test_get_install_image_boot_default(self, mock_installboot):

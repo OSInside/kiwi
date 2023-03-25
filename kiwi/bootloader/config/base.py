@@ -78,11 +78,14 @@ class BootLoaderConfigBase:
         """
         raise NotImplementedError
 
-    def write_meta_data(self, root_device=None, boot_options=''):
+    def write_meta_data(
+        self, root_device=None, write_device=None, boot_options=''
+    ):
         """
         Write bootloader setup meta data files
 
         :param string root_device: root device node
+        :param string write_device: overlay root write device node
         :param string boot_options: kernel options as string
 
         Implementation in specialized bootloader class optional
@@ -262,11 +265,18 @@ class BootLoaderConfigBase:
             return False
         return True
 
-    def get_boot_cmdline(self, boot_device=None):
+    def get_boot_cmdline(self, boot_device, write_device=None):
         """
         Boot commandline arguments passed to the kernel
 
-        :param string boot_device: boot device node
+        :param string boot_device:
+            boot device node. If no extra boot device exists
+            then boot device equals root device. In case of
+            an overlay setup the boot device equals the
+            readonly root device
+
+        :param string write_device:
+            optional overlay write device node
 
         :return: kernel boot arguments
 
@@ -276,7 +286,14 @@ class BootLoaderConfigBase:
         custom_cmdline = self.xml_state.build_type.get_kernelcmdline()
         if custom_cmdline:
             cmdline += ' ' + custom_cmdline
-        custom_root = self._get_root_cmdline_parameter(boot_device)
+        overlay_cmdline = self._get_root_overlay_cmdline_parameter(
+            boot_device, write_device
+        )
+        if overlay_cmdline:
+            cmdline += ' ' + overlay_cmdline
+        custom_root = self._get_root_cmdline_parameter(
+            boot_device
+        )
         if custom_root and custom_root not in cmdline:
             cmdline += ' ' + custom_root
         return cmdline.strip()
@@ -555,32 +572,86 @@ class BootLoaderConfigBase:
         self.sys_mount.bind_mount()
 
     def _get_root_cmdline_parameter(self, boot_device):
+        """
+        root= argument passed to the kernel
+
+        :param string boot_device:
+            boot device node. If no extra boot device exists
+            then boot device equals root device. In case of
+            an overlay setup the boot device equals the
+            readonly root device
+        """
         cmdline = self.xml_state.build_type.get_kernelcmdline()
-        persistency_type = self.xml_state.build_type.get_devicepersistency()
         if cmdline and 'root=' in cmdline:
-            log.info(
+            log.warning(
                 'Kernel root device explicitly set via kernelcmdline'
             )
             root_search = re.search(r'(root=(.*)[ ]+|root=(.*)$)', cmdline)
             if root_search:
                 return root_search.group(1)
         if boot_device:
-            block_operation = BlockID(boot_device)
-            if persistency_type == 'by-label':
-                blkid_type = 'LABEL'
-            elif persistency_type == 'by-partuuid':
-                blkid_type = 'PARTUUID'
-            else:
-                blkid_type = 'UUID'
-            location = block_operation.get_blkid(blkid_type)
             if self.xml_state.build_type.get_overlayroot():
-                return f'root=overlay:{blkid_type}={location}'
+                # In case of an overlay setup the root partition is a squashfs
+                # In this case the root location can only be specified by the
+                # partition uuid because squashfs itself doesn't have one
+                root_location = self._get_location(boot_device, 'by-partuuid')
+                return 'root=overlay:{0}={1}'.format(
+                    root_location['type'], root_location['name']
+                )
             else:
-                return f'root={blkid_type}={location}'
+                root_location = self._get_location(boot_device)
+                return 'root={0}={1}'.format(
+                    root_location['type'], root_location['name']
+                )
         else:
             log.warning(
                 'No explicit root= cmdline provided'
             )
+
+    def _get_root_overlay_cmdline_parameter(self, boot_device, write_device):
+        """
+        rd.root.overlay.write= argument passed to the kernel
+
+        :param string boot_device:
+            boot device node. If no extra boot device exists
+            then boot device equals root device. In case of
+            an overlay setup the boot device equals the
+            readonly root device
+
+        :param string write_device:
+            overlay write device
+        """
+        root_overlay_parameter = ''
+        cmdline = self.xml_state.build_type.get_kernelcmdline()
+        if self.xml_state.build_type.get_overlayroot():
+            if cmdline and 'rd.root.overlay.write=' in cmdline:
+                log.warning(
+                    'Overlay write device explicitly set via kernelcmdline'
+                )
+            elif write_device and write_device != boot_device:
+                write_location = self._get_location(write_device)
+                root_overlay_parameter = 'rd.root.overlay.write={0}'.format(
+                    write_location['node']
+                )
+        return root_overlay_parameter
+
+    def _get_location(self, device, persistency_type=''):
+        if not persistency_type:
+            persistency_type = self.xml_state.build_type.get_devicepersistency()
+        block_operation = BlockID(device)
+        if persistency_type == 'by-label':
+            blkid_type = 'LABEL'
+        elif persistency_type == 'by-partuuid':
+            blkid_type = 'PARTUUID'
+        else:
+            persistency_type = 'by-uuid'
+            blkid_type = 'UUID'
+        location = block_operation.get_blkid(blkid_type)
+        return {
+            'type': blkid_type,
+            'name': location,
+            'node': f'/dev/disk/{persistency_type}/{location}'
+        }
 
     def __del__(self):
         log.info('Cleaning up %s instance', type(self).__name__)

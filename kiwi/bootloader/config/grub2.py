@@ -176,7 +176,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
-    def write_meta_data(self, root_device=None, boot_options=''):
+    def write_meta_data(
+        self, root_device=None, write_device=None, boot_options=''
+    ):
         """
         Write bootloader setup meta data files
 
@@ -186,16 +188,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * etc/sysconfig/bootloader
 
         :param string root_device: root device node
+        :param string write_device: overlay root write device node
         :param string boot_options: kernel options as string
         :param bool iso_boot: indicate target is an ISO
         """
         self.cmdline = ' '.join(
-            [self.get_boot_cmdline(root_device), boot_options]
+            [self.get_boot_cmdline(root_device, write_device), boot_options]
         )
         self.cmdline_failsafe = ' '.join(
             [self.cmdline, Defaults.get_failsafe_kernel_options(), boot_options]
         )
-        self.root_reference = self._get_root_cmdline_parameter(root_device)
+        self.root_reference = self._get_root_cmdline_parameter(
+            root_device
+        )
 
         self._setup_default_grub()
         self._setup_sysconfig_bootloader()
