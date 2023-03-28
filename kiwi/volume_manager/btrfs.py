@@ -122,17 +122,19 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 ['btrfs', 'subvolume', 'create', snapshot_volume]
             )
             os.chmod(snapshot_volume, 0o700)
-            volume_mount = MountManager(
-                device=self.device,
-                mountpoint=self.mountpoint + '/.snapshots'
-            )
-            self.subvol_mount_list.append(volume_mount)
             Path.create(snapshot_volume + '/1')
             snapshot = self.mountpoint + '/@/.snapshots/1/snapshot'
             Command.run(
-                ['btrfs', 'subvolume', 'snapshot', root_volume, snapshot]
+                ['btrfs', 'subvolume', 'create', snapshot]
             )
             self._set_default_volume('@/.snapshots/1/snapshot')
+            snapshot = self.mountpoint + '/@/.snapshots/1/snapshot'
+            # Mount /@/.snapshots as /.snapshots inside the root
+            snapshots_mount = MountManager(
+                device=self.device,
+                mountpoint=snapshot + '/.snapshots'
+            )
+            self.subvol_mount_list.append(snapshots_mount)
         else:
             self._set_default_volume('@')
 
