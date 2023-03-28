@@ -793,6 +793,38 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.setup_live_image_config(self.mbrid)
         self.grub2.get_iso_template.assert_called_once()
 
+    @patch('os.path.exists')
+    def test_setup_install_image_config_custom_template(self, mock_exists):
+        bootloader = Mock()
+        bootloader.get_grub_template.return_value = "example.template"
+        self.bootloader.xml_state.build_type.bootloader.append(bootloader)
+        mock_exists.return_value = True
+        self.bootloader.multiboot = False
+        with patch('builtins.open') as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = "example template contents"
+            self.bootloader.setup_install_image_config(self.mbrid)
+        assert self.bootloader.config == "example template contents"
+
+    @patch('os.path.exists')
+    def test_setup_install_image_config_custom_template_file_does_not_exist(self, mock_exists):
+        bootloader = Mock()
+        bootloader.get_grub_template.return_value = "example.template"
+        self.bootloader.xml_state.build_type.bootloader.append(bootloader)
+        mock_exists.return_value = False
+        self.bootloader.multiboot = False
+        with raises(KiwiFileNotFound):
+            self.bootloader.setup_install_image_config(self.mbrid)
+
+    def test_setup_install_image_config_custom_template_not_set(self):
+        bootloader = Mock()
+        bootloader.get_grub_template.return_value = ""
+        self.bootloader.xml_state.build_type.bootloader.append(bootloader)
+        self.bootloader.multiboot = False
+        self.bootloader.setup_install_image_config(self.mbrid)
+        self.grub2.get_install_template.assert_called_once()
+
     def test_setup_live_image_config_multiboot(self):
         self.bootloader.multiboot = True
         self.bootloader.setup_live_image_config(self.mbrid)

@@ -321,7 +321,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'efi_image_name': Defaults.get_efi_image_name(self.arch),
             'terminal_setup': self.terminal
         }
-        if self.multiboot:
+        custom_template_path = self._get_custom_template()
+        if custom_template_path:
+            log.info('--> Using custom boot template')
+            with open(custom_template_path) as custom_template_file:
+                template = Template(custom_template_file.read())
+        elif self.multiboot:
             log.info('--> Using multiboot install template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_install_template(

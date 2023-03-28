@@ -1,0 +1,56 @@
+set btrfs_relative_path="y"
+export btrfs_relative_path
+search ${search_params}
+set default=${default_boot}
+set timeout=${boot_timeout}
+set timeout_style=${boot_timeout_style}
+set linux=linux
+set initrd=initrd
+export linux initrd
+if [ "$${grub_platform}" = "efi" ]; then
+    echo "Please press 't' to show the boot menu on this console"
+fi
+set gfxmode=${gfxmode}
+set font=($$root)${bootpath}/${boot_directory_name}/fonts/unicode.pf2
+set ascii_font=${boot_directory_name}/themes/${theme}/ascii.pf2
+set sans_bold_14_font=${boot_directory_name}/themes/${theme}/DejaVuSans-Bold14.pf2
+set sans_10_font=${boot_directory_name}/themes/${theme}/DejaVuSans10.pf2
+set sans_12_font=${boot_directory_name}/themes/${theme}/DejaVuSans12.pf2
+if [ -f $${font} ];then
+  loadfont $${font}
+fi
+if [ -f ($$root)/boot/$${ascii_font} ];then
+  loadfont ($$root)/boot/$${ascii_font}
+fi
+if [ -f ($$root)/boot/$${sans_bold_14_font} ];then
+  loadfont ($$root)/boot/$${sans_bold_14_font}
+fi
+if [ -f ($$root)/boot/$${sans_10_font} ];then
+  loadfont ($$root)/boot/$${sans_10_font}
+fi
+if [ -f ($$root)/boot/$${sans_12_font} ];then
+  loadfont ($$root)/boot/$${sans_12_font}
+fi
+if [ -f ($$root)/boot/${boot_directory_name}/themes/${theme}/theme.txt ];then
+  set theme=($$root)/boot/${boot_directory_name}/themes/${theme}/theme.txt
+fi
+terminal_input ${terminal_setup}
+terminal_output ${terminal_setup}
+
+menuentry "${title}" --class os --unrestricted {
+    set gfxpayload=keep
+    echo Loading kernel...
+    $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${boot_options}
+    echo Loading initrd...
+    $$initrd ($$root)${bootpath}/${initrd_file}
+}
+menuentry "Failsafe -- ${title}" --class os --unrestricted {
+    set gfxpayload=keep
+    echo Loading kernel...
+    $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${failsafe_boot_options}
+    echo Loading initrd...
+    $$initrd ($$root)${bootpath}/${initrd_file}
+}
+menuentry "Boot from Hard Disk" --class os --unrestricted {
+    exit
+}
