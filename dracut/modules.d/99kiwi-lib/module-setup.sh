@@ -17,7 +17,7 @@ install() {
     inst_multiple \
         blkid blockdev dd mkdir rmdir \
         grep cut tail head tr bc true false mountpoint \
-        basename partprobe sfdisk sgdisk mkswap readlink lsblk \
+        basename partprobe parted sfdisk sgdisk mkswap readlink lsblk \
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \
