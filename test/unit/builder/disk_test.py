@@ -1248,8 +1248,8 @@ class TestDiskBuilder:
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
         self.disk_builder.disk_start_sector = 4096
-        self.firmware.efi_mode = Mock(
-            return_value=None
+        self.firmware.get_partition_table_type = Mock(
+            return_value='msdos'
         )
 
         with patch('builtins.open'):
