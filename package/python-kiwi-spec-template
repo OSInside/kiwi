@@ -457,6 +457,7 @@ Requires:       device-mapper
 %endif
 %ifarch s390 s390x
 Requires:       s390-tools
+Requires:       parted
 %endif
 License:        GPL-3.0-or-later
 Group:          %{sysgroup}
