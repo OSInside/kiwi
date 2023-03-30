@@ -1175,7 +1175,7 @@ class TestBootLoaderConfigGrub2:
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
+                    'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512', 'crypto',
                     'cryptodisk', 'test', 'true', 'loadenv', 'multiboot',
                     'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
@@ -1249,7 +1249,7 @@ class TestBootLoaderConfigGrub2:
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
+                    'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512', 'crypto',
                     'cryptodisk', 'test', 'true', 'loadenv', 'part_gpt',
                     'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
@@ -1688,11 +1688,11 @@ class TestBootLoaderConfigGrub2:
             ]
             assert file_handle.write.call_args_list == [
                 call('set btrfs_relative_path="yes"\n'),
-                call('search --file --set=root /boot/0xffffffff\n'),
+                call('search --file --set=root /boot/mbrid\n'),
                 call('set prefix=($root)/boot/grub2\n'),
                 call('configfile ($root)/boot/grub2/grub.cfg\n'),
                 call('set btrfs_relative_path="yes"\n'),
-                call('search --file --set=root /boot/0xffffffff\n'),
+                call('search --file --set=root /boot/mbrid\n'),
                 call('set prefix=($root)/boot/grub2\n'),
                 call('configfile ($root)/boot/grub2/grub.cfg\n'),
                 call('source /boot/grub2/grub.cfg\n')
@@ -1725,7 +1725,7 @@ class TestBootLoaderConfigGrub2:
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
+                    'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
                     'crypto', 'cryptodisk', 'test', 'true', 'loadenv',
                     'part_gpt', 'part_msdos', 'biosdisk', 'vga', 'vbe',
@@ -1751,7 +1751,7 @@ class TestBootLoaderConfigGrub2:
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'lvm', 'luks',
+                    'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
                     'crypto', 'cryptodisk', 'test', 'true', 'loadenv',
                     'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
@@ -1801,7 +1801,7 @@ class TestBootLoaderConfigGrub2:
 
             assert file_handle.write.call_args_list == [
                 call('set btrfs_relative_path="yes"\n'),
-                call('search --file --set=root /boot/0xffffffff\n'),
+                call('search --file --set=root /boot/mbrid\n'),
                 call('set prefix=($root)/boot/grub2\n'),
                 call('configfile ($root)/boot/grub2/grub.cfg\n'),
                 call('source /boot/grub2/grub.cfg\n')
@@ -1869,7 +1869,7 @@ class TestBootLoaderConfigGrub2:
                 )
                 assert file_handle.write.call_args_list == [
                     call('set btrfs_relative_path="yes"\n'),
-                    call('search --file --set=root /boot/0xffffffff\n'),
+                    call('search --file --set=root /boot/mbrid\n'),
                     call('set prefix=($root)/boot/grub2\n'),
                     call('configfile ($root)/boot/grub2/grub.cfg\n'),
                     call('source /boot/grub2/grub.cfg\n')
