@@ -1006,7 +1006,7 @@ class DiskBuilder:
             log.info('--> setting active flag to primary PReP partition')
             disk.activate_boot_partition()
 
-        if not self.firmware.efi_mode() and self.disk_start_sector:
+        if self.firmware.get_partition_table_type() == 'msdos' and self.disk_start_sector:
             log.info(f'--> setting start sector to: {self.disk_start_sector}')
             disk.set_start_sector(self.disk_start_sector)
 
