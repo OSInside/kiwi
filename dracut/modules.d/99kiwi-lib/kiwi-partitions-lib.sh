@@ -137,6 +137,13 @@ function create_dasd_partitions {
     local ignore_cmd=0
     local ignore_cmd_once=0
     local cmd
+
+    # We resize first partition to enfore rewrite of the current
+    # partition table updated to the actual disk geometry. This is
+    # to circumvent the fdasd limitation of not being capable to
+    # expand the partition table up to the disk size bsc#1209247
+    parted --script --machine "${disk_device}" resizepart 1
+
     for cmd in ${partition_setup};do
         if [ "${ignore_cmd}" = 1 ] && echo "${cmd}" | grep -qE '[dntwq]';then
             ignore_cmd=0
@@ -278,7 +285,9 @@ function get_free_disk_bytes {
 }
 
 function get_partition_table_type {
-    blkid -s PTTYPE -o value "$1"
+    local disk_device="$1"
+    
+    parted --script --machine "${disk_device}" print | grep "^${disk_device}" | cut -d":" -f6
 }
 
 function get_partition_uuid {
