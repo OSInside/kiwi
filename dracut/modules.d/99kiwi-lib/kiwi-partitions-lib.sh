@@ -287,7 +287,11 @@ function get_free_disk_bytes {
 function get_partition_table_type {
     local disk_device="$1"
     
-    parted --script --machine "${disk_device}" print | grep "^${disk_device}" | cut -d":" -f6
+    if [[ "$(uname -m)" =~ s390 ]];then
+        parted --script --machine "${disk_device}" print | grep "^${disk_device}" | cut -d":" -f6
+    else
+        blkid -s PTTYPE -o value "$disk_device"    
+    fi
 }
 
 function get_partition_uuid {
