@@ -26,7 +26,7 @@ install() {
         dmsetup
     inst_multiple -o dolly
     if [[ "$(uname -m)" =~ s390 ]];then
-        inst_multiple fdasd
+        inst_multiple fdasd parted
     fi
     inst_simple \
         "${moddir}/kiwi-lib.sh" "/lib/kiwi-lib.sh"
