@@ -349,7 +349,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
-                self.boot_dir, self.early_boot_script_efi
+                self.boot_dir, self.early_boot_script_efi, 'iso'
             )
 
     def setup_live_image_config(
@@ -413,7 +413,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
-                self.boot_dir, self.early_boot_script_efi
+                self.boot_dir, self.early_boot_script_efi, 'iso'
             )
 
     def setup_install_boot_images(self, mbrid, lookup_path=None):
@@ -452,11 +452,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._setup_EFI_path(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
-            self._setup_efi_image(mbrid=mbrid, lookup_path=lookup_path)
+            self._setup_efi_image(mbrid=mbrid, lookup_path=lookup_path, target_type='iso')
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
             self._setup_secure_boot_efi_image(
-                lookup_path=lookup_path, mbrid=mbrid
+                lookup_path=lookup_path, mbrid=mbrid, target_type='iso'
             )
 
         log.info('--> Creating loopback config')
@@ -509,7 +509,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.xen_guest:
             self._copy_xen_modules_to_boot_directory(lookup_path)
 
-    def _copy_grub_config_to_efi_path(self, root_path, config_file):
+    def _copy_grub_config_to_efi_path(
+        self, root_path, config_file, target_type='disk'
+    ):
         efi_boot_path = Defaults.get_shim_vendor_directory(
             root_path
         )
@@ -518,7 +520,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # have them in their encoded early boot script. Thus
             # the following code tries to look up the vendor string
             # from the signed grub binary
-            grub_image = Defaults.get_signed_grub_loader(self.root_dir)
+            grub_image = Defaults.get_signed_grub_loader(self.root_dir, target_type)
             if grub_image and grub_image.filename:
                 bash_command = [
                     'strings', grub_image.filename, '|', 'grep', 'EFI\/'
@@ -772,7 +774,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                         grub_default[key] = value
                 grub_default.write()
 
-    def _setup_secure_boot_efi_image(self, lookup_path, uuid=None, mbrid=None):
+    def _setup_secure_boot_efi_image(
+        self, lookup_path, uuid=None, mbrid=None, target_type='disk'
+    ):
         """
         Provide the shim loader and the shim signed grub2 loader
         in the required boot path. Normally this task is done by
@@ -789,7 +793,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         if not lookup_path:
             lookup_path = self.boot_dir
-        grub_image = Defaults.get_signed_grub_loader(lookup_path)
+        grub_image = Defaults.get_signed_grub_loader(lookup_path, target_type)
         if not grub_image:
             raise KiwiBootLoaderGrubSecureBootError(
                 'Signed grub2 efi loader not found'
@@ -823,7 +827,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         self._create_efi_config_search(uuid, mbrid)
 
-    def _setup_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
+    def _setup_efi_image(
+        self, uuid=None, mbrid=None, lookup_path=None, target_type='disk'
+    ):
         """
         Provide the unsigned grub2 efi image in the required boot path
         If a prebuilt efi image as provided by the distribution could
@@ -833,7 +839,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
         if not lookup_path:
             lookup_path = self.boot_dir
-        grub_image = Defaults.get_unsigned_grub_loader(lookup_path)
+        grub_image = Defaults.get_unsigned_grub_loader(lookup_path, target_type)
         if grub_image and self.xml_state.build_type.get_overlayroot_write_partition() is not False:
             log.info('--> Using prebuilt unsigned efi image')
             Command.run(

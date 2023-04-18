@@ -870,12 +870,14 @@ class Defaults:
                 return font_dir
 
     @staticmethod
-    def get_unsigned_grub_loader(root_path):
+    def get_unsigned_grub_loader(
+        root_path: str, target_type: str = 'disk'
+    ) -> Optional[str]:
         """
         Provides unsigned grub efi loader file path
 
-        Searches distribution specific locations to find grub.efi
-        below the given root path
+        Searches distribution specific locations to find a distro
+        grub EFI binary within the given root path
 
         :param string root_path: image root path
 
@@ -883,16 +885,28 @@ class Defaults:
 
         :rtype: str
         """
-        unsigned_grub_file_patterns = [
-            '/usr/share/grub*/*-efi/grub.efi',
-            '/usr/lib/grub*/*-efi/grub.efi',
-            '/boot/efi/EFI/*/grubx64.efi'
-        ]
-        for unsigned_grub_file_pattern in unsigned_grub_file_patterns:
+        unsigned_grub_file = None
+        unsigned_grub_file_patterns = {
+            'disk': [
+                '/usr/share/grub*/*-efi/grub.efi',
+                '/usr/lib/grub*/*-efi/grub.efi',
+                '/boot/efi/EFI/*/grubx64.efi',
+                '/boot/efi/EFI/*/grubaa64.efi'
+            ],
+            'iso': [
+                '/boot/efi/EFI/*/gcdx64.efi',
+                '/usr/share/grub*/*-efi/grub.efi',
+                '/usr/lib/grub*/*-efi/grub.efi',
+                '/boot/efi/EFI/*/grubx64.efi',
+                '/boot/efi/EFI/*/grubaa64.efi'
+            ]
+        }
+        for unsigned_grub_file_pattern in unsigned_grub_file_patterns[target_type]:
             for unsigned_grub_file in glob.iglob(
                 root_path + unsigned_grub_file_pattern
             ):
                 return unsigned_grub_file
+        return None
 
     @staticmethod
     def get_grub_bios_core_loader(root_path):
@@ -975,12 +989,14 @@ class Defaults:
         return 'eltorito.img'
 
     @staticmethod
-    def get_signed_grub_loader(root_path: str) -> Optional[grub_loader_type]:
+    def get_signed_grub_loader(
+        root_path: str, target_type: str = 'disk'
+    ) -> Optional[grub_loader_type]:
         """
         Provides shim signed grub loader file path
 
-        Searches distribution specific locations to find grub.efi
-        below the given root path
+        Searches distribution specific locations to find a grub
+        EFI binary within the given root path
 
         :param str root_path: image root path
 
@@ -991,25 +1007,54 @@ class Defaults:
         grub_pattern_type = namedtuple(
             'grub_pattern_type', ['pattern', 'binaryname']
         )
-        signed_grub_file_patterns = [
-            grub_pattern_type(
-                '/usr/share/efi/*/grub.efi', None
-            ),
-            grub_pattern_type(
-                '/usr/lib64/efi/grub.efi', None
-            ),
-            grub_pattern_type(
-                '/boot/efi/EFI/*/grub*.efi', None
-            ),
-            grub_pattern_type(
-                '/usr/share/grub*/*-efi/grub.efi', None
-            ),
-            grub_pattern_type(
-                '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
-                'grubx64.efi'
-            )
-        ]
-        for signed_grub in signed_grub_file_patterns:
+        signed_grub_file_patterns = {
+            'disk': [
+                grub_pattern_type(
+                    '/usr/share/efi/*/grub.efi', None
+                ),
+                grub_pattern_type(
+                    '/usr/lib64/efi/grub.efi', None
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grub*.efi', None
+                ),
+                grub_pattern_type(
+                    '/usr/share/grub*/*-efi/grub.efi', None
+                ),
+                grub_pattern_type(
+                    '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
+                    'grubx64.efi'
+                )
+            ],
+            'iso': [
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/gcdx64.efi',
+                    'grubx64.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/gcdaa64.efi',
+                    'grubaa64.efi'
+                ),
+                grub_pattern_type(
+                    '/usr/share/efi/*/grub.efi', None
+                ),
+                grub_pattern_type(
+                    '/usr/lib64/efi/grub.efi', None
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grub*.efi', None
+                ),
+                grub_pattern_type(
+                    '/usr/share/grub*/*-efi/grub.efi', None
+                ),
+                grub_pattern_type(
+                    '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
+                    'grubx64.efi'
+                )
+
+            ]
+        }
+        for signed_grub in signed_grub_file_patterns[target_type]:
             for signed_grub_file in glob.iglob(root_path + signed_grub.pattern):
                 if not signed_grub.binaryname:
                     binaryname = os.path.basename(signed_grub_file)
