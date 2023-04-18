@@ -1175,10 +1175,11 @@ class TestBootLoaderConfigGrub2:
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
-                    'gcry_rijndael', 'gcry_sha256', 'gcry_sha512', 'crypto',
-                    'cryptodisk', 'test', 'true', 'loadenv', 'multiboot',
-                    'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'all_video', 'xfs', 'btrfs', 'squash4', 'zstd', 'xzio',
+                    'lvm', 'luks', 'gcry_rijndael', 'gcry_sha256',
+                    'gcry_sha512', 'crypto', 'cryptodisk', 'test',
+                    'true', 'loadenv', 'multiboot', 'part_gpt',
+                    'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
                 ]
             )
         ]
@@ -1249,10 +1250,11 @@ class TestBootLoaderConfigGrub2:
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
-                    'gcry_rijndael', 'gcry_sha256', 'gcry_sha512', 'crypto',
-                    'cryptodisk', 'test', 'true', 'loadenv', 'part_gpt',
-                    'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'all_video', 'xfs', 'btrfs', 'squash4', 'zstd', 'xzio',
+                    'lvm', 'luks', 'gcry_rijndael', 'gcry_sha256',
+                    'gcry_sha512', 'crypto', 'cryptodisk', 'test',
+                    'true', 'loadenv', 'part_gpt', 'part_msdos',
+                    'efi_gop', 'efi_uga', 'linuxefi'
                 ]
             )
         ]
@@ -1725,11 +1727,11 @@ class TestBootLoaderConfigGrub2:
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
-                    'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
-                    'crypto', 'cryptodisk', 'test', 'true', 'loadenv',
-                    'part_gpt', 'part_msdos', 'biosdisk', 'vga', 'vbe',
-                    'chain', 'boot'
+                    'all_video', 'xfs', 'btrfs', 'squash4', 'zstd', 'xzio',
+                    'lvm', 'luks', 'gcry_rijndael', 'gcry_sha256',
+                    'gcry_sha512', 'crypto', 'cryptodisk', 'test',
+                    'true', 'loadenv', 'part_gpt', 'part_msdos',
+                    'biosdisk', 'vga', 'vbe', 'chain', 'boot'
                 ]
             ),
             call(
@@ -1751,10 +1753,11 @@ class TestBootLoaderConfigGrub2:
                     'search_label', 'search_fs_file', 'search',
                     'search_fs_uuid', 'ls', 'normal', 'gzio', 'png', 'fat',
                     'gettext', 'font', 'minicmd', 'gfxterm', 'gfxmenu',
-                    'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
-                    'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
-                    'crypto', 'cryptodisk', 'test', 'true', 'loadenv',
-                    'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'all_video', 'xfs', 'btrfs', 'squash4', 'zstd', 'xzio',
+                    'lvm', 'luks', 'gcry_rijndael', 'gcry_sha256',
+                    'gcry_sha512', 'crypto', 'cryptodisk', 'test',
+                    'true', 'loadenv', 'part_gpt', 'part_msdos',
+                    'efi_gop', 'efi_uga', 'linuxefi'
                 ]
             )
         ]
