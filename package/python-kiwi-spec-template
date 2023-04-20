@@ -139,7 +139,7 @@ Provides:       kiwi-image:appx
 %endif
 %if 0%{?suse_version}
 Requires:       umoci
-Requires:       fb-util-for-appx
+Recommends:     fb-util-for-appx
 %else
 Requires:       buildah
 %endif
