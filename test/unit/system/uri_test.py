@@ -110,6 +110,17 @@ class TestUri:
         uri = Uri('/path/to/repo')
         assert uri.is_remote() is False
 
+    def test_uri_needs_encoding(self):
+        uri = Uri(
+            'https://user@mycompany.com:token_password@'
+            'artifactory-edge.mycompany.com/artifactory/'
+            'some_rpm_path/Base-Prod/sample.rpm'
+        )
+        assert uri.translate(False) == \
+            'https://user%40mycompany.com:token_password@' \
+            'artifactory-edge.mycompany.com/artifactory/' \
+            'some_rpm_path/Base-Prod/sample.rpm'
+
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     def test_is_remote_in_buildservice(
         self, mock_buildservice

@@ -20,7 +20,7 @@ import re
 import logging
 from lxml import etree
 from urllib.parse import (
-    urlparse, ParseResult
+    urlparse, ParseResult, quote
 )
 from urllib.request import urlopen
 from urllib.request import Request
@@ -153,13 +153,22 @@ class Uri:
         elif uri.scheme == 'file':
             return self._local_path(uri.path)
         elif uri.scheme.startswith('http') or uri.scheme == 'ftp':
+            netloc = uri.netloc
+            uri_with_credentials_pattern = '^(.*):(.*)@(.*)$'
+            sensitive_match = re.match(uri_with_credentials_pattern, netloc)
+            if sensitive_match:
+                netloc = "{0}:{1}@{2}".format(
+                    quote(sensitive_match.group(1)),
+                    quote(sensitive_match.group(2)),
+                    sensitive_match.group(3)
+                )
             if self._get_credentials_uri() or not uri.query:
                 return ''.join(
-                    [uri.scheme, '://', uri.netloc, uri.path]
+                    [uri.scheme, '://', netloc, uri.path]
                 )
             else:
                 return ''.join(
-                    [uri.scheme, '://', uri.netloc, uri.path, '?', uri.query]
+                    [uri.scheme, '://', netloc, uri.path, '?', uri.query]
                 )
         else:
             raise KiwiUriStyleUnknown(
