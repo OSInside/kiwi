@@ -27,9 +27,14 @@ systemdeps packages:
     target distribution as well as the `tar` archiving tool.
 
 `kiwi-systemdeps-containers`:
-  * Supports building `docker` and `appx` image types.
+  * Supports building `OCI` image types used with `docker`, `podman`.
   * Installs the distribution specific tool chain to build OCI
-    compliant and WSL container images.
+    compliant container images.
+
+`kiwi-systemdeps-containers-wsl`:
+  * Supports building `appx` image types.
+  * Installs the distribution specific tool chain to build
+    WSL compliant container images on Windows systems.
 
 `kiwi-systemdeps-iso-media`:
   * Supports building `iso` image types and `oem` install media.

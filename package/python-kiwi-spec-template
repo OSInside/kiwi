@@ -127,19 +127,15 @@ This metapackage installs the necessary system dependencies
 to run KIWI.
 
 %package -n kiwi-systemdeps-containers
-Summary:        KIWI - host requirements for container images
+Summary:        KIWI - host requirements for OCI container images
 Group:          %{sysgroup}
 Provides:       kiwi-image-docker-requires = %{version}-%{release}
 Obsoletes:      kiwi-image-docker-requires < %{version}-%{release}
-Provides:       kiwi-image-wsl-requires = %{version}-%{release}
-Obsoletes:      kiwi-image-wsl-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:docker
-Provides:       kiwi-image:appx
 %endif
 %if 0%{?suse_version}
 Requires:       umoci
-Recommends:     fb-util-for-appx
 %else
 Requires:       buildah
 %endif
@@ -147,7 +143,23 @@ Requires:       skopeo
 
 %description -n kiwi-systemdeps-containers
 Host setup helper to pull in all packages required/useful on
-the build host to build container images e.g docker, wsl
+the build host to build OCI container images
+
+%package -n kiwi-systemdeps-containers-wsl
+Summary:        KIWI - host requirements for WSL container images
+Group:          %{sysgroup}
+Provides:       kiwi-image-wsl-requires = %{version}-%{release}
+Obsoletes:      kiwi-image-wsl-requires < %{version}-%{release}
+%if "%{_vendor}" != "debbuild"
+Provides:       kiwi-image:appx
+%endif
+%if 0%{?suse_version}
+Requires:       fb-util-for-appx
+%endif
+
+%description -n kiwi-systemdeps-containers-wsl
+Host setup helper to pull in all packages required/useful on
+the build host to build WSL container images
 
 %package -n kiwi-systemdeps-iso-media
 Summary:        KIWI - host requirements for live and install iso images
@@ -317,6 +329,7 @@ Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
 # None of the container build tools are available in Debian/Ubuntu
 Requires:       kiwi-systemdeps-containers = %{version}-%{release}
+Requires:       kiwi-systemdeps-containers-wsl = %{version}-%{release}
 %endif
 Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
 Requires:       kiwi-systemdeps-disk-images = %{version}-%{release}
@@ -656,6 +669,9 @@ fi
 # Empty metapackage
 
 %files -n kiwi-systemdeps-containers
+# Empty metapackage
+
+%files -n kiwi-systemdeps-containers-wsl
 # Empty metapackage
 
 %files -n kiwi-systemdeps-iso-media
