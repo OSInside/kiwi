@@ -627,8 +627,6 @@ class Defaults:
             'xfs',
             'btrfs',
             'squash4',
-            'zstd',
-            'xzio',
             'lvm',
             'luks',
             'gcry_rijndael',
