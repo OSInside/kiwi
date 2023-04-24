@@ -14,7 +14,7 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <bootsplash-theme>bgrt</bootsplash-theme>
+        <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" format="vmdk">
             <oemconfig>
@@ -38,7 +38,7 @@
         <package name="patterns-base-minimal_base"/>
         <package name="bind-utils"/>
         <package name="systemd"/>
-        <package name="plymouth-theme-bgrt"/>
+        <package name="plymouth-theme-breeze"/>
         <package name="grub2-branding-openSUSE"/>
         <package name="iputils"/>
         <package name="vim"/>

@@ -23,7 +23,7 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <bootsplash-theme>bgrt</bootsplash-theme>
+        <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="BIOS">
@@ -51,7 +51,7 @@
         <package name="bind-utils"/>
         <package name="patterns-openSUSE-base"/>
         <package name="systemd"/>
-        <package name="plymouth-theme-bgrt"/>
+        <package name="plymouth-theme-breeze"/>
         <package name="grub2-branding-openSUSE"/>
         <package name="iputils"/>
         <package name="vim"/>

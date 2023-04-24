@@ -14,7 +14,7 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <bootsplash-theme>bgrt</bootsplash-theme>
+        <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="oem" filesystem="ext4" firmware="uefi" installiso="true" installboot="install" kernelcmdline="rd.kiwi.ramdisk ramdisk_size=2192000 console=ttyS0">
             <size unit="G">2</size>
@@ -38,7 +38,7 @@
         <package name="patterns-openSUSE-base"/>
         <package name="shim"/>
         <package name="systemd"/>
-        <package name="plymouth-theme-bgrt"/>
+        <package name="plymouth-theme-breeze"/>
         <package name="grub2-branding-openSUSE"/>
         <package name="iputils"/>
         <package name="vim"/>
