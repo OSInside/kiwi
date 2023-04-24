@@ -43,6 +43,7 @@
         <package name="bind-utils"/>
         <package name="systemd"/>
         <package name="plymouth-theme-breeze"/>
+        <package name="plymouth-plugin-script"/>
         <package name="grub2-branding-openSUSE"/>
         <package name="iputils"/>
         <package name="vim"/>

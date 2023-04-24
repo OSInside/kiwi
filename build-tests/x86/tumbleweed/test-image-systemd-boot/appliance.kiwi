@@ -33,6 +33,7 @@
         <package name="patterns-openSUSE-base"/>
         <package name="systemd"/>
         <package name="plymouth-theme-breeze"/>
+        <package name="plymouth-plugin-script"/>
         <package name="iputils"/>
         <package name="vim"/>
         <package name="plymouth"/>
