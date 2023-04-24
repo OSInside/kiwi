@@ -191,6 +191,36 @@ class TestRepositoryZypper:
     @patch('kiwi.repository.zypper.Path.wipe')
     @patch('os.path.exists')
     @patch('kiwi.repository.zypper.Uri')
+    def test_add_repo_with_credentials_in_uri(
+        self, mock_uri, mock_exists, mock_wipe, mock_command, mock_config
+    ):
+        repo_config = mock.Mock()
+        mock_config.return_value = repo_config
+        mock_exists.return_value = True
+        with patch('builtins.open', create=True) as mock_open:
+            self.repo.add_repo(
+                'foo',
+                'https://some_user%40domain.com:my_token123@example.com/foo',
+                'rpm-md'
+            )
+            assert repo_config.set.call_args_list == [
+                call(
+                    'foo',
+                    'baseurl',
+                    'https://some_user%40domain.com:my_token123@example.com/foo'
+                ),
+                call('foo', 'repo_gpgcheck', '0'),
+                call('foo', 'pkg_gpgcheck', '0')
+            ]
+            mock_open.assert_called_once_with(
+                '../data/shared-dir/zypper/repos/foo.repo', 'w'
+            )
+
+    @patch('kiwi.repository.zypper.ConfigParser')
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Path.wipe')
+    @patch('os.path.exists')
+    @patch('kiwi.repository.zypper.Uri')
     def test_add_repo_with_gpgchecks(
         self, mock_uri, mock_exists, mock_wipe,
         mock_command, mock_config
