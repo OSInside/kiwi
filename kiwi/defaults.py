@@ -809,6 +809,7 @@ class Defaults:
             shim_pattern_type('/usr/lib/shim/shim*.efi.signed', 'shimx64.efi'),
             shim_pattern_type('/usr/share/efi/*/shim.efi', None),
             shim_pattern_type('/usr/lib64/efi/shim.efi', None),
+            shim_pattern_type('/boot/efi/EFI/*/shimx64.efi', None),
             shim_pattern_type('/boot/efi/EFI/*/shim*.efi', None),
             shim_pattern_type('/usr/lib/shim/shim*.efi', None)
         ]
