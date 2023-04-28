@@ -373,7 +373,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             grub2_install_backup = ''.join(
                 [grub2_install, '.orig']
             )
-            if os.path.exists(grub2_install_backup):
+            if os.path.exists(''.join([root_path, grub2_install_backup])):
                 Command.run(
                     [
                         'chroot', root_path,
