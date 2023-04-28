@@ -22,6 +22,7 @@
 #define _POSIX_C_SOURCE (200809L)
 #define _LARGEFILE64_SOURCE
 
+#include <inttypes.h>
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -219,7 +220,7 @@ static int kiwi_read_verity_info(const struct args *const args,
 
     offset = (off64_t)args->block_size * (off64_t)args->end_offset;
     if (lseek64(fd, -offset, SEEK_END) < 0) {
-        printf("Failed to go to offset %lu in %s: %s (%d)\n", offset,
+        printf("Failed to go to offset %"PRIu64" in %s: %s (%d)\n", offset,
                 args->path, strerror(errno), errno);
         return -errno;
     }
@@ -411,7 +412,7 @@ int main(int argc, char *argv[])
     }
 
     if (args.verbose) {
-        printf("Reading from %s, block size %lu, block offset from end %lu\n",
+        printf("Reading from %s, block size %"PRIu64", block offset from end %"PRIu64"\n",
                 args.path, args.block_size, args.end_offset);
     }
 
