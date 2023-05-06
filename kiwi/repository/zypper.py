@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 from configparser import ConfigParser
 from typing import List, Dict
 
@@ -129,11 +130,11 @@ class RepositoryZypper(RepositoryBase):
         self.command_env = self._create_zypper_runtime_environment()
 
         # config file parameters for zypper tool
-        self.runtime_zypper_config = ConfigParser()
+        self.runtime_zypper_config = ConfigParser(interpolation=None)
         self.runtime_zypper_config.add_section('main')
 
         # config file parameters for libzypp library
-        self.runtime_zypp_config = ConfigParser()
+        self.runtime_zypp_config = ConfigParser(interpolation=None)
         self.runtime_zypp_config.add_section('main')
         self.runtime_zypp_config.set(
             'main', 'credentials.global.dir',
@@ -320,8 +321,17 @@ class RepositoryZypper(RepositoryBase):
                 zypper_addrepo_command, self.command_env
             )
 
-        repo_config = ConfigParser()
+        repo_config = ConfigParser(interpolation=None)
         repo_config.read(repo_file)
+
+        baseurl = uri
+        uri_with_credentials_pattern = '^(.*):(.*)@(.*)$'
+        sensitive_match = re.match(uri_with_credentials_pattern, baseurl)
+        if sensitive_match:
+            # rewrite baseurl with credentials information because zypper
+            # addrepo does strange things with the provided url encoded data
+            repo_config.set(name, 'baseurl', baseurl)
+
         repo_config.set(
             name, 'repo_gpgcheck', '1' if repo_gpgcheck else '0'
         )

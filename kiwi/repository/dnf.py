@@ -219,7 +219,7 @@ class RepositoryDnf(RepositoryBase):
         if os.path.exists(uri):
             # dnf requires local paths to take the file: type
             uri = 'file://' + uri
-        repo_config = ConfigParser()
+        repo_config = ConfigParser(interpolation=None)
         repo_config.add_section(name)
         repo_config.set(
             name, 'name', name
@@ -317,7 +317,7 @@ class RepositoryDnf(RepositoryBase):
         )
 
     def _create_runtime_config_parser(self) -> None:
-        self.runtime_dnf_config = ConfigParser()
+        self.runtime_dnf_config = ConfigParser(interpolation=None)
         self.runtime_dnf_config["main"] = {
             "cachedir": self.shared_dnf_dir['cache-dir'],
             "reposdir": self.shared_dnf_dir['reposd-dir'],
@@ -340,7 +340,7 @@ class RepositoryDnf(RepositoryBase):
 
     def _create_runtime_plugin_config_parsers(self) -> None:
         self.runtime_dnf_plugin_configs = {
-            plugin: ConfigParser() for plugin in ("priorities", "versionlock")
+            plugin: ConfigParser(interpolation=None) for plugin in ("priorities", "versionlock")
         }
         self.runtime_dnf_plugin_configs["priorities"]["main"] = {"enabled": "1"}
         self.runtime_dnf_plugin_configs["versionlock"]["main"] = {"enabled": "0"}
