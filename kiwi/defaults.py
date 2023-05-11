@@ -811,12 +811,12 @@ class Defaults:
             shim_pattern_type('/usr/lib/shim/shim*.efi.signed', 'shimx64.efi'),
             shim_pattern_type('/usr/share/efi/*/shim.efi', None),
             shim_pattern_type('/usr/lib64/efi/shim.efi', None),
-            shim_pattern_type('/boot/efi/EFI/*/shimx64.efi', None),
-            shim_pattern_type('/boot/efi/EFI/*/shim*.efi', None),
+            shim_pattern_type('/boot/efi/EFI/*/shim[a-z]*.efi', None),
+            shim_pattern_type('/boot/efi/EFI/*/shim.efi', None),
             shim_pattern_type('/usr/lib/shim/shim*.efi', None)
         ]
         for shim_file_pattern in shim_file_patterns:
-            for shim_file in glob.iglob(root_path + shim_file_pattern.pattern):
+            for shim_file in sorted(glob.iglob(root_path + shim_file_pattern.pattern), key=len):
                 if not shim_file_pattern.binaryname:
                     binaryname = os.path.basename(shim_file)
                 else:
