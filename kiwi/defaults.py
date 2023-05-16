@@ -1425,7 +1425,7 @@ class Defaults:
 
         :rtype: list
         """
-        return ['tbz']
+        return ['tbz', 'cpio']
 
     @staticmethod
     def get_container_image_types():

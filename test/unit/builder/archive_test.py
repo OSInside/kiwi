@@ -55,8 +55,9 @@ class TestArchiveBuilder:
             archive.create()
 
     @patch('kiwi.builder.archive.ArchiveTar')
-    def test_create(self, mock_tar):
+    def test_create_tar(self, mock_tar):
         Defaults.set_platform_name('x86_64')
+        self.archive.requested_archive_type = 'tbz'
         archive = mock.Mock()
         mock_tar.return_value = archive
         self.archive.create()
@@ -68,6 +69,29 @@ class TestArchiveBuilder:
                 'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi'
             ], xz_options=None
+        )
+        self.setup.export_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_package_list.assert_called_once_with(
+            'target_dir'
+        )
+
+    @patch('kiwi.builder.archive.ArchiveCpio')
+    def test_create_cpio(self, mock_cpio):
+        Defaults.set_platform_name('x86_64')
+        self.archive.requested_archive_type = 'cpio'
+        archive = mock.Mock()
+        mock_cpio.return_value = archive
+        self.archive.create()
+        mock_cpio.assert_called_once_with(
+            'target_dir/myimage.x86_64-1.2.3.cpio'
+        )
+        archive.create.assert_called_once_with(
+            'root_dir', exclude=[
+                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi'
+            ]
         )
         self.setup.export_package_verification.assert_called_once_with(
             'target_dir'
