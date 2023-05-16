@@ -156,6 +156,9 @@ Provides:       kiwi-image:appx
 %if 0%{?suse_version}
 Requires:       fb-util-for-appx
 %endif
+%if 0%{?fedora} || 0%{?rhel}
+Requires:       appx-util
+%endif
 
 %description -n kiwi-systemdeps-containers-wsl
 Host setup helper to pull in all packages required/useful on
