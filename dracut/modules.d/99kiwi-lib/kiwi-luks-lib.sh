@@ -1,3 +1,5 @@
+#!/bin/bash
+
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 type set_root_map >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type wait_for_storage_device >/dev/null 2>&1 || . /lib/kiwi-partitions-lib.sh
