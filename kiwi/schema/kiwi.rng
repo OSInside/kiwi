@@ -1467,6 +1467,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
         <value>apt</value>
         <value>zypper</value>
         <value>dnf</value>
+        <value>dnf5</value>
         <value>microdnf</value>
         <value>pacman</value>
       </choice>
