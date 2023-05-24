@@ -49,6 +49,12 @@ case "${overlayroot}" in
         root="block:/dev/${root#UNIXNODE=}"
         rootok=1
     ;;
+    overlay:MAPPER=*|MAPPER=*) \
+        root="${root#overlay:}"
+        root="${root//\//\\x2f}"
+        root="block:/dev/mapper/${root#MAPPER=}"
+        rootok=1
+    ;;
     overlay:nbd=*) \
         root="${root#overlay:nbd=}"
         root="block:/dev/${root}"
