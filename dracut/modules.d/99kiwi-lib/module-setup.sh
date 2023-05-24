@@ -7,7 +7,7 @@ check() {
 
 # called by dracut
 depends() {
-    echo udev-rules crypt
+    echo udev-rules crypt bash
     return 0
 }
 

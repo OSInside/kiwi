@@ -1,3 +1,5 @@
+#!/bin/bash
+
 type getarg >/dev/null 2>&1 || . /lib/dracut-lib.sh
 
 # URI pattern Based on https://tools.ietf.org/html/rfc3986#appendix-B
