@@ -4115,6 +4115,14 @@ for 4k DASD devices use CDL</a:documentation>
         <sch:param name="types" value="grub2_s390x_emu"/>
       </sch:pattern>
     </define>
+    <define name="k.bootloader.use_disk_password.attribute">
+      <attribute name="use_disk_password">
+        <a:documentation>When /boot is encrypted, make the boot loader store the
+password in its configuration file (in cleartext). This
+is useful for full disk encryption images</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.bootloader.attlist">
       <interleave>
         <ref name="k.bootloader.name.attribute"/>
@@ -4132,6 +4140,9 @@ for 4k DASD devices use CDL</a:documentation>
         </optional>
         <optional>
           <ref name="k.bootloader.targettype.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.use_disk_password.attribute"/>
         </optional>
         <optional>
           <ref name="k.bootloader.grub_template.attribute"/>

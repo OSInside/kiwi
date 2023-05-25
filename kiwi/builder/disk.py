@@ -1523,6 +1523,11 @@ class DiskBuilder:
 
         if self.bootloader != 'custom':
             # create bootloader config prior bootloader installation
+            disk_password = None
+            if self.bootloader_config.use_disk_password and self.luks:
+                disk_password = self.luks
+            log.debug(f'Passing disk encryption password "{disk_password}" to boot loader')
+
             try:
                 self.bootloader_config.setup_disk_image_config(
                     boot_options=custom_install_arguments
@@ -1549,6 +1554,9 @@ class DiskBuilder:
                 log.warning(
                     'No install of bootcode on read-only root possible'
                 )
+
+            if disk_password:
+                bootloader.set_disk_password(disk_password)
 
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()

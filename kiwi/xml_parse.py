@@ -5493,7 +5493,7 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, grub_template=None, bootloadersettings=None):
+    def __init__(self, name=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.console = _cast(None, console)
@@ -5501,6 +5501,7 @@ class bootloader(GeneratedsSuper):
         self.timeout = _cast(int, timeout)
         self.timeout_style = _cast(None, timeout_style)
         self.targettype = _cast(None, targettype)
+        self.use_disk_password = _cast(bool, use_disk_password)
         self.grub_template = _cast(None, grub_template)
         self.bootloadersettings = bootloadersettings
     def factory(*args_, **kwargs_):
@@ -5528,6 +5529,8 @@ class bootloader(GeneratedsSuper):
     def set_timeout_style(self, timeout_style): self.timeout_style = timeout_style
     def get_targettype(self): return self.targettype
     def set_targettype(self, targettype): self.targettype = targettype
+    def get_use_disk_password(self): return self.use_disk_password
+    def set_use_disk_password(self, use_disk_password): self.use_disk_password = use_disk_password
     def get_grub_template(self): return self.grub_template
     def set_grub_template(self, grub_template): self.grub_template = grub_template
     def validate_grub_console(self, value):
@@ -5584,6 +5587,9 @@ class bootloader(GeneratedsSuper):
         if self.targettype is not None and 'targettype' not in already_processed:
             already_processed.add('targettype')
             outfile.write(' targettype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.targettype), input_name='targettype')), ))
+        if self.use_disk_password is not None and 'use_disk_password' not in already_processed:
+            already_processed.add('use_disk_password')
+            outfile.write(' use_disk_password="%s"' % self.gds_format_boolean(self.use_disk_password, input_name='use_disk_password'))
         if self.grub_template is not None and 'grub_template' not in already_processed:
             already_processed.add('grub_template')
             outfile.write(' grub_template=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.grub_template), input_name='grub_template')), ))
@@ -5636,6 +5642,15 @@ class bootloader(GeneratedsSuper):
             already_processed.add('targettype')
             self.targettype = value
             self.targettype = ' '.join(self.targettype.split())
+        value = find_attr_value_('use_disk_password', node)
+        if value is not None and 'use_disk_password' not in already_processed:
+            already_processed.add('use_disk_password')
+            if value in ('true', '1'):
+                self.use_disk_password = True
+            elif value in ('false', '0'):
+                self.use_disk_password = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('grub_template', node)
         if value is not None and 'grub_template' not in already_processed:
             already_processed.add('grub_template')

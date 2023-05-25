@@ -124,6 +124,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Defaults.get_volume_id()
         self.install_volid = self.xml_state.build_type.get_volid() or \
             Defaults.get_install_volume_id()
+        self.use_disk_password = self.xml_state.get_build_type_bootloader_use_disk_password()
 
         self.live_boot_options = [
             'root=live:CDLABEL={0}'.format(self.volume_id),
