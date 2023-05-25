@@ -16,6 +16,12 @@ function luks_system {
     return 1
 }
 
+# Return true if there is a generated systemd service unit for our LUKS volume
+function luks_has_generated_systemd_unit {
+    eval $(systemctl show -p UnitFileState,SubState systemd-cryptsetup@luks)
+    test "$UnitFileState" = "generated" -a "$SubState" = "exited"
+}
+
 function deactivate_luks {
     /usr/lib/systemd/systemd-cryptsetup detach luks
 }
@@ -26,6 +32,7 @@ function resize_luks {
 
 function activate_luks {
     declare kiwi_luks_empty_passphrase=${kiwi_luks_empty_passphrase}
+
     local device=$1
     if [ "${kiwi_luks_empty_passphrase}" = "true" ];then
         # There is no keyfile and kiwi has created the luks pool with
@@ -37,6 +44,10 @@ function activate_luks {
             --key-file /dev/zero \
             --keyfile-size 32 \
         luksOpen "${device}" luks
+    elif luks_has_generated_systemd_unit; then
+    	systemctl start systemd-cryptsetup@luks
+    elif [ -f /.root.keyfile ]; then
+        cryptsetup --key-file /.root.keyfile luksOpen "${device}" luks
     else
         # There is a keyfile and we need to get prompted to enter the passphrase
         /usr/lib/systemd/systemd-cryptsetup attach luks "${device}"
