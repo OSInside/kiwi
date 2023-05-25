@@ -134,6 +134,7 @@ class DiskBuilder:
         self.root_filesystem_embed_integrity_metadata = \
             xml_state.build_type.get_embed_integrity_metadata()
         self.luks_format_options = xml_state.get_luks_format_options()
+        self.luks_randomize = xml_state.build_type.get_luks_randomize()
         self.luks_os = xml_state.build_type.get_luksOS()
         self.xen_server = xml_state.is_xen_server()
         self.requested_filesystem = xml_state.build_type.get_filesystem()
@@ -351,6 +352,7 @@ class DiskBuilder:
             self.luks_boot_keyfile = ''.join(
                 [self.root_dir, self.luks_boot_keyname]
             )
+            luks_root.luks_randomize = self.luks_randomize
             # use LUKS key file for the following conditions:
             # 1. /boot is encrypted
             #    In this case grub needs to read from LUKS via the

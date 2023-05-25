@@ -2035,6 +2035,17 @@ div {
             sch:param [ name = "attr" value = "luksOS" ]
             sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
+    k.type.luks_randomize.attribute =
+        ## By default, all blocks of a LUKS volume will be filled
+	## with pseudo-random data. If you're shipping an image with
+	## a well-known key, which is going to be re-encrypted at
+	## deployment time, you can decrease the size of the image
+	## by setting this attribute to false.
+        attribute luks_randomize { xsd:boolean }
+        >> sch:pattern [ id = "luks_randomize" is-a = "image_type"
+            sch:param [ name = "attr" value = "luksversion" ]
+            sch:param [ name = "types" value = "oem iso pxe kis" ]
+        ]
     k.type.mdraid.attribute =
         ## Setup software raid in degraded mode with one disk
         ## Thus only mirroring and striping is possible
@@ -2227,6 +2238,7 @@ div {
         k.type.luks.attribute? &
         k.type.luks_version.attribute? &
         k.type.luksOS.attribute? &
+        k.type.luks_randomize.attribute? &
         k.type.mdraid.attribute? &
         k.type.overlayroot.attribute? &
         k.type.overlayroot_write_partition.attribute? &

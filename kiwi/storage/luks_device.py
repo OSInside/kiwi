@@ -48,6 +48,7 @@ class LuksDevice(DeviceProvider):
         self.luks_device: Optional[str] = None
         self.luks_keyfile: Optional[str] = None
         self.luks_name = 'luksRoot'
+        self.luks_randomize = True
 
         self.option_map = {
             'sle12': [
@@ -109,17 +110,19 @@ class LuksDevice(DeviceProvider):
         if not passphrase:
             log.warning('Using an empty passphrase for the key setup')
 
-        log.info('--> Randomizing...')
-        storage_size_mbytes = self.storage_provider.get_byte_size(
-            storage_device
-        ) / 1048576
-        Command.run(
-            [
-                'dd', 'if=/dev/urandom', 'bs=1M',
-                'count=%d' % storage_size_mbytes,
-                'of=%s' % storage_device
-            ]
-        )
+        if self.luks_randomize:
+            log.info('--> Randomizing...')
+            storage_size_mbytes = self.storage_provider.get_byte_size(
+                storage_device
+            ) / 1048576
+            Command.run(
+                [
+                    'dd', 'if=/dev/urandom', 'bs=1M',
+                    'count=%d' % storage_size_mbytes,
+                    'of=%s' % storage_device
+                ]
+            )
+
         log.info('--> Creating LUKS map')
 
         if passphrase:
