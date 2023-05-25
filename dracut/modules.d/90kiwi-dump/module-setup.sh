@@ -13,7 +13,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    instmods squashfs loop iso9660
+    instmods squashfs loop iso9660 aesni_intel sha256_ssse3
 }
 
 # called by dracut
