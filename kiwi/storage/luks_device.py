@@ -102,6 +102,10 @@ class LuksDevice(DeviceProvider):
         storage_device = self.storage_provider.get_device()
         log.info('Creating crypto LUKS on %s', storage_device)
 
+        # HACK: since grub2 doesn't support argon2 at all for the time being,
+        # force PBKDF2
+        pbkdf_options = ['--pbkdf', 'pbkdf2']
+
         if not passphrase:
             log.warning('Using an empty passphrase for the key setup')
 
@@ -133,7 +137,7 @@ class LuksDevice(DeviceProvider):
         Command.run(
             [
                 'cryptsetup', '-q', '--key-file', passphrase_file
-            ] + options + extra_options + [
+            ] + options + extra_options + pbkdf_options + [
                 'luksFormat', storage_device
             ]
         )
@@ -143,7 +147,7 @@ class LuksDevice(DeviceProvider):
             Command.run(
                 [
                     'cryptsetup', '--key-file', passphrase_file
-                ] + extra_options + [
+                ] + extra_options + pbkdf_options + [
                     'luksAddKey', storage_device, keyfile
                 ]
             )
