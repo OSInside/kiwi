@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.5" name="kiwi-test-image-microdnf">
+<image schemaversion="7.5" name="kiwi-test-image-dnf5">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
-        <specification>Fedora Appliance, Testing microdnf</specification>
+        <specification>Fedora Appliance, Testing of dnf5</specification>
     </description>
     <preferences>
         <version>2.0.0</version>
-        <packagemanager>microdnf</packagemanager>
+        <packagemanager>dnf5</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
         <bootloader-theme>breeze</bootloader-theme>
         <locale>en_US</locale>
