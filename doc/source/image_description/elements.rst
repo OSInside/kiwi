@@ -1423,8 +1423,9 @@ any of its required packages and any recommended packages.
 
    On RedHat based distributions collections are called `groups` and are
    extra metadata. To get the names of these groups type the following
-   command: `$ dnf group list`. Please note that group names are allowed
-   to contain whitespace characters.
+   command: `$ dnf group list -v`. Please note that since {kiwi} v9.23.39,
+   group IDs are allowed only, e.g.: 
+   <namedCollection name="minimal-environment"/>
 
 <packages><collectionModule>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
