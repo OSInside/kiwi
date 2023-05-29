@@ -65,7 +65,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "7.5" }
+        attribute schemaversion { "7.6" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -963,7 +963,7 @@ div {
 #
 div {
     k.packagemanager.content = 
-        "apt" | "zypper" | "dnf" | "dnf5" | "microdnf" | "pacman"
+        "apt" | "zypper" | "dnf4" | "dnf5" | "microdnf" | "pacman"
     k.packagemanager.attlist = empty
     k.packagemanager =
         ## Name of the Package Manager

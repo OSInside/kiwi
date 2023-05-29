@@ -110,6 +110,7 @@ Provides:       kiwi-packagemanager:dnf5
 %if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} >= 1650
 Requires:       dnf
 Provides:       kiwi-packagemanager:dnf
+Provides:       kiwi-packagemanager:dnf4
 Provides:       kiwi-packagemanager:yum
 %endif
 %endif

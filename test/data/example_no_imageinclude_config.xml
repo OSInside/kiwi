@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.5" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
+<image schemaversion="7.6" name="LimeJeOS-openSUSE-13.2" displayname="Bob">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>

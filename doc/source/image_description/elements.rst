@@ -170,7 +170,7 @@ table shows which package manager is connected to which distributor:
 +==============+=================+
 | SUSE         | zypper          |
 +--------------+-----------------+
-| RedHat       | dnf / dnf5      |
+| RedHat       | dnf4 / dnf5     |
 +--------------+-----------------+
 | Debian Based | apt             |
 +--------------+-----------------+ 
@@ -1164,7 +1164,7 @@ Setup software sources for the image.
 
 The mandatory repository element specifies the location and type of a
 repository to be used by the package manager as a package installation
-source. {kiwi} supports apt, dnf, dnf5, pacman and zypper as package managers,
+source. {kiwi} supports apt, dnf4, dnf5, pacman and zypper as package managers,
 specified with the packagemanager element. The repository element has
 the following optional attributes:
 
