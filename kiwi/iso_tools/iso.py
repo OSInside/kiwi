@@ -48,9 +48,9 @@ class Iso:
         Command.run(
             [
                 'tagmedia',
-                '--md5',
+                '--digest', 'sha256',
                 '--check',
-                '--pad', '150',
+                '--pad', '0',
                 isofile
             ]
         )
