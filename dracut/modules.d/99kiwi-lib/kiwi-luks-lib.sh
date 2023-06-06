@@ -18,7 +18,9 @@ function luks_system {
 
 # Return true if there is a generated systemd service unit for our LUKS volume
 function luks_has_generated_systemd_unit {
-    eval $(systemctl show -p UnitFileState,SubState systemd-cryptsetup@luks)
+    local UnitFileState="" SubState=""
+
+    eval "$(systemctl show -p UnitFileState,SubState systemd-cryptsetup@luks)"
     test "$UnitFileState" = "generated" -a "$SubState" = "exited"
 }
 
