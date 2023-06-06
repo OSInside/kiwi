@@ -293,10 +293,10 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
 
             grub_config = config.read()
             grub_config = re.sub(
-                    r'cryptomount',
-                    f'cryptomount -p "{password}"',
-                    grub_config
-                )
+                r'cryptomount',
+                f'cryptomount -p "{password}"',
+                grub_config
+            )
 
         with open(config_file, 'w') as grub_config_file:
             grub_config_file.write(grub_config)
