@@ -1552,13 +1552,13 @@ class DiskBuilder:
                 if bootloader.install_required():
                     bootloader.install()
                 bootloader.secure_boot_install()
+
+                if disk_password:
+                    bootloader.set_disk_password(disk_password)
             else:
                 log.warning(
                     'No install of bootcode on read-only root possible'
                 )
-
-            if disk_password:
-                bootloader.set_disk_password(disk_password)
 
         self.system_setup.call_edit_boot_install_script(
             self.diskname, boot_device.get_device()

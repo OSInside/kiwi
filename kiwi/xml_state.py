@@ -1084,7 +1084,7 @@ class XMLState:
     def get_build_type_bootloader_use_disk_password(self) -> bool:
         """
         Indicate whether the bootloader configuration should use the
-	password protecting the encrypted root volume.
+        password protecting the encrypted root volume.
 
         :return: True|False
 
