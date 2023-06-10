@@ -25,7 +25,7 @@ from urllib.parse import (
 from urllib.request import urlopen
 from urllib.request import Request
 import requests
-import hashlib
+from uuid import uuid4
 from typing import Optional
 
 # project
@@ -205,18 +205,18 @@ class Uri:
 
     def alias(self) -> str:
         """
-        Create hexdigest from URI as alias
+        Create hex representation of uuid4
 
         If the repository definition from the XML description does
         not provide an alias, kiwi creates one for you. However it's
         better to assign a human readable alias in the XML
         configuration
 
-        :return: alias name as hexdigest
+        :return: alias name as hex representation of uuid4
 
         :rtype: str
         """
-        return hashlib.md5(self.uri.encode()).hexdigest()
+        return uuid4().hex
 
     def is_remote(self) -> bool:
         """
