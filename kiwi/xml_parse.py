@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/okir/.local/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -3047,7 +3047,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3094,6 +3094,7 @@ class type_(GeneratedsSuper):
         self.luks_version = _cast(None, luks_version)
         self.luksOS = _cast(None, luksOS)
         self.luks_randomize = _cast(bool, luks_randomize)
+        self.luks_pbkdf = _cast(None, luks_pbkdf)
         self.mdraid = _cast(None, mdraid)
         self.overlayroot = _cast(bool, overlayroot)
         self.overlayroot_write_partition = _cast(bool, overlayroot_write_partition)
@@ -3320,6 +3321,8 @@ class type_(GeneratedsSuper):
     def set_luksOS(self, luksOS): self.luksOS = luksOS
     def get_luks_randomize(self): return self.luks_randomize
     def set_luks_randomize(self, luks_randomize): self.luks_randomize = luks_randomize
+    def get_luks_pbkdf(self): return self.luks_pbkdf
+    def set_luks_pbkdf(self, luks_pbkdf): self.luks_pbkdf = luks_pbkdf
     def get_mdraid(self): return self.mdraid
     def set_mdraid(self, mdraid): self.mdraid = mdraid
     def get_overlayroot(self): return self.overlayroot
@@ -3605,6 +3608,9 @@ class type_(GeneratedsSuper):
         if self.luks_randomize is not None and 'luks_randomize' not in already_processed:
             already_processed.add('luks_randomize')
             outfile.write(' luks_randomize="%s"' % self.gds_format_boolean(self.luks_randomize, input_name='luks_randomize'))
+        if self.luks_pbkdf is not None and 'luks_pbkdf' not in already_processed:
+            already_processed.add('luks_pbkdf')
+            outfile.write(' luks_pbkdf=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luks_pbkdf), input_name='luks_pbkdf')), ))
         if self.mdraid is not None and 'mdraid' not in already_processed:
             already_processed.add('mdraid')
             outfile.write(' mdraid=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.mdraid), input_name='mdraid')), ))
@@ -4032,6 +4038,11 @@ class type_(GeneratedsSuper):
                 self.luks_randomize = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('luks_pbkdf', node)
+        if value is not None and 'luks_pbkdf' not in already_processed:
+            already_processed.add('luks_pbkdf')
+            self.luks_pbkdf = value
+            self.luks_pbkdf = ' '.join(self.luks_pbkdf.split())
         value = find_attr_value_('mdraid', node)
         if value is not None and 'mdraid' not in already_processed:
             already_processed.add('mdraid')

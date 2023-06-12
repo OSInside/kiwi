@@ -2921,6 +2921,24 @@ by setting this attribute to false.</a:documentation>
         <sch:param name="types" value="oem iso pxe kis"/>
       </sch:pattern>
     </define>
+    <define name="k.type.luks_pbkdf.attribute">
+      <attribute name="luks_pbkdf">
+        <a:documentation>When LUKS unlocks a key slot using a user provided
+password, it uses a so-called key derivation function
+to derive a symmetric encryption key from the password.
+Not all boot loaders support all KDF algorithms, hence
+this attribute can be used to select a specific algorithm.</a:documentation>
+        <choice>
+          <value>pbkdf2</value>
+          <value>argon2i</value>
+          <value>argon2id</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="luks_pbkdf" is-a="image_type">
+        <sch:param name="attr" value="luks_pbkdf"/>
+        <sch:param name="types" value="oem iso pxe kis"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.mdraid.attribute">
       <attribute name="mdraid">
         <a:documentation>Setup software raid in degraded mode with one disk
@@ -3251,6 +3269,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.luks_randomize.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.luks_pbkdf.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.mdraid.attribute"/>

@@ -2046,6 +2046,17 @@ div {
             sch:param [ name = "attr" value = "luksversion" ]
             sch:param [ name = "types" value = "oem iso pxe kis" ]
         ]
+    k.type.luks_pbkdf.attribute =
+        ## When LUKS unlocks a key slot using a user provided
+        ## password, it uses a so-called key derivation function
+        ## to derive a symmetric encryption key from the password.
+        ## Not all boot loaders support all KDF algorithms, hence
+        ## this attribute can be used to select a specific algorithm.
+        attribute luks_pbkdf { "pbkdf2" | "argon2i" | "argon2id" }
+        >> sch:pattern [ id = "luks_pbkdf" is-a = "image_type"
+            sch:param [ name = "attr" value = "luks_pbkdf" ]
+            sch:param [ name = "types" value = "oem iso pxe kis" ]
+        ]
     k.type.mdraid.attribute =
         ## Setup software raid in degraded mode with one disk
         ## Thus only mirroring and striping is possible
@@ -2239,6 +2250,7 @@ div {
         k.type.luks_version.attribute? &
         k.type.luksOS.attribute? &
         k.type.luks_randomize.attribute? &
+        k.type.luks_pbkdf.attribute? &
         k.type.mdraid.attribute? &
         k.type.overlayroot.attribute? &
         k.type.overlayroot_write_partition.attribute? &

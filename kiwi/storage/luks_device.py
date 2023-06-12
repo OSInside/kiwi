@@ -49,6 +49,7 @@ class LuksDevice(DeviceProvider):
         self.luks_keyfile: Optional[str] = None
         self.luks_name = 'luksRoot'
         self.luks_randomize = True
+        self.luks_pbkdf = None
 
         self.option_map = {
             'sle12': [
@@ -103,9 +104,10 @@ class LuksDevice(DeviceProvider):
         storage_device = self.storage_provider.get_device()
         log.info('Creating crypto LUKS on %s', storage_device)
 
-        # HACK: since grub2 doesn't support argon2 at all for the time being,
-        # force PBKDF2
-        pbkdf_options = ['--pbkdf', 'pbkdf2']
+        # Allow the user to override the pbkdf algorithm that cryptsetup uses by
+        # default. Cryptsetup may use argon2i by default, which grub2 doesn't support (yet).
+        if self.luks_pbkdf is not None:
+            pbkdf_options = ['--pbkdf', self.luks_pbkdf]
 
         if not passphrase:
             log.warning('Using an empty passphrase for the key setup')
