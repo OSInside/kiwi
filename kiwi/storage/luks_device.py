@@ -17,7 +17,9 @@
 #
 import os
 import logging
-from typing import Optional
+from typing import (
+    List, Optional
+)
 
 # project
 from kiwi.utils.temporary import Temporary
