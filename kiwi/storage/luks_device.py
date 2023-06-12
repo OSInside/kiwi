@@ -106,6 +106,7 @@ class LuksDevice(DeviceProvider):
 
         # Allow the user to override the pbkdf algorithm that cryptsetup uses by
         # default. Cryptsetup may use argon2i by default, which grub2 doesn't support (yet).
+        pbkdf_options = []
         if self.luks_pbkdf is not None:
             pbkdf_options = ['--pbkdf', self.luks_pbkdf]
 
