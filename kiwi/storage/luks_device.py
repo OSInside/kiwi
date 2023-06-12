@@ -91,6 +91,8 @@ class LuksDevice(DeviceProvider):
             file path name which contains an alternative key
             to unlock the luks device
         """
+        pbkdf_options: List[str] = []
+
         if not options:
             options = []
         if os:
@@ -106,7 +108,6 @@ class LuksDevice(DeviceProvider):
 
         # Allow the user to override the pbkdf algorithm that cryptsetup uses by
         # default. Cryptsetup may use argon2i by default, which grub2 doesn't support (yet).
-        pbkdf_options: List[str] = []
         if self.luks_pbkdf is not None:
             pbkdf_options = ['--pbkdf', self.luks_pbkdf]
 
