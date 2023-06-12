@@ -60,5 +60,5 @@ class TestIso:
     def test_set_media_tag(self, mock_command):
         Iso.set_media_tag('foo')
         mock_command.assert_called_once_with(
-            ['tagmedia', '--md5', '--check', '--pad', '150', 'foo']
+            ['tagmedia', '--digest', 'sha256', '--check', '--pad', '0', 'foo']
         )
