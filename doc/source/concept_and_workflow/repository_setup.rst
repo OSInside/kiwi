@@ -55,9 +55,8 @@ following optional attributes:
 
 - `alias`: Name to be used for this repository, it will appear as the
   repository's name in the image, which is visible via ``zypper repos`` or
-  ``dnf repolist``. {kiwi} will construct an alias from the path in the
-  `source` child element (replacing each `/` with a `_`), if no value is
-  given.
+  ``dnf repolist``. {kiwi} will construct an alias name as result of hex 
+  representation from uuid4, if no value is given.
 
 - `repository_gpgcheck`: Specify whether or not this specific repository is
   configured to to run repository signature validation. If not set, the

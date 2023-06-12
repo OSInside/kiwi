@@ -6,7 +6,6 @@ from mock import (
 from pytest import (
     raises, fixture
 )
-import hashlib
 import mock
 
 from kiwi.system.uri import Uri
@@ -151,11 +150,14 @@ class TestUri:
         uri = Uri('httpx://example.com', 'rpm-md')
         assert uri.is_public() is False
 
-    def test_alias(self):
+    def test_alias_is_str(self):
         uri = Uri('https://example.com', 'rpm-md')
-        assert uri.alias() == hashlib.md5(
-            'https://example.com'.encode()).hexdigest(
-        )
+        assert isinstance(uri.alias(), str) is True
+
+    def test_alias_is_uniq(self):
+        uri1 = Uri('https://example.com', 'rpm-md')
+        uri2 = Uri('https://example.com', 'rpm-md')
+        assert uri1.alias() != uri2.alias()
 
     def test_credentials_file_name(self):
         uri = Uri(

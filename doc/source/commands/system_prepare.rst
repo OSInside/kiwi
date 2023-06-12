@@ -139,10 +139,10 @@ OPTIONS
 
   - **alias**
 
-    An alias name for the repository. If not specified kiwi calculates
-    an alias name as result from a sha sum. The sha sum is used to uniquely
-    identify the repository, but not very expressive. We recommend to
-    set an expressive and uniq alias name.
+    An alias name for the repository. If not specified kiwi generate
+    an alias name as result of hex representation from uuid4. The hex 
+    is used to uniquely identify the repository, but not very expressive. 
+    We recommend to set an expressive and uniq alias name.
 
   - **priority**
 
