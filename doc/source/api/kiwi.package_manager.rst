@@ -14,10 +14,10 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.package_manager.dnf` Module
----------------------------------
+`kiwi.package_manager.dnf4` Module
+----------------------------------
 
-.. automodule:: kiwi.package_manager.dnf
+.. automodule:: kiwi.package_manager.dnf4
     :members:
     :undoc-members:
     :show-inheritance:

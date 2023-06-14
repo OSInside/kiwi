@@ -145,7 +145,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>7.5</value>
+        <value>7.6</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -1466,7 +1466,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
       <choice>
         <value>apt</value>
         <value>zypper</value>
-        <value>dnf</value>
+        <value>dnf4</value>
         <value>dnf5</value>
         <value>microdnf</value>
         <value>pacman</value>

@@ -14,10 +14,10 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.repository.dnf` Module
-----------------------------
+`kiwi.repository.dnf4` Module
+-----------------------------
 
-.. automodule:: kiwi.repository.dnf
+.. automodule:: kiwi.repository.dnf4
     :members:
     :undoc-members:
     :show-inheritance:

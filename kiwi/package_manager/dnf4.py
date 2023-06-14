@@ -16,11 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
-import logging
 from typing import (
     List, Dict
 )
-
 
 # project
 from kiwi.command import command_call_type
@@ -31,30 +29,25 @@ from kiwi.package_manager.base import PackageManagerBase
 from kiwi.system.root_bind import RootBind
 from kiwi.path import Path
 from kiwi.defaults import Defaults
-from kiwi.repository.dnf4 import RepositoryDnf4
 
 from kiwi.exceptions import KiwiRequestError
 
-log = logging.getLogger('kiwi')
 
-
-class PackageManagerMicroDnf(PackageManagerBase):
+class PackageManagerDnf4(PackageManagerBase):
     """
-    **Implements Installation/Deletion of packages/collections with microdnf***
+    ***Implements base class for installation/deletion of
+    packages and collections using dnf***
 
-    :param doct dnf_args:
-        microdnf arguments from repository runtime configuration
-    :param dict command_env:
-        microdnf command environment from repository runtime
+    :param doct dnf_args: dnf arguments from repository runtime configuration
+    :param dict command_env: dnf command environment from repository runtime
         configuration
     """
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
 
-        :param list custom_args: custom microdnf arguments
+        :param list custom_args: custom dnf arguments
         """
-        self.repository: RepositoryDnf4 = self.repository
         self.custom_args = custom_args
 
         runtime_config = self.repository.runtime_config()
@@ -73,11 +66,9 @@ class PackageManagerMicroDnf(PackageManagerBase):
         """
         Queue a collection request
 
-        :param str name: dnf group name
+        :param str name: dnf group ID name
         """
-        log.warning(
-            'Group(%s) handling not yet supported for microdnf', name
-        )
+        self.collection_requests.append(f'@{name}')
 
     def request_product(self, name: str) -> None:
         """
@@ -117,38 +108,28 @@ class PackageManagerMicroDnf(PackageManagerBase):
                     ]
                 }
         """
-        microdnf_module_command = [
-            'microdnf'
-        ] + ['--refresh'] + self.dnf_args + [
+        dnf_module_command = [
+            'dnf'
+        ] + self.dnf_args + [
             '--installroot', self.root_dir,
-            f'--releasever={self.release_version}',
-            '--noplugins',
-            '--setopt=cachedir={0}'.format(
-                self.repository.shared_dnf_dir['cache-dir']
-            ),
-            '--setopt=reposdir={0}'.format(
-                self.repository.shared_dnf_dir['reposd-dir']
-            ),
-            '--setopt=varsdir={0}'.format(
-                self.repository.shared_dnf_dir['vars-dir']
-            )
+            f'--releasever={self.release_version}'
         ] + self.custom_args + [
             'module'
         ]
         for disable_module in collection_modules['disable']:
             Command.run(
-                microdnf_module_command + [
+                dnf_module_command + [
                     'disable', disable_module
                 ], self.command_env
             )
         for enable_module in collection_modules['enable']:
             Command.run(
-                microdnf_module_command + [
+                dnf_module_command + [
                     'reset', enable_module.split(':')[0]
                 ], self.command_env
             )
             Command.run(
-                microdnf_module_command + [
+                dnf_module_command + [
                     'enable', enable_module
                 ], self.command_env
             )
@@ -166,25 +147,22 @@ class PackageManagerMicroDnf(PackageManagerBase):
 
         :rtype: namedtuple
         """
-        microdnf_command = [
-            'microdnf'
-        ] + ['--refresh'] + self.dnf_args + [
+        Command.run(
+            ['dnf'] + self.dnf_args + [
+                f'--releasever={self.release_version}'
+            ] + ['makecache']
+        )
+        dnf_command = [
+            'dnf'
+        ] + self.dnf_args + [
             '--installroot', self.root_dir,
-            f'--releasever={self.release_version}',
-            '--noplugins',
-            '--setopt=cachedir={0}'.format(
-                self.repository.shared_dnf_dir['cache-dir']
-            ),
-            '--setopt=reposdir={0}'.format(
-                self.repository.shared_dnf_dir['reposd-dir']
-            ),
-            '--setopt=varsdir={0}'.format(
-                self.repository.shared_dnf_dir['vars-dir']
-            )
-        ] + self.custom_args + ['install'] + self.package_requests
+            f'--releasever={self.release_version}'
+        ] + self.custom_args + [
+            'install'
+        ] + self.package_requests + self.collection_requests
         self.cleanup_requests()
         return Command.call(
-            microdnf_command, self.command_env
+            dnf_command, self.command_env
         )
 
     def process_install_requests(self) -> command_call_type:
@@ -206,16 +184,16 @@ class PackageManagerMicroDnf(PackageManagerBase):
         chroot_dnf_args = Path.move_to_root(
             self.root_dir, self.dnf_args
         )
-        microdnf_command = [
-            'chroot', self.root_dir, 'microdnf'
+        dnf_command = [
+            'chroot', self.root_dir, 'dnf'
         ] + chroot_dnf_args + [
             f'--releasever={self.release_version}'
         ] + self.custom_args + exclude_args + [
             'install'
-        ] + self.package_requests
+        ] + self.package_requests + self.collection_requests
         self.cleanup_requests()
         return Command.call(
-            microdnf_command, self.command_env
+            dnf_command, self.command_env
         )
 
     def process_delete_requests(self, force: bool = False) -> command_call_type:
@@ -256,11 +234,11 @@ class PackageManagerMicroDnf(PackageManagerBase):
         else:
             chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
             dnf_command = [
-                'chroot', self.root_dir, 'microdnf'
+                'chroot', self.root_dir, 'dnf'
             ] + chroot_dnf_args + [
                 f'--releasever={self.release_version}'
             ] + self.custom_args + [
-                'remove'
+                'autoremove'
             ] + self.package_requests
             self.cleanup_requests()
             return Command.call(
@@ -278,7 +256,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
         chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
         return Command.call(
             [
-                'chroot', self.root_dir, 'microdnf'
+                'chroot', self.root_dir, 'dnf'
             ] + chroot_dnf_args + [
                 f'--releasever={self.release_version}'
             ] + self.custom_args + [
@@ -291,15 +269,15 @@ class PackageManagerMicroDnf(PackageManagerBase):
         """
         Setup package processing only for required packages
         """
-        if '--setopt=install_weak_deps=0' not in self.custom_args:
-            self.custom_args.append('--setopt=install_weak_deps=0')
+        if '--setopt=install_weak_deps=False' not in self.custom_args:
+            self.custom_args.append('--setopt=install_weak_deps=False')
 
     def process_plus_recommended(self) -> None:
         """
         Setup package processing to also include recommended dependencies.
         """
-        if '--setopt=install_weak_deps=0' in self.custom_args:
-            self.custom_args.remove('--setopt=install_weak_deps=0')
+        if '--setopt=install_weak_deps=False' in self.custom_args:
+            self.custom_args.remove('--setopt=install_weak_deps=False')
 
     def match_package_installed(
         self, package_name: str, package_manager_output: str
@@ -308,12 +286,12 @@ class PackageManagerMicroDnf(PackageManagerBase):
         Match expression to indicate a package has been installed
 
         This match for the package to be installed in the output
-        of the microdnf command is not 100% accurate. There might
+        of the dnf command is not 100% accurate. There might
         be false positives due to sub package names starting with
         the same base package name
 
         :param str package_name: package_name
-        :param str package_manager_output: microdnf status line
+        :param str package_manager_output: dnf status line
 
         :returns: True|False
 
@@ -333,7 +311,7 @@ class PackageManagerMicroDnf(PackageManagerBase):
         Match expression to indicate a package has been deleted
 
         :param str package_name: package_name
-        :param str package_manager_output: microdnf status line
+        :param str package_manager_output: dnf status line
 
         :returns: True|False
 

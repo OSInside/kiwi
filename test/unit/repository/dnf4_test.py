@@ -4,17 +4,17 @@ from mock import (
 )
 import mock
 
-from kiwi.repository.dnf import RepositoryDnf
+from kiwi.repository.dnf4 import RepositoryDnf4
 
 
-class TestRepositoryDnf:
+class TestRepositoryDnf4:
     @fixture(autouse=True)
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('kiwi.repository.dnf.Temporary.new_file')
-    @patch('kiwi.repository.dnf.ConfigParser')
-    @patch('kiwi.repository.dnf.Path.create')
+    @patch('kiwi.repository.dnf4.Temporary.new_file')
+    @patch('kiwi.repository.dnf4.ConfigParser')
+    @patch('kiwi.repository.dnf4.Path.create')
     def setup(self, mock_path, mock_config, mock_temp):
         runtime_dnf_config = mock.MagicMock()
         mock_config.return_value = runtime_dnf_config
@@ -26,7 +26,7 @@ class TestRepositoryDnf:
         root_bind.shared_location = '/shared-dir'
 
         with patch('builtins.open', create=True):
-            self.repo = RepositoryDnf(
+            self.repo = RepositoryDnf4(
                 root_bind, [
                     'exclude_docs', '_install_langs%en_US:de_DE',
                     '_target_arch%x86_64'
@@ -50,21 +50,21 @@ class TestRepositoryDnf:
             call('main', {'enabled': '0'})
         ]
 
-    @patch('kiwi.repository.dnf.Temporary.new_file')
-    @patch('kiwi.repository.dnf.ConfigParser')
-    @patch('kiwi.repository.dnf.Path.create')
+    @patch('kiwi.repository.dnf4.Temporary.new_file')
+    @patch('kiwi.repository.dnf4.ConfigParser')
+    @patch('kiwi.repository.dnf4.Path.create')
     def setup_method(self, cls, mock_path, mock_config, mock_temp):
         self.setup()
 
-    @patch('kiwi.repository.dnf.Temporary.new_file')
-    @patch('kiwi.repository.dnf.Path.create')
+    @patch('kiwi.repository.dnf4.Temporary.new_file')
+    @patch('kiwi.repository.dnf4.Path.create')
     def test_post_init_no_custom_args(self, mock_path, mock_temp):
         with patch('builtins.open', create=True):
             self.repo.post_init()
         assert self.repo.custom_args == []
 
-    @patch('kiwi.repository.dnf.Temporary.new_file')
-    @patch('kiwi.repository.dnf.Path.create')
+    @patch('kiwi.repository.dnf4.Temporary.new_file')
+    @patch('kiwi.repository.dnf4.Path.create')
     @patch('os.path.exists')
     def test_post_init_with_custom_args(
         self, mock_exists, mock_path, mock_temp
@@ -81,7 +81,7 @@ class TestRepositoryDnf:
         assert self.repo.custom_args == []
         assert self.repo.gpg_check == '1'
 
-    @patch('kiwi.repository.dnf.ConfigParser')
+    @patch('kiwi.repository.dnf4.ConfigParser')
     def test_use_default_location(self, mock_config):
         runtime_dnf_config = mock.MagicMock()
         mock_config.return_value = runtime_dnf_config
@@ -112,8 +112,8 @@ class TestRepositoryDnf:
         assert self.repo.runtime_config()['command_env'] == \
             self.repo.command_env
 
-    @patch('kiwi.repository.dnf.ConfigParser')
-    @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
+    @patch('kiwi.repository.dnf4.ConfigParser')
+    @patch('kiwi.repository.dnf4.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
     @patch('kiwi.command.Command.run')
     def test_add_repo(
@@ -167,8 +167,8 @@ class TestRepositoryDnf:
                 '/shared-dir/dnf/repos/bar.repo', 'w'
             )
 
-    @patch('kiwi.repository.dnf.ConfigParser')
-    @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
+    @patch('kiwi.repository.dnf4.ConfigParser')
+    @patch('kiwi.repository.dnf4.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
     def test_add_repo_inside_buildservice(
         self, mock_exists, mock_buildservice, mock_config
@@ -194,9 +194,9 @@ class TestRepositoryDnf:
                 '/shared-dir/dnf/repos/foo.repo', 'w'
             )
 
-    @patch('kiwi.repository.dnf.RpmDataBase')
+    @patch('kiwi.repository.dnf4.RpmDataBase')
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.dnf.Path.create')
+    @patch('kiwi.repository.dnf4.Path.create')
     def test_setup_package_database_configuration(
         self, mock_Path_create, mock_Command_run, mock_RpmDataBase
     ):
@@ -222,9 +222,9 @@ class TestRepositoryDnf:
             ], raise_on_error=False
         )
 
-    @patch('kiwi.repository.dnf.RpmDataBase')
+    @patch('kiwi.repository.dnf4.RpmDataBase')
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.dnf.Path.create')
+    @patch('kiwi.repository.dnf4.Path.create')
     def test_setup_package_database_configuration_bootstrapped_system(
         self, mock_Path_create, mock_Command_run, mock_RpmDataBase
     ):
@@ -250,8 +250,8 @@ class TestRepositoryDnf:
             ], raise_on_error=False
         )
 
-    @patch('kiwi.repository.dnf.ConfigParser')
-    @patch('kiwi.repository.dnf.Defaults.is_buildservice_worker')
+    @patch('kiwi.repository.dnf4.ConfigParser')
+    @patch('kiwi.repository.dnf4.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
     def test_add_repo_with_gpgchecks(
         self, mock_exists, mock_buildservice, mock_config
@@ -279,7 +279,7 @@ class TestRepositoryDnf:
                 '/shared-dir/dnf/repos/foo.repo', 'w'
             )
 
-    @patch('kiwi.repository.dnf.RpmDataBase')
+    @patch('kiwi.repository.dnf4.RpmDataBase')
     def test_import_trusted_keys(self, mock_RpmDataBase):
         rpmdb = mock.Mock()
         mock_RpmDataBase.return_value = rpmdb
@@ -321,7 +321,7 @@ class TestRepositoryDnf:
         )
 
     @patch('kiwi.path.Path.wipe')
-    @patch('kiwi.repository.dnf.glob.iglob')
+    @patch('kiwi.repository.dnf4.glob.iglob')
     def test_delete_repo_cache(self, mock_glob, mock_wipe):
         mock_glob.return_value = ['foo_cache']
         self.repo.delete_repo_cache('foo')

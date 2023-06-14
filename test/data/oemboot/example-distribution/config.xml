@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.5" name="initrd-oemboot-suse-13.2">
+<image schemaversion="7.6" name="initrd-oemboot-suse-13.2">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@novell.com</contact>

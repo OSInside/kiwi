@@ -56,6 +56,7 @@ class PackageManager(metaclass=ABCMeta):
             'zypper': ['zypper', 'Zypper'],
             'dnf': ['dnf', 'Dnf'],
             'dnf5': ['dnf5', 'Dnf5'],
+            'dnf4': ['dnf4', 'Dnf4'],
             'microdnf': ['microdnf', 'MicroDnf'],
             'pacman': ['pacman', 'Pacman'],
             'apt': ['apt', 'Apt']

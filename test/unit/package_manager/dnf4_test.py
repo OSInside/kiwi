@@ -4,12 +4,12 @@ from mock import (
 from pytest import raises
 import mock
 
-from kiwi.package_manager.dnf import PackageManagerDnf
+from kiwi.package_manager.dnf4 import PackageManagerDnf4
 
 from kiwi.exceptions import KiwiRequestError
 
 
-class TestPackageManagerDnf:
+class TestPackageManagerDnf4:
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = '/root-dir'
@@ -20,7 +20,7 @@ class TestPackageManagerDnf:
                 'command_env': ['env']
             }
         )
-        self.manager = PackageManagerDnf(repository)
+        self.manager = PackageManagerDnf4(repository)
 
     def setup_method(self, cls):
         self.setup()
@@ -185,7 +185,7 @@ class TestPackageManagerDnf:
     def test_match_package_deleted(self):
         assert self.manager.match_package_deleted('foo', 'Removing: foo')
 
-    @patch('kiwi.package_manager.dnf.RpmDataBase')
+    @patch('kiwi.package_manager.dnf4.RpmDataBase')
     def test_post_process_install_requests_bootstrap(self, mock_RpmDataBase):
         rpmdb = mock.Mock()
         rpmdb.has_rpm.return_value = True
@@ -194,7 +194,7 @@ class TestPackageManagerDnf:
         rpmdb.rebuild_database.assert_called_once_with()
         rpmdb.set_database_to_image_path.assert_called_once_with()
 
-    @patch('kiwi.package_manager.dnf.Rpm')
+    @patch('kiwi.package_manager.dnf4.Rpm')
     def test_clean_leftovers(self, mock_rpm):
         mock_rpm.return_value = mock.Mock()
         self.manager.clean_leftovers()
