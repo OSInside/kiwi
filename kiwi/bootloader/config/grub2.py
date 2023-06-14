@@ -789,7 +789,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         code should act as the fallback solution
         """
         log.warning(
-            '--> Running fallback setup for shim secure boot efi image'
+            'Running fallback setup for shim secure boot efi image'
         )
         if not lookup_path:
             lookup_path = self.boot_dir
@@ -805,6 +805,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # a grub image that got signed by the shim. The shim image
             # is the one that gets loaded by the firmware which itself
             # loads the second stage grub image
+            log.info(
+                f'--> Using shim image: {shim_image.filename}'
+            )
+            log.info(
+                f'--> Using grub image: {grub_image.filename}'
+            )
             Command.run(
                 ['cp', shim_image.filename, self._get_efi_image_name()]
             )
@@ -822,6 +828,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         else:
             # Without shim a self signed grub image is used that
             # gets loaded by the firmware
+            log.info(
+                f'--> No shim image, using grub image: {grub_image.filename}'
+            )
             Command.run(
                 ['cp', grub_image.filename, self._get_efi_image_name()]
             )
@@ -841,7 +850,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             lookup_path = self.boot_dir
         grub_image = Defaults.get_unsigned_grub_loader(lookup_path, target_type)
         if grub_image and self.xml_state.build_type.get_overlayroot_write_partition() is not False:
-            log.info('--> Using prebuilt unsigned efi image')
+            log.info(f'--> Using prebuilt unsigned efi image: {grub_image}')
             Command.run(
                 ['cp', grub_image, self._get_efi_image_name()]
             )
@@ -860,7 +869,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             lookup_path = self.boot_dir
         grub_image = Defaults.get_grub_bios_core_loader(lookup_path)
         if grub_image:
-            log.info('--> Using prebuilt bios image')
+            log.info(f'--> Using prebuilt bios image: {grub_image}')
         else:
             log.info('--> Creating bios image')
             self._create_bios_image(
