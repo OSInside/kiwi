@@ -846,7 +846,7 @@ class TestBootLoaderConfigGrub2:
             True, True, 'gfxterm', None
         )
         mock_copy_grub_config_to_efi_path.assert_called_once_with(
-            'root_dir', 'earlyboot.cfg'
+            'root_dir', 'earlyboot.cfg', 'iso'
         )
 
     def test_setup_install_image_config_multiboot(self):
@@ -1041,7 +1041,7 @@ class TestBootLoaderConfigGrub2:
             True, True, 'gfxterm', True
         )
         mock_copy_grub_config_to_efi_path.assert_called_once_with(
-            'root_dir', 'earlyboot.cfg'
+            'root_dir', 'earlyboot.cfg', 'iso'
         )
 
     def test_setup_iso_image_config_substitute_error(self):
@@ -1899,7 +1899,7 @@ class TestBootLoaderConfigGrub2:
                     call(
                         [
                             'cp', 'root_dir/usr/lib64/efi/grub.efi',
-                            'root_dir/EFI/BOOT/grub.efi'
+                            'root_dir/EFI/BOOT/grubx64.efi'
                         ]
                     ),
                     call(

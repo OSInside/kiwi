@@ -22,7 +22,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Tox
         run: |
-          sudo apt update && sudo apt install tox
+          python -m pip install --upgrade pip
+          python -m pip install tox==3.28.0
       - name: Run code checks
         run: |
           tox -e check
