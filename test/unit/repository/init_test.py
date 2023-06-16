@@ -23,7 +23,19 @@ class TestRepository:
         Repository.new(root_bind, 'dnf')
         mock_manager.assert_called_once_with(root_bind, None)
 
-    @patch('kiwi.repository.dnf.RepositoryDnf')
+    @patch('kiwi.repository.dnf4.RepositoryDnf4')
+    def test_repository_dnf4(self, mock_manager):
+        root_bind = mock.Mock()
+        Repository.new(root_bind, 'dnf4')
+        mock_manager.assert_called_once_with(root_bind, None)
+
+    @patch('kiwi.repository.dnf5.RepositoryDnf5')
+    def test_repository_dnf5(self, mock_manager):
+        root_bind = mock.Mock()
+        Repository.new(root_bind, 'dnf5')
+        mock_manager.assert_called_once_with(root_bind, None)
+
+    @patch('kiwi.repository.dnf4.RepositoryDnf4')
     def test_repository_microdnf(self, mock_manager):
         root_bind = mock.Mock()
         Repository.new(root_bind, 'microdnf')

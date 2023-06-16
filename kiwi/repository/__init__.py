@@ -51,7 +51,7 @@ class Repository(metaclass=ABCMeta):
             'dnf': ['dnf', 'Dnf'],
             'dnf5': ['dnf5', 'Dnf5'],
             'dnf4': ['dnf4', 'Dnf4'],
-            'microdnf': ['dnf', 'Dnf'],
+            'microdnf': ['dnf4', 'Dnf4'],
             'apt': ['apt', 'Apt'],
             'pacman': ['pacman', 'Pacman']
         }
