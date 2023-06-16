@@ -498,7 +498,12 @@ class XMLState:
             for package in package_list:
                 result.append(package.package_section.get_name().strip())
             if self.get_system_packages():
-                result.append(self.get_package_manager())
+                package_manager_name = self.get_package_manager()
+                if package_manager_name == 'dnf4':
+                    # The package name for dnf4 is just dnf. Thus
+                    # the name must be adapted in this case
+                    package_manager_name = 'dnf'
+                result.append(package_manager_name)
         if plus_packages:
             result += plus_packages
         return sorted(list(set(result)))

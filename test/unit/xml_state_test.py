@@ -131,6 +131,12 @@ class TestXMLState:
         assert self.no_image_packages_boot_state.get_bootstrap_packages() == [
             'patterns-openSUSE-base'
         ]
+        self.state.get_package_manager = Mock(
+            return_value="dnf4"
+        )
+        assert self.state.get_bootstrap_packages() == [
+            'dnf', 'filesystem',
+        ]
 
     def test_get_system_packages(self):
         assert self.state.get_system_packages() == [
