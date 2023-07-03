@@ -139,6 +139,7 @@ class TestDiskBuilder:
             return_value=self.bootloader_install
         )
         self.bootloader_config = Mock()
+        self.bootloader_config.use_disk_password = True
         self.bootloader_config.get_boot_cmdline = Mock(
             return_value='boot_cmdline'
         )
@@ -1045,7 +1046,8 @@ class TestDiskBuilder:
 
         self.luks_root.create_crypto_luks.assert_called_once_with(
             passphrase='passphrase', os=None,
-            options=[], keyfile='root_dir/root/.root.keyfile'
+            options=[], keyfile='root_dir/root/.root.keyfile',
+            randomize=True
         )
         self.luks_root.create_crypttab.assert_called_once_with(
             'root_dir/etc/crypttab'
@@ -1059,6 +1061,50 @@ class TestDiskBuilder:
             config={'install_items': ['/root/.root.keyfile']},
             config_file='root_dir/etc/dracut.conf.d/99-luks-boot.conf'
         )
+
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.disk.BootLoaderInstall.new')
+    def test_create_disk_luks_root_with_disk_password(
+        self, mock_BootLoaderInstall, mock_grub_dir, mock_command, mock_fs
+    ):
+        filesystem = Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.luks = 'passphrase'
+        self.disk_setup.need_boot_partition.return_value = False
+        self.disk_builder.root_filesystem_is_overlay = True
+        self.disk_builder.root_filesystem_has_write_partition = True
+        self.disk_builder.boot_is_crypto = True
+        self.disk.public_partition_id_map = self.id_map
+        self.disk.public_partition_id_map['kiwi_ROPart'] = 1
+        bootloader_config = Mock()
+        bootloader_config.use_disk_password = True
+        self.disk_builder.bootloader_config = bootloader_config
+        bootloader = mock_BootLoaderInstall.return_value
+
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+
+        self.luks_root.create_crypto_luks.assert_called_once_with(
+            passphrase='passphrase', os=None,
+            options=[], keyfile='root_dir/root/.root.keyfile',
+            randomize=True
+        )
+        self.luks_root.create_crypttab.assert_called_once_with(
+            'root_dir/etc/crypttab'
+        )
+        assert self.boot_image_task.include_file.call_args_list == [
+            call('/root/.root.keyfile'),
+            call('/config.partids'),
+            call('/etc/crypttab')
+        ]
+        self.boot_image_task.write_system_config_file.assert_called_once_with(
+            config={'install_items': ['/root/.root.keyfile']},
+            config_file='root_dir/etc/dracut.conf.d/99-luks-boot.conf'
+        )
+        bootloader.set_disk_password.assert_called_once_with('passphrase')
 
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')

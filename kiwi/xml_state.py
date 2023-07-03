@@ -2386,6 +2386,7 @@ class XMLState:
         result = []
         luksversion = self.build_type.get_luks_version()
         luksformat = self.build_type.get_luksformat()
+        luks_pbkdf = self.build_type.get_luks_pbkdf()
         if luksversion:
             result.append('--type')
             result.append(luksversion)
@@ -2394,6 +2395,12 @@ class XMLState:
                 result.append(option.get_name())
                 if option.get_value():
                     result.append(option.get_value())
+        if luks_pbkdf:
+            # Allow to override the pbkdf algorithm that cryptsetup
+            # uses by default. Cryptsetup may use argon2i by default,
+            # which is not supported by all bootloaders.
+            result.append('--pbkdf')
+            result.append(luks_pbkdf)
         return result
 
     def get_derived_from_image_uri(self) -> Optional[Uri]:

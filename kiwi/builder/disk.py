@@ -134,8 +134,8 @@ class DiskBuilder:
         self.root_filesystem_embed_integrity_metadata = \
             xml_state.build_type.get_embed_integrity_metadata()
         self.luks_format_options = xml_state.get_luks_format_options()
-        self.luks_randomize = xml_state.build_type.get_luks_randomize()
-        self.luks_pbkdf = xml_state.build_type.get_luks_pbkdf()
+        self.luks_randomize = \
+            xml_state.build_type.get_luks_randomize() or True
         self.luks_os = xml_state.build_type.get_luksOS()
         self.xen_server = xml_state.is_xen_server()
         self.requested_filesystem = xml_state.build_type.get_filesystem()
@@ -353,8 +353,6 @@ class DiskBuilder:
             self.luks_boot_keyfile = ''.join(
                 [self.root_dir, self.luks_boot_keyname]
             )
-            luks_root.luks_randomize = self.luks_randomize
-            luks_root.luks_pbkdf = self.luks_pbkdf
             # use LUKS key file for the following conditions:
             # 1. /boot is encrypted
             #    In this case grub needs to read from LUKS via the
@@ -372,7 +370,8 @@ class DiskBuilder:
                 passphrase=self.luks,
                 os=self.luks_os,
                 options=self.luks_format_options,
-                keyfile=self.luks_boot_keyfile if luks_need_keyfile else ''
+                keyfile=self.luks_boot_keyfile if luks_need_keyfile else '',
+                randomize=self.luks_randomize
             )
             if luks_need_keyfile:
                 self.luks_boot_keyfile_setup = ''.join(
@@ -1530,8 +1529,6 @@ class DiskBuilder:
             disk_password = None
             if self.bootloader_config.use_disk_password and self.luks:
                 disk_password = self.luks
-            log.debug(f'Passing disk encryption password "{disk_password}" to boot loader')
-
             try:
                 self.bootloader_config.setup_disk_image_config(
                     boot_options=custom_install_arguments
@@ -1555,7 +1552,7 @@ class DiskBuilder:
                     bootloader.install()
                 bootloader.secure_boot_install()
 
-                if disk_password:
+                if disk_password is not None:
                     bootloader.set_disk_password(disk_password)
             else:
                 log.warning(

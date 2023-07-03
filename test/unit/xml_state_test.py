@@ -1113,7 +1113,8 @@ class TestXMLState:
         assert self.state.get_luks_format_options() == [
             '--type', 'luks2',
             '--cipher', 'aes-gcm-random',
-            '--integrity', 'aead'
+            '--integrity', 'aead',
+            '--pbkdf', 'pbkdf2'
         ]
 
     def test_get_bootstrap_package_name(self):

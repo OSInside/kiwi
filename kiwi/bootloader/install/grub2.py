@@ -17,6 +17,7 @@
 #
 import glob
 import os
+import re
 import logging
 
 # project
@@ -278,30 +279,23 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 # restore the grub installer noop
                 self._enable_grub2_install(self.root_mount.mountpoint)
 
-    def set_disk_password(self, password):
-        log.debug(f'set_disk_password({password})')
-        if password is None:
-            return
-
-        config_file = f'{self.root_mount.mountpoint}/boot/efi/EFI/BOOT/grub.cfg'
-        if not os.path.exists(config_file):
-            log.debug(f'{config_file} does not exist')
-            return
-
-        with open(config_file) as config:
-            import re
-
-            grub_config = config.read()
-            grub_config = re.sub(
-                r'cryptomount',
-                f'cryptomount -p "{password}"',
-                grub_config
+    def set_disk_password(self, password: str):
+        if self.root_mount and password is not None:
+            log.debug('Include cryptomount credentials...')
+            config_file = '{0}/boot/efi/EFI/BOOT/grub.cfg'.format(
+                self.root_mount.mountpoint
             )
-
-        with open(config_file, 'w') as grub_config_file:
-            grub_config_file.write(grub_config)
-
-        log.debug(f'<<< {grub_config} >>>')
+            if os.path.isfile(config_file):
+                with open(config_file) as config:
+                    grub_config = config.read()
+                    grub_config = re.sub(
+                        r'cryptomount',
+                        f'cryptomount -p "{password}"',
+                        grub_config
+                    )
+                with open(config_file, 'w') as grub_config_file:
+                    grub_config_file.write(grub_config)
+                    log.debug(f'<<< {grub_config} >>>')
 
     def _mount_device_and_volumes(self):
         if self.root_mount is None:
