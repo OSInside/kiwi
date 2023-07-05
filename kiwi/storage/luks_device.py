@@ -17,7 +17,9 @@
 #
 import os
 import logging
-from typing import Optional
+from typing import (
+    List, Optional
+)
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -48,6 +50,8 @@ class LuksDevice(DeviceProvider):
         self.luks_device: Optional[str] = None
         self.luks_keyfile: Optional[str] = None
         self.luks_name = 'luksRoot'
+        self.luks_randomize = True
+        self.luks_pbkdf = None
 
         self.option_map = {
             'sle12': [
@@ -89,6 +93,8 @@ class LuksDevice(DeviceProvider):
             file path name which contains an alternative key
             to unlock the luks device
         """
+        pbkdf_options: List[str] = []
+
         if not options:
             options = []
         if os:
@@ -102,20 +108,27 @@ class LuksDevice(DeviceProvider):
         storage_device = self.storage_provider.get_device()
         log.info('Creating crypto LUKS on %s', storage_device)
 
+        # Allow the user to override the pbkdf algorithm that cryptsetup uses by
+        # default. Cryptsetup may use argon2i by default, which grub2 doesn't support (yet).
+        if self.luks_pbkdf is not None:
+            pbkdf_options = ['--pbkdf', self.luks_pbkdf]
+
         if not passphrase:
             log.warning('Using an empty passphrase for the key setup')
 
-        log.info('--> Randomizing...')
-        storage_size_mbytes = self.storage_provider.get_byte_size(
-            storage_device
-        ) / 1048576
-        Command.run(
-            [
-                'dd', 'if=/dev/urandom', 'bs=1M',
-                'count=%d' % storage_size_mbytes,
-                'of=%s' % storage_device
-            ]
-        )
+        if self.luks_randomize:
+            log.info('--> Randomizing...')
+            storage_size_mbytes = self.storage_provider.get_byte_size(
+                storage_device
+            ) / 1048576
+            Command.run(
+                [
+                    'dd', 'if=/dev/urandom', 'bs=1M',
+                    'count=%d' % storage_size_mbytes,
+                    'of=%s' % storage_device
+                ]
+            )
+
         log.info('--> Creating LUKS map')
 
         if passphrase:
@@ -133,7 +146,7 @@ class LuksDevice(DeviceProvider):
         Command.run(
             [
                 'cryptsetup', '-q', '--key-file', passphrase_file
-            ] + options + extra_options + [
+            ] + options + extra_options + pbkdf_options + [
                 'luksFormat', storage_device
             ]
         )
@@ -143,7 +156,7 @@ class LuksDevice(DeviceProvider):
             Command.run(
                 [
                     'cryptsetup', '--key-file', passphrase_file
-                ] + extra_options + [
+                ] + extra_options + pbkdf_options + [
                     'luksAddKey', storage_device, keyfile
                 ]
             )

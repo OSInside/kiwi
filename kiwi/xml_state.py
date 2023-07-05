@@ -1086,6 +1086,20 @@ class XMLState:
         """
         return self.get_bootloader_options('config')
 
+    def get_build_type_bootloader_use_disk_password(self) -> bool:
+        """
+        Indicate whether the bootloader configuration should use the
+        password protecting the encrypted root volume.
+
+        :return: True|False
+
+        :rtype: bool
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_use_disk_password()
+        return False
+
     def get_build_type_oemconfig_section(self) -> Any:
         """
         First oemconfig section from the build type section
