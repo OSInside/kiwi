@@ -349,7 +349,7 @@ class DiskBuilder:
         luks_root = None
         if self.luks is not None:
             luks_root = LuksDevice(device_map['root'])
-            self.luks_boot_keyname = '/.root.keyfile'
+            self.luks_boot_keyname = '/root/.root.keyfile'
             self.luks_boot_keyfile = ''.join(
                 [self.root_dir, self.luks_boot_keyname]
             )
@@ -383,7 +383,7 @@ class DiskBuilder:
                     config_file=self.luks_boot_keyfile_setup
                 )
                 self.boot_image.include_file(
-                    os.sep + os.path.basename(self.luks_boot_keyfile)
+                    '/root/' + os.path.basename(self.luks_boot_keyfile)
                 )
             device_map['luks_root'] = device_map['root']
             device_map['root'] = luks_root.get_device()

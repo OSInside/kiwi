@@ -1045,18 +1045,18 @@ class TestDiskBuilder:
 
         self.luks_root.create_crypto_luks.assert_called_once_with(
             passphrase='passphrase', os=None,
-            options=[], keyfile='root_dir/.root.keyfile'
+            options=[], keyfile='root_dir/root/.root.keyfile'
         )
         self.luks_root.create_crypttab.assert_called_once_with(
             'root_dir/etc/crypttab'
         )
         assert self.boot_image_task.include_file.call_args_list == [
-            call('/.root.keyfile'),
+            call('/root/.root.keyfile'),
             call('/config.partids'),
             call('/etc/crypttab')
         ]
         self.boot_image_task.write_system_config_file.assert_called_once_with(
-            config={'install_items': ['/.root.keyfile']},
+            config={'install_items': ['/root/.root.keyfile']},
             config_file='root_dir/etc/dracut.conf.d/99-luks-boot.conf'
         )
 
