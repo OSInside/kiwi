@@ -2908,6 +2908,38 @@ distribution</a:documentation>
         <sch:param name="types" value="oem iso pxe kis"/>
       </sch:pattern>
     </define>
+    <define name="k.type.luks_randomize.attribute">
+      <attribute name="luks_randomize">
+        <a:documentation>By default, all blocks of a LUKS volume will be filled
+with pseudo-random data. If you're shipping an image with
+a well-known key, which is going to be re-encrypted at
+deployment time, you can decrease the size of the image
+by setting this attribute to false.</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="luks_randomize" is-a="image_type">
+        <sch:param name="attr" value="luksversion"/>
+        <sch:param name="types" value="oem iso pxe kis"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.luks_pbkdf.attribute">
+      <attribute name="luks_pbkdf">
+        <a:documentation>When LUKS unlocks a key slot using a user provided
+password, it uses a so-called key derivation function
+to derive a symmetric encryption key from the password.
+Not all boot loaders support all KDF algorithms, hence
+this attribute can be used to select a specific algorithm.</a:documentation>
+        <choice>
+          <value>pbkdf2</value>
+          <value>argon2i</value>
+          <value>argon2id</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="luks_pbkdf" is-a="image_type">
+        <sch:param name="attr" value="luks_pbkdf"/>
+        <sch:param name="types" value="oem iso pxe kis"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.mdraid.attribute">
       <attribute name="mdraid">
         <a:documentation>Setup software raid in degraded mode with one disk
@@ -3235,6 +3267,12 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.luksOS.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.luks_randomize.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.luks_pbkdf.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.mdraid.attribute"/>
@@ -4116,6 +4154,14 @@ for 4k DASD devices use CDL</a:documentation>
         <sch:param name="types" value="grub2_s390x_emu"/>
       </sch:pattern>
     </define>
+    <define name="k.bootloader.use_disk_password.attribute">
+      <attribute name="use_disk_password">
+        <a:documentation>When /boot is encrypted, make the boot loader store the
+password in its configuration file (in cleartext). This
+is useful for full disk encryption images</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.bootloader.attlist">
       <interleave>
         <ref name="k.bootloader.name.attribute"/>
@@ -4133,6 +4179,9 @@ for 4k DASD devices use CDL</a:documentation>
         </optional>
         <optional>
           <ref name="k.bootloader.targettype.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.use_disk_password.attribute"/>
         </optional>
         <optional>
           <ref name="k.bootloader.grub_template.attribute"/>

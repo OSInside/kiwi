@@ -3048,7 +3048,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3094,6 +3094,8 @@ class type_(GeneratedsSuper):
         self.luks = _cast(None, luks)
         self.luks_version = _cast(None, luks_version)
         self.luksOS = _cast(None, luksOS)
+        self.luks_randomize = _cast(bool, luks_randomize)
+        self.luks_pbkdf = _cast(None, luks_pbkdf)
         self.mdraid = _cast(None, mdraid)
         self.overlayroot = _cast(bool, overlayroot)
         self.overlayroot_write_partition = _cast(bool, overlayroot_write_partition)
@@ -3318,6 +3320,10 @@ class type_(GeneratedsSuper):
     def set_luks_version(self, luks_version): self.luks_version = luks_version
     def get_luksOS(self): return self.luksOS
     def set_luksOS(self, luksOS): self.luksOS = luksOS
+    def get_luks_randomize(self): return self.luks_randomize
+    def set_luks_randomize(self, luks_randomize): self.luks_randomize = luks_randomize
+    def get_luks_pbkdf(self): return self.luks_pbkdf
+    def set_luks_pbkdf(self, luks_pbkdf): self.luks_pbkdf = luks_pbkdf
     def get_mdraid(self): return self.mdraid
     def set_mdraid(self, mdraid): self.mdraid = mdraid
     def get_overlayroot(self): return self.overlayroot
@@ -3600,6 +3606,12 @@ class type_(GeneratedsSuper):
         if self.luksOS is not None and 'luksOS' not in already_processed:
             already_processed.add('luksOS')
             outfile.write(' luksOS=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luksOS), input_name='luksOS')), ))
+        if self.luks_randomize is not None and 'luks_randomize' not in already_processed:
+            already_processed.add('luks_randomize')
+            outfile.write(' luks_randomize="%s"' % self.gds_format_boolean(self.luks_randomize, input_name='luks_randomize'))
+        if self.luks_pbkdf is not None and 'luks_pbkdf' not in already_processed:
+            already_processed.add('luks_pbkdf')
+            outfile.write(' luks_pbkdf=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.luks_pbkdf), input_name='luks_pbkdf')), ))
         if self.mdraid is not None and 'mdraid' not in already_processed:
             already_processed.add('mdraid')
             outfile.write(' mdraid=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.mdraid), input_name='mdraid')), ))
@@ -4018,6 +4030,20 @@ class type_(GeneratedsSuper):
             already_processed.add('luksOS')
             self.luksOS = value
             self.luksOS = ' '.join(self.luksOS.split())
+        value = find_attr_value_('luks_randomize', node)
+        if value is not None and 'luks_randomize' not in already_processed:
+            already_processed.add('luks_randomize')
+            if value in ('true', '1'):
+                self.luks_randomize = True
+            elif value in ('false', '0'):
+                self.luks_randomize = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('luks_pbkdf', node)
+        if value is not None and 'luks_pbkdf' not in already_processed:
+            already_processed.add('luks_pbkdf')
+            self.luks_pbkdf = value
+            self.luks_pbkdf = ' '.join(self.luks_pbkdf.split())
         value = find_attr_value_('mdraid', node)
         if value is not None and 'mdraid' not in already_processed:
             already_processed.add('mdraid')
@@ -5494,7 +5520,7 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, grub_template=None, bootloadersettings=None):
+    def __init__(self, name=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.console = _cast(None, console)
@@ -5502,6 +5528,7 @@ class bootloader(GeneratedsSuper):
         self.timeout = _cast(int, timeout)
         self.timeout_style = _cast(None, timeout_style)
         self.targettype = _cast(None, targettype)
+        self.use_disk_password = _cast(bool, use_disk_password)
         self.grub_template = _cast(None, grub_template)
         self.bootloadersettings = bootloadersettings
     def factory(*args_, **kwargs_):
@@ -5529,6 +5556,8 @@ class bootloader(GeneratedsSuper):
     def set_timeout_style(self, timeout_style): self.timeout_style = timeout_style
     def get_targettype(self): return self.targettype
     def set_targettype(self, targettype): self.targettype = targettype
+    def get_use_disk_password(self): return self.use_disk_password
+    def set_use_disk_password(self, use_disk_password): self.use_disk_password = use_disk_password
     def get_grub_template(self): return self.grub_template
     def set_grub_template(self, grub_template): self.grub_template = grub_template
     def validate_grub_console(self, value):
@@ -5585,6 +5614,9 @@ class bootloader(GeneratedsSuper):
         if self.targettype is not None and 'targettype' not in already_processed:
             already_processed.add('targettype')
             outfile.write(' targettype=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.targettype), input_name='targettype')), ))
+        if self.use_disk_password is not None and 'use_disk_password' not in already_processed:
+            already_processed.add('use_disk_password')
+            outfile.write(' use_disk_password="%s"' % self.gds_format_boolean(self.use_disk_password, input_name='use_disk_password'))
         if self.grub_template is not None and 'grub_template' not in already_processed:
             already_processed.add('grub_template')
             outfile.write(' grub_template=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.grub_template), input_name='grub_template')), ))
@@ -5637,6 +5669,15 @@ class bootloader(GeneratedsSuper):
             already_processed.add('targettype')
             self.targettype = value
             self.targettype = ' '.join(self.targettype.split())
+        value = find_attr_value_('use_disk_password', node)
+        if value is not None and 'use_disk_password' not in already_processed:
+            already_processed.add('use_disk_password')
+            if value in ('true', '1'):
+                self.use_disk_password = True
+            elif value in ('false', '0'):
+                self.use_disk_password = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('grub_template', node)
         if value is not None and 'grub_template' not in already_processed:
             already_processed.add('grub_template')

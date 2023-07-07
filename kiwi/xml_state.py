@@ -1086,6 +1086,20 @@ class XMLState:
         """
         return self.get_bootloader_options('config')
 
+    def get_build_type_bootloader_use_disk_password(self) -> bool:
+        """
+        Indicate whether the bootloader configuration should use the
+        password protecting the encrypted root volume.
+
+        :return: True|False
+
+        :rtype: bool
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_use_disk_password()
+        return False
+
     def get_build_type_oemconfig_section(self) -> Any:
         """
         First oemconfig section from the build type section
@@ -2372,6 +2386,7 @@ class XMLState:
         result = []
         luksversion = self.build_type.get_luks_version()
         luksformat = self.build_type.get_luksformat()
+        luks_pbkdf = self.build_type.get_luks_pbkdf()
         if luksversion:
             result.append('--type')
             result.append(luksversion)
@@ -2380,6 +2395,12 @@ class XMLState:
                 result.append(option.get_name())
                 if option.get_value():
                     result.append(option.get_value())
+        if luks_pbkdf:
+            # Allow to override the pbkdf algorithm that cryptsetup
+            # uses by default. Cryptsetup may use argon2i by default,
+            # which is not supported by all bootloaders.
+            result.append('--pbkdf')
+            result.append(luks_pbkdf)
         return result
 
     def get_derived_from_image_uri(self) -> Optional[Uri]:

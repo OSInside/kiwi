@@ -60,6 +60,7 @@ class TestXMLState:
         self.bootloader.get_targettype.return_value = 'some-target'
         self.bootloader.get_console.return_value = 'some-console'
         self.bootloader.get_serial_line.return_value = 'some-serial'
+        self.bootloader.get_use_disk_password.return_value = True
 
     def setup_method(self, cls):
         self.setup()
@@ -1021,6 +1022,13 @@ class TestXMLState:
         assert self.state.get_build_type_bootloader_name() == 'some-loader'
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_use_disk_password(self, mock_bootloader):
+        mock_bootloader.return_value = [None]
+        assert self.state.get_build_type_bootloader_use_disk_password() is False
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_use_disk_password() is True
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_console(self, mock_bootloader):
         mock_bootloader.return_value = [self.bootloader]
         assert self.state.get_build_type_bootloader_console() == \
@@ -1105,7 +1113,8 @@ class TestXMLState:
         assert self.state.get_luks_format_options() == [
             '--type', 'luks2',
             '--cipher', 'aes-gcm-random',
-            '--integrity', 'aead'
+            '--integrity', 'aead',
+            '--pbkdf', 'pbkdf2'
         ]
 
     def test_get_bootstrap_package_name(self):

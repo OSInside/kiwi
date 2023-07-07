@@ -1,5 +1,6 @@
+import io
 from mock import (
-    patch, call
+    patch, call, MagicMock
 )
 from pytest import raises
 import mock
@@ -431,6 +432,19 @@ class TestBootLoaderInstallGrub2:
         mock_which.assert_called_once_with(
             filename='shim-install', root_dir='tmp_root'
         )
+
+    @patch('os.path.isfile')
+    def test_set_disk_password(self, mock_os_path_is_file):
+        self.bootloader.root_mount = MagicMock()
+        self.bootloader.root_mount.mountpoint = 'root_mountpoint'
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = 'data__cryptomount__data'
+            self.bootloader.set_disk_password('credentials')
+            file_handle.write.assert_called_once_with(
+                'data__cryptomount -p "credentials"__data'
+            )
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')

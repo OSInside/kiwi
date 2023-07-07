@@ -73,7 +73,7 @@ class LuksDevice(DeviceProvider):
 
     def create_crypto_luks(
         self, passphrase: str, os: str = None,
-        options: list = None, keyfile: str = ''
+        options: list = None, keyfile: str = '', randomize: bool = True
     ) -> None:
         """
         Create luks device. Please note the passphrase is readable
@@ -105,17 +105,19 @@ class LuksDevice(DeviceProvider):
         if not passphrase:
             log.warning('Using an empty passphrase for the key setup')
 
-        log.info('--> Randomizing...')
-        storage_size_mbytes = self.storage_provider.get_byte_size(
-            storage_device
-        ) / 1048576
-        Command.run(
-            [
-                'dd', 'if=/dev/urandom', 'bs=1M',
-                'count=%d' % storage_size_mbytes,
-                'of=%s' % storage_device
-            ]
-        )
+        if randomize:
+            log.info('--> Randomizing...')
+            storage_size_mbytes = self.storage_provider.get_byte_size(
+                storage_device
+            ) / 1048576
+            Command.run(
+                [
+                    'dd', 'if=/dev/urandom', 'bs=1M',
+                    'count=%d' % storage_size_mbytes,
+                    'of=%s' % storage_device
+                ]
+            )
+
         log.info('--> Creating LUKS map')
 
         if passphrase:
