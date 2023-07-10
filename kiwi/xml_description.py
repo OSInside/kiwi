@@ -15,16 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import importlib
 from typing import (
     Dict, Any
 )
 import os
 import logging
 from xml.dom import minidom
-from lxml import (
-    etree,
-    isoschematron
-)
+from lxml import etree
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -82,18 +80,26 @@ class XMLDescription:
 
         :rtype: object
         """
+        isoschematron = None
+        schematron = None
+        try:
+            isoschematron = importlib.import_module('lxml.isoschematron')
+        except Exception as error:
+            log.warning(f"schematron validation skipped: {error}")
         try:
             schema_doc = etree.parse(Defaults.get_schema_file())
             relaxng = etree.RelaxNG(schema_doc)
-            schematron = isoschematron.Schematron(
-                schema_doc, store_report=True
-            )
+            if isoschematron:
+                schematron = isoschematron.Schematron(
+                    schema_doc, store_report=True
+                )
         except Exception as issue:
             raise KiwiSchemaImportError(issue)
         try:
             description = etree.parse(self.description)
             validation_rng = relaxng.validate(description)
-            validation_schematron = schematron.validate(description)
+            if schematron:
+                validation_schematron = schematron.validate(description)
         except Exception as issue:
             raise KiwiValidationError(issue)
         if not validation_rng:
@@ -102,11 +108,11 @@ class XMLDescription:
                 self.description,
                 relaxng.error_log
             )
-        if not validation_schematron:
+        if schematron and not validation_schematron:
             XMLDescription._get_schematron_validation_details(
                 schematron.validation_report
             )
-        if not validation_rng or not validation_schematron:
+        if not validation_rng or (schematron and not validation_schematron):
             log.debug(open(self.description).read())
             raise KiwiDescriptionInvalid(
                 'Failed to validate schema and/or schematron rules. '
