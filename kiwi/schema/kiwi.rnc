@@ -2779,10 +2779,10 @@ div {
             sch:param [ name = "types" value = "grub2_s390x_emu" ]
         ]
     k.bootloader.use_disk_password.attribute =
-	## When /boot is encrypted, make the boot loader store the
-	## password in its configuration file (in cleartext). This
-	## is useful for full disk encryption images
-	attribute use_disk_password { xsd:boolean }
+        ## When /boot is encrypted, make the boot loader store the
+        ## password in its configuration file (in cleartext). This
+        ## is useful for full disk encryption images
+        attribute use_disk_password { xsd:boolean }
     k.bootloader.attlist =
         k.bootloader.name.attribute &
         k.bootloader.console.attribute? &

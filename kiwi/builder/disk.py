@@ -126,6 +126,8 @@ class DiskBuilder:
         self.hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
         self.force_mbr = xml_state.build_type.get_force_mbr()
         self.luks = xml_state.get_luks_credentials()
+        self.use_disk_password = \
+            xml_state.get_build_type_bootloader_use_disk_password()
         self.integrity_root = xml_state.build_type.get_standalone_integrity()
         self.integrity_legacy_hmac = xml_state.build_type.get_integrity_legacy_hmac()
         self.integrity_keyfile = xml_state.build_type.get_integrity_keyfile()
@@ -1526,9 +1528,6 @@ class DiskBuilder:
 
         if self.bootloader != 'custom':
             # create bootloader config prior bootloader installation
-            disk_password = None
-            if self.bootloader_config.use_disk_password and self.luks:
-                disk_password = self.luks
             try:
                 self.bootloader_config.setup_disk_image_config(
                     boot_options=custom_install_arguments
@@ -1552,8 +1551,8 @@ class DiskBuilder:
                     bootloader.install()
                 bootloader.secure_boot_install()
 
-                if disk_password is not None:
-                    bootloader.set_disk_password(disk_password)
+                if self.use_disk_password and self.luks:
+                    bootloader.set_disk_password(self.luks)
             else:
                 log.warning(
                     'No install of bootcode on read-only root possible'

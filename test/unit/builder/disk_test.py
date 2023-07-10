@@ -1073,6 +1073,7 @@ class TestDiskBuilder:
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.luks = 'passphrase'
+        self.disk_builder.use_disk_password = True
         self.disk_setup.need_boot_partition.return_value = False
         self.disk_builder.root_filesystem_is_overlay = True
         self.disk_builder.root_filesystem_has_write_partition = True
