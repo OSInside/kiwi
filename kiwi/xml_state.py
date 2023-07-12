@@ -1680,6 +1680,9 @@ class XMLState:
         if not have_root_volume_setup:
             # There must always be a root volume setup. It will be the
             # full size volume if no other volume has this setup
+            volume_management = self.get_volume_management()
+            root_volume_name = \
+                defaults.ROOT_VOLUME_NAME if volume_management == 'lvm' else ''
             if have_full_size_volume:
                 size = 'freespace:' + format(
                     Defaults.get_min_volume_mbytes()
@@ -1690,7 +1693,7 @@ class XMLState:
                 fullsize = True
             volume_type_list.append(
                 volume_type(
-                    name=defaults.ROOT_VOLUME_NAME,
+                    name=root_volume_name,
                     size=size,
                     fullsize=fullsize,
                     mountpoint=None,

@@ -74,6 +74,18 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         if 'quota_groups' not in self.custom_args:
             self.custom_args['quota_groups'] = False
 
+        self.root_volume_name = '@'
+        canonical_volume_list = self.get_canonical_volume_list()
+        for volume in canonical_volume_list.volumes:
+            if volume.is_root_volume and volume.name:
+                self.root_volume_name = volume.name
+
+        if self.custom_args['root_is_snapshot'] and \
+           self.root_volume_name == '/':
+            log.warning('root_is_snapshot requires a toplevel sub-volume')
+            log.warning('root_is_snapshot has been disabled')
+            self.custom_args['root_is_snapshot'] = False
+
         self.subvol_mount_list = []
         self.toplevel_mount = None
         self.toplevel_volume = None
@@ -82,9 +94,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         Setup btrfs volume management
 
-        In case of btrfs a toplevel(@) subvolume is created and marked
+        In case of btrfs an optional toplevel subvolume is created and marked
         as default volume. If snapshots are activated via the custom_args
-        the setup method also created the @/.snapshots/1/snapshot
+        the setup method also creates the .snapshots/1/snapshot
         subvolumes. There is no concept of a volume manager name, thus
         the name argument is not used for btrfs
 
@@ -112,31 +124,37 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             Command.run(
                 ['btrfs', 'quota', 'enable', self.mountpoint]
             )
-        root_volume = self.mountpoint + '/@'
-        Command.run(
-            ['btrfs', 'subvolume', 'create', root_volume]
-        )
+        if self.root_volume_name != '/':
+            root_volume = self.mountpoint + f'/{self.root_volume_name}'
+            Command.run(
+                ['btrfs', 'subvolume', 'create', root_volume]
+            )
         if self.custom_args['root_is_snapshot']:
-            snapshot_volume = self.mountpoint + '/@/.snapshots'
+            snapshot_volume = self.mountpoint + \
+                f'/{self.root_volume_name}/.snapshots'
             Command.run(
                 ['btrfs', 'subvolume', 'create', snapshot_volume]
             )
             os.chmod(snapshot_volume, 0o700)
             Path.create(snapshot_volume + '/1')
-            snapshot = self.mountpoint + '/@/.snapshots/1/snapshot'
+            snapshot = self.mountpoint + \
+                f'/{self.root_volume_name}/.snapshots/1/snapshot'
             Command.run(
                 ['btrfs', 'subvolume', 'create', snapshot]
             )
-            self._set_default_volume('@/.snapshots/1/snapshot')
-            snapshot = self.mountpoint + '/@/.snapshots/1/snapshot'
-            # Mount /@/.snapshots as /.snapshots inside the root
+            self._set_default_volume(
+                f'{self.root_volume_name}/.snapshots/1/snapshot'
+            )
+            snapshot = self.mountpoint + \
+                f'/{self.root_volume_name}/.snapshots/1/snapshot'
+            # Mount /{some-name}/.snapshots as /.snapshots inside the root
             snapshots_mount = MountManager(
                 device=self.device,
                 mountpoint=snapshot + '/.snapshots'
             )
             self.subvol_mount_list.append(snapshots_mount)
-        else:
-            self._set_default_volume('@')
+        elif self.root_volume_name != '/':
+            self._set_default_volume(self.root_volume_name)
 
     def create_volumes(self, filesystem_name):
         """
@@ -163,12 +181,12 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         for volume in canonical_volume_list.volumes:
             if volume.is_root_volume:
-                # the btrfs root volume named '@' has been created as
+                # the btrfs root volume has been created as
                 # part of the setup procedure
                 pass
             else:
                 log.info('--> sub volume %s', volume.realpath)
-                toplevel = self.mountpoint + '/@/'
+                toplevel = self.mountpoint + f'/{self.root_volume_name}/'
                 volume_parent_path = os.path.normpath(
                     toplevel + os.path.dirname(volume.realpath)
                 )
@@ -183,15 +201,21 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 self.apply_attributes_on_volume(
                     toplevel, volume
                 )
+                volume_mountpoint = self.mountpoint + \
+                    self.root_volume_name + '/'
                 if self.custom_args['root_is_snapshot']:
-                    snapshot = self.mountpoint + '/@/.snapshots/1/snapshot/'
-                    volume_mount = MountManager(
-                        device=self.device,
-                        mountpoint=os.path.normpath(snapshot + volume.realpath)
+                    volume_mountpoint = self.mountpoint + \
+                        f'/{self.root_volume_name}/.snapshots/1/snapshot/'
+
+                volume_mount = MountManager(
+                    device=self.device,
+                    mountpoint=os.path.normpath(
+                        volume_mountpoint + volume.realpath
                     )
-                    self.subvol_mount_list.append(
-                        volume_mount
-                    )
+                )
+                self.subvol_mount_list.append(
+                    volume_mount
+                )
 
     def get_fstab(self, persistency_type='by-label', filesystem_name=None):
         """
@@ -219,7 +243,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             )
             fstab_entry = ' '.join(
                 [
-                    blkid_type + '=' + device_id, subvol_name.replace('@', ''),
+                    blkid_type + '=' + device_id,
+                    subvol_name.replace(
+                        self.root_volume_name, ''
+                    ) if self.root_volume_name != '/' else subvol_name,
                     'btrfs', ','.join(mount_entry_options),
                     '0 {fs_passno}'.format(
                         fs_passno='2' if fs_check else '0'
@@ -245,7 +272,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     'subvol=' + subvol_name
                 ] + self.custom_filesystem_args['mount_options']
             )
-            volumes[subvol_name.replace('@', '')] = {
+            subvol_path = subvol_name.replace(
+                self.root_volume_name, ''
+            ) if self.root_volume_name != '/' else subvol_name
+            volumes[subvol_path] = {
                 'volume_options': subvol_options,
                 'volume_device': volume_mount.device
             }
@@ -309,7 +339,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         :rtype: string
         """
-        sync_target: List[str] = [self.mountpoint, '@']
+        sync_target: List[str] = [self.mountpoint]
+        if self.root_volume_name != '/':
+            sync_target.append(self.root_volume_name)
         if self.custom_args.get('root_is_snapshot'):
             sync_target.extend(['.snapshots', '1', 'snapshot'])
         return os.path.join(*sync_target)
@@ -327,7 +359,12 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             sync_target = self.get_mountpoint()
             if self.custom_args['root_is_snapshot']:
                 self._create_snapshot_info(
-                    ''.join([self.mountpoint, '/@/.snapshots/1/info.xml'])
+                    ''.join(
+                        [
+                            self.mountpoint,
+                            f'/{self.root_volume_name}/.snapshots/1/info.xml'
+                        ]
+                    )
                 )
             data = DataSync(self.root_dir, sync_target)
             data.sync_data(
@@ -389,7 +426,12 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         return xml_data_domtree.toprettyxml(indent="    ")
 
     def _create_snapper_quota_configuration(self):
-        root_path = os.sep.join([self.mountpoint, '@/.snapshots/1/snapshot'])
+        root_path = os.sep.join(
+            [
+                self.mountpoint,
+                f'{self.root_volume_name}/.snapshots/1/snapshot'
+            ]
+        )
         snapper_default_conf = Defaults.get_snapper_config_template_file(
             root_path
         )
@@ -453,7 +495,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         )
         if self.toplevel_volume and self.toplevel_volume in subvol_name:
             subvol_name = subvol_name.replace(self.toplevel_volume, '')
-        return os.path.normpath(os.sep.join(['@', subvol_name]))
+        return os.path.normpath(
+            os.sep.join([self.root_volume_name, subvol_name]).replace('//', '/')
+        )
 
     def __del__(self):
         if self.toplevel_mount:

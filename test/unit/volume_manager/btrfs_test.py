@@ -27,12 +27,12 @@ class TestVolumeManagerBtrfs:
     def setup(self, mock_path):
         self.volumes = [
             volume_type(
-                name='LVRoot', size='freespace:100', realpath='/',
+                name='@', size='freespace:100', realpath='/',
                 mountpoint=None, fullsize=False, label=None,
                 attributes=[], is_root_volume=True
             ),
             volume_type(
-                name='LVetc', size='freespace:200', realpath='/etc',
+                name='etc', size='freespace:200', realpath='/etc',
                 mountpoint='/etc', fullsize=False, label=None,
                 attributes=[], is_root_volume=False
             ),
@@ -42,7 +42,7 @@ class TestVolumeManagerBtrfs:
                 attributes=[], is_root_volume=False
             ),
             volume_type(
-                name='LVhome', size=None, realpath='/home',
+                name='home', size=None, realpath='/home',
                 mountpoint='/home', fullsize=True, label=None,
                 attributes=[], is_root_volume=False
             )
@@ -68,6 +68,17 @@ class TestVolumeManagerBtrfs:
     def test_post_init(self):
         self.volume_manager.post_init({'some-arg': 'some-val'})
         assert self.volume_manager.custom_args['some-arg'] == 'some-val'
+
+    def test_post_init_root_is_snapshot_without_toplevel_volume(self):
+        self.volume_manager.volumes = [
+            volume_type(
+                name='/', size='freespace:100', realpath='/',
+                mountpoint=None, fullsize=False, label=None,
+                attributes=[], is_root_volume=True
+            )
+        ]
+        self.volume_manager.post_init({'root_is_snapshot': True})
+        assert self.volume_manager.custom_args['root_is_snapshot'] is False
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Command.run')
@@ -164,6 +175,47 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.MountManager')
     @patch('kiwi.volume_manager.btrfs.Path.create')
     @patch('kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume')
+    def test_create_volumes_no_toplevel_volume(
+        self, mock_attrs, mock_path, mock_mount, mock_command, mock_os_exists
+    ):
+        volume_mount = Mock()
+        mock_mount.return_value = volume_mount
+        self.volume_manager.mountpoint = 'tmpdir'
+        self.volume_manager.custom_args['root_is_snapshot'] = False
+        mock_os_exists.return_value = False
+
+        self.volume_manager.root_volume_name = '/'
+        self.volume_manager.volumes = [
+            volume_type(
+                name='/', size='freespace:100', realpath='/',
+                mountpoint=None, fullsize=False, label=None,
+                attributes=[], is_root_volume=True
+            ),
+            volume_type(
+                name='home', size=None, realpath='/home',
+                mountpoint='/home', fullsize=True, label=None,
+                attributes=[], is_root_volume=False
+            )
+        ]
+
+        self.volume_manager.create_volumes('btrfs')
+
+        assert mock_path.call_args_list == [
+            call('root_dir/home'),
+            call('tmpdir')
+        ]
+        mock_command.assert_called_once_with(
+            ['btrfs', 'subvolume', 'create', 'tmpdir/home']
+        )
+        mock_mount.assert_called_once_with(
+            device='/dev/storage', mountpoint='tmpdir/home'
+        )
+
+    @patch('os.path.exists')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('kiwi.volume_manager.btrfs.MountManager')
+    @patch('kiwi.volume_manager.btrfs.Path.create')
+    @patch('kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume')
     def test_create_volumes(
         self, mock_attrs, mock_path, mock_mount, mock_command, mock_os_exists
     ):
@@ -186,7 +238,7 @@ class TestVolumeManagerBtrfs:
             ),
             call(
                 'tmpdir/@/', volume_type(
-                    name='LVetc', size='freespace:200', realpath='/etc',
+                    name='etc', size='freespace:200', realpath='/etc',
                     mountpoint='/etc', fullsize=False, label=None,
                     attributes=[],
                     is_root_volume=False
@@ -194,7 +246,7 @@ class TestVolumeManagerBtrfs:
             ),
             call(
                 'tmpdir/@/', volume_type(
-                    name='LVhome', size=None, realpath='/home',
+                    name='home', size=None, realpath='/home',
                     mountpoint='/home', fullsize=True, label=None,
                     attributes=[],
                     is_root_volume=False
