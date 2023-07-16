@@ -1132,3 +1132,7 @@ class TestXMLState:
         assert state.get_bootloader_config_options() == [
             '--joe', '-x'
         ]
+
+    def test_get_btrfs_create_toplevel_subvolume(self):
+        assert self.state.build_type.get_btrfs_create_toplevel_subvolume() is \
+            None

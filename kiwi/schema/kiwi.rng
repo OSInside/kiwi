@@ -2093,6 +2093,20 @@ By default the quota system is inactive</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.btrfs_create_toplevel_subvolume">
+      <attribute name="btrfs_create_toplevel_subvolume">
+        <a:documentation>Tell kiwi to nest all subvolumes below a toplevel volume.
+The name of this toplevel volume is by default set to: '@'
+The name of the toplevel volume can be changed via
+a volume entry of the form '&lt;volume name="@root=TOPLEVEL_NAME"/&gt;'
+By default the creation of a toplevel volume is set to: true</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="btrfs_create_toplevel_subvolume" is-a="image_type">
+        <sch:param name="attr" value="btrfs_create_toplevel_subvolume"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.btrfs_root_is_snapshot.attribute">
       <attribute name="btrfs_root_is_snapshot">
         <a:documentation>Tell kiwi to install the system into a btrfs snapshot
@@ -3176,6 +3190,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.btrfs_root_is_snapshot.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.btrfs_create_toplevel_subvolume"/>
         </optional>
         <optional>
           <ref name="k.type.btrfs_root_is_readonly_snapshot.attribute"/>

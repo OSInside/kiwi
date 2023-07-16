@@ -412,6 +412,20 @@ btrfs_quota_groups="true|false":
   Boolean parameter to activate filesystem quotas if
   the filesystem is `btrfs`. By default quotas are inactive.
 
+btrfs_create_toplevel_subvolume="true|false":
+  Tell kiwi to nest all subvolumes below a toplevel volume.
+  The name of this toplevel volume is by default set to: `@`
+  The name of the toplevel volume can be changed via
+  a volume entry of the form
+
+  .. code:: xml
+
+     <systemdisk>
+       <volume name="@root=TOPLEVEL_NAME"/>
+     </systemdisk>
+
+  By default the creation of a toplevel volume is set to: `true`
+
 btrfs_root_is_snapshot="true|false":
   Boolean parameter that tells {kiwi} to install
   the system into a btrfs snapshot. The snapshot layout is compatible with

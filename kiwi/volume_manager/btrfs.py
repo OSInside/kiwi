@@ -71,14 +71,18 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args['root_is_snapshot'] = False
         if 'root_is_readonly_snapshot' not in self.custom_args:
             self.custom_args['root_is_readonly_snapshot'] = False
+        if 'create_toplevel_subvolume' not in self.custom_args:
+            self.custom_args['create_toplevel_subvolume'] = None
         if 'quota_groups' not in self.custom_args:
             self.custom_args['quota_groups'] = False
 
-        self.root_volume_name = '@'
-        canonical_volume_list = self.get_canonical_volume_list()
-        for volume in canonical_volume_list.volumes:
-            if volume.is_root_volume and volume.name:
-                self.root_volume_name = volume.name
+        self.root_volume_name = '/'
+        if self._has_root_volume():
+            self.root_volume_name = '@'
+            canonical_volume_list = self.get_canonical_volume_list()
+            for volume in canonical_volume_list.volumes:
+                if volume.is_root_volume and volume.name:
+                    self.root_volume_name = volume.name
 
         if self.custom_args['root_is_snapshot'] and \
            self.root_volume_name == '/':
@@ -387,6 +391,23 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             Command.run(
                 ['btrfs', 'property', 'set', sync_target, 'ro', 'true']
             )
+
+    def _has_root_volume(self) -> bool:
+        has_root_volume = bool(self.custom_args['create_toplevel_subvolume'])
+        if self.custom_args['create_toplevel_subvolume'] is None:
+            # toplevel volume not explicitly configured, will
+            # be enabled by default but this is going to change
+            # in the future. Print a deprecation message to inform
+            # the user about a potential behavior change
+            log.warning("Implicitly creating a toplevel volume")
+            log.warning(
+                "--> Future versions of kiwi will not do this anymore"
+            )
+            log.warning(
+                "--> Please specify btrfs_create_toplevel_subvolume true|false"
+            )
+            has_root_volume = True
+        return has_root_volume
 
     def _is_volume_enabled_for_fs_check(self, mountpoint):
         for volume in self.volumes:

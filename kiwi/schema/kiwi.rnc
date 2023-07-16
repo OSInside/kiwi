@@ -1433,6 +1433,17 @@ div {
             sch:param [ name = "attr" value = "btrfs_quota_groups" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.btrfs_create_toplevel_subvolume =
+        ## Tell kiwi to nest all subvolumes below a toplevel volume.
+        ## The name of this toplevel volume is by default set to: '@'
+        ## The name of the toplevel volume can be changed via
+        ## a volume entry of the form '<volume name="@root=TOPLEVEL_NAME"/>'
+        ## By default the creation of a toplevel volume is set to: true
+        attribute btrfs_create_toplevel_subvolume { xsd:boolean }
+        >> sch:pattern [ id = "btrfs_create_toplevel_subvolume" is-a = "image_type"
+            sch:param [ name = "attr" value = "btrfs_create_toplevel_subvolume" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.btrfs_root_is_snapshot.attribute =
         ## Tell kiwi to install the system into a btrfs snapshot
         ## The snapshot layout is compatible with the snapper management
@@ -2218,6 +2229,7 @@ div {
         k.type.bootprofile.attribute? &
         k.type.btrfs_quota_groups.attribute? &
         k.type.btrfs_root_is_snapshot.attribute? &
+        k.type.btrfs_create_toplevel_subvolume? &
         k.type.btrfs_root_is_readonly_snapshot.attribute? &
         k.type.compressed.attribute? &
         k.type.devicepersistency.attribute? &
