@@ -386,6 +386,7 @@ class TestXMLState:
         volume_type = namedtuple(
             'volume_type', [
                 'name',
+                'parent',
                 'size',
                 'realpath',
                 'mountpoint',
@@ -397,7 +398,7 @@ class TestXMLState:
         )
         assert state.get_volumes() == [
             volume_type(
-                name='myroot', size='freespace:500',
+                name='myroot', parent='', size='freespace:500',
                 realpath='/',
                 mountpoint=None, fullsize=False,
                 label=None,
@@ -413,6 +414,7 @@ class TestXMLState:
         volume_type = namedtuple(
             'volume_type', [
                 'name',
+                'parent',
                 'size',
                 'realpath',
                 'mountpoint',
@@ -424,7 +426,7 @@ class TestXMLState:
         )
         assert state.get_volumes() == [
             volume_type(
-                name='usr_lib', size='size:1024',
+                name='usr_lib', parent='', size='size:1024',
                 realpath='usr/lib',
                 mountpoint='usr/lib',
                 fullsize=False,
@@ -433,7 +435,7 @@ class TestXMLState:
                 is_root_volume=False
             ),
             volume_type(
-                name='LVRoot', size='freespace:500',
+                name='LVRoot', parent='', size='freespace:500',
                 realpath='/',
                 mountpoint=None, fullsize=False,
                 label=None,
@@ -441,7 +443,7 @@ class TestXMLState:
                 is_root_volume=True
             ),
             volume_type(
-                name='etc_volume', size='freespace:30',
+                name='etc_volume', parent='', size='freespace:30',
                 realpath='etc',
                 mountpoint='etc', fullsize=False,
                 label=None,
@@ -449,7 +451,7 @@ class TestXMLState:
                 is_root_volume=False
             ),
             volume_type(
-                name='bin_volume', size=None,
+                name='bin_volume', parent='', size=None,
                 realpath='/usr/bin',
                 mountpoint='/usr/bin', fullsize=True,
                 label=None,
@@ -457,7 +459,7 @@ class TestXMLState:
                 is_root_volume=False
             ),
             volume_type(
-                name='LVSwap', size='size:128',
+                name='LVSwap', parent='', size='size:128',
                 realpath='swap',
                 mountpoint=None, fullsize=False,
                 label='SWAP',
@@ -473,6 +475,7 @@ class TestXMLState:
         volume_type = namedtuple(
             'volume_type', [
                 'name',
+                'parent',
                 'size',
                 'realpath',
                 'mountpoint',
@@ -484,14 +487,14 @@ class TestXMLState:
         )
         assert state.get_volumes() == [
             volume_type(
-                name='LVRoot', size=None, realpath='/',
+                name='LVRoot', parent='', size=None, realpath='/',
                 mountpoint=None, fullsize=True,
                 label=None,
                 attributes=[],
                 is_root_volume=True
             ),
             volume_type(
-                name='LVSwap', size='size:128',
+                name='LVSwap', parent='', size='size:128',
                 realpath='swap',
                 mountpoint=None, fullsize=False,
                 label='SWAP',
@@ -509,6 +512,7 @@ class TestXMLState:
         volume_type = namedtuple(
             'volume_type', [
                 'name',
+                'parent',
                 'size',
                 'realpath',
                 'mountpoint',
@@ -520,21 +524,21 @@ class TestXMLState:
         )
         assert state.get_volumes() == [
             volume_type(
-                name='usr', size=None, realpath='usr',
+                name='usr', parent='', size=None, realpath='usr',
                 mountpoint='usr', fullsize=True,
                 label=None,
                 attributes=[],
                 is_root_volume=False
             ),
             volume_type(
-                name='LVRoot', size='freespace:30', realpath='/',
+                name='LVRoot', parent='', size='freespace:30', realpath='/',
                 mountpoint=None, fullsize=False,
                 label=None,
                 attributes=[],
                 is_root_volume=True
             ),
             volume_type(
-                name='LVSwap', size='size:128',
+                name='LVSwap', parent='', size='size:128',
                 realpath='swap',
                 mountpoint=None, fullsize=False,
                 label='SWAP',

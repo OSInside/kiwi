@@ -331,6 +331,19 @@ class VolumeManagerBase(DeviceProvider):
         """
         return self.mountpoint
 
+    def get_root_volume_name(self) -> str:
+        """
+        Provides name of the root volume
+
+        This is by default set to '/'. Volume Managers that supports
+        the concept of sub-volumes overrides this method
+
+        :return: directory path name
+
+        :rtype: string
+        """
+        return '/'
+
     def sync_data(self, exclude=None):
         """
         Implements sync of root directory to mounted volumes

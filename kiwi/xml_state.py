@@ -67,6 +67,7 @@ size_type = NamedTuple(
 volume_type = NamedTuple(
     'volume_type', [
         ('name', str),
+        ('parent', str),
         ('size', str),
         ('realpath', str),
         ('mountpoint', Optional[str]),
@@ -1574,6 +1575,7 @@ class XMLState:
                 [
                     volume_type(
                         name=volume_name,
+                        parent=volume_parent,
                         size=volume_size,
                         realpath=path,
                         mountpoint=path,
@@ -1600,6 +1602,7 @@ class XMLState:
                 # volume setup for a full qualified volume with name and
                 # mountpoint information. See below for exceptions
                 name = volume.get_name()
+                parent = volume.get_parent() or ''
                 mountpoint = volume.get_mountpoint()
                 realpath = mountpoint
                 size = volume.get_size()
@@ -1667,6 +1670,7 @@ class XMLState:
                 volume_type_list.append(
                     volume_type(
                         name=name,
+                        parent=parent,
                         size=size,
                         fullsize=fullsize,
                         mountpoint=mountpoint,
@@ -1694,6 +1698,7 @@ class XMLState:
             volume_type_list.append(
                 volume_type(
                     name=root_volume_name,
+                    parent='',
                     size=size,
                     fullsize=fullsize,
                     mountpoint=None,
@@ -1708,6 +1713,7 @@ class XMLState:
             volume_type_list.append(
                 volume_type(
                     name=swap_name,
+                    parent='',
                     size='size:{0}'.format(swap_mbytes),
                     fullsize=False,
                     mountpoint=None,

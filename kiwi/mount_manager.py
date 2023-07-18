@@ -19,7 +19,9 @@ import os
 import time
 import logging
 from textwrap import dedent
-from typing import List
+from typing import (
+    List, Dict
+)
 
 # project
 from kiwi.path import Path
@@ -41,9 +43,14 @@ class MountManager:
 
     * :param string device: device node name
     * :param string mountpoint: mountpoint directory name
+    * :param dict attributes: optional attributes to store
     """
-    def __init__(self, device: str, mountpoint: str = ''):
+    def __init__(
+        self, device: str, mountpoint: str = '',
+        attributes: Dict[str, str] = {}
+    ):
         self.device = device
+        self.attributes = attributes
         if not mountpoint:
             self.mountpoint_tempdir = Temporary(
                 prefix='kiwi_mount_manager.'
@@ -52,6 +59,12 @@ class MountManager:
         else:
             Path.create(mountpoint)
             self.mountpoint = mountpoint
+
+    def get_attributes(self) -> Dict[str, str]:
+        """
+        Return attributes dict for this mount manager
+        """
+        return self.attributes
 
     def bind_mount(self) -> None:
         """

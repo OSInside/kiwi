@@ -4984,7 +4984,7 @@ class volume(GeneratedsSuper):
     """Specify which parts of the filesystem should be on an extra volume."""
     subclass = None
     superclass = None
-    def __init__(self, copy_on_write=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, size=None):
+    def __init__(self, copy_on_write=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, parent=None, size=None):
         self.original_tagname_ = None
         self.copy_on_write = _cast(bool, copy_on_write)
         self.filesystem_check = _cast(bool, filesystem_check)
@@ -4992,6 +4992,7 @@ class volume(GeneratedsSuper):
         self.mountpoint = _cast(None, mountpoint)
         self.label = _cast(None, label)
         self.name = _cast(None, name)
+        self.parent = _cast(None, parent)
         self.size = _cast(None, size)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -5016,6 +5017,8 @@ class volume(GeneratedsSuper):
     def set_label(self, label): self.label = label
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
+    def get_parent(self): return self.parent
+    def set_parent(self, parent): self.parent = parent
     def get_size(self): return self.size
     def set_size(self, size): self.size = size
     def validate_volume_size_type(self, value):
@@ -5071,6 +5074,9 @@ class volume(GeneratedsSuper):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.parent is not None and 'parent' not in already_processed:
+            already_processed.add('parent')
+            outfile.write(' parent=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.parent), input_name='parent')), ))
         if self.size is not None and 'size' not in already_processed:
             already_processed.add('size')
             outfile.write(' size=%s' % (quote_attrib(self.size), ))
@@ -5120,6 +5126,10 @@ class volume(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+        value = find_attr_value_('parent', node)
+        if value is not None and 'parent' not in already_processed:
+            already_processed.add('parent')
+            self.parent = value
         value = find_attr_value_('size', node)
         if value is not None and 'size' not in already_processed:
             already_processed.add('size')

@@ -2564,6 +2564,13 @@ div {
         ## not specified the name specifies a path which has to
         ## exist inside the root directory.
         attribute name { text }
+    k.volume.parent.attribute =
+        ## The name/path of the parent volume.
+        ## Evaluated only for the btrfs volume manager to allow
+        ## specifying the parent subvolume to nest this volume in.
+        ## If not specified the parent is always the volume set
+        ## as the default volume
+        attribute parent { text }
     k.volume.mountpoint.attribute =
         ## volume path. The mountpoint specifies a path which has to
         ## exist inside the root directory.
@@ -2596,6 +2603,7 @@ div {
         k.volume.mountpoint.attribute? &
         k.volume.label.attribute? &
         k.volume.name.attribute &
+        k.volume.parent.attribute? &
         k.volume.size.attribute?
     k.volume =
         ## Specify which parts of the filesystem should be

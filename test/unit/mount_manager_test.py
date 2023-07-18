@@ -25,6 +25,9 @@ class TestMountManager:
     def setup_method(self, cls, mock_path_create):
         self.setup()
 
+    def test_get_attributes(self):
+        assert self.mount_manager.get_attributes() == {}
+
     @patch('kiwi.mount_manager.Temporary')
     def test_setup_empty_mountpoint(self, mock_Temporary):
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
