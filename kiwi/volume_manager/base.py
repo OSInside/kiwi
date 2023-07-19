@@ -150,7 +150,7 @@ class VolumeManagerBase(DeviceProvider):
                 Command.run(
                     [
                         'chattr', '+C',
-                        os.path.normpath(toplevel + volume.realpath)
+                        os.path.normpath(toplevel + os.sep + volume.realpath)
                     ]
                 )
 
