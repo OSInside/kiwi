@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import errno
 import logging
 from stat import ST_MODE
 from typing import List
-import xattr
 
 # project
 from kiwi.command import Command
@@ -134,9 +134,8 @@ class DataSync:
         :rtype: bool
         """
         try:
-            xattr.getxattr(self.target_dir, 'user.mime_type')
-        except Exception as e:
-            if format(e).startswith('[Errno 95]'):
-                # libc interface [Errno 95] Operation not supported:
+            os.getxattr(self.target_dir, 'user.mime_type')
+        except OSError as e:
+            if e.errno not in (errno.EPERM, errno.ENOTSUP, errno.ENODATA):
                 return False
         return True
