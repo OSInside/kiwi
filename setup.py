@@ -3,76 +3,51 @@
 
 from os import path
 from setuptools import setup
-from setuptools.command import sdist as setuptools_sdist
-
-import distutils
-import subprocess
-
-from kiwi.version import __version__
 
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as readme:
     long_description = readme.read()
 
-
-class sdist(setuptools_sdist.sdist):
-    """
-    Custom sdist command
-    Host requirements: git
-    """
-    def run(self):
-        """
-        Run first the git commit format update $Format:%H$
-        and after that the usual Python sdist
-        """
-        # git attributes
-        command = ['make', 'git_attributes']
-        self.announce(
-            'Running make git_attributes target: %s' % str(command),
-            level=distutils.log.INFO
-        )
-        self.announce(
-            subprocess.check_output(command).decode(),
-            level=distutils.log.INFO
-        )
-
-        # standard sdist process
-        setuptools_sdist.sdist.run(self)
-
-        # cleanup attributes
-        command = ['make', 'clean_git_attributes']
-        self.announce(
-            subprocess.check_output(command).decode(),
-            level=distutils.log.INFO
-        )
-
-
 config = {
     'name': 'kiwi',
     'long_description': long_description,
     'long_description_content_type': 'text/x-rst',
-    'python_requires': '>=3.6',
-    'description': 'KIWI - Appliance Builder (next generation)',
-    'author': 'Marcus Schaefer',
-    'url': 'https://osinside.github.io/kiwi',
-    'download_url':
-        'https://download.opensuse.org/repositories/'
-        'Virtualization:/Appliances:/Builder',
-    'author_email': 'ms@suse.com',
-    'version': __version__,
     'license' : 'GPLv3+',
-    'install_requires': [
-        'docopt>=0.6.2',
-        'lxml',
-        'requests',
-        'PyYAML',
-        'simplejson',
-        'typing_extensions; python_version < "3.8"',
+    'packages': [
+        'kiwi',
+        'kiwi.boot',
+        'kiwi.utils',
+        'kiwi.container.setup',
+        'kiwi.markup',
+        'kiwi.archive',
+        'kiwi.bootloader',
+        'kiwi.boot.image',
+        'kiwi.bootloader.template',
+        'kiwi.bootloader.install',
+        'kiwi.bootloader.config',
+        'kiwi.builder',
+        'kiwi.container',
+        'kiwi.filesystem',
+        'kiwi.package_manager',
+        'kiwi.partitioner',
+        'kiwi.repository',
+        'kiwi.repository.template',
+        'kiwi.schema',
+        'kiwi.storage',
+        'kiwi.storage.subformat',
+        'kiwi.storage.subformat.template',
+        'kiwi.system',
+        'kiwi.system.root_import',
+        'kiwi.volume_manager',
+        'kiwi.xsl',
+        'kiwi.schema',
+        'kiwi.config',
+        'kiwi.tasks',
+        'kiwi.solver',
+        'kiwi.solver.repository',
+        'kiwi.iso_tools',
+        'kiwi.oci_tools'
     ],
-    'packages': ['kiwi'],
-    'cmdclass': {
-        'sdist': sdist
-    },
     'entry_points': {
         'kiwi.tasks': [
             'image_info=kiwi.tasks.image_info',
@@ -88,20 +63,7 @@ config = {
             'kiwi-ng=kiwi.kiwi:main',
             'kiwicompat=kiwi.kiwi_compat:main'
         ]
-    },
-    'include_package_data': True,
-    'zip_safe': False,
-    'classifiers': [
-       # classifier: http://pypi.python.org/pypi?%3Aaction=list_classifiers
-       'Development Status :: 5 - Production/Stable',
-       'Intended Audience :: Developers',
-       'License :: OSI Approved :: '
-       'GNU General Public License v3 or later (GPLv3+)',
-       'Operating System :: POSIX :: Linux',
-       'Programming Language :: Python :: 3.6',
-       'Programming Language :: Python :: 3.7',
-       'Topic :: System :: Operating System',
-    ]
+    }
 }
 
 setup(**config)

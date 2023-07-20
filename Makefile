@@ -87,26 +87,13 @@ valid:
 		fi \
 	done
 
-git_attributes:
-	# the following is required to update the $Format:%H$ git attribute
-	# for details on when this target is called see setup.py
-	git archive HEAD kiwi/version.py | tar -x
-
-clean_git_attributes:
-	# cleanup version.py to origin state
-	# for details on when this target is called see setup.py
-	git checkout kiwi/version.py
-
 build: clean tox
-	# create setup.py variant for rpm build.
-	# delete module versions from setup.py for building an rpm
-	# the dependencies to the python module rpm packages is
-	# managed in the spec file
-	sed -ie "s@>=[0-9.]*'@'@g" setup.py
+	# remove wheel from tox run
+	rm -f dist/*.whl
+	# the following is required to update the $Format:%H$ git attribute
+	git archive HEAD kiwi/version.py | tar -x
 	# build the sdist source tarball
-	$(python) setup.py sdist
-	# restore original setup.py backed up from sed
-	mv setup.pye setup.py
+	$(python) -m build --sdist
 	# provide rpm source tarball
 	mv dist/kiwi-${version}.tar.gz dist/python-kiwi.tar.gz
 	# append PDF documentation to tarball
@@ -131,12 +118,11 @@ build: clean tox
 		-e s"@%%MD5SUM@$${md5sums}@" > dist/PKGBUILD
 	# provide rpm rpmlintrc
 	cp package/python-kiwi-rpmlintrc dist
+	# restore local changes
+	git checkout kiwi/version.py
 
-pypi: clean tox
-	$(python) setup.py sdist upload
-
-clean: clean_git_attributes
-	$(python) setup.py clean
+clean:
+	rm -rf dist
 	rm -rf doc/build
 	rm -rf doc/dist
 	${MAKE} -C tools clean

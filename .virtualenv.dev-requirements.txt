@@ -6,6 +6,8 @@
 
 # setuptools for pypi upload
 setuptools
+build
+installer
 
 # virtualenv-based automation of test activities
 tox

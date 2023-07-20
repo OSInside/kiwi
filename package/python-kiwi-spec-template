@@ -60,6 +60,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  gcc
 BuildRequires:  python%{python3_pkgversion}-%{develsuffix} >= 3.6
 BuildRequires:  python%{python3_pkgversion}-setuptools
+%if 0%{?fedora} || 0%{?suse_version} >= 1650 || 0%{?debian} || 0%{?ubuntu}
+BuildRequires:  python%{python3_pkgversion}-installer
+BuildRequires:  python%{python3_pkgversion}-build
+BuildRequires:  python%{python3_pkgversion}-wheel
+%endif
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  fdupes
 %endif
@@ -68,6 +73,23 @@ BuildRequires:  shadow
 %endif
 %if 0%{?debian} || 0%{?ubuntu}
 BuildRequires:  passwd
+%endif
+%if 0%{?ubuntu} || 0%{?debian}
+BuildRequires:       python%{python3_pkgversion}-yaml
+BuildRequires:       python%{python3_pkgversion}-typing-extensions
+%else
+BuildRequires:       python%{python3_pkgversion}-PyYAML
+%endif
+BuildRequires:       python%{python3_pkgversion}-simplejson
+BuildRequires:       python%{python3_pkgversion}-docopt
+BuildRequires:       python%{python3_pkgversion}-lxml
+BuildRequires:       python%{python3_pkgversion}-requests
+BuildRequires:       python%{python3_pkgversion}-setuptools
+%if 0%{?rhel} || 0%{?fedora}
+BuildRequires:       (python%{python3_pkgversion}-typing-extensions if python%{python3_pkgversion} < 3.8)
+%endif
+%if 0%{?suse_version}
+BuildRequires:       (python%{python3_pkgversion}-typing_extensions if python%{python3_pkgversion} < 3.8)
 %endif
 
 %description
@@ -625,9 +647,13 @@ sed -e "s|#!/usr/bin/env python||" -i kiwi/xml_parse.py
 # Build C-Tools
 make CFLAGS="${RPM_OPT_FLAGS}" tools
 
+# Build wheel, skip on failure
+python3 -m build --no-isolation --wheel || true
+
 %install
-# Install Python 3 version
-python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
+# Install Python 3 version from wheel, use setup.py as fallback
+python3 -m installer --destdir %{buildroot} dist/*.whl || \
+    python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
 
 # Install C-Tools, man-pages, completion and kiwi default configuration
 make buildroot=%{buildroot}/ install

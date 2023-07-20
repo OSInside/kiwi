@@ -37,12 +37,10 @@ include tox.ini
 include kiwi.yml
 
 recursive-include doc/build/man *
-recursive-include *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz
 
 include .bumpversion.cfg
-include .coverage*
 
 include .virtualenv.requirements.txt
 include .virtualenv.dev-requirements.txt
 
-global-exclude *.py[cod] __pycache__
+global-exclude */__pycache__/*

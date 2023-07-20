@@ -1,0 +1,37 @@
+[project]
+name = "kiwi"
+version = "9.25.21"
+authors = [
+    { name="Marcus Schäfer", email="marcus.schaefer@gmail.com" },
+]
+description = "KIWI - Appliance Builder"
+readme = "README.rst"
+requires-python = ">=3.7"
+classifiers = [
+    # classifier: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: ',
+    'GNU General Public License v3 or later (GPLv3+)',
+    'Operating System :: POSIX :: Linux',
+    'Programming Language :: Python :: 3',
+    'Topic :: System :: Operating System',
+]
+dynamic = [
+    "license",
+    "entry-points",
+    "scripts"
+]
+[build-system]
+requires = [
+    "docopt",
+    "lxml",
+    "requests",
+    "PyYAML",
+    "simplejson",
+    'typing_extensions; python_version<"3.8"',
+    "setuptools"
+]
+[project.urls]
+"Homepage" = "https://osinside.github.io/kiwi"
+"Bug Tracker" = "https://github.com/OSInside/kiwi/issues"
