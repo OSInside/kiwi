@@ -57,7 +57,7 @@ case "${overlayroot}" in
     ;;
     overlay:nbd=*) \
         root="${root#overlay:nbd=}"
-        root="block:/dev/${root}"
+        root="block:/dev/nbd0"
         need_network=1
         rootok=1
     ;;
