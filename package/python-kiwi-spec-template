@@ -374,11 +374,6 @@ Requires:       python%{python3_pkgversion}-docopt
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-setuptools
-%if (0%{?suse_version} && 0%{?suse_version} < 1550)
-Requires:       python%{python3_pkgversion}-xattr
-%else
-Requires:       python%{python3_pkgversion}-pyxattr
-%endif
 %if ! (0%{?rhel} && 0%{?rhel} < 8)
 Recommends:     kiwi-man-pages
 %endif
@@ -619,11 +614,6 @@ Provides manual pages to describe the kiwi commands
 # Drop shebang for kiwi/xml_parse.py, as we don't intend to use it
 # as an independent script
 sed -e "s|#!/usr/bin/env python||" -i kiwi/xml_parse.py
-
-%if 0%{?suse_version} && 0%{?suse_version} < 1550
-# For older SUSE distributions, use the other xattr Python module
-sed -e "s|pyxattr|xattr|" -i setup.py
-%endif
 
 %build
 # Build C-Tools
