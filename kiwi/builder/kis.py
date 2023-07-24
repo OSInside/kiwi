@@ -124,8 +124,7 @@ class KisBuilder:
             if self.compressed:
                 log.info('xz compressing root filesystem image')
                 compress = Compress(self.image)
-                compress.xz(self.xz_options)
-                self.image = compress.compressed_filename
+                self.image = compress.xz(self.xz_options)
 
             log.info('Creating root filesystem MD5 checksum')
             checksum = Checksum(self.image)

@@ -174,8 +174,7 @@ class ContainerImageOCI:
         )
         if compress_archive:
             compress = Compress(filename)
-            compress.xz(RuntimeConfig().get_xz_options())
-            filename = compress.compressed_filename
+            filename = compress.xz(RuntimeConfig().get_xz_options())
 
         return filename
 

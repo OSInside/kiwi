@@ -104,7 +104,7 @@ class TestKisBuilder:
         mock_tar.return_value = tar
         compress = Mock()
         mock_compress.return_value = compress
-        compress.compressed_filename = 'compressed-file-name'
+        compress.xz.return_value = 'compressed-file-name'
         checksum = Mock()
         mock_checksum.return_value = checksum
         self.boot_image_task.required = Mock(

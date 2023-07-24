@@ -199,10 +199,9 @@ class BootImageKiwi(BootImageBase):
             compress = Compress(
                 os.sep.join([self.target_dir, kiwi_initrd_basename])
             )
-            compress.xz(
+            self.initrd_filename = compress.xz(
                 ['--check=crc32', '--lzma2=dict=1MiB', '--threads=0']
             )
-            self.initrd_filename = compress.compressed_filename
 
     def cleanup(self) -> None:
         for directory in self.temp_directories:
