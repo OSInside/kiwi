@@ -18,7 +18,7 @@
 import re
 import logging
 from typing import (
-    List, Dict
+    List, Dict, Optional
 )
 
 # project
@@ -42,7 +42,7 @@ class PackageManagerPacman(PackageManagerBase):
         pacman command environment from repository
         runtime configuration
     """
-    def post_init(self, custom_args: List = None) -> None:
+    def post_init(self, custom_args: Optional[List[str]] = None) -> None:
         """
         Post initialization method
 
@@ -50,9 +50,7 @@ class PackageManagerPacman(PackageManagerBase):
 
         :param list custom_args: custom pacman arguments
         """
-        self.custom_args = custom_args
-        if not custom_args:
-            self.custom_args = []
+        self.custom_args: List[str] = custom_args or []
 
         runtime_config = self.repository.runtime_config()
         self.pacman_args = runtime_config['pacman_args']
