@@ -370,10 +370,11 @@ class DiskBuilder:
                 True if self.boot_is_crypto or self.luks == '' else False
             luks_root.create_crypto_luks(
                 passphrase=self.luks,
-                os=self.luks_os,
+                osname=self.luks_os,
                 options=self.luks_format_options,
-                keyfile=self.luks_boot_keyfile if luks_need_keyfile else '',
-                randomize=self.luks_randomize
+                keyfile=self.luks_boot_keyname if luks_need_keyfile else '',
+                randomize=self.luks_randomize,
+                root_dir=self.root_dir
             )
             if luks_need_keyfile:
                 self.luks_boot_keyfile_setup = ''.join(
