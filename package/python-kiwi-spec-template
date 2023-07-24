@@ -51,7 +51,7 @@ Summary:        KIWI - Appliance Builder Next Generation
 License:        GPL-3.0-or-later
 %if "%{_vendor}" == "debbuild"
 # Needed to set Maintainer in output debs
-Packager:       Marcus Schaefer <ms@suse.de>
+Packager:       Marcus Schaefer <marcus.schaefer@suse.com>
 %endif
 Group:          %{pygroup}
 Source:         %{name}.tar.gz
