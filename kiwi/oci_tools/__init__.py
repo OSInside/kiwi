@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import importlib
 from abc import (
     ABCMeta,
     abstractmethod
 )
+from kiwi.oci_tools.base import OCIBase
 
 # project
 from kiwi.runtime_config import RuntimeConfig
@@ -37,20 +37,15 @@ class OCI(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new():
-        name_map = {
-            'umoci': 'Umoci',
-            'buildah': 'Buildah'
-        }
-        runtime_config = RuntimeConfig()
-        tool_name = runtime_config.get_oci_archive_tool()
-        try:
-            oci_tool = importlib.import_module(
-                'kiwi.oci_tools.{}'.format(tool_name)
-            )
-            module_name = 'OCI{}'.format(name_map[tool_name])
-            return oci_tool.__dict__[module_name]()
-        except Exception:
+    def new() -> OCIBase:
+        tool_name = RuntimeConfig().get_oci_archive_tool()
+        if tool_name == "umoci":
+            from kiwi.oci_tools.umoci import OCIUmoci
+            return OCIUmoci()
+        elif tool_name == "buildah":
+            from kiwi.oci_tools.buildah import OCIBuildah
+            return OCIBuildah()
+        else:
             raise KiwiOCIArchiveToolError(
                 'No support for {0} tool available'.format(tool_name)
             )
