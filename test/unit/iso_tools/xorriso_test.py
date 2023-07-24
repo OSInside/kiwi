@@ -4,7 +4,7 @@ from pytest import raises
 from kiwi.defaults import Defaults
 from kiwi.iso_tools.xorriso import IsoToolsXorrIso
 
-from kiwi.exceptions import KiwiIsoToolError
+from kiwi.exceptions import KiwiFileNotFound, KiwiIsoToolError
 
 
 class TestIsoToolsXorrIso:
@@ -25,6 +25,19 @@ class TestIsoToolsXorrIso:
         mock_exists.return_value = False
         with raises(KiwiIsoToolError):
             self.iso_tool.get_tool_name()
+
+    @patch('kiwi.iso_tools.xorriso.Path.which')
+    def test_init_iso_creation_parameters_isolinux_fail_on_isohdpfx_not_found(self, mock_which):
+        mock_which.return_value = None
+        with raises(KiwiFileNotFound):
+            self.iso_tool.init_iso_creation_parameters(
+                {
+                    'mbr_id': 'app_id',
+                    'publisher': 'org',
+                    'preparer': 'preparer',
+                    'volume_id': 'vol_id'
+                }
+            )
 
     @patch('kiwi.iso_tools.xorriso.Path.which')
     def test_init_iso_creation_parameters_isolinux(self, mock_which):
