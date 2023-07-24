@@ -66,7 +66,8 @@ config = {
         'lxml',
         'requests',
         'PyYAML',
-        'simplejson'
+        'simplejson',
+        'typing_extensions; python_version < "3.8"',
     ],
     'packages': ['kiwi'],
     'cmdclass': {

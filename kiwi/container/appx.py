@@ -50,7 +50,7 @@ class ContainerImageAppx(ContainerImageBase):
             'metadata_path': 'directory'
         }
     """
-    def __init__(self, root_dir: str, custom_args: Dict = {}):
+    def __init__(self, root_dir: str, custom_args: Dict[str, str] = {}):
         self.root_dir = root_dir
         self.wsl_config = custom_args or {}
         self.runtime_config = RuntimeConfig()
@@ -72,7 +72,7 @@ class ContainerImageAppx(ContainerImageBase):
     def create(
         self, filename: str, base_image: str = '',
         ensure_empty_tmpdirs: bool = False, compress_archive: bool = False
-    ):
+    ) -> str:
         """
         Create WSL/Appx archive
 
