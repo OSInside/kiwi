@@ -45,32 +45,7 @@ Install Required Operating System Packages
 ------------------------------------------
 
 {kiwi} requires the following additional packages which are not provided by
-:command:`pip`:
-
-XML processing libraries
-  `libxml2` and `libxslt` (for :mod:`lxml`)
-
-Python header files, GCC compiler and glibc-devel header files
-  Required for python modules that hooks into shared library context
-
-Spell Checking library
-  Provided by the `enchant` library
-
-ShellCheck
-  `ShellCheck <https://github.com/koalaman/shellcheck>`_ script linter.
-
-ISO creation program
-  One of ``xorriso`` (preferred) or ``genisoimage``.
-
-LaTeX documentation build environment
-  A full LaTeX installation is required to build the PDF documentation
-  [#f1]_.
-
-Host Requirements To Build Images
-  A full set of tools needed to build images and provided by
-  the `kiwi-systemdeps` package
-
-The above mentioned system packages will be installed by calling the
+:command:`pip`. Those will be installed by calling the
 `install_devel_packages.sh` helper script from the checked out Git
 repository as follows:
 
@@ -86,7 +61,36 @@ repository as follows:
    the script will not install any packages and exit with an
    error message. In this case we recommend to take a look at
    the package list encoded in the script and adapt to your
-   distribution and package manager as needed.
+   distribution and package manager as needed. Because distributions
+   also changes on a regular basis it might happen that the
+   `install_devel_packages` helper is not 100% accurate or outdated
+   depending on your host system. In this case the following
+   list describes the needed components and we are happy to
+   received feedback or patches to make `install_devel_packages`
+   a better experience.
+
+XML processing libraries
+  `libxml2` and `libxslt` (for :mod:`lxml`)
+
+Python header files, GCC compiler and glibc-devel header files
+  Required for python modules that hooks into shared library context
+  and often named similar to: `python3-devel`
+
+Spell Checking library
+  Provided by the `enchant` library
+
+ShellCheck
+  `ShellCheck <https://github.com/koalaman/shellcheck>`_ script linter.
+
+ISO creation program `xorriso`.
+
+LaTeX documentation build environment
+  A full LaTeX installation is required to build the PDF documentation
+  [#f1]_.
+
+Host Requirements To Build Images
+  A set of tools needed to build images and provided by
+  the `kiwi-systemdeps` package
 
 Create a Python Virtual Development Environment
 -----------------------------------------------
@@ -94,10 +98,17 @@ Create a Python Virtual Development Environment
 The following commands initializes and activates a development
 environment for Python 3:
 
+.. note::
+
+   {kiwi} uses tox to create a devel environment and to run
+   tests, linters and other tasks in the tox generated environment.
+   A tox version >= 3.3 is required for this setup process. On your
+   host a python version >= 3.7 is required for tox to work.
+
 .. code:: shell-session
 
    $ tox -e devel
-   $ source .tox/3/bin/activate
+   $ source .tox/devel/bin/activate
 
 The commands above automatically creates the application script
 called :command:`kiwi-ng`, which allows you to run {kiwi} from the
@@ -115,7 +126,7 @@ Python sources inside the virtual environment:
 
    .. code:: shell-session
 
-      $ sudo $PWD/.tox/3/bin/kiwi-ng system build ...
+      $ sudo $PWD/.tox/devel/bin/kiwi-ng system build ...
 
 To leave the development mode, run:
 
@@ -127,8 +138,7 @@ To resume your work, :command:`cd` into your local Git repository and call:
 
 .. code:: shell-session
 
-    $ source .tox/3/bin/activate
-
+    $ source .tox/devel/bin/activate
 
 Alternatively, you can launch single commands inside the virtualenv without
 sourcing it directly:
@@ -158,7 +168,7 @@ enabled via:
 
 .. code:: shell-session
 
-    $ tox "-n NUMBER_OF_PROCESSES"
+    $ tox -- "-n NUMBER_OF_PROCESSES"
 
 where you can insert an arbitrary number as `NUMBER_OF_PROCESSES` (or a
 shell command like `$(nproc)`). Note that the double quotes around `-n
@@ -176,11 +186,11 @@ If you want to see the available targets, use the option `-l` to let
     $ tox -l
 
 To only run a special target, use the `-e` option. The following
-example runs the test cases for the Python 3.6 interpreter only:
+example runs the test cases for the Python 3.11 interpreter only:
 
 .. code:: shell-session
 
-    $ tox -e unit_py3_6
+    $ tox -e unit_py3_11
 
 
 Create a Branch for each Feature or Bugfix
