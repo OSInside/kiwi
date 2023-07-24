@@ -26,13 +26,13 @@ from kiwi.defaults import Defaults
 from kiwi.utils.compress import Compress
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.command import Command
-
+from kiwi.container.base import ContainerImageBase
 from kiwi.exceptions import KiwiContainerSetupError
 
 log = logging.getLogger('kiwi')
 
 
-class ContainerImageAppx:
+class ContainerImageAppx(ContainerImageBase):
     """
     Create Appx container from a root directory for
     WSL(Windows Subsystem Linux)

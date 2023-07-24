@@ -26,11 +26,12 @@ from kiwi.utils.compress import Compress
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 from kiwi.oci_tools import OCI
+from kiwi.container.base import ContainerImageBase
 
 log = logging.getLogger('kiwi')
 
 
-class ContainerImageOCI:
+class ContainerImageOCI(ContainerImageBase):
     """
     Create oci container from a root directory
 
