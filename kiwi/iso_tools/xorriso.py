@@ -17,7 +17,7 @@
 #
 import os
 from typing import (
-    Dict, List
+    Dict, List, Optional
 )
 
 # project
@@ -63,7 +63,7 @@ class IsoToolsXorrIso(IsoToolsBase):
         raise KiwiIsoToolError('xorriso tool not found')
 
     def init_iso_creation_parameters(
-        self, custom_args: Dict[str, str] = None
+        self, custom_args: Optional[Dict[str, str]] = None
     ) -> None:
         """
         Create a set of standard parameters
