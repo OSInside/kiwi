@@ -789,7 +789,6 @@ class TestBootLoaderConfigGrub2:
         )
         sysconfig_bootloader.__setitem__.reset_mock()
         self.bootloader._setup_sysconfig_bootloader()
-        print(sysconfig_bootloader.__setitem__.call_args_list)
         assert sysconfig_bootloader.__setitem__.call_args_list == [
             call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
             call(
