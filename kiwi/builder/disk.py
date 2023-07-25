@@ -1119,6 +1119,13 @@ class DiskBuilder:
             custom_root_mount_args += ['ro']
             fs_check_interval = '0 0'
 
+        if self.volume_manager_name and self.volume_manager_name == 'btrfs':
+            root_volume_name = system.get_root_volume_name()
+            if root_volume_name != '/':
+                custom_root_mount_args += [
+                    f'defaults,subvol={root_volume_name}'
+                ]
+
         self._add_fstab_entry(
             device_map['root'].get_device(), '/',
             custom_root_mount_args, fs_check_interval
