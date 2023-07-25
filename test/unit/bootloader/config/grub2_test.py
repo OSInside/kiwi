@@ -1494,8 +1494,9 @@ class TestBootLoaderConfigGrub2:
     @patch('glob.iglob')
     @patch('os.chmod')
     @patch('os.stat')
+    @patch('os.path.isfile')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot_no_shim_install(
-        self, mock_stat, mock_chmod, mock_glob,
+        self, mock_isfile, mock_stat, mock_chmod, mock_glob,
         mock_exists, mock_command, mock_which, mock_get_boot_path
     ):
         # we expect the copy of shim.efi and grub.efi from the fallback
@@ -1503,6 +1504,7 @@ class TestBootLoaderConfigGrub2:
         Defaults.set_platform_name('x86_64')
         mock_get_boot_path.return_value = '/boot'
         mock_which.return_value = None
+        mock_isfile.return_value = False
         self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
@@ -1587,8 +1589,9 @@ class TestBootLoaderConfigGrub2:
     @patch('glob.iglob')
     @patch('os.chmod')
     @patch('os.stat')
+    @patch('os.path.isfile')
     def test_setup_disk_boot_images_bios_plus_efi_secure_boot_no_shim_at_all(
-        self, mock_stat, mock_chmod, mock_glob,
+        self, mock_isfile, mock_stat, mock_chmod, mock_glob,
         mock_exists, mock_command, mock_which, mock_get_boot_path,
         mock_get_shim_loader
     ):
@@ -1599,6 +1602,7 @@ class TestBootLoaderConfigGrub2:
         Defaults.set_platform_name('x86_64')
         mock_get_boot_path.return_value = '/boot'
         mock_which.return_value = None
+        mock_isfile.return_value = False
         self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
@@ -1878,12 +1882,14 @@ class TestBootLoaderConfigGrub2:
     @patch('glob.iglob')
     @patch('os.chmod')
     @patch('os.stat')
+    @patch('os.path.isfile')
     def test_setup_install_boot_images_efi_secure_boot(
-        self, mock_stat, mock_chmod, mock_glob,
+        self, mock_isfile, mock_stat, mock_chmod, mock_glob,
         mock_exists, mock_command, mock_supports_bios_modules
     ):
         Defaults.set_platform_name('x86_64')
         mock_supports_bios_modules.return_value = False
+        mock_isfile.return_value = False
         self.os_exists['root_dir'] = True
         self.firmware.efi_mode = Mock(
             return_value='uefi'
