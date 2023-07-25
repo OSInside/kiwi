@@ -46,7 +46,7 @@ class LuksDevice(DeviceProvider):
         self.storage_provider = storage_provider
 
         self.luks_device: Optional[str] = None
-        self.luks_keyfile: Optional[str] = None
+        self.luks_keyfile: str = ''
         self.luks_name = 'luksRoot'
 
         self.option_map = {
@@ -72,8 +72,9 @@ class LuksDevice(DeviceProvider):
         return None
 
     def create_crypto_luks(
-        self, passphrase: str, os: str = None,
-        options: list = None, keyfile: str = '', randomize: bool = True
+        self, passphrase: str, osname: str = None,
+        options: list = None, keyfile: str = '', randomize: bool = True,
+        root_dir: str = ''
     ) -> None:
         """
         Create luks device. Please note the passphrase is readable
@@ -81,22 +82,23 @@ class LuksDevice(DeviceProvider):
         is secure while this process runs
 
         :param string passphrase: credentials
-        :param string os:
+        :param string osname:
             distribution name to match distribution specific
             options for cryptsetup
         :param list options: further cryptsetup options
         :param string keyfile: file path name
             file path name which contains an alternative key
             to unlock the luks device
+        :param string root_dir: root dir path
         """
         if not options:
             options = []
-        if os:
-            if os in self.option_map:
-                options += self.option_map[os]
+        if osname:
+            if osname in self.option_map:
+                options += self.option_map[osname]
             else:
                 raise KiwiLuksSetupError(
-                    'no custom option configuration found for OS %s' % os
+                    'no custom option configuration found for OS %s' % osname
                 )
         extra_options = []
         storage_device = self.storage_provider.get_device()
@@ -141,12 +143,15 @@ class LuksDevice(DeviceProvider):
         )
         if keyfile:
             self.luks_keyfile = keyfile
-            LuksDevice.create_random_keyfile(keyfile)
+            keyfile_path = os.path.normpath(
+                os.sep.join([root_dir, self.luks_keyfile])
+            )
+            LuksDevice.create_random_keyfile(keyfile_path)
             Command.run(
                 [
                     'cryptsetup', '--key-file', passphrase_file
                 ] + extra_options + [
-                    'luksAddKey', storage_device, keyfile
+                    'luksAddKey', storage_device, keyfile_path
                 ]
             )
         Command.run(
@@ -170,8 +175,7 @@ class LuksDevice(DeviceProvider):
             if self.luks_keyfile:
                 crypttab.write(
                     'luks UUID={0} /{1}{2}'.format(
-                        luks_uuid, os.path.basename(self.luks_keyfile),
-                        os.linesep
+                        luks_uuid, self.luks_keyfile.lstrip(os.sep), os.linesep
                     )
                 )
             else:

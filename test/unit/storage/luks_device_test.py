@@ -52,7 +52,8 @@ class TestLuksDevice:
     ):
         with patch('builtins.open', create=True):
             self.luks.create_crypto_luks(
-                passphrase='', os='sle12', keyfile='some-keyfile'
+                passphrase='', osname='sle12',
+                keyfile='some-keyfile', root_dir='root'
             )
             assert mock_command.call_args_list == [
                 call(
@@ -74,7 +75,7 @@ class TestLuksDevice:
                     [
                         'cryptsetup', '--key-file', '/dev/zero',
                         '--keyfile-size', '32',
-                        'luksAddKey', '/dev/some-device', 'some-keyfile'
+                        'luksAddKey', '/dev/some-device', 'root/some-keyfile'
                     ]
                 ),
                 call(
@@ -87,18 +88,20 @@ class TestLuksDevice:
             ]
             self.luks.luks_device = None
 
+    @patch('kiwi.storage.luks_device.LuksDevice')
     @patch('kiwi.storage.luks_device.Command.run')
     @patch('kiwi.storage.luks_device.Temporary.new_file')
     @patch('os.chmod')
     def test_create_crypto_luks(
-        self, mock_os_chmod, mock_tmpfile, mock_command
+        self, mock_os_chmod, mock_tmpfile, mock_command, mock_LuksDevice
     ):
         tmpfile = Mock()
         tmpfile.name = 'tmpfile'
         mock_tmpfile.return_value = tmpfile
         with patch('builtins.open', create=True):
             self.luks.create_crypto_luks(
-                passphrase='passphrase', os='sle12', keyfile='some-keyfile'
+                passphrase='passphrase', osname='sle12',
+                keyfile='some-keyfile', root_dir='root'
             )
             assert mock_command.call_args_list == [
                 call(
@@ -118,7 +121,7 @@ class TestLuksDevice:
                 call(
                     [
                         'cryptsetup', '--key-file', 'tmpfile', 'luksAddKey',
-                        '/dev/some-device', 'some-keyfile'
+                        '/dev/some-device', 'root/some-keyfile'
                     ]
                 ),
                 call(
@@ -128,7 +131,11 @@ class TestLuksDevice:
                     ]
                 )
             ]
-            self.luks.luks_device = None
+            mock_LuksDevice.create_random_keyfile.assert_called_once_with(
+                'root/some-keyfile'
+            )
+            assert self.luks.luks_keyfile == 'some-keyfile'
+            self.luks.luks_device = ''
 
     def test_create_crypttab(self):
         self.luks.luks_device = '/dev/mapper/luksRoot'
