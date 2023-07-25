@@ -136,6 +136,9 @@ class DataSync:
         try:
             os.getxattr(self.target_dir, 'user.mime_type')
         except OSError as e:
-            if e.errno not in (errno.EPERM, errno.ENOTSUP, errno.ENODATA):
+            log.debug(
+                f'Check for extended attributes on {self.target_dir} said: {e}'
+            )
+            if e.errno == errno.ENOTSUP:
                 return False
         return True

@@ -1,4 +1,5 @@
 import os
+import errno
 import logging
 from pytest import fixture
 from stat import ST_MODE
@@ -66,7 +67,7 @@ class TestDataSync:
 
     @patch('os.getxattr')
     def test_target_does_not_support_extended_attributes(self, mock_getxattr):
-        mock_getxattr.side_effect = OSError(
-            """[Errno 95] Operation not supported: b'/boot/efi"""
-        )
+        effect = OSError()
+        effect.errno = errno.ENOTSUP
+        mock_getxattr.side_effect = effect
         assert self.sync.target_supports_extended_attributes() is False
