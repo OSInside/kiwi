@@ -417,9 +417,12 @@ class DiskBuilder:
                 'root_is_readonly_snapshot':
                     self.xml_state.build_type.
                     get_btrfs_root_is_readonly_snapshot(),
-                'create_toplevel_subvolume':
+                'root_is_subvolume':
                     self.xml_state.build_type.
-                    get_btrfs_create_toplevel_subvolume(),
+                    get_btrfs_root_is_subvolume(),
+                'set_default_volume':
+                    self.xml_state.build_type.
+                    get_btrfs_set_default_volume(),
                 'quota_groups':
                     self.xml_state.build_type.get_btrfs_quota_groups(),
                 'resize_on_boot':

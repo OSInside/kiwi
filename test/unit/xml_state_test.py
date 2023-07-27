@@ -1137,6 +1137,6 @@ class TestXMLState:
             '--joe', '-x'
         ]
 
-    def test_get_btrfs_create_toplevel_subvolume(self):
-        assert self.state.build_type.get_btrfs_create_toplevel_subvolume() is \
+    def test_get_btrfs_root_is_subvolume(self):
+        assert self.state.build_type.get_btrfs_root_is_subvolume() is \
             None

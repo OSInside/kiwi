@@ -412,11 +412,19 @@ btrfs_quota_groups="true|false":
   Boolean parameter to activate filesystem quotas if
   the filesystem is `btrfs`. By default quotas are inactive.
 
-btrfs_create_toplevel_subvolume="true|false":
-  Tell kiwi to nest all subvolumes below a toplevel volume.
-  The name of this toplevel volume is by default set to: `@`
-  The name of the toplevel volume can be changed via
-  a volume entry of the form
+btrfs_set_default_volume="true|false":
+  Tell kiwi to explicitly make a volume the default volume
+  This can be either `/` or the root subvolume or the root
+  snapshot depending on the specified btrfs configuration
+  attributes. By default btrfs_set_default_volume is set to: true
+  If no default volume should be set, this attribute can be
+  used to turn it off
+
+btrfs_root_is_subvolume="true|false":
+  Tell kiwi to create a root volume to host (/) inside.
+  The name of this subvolume is by default set to: `@`.
+  The name of the subvolume can be changed via a volume entry
+  of the form:
 
   .. code:: xml
 

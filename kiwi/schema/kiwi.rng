@@ -2093,17 +2093,32 @@ By default the quota system is inactive</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
-    <define name="k.type.btrfs_create_toplevel_subvolume">
-      <attribute name="btrfs_create_toplevel_subvolume">
-        <a:documentation>Tell kiwi to nest all subvolumes below a toplevel volume.
-The name of this toplevel volume is by default set to: '@'
-The name of the toplevel volume can be changed via
-a volume entry of the form '&lt;volume name="@root=TOPLEVEL_NAME"/&gt;'
-By default the creation of a toplevel volume is set to: true</a:documentation>
+    <define name="k.type.btrfs_set_default_volume.attribute">
+      <attribute name="btrfs_set_default_volume">
+        <a:documentation>Tell kiwi to explicitly make a volume the default volume
+This can be either (/) or the root subvolume or the root
+snapshot depending on the specified btrfs configuration
+attributes. By default btrfs_set_default_volume is set to: true
+If no default volume should be set, this attribute can be
+used to turn it off</a:documentation>
         <data type="boolean"/>
       </attribute>
-      <sch:pattern id="btrfs_create_toplevel_subvolume" is-a="image_type">
-        <sch:param name="attr" value="btrfs_create_toplevel_subvolume"/>
+      <sch:pattern id="btrfs_set_default_volume" is-a="image_type">
+        <sch:param name="attr" value="btrfs_set_default_volume"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.btrfs_root_is_subvolume.attribute">
+      <attribute name="btrfs_root_is_subvolume">
+        <a:documentation>Tell kiwi to create a root volume to host (/) inside.
+The name of this subvolume is by default set to: '@'
+The name of the subvolume can be changed via
+a volume entry of the form '&lt;volume name="@root=NAME"/&gt;'
+By default the creation of a root subvolume is set to: true</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="btrfs_root_is_subvolume" is-a="image_type">
+        <sch:param name="attr" value="btrfs_root_is_subvolume"/>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
@@ -3192,7 +3207,10 @@ kiwi-ng result bundle ...</a:documentation>
           <ref name="k.type.btrfs_root_is_snapshot.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.btrfs_create_toplevel_subvolume"/>
+          <ref name="k.type.btrfs_root_is_subvolume.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.btrfs_set_default_volume.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.btrfs_root_is_readonly_snapshot.attribute"/>

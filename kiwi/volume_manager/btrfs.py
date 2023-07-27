@@ -67,20 +67,24 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args['root_label'] = 'ROOT'
         if 'root_is_snapshot' not in self.custom_args:
             self.custom_args['root_is_snapshot'] = False
+        if 'set_default_volume' not in self.custom_args:
+            self.custom_args['set_default_volume'] = True
         if 'root_is_readonly_snapshot' not in self.custom_args:
             self.custom_args['root_is_readonly_snapshot'] = False
-        if 'create_toplevel_subvolume' not in self.custom_args:
-            self.custom_args['create_toplevel_subvolume'] = None
+        if 'root_is_subvolume' not in self.custom_args:
+            self.custom_args['root_is_subvolume'] = None
         if 'quota_groups' not in self.custom_args:
             self.custom_args['quota_groups'] = False
 
         self.root_volume_name = '/'
+        self.default_volume_name = self.root_volume_name
         if self._has_root_volume():
             self.root_volume_name = '@'
             canonical_volume_list = self.get_canonical_volume_list()
             for volume in canonical_volume_list.volumes:
                 if volume.is_root_volume and volume.name:
                     self.root_volume_name = volume.name
+                    self.default_volume_name = self.root_volume_name
 
         if self.custom_args['root_is_snapshot'] and \
            self.root_volume_name == '/':
@@ -169,7 +173,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         :rtype: string
         """
-        return self.root_volume_name
+        return self.default_volume_name
 
     def create_volumes(self, filesystem_name):
         """
@@ -444,18 +448,18 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             )
 
     def _has_root_volume(self) -> bool:
-        has_root_volume = bool(self.custom_args['create_toplevel_subvolume'])
-        if self.custom_args['create_toplevel_subvolume'] is None:
-            # toplevel volume not explicitly configured, will
+        has_root_volume = bool(self.custom_args['root_is_subvolume'])
+        if self.custom_args['root_is_subvolume'] is None:
+            # root volume not explicitly configured, will
             # be enabled by default but this is going to change
             # in the future. Print a deprecation message to inform
             # the user about a potential behavior change
-            log.warning("Implicitly creating a toplevel volume")
+            log.warning("Implicitly creating root volume")
             log.warning(
                 "--> Future versions of kiwi will not do this anymore"
             )
             log.warning(
-                "--> Please specify btrfs_create_toplevel_subvolume true|false"
+                "--> Please specify btrfs_root_is_subvolume true|false"
             )
             has_root_volume = True
         return has_root_volume
@@ -477,12 +481,14 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 volume_id = id_search.group(1)
                 volume_path = id_search.group(2)
                 if volume_path == default_volume:
-                    Command.run(
-                        [
-                            'btrfs', 'subvolume', 'set-default',
-                            volume_id, self.mountpoint
-                        ]
-                    )
+                    if self.custom_args['set_default_volume'] is not False:
+                        Command.run(
+                            [
+                                'btrfs', 'subvolume', 'set-default',
+                                volume_id, self.mountpoint
+                            ]
+                        )
+                    self.default_volume_name = default_volume
                     return
 
         raise KiwiVolumeRootIDError(

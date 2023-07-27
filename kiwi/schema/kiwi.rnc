@@ -1433,15 +1433,27 @@ div {
             sch:param [ name = "attr" value = "btrfs_quota_groups" ]
             sch:param [ name = "types" value = "oem" ]
         ]
-    k.type.btrfs_create_toplevel_subvolume =
-        ## Tell kiwi to nest all subvolumes below a toplevel volume.
-        ## The name of this toplevel volume is by default set to: '@'
-        ## The name of the toplevel volume can be changed via
-        ## a volume entry of the form '<volume name="@root=TOPLEVEL_NAME"/>'
-        ## By default the creation of a toplevel volume is set to: true
-        attribute btrfs_create_toplevel_subvolume { xsd:boolean }
-        >> sch:pattern [ id = "btrfs_create_toplevel_subvolume" is-a = "image_type"
-            sch:param [ name = "attr" value = "btrfs_create_toplevel_subvolume" ]
+    k.type.btrfs_set_default_volume.attribute =
+        ## Tell kiwi to explicitly make a volume the default volume
+        ## This can be either (/) or the root subvolume or the root
+        ## snapshot depending on the specified btrfs configuration
+        ## attributes. By default btrfs_set_default_volume is set to: true
+        ## If no default volume should be set, this attribute can be
+        ## used to turn it off
+        attribute btrfs_set_default_volume { xsd:boolean }
+        >> sch:pattern [ id = "btrfs_set_default_volume" is-a = "image_type"
+            sch:param [ name = "attr" value = "btrfs_set_default_volume" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+    k.type.btrfs_root_is_subvolume.attribute =
+        ## Tell kiwi to create a root volume to host (/) inside.
+        ## The name of this subvolume is by default set to: '@'
+        ## The name of the subvolume can be changed via
+        ## a volume entry of the form '<volume name="@root=NAME"/>'
+        ## By default the creation of a root subvolume is set to: true
+        attribute btrfs_root_is_subvolume { xsd:boolean }
+        >> sch:pattern [ id = "btrfs_root_is_subvolume" is-a = "image_type"
+            sch:param [ name = "attr" value = "btrfs_root_is_subvolume" ]
             sch:param [ name = "types" value = "oem" ]
         ]
     k.type.btrfs_root_is_snapshot.attribute =
@@ -2229,7 +2241,8 @@ div {
         k.type.bootprofile.attribute? &
         k.type.btrfs_quota_groups.attribute? &
         k.type.btrfs_root_is_snapshot.attribute? &
-        k.type.btrfs_create_toplevel_subvolume? &
+        k.type.btrfs_root_is_subvolume.attribute? &
+        k.type.btrfs_set_default_volume.attribute? &
         k.type.btrfs_root_is_readonly_snapshot.attribute? &
         k.type.compressed.attribute? &
         k.type.devicepersistency.attribute? &
