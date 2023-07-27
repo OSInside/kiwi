@@ -1077,7 +1077,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
             )
             early_boot.write(
-                'configfile ($root){0}/{1}/grub.cfg{2}'.format(
+                'source ($root){0}/{1}/grub.cfg{2}'.format(
                     self.get_boot_path(), self.boot_directory_name, os.linesep
                 )
             )
@@ -1098,7 +1098,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
             )
             early_boot.write(
-                'configfile ($root)/boot/{0}/grub.cfg{1}'.format(
+                'source ($root)/boot/{0}/grub.cfg{1}'.format(
                     self.boot_directory_name, os.linesep
                 )
             )
