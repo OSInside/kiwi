@@ -52,6 +52,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 {
                     'target_removable': bool,
                     'system_volumes': list_of_volumes,
+                    'system_root_volume': root volume name if required
                     'firmware': FirmWare_instance,
                     'efi_device': string,
                     'boot_device': string,
@@ -71,12 +72,15 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.proc_mount = None
         self.sysfs_mount = None
         self.volumes = None
+        self.root_volume_name = None
         self.volumes_mount = []
         self.target_removable = None
         if custom_args and 'target_removable' in custom_args:
             self.target_removable = custom_args['target_removable']
         if custom_args and 'system_volumes' in custom_args:
             self.volumes = custom_args['system_volumes']
+        if custom_args and 'system_root_volume' in custom_args:
+            self.root_volume_name = custom_args['system_root_volume']
         if custom_args and 'firmware' in custom_args:
             self.firmware = custom_args['firmware']
         if custom_args and 'install_options' in custom_args:
@@ -302,7 +306,10 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.root_mount = MountManager(
                 device=self.custom_args['root_device']
             )
-            self.root_mount.mount()
+            custom_root_mount_args = []
+            if self.root_volume_name and self.root_volume_name != '/':
+                custom_root_mount_args += [f'subvol={self.root_volume_name}']
+            self.root_mount.mount(options=custom_root_mount_args)
 
         if self.boot_mount is None:
             if 's390' in self.arch:

@@ -397,7 +397,7 @@ class TestBootLoaderConfigBase:
                     'volume_options': 'subvol=@/boot/grub2',
                     'volume_device': 'device'
                 }
-            }
+            }, root_volume_name='root'
         )
         assert mock_MountManager.call_args_list == [
             call(device='rootdev'),
@@ -409,7 +409,9 @@ class TestBootLoaderConfigBase:
             call(device='/proc', mountpoint='root_mount_point/proc'),
             call(device='/sys', mountpoint='root_mount_point/sys')
         ]
-        root_mount.mount.assert_called_once_with()
+        root_mount.mount.assert_called_once_with(
+            options=['subvol=root']
+        )
         boot_mount.mount.assert_called_once_with()
         efi_mount.mount.assert_called_once_with()
         volume_mount.mount.assert_called_once_with(

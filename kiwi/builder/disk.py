@@ -1537,7 +1537,12 @@ class DiskBuilder:
         if self.volume_manager_name:
             system.umount_volumes()
             custom_install_arguments.update(
-                {'system_volumes': system.get_volumes()}
+                {
+                    'system_volumes': system.get_volumes(),
+                    'system_root_volume':
+                        system.get_root_volume_name()
+                        if self.volume_manager_name == 'btrfs' else None
+                }
             )
 
         if self.bootloader != 'custom':

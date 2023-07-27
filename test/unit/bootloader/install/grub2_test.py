@@ -29,6 +29,7 @@ class TestBootLoaderInstallGrub2:
             'root_device': '/dev/mapper/loop0p1',
             'efi_device': '/dev/mapper/loop0p3',
             'prep_device': '/dev/mapper/loop0p2',
+            'system_root_volume': 'root',
             'system_volumes': {'boot/grub2': {
                 'volume_options': 'subvol=@/boot/grub2',
                 'volume_device': 'device'
@@ -167,7 +168,9 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.bootloader.root_mount.mount.assert_called_once_with()
+        self.bootloader.root_mount.mount.assert_called_once_with(
+            options=['subvol=root']
+        )
         self.bootloader.boot_mount.mount.assert_called_once_with()
         mock_glob.assert_called_once_with(
             'tmp_root/boot/*/grubenv'
@@ -213,7 +216,9 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.bootloader.root_mount.mount.assert_called_once_with()
+        self.bootloader.root_mount.mount.assert_called_once_with(
+            options=['subvol=root']
+        )
         self.bootloader.boot_mount.mount.assert_called_once_with()
         assert mock_command.call_args_list == [
             call(
@@ -258,7 +263,9 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.bootloader.root_mount.mount.assert_called_once_with()
+        self.bootloader.root_mount.mount.assert_called_once_with(
+            options=['subvol=root']
+        )
         self.bootloader.boot_mount.mount.assert_called_once_with()
         mock_wipe.assert_called_once_with(
             'tmp_root/boot/grub2/grubenv'
@@ -297,7 +304,9 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.bootloader.root_mount.mount.assert_called_once_with()
+        self.bootloader.root_mount.mount.assert_called_once_with(
+            options=['subvol=root']
+        )
         self.bootloader.boot_mount.mount.assert_called_once_with()
         mock_wipe.assert_called_once_with(
             'tmp_root/boot/grub2/grubenv'
@@ -338,7 +347,9 @@ class TestBootLoaderInstallGrub2:
         self.bootloader.target_removable = True
 
         self.bootloader.install()
-        self.root_mount.mount.assert_called_once_with()
+        self.root_mount.mount.assert_called_once_with(
+            options=['subvol=root']
+        )
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )
@@ -398,7 +409,9 @@ class TestBootLoaderInstallGrub2:
                 '/usr/sbin/grub2-install'
             ])
         ]
-        self.root_mount.mount.assert_called_once_with()
+        self.root_mount.mount.assert_called_once_with(
+            options=['subvol=root']
+        )
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )
@@ -421,7 +434,9 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.secure_boot_install()
-        self.root_mount.mount.assert_called_once_with()
+        self.root_mount.mount.assert_called_once_with(
+            options=['subvol=root']
+        )
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )

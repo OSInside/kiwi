@@ -233,14 +233,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'root_device': string,
                 'boot_device': string,
                 'efi_device': string,
-                'system_volumes': volume_manager_instance.get_volumes()
+                'system_volumes':
+                    volume_manager_instance.get_volumes(),
+                'system_root_volume':
+                    volume_manager_instance.get_root_volume_name()
             }
         """
         self._mount_system(
             boot_options.get('root_device'),
             boot_options.get('boot_device'),
             boot_options.get('efi_device'),
-            boot_options.get('system_volumes')
+            boot_options.get('system_volumes'),
+            boot_options.get('system_root_volume')
         )
         config_file = os.sep.join(
             [

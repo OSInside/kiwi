@@ -955,7 +955,7 @@ class TestBootLoaderConfigGrub2:
                 }
             )
             mock_mount_system.assert_called_once_with(
-                'rootdev', 'bootdev', None, None
+                'rootdev', 'bootdev', None, None, None
             )
             assert mock_Command_run.call_args_list == [
                 call(
