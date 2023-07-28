@@ -1268,7 +1268,7 @@ class TestBootLoaderConfigGrub2:
                 call('set root="cryptouuid/0815"\n'),
                 call('search --fs-uuid --set=root 0815\n'),
                 call('set prefix=($root)//grub2\n'),
-                call('configfile ($root)//grub2/grub.cfg\n')
+                call('source ($root)//grub2/grub.cfg\n')
             ]
         assert mock_command.call_args_list == [
             call(
@@ -1327,7 +1327,7 @@ class TestBootLoaderConfigGrub2:
                 call('set root="cryptouuid/0815"\n'),
                 call('search --fs-uuid --set=root 0815\n'),
                 call('set prefix=($root)//grub2\n'),
-                call('configfile ($root)//grub2/grub.cfg\n')
+                call('source ($root)//grub2/grub.cfg\n')
             ]
             mock_open.assert_called_once_with(
                 'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'
@@ -1532,7 +1532,7 @@ class TestBootLoaderConfigGrub2:
                     call('set root="cryptouuid/uuid"\n'),
                     call('search --fs-uuid --set=root uuid\n'),
                     call('set prefix=($root)/boot/grub2\n'),
-                    call('configfile ($root)/boot/grub2/grub.cfg\n')
+                    call('source ($root)/boot/grub2/grub.cfg\n')
                 ]
                 mock_open.assert_called_once_with(
                     'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'
@@ -1628,7 +1628,7 @@ class TestBootLoaderConfigGrub2:
                     call('set root="cryptouuid/uuid"\n'),
                     call('search --fs-uuid --set=root uuid\n'),
                     call('set prefix=($root)/boot/grub2\n'),
-                    call('configfile ($root)/boot/grub2/grub.cfg\n')
+                    call('source ($root)/boot/grub2/grub.cfg\n')
                 ]
                 mock_open.assert_called_once_with(
                     'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'
@@ -1730,11 +1730,11 @@ class TestBootLoaderConfigGrub2:
                 call('set btrfs_relative_path="yes"\n'),
                 call('search --file --set=root /boot/mbrid\n'),
                 call('set prefix=($root)/boot/grub2\n'),
-                call('configfile ($root)/boot/grub2/grub.cfg\n'),
+                call('source ($root)/boot/grub2/grub.cfg\n'),
                 call('set btrfs_relative_path="yes"\n'),
                 call('search --file --set=root /boot/mbrid\n'),
                 call('set prefix=($root)/boot/grub2\n'),
-                call('configfile ($root)/boot/grub2/grub.cfg\n'),
+                call('source ($root)/boot/grub2/grub.cfg\n'),
                 call('source /boot/grub2/grub.cfg\n')
             ]
         assert mock_Path_create.call_args_list == [
@@ -1843,7 +1843,7 @@ class TestBootLoaderConfigGrub2:
                 call('set btrfs_relative_path="yes"\n'),
                 call('search --file --set=root /boot/mbrid\n'),
                 call('set prefix=($root)/boot/grub2\n'),
-                call('configfile ($root)/boot/grub2/grub.cfg\n'),
+                call('source ($root)/boot/grub2/grub.cfg\n'),
                 call('source /boot/grub2/grub.cfg\n')
             ]
             assert mock_open.call_args_list == [
@@ -1911,7 +1911,7 @@ class TestBootLoaderConfigGrub2:
                     call('set btrfs_relative_path="yes"\n'),
                     call('search --file --set=root /boot/mbrid\n'),
                     call('set prefix=($root)/boot/grub2\n'),
-                    call('configfile ($root)/boot/grub2/grub.cfg\n'),
+                    call('source ($root)/boot/grub2/grub.cfg\n'),
                     call('source /boot/grub2/grub.cfg\n')
                 ]
                 assert mock_open.call_args_list == [
