@@ -148,6 +148,8 @@ class DiskBuilder:
         self.target_removable = xml_state.build_type.get_target_removable()
         self.root_filesystem_is_multipath = \
             xml_state.get_oemconfig_oem_multipath_scan()
+        self.btrfs_set_default_volume = \
+            xml_state.build_type.get_btrfs_set_default_volume()
         self.oem_systemsize = xml_state.get_oemconfig_oem_systemsize()
         self.oem_resize = xml_state.get_oemconfig_oem_resize()
         self.disk_resize_requested = \
@@ -421,8 +423,7 @@ class DiskBuilder:
                     self.xml_state.build_type.
                     get_btrfs_root_is_subvolume(),
                 'set_default_volume':
-                    self.xml_state.build_type.
-                    get_btrfs_set_default_volume(),
+                    self.btrfs_set_default_volume,
                 'quota_groups':
                     self.xml_state.build_type.get_btrfs_quota_groups(),
                 'resize_on_boot':
@@ -529,7 +530,9 @@ class DiskBuilder:
         # create second stage metadata to system image
         self._copy_first_boot_files_to_system_image()
 
-        self._write_bootloader_meta_data_to_system_image(device_map, disk)
+        self._write_bootloader_meta_data_to_system_image(
+            device_map, disk, system
+        )
 
         self.mbrid.write_to_disk(
             disk.storage_provider
@@ -1247,13 +1250,20 @@ class DiskBuilder:
             )
 
     def _write_bootloader_meta_data_to_system_image(
-        self, device_map: Dict, disk: Disk
+        self, device_map: Dict, disk: Disk, system: Any
     ) -> None:
         if self.bootloader != 'custom':
             log.info('Creating %s bootloader configuration', self.bootloader)
             boot_options = []
             if self.mdraid:
                 boot_options.append('rd.auto')
+            if self.volume_manager_name \
+               and self.volume_manager_name == 'btrfs' \
+               and self.btrfs_set_default_volume is False \
+               and system.get_root_volume_name() != '/':
+                boot_options.append(
+                    f'rootflags=subvol={system.get_root_volume_name()}'
+                )
             ro_device = device_map.get('readonly')
             root_device = device_map['root']
             boot_device = root_device

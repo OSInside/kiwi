@@ -1224,6 +1224,7 @@ class TestDiskBuilder:
         filesystem = Mock()
         mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = 'btrfs'
+        self.disk_builder.btrfs_set_default_volume = False
 
         with patch('builtins.open'):
             self.disk_builder.create_disk()
