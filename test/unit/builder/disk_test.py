@@ -1203,6 +1203,42 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('kiwi.builder.disk.ImageSystem')
     @patch('os.path.exists')
+    def test_create_disk_btrfs_managed_root(
+        self, mock_exists, mock_ImageSystem, mock_grub_dir, mock_command,
+        mock_volume_manager, mock_fs
+    ):
+        mock_exists.return_value = True
+        volume_manager = Mock()
+        volume_manager.get_device = Mock(
+            return_value={
+                'root': MappedDevice('root', Mock())
+            }
+        )
+        volume_manager.get_fstab = Mock(
+            return_value=['fstab_volume_entries']
+        )
+        volume_manager.get_root_volume_name = Mock(
+            return_value='@'
+        )
+        mock_volume_manager.return_value = volume_manager
+        filesystem = Mock()
+        mock_fs.return_value = filesystem
+        self.disk_builder.volume_manager_name = 'btrfs'
+        self.disk_builder.btrfs_set_default_volume = False
+
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+
+        assert [
+            call('UUID=blkid_result / blkid_result_fs ro,defaults,subvol=@ 0 0')
+        ] in self.disk_builder.fstab.add_entry.call_args_list
+
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.VolumeManager.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('os.path.exists')
     def test_create_disk_volume_managed_root(
         self, mock_exists, mock_ImageSystem, mock_grub_dir, mock_command,
         mock_volume_manager, mock_fs

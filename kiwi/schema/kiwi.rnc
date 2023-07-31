@@ -1433,6 +1433,29 @@ div {
             sch:param [ name = "attr" value = "btrfs_quota_groups" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.btrfs_set_default_volume.attribute =
+        ## Tell kiwi to explicitly make a volume the default volume
+        ## This can be either (/) or the root subvolume or the root
+        ## snapshot depending on the specified btrfs configuration
+        ## attributes. By default btrfs_set_default_volume is set to: true
+        ## If no default volume should be set, this attribute can be
+        ## used to turn it off
+        attribute btrfs_set_default_volume { xsd:boolean }
+        >> sch:pattern [ id = "btrfs_set_default_volume" is-a = "image_type"
+            sch:param [ name = "attr" value = "btrfs_set_default_volume" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+    k.type.btrfs_root_is_subvolume.attribute =
+        ## Tell kiwi to create a root volume to host (/) inside.
+        ## The name of this subvolume is by default set to: '@'
+        ## The name of the subvolume can be changed via
+        ## a volume entry of the form '<volume name="@root=NAME"/>'
+        ## By default the creation of a root subvolume is set to: true
+        attribute btrfs_root_is_subvolume { xsd:boolean }
+        >> sch:pattern [ id = "btrfs_root_is_subvolume" is-a = "image_type"
+            sch:param [ name = "attr" value = "btrfs_root_is_subvolume" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.btrfs_root_is_snapshot.attribute =
         ## Tell kiwi to install the system into a btrfs snapshot
         ## The snapshot layout is compatible with the snapper management
@@ -2218,6 +2241,8 @@ div {
         k.type.bootprofile.attribute? &
         k.type.btrfs_quota_groups.attribute? &
         k.type.btrfs_root_is_snapshot.attribute? &
+        k.type.btrfs_root_is_subvolume.attribute? &
+        k.type.btrfs_set_default_volume.attribute? &
         k.type.btrfs_root_is_readonly_snapshot.attribute? &
         k.type.compressed.attribute? &
         k.type.devicepersistency.attribute? &
@@ -2552,6 +2577,13 @@ div {
         ## not specified the name specifies a path which has to
         ## exist inside the root directory.
         attribute name { text }
+    k.volume.parent.attribute =
+        ## The name/path of the parent volume.
+        ## Evaluated only for the btrfs volume manager to allow
+        ## specifying the parent subvolume to nest this volume in.
+        ## If not specified the parent is always the volume set
+        ## as the default volume
+        attribute parent { text }
     k.volume.mountpoint.attribute =
         ## volume path. The mountpoint specifies a path which has to
         ## exist inside the root directory.
@@ -2584,6 +2616,7 @@ div {
         k.volume.mountpoint.attribute? &
         k.volume.label.attribute? &
         k.volume.name.attribute &
+        k.volume.parent.attribute? &
         k.volume.size.attribute?
     k.volume =
         ## Specify which parts of the filesystem should be

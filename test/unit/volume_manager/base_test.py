@@ -53,6 +53,9 @@ class TestVolumeManagerBase:
     def setup_method(self, cls, mock_path):
         self.setup()
 
+    def test_get_root_volume_name(self):
+        assert self.volume_manager.get_root_volume_name() == '/'
+
     @patch('os.path.exists')
     def test_init_custom_args(self, mock_exists):
         mock_exists.return_value = True

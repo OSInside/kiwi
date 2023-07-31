@@ -2093,6 +2093,35 @@ By default the quota system is inactive</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.btrfs_set_default_volume.attribute">
+      <attribute name="btrfs_set_default_volume">
+        <a:documentation>Tell kiwi to explicitly make a volume the default volume
+This can be either (/) or the root subvolume or the root
+snapshot depending on the specified btrfs configuration
+attributes. By default btrfs_set_default_volume is set to: true
+If no default volume should be set, this attribute can be
+used to turn it off</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="btrfs_set_default_volume" is-a="image_type">
+        <sch:param name="attr" value="btrfs_set_default_volume"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.btrfs_root_is_subvolume.attribute">
+      <attribute name="btrfs_root_is_subvolume">
+        <a:documentation>Tell kiwi to create a root volume to host (/) inside.
+The name of this subvolume is by default set to: '@'
+The name of the subvolume can be changed via
+a volume entry of the form '&lt;volume name="@root=NAME"/&gt;'
+By default the creation of a root subvolume is set to: true</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="btrfs_root_is_subvolume" is-a="image_type">
+        <sch:param name="attr" value="btrfs_root_is_subvolume"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.btrfs_root_is_snapshot.attribute">
       <attribute name="btrfs_root_is_snapshot">
         <a:documentation>Tell kiwi to install the system into a btrfs snapshot
@@ -3178,6 +3207,12 @@ kiwi-ng result bundle ...</a:documentation>
           <ref name="k.type.btrfs_root_is_snapshot.attribute"/>
         </optional>
         <optional>
+          <ref name="k.type.btrfs_root_is_subvolume.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.btrfs_set_default_volume.attribute"/>
+        </optional>
+        <optional>
           <ref name="k.type.btrfs_root_is_readonly_snapshot.attribute"/>
         </optional>
         <optional>
@@ -3834,6 +3869,15 @@ not specified the name specifies a path which has to
 exist inside the root directory.</a:documentation>
       </attribute>
     </define>
+    <define name="k.volume.parent.attribute">
+      <attribute name="parent">
+        <a:documentation>The name/path of the parent volume.
+Evaluated only for the btrfs volume manager to allow
+specifying the parent subvolume to nest this volume in.
+If not specified the parent is always the volume set
+as the default volume</a:documentation>
+      </attribute>
+    </define>
     <define name="k.volume.mountpoint.attribute">
       <attribute name="mountpoint">
         <a:documentation>volume path. The mountpoint specifies a path which has to
@@ -3890,6 +3934,9 @@ The latter is the default.</a:documentation>
           <ref name="k.volume.label.attribute"/>
         </optional>
         <ref name="k.volume.name.attribute"/>
+        <optional>
+          <ref name="k.volume.parent.attribute"/>
+        </optional>
         <optional>
           <ref name="k.volume.size.attribute"/>
         </optional>

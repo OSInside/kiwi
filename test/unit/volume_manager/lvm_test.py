@@ -22,27 +22,27 @@ class TestVolumeManagerLVM:
     def setup(self, mock_path):
         self.volumes = [
             volume_type(
-                name='LVRoot', size='freespace:100', realpath='/',
+                name='LVRoot', parent='', size='freespace:100', realpath='/',
                 mountpoint=None, fullsize=False, label=None, attributes=[],
                 is_root_volume=True
             ),
             volume_type(
-                name='LVSwap', size='size:100', realpath='swap',
+                name='LVSwap', parent='', size='size:100', realpath='swap',
                 mountpoint=None, fullsize=False, label='SWAP', attributes=[],
                 is_root_volume=False
             ),
             volume_type(
-                name='LVetc', size='freespace:200', realpath='/etc',
+                name='LVetc', parent='', size='freespace:200', realpath='/etc',
                 mountpoint='/etc', fullsize=False, label='etc', attributes=[],
                 is_root_volume=False
             ),
             volume_type(
-                name='myvol', size='size:500', realpath='/data',
+                name='myvol', parent='', size='size:500', realpath='/data',
                 mountpoint='LVdata', fullsize=False, label=None, attributes=[],
                 is_root_volume=False
             ),
             volume_type(
-                name='LVhome', size=None, realpath='/home',
+                name='LVhome', parent='', size=None, realpath='/home',
                 mountpoint='/home', fullsize=True, label=None, attributes=[],
                 is_root_volume=False
             ),
@@ -178,28 +178,28 @@ class TestVolumeManagerLVM:
         assert mock_attrs.call_args_list == [
             call(
                 'root_dir', volume_type(
-                    name='LVSwap', size='size:100', realpath='swap',
+                    name='LVSwap', parent='', size='size:100', realpath='swap',
                     mountpoint=None, fullsize=False, label='SWAP',
                     attributes=[], is_root_volume=False
                 )
             ),
             call(
                 'root_dir', volume_type(
-                    name='LVRoot', size='freespace:100', realpath='/',
+                    name='LVRoot', parent='', size='freespace:100', realpath='/',
                     mountpoint=None, fullsize=False, label=None,
                     attributes=[], is_root_volume=True
                 )
             ),
             call(
                 'root_dir', volume_type(
-                    name='myvol', size='size:500', realpath='/data',
+                    name='myvol', parent='', size='size:500', realpath='/data',
                     mountpoint='LVdata', fullsize=False, label=None,
                     attributes=[], is_root_volume=False
                 )
             ),
             call(
                 'root_dir', volume_type(
-                    name='LVetc', size='freespace:200', realpath='/etc',
+                    name='LVetc', parent='', size='freespace:200', realpath='/etc',
                     mountpoint='/etc', fullsize=False, label='etc',
                     attributes=[], is_root_volume=False
                 )
@@ -342,6 +342,7 @@ class TestVolumeManagerLVM:
         self.volumes.append(
             volume_type(
                 name='device',
+                parent='',
                 size='freespace:100',
                 realpath='/var/tmp',
                 mountpoint=volume_mount.mountpoint,

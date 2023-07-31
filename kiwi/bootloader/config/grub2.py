@@ -233,14 +233,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'root_device': string,
                 'boot_device': string,
                 'efi_device': string,
-                'system_volumes': volume_manager_instance.get_volumes()
+                'system_volumes':
+                    volume_manager_instance.get_volumes(),
+                'system_root_volume':
+                    volume_manager_instance.get_root_volume_name()
             }
         """
         self._mount_system(
             boot_options.get('root_device'),
             boot_options.get('boot_device'),
             boot_options.get('efi_device'),
-            boot_options.get('system_volumes')
+            boot_options.get('system_volumes'),
+            boot_options.get('system_root_volume')
         )
         config_file = os.sep.join(
             [
@@ -809,35 +813,47 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # a grub image that got signed by the shim. The shim image
             # is the one that gets loaded by the firmware which itself
             # loads the second stage grub image
-            log.info(
-                f'--> Using shim image: {shim_image.filename}'
+            target_efi_image_name = self._get_efi_image_name()
+            target_grub_image_name = os.sep.join(
+                [self.efi_boot_path, grub_image.binaryname]
             )
-            log.info(
-                f'--> Using grub image: {grub_image.filename}'
-            )
-            Command.run(
-                ['cp', shim_image.filename, self._get_efi_image_name()]
-            )
-            Command.run(
-                [
-                    'cp', grub_image.filename,
-                    os.sep.join([self.efi_boot_path, grub_image.binaryname])
-                ]
-            )
+            if not os.path.isfile(target_efi_image_name):
+                log.info(
+                    f'--> Using shim image: {shim_image.filename}'
+                )
+                Command.run(
+                    ['cp', shim_image.filename, target_efi_image_name]
+                )
+            if not os.path.isfile(target_grub_image_name):
+                log.info(
+                    f'--> Using grub image: {grub_image.filename}'
+                )
+                Command.run(
+                    ['cp', grub_image.filename, target_grub_image_name]
+                )
             mok_manager = Defaults.get_mok_manager(lookup_path)
             if mok_manager:
-                Command.run(
-                    ['cp', mok_manager, self.efi_boot_path]
+                target_mok_manager = os.sep.join(
+                    [self.efi_boot_path, os.path.basename(mok_manager)]
                 )
+                if not os.path.isfile(target_mok_manager):
+                    log.info(
+                        f'--> Using mok image: {mok_manager}'
+                    )
+                    Command.run(
+                        ['cp', mok_manager, self.efi_boot_path]
+                    )
         else:
             # Without shim a self signed grub image is used that
             # gets loaded by the firmware
-            log.info(
-                f'--> No shim image, using grub image: {grub_image.filename}'
-            )
-            Command.run(
-                ['cp', grub_image.filename, self._get_efi_image_name()]
-            )
+            target_efi_image_name = self._get_efi_image_name()
+            if not os.path.isfile(target_efi_image_name):
+                log.info(
+                    f'--> No shim image, using grub image: {grub_image.filename}'
+                )
+                Command.run(
+                    ['cp', grub_image.filename, target_efi_image_name]
+                )
         self._create_efi_config_search(uuid, mbrid)
 
     def _setup_efi_image(

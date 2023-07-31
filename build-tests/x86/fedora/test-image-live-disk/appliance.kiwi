@@ -30,7 +30,11 @@
         </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2">
+        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2" btrfs_root_is_subvolume="true" btrfs_set_default_volume="false" rootfs_label="fedora" bootpartition="true" bootfilesystem="ext4">
+            <systemdisk name="fedora">
+                <volume name="@root=root"/>
+                <volume name="home" parent="/"/>
+            </systemdisk>
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -67,6 +71,7 @@
         <package name="vim"/>
         <package name="tzdata"/>
         <package name="NetworkManager"/>
+        <package name="btrfs-progs"/>
     </packages>
     <packages type="image" profiles="Live,Disk">
         <package name="syslinux"/>

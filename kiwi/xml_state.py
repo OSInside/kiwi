@@ -67,6 +67,7 @@ size_type = NamedTuple(
 volume_type = NamedTuple(
     'volume_type', [
         ('name', str),
+        ('parent', str),
         ('size', str),
         ('realpath', str),
         ('mountpoint', Optional[str]),
@@ -1574,6 +1575,7 @@ class XMLState:
                 [
                     volume_type(
                         name=volume_name,
+                        parent=volume_parent,
                         size=volume_size,
                         realpath=path,
                         mountpoint=path,
@@ -1600,6 +1602,7 @@ class XMLState:
                 # volume setup for a full qualified volume with name and
                 # mountpoint information. See below for exceptions
                 name = volume.get_name()
+                parent = volume.get_parent() or ''
                 mountpoint = volume.get_mountpoint()
                 realpath = mountpoint
                 size = volume.get_size()
@@ -1667,6 +1670,7 @@ class XMLState:
                 volume_type_list.append(
                     volume_type(
                         name=name,
+                        parent=parent,
                         size=size,
                         fullsize=fullsize,
                         mountpoint=mountpoint,
@@ -1680,6 +1684,9 @@ class XMLState:
         if not have_root_volume_setup:
             # There must always be a root volume setup. It will be the
             # full size volume if no other volume has this setup
+            volume_management = self.get_volume_management()
+            root_volume_name = \
+                defaults.ROOT_VOLUME_NAME if volume_management == 'lvm' else ''
             if have_full_size_volume:
                 size = 'freespace:' + format(
                     Defaults.get_min_volume_mbytes()
@@ -1690,7 +1697,8 @@ class XMLState:
                 fullsize = True
             volume_type_list.append(
                 volume_type(
-                    name=defaults.ROOT_VOLUME_NAME,
+                    name=root_volume_name,
+                    parent='',
                     size=size,
                     fullsize=fullsize,
                     mountpoint=None,
@@ -1705,6 +1713,7 @@ class XMLState:
             volume_type_list.append(
                 volume_type(
                     name=swap_name,
+                    parent='',
                     size='size:{0}'.format(swap_mbytes),
                     fullsize=False,
                     mountpoint=None,

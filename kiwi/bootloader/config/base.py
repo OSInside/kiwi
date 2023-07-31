@@ -501,7 +501,8 @@ class BootLoaderConfigBase:
             return gfxmode
 
     def _mount_system(
-        self, root_device, boot_device, efi_device=None, volumes=None
+        self, root_device, boot_device, efi_device=None,
+        volumes=None, root_volume_name=None
     ):
         self.root_mount = MountManager(
             device=root_device
@@ -522,7 +523,10 @@ class BootLoaderConfigBase:
                 mountpoint=self.root_mount.mountpoint + '/boot/efi'
             )
 
-        self.root_mount.mount()
+        custom_root_mount_args = []
+        if root_volume_name and root_volume_name != '/':
+            custom_root_mount_args += [f'subvol={root_volume_name}']
+        self.root_mount.mount(options=custom_root_mount_args)
 
         if not self.root_mount.device == self.boot_mount.device:
             self.boot_mount.mount()

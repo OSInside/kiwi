@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.6.15 (default, Sep 23 2021, 15:41:43) [GCC]
+# Python 3.11.3 (main, Jun 03 2023, 22:12:18) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/3.6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/unit_py3_11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -3048,7 +3048,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3063,6 +3063,8 @@ class type_(GeneratedsSuper):
         self.bootprofile = _cast(None, bootprofile)
         self.btrfs_quota_groups = _cast(bool, btrfs_quota_groups)
         self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
+        self.btrfs_root_is_subvolume = _cast(bool, btrfs_root_is_subvolume)
+        self.btrfs_set_default_volume = _cast(bool, btrfs_set_default_volume)
         self.btrfs_root_is_readonly_snapshot = _cast(bool, btrfs_root_is_readonly_snapshot)
         self.compressed = _cast(bool, compressed)
         self.devicepersistency = _cast(None, devicepersistency)
@@ -3258,6 +3260,10 @@ class type_(GeneratedsSuper):
     def set_btrfs_quota_groups(self, btrfs_quota_groups): self.btrfs_quota_groups = btrfs_quota_groups
     def get_btrfs_root_is_snapshot(self): return self.btrfs_root_is_snapshot
     def set_btrfs_root_is_snapshot(self, btrfs_root_is_snapshot): self.btrfs_root_is_snapshot = btrfs_root_is_snapshot
+    def get_btrfs_root_is_subvolume(self): return self.btrfs_root_is_subvolume
+    def set_btrfs_root_is_subvolume(self, btrfs_root_is_subvolume): self.btrfs_root_is_subvolume = btrfs_root_is_subvolume
+    def get_btrfs_set_default_volume(self): return self.btrfs_set_default_volume
+    def set_btrfs_set_default_volume(self, btrfs_set_default_volume): self.btrfs_set_default_volume = btrfs_set_default_volume
     def get_btrfs_root_is_readonly_snapshot(self): return self.btrfs_root_is_readonly_snapshot
     def set_btrfs_root_is_readonly_snapshot(self, btrfs_root_is_readonly_snapshot): self.btrfs_root_is_readonly_snapshot = btrfs_root_is_readonly_snapshot
     def get_compressed(self): return self.compressed
@@ -3513,6 +3519,12 @@ class type_(GeneratedsSuper):
         if self.btrfs_root_is_snapshot is not None and 'btrfs_root_is_snapshot' not in already_processed:
             already_processed.add('btrfs_root_is_snapshot')
             outfile.write(' btrfs_root_is_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_snapshot, input_name='btrfs_root_is_snapshot'))
+        if self.btrfs_root_is_subvolume is not None and 'btrfs_root_is_subvolume' not in already_processed:
+            already_processed.add('btrfs_root_is_subvolume')
+            outfile.write(' btrfs_root_is_subvolume="%s"' % self.gds_format_boolean(self.btrfs_root_is_subvolume, input_name='btrfs_root_is_subvolume'))
+        if self.btrfs_set_default_volume is not None and 'btrfs_set_default_volume' not in already_processed:
+            already_processed.add('btrfs_set_default_volume')
+            outfile.write(' btrfs_set_default_volume="%s"' % self.gds_format_boolean(self.btrfs_set_default_volume, input_name='btrfs_set_default_volume'))
         if self.btrfs_root_is_readonly_snapshot is not None and 'btrfs_root_is_readonly_snapshot' not in already_processed:
             already_processed.add('btrfs_root_is_readonly_snapshot')
             outfile.write(' btrfs_root_is_readonly_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_readonly_snapshot, input_name='btrfs_root_is_readonly_snapshot'))
@@ -3838,6 +3850,24 @@ class type_(GeneratedsSuper):
                 self.btrfs_root_is_snapshot = True
             elif value in ('false', '0'):
                 self.btrfs_root_is_snapshot = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('btrfs_root_is_subvolume', node)
+        if value is not None and 'btrfs_root_is_subvolume' not in already_processed:
+            already_processed.add('btrfs_root_is_subvolume')
+            if value in ('true', '1'):
+                self.btrfs_root_is_subvolume = True
+            elif value in ('false', '0'):
+                self.btrfs_root_is_subvolume = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('btrfs_set_default_volume', node)
+        if value is not None and 'btrfs_set_default_volume' not in already_processed:
+            already_processed.add('btrfs_set_default_volume')
+            if value in ('true', '1'):
+                self.btrfs_set_default_volume = True
+            elif value in ('false', '0'):
+                self.btrfs_set_default_volume = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('btrfs_root_is_readonly_snapshot', node)
@@ -4969,7 +4999,7 @@ class volume(GeneratedsSuper):
     """Specify which parts of the filesystem should be on an extra volume."""
     subclass = None
     superclass = None
-    def __init__(self, copy_on_write=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, size=None):
+    def __init__(self, copy_on_write=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, parent=None, size=None):
         self.original_tagname_ = None
         self.copy_on_write = _cast(bool, copy_on_write)
         self.filesystem_check = _cast(bool, filesystem_check)
@@ -4977,6 +5007,7 @@ class volume(GeneratedsSuper):
         self.mountpoint = _cast(None, mountpoint)
         self.label = _cast(None, label)
         self.name = _cast(None, name)
+        self.parent = _cast(None, parent)
         self.size = _cast(None, size)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -5001,6 +5032,8 @@ class volume(GeneratedsSuper):
     def set_label(self, label): self.label = label
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
+    def get_parent(self): return self.parent
+    def set_parent(self, parent): self.parent = parent
     def get_size(self): return self.size
     def set_size(self, size): self.size = size
     def validate_volume_size_type(self, value):
@@ -5056,6 +5089,9 @@ class volume(GeneratedsSuper):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.parent is not None and 'parent' not in already_processed:
+            already_processed.add('parent')
+            outfile.write(' parent=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.parent), input_name='parent')), ))
         if self.size is not None and 'size' not in already_processed:
             already_processed.add('size')
             outfile.write(' size=%s' % (quote_attrib(self.size), ))
@@ -5105,6 +5141,10 @@ class volume(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+        value = find_attr_value_('parent', node)
+        if value is not None and 'parent' not in already_processed:
+            already_processed.add('parent')
+            self.parent = value
         value = find_attr_value_('size', node)
         if value is not None and 'size' not in already_processed:
             already_processed.add('size')

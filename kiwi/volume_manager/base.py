@@ -150,7 +150,7 @@ class VolumeManagerBase(DeviceProvider):
                 Command.run(
                     [
                         'chattr', '+C',
-                        os.path.normpath(toplevel + volume.realpath)
+                        os.path.normpath(toplevel + os.sep + volume.realpath)
                     ]
                 )
 
@@ -330,6 +330,19 @@ class VolumeManagerBase(DeviceProvider):
         :rtype: string
         """
         return self.mountpoint
+
+    def get_root_volume_name(self) -> str:
+        """
+        Provides name of the root volume
+
+        This is by default set to '/'. Volume Managers that supports
+        the concept of sub-volumes overrides this method
+
+        :return: directory path name
+
+        :rtype: string
+        """
+        return '/'
 
     def sync_data(self, exclude=None):
         """
