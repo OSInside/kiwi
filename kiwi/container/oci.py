@@ -20,9 +20,9 @@ import logging
 import sys
 from typing import Dict, List, Optional
 if sys.version_info >= (3, 8):
-    from typing import TypedDict # pragma: no cover
-else: # pragma: no cover
-    from typing_extensions import TypedDict # pragma: no cover
+    from typing import TypedDict  # pragma: no cover
+else:  # pragma: no cover
+    from typing_extensions import TypedDict  # pragma: no cover
 
 # project
 from kiwi.utils.compress import Compress
@@ -118,7 +118,6 @@ class ContainerImageOCI(ContainerImageBase):
         if 'created_by' not in self.oci_config['history']:
             self.oci_config['history']['created_by'] = \
                 Defaults.get_default_container_created_by()
-
 
     def create(
         self, filename: str, base_image: str,

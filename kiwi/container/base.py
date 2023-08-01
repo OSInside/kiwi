@@ -24,4 +24,4 @@ class ContainerImageBase(ABC):
         self, filename: str, base_image: str,
         ensure_empty_tmpdirs: bool, compress_archive: bool = False
     ) -> str:
-        pass # pragma: no cover
+        pass  # pragma: no cover

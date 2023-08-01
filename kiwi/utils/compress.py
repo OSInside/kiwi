@@ -44,7 +44,9 @@ class Compress:
     :param str uncompressed_filename:
         Uncompressed file name path
     """
-    def __init__(self, source_filename: str, keep_source_on_compress: bool=False) -> None:
+    def __init__(
+        self, source_filename: str, keep_source_on_compress: bool = False
+    ) -> None:
         if not os.path.exists(source_filename):
             raise KiwiFileNotFound(
                 'compression source file %s not found' % source_filename
@@ -57,7 +59,7 @@ class Compress:
         self.compressed_filename: Optional[str] = None
         self.uncompressed_filename: Optional[str] = None
 
-    def xz(self, options: Optional[List[str]]=None) -> str:
+    def xz(self, options: Optional[List[str]] = None) -> str:
         """
         Create XZ compressed file
 
@@ -89,7 +91,7 @@ class Compress:
         self.compressed_filename = self.source_filename + '.gz'
         return self.compressed_filename
 
-    def uncompress(self, temporary: bool=False) -> str:
+    def uncompress(self, temporary: bool = False) -> str:
         """
         Uncompress with format autodetection
 
