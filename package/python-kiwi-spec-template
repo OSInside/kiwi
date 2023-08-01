@@ -366,6 +366,7 @@ Requires:       screen
 Requires:       python%{python3_pkgversion} >= 3.6
 %if 0%{?ubuntu} || 0%{?debian}
 Requires:       python%{python3_pkgversion}-yaml
+Requires:       python%{python3_pkgversion}-typing-extensions
 %else
 Requires:       python%{python3_pkgversion}-PyYAML
 %endif
@@ -374,6 +375,12 @@ Requires:       python%{python3_pkgversion}-docopt
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-setuptools
+%if 0%{?rhel} || 0%{?fedora}
+Requires:       (python%{python3_pkgversion}-typing-extensions if python%{python3_pkgversion} < 3.8)
+%endif
+%if 0%{?suse_version}
+Requires:       (python%{python3_pkgversion}-typing_extensions if python%{python3_pkgversion} < 3.8)
+%endif
 %if ! (0%{?rhel} && 0%{?rhel} < 8)
 Recommends:     kiwi-man-pages
 %endif
