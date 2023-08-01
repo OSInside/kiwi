@@ -4178,6 +4178,7 @@ is displayed. The attribute is available for the grub loader.</a:documentation>
         <choice>
           <value>countdown</value>
           <value>hidden</value>
+          <value>menu</value>
         </choice>
       </attribute>
       <sch:pattern id="timeout_style" is-a="bootloader_name_type">

@@ -2794,7 +2794,7 @@ div {
         ## expired. In countdown mode an indication of the remaining time
         ## is displayed. The attribute is available for the grub loader.
         attribute timeout_style {
-            "countdown" | "hidden"
+            "countdown" | "hidden" | "menu"
         }
         >> sch:pattern [ id = "timeout_style" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "timeout_style" ]
