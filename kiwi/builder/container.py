@@ -145,7 +145,7 @@ class ContainerBuilder:
             self.requested_container_type, self.root_dir, self.container_config
         )
         self.filename = container_image.create(
-            self.filename, self.base_image, self.ensure_empty_tmpdirs,
+            self.filename, self.base_image or '', self.ensure_empty_tmpdirs,
             self.runtime_config.get_container_compression()
             # appx containers already contains a compressed root
             if self.requested_container_type != 'appx' else False

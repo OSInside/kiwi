@@ -17,14 +17,14 @@
 #
 import os
 from typing import (
-    Dict, List
+    Dict, List, Optional
 )
 
 # project
 from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.path import Path
 from kiwi.command import Command
-from kiwi.exceptions import KiwiIsoToolError
+from kiwi.exceptions import KiwiFileNotFound, KiwiIsoToolError
 from kiwi.defaults import Defaults
 
 
@@ -63,7 +63,7 @@ class IsoToolsXorrIso(IsoToolsBase):
         raise KiwiIsoToolError('xorriso tool not found')
 
     def init_iso_creation_parameters(
-        self, custom_args: Dict[str, str] = None
+        self, custom_args: Optional[Dict[str, str]] = None
     ) -> None:
         """
         Create a set of standard parameters
@@ -113,9 +113,12 @@ class IsoToolsXorrIso(IsoToolsBase):
                 ]
             else:
                 loader_file = self.boot_path + '/loader/isolinux.bin'
-                mbr_file = Path.which(
+                mbr_file_c = Path.which(
                     'isohdpfx.bin', Defaults.get_syslinux_search_paths()
                 )
+                if not mbr_file_c:
+                    raise KiwiFileNotFound("isohdpfx.bin not found in the systlinux search paths")
+                mbr_file = mbr_file_c
                 self.iso_loaders += [
                     '-boot_image', 'isolinux', 'bin_path={0}'.format(
                         loader_file

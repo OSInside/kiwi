@@ -26,13 +26,13 @@ from kiwi.defaults import Defaults
 from kiwi.utils.compress import Compress
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.command import Command
-
+from kiwi.container.base import ContainerImageBase
 from kiwi.exceptions import KiwiContainerSetupError
 
 log = logging.getLogger('kiwi')
 
 
-class ContainerImageAppx:
+class ContainerImageAppx(ContainerImageBase):
     """
     Create Appx container from a root directory for
     WSL(Windows Subsystem Linux)
@@ -50,7 +50,7 @@ class ContainerImageAppx:
             'metadata_path': 'directory'
         }
     """
-    def __init__(self, root_dir: str, custom_args: Dict = {}):
+    def __init__(self, root_dir: str, custom_args: Dict[str, str] = {}):
         self.root_dir = root_dir
         self.wsl_config = custom_args or {}
         self.runtime_config = RuntimeConfig()
@@ -72,7 +72,7 @@ class ContainerImageAppx:
     def create(
         self, filename: str, base_image: str = '',
         ensure_empty_tmpdirs: bool = False, compress_archive: bool = False
-    ):
+    ) -> str:
         """
         Create WSL/Appx archive
 
@@ -126,7 +126,6 @@ class ContainerImageAppx:
         )
         if compress_archive:
             compress = Compress(filename)
-            compress.xz(self.runtime_config.get_xz_options())
-            filename = compress.compressed_filename
+            filename = compress.xz(self.runtime_config.get_xz_options())
 
         return filename

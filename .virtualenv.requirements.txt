@@ -23,3 +23,5 @@ xmltodict
 
 # json support that also knows about tuples
 simplejson
+
+typing_extensions; python_version < '3.8'

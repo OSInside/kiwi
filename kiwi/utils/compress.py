@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from typing import List, Optional
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -43,7 +44,7 @@ class Compress:
     :param str uncompressed_filename:
         Uncompressed file name path
     """
-    def __init__(self, source_filename, keep_source_on_compress=False):
+    def __init__(self, source_filename: str, keep_source_on_compress: bool=False) -> None:
         if not os.path.exists(source_filename):
             raise KiwiFileNotFound(
                 'compression source file %s not found' % source_filename
@@ -53,10 +54,10 @@ class Compress:
         self.supported_zipper = [
             'xz', 'gzip'
         ]
-        self.compressed_filename = None
-        self.uncompressed_filename = None
+        self.compressed_filename: Optional[str] = None
+        self.uncompressed_filename: Optional[str] = None
 
-    def xz(self, options=None):
+    def xz(self, options: Optional[List[str]]=None) -> str:
         """
         Create XZ compressed file
 
@@ -64,6 +65,7 @@ class Compress:
         """
         if not options:
             options = Defaults.get_xz_compression_options()
+        assert options
         if self.keep_source:
             options.append('--keep')
         Command.run(
@@ -72,7 +74,7 @@ class Compress:
         self.compressed_filename = self.source_filename + '.xz'
         return self.compressed_filename
 
-    def gzip(self):
+    def gzip(self) -> str:
         """
         Create gzip(max compression) compressed file
         """
@@ -87,7 +89,7 @@ class Compress:
         self.compressed_filename = self.source_filename + '.gz'
         return self.compressed_filename
 
-    def uncompress(self, temporary=False):
+    def uncompress(self, temporary: bool=False) -> str:
         """
         Uncompress with format autodetection
 
@@ -116,7 +118,7 @@ class Compress:
             self.uncompressed_filename = self.temp_file.name
         return self.uncompressed_filename
 
-    def get_format(self):
+    def get_format(self) -> Optional[str]:
         """
         Detect compression format
 
@@ -138,3 +140,4 @@ class Compress:
                         exc=str(exc)
                     )
                 )
+        return None

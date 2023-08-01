@@ -145,7 +145,7 @@ class TestContainerBuilder:
             'docker', 'root_dir', self.container_config
         )
         container_image.create.assert_called_once_with(
-            'target_dir/image_name.x86_64-1.2.3.docker.tar', None, True, False
+            'target_dir/image_name.x86_64-1.2.3.docker.tar', '', True, False
         )
         assert self.container.result.add.call_args_list == [
             call(

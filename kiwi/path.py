@@ -18,6 +18,7 @@
 import os
 import logging
 import collections
+from typing import Dict, List, Optional
 
 # project
 from kiwi.command import Command
@@ -31,7 +32,7 @@ class Path:
     **Directory path helpers**
     """
     @staticmethod
-    def sort_by_hierarchy(path_list):
+    def sort_by_hierarchy(path_list: List[str]) -> List[str]:
         """
         Sort given list of path names by their hierachy in the tree
 
@@ -47,7 +48,7 @@ class Path:
 
         :rtype: list
         """
-        paths_at_depth = {}
+        paths_at_depth: Dict[int, List[str]] = {}
         for path in path_list:
             path_elements = path.split('/')
             path_depth = len(path_elements)
@@ -64,7 +65,7 @@ class Path:
         return ordered_paths
 
     @staticmethod
-    def access(path, mode, **kwargs):
+    def access(path: str, mode: int, **kwargs) -> bool:
         """
         Check whether path can be accessed with the given mode.
 
@@ -98,7 +99,7 @@ class Path:
         return os.access(path, mode, **kwargs)
 
     @staticmethod
-    def create(path):
+    def create(path: str) -> None:
         """
         Create path and all sub directories to target
 
@@ -110,7 +111,7 @@ class Path:
             )
 
     @staticmethod
-    def wipe(path):
+    def wipe(path: str) -> None:
         """
         Delete path and all contents
 
@@ -122,7 +123,7 @@ class Path:
             )
 
     @staticmethod
-    def remove(path):
+    def remove(path: str) -> None:
         """
         Delete empty path, causes an error if target is not empty
 
@@ -133,7 +134,7 @@ class Path:
         )
 
     @staticmethod
-    def rename(cur, new):
+    def rename(cur: str, new: str) -> None:
         """
         Move path from cur name to new name
 
@@ -145,7 +146,7 @@ class Path:
         )
 
     @staticmethod
-    def remove_hierarchy(root, path):
+    def remove_hierarchy(root: str, path: str) -> None:
         """
         Recursively remove an empty path and its sub directories
         starting at a given root directory. Ignore non empty or
@@ -182,7 +183,7 @@ class Path:
                 )
 
     @staticmethod
-    def move_to_root(root, elements):
+    def move_to_root(root: str, elements: List[str]) -> List[str]:
         """
         Change the given path elements to a new root directory
 
@@ -204,7 +205,7 @@ class Path:
         return result
 
     @staticmethod
-    def rebase_to_root(root, elements):
+    def rebase_to_root(root: str, elements: List[str]) -> List[str]:
         """
         Include the root prefix for the given paths elements
 
@@ -222,9 +223,10 @@ class Path:
 
     @staticmethod
     def which(
-        filename, alternative_lookup_paths=None,
-        custom_env=None, access_mode=None, root_dir=None
-    ):
+        filename: str, alternative_lookup_paths: Optional[List[str]]=None,
+        custom_env: Optional[Dict[str, str]]=None, access_mode: Optional[int]=None,
+        root_dir: Optional[str]=None
+    ) -> Optional[str]:
         """
         Lookup file name in PATH
 
@@ -267,3 +269,4 @@ class Path:
                 return location
 
         log.debug(' '.join(multipart_message))
+        return None

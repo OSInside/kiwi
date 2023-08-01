@@ -17,20 +17,40 @@
 #
 import os
 import logging
-from typing import (
-    Dict, List
-)
+import sys
+from typing import Dict, List, Optional
+if sys.version_info >= (3, 8):
+    from typing import TypedDict # pragma: no cover
+else: # pragma: no cover
+    from typing_extensions import TypedDict # pragma: no cover
 
 # project
 from kiwi.utils.compress import Compress
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
 from kiwi.oci_tools import OCI
+from kiwi.container.base import ContainerImageBase
 
 log = logging.getLogger('kiwi')
 
 
-class ContainerImageOCI:
+class OciConfig(TypedDict, total=False):
+    container_name: str
+    container_tag: str
+    additional_names: List[str]
+    entry_command: List[str]
+    entry_subcommand: List[str]
+    maintainer: str
+    user: str
+    workingdir: str
+    expose_ports: List[str]
+    volumes: List[str]
+    environment: Dict[str, str]
+    labels: Dict[str, str]
+    history: Dict[str, str]
+
+
+class ContainerImageOCI(ContainerImageBase):
     """
     Create oci container from a root directory
 
@@ -63,13 +83,10 @@ class ContainerImageOCI:
             }
         }
     """
-    def __init__(self, root_dir: str, transport: str, custom_args: Dict = {}):
+    def __init__(self, root_dir: str, transport: str, custom_args: Optional[OciConfig] = None) -> None:
         self.root_dir = root_dir
         self.archive_transport = transport
-        if custom_args:
-            self.oci_config = custom_args
-        else:
-            self.oci_config = {}
+        self.oci_config = custom_args or {}
 
         # for builds inside the buildservice we include a reference to the
         # specific build. Thus disturl label only exists inside the
@@ -102,10 +119,11 @@ class ContainerImageOCI:
             self.oci_config['history']['created_by'] = \
                 Defaults.get_default_container_created_by()
 
+
     def create(
         self, filename: str, base_image: str,
         ensure_empty_tmpdirs: bool = True, compress_archive: bool = False
-    ):
+    ) -> str:
         """
         Create compressed oci system container tar archive
 
@@ -174,8 +192,7 @@ class ContainerImageOCI:
         )
         if compress_archive:
             compress = Compress(filename)
-            compress.xz(RuntimeConfig().get_xz_options())
-            filename = compress.compressed_filename
+            filename = compress.xz(RuntimeConfig().get_xz_options())
 
         return filename
 
