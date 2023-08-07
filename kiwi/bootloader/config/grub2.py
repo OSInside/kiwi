@@ -1333,7 +1333,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
     def _fix_grub_to_support_dynamic_efi_and_bios_boot(self, config_file):
-        if self.firmware.efi_mode():
+        if self.firmware.efi_mode() and self.arch in ['x86_64', 'ix86']:
             # On systems that are configured to use EFI with grub2
             # there is no support for dynamic EFI environment checking.
             # In this condition we change the grub config to add this
