@@ -95,8 +95,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.custom_args and 'config_options' in self.custom_args:
             self.config_options = self.custom_args['config_options']
 
-        self.terminal = self.xml_state.get_build_type_bootloader_console() \
-            or 'gfxterm'
+        self.terminal = self.xml_state.get_build_type_bootloader_console()
+        if self.terminal is None:
+            self.terminal = 'gfxterm'
+
         self.gfxmode = self.get_gfxmode('grub2')
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
