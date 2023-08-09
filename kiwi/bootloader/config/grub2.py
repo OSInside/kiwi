@@ -92,6 +92,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         else:
             self.boot_directory_name = 'grub'
 
+        if self.custom_args and 'grub_load_command' in self.custom_args:
+            self.grub_load = self.custom_args['grub_load_command']
+        else:
+            self.grub_load = 'source'
+
         if self.custom_args and 'config_options' in self.custom_args:
             self.config_options = self.custom_args['config_options']
 
@@ -321,7 +326,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'boot_timeout_style': self.timeout_style or 'menu',
-            'serial_line_setup': self.serial_line_setup or 'serial',
+            'serial_line_setup': self.serial_line_setup or '',
             'title': self.get_menu_entry_install_title(),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
@@ -386,7 +391,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'theme': self.theme,
             'boot_timeout': self.timeout,
             'boot_timeout_style': self.timeout_style or 'menu',
-            'serial_line_setup': self.serial_line_setup or 'serial',
+            'serial_line_setup': self.serial_line_setup or '',
             'title': self.get_menu_entry_title(plain=True),
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
@@ -1093,8 +1098,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
             )
             early_boot.write(
-                'source ($root){0}/{1}/grub.cfg{2}'.format(
-                    self.get_boot_path(), self.boot_directory_name, os.linesep
+                '{0} ($root){1}/{2}/grub.cfg{3}'.format(
+                    self.grub_load, self.get_boot_path(),
+                    self.boot_directory_name, os.linesep
                 )
             )
 
@@ -1114,8 +1120,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
             )
             early_boot.write(
-                'source ($root)/boot/{0}/grub.cfg{1}'.format(
-                    self.boot_directory_name, os.linesep
+                '{0} ($root)/boot/{1}/grub.cfg{2}'.format(
+                    self.grub_load, self.boot_directory_name, os.linesep
                 )
             )
 
