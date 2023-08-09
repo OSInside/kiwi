@@ -112,6 +112,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader = BootLoaderConfigGrub2(
             self.state, 'root_dir', None, {
                 'grub_directory_name': 'grub2',
+                'grub_load_command': 'source',
                 'boot_is_crypto': True,
                 'crypto_disk': True,
                 'targetbase': 'rootdev',
@@ -138,6 +139,17 @@ class TestBootLoaderConfigGrub2:
         mock_which.return_value = None
         bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
         assert bootloader.boot_directory_name == 'grub'
+
+    @patch('kiwi.bootloader.config.grub2.Path.which')
+    def test_post_init_grub2_load_command(self, mock_which):
+        Defaults.set_platform_name('i686')
+        xml_state = MagicMock()
+        xml_state.build_type.get_firmware = Mock(
+            return_value=None
+        )
+        mock_which.return_value = None
+        bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
+        assert bootloader.grub_load == 'source'
 
     def test_post_init_invalid_platform(self):
         Defaults.set_platform_name('unsupported-arch')

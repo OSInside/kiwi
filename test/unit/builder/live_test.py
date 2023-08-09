@@ -243,7 +243,8 @@ class TestLiveImageBuilder:
         kiwi.builder.live.BootLoaderConfig.new.assert_called_once_with(
             'grub2', self.xml_state, root_dir='root_dir',
             boot_dir='temp_media_dir', custom_args={
-                'grub_directory_name': 'grub2'
+                'grub_directory_name': 'grub2',
+                'grub_load_command': 'configfile'
             }
         )
         self.bootloader.setup_live_boot_images.assert_called_once_with(
