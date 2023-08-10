@@ -94,6 +94,32 @@ Fedora/Rawhide:
 
      $ sudo dnf install kiwi-cli
 
+
+
+Installation for SUSE Linux Enterprise Server
+---------------------------------------------
+
+{kiwi} is available and supported for SUSE Linux Enterprise Server (SLES).
+The recommended and supported way is to install {kiwi} by using zypper.
+
+However, if your rely on some extensions for {kiwi}, either the extension
+itself or any dependencies might not be available for your service pack.
+
+If you want to proceed anyway, keep these things in mind:
+
+* Extensions that are not provided by SLES are not supported.
+* You probably need to install dependencies via :command:`pip`.
+  The :command:`pip` command installs these dependencies from PyPI
+  (the Python Package Index).
+  However, this approach will not update the RPM database.
+* Depending on your security concerns, installing Python packages
+  outside the secured SLES installation may not be desirable.
+* Python packages installed from PyPI won't contain any SUSE
+  customizations.
+* Depending on your extension and its dependencies, you might even need
+  a more recent Python version.
+
+
 .. _example-descriptions:
 
 Example Appliance Descriptions
