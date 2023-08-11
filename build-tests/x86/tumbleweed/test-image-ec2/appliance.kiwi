@@ -78,7 +78,6 @@
         <package name="klogd"/>
         <package name="krb5-client"/>
         <package name="ksh"/>
-        <package name="lockdev"/>
         <package name="man"/>
         <package name="man-pages"/>
         <package name="mozilla-nss-certs"/>
