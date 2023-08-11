@@ -102,12 +102,12 @@ Installation for SUSE Linux Enterprise Server
 {kiwi} is available and supported for SUSE Linux Enterprise Server (SLES).
 The recommended and supported way is to install {kiwi} by using zypper.
 
-However, if your rely on some extensions for {kiwi}, either the extension
+However, if you rely on some plugins for {kiwi}, either the plugin
 itself or any dependencies might not be available for your service pack.
 
 If you want to proceed anyway, keep these things in mind:
 
-* Extensions that are not provided by SLES are not supported.
+* Plugins that are not provided by SLES are not supported.
 * You probably need to install dependencies via :command:`pip`.
   The :command:`pip` command installs these dependencies from PyPI
   (the Python Package Index).
