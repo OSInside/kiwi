@@ -31,7 +31,7 @@ jobs:
           - DOCKER
           - PODMAN
     steps:
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
@@ -41,9 +41,9 @@ jobs:
             -pip-
 
       - name: checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
       - name: Install Tox
         run: sudo apt update && sudo apt install tox
 
