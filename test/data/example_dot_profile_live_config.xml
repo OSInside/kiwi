@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.6" name="LiveImage" displayname="Live">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>bob@example.com</contact>
+        <specification>
+            Test dot profile env for Live images
+        </specification>
+    </description>
+    <preferences>
+        <version>1.1.0</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <type image="iso" flags="overlay" firmware="bios" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true"/>
+    </preferences>
+    <users>
+        <user groups="root" password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
+    </users>
+    <repository>
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+    </packages>
+</image>
