@@ -229,6 +229,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 )
 
                 volume_mountpoint = toplevel
+                root_is_snapshot = self.custom_args['root_is_snapshot']
 
                 attributes = {
                     'parent': volume.parent or '',
@@ -239,7 +240,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     ).lstrip(os.sep),
                     'subvol_name': volume.name
                 }
-                if self.custom_args['root_is_snapshot']:
+                if root_is_snapshot:
                     volume_mountpoint = self.mountpoint + \
                         f'/{self.root_volume_name}/.snapshots/1/snapshot/'
                     attributes = {
@@ -255,7 +256,13 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     device=self.device,
                     attributes=attributes,
                     mountpoint=os.path.normpath(
-                        volume_mountpoint + os.sep + volume.realpath
+                        os.sep.join(
+                            [
+                                volume_mountpoint,
+                                self.root_volume_name if not root_is_snapshot else '',
+                                volume.realpath
+                            ]
+                        )
                     )
                 )
                 self.subvol_mount_list.append(
