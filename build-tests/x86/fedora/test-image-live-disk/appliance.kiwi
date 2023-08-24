@@ -34,6 +34,7 @@
             <systemdisk name="fedora">
                 <volume name="@root=root"/>
                 <volume name="home" parent="/"/>
+                <volume name="var" parent="/"/>
             </systemdisk>
             <oemconfig>
                 <oem-resize>false</oem-resize>

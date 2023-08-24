@@ -213,7 +213,9 @@ class InstallImageBuilder:
                 'grub2', self.xml_state, root_dir=self.root_dir,
                 boot_dir=self.media_dir.name, custom_args={
                     'grub_directory_name':
-                        Defaults.get_grub_boot_directory_name(self.root_dir)
+                        Defaults.get_grub_boot_directory_name(self.root_dir),
+                    'grub_load_command':
+                        'configfile'
                 }
             )
             bootloader_config.setup_install_boot_images(

@@ -189,7 +189,8 @@ class TestInstallImageBuilder:
         mock_BootLoaderConfig.assert_called_once_with(
             'grub2', self.xml_state, root_dir='root_dir',
             boot_dir='temp_media_dir', custom_args={
-                'grub_directory_name': mock_grub_dir.return_value
+                'grub_directory_name': mock_grub_dir.return_value,
+                'grub_load_command': 'configfile'
             }
         )
         bootloader_config.setup_install_boot_images.assert_called_once_with(

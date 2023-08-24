@@ -162,7 +162,7 @@ class TestVeritySetup:
             file_handle = mock_open.return_value.__enter__.return_value
             self.veritysetup.create_verity_verification_metadata()
         assert file_handle.write.call_args_list == [
-            call(b'1 ext4 rw verity'),
+            call(b'1 ext4 ro verity'),
             call(b'\xff'),
             call(b'1 4096 4096 10 1 sha256 e2728628377... fb074d1db50...'),
             call(b'\xff'),
