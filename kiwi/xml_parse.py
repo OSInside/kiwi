@@ -5606,7 +5606,7 @@ class bootloader(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_grub_console_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_patterns_, ))
-    validate_grub_console_patterns_ = [['^(\s*|console|gfxterm|serial)( (console|gfxterm|serial))*$']]
+    validate_grub_console_patterns_ = [['^(none|console|gfxterm|serial)( (console|gfxterm|serial))*$']]
     def hasContent_(self):
         if (
             self.bootloadersettings is not None

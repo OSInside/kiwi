@@ -88,7 +88,7 @@
   </define>
   <define name="grub_console">
     <data type="token">
-      <param name="pattern">(\s*|console|gfxterm|serial)( (console|gfxterm|serial))*</param>
+      <param name="pattern">(none|console|gfxterm|serial)( (console|gfxterm|serial))*</param>
     </data>
   </define>
   <define name="fs_attributes">

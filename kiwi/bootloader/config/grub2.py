@@ -103,6 +103,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.terminal = self.xml_state.get_build_type_bootloader_console()
         if self.terminal is None:
             self.terminal = 'gfxterm'
+        else:
+            self.terminal = self.terminal.replace('none', '').lstrip()
 
         self.gfxmode = self.get_gfxmode('grub2')
         self.theme = self.get_boot_theme()
