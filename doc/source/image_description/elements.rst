@@ -1008,10 +1008,11 @@ name="grub2|systemd_boot|isolinux|grub2_s390x_emu":
 In addition to the mandatory name attribute, the following optional
 attributes are supported:
 
-console="console|gfxterm|serial":
+console="none|console|gfxterm|serial":
   Specifies the bootloader console. The attribute is available for the
-  grub and isolinux bootloader types. By default, a graphics console
-  setup is used.
+  grub and isolinux bootloader types. Specifying none here will
+  translate to setting console to an empty string. By default, the 
+  gfxterm (graphical terminal) option is used.
 
 grub_template="filename":
   Specifies a custom grub bootloader template file which will be used
