@@ -21,7 +21,7 @@ build() {
 }
 
 package_python-kiwi(){
-  depends=(python-docopt python-simplejson python-future python-lxml python-requests python-setuptools python-six python-pyxattr python-yaml grub qemu squashfs-tools gptfdisk pacman e2fsprogs xfsprogs btrfs-progs libisoburn lvm2 mtools parted multipath-tools rsync tar shadow screen kiwi-man-pages)
+  depends=(python-docopt python-simplejson python-lxml python-requests python-setuptools python-yaml grub qemu squashfs-tools gptfdisk pacman e2fsprogs xfsprogs btrfs-progs libisoburn lvm2 mtools parted multipath-tools rsync tar shadow screen kiwi-man-pages)
   optdepends=('gnupg: keyring creation for APT package manager')
   cd kiwi-${pkgver}
   python setup.py install --root="${pkgdir}/" --optimize=1 --skip-build
