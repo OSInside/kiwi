@@ -87,9 +87,7 @@ class TestBootLoaderConfigGrub2:
             return_value='0xffffffff'
         )
 
-        grub_template = BootLoaderTemplateGrub2()
         self.grub2 = Mock()
-        self.grub2.header_hybrid = grub_template.header_hybrid
         kiwi.bootloader.config.grub2.BootLoaderTemplateGrub2 = Mock(
             return_value=self.grub2
         )
