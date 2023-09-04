@@ -16,7 +16,6 @@ from kiwi.defaults import grub_loader_type
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
-from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.utils.sysconfig import SysConfig
 
 from kiwi.exceptions import (
@@ -598,8 +597,6 @@ class TestBootLoaderConfigGrub2:
             'GRUB_THEME': '/boot/grub2/themes/openSUSE/theme.txt',
             'GRUB_TIMEOUT': 10,
             'GRUB_TIMEOUT_STYLE': 'countdown',
-            'GRUB_USE_INITRDEFI': 'true',
-            'GRUB_USE_LINUXEFI': 'true',
             'SUSE_BTRFS_SNAPSHOT_BOOTING': 'true',
             'GRUB_DEFAULT': 'saved'
         }
@@ -987,18 +984,6 @@ class TestBootLoaderConfigGrub2:
             assert file_handle_grub.write.call_args_list == [
                 # first write of grub.cfg, adapting to linux/initrd as variables
                 call(
-                    'set linux=linux\n'
-                    'set initrd=initrd\n'
-                    'if [ "${grub_cpu}" = "x86_64" -o '
-                    '"${grub_cpu}" = "i386" ]; then\n'
-                    '    if [ "${grub_platform}" = "efi" ]; then\n'
-                    '        set linux=linuxefi\n'
-                    '        set initrd=initrdefi\n'
-                    '    fi\n'
-                    'fi\n'
-                    'export linux initrd\n'
-                ),
-                call(
                     'root=rootdev nomodeset console=ttyS0 console=tty0'
                     '\n'
                     'root=PARTUUID=xx'
@@ -1041,12 +1026,8 @@ class TestBootLoaderConfigGrub2:
             file_handle = mock_open.return_value.__enter__.return_value
             file_handle.read.return_value = os.linesep.join(
                 [
-                    '\tlinuxefi ${rel_dirname}/${basename} ...',
                     '\tlinux ${rel_dirname}/${basename} ...',
-                    '\tlinux16 ${rel_dirname}/${basename} ...',
-                    '\tinitrdefi ${rel_dirname}/${initrd}',
                     '\tinitrd ${rel_dirname}/${initrd}',
-                    '\tinitrd16 ${rel_dirname}/${initrd}'
                 ]
             )
             self.bootloader.setup_disk_image_config(
@@ -1056,24 +1037,8 @@ class TestBootLoaderConfigGrub2:
             )
             assert file_handle.write.call_args_list == [
                 call(
-                    'set linux=linux\n'
-                    'set initrd=initrd\n'
-                    'if [ "${grub_cpu}" = "x86_64" -o '
-                    '"${grub_cpu}" = "i386" ]; then\n'
-                    '    if [ "${grub_platform}" = "efi" ]; then\n'
-                    '        set linux=linuxefi\n'
-                    '        set initrd=initrdefi\n'
-                    '    fi\n'
-                    'fi\n'
-                    'export linux initrd\n'
-                ),
-                call(
-                    '\t$linux ${rel_dirname}/${basename} ...\n'
-                    '\t$linux ${rel_dirname}/${basename} ...\n'
-                    '\t$linux ${rel_dirname}/${basename} ...\n'
-                    '\t$initrd ${rel_dirname}/${initrd}\n'
-                    '\t$initrd ${rel_dirname}/${initrd}\n'
-                    '\t$initrd ${rel_dirname}/${initrd}'
+                    '\tlinux ${rel_dirname}/${basename} ...\n'
+                    '\tinitrd ${rel_dirname}/${initrd}\n'
                 )
             ]
 
