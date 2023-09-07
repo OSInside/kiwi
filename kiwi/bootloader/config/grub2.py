@@ -1459,11 +1459,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         for menu_entry_file in glob.iglob(loader_entries_pattern):
             with open(menu_entry_file) as grub_menu_entry_file:
                 menu_entry = grub_menu_entry_file.read()
-                menu_entry = re.sub(
-                    r'(linux|initrd) .*(/boot.*)',
-                    r'\1 \2',
-                    menu_entry
-                )
+                if self.xml_state.build_type.get_bootpartition():
+                    menu_entry = re.sub(
+                        r'(linux|initrd) .*/boot(.*)',
+                        r'\1 \2',
+                        menu_entry
+                    )
+                else:
+                    menu_entry = re.sub(
+                        r'(linux|initrd) .*(/boot.*)',
+                        r'\1 \2',
+                        menu_entry
+                    )
             with open(menu_entry_file, 'w') as grub_menu_entry_file:
                 grub_menu_entry_file.write(menu_entry)
 
