@@ -1279,8 +1279,8 @@ class TestBootLoaderConfigGrub2:
                 call('cryptomount -u 0815\n'),
                 call('set root="cryptouuid/0815"\n'),
                 call('search --fs-uuid --set=root 0815\n'),
-                call('set prefix=($root)//grub2\n'),
-                call('source ($root)//grub2/grub.cfg\n')
+                call('set prefix=($root)/grub2\n'),
+                call('source ($root)/grub2/grub.cfg\n')
             ]
         assert mock_command.call_args_list == [
             call(
@@ -1295,7 +1295,7 @@ class TestBootLoaderConfigGrub2:
                     '-O', 'x86_64-efi',
                     '-o', '/boot/efi/EFI/BOOT/bootx64.efi',
                     '-c', '/boot/efi/EFI/BOOT/earlyboot.cfg',
-                    '-p', '//grub2',
+                    '-p', '/grub2',
                     '-d', '/usr/share/grub2/x86_64-efi',
                     'ext2', 'iso9660', 'linux', 'echo', 'configfile',
                     'search_label', 'search_fs_file', 'search',
@@ -1338,8 +1338,8 @@ class TestBootLoaderConfigGrub2:
                 call('cryptomount -u 0815\n'),
                 call('set root="cryptouuid/0815"\n'),
                 call('search --fs-uuid --set=root 0815\n'),
-                call('set prefix=($root)//grub2\n'),
-                call('source ($root)//grub2/grub.cfg\n')
+                call('set prefix=($root)/grub2\n'),
+                call('source ($root)/grub2/grub.cfg\n')
             ]
             mock_open.assert_called_once_with(
                 'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'

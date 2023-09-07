@@ -984,7 +984,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 '-O', Defaults.get_efi_module_directory_name(self.arch),
                 '-o', root_efi_image,
                 '-c', root_efi_path + 'earlyboot.cfg',
-                '-p', self.get_boot_path() + '/' + self.boot_directory_name,
+                '-p', os.path.join(self.get_boot_path(), self.boot_directory_name),
                 '-d', module_path.replace(self.root_dir, '')
             ] + module_list
         )
@@ -1097,15 +1097,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'search --fs-uuid --set=root {0}{1}'.format(uuid, os.linesep)
             )
             early_boot.write(
-                'set prefix=($root){0}/{1}{2}'.format(
-                    self.get_boot_path(), self.boot_directory_name, os.linesep
+                'set prefix=($root){0}{1}'.format(
+                    os.path.join(self.get_boot_path(), self.boot_directory_name), os.linesep
                 )
             )
             early_boot.write(
-                '{0} ($root){1}/{2}/grub.cfg{3}'.format(
-                    self.grub_load, self.get_boot_path(),
-                    self.boot_directory_name, os.linesep
-                )
+                '{0} ($root){1}/grub.cfg{2}'.format(self.grub_load, os.path.join(
+                    self.get_boot_path(), self.boot_directory_name
+                ), os.linesep)
             )
 
     def _create_early_boot_script_for_mbrid_search(self, filename, mbrid):
