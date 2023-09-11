@@ -168,6 +168,18 @@ class XMLState:
         """
         return self.build_type.get_image()
 
+    def btrfs_default_volume_requested(self) -> bool:
+        """
+        Check if setting a default volume for btrfs is requested
+        """
+        if self.build_type.get_btrfs_set_default_volume() is False:
+            # Setting a default volume is explicitly switched off
+            return False
+        else:
+            # In any other case (True | None) a default volume
+            # is wanted and will be set
+            return True
+
     def get_image_version(self) -> str:
         """
         Image version from preferences section.

@@ -1140,3 +1140,14 @@ class TestXMLState:
     def test_get_btrfs_root_is_subvolume(self):
         assert self.state.build_type.get_btrfs_root_is_subvolume() is \
             None
+
+    @patch('kiwi.xml_parse.type_.get_btrfs_set_default_volume')
+    def test_btrfs_default_volume_requested(
+        self, mock_get_btrfs_set_default_volume
+    ):
+        mock_get_btrfs_set_default_volume.return_value = True
+        assert self.state.btrfs_default_volume_requested() is True
+        mock_get_btrfs_set_default_volume.return_value = False
+        assert self.state.btrfs_default_volume_requested() is False
+        mock_get_btrfs_set_default_volume.return_value = None
+        assert self.state.btrfs_default_volume_requested() is True
