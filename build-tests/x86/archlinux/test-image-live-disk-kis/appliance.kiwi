@@ -68,9 +68,6 @@
     <repository components="Virtualization_Appliances_Images_Testing_x86_archlinux_standard">
         <source path="obs://Virtualization:Appliances:Images:Testing_x86:archlinux/standard"/>
     </repository>
-    <repository components="Arch_Community_standard">
-        <source path="obs://Arch:Community/standard"/>
-    </repository>
     <repository components="Arch_Extra_standard">
         <source path="obs://Arch:Extra/standard"/>
     </repository>
