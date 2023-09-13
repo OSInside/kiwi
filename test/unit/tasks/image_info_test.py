@@ -94,6 +94,7 @@ class TestImageInfoTask:
         self.task.command_args['--resolve-package-list'] = False
         self.task.command_args['--print-xml'] = False
         self.task.command_args['--print-yaml'] = False
+        self.task.command_args['--print-toml'] = False
 
     @patch('kiwi.tasks.image_info.DataOutput')
     def test_process_image_info(self, mock_out):
@@ -203,3 +204,12 @@ class TestImageInfoTask:
         tmpfile, message = mock_out.display_file.call_args.args
         assert tmpfile.startswith('/var/tmp/kiwi_xslt-')
         assert message == 'Description(YAML):'
+
+    @patch('kiwi.tasks.image_info.DataOutput')
+    def test_process_image_info_print_toml(self, mock_out):
+        self._init_command_args()
+        self.task.command_args['--print-toml'] = True
+        self.task.process()
+        tmpfile, message = mock_out.display_file.call_args.args
+        assert tmpfile.startswith('/var/tmp/kiwi_xslt-')
+        assert message == 'Description(TOML):'
