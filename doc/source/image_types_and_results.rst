@@ -124,7 +124,7 @@ image="oem"
   An image representing an expandable disk image. {kiwi} can also produce an
   installation ISO for this disk image by setting `installiso="true"` in
   the :ref:`\<preferences\>\<type\><sec.preferences>`) section or a tarball
-  including the artifacts for a network deployment by setting `installiso="true"`.
+  including the artifacts for a network deployment by setting `installpxe="true"`.
   For further details see :ref:`expandable_disk`. The results for `oem`
   can be:
 
