@@ -67,8 +67,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args['root_label'] = 'ROOT'
         if 'root_is_snapshot' not in self.custom_args:
             self.custom_args['root_is_snapshot'] = False
-        if 'set_default_volume' not in self.custom_args:
-            self.custom_args['set_default_volume'] = True
+        if 'btrfs_default_volume_requested' not in self.custom_args:
+            self.custom_args['btrfs_default_volume_requested'] = True
         if 'root_is_readonly_snapshot' not in self.custom_args:
             self.custom_args['root_is_readonly_snapshot'] = False
         if 'root_is_subvolume' not in self.custom_args:
@@ -488,7 +488,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 volume_id = id_search.group(1)
                 volume_path = id_search.group(2)
                 if volume_path == default_volume:
-                    if self.custom_args['set_default_volume'] is not False:
+                    if self.custom_args['btrfs_default_volume_requested']:
                         Command.run(
                             [
                                 'btrfs', 'subvolume', 'set-default',

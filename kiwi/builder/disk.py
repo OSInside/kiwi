@@ -148,8 +148,8 @@ class DiskBuilder:
         self.target_removable = xml_state.build_type.get_target_removable()
         self.root_filesystem_is_multipath = \
             xml_state.get_oemconfig_oem_multipath_scan()
-        self.btrfs_set_default_volume = \
-            xml_state.build_type.get_btrfs_set_default_volume()
+        self.btrfs_default_volume_requested = \
+            xml_state.btrfs_default_volume_requested()
         self.oem_systemsize = xml_state.get_oemconfig_oem_systemsize()
         self.oem_resize = xml_state.get_oemconfig_oem_resize()
         self.disk_resize_requested = \
@@ -422,8 +422,8 @@ class DiskBuilder:
                 'root_is_subvolume':
                     self.xml_state.build_type.
                     get_btrfs_root_is_subvolume(),
-                'set_default_volume':
-                    self.btrfs_set_default_volume,
+                'btrfs_default_volume_requested':
+                    self.btrfs_default_volume_requested,
                 'quota_groups':
                     self.xml_state.build_type.get_btrfs_quota_groups(),
                 'resize_on_boot':
@@ -1125,7 +1125,8 @@ class DiskBuilder:
             custom_root_mount_args += ['ro']
             fs_check_interval = '0 0'
 
-        if self.volume_manager_name and self.volume_manager_name == 'btrfs':
+        if self.volume_manager_name and self.volume_manager_name == 'btrfs' \
+           and not self.btrfs_default_volume_requested:
             root_volume_name = system.get_root_volume_name()
             if root_volume_name != '/':
                 custom_root_mount_args += [
@@ -1259,7 +1260,7 @@ class DiskBuilder:
                 boot_options.append('rd.auto')
             if self.volume_manager_name \
                and self.volume_manager_name == 'btrfs' \
-               and self.btrfs_set_default_volume is False \
+               and not self.btrfs_default_volume_requested \
                and system.get_root_volume_name() != '/':
                 boot_options.append(
                     f'rootflags=subvol={system.get_root_volume_name()}'

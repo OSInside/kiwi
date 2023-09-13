@@ -413,12 +413,16 @@ btrfs_quota_groups="true|false":
   the filesystem is `btrfs`. By default quotas are inactive.
 
 btrfs_set_default_volume="true|false":
-  Tell kiwi to explicitly make a volume the default volume
-  This can be either `/` or the root subvolume or the root
-  snapshot depending on the specified btrfs configuration
-  attributes. By default btrfs_set_default_volume is set to: true
-  If no default volume should be set, this attribute can be
-  used to turn it off
+  For oem disk images using the btrfs filesystem, requests to
+  set a default volume for the rootfs which is used when the
+  filesystem gets mounted. In case a `true` value is provided or
+  the attribute is not specified at all, kiwi will make a volume
+  the default volume. This can be either `/` or the configured
+  root subvolume or the configured root snapshot. In addition
+  no entry for the rootfs will be added to the `/etc/fstab` file.
+  In case a `false` value is provided, kiwi will not set any
+  default volume which also means an entry for the rootfs is
+  required and will be placed to the `/etc/fstab` file.
 
 btrfs_root_is_subvolume="true|false":
   Tell kiwi to create a root volume to host (/) inside.
