@@ -418,11 +418,16 @@ btrfs_set_default_volume="true|false":
   filesystem gets mounted. In case a `true` value is provided or
   the attribute is not specified at all, kiwi will make a volume
   the default volume. This can be either `/` or the configured
-  root subvolume or the configured root snapshot. In addition
-  no entry for the rootfs will be added to the `/etc/fstab` file.
-  In case a `false` value is provided, kiwi will not set any
-  default volume which also means an entry for the rootfs is
-  required and will be placed to the `/etc/fstab` file.
+  root subvolume or the configured root snapshot. Consequently the
+  entry created for the rootfs in the `/etc/fstab` file will not
+  contain any specific volume definition. In case a `false` value
+  is provided, kiwi will not set any default volume which also
+  means that the entry for the rootfs in the `/etc/fstab` file
+  requires a volume definition which is placed by kiwi as a
+  `subvol=` parameter in the respective fstab field entry. In
+  addition the parameter `rootflags=subvol=` is added to the
+  kernel commandline such that early initrd code has a chance
+  to know about the rootfs volume.
 
 btrfs_root_is_subvolume="true|false":
   Tell kiwi to create a root volume to host (/) inside.
