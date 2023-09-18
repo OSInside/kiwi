@@ -375,6 +375,7 @@ Requires:       python%{python3_pkgversion}-docopt
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-setuptools
+Requires:       python%{python3_pkgversion}-simplejson
 %if 0%{?rhel} || 0%{?fedora}
 Requires:       (python%{python3_pkgversion}-typing-extensions if python%{python3_pkgversion} < 3.8)
 %endif
