@@ -1022,6 +1022,20 @@ class TestBootLoaderConfigGrub2:
             assert 'initrd /boot/initrd' in \
                 file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
 
+            self.bootloader.bootpartition = True
+            file_handle_menu.reset_mock()
+
+            self.bootloader.setup_disk_image_config(
+                boot_options={
+                    'root_device': 'rootdev', 'boot_device': 'bootdev'
+                }
+            )
+
+            assert 'linux /vmlinuz' in \
+                file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
+            assert 'initrd /initrd' in \
+                file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
+
     @patch.object(BootLoaderConfigGrub2, '_mount_system')
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
