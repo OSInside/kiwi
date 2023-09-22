@@ -109,6 +109,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.gfxmode = self.get_gfxmode('grub2')
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
+        self.bootpartition = self.xml_state.build_type.get_bootpartition()
         self.timeout_style = \
             self.xml_state.get_build_type_bootloader_timeout_style()
         self.displayname = self.xml_state.xml_data.get_displayname()
@@ -1459,7 +1460,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         for menu_entry_file in glob.iglob(loader_entries_pattern):
             with open(menu_entry_file) as grub_menu_entry_file:
                 menu_entry = grub_menu_entry_file.read()
-                if self.xml_state.build_type.get_bootpartition():
+                if self.bootpartition:
                     menu_entry = re.sub(
                         r'(linux|initrd) .*/boot(.*)',
                         r'\1 \2',
