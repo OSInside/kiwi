@@ -184,6 +184,8 @@
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso">
             <signing key="file:key_a"/>
+            <signing key="file:///usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-$releasever-primary"/>
+            <signing key="file:///usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-${releasever}-primary"/>
         </source>
     </repository>
     <repository type="rpm-md" imageinclude="true" customize="script">

@@ -1078,9 +1078,12 @@ class TestXMLState:
 
     @patch('kiwi.system.uri.os.path.abspath')
     def test_get_repositories_signing_keys(self, mock_root_path):
-        mock_root_path.side_effect = lambda x: f'/some/path/{x}'
+        mock_root_path.side_effect = lambda x: f'(mock_abspath){x}'
         assert self.state.get_repositories_signing_keys() == [
-            '/some/path/key_a', '/some/path/key_b'
+            '(mock_abspath)key_a',
+            '(mock_abspath)/usr/share/distribution-gpg-keys/'
+            'fedora/RPM-GPG-KEY-fedora-15.3-primary',
+            '(mock_abspath)key_b'
         ]
 
     def test_this_path_resolver(self):

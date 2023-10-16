@@ -1912,9 +1912,22 @@ class XMLState:
         Get list of signing keys specified on the repositories
         """
         key_file_list: List[str] = []
+        release_version = self.get_release_version()
+        release_vars = [
+            '$releasever',
+            '${releasever}'
+        ]
         for repository in self.get_repository_sections() or []:
             for signing in repository.get_source().get_signing() or []:
-                key_file_list.append(Uri(signing.get_key()).translate())
+                normalized_key_url = Uri(signing.get_key()).translate()
+                if release_version:
+                    for release_var in release_vars:
+                        if release_var in normalized_key_url:
+                            normalized_key_url = normalized_key_url.replace(
+                                release_var, release_version
+                            )
+                if normalized_key_url not in key_file_list:
+                    key_file_list.append(normalized_key_url)
         return key_file_list
 
     def set_repository(
