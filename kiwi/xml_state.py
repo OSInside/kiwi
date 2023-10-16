@@ -1926,9 +1926,8 @@ class XMLState:
                             normalized_key_url = normalized_key_url.replace(
                                 release_var, release_version
                             )
-                key_file_list.append(
-                    normalized_key_url
-                ) if normalized_key_url not in key_file_list else key_file_list
+                if normalized_key_url not in key_file_list:
+                    key_file_list.append(normalized_key_url)
         return key_file_list
 
     def set_repository(
