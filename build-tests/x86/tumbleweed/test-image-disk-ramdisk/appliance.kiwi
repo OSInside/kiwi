@@ -73,5 +73,8 @@
         <package name="ca-certificates"/>
         <package name="ca-certificates-mozilla"/>
         <package name="openSUSE-release"/>
+        <package name="grep"/>
+        <package name="xz"/>
+        <package name="shadow"/>
     </packages>
 </image>
