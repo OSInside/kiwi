@@ -466,6 +466,7 @@ Requires:       e2fsprogs
 Requires:       grep
 Requires:       lvm2
 Requires:       mdadm
+Requires:       parted
 Requires:       util-linux
 # lsblk is part of util-linux-systemd on openSUSE
 %if 0%{?suse_version}
@@ -484,7 +485,6 @@ Requires:       device-mapper
 %endif
 %ifarch s390 s390x
 Requires:       s390-tools
-Requires:       parted
 %endif
 License:        GPL-3.0-or-later
 Group:          %{sysgroup}
@@ -562,6 +562,7 @@ Requires:       device-mapper
 %endif
 Requires:       dracut
 Requires:       xorriso
+Requires:       parted
 License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
