@@ -201,11 +201,17 @@ function preparePersistentOverlayDiskBoot {
     # used as presented
     local overlay_mount_point=$1
     local partitions_before_cow_part
+    local read_part_cmd
     mkdir -m 0755 -p "${overlay_mount_point}"
     if ! mount -L cow "${overlay_mount_point}"; then
         partitions_before_cow_part=$(_partition_count)
         echo -e "n\np\n\n\n\nw\nq" | fdisk "${isodiskdev}"
-        if ! partprobe "${isodiskdev}"; then
+        if type partprobe &> /dev/null;then
+            read_part_cmd="partprobe ${isodiskdev}"
+        else
+            read_part_cmd="partx -u ${isodiskdev}"
+        fi
+        if ! eval "${read_part_cmd}"; then
             return 1
         fi
         if [ "$(_partition_count)" -le "${partitions_before_cow_part}" ];then
