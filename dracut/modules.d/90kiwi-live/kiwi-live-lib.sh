@@ -116,6 +116,7 @@ function mountIso {
 function mountCompressedContainerFromIso {
     local iso_mount_point=$1
     local overlay_base
+    local squashfs_container
     overlay_base=$(getOverlayBaseDirectory)
     local container_mount_point="${overlay_base}/squashfs_container"
     squashfs_container="${iso_mount_point}/${live_dir}/${squash_image}"
@@ -205,8 +206,14 @@ function preparePersistentOverlayDiskBoot {
     if ! mount -L cow "${overlay_mount_point}"; then
         partitions_before_cow_part=$(_partition_count)
         echo -e "n\np\n\n\n\nw\nq" | fdisk "${isodiskdev}"
-        if ! partprobe "${isodiskdev}"; then
-            return 1
+        if type partprobe &> /dev/null;then
+            if ! partprobe "${isodiskdev}"; then
+                return 1
+            fi
+        else
+            if ! blockdev --rereadpt "${isodiskdev}"; then
+                return 1
+            fi
         fi
         if [ "$(_partition_count)" -le "${partitions_before_cow_part}" ];then
             return 1
