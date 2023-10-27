@@ -211,7 +211,7 @@ function preparePersistentOverlayDiskBoot {
                 return 1
             fi
         else
-            if ! blockdev --rereadpt "${isodiskdev}"; then
+            if ! partx -u "${isodiskdev}"; then
                 return 1
             fi
         fi

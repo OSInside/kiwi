@@ -27,7 +27,7 @@ install() {
     local dmsquashdir=
     inst_multiple -o checkmedia
     inst_multiple \
-        umount dmsetup blockdev blkid lsblk dd losetup \
+        umount dmsetup partx blkid lsblk dd losetup \
         grep cut partprobe find wc fdisk tail mkfs.ext4 mkfs.xfs \
         dialog cat mountpoint
 
