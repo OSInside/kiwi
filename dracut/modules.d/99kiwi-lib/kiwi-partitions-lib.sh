@@ -25,7 +25,7 @@ function create_partitions {
     if type partprobe &> /dev/null;then
         partprobe "${disk_device}"
     else
-        blockdev --rereadpt "${disk_device}"
+        partx -u "${disk_device}"
     fi
 }
 

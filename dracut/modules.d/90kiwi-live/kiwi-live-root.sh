@@ -20,17 +20,6 @@ initGlobalDevices "$1"
 # live options and their default values
 initGlobalOptions
 
-# mount ISO device
-iso_mount_point=$(mountIso)
-
-# mount squashfs compressed container
-container_mount_point=$(
-    mountCompressedContainerFromIso "${iso_mount_point}"
-)
-
-# mount readonly root filesystem from container
-mountReadOnlyRootImageFromContainer "${container_mount_point}"
-
 # prepare overlay for generated systemd LiveOS_rootfs service
 declare isodiskdev=${isodiskdev}
 if getargbool 0 rd.live.overlay.persistent && [ -n "${isodiskdev}" ]; then
@@ -42,6 +31,17 @@ if getargbool 0 rd.live.overlay.persistent && [ -n "${isodiskdev}" ]; then
 else
     prepareTemporaryOverlay
 fi
+
+# mount ISO device
+iso_mount_point=$(mountIso)
+
+# mount squashfs compressed container
+container_mount_point=$(
+    mountCompressedContainerFromIso "${iso_mount_point}"
+)
+
+# mount readonly root filesystem from container
+mountReadOnlyRootImageFromContainer "${container_mount_point}"
 
 need_shutdown
 
