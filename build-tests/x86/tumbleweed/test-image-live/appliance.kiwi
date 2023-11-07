@@ -14,6 +14,7 @@
         <profile name="BIOS" description="BIOS only Live Boot based on isolinux"/>
         <profile name="Standard" description="Standard EFI/BIOS Live Boot"/>
         <profile name="Secure" description="SecureBoot/BIOS Live Boot"/>
+        <profile name="SDBoot" description="EFI Boot via systemd-boot"/>
     </profiles>
     <preferences>
         <version>1.42.3</version>
@@ -29,6 +30,11 @@
     <preferences profiles="BIOS">
         <type image="iso" flags="overlay" firmware="bios" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
             <bootloader name="isolinux" console="serial" timeout="10"/>
+        </type>
+    </preferences>
+    <preferences profiles="SDBoot">
+        <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="false">
+            <bootloader name="systemd_boot"/>
         </type>
     </preferences>
     <preferences profiles="Standard">
@@ -47,19 +53,27 @@
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
     </repository>
+    <packages type="image" profiles="SDBoot">
+        <package name="systemd-boot"/>
+    </packages>
+    <packages type="image" profiles="Standard,Secure">
+        <package name="grub2-branding-openSUSE"/>
+        <package name="grub2"/>
+        <package name="grub2-x86_64-efi" arch="x86_64"/>
+        <package name="grub2-i386-pc"/>
+        <package name="shim"/>
+    </packages>
+    <packages type="image" profiles="BIOS">
+        <package name="syslinux"/>
+    </packages>
     <packages type="image">
         <package name="bind-utils"/>
         <package name="patterns-openSUSE-base"/>
         <package name="systemd"/>
         <package name="plymouth-theme-breeze"/>
         <package name="plymouth-plugin-script"/>
-        <package name="grub2-branding-openSUSE"/>
         <package name="iputils"/>
         <package name="vim"/>
-        <package name="grub2"/>
-        <package name="grub2-x86_64-efi" arch="x86_64"/>
-        <package name="grub2-i386-pc"/>
-        <package name="syslinux"/>
         <package name="lvm2"/>
         <package name="plymouth"/>
         <package name="fontconfig"/>
@@ -73,7 +87,6 @@
         <package name="dhcp-client"/>
         <package name="which"/>
         <package name="kernel-default"/>
-        <package name="shim"/>
         <package name="timezone"/>
         <package name="dracut-kiwi-live"/>
     </packages>

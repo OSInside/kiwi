@@ -16,6 +16,7 @@ class TestBootLoaderSystemdBoot:
         self.state = Mock()
         self.state.xml_data.get_name.return_value = 'image-name'
         self.state.get_image_version.return_value = 'image-version'
+        self.state.build_type.get_efifatimagesize.return_value = None
         self.bootloader = BootLoaderSystemdBoot(self.state, 'root_dir')
         self.bootloader.custom_args['kernel'] = None
         self.bootloader.custom_args['initrd'] = None
@@ -67,7 +68,9 @@ class TestBootLoaderSystemdBoot:
             mock_get_template_parameters.return_value
         )
         assert self.bootloader._mount_system.called
-        mock_write_kernel_cmdline_file.assert_called_once_with()
+        mock_write_kernel_cmdline_file.assert_called_once_with(
+            'system_root_mount'
+        )
         assert mock_Command_run.call_args_list == [
             call(
                 [
@@ -127,8 +130,39 @@ class TestBootLoaderSystemdBoot:
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
-            self.bootloader._write_kernel_cmdline_file()
+            self.bootloader._write_kernel_cmdline_file('system_root_mount')
             mock_open.assert_called_once_with(
                 'system_root_mount/etc/kernel/cmdline', 'w'
             )
             file_handle.write.assert_called_once_with(self.bootloader.cmdline)
+
+    @patch('kiwi.bootloader.config.systemd_boot.Path.create')
+    @patch('kiwi.bootloader.config.systemd_boot.Command.run')
+    @patch('kiwi.bootloader.config.systemd_boot.LoopDevice')
+    @patch('kiwi.bootloader.config.systemd_boot.Disk')
+    @patch('kiwi.bootloader.config.systemd_boot.MountManager')
+    @patch.object(BootLoaderSystemdBoot, '_run_bootctl')
+    def test_create_embedded_fat_efi_image(
+        self, mock_run_bootctl, mock_MountManager, mock_Disk,
+        mock_LoopDevice, mock_Command_run, mock_Path_create
+    ):
+        mock_Disk.return_value.partition_map = {
+            'efi': 'efi_device'
+        }
+        self.bootloader._create_embedded_fat_efi_image('ESP')
+        assert mock_MountManager.call_args_list == [
+            call(device='efi_device', mountpoint='root_dir/boot/efi'),
+            call(device='/dev', mountpoint='root_dir/dev'),
+            call(device='/proc', mountpoint='root_dir/proc'),
+            call(device='/sys', mountpoint='root_dir/sys')
+        ]
+        assert mock_Command_run.call_args_list == [
+            call(['qemu-img', 'create', 'ESP', '20M']),
+            call(['sgdisk', '-n', ':1.0', '-t', '1:EF00', 'ESP']),
+            call(
+                ['mkdosfs', '-n', 'BOOT', 'efi_device']
+            ),
+            call(['dd', 'if=efi_device', 'of=ESP.img']),
+            call(['mv', 'ESP.img', 'ESP'])
+        ]
+        mock_run_bootctl.assert_called_once_with('root_dir')

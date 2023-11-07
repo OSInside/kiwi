@@ -24,6 +24,9 @@ from kiwi.path import Path
 from kiwi.bootloader.template.systemd_boot import BootLoaderTemplateSystemdBoot
 from kiwi.bootloader.config.bootloader_spec_base import BootLoaderSpecBase
 from kiwi.boot.image.base import BootImageBase
+from kiwi.mount_manager import MountManager
+from kiwi.storage.loop_device import LoopDevice
+from kiwi.storage.disk import Disk
 from kiwi.command import Command
 
 from kiwi.exceptions import (
@@ -73,35 +76,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             boot_options.get('efi_device'),
             boot_options.get('system_volumes')
         )
-        kernel_info = BootImageBase(
-            self.xml_state,
-            self.root_mount.mountpoint, self.root_mount.mountpoint
-        ).get_boot_names()
-        Command.run(
-            [
-                'chroot', self.root_mount.mountpoint, 'bootctl', 'install',
-                '--esp-path=/boot/efi',
-                '--no-variables',
-                '--entry-token', 'os-id'
-            ]
-        )
-        Path.wipe(f'{self.root_mount.mountpoint}/boot/loader')
-        self._write_kernel_cmdline_file()
-        Command.run(
-            [
-                'chroot', self.root_mount.mountpoint,
-                'kernel-install', 'add', kernel_info.kernel_version,
-                kernel_info.kernel_filename.replace(
-                    self.root_mount.mountpoint, ''
-                ),
-                f'/boot/{kernel_info.initrd_name}'
-            ]
-        )
-        BootLoaderSystemdBoot._write_config_file(
-            BootLoaderTemplateSystemdBoot().get_loader_template(),
-            self.root_mount.mountpoint + '/boot/efi/loader/loader.conf',
-            self._get_template_parameters()
-        )
+        self._run_bootctl(self.root_mount.mountpoint)
 
     def set_loader_entry(self, target: str) -> None:
         """
@@ -115,6 +90,105 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             target identifier, one of disk, live(iso) or install(iso)
         """
         pass
+
+    def _create_embedded_fat_efi_image(self, path: str):
+        """
+        Creates a EFI system partition image at the given path.
+        Installs systemd-boot required EFI layout into the image
+        """
+        # NOTE: limitation of El Torito boot,
+        # if the ESP size is greater than 20MB, the machine
+        # does no longer boot. I could not find a solution to
+        # this issue and bootctl install + kernel-install needs
+        # ~200MB for the ESP. I also noted that kernel-install
+        # does not fail with an exit code != if there is no
+        # space left anymore. Thus the image build completes but
+        # with incomplete data on the ESP
+        fat_image_mbsize = int(
+            self.xml_state.build_type.get_efifatimagesize() or 20
+        )
+        Command.run(
+            ['qemu-img', 'create', path, f'{fat_image_mbsize}M']
+        )
+        Command.run(
+            ['sgdisk', '-n', ':1.0', '-t', '1:EF00', path]
+        )
+        loop_provider = LoopDevice(path)
+        loop_provider.create(overwrite=False)
+        disk = Disk('gpt', loop_provider)
+        disk.map_partitions()
+        disk.partitioner.partition_id = 1
+        disk._add_to_map('efi')
+        Command.run(
+            ['mkdosfs', '-n', 'BOOT', disk.partition_map['efi']]
+        )
+        Path.create(f'{self.root_dir}/boot/efi')
+        efi_mount = MountManager(
+            device=disk.partition_map['efi'],
+            mountpoint=f'{self.root_dir}/boot/efi'
+        )
+        device_mount = MountManager(
+            device='/dev',
+            mountpoint=f'{self.root_dir}/dev'
+        )
+        proc_mount = MountManager(
+            device='/proc',
+            mountpoint=f'{self.root_dir}/proc'
+        )
+        sys_mount = MountManager(
+            device='/sys',
+            mountpoint=f'{self.root_dir}/sys'
+        )
+        efi_mount.mount()
+        device_mount.bind_mount()
+        proc_mount.bind_mount()
+        sys_mount.bind_mount()
+        try:
+            self._run_bootctl(self.root_dir)
+        finally:
+            efi_mount.umount()
+            device_mount.umount()
+            proc_mount.umount()
+            sys_mount.umount()
+        Command.run(
+            ['dd', f'if={disk.partition_map["efi"]}', f'of={path}.img']
+        )
+        del disk
+        del loop_provider
+        Command.run(
+            ['mv', f'{path}.img', path]
+        )
+
+    def _run_bootctl(self, root_dir: str) -> None:
+        """
+        Setup ESP for systemd-boot using bootctl and kernel-install
+        """
+        kernel_info = BootImageBase(
+            self.xml_state, root_dir, root_dir
+        ).get_boot_names()
+        Command.run(
+            [
+                'chroot', root_dir, 'bootctl', 'install',
+                '--esp-path=/boot/efi',
+                '--no-variables',
+                '--entry-token', 'os-id'
+            ]
+        )
+        Path.wipe(f'{root_dir}/boot/loader')
+        self._write_kernel_cmdline_file(root_dir)
+        Command.run(
+            [
+                'chroot', root_dir,
+                'kernel-install', 'add', kernel_info.kernel_version,
+                kernel_info.kernel_filename.replace(root_dir, ''),
+                f'/boot/{kernel_info.initrd_name}'
+            ]
+        )
+        BootLoaderSystemdBoot._write_config_file(
+            BootLoaderTemplateSystemdBoot().get_loader_template(),
+            root_dir + '/boot/efi/loader/loader.conf',
+            self._get_template_parameters()
+        )
 
     def _get_template_parameters(self) -> Dict[str, str]:
         return {
@@ -140,8 +214,8 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
                 '{0}: {1}'.format(type(issue).__name__, issue)
             )
 
-    def _write_kernel_cmdline_file(self) -> None:
-        kernel_cmdline = f'{self.root_mount.mountpoint}/etc/kernel/cmdline'
+    def _write_kernel_cmdline_file(self, root_dir: str) -> None:
+        kernel_cmdline = f'{root_dir}/etc/kernel/cmdline'
         Path.create(os.path.dirname(kernel_cmdline))
         with open(kernel_cmdline, 'w') as cmdline:
             cmdline.write(self.cmdline)

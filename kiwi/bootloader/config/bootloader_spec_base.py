@@ -219,5 +219,4 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.custom_args['kernel'] = kernel
         self.custom_args['initrd'] = initrd
 
-        self.setup_loader(target)
         self.set_loader_entry(target)

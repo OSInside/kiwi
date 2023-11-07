@@ -69,6 +69,9 @@ class InstallImageBuilder:
         custom_args: Dict = None
     ) -> None:
         self.arch = Defaults.get_platform_name()
+        self.bootloader = xml_state.get_build_type_bootloader_name()
+        if self.bootloader != 'systemd_boot':
+            self.bootloader = 'grub2'
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -210,7 +213,7 @@ class InstallImageBuilder:
             # for compat boot. The complete bootloader setup will be
             # based on grub
             bootloader_config = BootLoaderConfig.new(
-                'grub2', self.xml_state, root_dir=self.root_dir,
+                self.bootloader, self.xml_state, root_dir=self.root_dir,
                 boot_dir=self.media_dir.name, custom_args={
                     'grub_directory_name':
                         Defaults.get_grub_boot_directory_name(self.root_dir),
@@ -242,19 +245,19 @@ class InstallImageBuilder:
         )
         bootloader_config.write()
 
-        if self.firmware.efi_mode():
-            efi_loader = Temporary(
-                prefix='efi-loader.', path=self.target_dir
-            ).new_file()
-            bootloader_config._create_embedded_fat_efi_image(efi_loader.name)
-            self.custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
-
         # create initrd for install image
         log.info('Creating install image boot image')
         self._create_iso_install_kernel_and_initrd()
 
         # the system image initrd is stored to allow kexec
         self._copy_system_image_initrd_to_iso_image()
+
+        if self.firmware.efi_mode():
+            efi_loader = Temporary(
+                prefix='efi-loader.', path=self.target_dir
+            ).new_file()
+            bootloader_config._create_embedded_fat_efi_image(efi_loader.name)
+            self.custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
 
         # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')

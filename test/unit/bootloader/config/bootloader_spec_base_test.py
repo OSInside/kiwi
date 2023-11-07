@@ -46,26 +46,22 @@ class TestBootLoaderSpecBase:
         mock_setup_loader.assert_called_once_with('disk')
         mock_set_loader_entry.assert_called_once_with('disk')
 
-    @patch.object(BootLoaderSpecBase, 'setup_loader')
     @patch.object(BootLoaderSpecBase, 'set_loader_entry')
     def test_setup_install_image_config(
-        self, mock_setup_loader, mock_set_loader_entry
+        self, mock_set_loader_entry
     ):
         self.bootloader.setup_install_image_config(
             'mbrid', 'hypervisor', 'kernel', 'initrd'
         )
-        mock_setup_loader.assert_called_once_with('install(iso)')
         mock_set_loader_entry.assert_called_once_with('install(iso)')
 
-    @patch.object(BootLoaderSpecBase, 'setup_loader')
     @patch.object(BootLoaderSpecBase, 'set_loader_entry')
     def test_setup_live_image_config(
-        self, mock_setup_loader, mock_set_loader_entry
+        self, mock_set_loader_entry
     ):
         self.bootloader.setup_live_image_config(
             'mbrid', 'hypervisor', 'kernel', 'initrd'
         )
-        mock_setup_loader.assert_called_once_with('live(iso)')
         mock_set_loader_entry.assert_called_once_with('live(iso)')
 
     @patch.object(BootLoaderSpecBase, 'create_loader_image')
