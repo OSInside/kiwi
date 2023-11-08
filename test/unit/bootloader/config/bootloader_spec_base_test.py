@@ -32,10 +32,7 @@ class TestBootLoaderSpecBase:
         self.setup()
 
     @patch.object(BootLoaderSpecBase, 'setup_loader')
-    @patch.object(BootLoaderSpecBase, 'set_loader_entry')
-    def test_setup_disk_image_config(
-        self, mock_setup_loader, mock_set_loader_entry
-    ):
+    def test_setup_disk_image_config(self, mock_setup_loader):
         self.bootloader.get_boot_cmdline = Mock(return_value='')
         self.bootloader.setup_disk_image_config(
             'boot_uuid', 'root_uuid', 'hypervisor',
@@ -44,29 +41,18 @@ class TestBootLoaderSpecBase:
             }
         )
         mock_setup_loader.assert_called_once_with('disk')
-        mock_set_loader_entry.assert_called_once_with('disk')
 
-    @patch.object(BootLoaderSpecBase, 'setup_loader')
-    @patch.object(BootLoaderSpecBase, 'set_loader_entry')
-    def test_setup_install_image_config(
-        self, mock_setup_loader, mock_set_loader_entry
-    ):
+    def test_setup_install_image_config(self):
+        # just pass
         self.bootloader.setup_install_image_config(
             'mbrid', 'hypervisor', 'kernel', 'initrd'
         )
-        mock_setup_loader.assert_called_once_with('install(iso)')
-        mock_set_loader_entry.assert_called_once_with('install(iso)')
 
-    @patch.object(BootLoaderSpecBase, 'setup_loader')
-    @patch.object(BootLoaderSpecBase, 'set_loader_entry')
-    def test_setup_live_image_config(
-        self, mock_setup_loader, mock_set_loader_entry
-    ):
+    def test_setup_live_image_config(self):
+        # just pass
         self.bootloader.setup_live_image_config(
             'mbrid', 'hypervisor', 'kernel', 'initrd'
         )
-        mock_setup_loader.assert_called_once_with('live(iso)')
-        mock_set_loader_entry.assert_called_once_with('live(iso)')
 
     @patch.object(BootLoaderSpecBase, 'create_loader_image')
     def test_setup_disk_boot_images(self, mock_create_loader_image):
@@ -89,7 +75,7 @@ class TestBootLoaderSpecBase:
 
     def test_set_loader_entry(self):
         with raises(NotImplementedError):
-            self.bootloader.set_loader_entry('target')
+            self.bootloader.set_loader_entry('root_dir', 'target')
 
     def test_create_loader_image(self):
         with raises(NotImplementedError):

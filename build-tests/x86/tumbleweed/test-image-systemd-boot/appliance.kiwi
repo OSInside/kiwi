@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="xfs" kernelcmdline="console=ttyS0" firmware="efi" efipartsize="200">
+        <type image="oem" filesystem="xfs" kernelcmdline="console=ttyS0" firmware="efi" efipartsize="512">
             <bootloader name="systemd_boot" timeout="10"/>
             <oemconfig>
                 <oem-resize>false</oem-resize>
@@ -30,6 +30,7 @@
         <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
+        <package name="dracut-kiwi-oem-dump"/>
         <package name="patterns-openSUSE-base"/>
         <package name="systemd"/>
         <package name="systemd-boot"/>

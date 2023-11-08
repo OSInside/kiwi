@@ -28,12 +28,20 @@ class BootLoaderTemplateSystemdBoot:
 
         self.loader = dedent('''
             # kiwi generated loader config file
+            default main.conf
             console-mode max
             editor  no
         ''').strip() + self.cr
 
         self.timeout = dedent('''
             timeout ${boot_timeout}
+        ''').strip() + self.cr
+
+        self.entry = dedent('''
+            title ${title}
+            options ${boot_options}
+            linux ${kernel_file}
+            initrd ${initrd_file}
         ''').strip() + self.cr
 
     def get_loader_template(self) -> Template:
@@ -46,4 +54,15 @@ class BootLoaderTemplateSystemdBoot:
         """
         template_data = self.loader
         template_data += self.timeout
+        return Template(template_data)
+
+    def get_entry_template(self) -> Template:
+        """
+        Bootloader entry configuration template
+
+        :return: instance of :class:`Template`
+
+        :rtype: Template
+        """
+        template_data = self.entry
         return Template(template_data)

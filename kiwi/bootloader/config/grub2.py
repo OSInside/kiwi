@@ -43,6 +43,8 @@ from kiwi.exceptions import (
     KiwiDiskGeometryError
 )
 
+import kiwi.defaults as defaults
+
 log = logging.getLogger('kiwi')
 
 
@@ -929,7 +931,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Must be called after setup_install_boot_images and write.
         """
         fat_image_mbsize = int(
-            self.xml_state.build_type.get_efifatimagesize() or 20
+            self.xml_state.build_type
+                .get_efifatimagesize() or defaults.EFI_FAT_IMAGE_SIZE
         )
         Command.run(
             ['qemu-img', 'create', path, f'{fat_image_mbsize}M']

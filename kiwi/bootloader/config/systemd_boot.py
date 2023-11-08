@@ -24,12 +24,17 @@ from kiwi.path import Path
 from kiwi.bootloader.template.systemd_boot import BootLoaderTemplateSystemdBoot
 from kiwi.bootloader.config.bootloader_spec_base import BootLoaderSpecBase
 from kiwi.boot.image.base import BootImageBase
+from kiwi.mount_manager import MountManager
+from kiwi.storage.loop_device import LoopDevice
+from kiwi.storage.disk import Disk
 from kiwi.command import Command
 
 from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderTargetError
 )
+
+import kiwi.defaults as defaults
 
 
 class BootLoaderSystemdBoot(BootLoaderSpecBase):
@@ -48,15 +53,10 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
 
     def setup_loader(self, target: str) -> None:
         """
-        Setup ESP for systemd-boot using bootctl and kernel-install
+        Setup ESP for systemd-boot using bootctl
 
         For disk images only, setup the ESP layout for systemd boot
-        using bootctl. All data will be loaded from the ESP. The
-        kernel-install script provided with systemd is used to
-        manage kernel updates and the respective loader entries.
-        Distributions integrating well with systemd runs kernel-install
-        as part of their kernel packaging. In kiwi we use kernel-install
-        for the initial boot setup
+        using bootctl. All data will be loaded from the ESP.
 
         :param str target:
             target identifier, one of disk, live(iso) or install(iso)
@@ -73,48 +73,124 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             boot_options.get('efi_device'),
             boot_options.get('system_volumes')
         )
+        self._run_bootctl(self.root_mount.mountpoint)
+        self.set_loader_entry(self.root_mount.mountpoint, self.target.disk)
+
+    def set_loader_entry(self, root_dir: str, target: str) -> None:
+        """
+        Setup/update loader entries
+
+        :param str target:
+            target identifier, one of disk, live(iso) or install(iso)
+        """
+        BootLoaderSystemdBoot._write_config_file(
+            BootLoaderTemplateSystemdBoot().get_entry_template(),
+            root_dir + '/boot/efi/loader/entries/main.conf',
+            self._get_template_parameters()
+        )
+
+    def _create_embedded_fat_efi_image(self, path: str):
+        """
+        Creates a EFI system partition image at the given path.
+        Installs systemd-boot required EFI layout into the image
+        """
+        fat_image_mbsize = int(
+            self.xml_state.build_type
+                .get_efifatimagesize() or defaults.EFI_FAT_IMAGE_SIZE
+        )
+        Command.run(
+            ['qemu-img', 'create', path, f'{fat_image_mbsize}M']
+        )
+        Command.run(
+            ['sgdisk', '-n', ':1.0', '-t', '1:EF00', path]
+        )
+        loop_provider = LoopDevice(path)
+        loop_provider.create(overwrite=False)
+        disk = Disk('gpt', loop_provider)
+        disk.map_partitions()
+        disk.partitioner.partition_id = 1
+        disk._add_to_map('efi')
+        Command.run(
+            ['mkdosfs', '-n', 'BOOT', disk.partition_map['efi']]
+        )
+        Path.create(f'{self.root_dir}/boot/efi')
+        efi_mount = MountManager(
+            device=disk.partition_map['efi'],
+            mountpoint=f'{self.root_dir}/boot/efi'
+        )
+        device_mount = MountManager(
+            device='/dev',
+            mountpoint=f'{self.root_dir}/dev'
+        )
+        proc_mount = MountManager(
+            device='/proc',
+            mountpoint=f'{self.root_dir}/proc'
+        )
+        sys_mount = MountManager(
+            device='/sys',
+            mountpoint=f'{self.root_dir}/sys'
+        )
+        efi_mount.mount()
+        device_mount.bind_mount()
+        proc_mount.bind_mount()
+        sys_mount.bind_mount()
+        try:
+            self._run_bootctl(self.root_dir)
+            self.set_loader_entry(self.root_dir, self.target.live)
+        finally:
+            efi_mount.umount()
+            device_mount.umount()
+            proc_mount.umount()
+            sys_mount.umount()
+        Command.run(
+            ['dd', f'if={disk.partition_map["efi"]}', f'of={path}.img']
+        )
+        del disk
+        del loop_provider
+        Command.run(
+            ['mv', f'{path}.img', path]
+        )
+
+    def _run_bootctl(self, root_dir: str) -> None:
+        """
+        Setup ESP for systemd-boot using bootctl
+        """
         kernel_info = BootImageBase(
-            self.xml_state,
-            self.root_mount.mountpoint, self.root_mount.mountpoint
+            self.xml_state, root_dir, root_dir
         ).get_boot_names()
         Command.run(
             [
-                'chroot', self.root_mount.mountpoint, 'bootctl', 'install',
+                'chroot', root_dir, 'bootctl', 'install',
                 '--esp-path=/boot/efi',
                 '--no-variables',
                 '--entry-token', 'os-id'
             ]
         )
-        Path.wipe(f'{self.root_mount.mountpoint}/boot/loader')
-        self._write_kernel_cmdline_file()
+        Path.wipe(f'{root_dir}/boot/loader')
+        self._write_kernel_cmdline_file(root_dir)
+
+        # copy kernel and initrd
+        entry_dir = f'{root_dir}/boot/efi/loader/entries'
+        os_dir = f'{root_dir}/boot/efi/os'
+        Path.create(entry_dir)
+        Path.create(os_dir)
+        self.custom_args['kernel'] = \
+            f'os/{os.path.basename(kernel_info.kernel_filename)}'
+        self.custom_args['initrd'] = \
+            f'os/{kernel_info.initrd_name}'
         Command.run(
-            [
-                'chroot', self.root_mount.mountpoint,
-                'kernel-install', 'add', kernel_info.kernel_version,
-                kernel_info.kernel_filename.replace(
-                    self.root_mount.mountpoint, ''
-                ),
-                f'/boot/{kernel_info.initrd_name}'
-            ]
+            ['cp', kernel_info.kernel_filename, os_dir]
         )
+        Command.run(
+            ['cp', f'{root_dir}/boot/{kernel_info.initrd_name}', os_dir]
+        )
+
+        # create loader.conf
         BootLoaderSystemdBoot._write_config_file(
             BootLoaderTemplateSystemdBoot().get_loader_template(),
-            self.root_mount.mountpoint + '/boot/efi/loader/loader.conf',
+            root_dir + '/boot/efi/loader/loader.conf',
             self._get_template_parameters()
         )
-
-    def set_loader_entry(self, target: str) -> None:
-        """
-        Setup/update loader entries
-
-        loader entries for systemd-boot are expected to be managed
-        through kernel-install. Thus no further action needs to be
-        taken by kiwi
-
-        :param str target:
-            target identifier, one of disk, live(iso) or install(iso)
-        """
-        pass
 
     def _get_template_parameters(self) -> Dict[str, str]:
         return {
@@ -140,8 +216,8 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
                 '{0}: {1}'.format(type(issue).__name__, issue)
             )
 
-    def _write_kernel_cmdline_file(self) -> None:
-        kernel_cmdline = f'{self.root_mount.mountpoint}/etc/kernel/cmdline'
+    def _write_kernel_cmdline_file(self, root_dir: str) -> None:
+        kernel_cmdline = f'{root_dir}/etc/kernel/cmdline'
         Path.create(os.path.dirname(kernel_cmdline))
         with open(kernel_cmdline, 'w') as cmdline:
             cmdline.write(self.cmdline)

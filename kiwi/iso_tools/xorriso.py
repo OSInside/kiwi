@@ -97,20 +97,21 @@ class IsoToolsXorrIso(IsoToolsBase):
 
         if Defaults.is_x86_arch(self.arch):
             if efi_mode:
-                loader_file = os.sep.join(
-                    [
-                        self.boot_path, 'loader',
-                        Defaults.get_isolinux_bios_grub_loader()
-                    ]
-                )
                 mbr_file = os.sep.join(
                     [self.source_dir, self.boot_path, '/loader/boot_hybrid.img']
                 )
-                self.iso_loaders += [
-                    '-boot_image', 'grub', 'bin_path={0}'.format(loader_file),
-                    '-boot_image', 'grub', 'grub2_mbr={0}'.format(mbr_file),
-                    '-boot_image', 'grub', 'grub2_boot_info=on'
-                ]
+                if os.path.exists(mbr_file):
+                    loader_file = os.sep.join(
+                        [
+                            self.boot_path, 'loader',
+                            Defaults.get_isolinux_bios_grub_loader()
+                        ]
+                    )
+                    self.iso_loaders += [
+                        '-boot_image', 'grub', 'bin_path={0}'.format(loader_file),
+                        '-boot_image', 'grub', 'grub2_mbr={0}'.format(mbr_file),
+                        '-boot_image', 'grub', 'grub2_boot_info=on'
+                    ]
             else:
                 loader_file = self.boot_path + '/loader/isolinux.bin'
                 mbr_file_c = Path.which(

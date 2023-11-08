@@ -133,6 +133,7 @@ class TestLiveImageBuilder:
         )
         assert live_image.arch == 'ix86'
 
+    @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.DeviceProvider')
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.Temporary')
@@ -145,7 +146,42 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     @patch('os.chmod')
-    def test_create_overlay_structure(
+    def test_create_overlay_structure_boot_on_systemd_boot(
+        self, mock_chmod, mock_exists, mock_grub_dir, mock_size,
+        mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
+        mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider,
+        mock_Command_run
+    ):
+        boot_names = Mock()
+        boot_names.initrd_name = 'dracut_initrd_name'
+        self.live_image.boot_image.get_boot_names.return_value = boot_names
+        self.live_image.boot_image.initrd_filename = 'kiwi_used_initrd_name'
+        self.live_image.bootloader = 'systemd_boot'
+
+        rootsize = Mock()
+        rootsize.accumulate_mbyte_file_sizes = Mock(
+            return_value=8192
+        )
+        mock_size.return_value = rootsize
+
+        self.live_image.create()
+        mock_Command_run.assert_called_once_with(
+            ['mv', 'kiwi_used_initrd_name', 'root_dir/boot/dracut_initrd_name']
+        )
+
+    @patch('kiwi.builder.live.DeviceProvider')
+    @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
+    @patch('kiwi.builder.live.Temporary')
+    @patch('kiwi.builder.live.shutil')
+    @patch('kiwi.builder.live.Iso.set_media_tag')
+    @patch('kiwi.builder.live.Iso')
+    @patch('kiwi.builder.live.FileSystemIsoFs')
+    @patch('kiwi.builder.live.FileSystem.new')
+    @patch('kiwi.builder.live.SystemSize')
+    @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.chmod')
+    def test_create_overlay_structure_boot_on_grub(
         self, mock_chmod, mock_exists, mock_grub_dir, mock_size,
         mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
         mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider

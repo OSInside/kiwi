@@ -81,7 +81,9 @@ class TestIsoToolsXorrIso:
             '-boot_image', 'any', 'load_size=2048'
         ]
 
-    def test_init_iso_creation_parameters_efi(self):
+    @patch('os.path.exists')
+    def test_init_iso_creation_parameters_efi(self, mock_os_path_exists):
+        mock_os_path_exists.return_value = True
         self.iso_tool.init_iso_creation_parameters(
             {
                 'mbr_id': 'app_id',

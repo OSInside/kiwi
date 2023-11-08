@@ -41,6 +41,7 @@ from kiwi.system.kernel import Kernel
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.xml_state import XMLState
+from kiwi.command import Command
 
 from kiwi.exceptions import KiwiLiveBootImageError
 
@@ -60,6 +61,9 @@ class LiveImageBuilder:
         self, xml_state: XMLState, target_dir: str,
         root_dir: str, custom_args: Dict = None
     ):
+        self.bootloader = xml_state.get_build_type_bootloader_name()
+        if self.bootloader != 'systemd_boot':
+            self.bootloader = 'grub2'
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -77,7 +81,9 @@ class LiveImageBuilder:
             self.live_type = Defaults.get_default_live_iso_type()
 
         self.boot_image = BootImageDracut(
-            xml_state, target_dir, self.root_dir
+            xml_state,
+            f'{root_dir}/boot' if self.bootloader == 'systemd_boot' else target_dir,
+            self.root_dir
         )
         self.firmware = FirmWare(
             xml_state
@@ -146,7 +152,7 @@ class LiveImageBuilder:
             # for compat boot. The complete bootloader setup will be
             # based on grub
             bootloader_config = BootLoaderConfig.new(
-                'grub2', self.xml_state, root_dir=self.root_dir,
+                self.bootloader, self.xml_state, root_dir=self.root_dir,
                 boot_dir=self.media_dir.name, custom_args={
                     'grub_directory_name':
                         Defaults.get_grub_boot_directory_name(self.root_dir),
@@ -183,13 +189,6 @@ class LiveImageBuilder:
             working_directory=self.root_dir
         )
 
-        if self.firmware.efi_mode():
-            efi_loader = Temporary(
-                prefix='efi-loader.', path=self.target_dir
-            ).new_file()
-            bootloader_config._create_embedded_fat_efi_image(efi_loader.name)
-            custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
-
         # prepare dracut initrd call
         self.boot_image.prepare()
 
@@ -210,10 +209,31 @@ class LiveImageBuilder:
             config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
         )
         self.boot_image.create_initrd(self.mbrid)
+        if self.bootloader == 'systemd_boot':
+            # make sure the initrd name follows the dracut naming conventions
+            boot_names = self.boot_image.get_boot_names()
+            if self.boot_image.initrd_filename:
+                Command.run(
+                    [
+                        'mv', self.boot_image.initrd_filename,
+                        self.root_dir + ''.join(
+                            ['/boot/', boot_names.initrd_name]
+                        )
+                    ]
+                )
+
+        # create EFI FAT image
+        if self.firmware.efi_mode():
+            efi_loader = Temporary(
+                prefix='efi-loader.', path=self.target_dir
+            ).new_file()
+            bootloader_config._create_embedded_fat_efi_image(efi_loader.name)
+            custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
 
         # setup kernel file(s) and initrd in ISO boot layout
-        log.info('Setting up kernel file(s) and boot image in ISO boot layout')
-        self._setup_live_iso_kernel_and_initrd()
+        if self.bootloader != 'systemd_boot':
+            log.info('Setting up kernel file(s) and boot image in ISO boot layout')
+            self._setup_live_iso_kernel_and_initrd()
 
         # calculate size and decide if we need UDF
         if rootsize.accumulate_mbyte_file_sizes() > 4096:
