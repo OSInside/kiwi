@@ -43,6 +43,7 @@ class TestBootLoaderSystemdBoot:
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.systemd_boot.BootImageBase.get_boot_names')
     @patch('kiwi.bootloader.config.systemd_boot.Path.wipe')
+    @patch('kiwi.bootloader.config.systemd_boot.Path.create')
     @patch('kiwi.bootloader.config.systemd_boot.Command.run')
     @patch('kiwi.bootloader.config.systemd_boot.BootLoaderTemplateSystemdBoot')
     @patch.object(BootLoaderSystemdBoot, '_write_config_file')
@@ -52,7 +53,7 @@ class TestBootLoaderSystemdBoot:
         self, mock_write_kernel_cmdline_file,
         mock_get_template_parameters, mock_write_config_file,
         mock_BootLoaderTemplateSystemdBoot, mock_Command_run,
-        mock_Path_wipe, mock_BootImageBase_get_boot_names,
+        mock_Path_create, mock_Path_wipe, mock_BootImageBase_get_boot_names,
         mock_os_path_exists
     ):
         kernel_info = Mock()
@@ -62,11 +63,19 @@ class TestBootLoaderSystemdBoot:
         mock_os_path_exists.return_value = True
         mock_BootImageBase_get_boot_names.return_value = kernel_info
         self.bootloader.setup_loader('disk')
-        mock_write_config_file.assert_called_once_with(
-            mock_BootLoaderTemplateSystemdBoot.return_value.get_loader_template.return_value,
-            'system_root_mount/boot/efi/loader/loader.conf',
-            mock_get_template_parameters.return_value
-        )
+        assert mock_write_config_file.call_args_list == [
+            call(
+                mock_BootLoaderTemplateSystemdBoot.return_value.get_loader_template.return_value,
+                'system_root_mount/boot/efi/loader/loader.conf',
+                mock_get_template_parameters.return_value
+            ),
+            call(
+                mock_BootLoaderTemplateSystemdBoot.return_value.get_entry_template.return_value,
+                'system_root_mount/boot/efi/loader/entries/main.conf',
+                mock_get_template_parameters.return_value
+            )
+        ]
+
         assert self.bootloader._mount_system.called
         mock_write_kernel_cmdline_file.assert_called_once_with(
             'system_root_mount'
@@ -74,7 +83,8 @@ class TestBootLoaderSystemdBoot:
         assert mock_Command_run.call_args_list == [
             call(
                 [
-                    'chroot', 'system_root_mount', 'bootctl', 'install',
+                    'chroot', 'system_root_mount',
+                    'bootctl', 'install',
                     '--esp-path=/boot/efi',
                     '--no-variables',
                     '--entry-token', 'os-id'
@@ -82,16 +92,21 @@ class TestBootLoaderSystemdBoot:
             ),
             call(
                 [
-                    'chroot', 'system_root_mount', 'kernel-install', 'add',
-                    'kernel-version', 'kernel-filename',
-                    '/boot/initrd-name'
+                    'cp', 'kernel-filename',
+                    'system_root_mount/boot/efi/os'
+                ]
+            ),
+            call(
+                [
+                    'cp', 'system_root_mount/boot/initrd-name',
+                    'system_root_mount/boot/efi/os'
                 ]
             )
         ]
 
-    def test_set_loader_entry(self):
-        # just pass
-        self.bootloader.set_loader_entry('disk')
+    @patch.object(BootLoaderSystemdBoot, '_write_config_file')
+    def test_set_loader_entry(self, mock_write_config_file):
+        self.bootloader.set_loader_entry('root_dir', 'disk')
 
     def test_create_loader_image(self):
         self.bootloader.create_loader_image('disk')
@@ -142,10 +157,13 @@ class TestBootLoaderSystemdBoot:
     @patch('kiwi.bootloader.config.systemd_boot.Disk')
     @patch('kiwi.bootloader.config.systemd_boot.MountManager')
     @patch.object(BootLoaderSystemdBoot, '_run_bootctl')
+    @patch.object(BootLoaderSystemdBoot, 'set_loader_entry')
     def test_create_embedded_fat_efi_image(
-        self, mock_run_bootctl, mock_MountManager, mock_Disk,
-        mock_LoopDevice, mock_Command_run, mock_Path_create
+        self, mock_set_loader_entry, mock_run_bootctl, mock_MountManager,
+        mock_Disk, mock_LoopDevice, mock_Command_run, mock_Path_create
     ):
+        target = Mock()
+        self.bootloader.target = target
         mock_Disk.return_value.partition_map = {
             'efi': 'efi_device'
         }
@@ -166,3 +184,4 @@ class TestBootLoaderSystemdBoot:
             call(['mv', 'ESP.img', 'ESP'])
         ]
         mock_run_bootctl.assert_called_once_with('root_dir')
+        mock_set_loader_entry.assert_called_once_with('root_dir', target.live)

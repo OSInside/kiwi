@@ -108,7 +108,6 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
             ]
         )
         self.setup_loader(self.target.disk)
-        self.set_loader_entry(self.target.disk)
 
     def setup_install_image_config(
         self, mbrid: str, hypervisor: str = '',
@@ -124,12 +123,12 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
 
         Targeted to bootloader spec interface
         """
-        self._setup_iso_image_config(mbrid, 'install(iso)', kernel, initrd)
+        pass
 
     def setup_live_image_config(
         self, mbrid: str, hypervisor: str = '',
         kernel: str = '', initrd: str = ''
-    ):
+    ) -> None:
         """
         Create boot config file to boot live ISO image
 
@@ -140,9 +139,11 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
 
         Targeted to bootloader spec interface
         """
-        self._setup_iso_image_config(mbrid, 'live(iso)', kernel, initrd)
+        pass
 
-    def setup_disk_boot_images(self, boot_uuid: str, lookup_path: str = ''):
+    def setup_disk_boot_images(
+        self, boot_uuid: str, lookup_path: str = ''
+    ) -> None:
         """
         Create bootloader image(s) for disk boot
 
@@ -153,7 +154,9 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         """
         self.create_loader_image(self.target.disk)
 
-    def setup_install_boot_images(self, mbrid: str, lookup_path: str = ''):
+    def setup_install_boot_images(
+        self, mbrid: str, lookup_path: str = ''
+    ) -> None:
         """
         Create bootloader image(s) for install ISO boot
 
@@ -164,7 +167,9 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         """
         self.create_loader_image(self.target.install)
 
-    def setup_live_boot_images(self, mbrid: str, lookup_path: str = ''):
+    def setup_live_boot_images(
+        self, mbrid: str, lookup_path: str = ''
+    ) -> None:
         """
         Create bootloader image(s) for live ISO boot
 
@@ -201,22 +206,15 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         """
         raise NotImplementedError
 
-    def set_loader_entry(self, target: str) -> None:
+    def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
         Setup bootloader menu entry boot/loader/entries/X.conf
 
+        :param str root_dir:
+            path to root directory tree
         :param str target:
             target identifier, one of disk, live(iso) or install(iso)
 
         Implementation in specialized loader class
         """
         raise NotImplementedError
-
-    def _setup_iso_image_config(
-        self, mbrid: str, target: str, kernel: str = '', initrd: str = ''
-    ):
-        self.custom_args['mbrid'] = mbrid
-        self.custom_args['kernel'] = kernel
-        self.custom_args['initrd'] = initrd
-
-        self.set_loader_entry(target)
