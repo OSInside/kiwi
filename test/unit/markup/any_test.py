@@ -33,3 +33,6 @@ class TestMarkupXML:
 
     def test_get_yaml_description(self):
         assert 'xslt-' in self.markup.get_yaml_description()
+
+    def test_get_toml_description(self):
+        assert 'xslt-' in self.markup.get_toml_description()

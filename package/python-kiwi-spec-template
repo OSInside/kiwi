@@ -370,6 +370,7 @@ Requires:       python%{python3_pkgversion}-typing-extensions
 %else
 Requires:       python%{python3_pkgversion}-PyYAML
 %endif
+Requires:       python%{python3_pkgversion}-toml
 Requires:       python%{python3_pkgversion}-simplejson
 Requires:       python%{python3_pkgversion}-docopt
 Requires:       python%{python3_pkgversion}-lxml

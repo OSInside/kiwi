@@ -70,6 +70,25 @@ class MarkupAny(MarkupBase):
             self.description_markup_processed.name
         )
 
+    def get_toml_description(self) -> str:
+        """
+        Return TOML description file name
+
+        :return: file path name
+
+        :rtype: str
+        """
+        xml_description_xslt_transformed = self.apply_xslt_stylesheets(
+            self.description_markup_processed.name
+        )
+        markup = self.anymarkup.parse_file(
+            xml_description_xslt_transformed, force_types=None
+        )
+        self.anymarkup.serialize_file(
+            markup, xml_description_xslt_transformed, format='toml'
+        )
+        return xml_description_xslt_transformed
+
     def get_yaml_description(self) -> str:
         """
         Return YAML description file name

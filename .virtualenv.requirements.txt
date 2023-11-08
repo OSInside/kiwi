@@ -11,6 +11,9 @@ lxml
 # YAML file parsing
 PyYAML
 
+# TOML file parsing
+toml
+
 # Python wrapper for extended filesystem attributes
 xattr==0.9.3
 

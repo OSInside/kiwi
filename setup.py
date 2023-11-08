@@ -66,6 +66,7 @@ config = {
         'lxml',
         'requests',
         'PyYAML',
+        'toml',
         'simplejson',
         'typing_extensions; python_version < "3.8"',
     ],
