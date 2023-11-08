@@ -1758,11 +1758,11 @@ class TestBootLoaderConfigGrub2:
             ]
             assert file_handle.write.call_args_list == [
                 call('set btrfs_relative_path="yes"\n'),
-                call('search --file --set=root /boot/mbrid\n'),
+                call('search --file --set=root /boot/0xffffffff\n'),
                 call('set prefix=($root)/boot/grub2\n'),
                 call('source ($root)/boot/grub2/grub.cfg\n'),
                 call('set btrfs_relative_path="yes"\n'),
-                call('search --file --set=root /boot/mbrid\n'),
+                call('search --file --set=root /boot/0xffffffff\n'),
                 call('set prefix=($root)/boot/grub2\n'),
                 call('source ($root)/boot/grub2/grub.cfg\n'),
                 call('source /boot/grub2/grub.cfg\n')
@@ -1871,7 +1871,7 @@ class TestBootLoaderConfigGrub2:
 
             assert file_handle.write.call_args_list == [
                 call('set btrfs_relative_path="yes"\n'),
-                call('search --file --set=root /boot/mbrid\n'),
+                call('search --file --set=root /boot/0xffffffff\n'),
                 call('set prefix=($root)/boot/grub2\n'),
                 call('source ($root)/boot/grub2/grub.cfg\n'),
                 call('source /boot/grub2/grub.cfg\n')
@@ -1941,7 +1941,7 @@ class TestBootLoaderConfigGrub2:
                 )
                 assert file_handle.write.call_args_list == [
                     call('set btrfs_relative_path="yes"\n'),
-                    call('search --file --set=root /boot/mbrid\n'),
+                    call('search --file --set=root /boot/0xffffffff\n'),
                     call('set prefix=($root)/boot/grub2\n'),
                     call('source ($root)/boot/grub2/grub.cfg\n'),
                     call('source /boot/grub2/grub.cfg\n')

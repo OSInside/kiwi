@@ -1114,9 +1114,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 'set btrfs_relative_path="yes"{0}'.format(os.linesep)
             )
             early_boot.write(
-                'search --file --set=root /boot/mbrid{0}'.format(
-                    os.linesep
-                )
+                f'search --file --set=root /boot/{mbrid.get_id()}{os.linesep}'
             )
             early_boot.write(
                 'set prefix=($root)/boot/{0}{1}'.format(
