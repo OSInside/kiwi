@@ -157,3 +157,6 @@
 
 #      # check devicepersistency compatible with partition table type
 #      - check_partuuid_persistency_type_used_with_mbr
+
+#      # check efifatimagesize does not exceed the max El Torito load size
+#      - check_efi_fat_image_has_correct_size

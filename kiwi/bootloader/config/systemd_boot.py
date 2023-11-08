@@ -34,6 +34,8 @@ from kiwi.exceptions import (
     KiwiBootLoaderTargetError
 )
 
+import kiwi.defaults as defaults
+
 
 class BootLoaderSystemdBoot(BootLoaderSpecBase):
     def create_loader_image(self, target: str) -> None:
@@ -96,16 +98,9 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         Creates a EFI system partition image at the given path.
         Installs systemd-boot required EFI layout into the image
         """
-        # NOTE: limitation of El Torito boot,
-        # if the ESP size is greater than 20MB, the machine
-        # does no longer boot. I could not find a solution to
-        # this issue and bootctl install + kernel-install needs
-        # ~200MB for the ESP. I also noted that kernel-install
-        # does not fail with an exit code != if there is no
-        # space left anymore. Thus the image build completes but
-        # with incomplete data on the ESP
         fat_image_mbsize = int(
-            self.xml_state.build_type.get_efifatimagesize() or 20
+            self.xml_state.build_type
+                .get_efifatimagesize() or defaults.EFI_FAT_IMAGE_SIZE
         )
         Command.run(
             ['qemu-img', 'create', path, f'{fat_image_mbsize}M']

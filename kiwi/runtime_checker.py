@@ -40,6 +40,8 @@ from kiwi.exceptions import (
     KiwiRuntimeError
 )
 
+import kiwi.defaults as defaults
+
 dracut_module_type = NamedTuple(
     'dracut_module_type', [
         ('package', str),
@@ -1041,6 +1043,26 @@ class RuntimeChecker:
                         type_export.getvalue()
                     )
                 )
+
+    def check_efi_fat_image_has_correct_size(self) -> None:
+        """
+        Verify that the efifatimagesize does not exceed the max
+        El Torito load size of 65535 * 512 bytes
+        """
+        message = dedent('''\n
+            El Torito max load size exceeded
+
+            The configured efifatimagesize of '{0}MB' exceeds
+            the El Torito max load size of 65535 * 512 bytes (~31MB).
+        ''')
+        fat_image_mbsize = int(
+            self.xml_state.build_type
+                .get_efifatimagesize() or defaults.EFI_FAT_IMAGE_SIZE
+        )
+        if fat_image_mbsize > 31:
+            raise KiwiRuntimeError(
+                message.format(fat_image_mbsize)
+            )
 
     @staticmethod
     def _get_dracut_module_version_from_pdb(

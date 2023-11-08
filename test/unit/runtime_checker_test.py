@@ -312,6 +312,13 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_xen_uniquely_setup_as_server_or_guest()
 
+    def test_check_efi_fat_image_has_correct_size(self):
+        self.xml_state.build_type.get_efifatimagesize = Mock(
+            return_value='200'
+        )
+        with raises(KiwiRuntimeError):
+            self.runtime_checker.check_efi_fat_image_has_correct_size()
+
     def test_check_xen_uniquely_setup_as_server_or_guest_for_xen(self):
         self.xml_state.build_type.get_firmware = Mock(
             return_value=None

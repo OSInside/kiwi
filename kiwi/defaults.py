@@ -85,6 +85,7 @@ SHARED_CACHE_DIR = '/var/cache/kiwi'
 TEMP_DIR = '/var/tmp'
 CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
+EFI_FAT_IMAGE_SIZE = 20
 
 log = logging.getLogger('kiwi')
 
