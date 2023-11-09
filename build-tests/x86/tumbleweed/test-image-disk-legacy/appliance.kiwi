@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" initrd_system="kiwi" boot="oemboot/suse-tumbleweed" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install" efifatimagesize="100">
+        <type image="oem" filesystem="btrfs" initrd_system="kiwi" boot="oemboot/suse-tumbleweed" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install" efifatimagesize="30" efipartsize="512">
             <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
