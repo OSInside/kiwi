@@ -1902,6 +1902,19 @@ class TestBootLoaderConfigGrub2:
             )
         ]
 
+        with patch('builtins.open', create=True) as mock_open:
+            # Test fallback search for earlyboot if UUID and MBR ID are missing
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.bootloader._setup_efi_image(uuid=None, mbrid=None)
+
+            assert file_handle.write.call_args_list == [
+                call('set btrfs_relative_path="yes"\n'),
+                call('search --file --set=root /boot/mbrid\n'),
+                call('set prefix=($root)/boot/grub2\n'),
+                call('source ($root)/boot/grub2/grub.cfg\n'),
+            ]
+
     @patch.object(BootLoaderConfigGrub2, '_supports_bios_modules')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('os.path.exists')
