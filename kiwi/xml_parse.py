@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.3 (main, Jun 03 2023, 22:12:18) [GCC]
+# Python 3.6.15 (default, Sep 23 2021, 15:41:43) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/unit_py3_11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /work/rjschwei/devel/kiwi/.tox/unit_py3_6/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -100,7 +100,7 @@ except ImportError:
 try:
     from generatedssuper import GeneratedsSuper
 except ImportError as exp:
-
+    
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
         class _FixedOffsetTZ(datetime_.tzinfo):
@@ -426,7 +426,7 @@ except ImportError as exp:
             return self.__dict__ == other.__dict__
         def __ne__(self, other):
             return not self.__eq__(other)
-
+    
     def getSubclassFromModule_(module, class_):
         '''Get the subclass of a class from a specific module.'''
         name = class_.__name__ + 'Sub'
@@ -725,6 +725,10 @@ def _cast(typ, value):
 #
 
 
+class k_containerruntime_content(object):
+    PODMAN='podman'
+
+
 class k_packagemanager_content(object):
     APT='apt'
     ZYPPER='zypper'
@@ -812,7 +816,7 @@ class image(GeneratedsSuper):
     """The root element of the configuration file"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, packages=None, extension=None):
+    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, registry=None, packages=None, extension=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.displayname = _cast(None, displayname)
@@ -852,6 +856,10 @@ class image(GeneratedsSuper):
             self.repository = []
         else:
             self.repository = repository
+        if registry is None:
+            self.registry = []
+        else:
+            self.registry = registry
         if packages is None:
             self.packages = []
         else:
@@ -911,6 +919,11 @@ class image(GeneratedsSuper):
     def add_repository(self, value): self.repository.append(value)
     def insert_repository_at(self, index, value): self.repository.insert(index, value)
     def replace_repository_at(self, index, value): self.repository[index] = value
+    def get_registry(self): return self.registry
+    def set_registry(self, registry): self.registry = registry
+    def add_registry(self, value): self.registry.append(value)
+    def insert_registry_at(self, index, value): self.registry.insert(index, value)
+    def replace_registry_at(self, index, value): self.registry[index] = value
     def get_packages(self): return self.packages
     def set_packages(self, packages): self.packages = packages
     def add_packages(self, value): self.packages.append(value)
@@ -950,6 +963,7 @@ class image(GeneratedsSuper):
             self.drivers or
             self.strip or
             self.repository or
+            self.registry or
             self.packages or
             self.extension
         ):
@@ -1017,6 +1031,8 @@ class image(GeneratedsSuper):
             strip_.export(outfile, level, namespaceprefix_, name_='strip', pretty_print=pretty_print)
         for repository_ in self.repository:
             repository_.export(outfile, level, namespaceprefix_, name_='repository', pretty_print=pretty_print)
+        for registry_ in self.registry:
+            registry_.export(outfile, level, namespaceprefix_, name_='registry', pretty_print=pretty_print)
         for packages_ in self.packages:
             packages_.export(outfile, level, namespaceprefix_, name_='packages', pretty_print=pretty_print)
         for extension_ in self.extension:
@@ -1097,6 +1113,11 @@ class image(GeneratedsSuper):
             obj_.build(child_)
             self.repository.append(obj_)
             obj_.original_tagname_ = 'repository'
+        elif nodeName_ == 'registry':
+            obj_ = registry.factory()
+            obj_.build(child_)
+            self.registry.append(obj_)
+            obj_.original_tagname_ = 'registry'
         elif nodeName_ == 'packages':
             obj_ = packages.factory()
             obj_.build(child_)
@@ -2083,6 +2104,76 @@ class configoption(GeneratedsSuper):
 # end class configoption
 
 
+class container(GeneratedsSuper):
+    """Name of container to install in the image"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, container)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if container.subclass:
+            return container.subclass(*args_, **kwargs_)
+        else:
+            return container(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='container', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('container')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='container')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='container', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='container'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='container', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class container
+
+
 class package(GeneratedsSuper):
     """Name of an image Package"""
     subclass = None
@@ -2406,6 +2497,86 @@ class requires(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class requires
+
+
+class registry(GeneratedsSuper):
+    """The path to an OCI container registry"""
+    subclass = None
+    superclass = None
+    def __init__(self, profiles=None, path=None):
+        self.original_tagname_ = None
+        self.profiles = _cast(None, profiles)
+        self.path = _cast(None, path)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, registry)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if registry.subclass:
+            return registry.subclass(*args_, **kwargs_)
+        else:
+            return registry(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_profiles(self): return self.profiles
+    def set_profiles(self, profiles): self.profiles = profiles
+    def get_path(self): return self.path
+    def set_path(self, path): self.path = path
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='registry', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('registry')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='registry')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='registry', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='registry'):
+        if self.profiles is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+        if self.path is not None and 'path' not in already_processed:
+            already_processed.add('path')
+            outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='registry', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('profiles', node)
+        if value is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            self.profiles = value
+        value = find_attr_value_('path', node)
+        if value is not None and 'path' not in already_processed:
+            already_processed.add('path')
+            self.path = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class registry
 
 
 class repository(k_source):
@@ -8564,7 +8735,7 @@ class packages(GeneratedsSuper):
     """Specifies Packages/Patterns Used in Different Stages"""
     subclass = None
     superclass = None
-    def __init__(self, type_=None, profiles=None, patternType=None, bootstrap_package=None, archive=None, ignore=None, namedCollection=None, collectionModule=None, product=None, package=None):
+    def __init__(self, type_=None, profiles=None, patternType=None, bootstrap_package=None, archive=None, ignore=None, namedCollection=None, collectionModule=None, product=None, container=None, package=None):
         self.original_tagname_ = None
         self.type_ = _cast(None, type_)
         self.profiles = _cast(None, profiles)
@@ -8590,6 +8761,10 @@ class packages(GeneratedsSuper):
             self.product = []
         else:
             self.product = product
+        if container is None:
+            self.container = []
+        else:
+            self.container = container
         if package is None:
             self.package = []
         else:
@@ -8630,6 +8805,11 @@ class packages(GeneratedsSuper):
     def add_product(self, value): self.product.append(value)
     def insert_product_at(self, index, value): self.product.insert(index, value)
     def replace_product_at(self, index, value): self.product[index] = value
+    def get_container(self): return self.container
+    def set_container(self, container): self.container = container
+    def add_container(self, value): self.container.append(value)
+    def insert_container_at(self, index, value): self.container.insert(index, value)
+    def replace_container_at(self, index, value): self.container[index] = value
     def get_package(self): return self.package
     def set_package(self, package): self.package = package
     def add_package(self, value): self.package.append(value)
@@ -8650,6 +8830,7 @@ class packages(GeneratedsSuper):
             self.namedCollection or
             self.collectionModule or
             self.product or
+            self.container or
             self.package
         ):
             return True
@@ -8704,6 +8885,8 @@ class packages(GeneratedsSuper):
             collectionModule_.export(outfile, level, namespaceprefix_, name_='collectionModule', pretty_print=pretty_print)
         for product_ in self.product:
             product_.export(outfile, level, namespaceprefix_, name_='product', pretty_print=pretty_print)
+        for container_ in self.container:
+            container_.export(outfile, level, namespaceprefix_, name_='container', pretty_print=pretty_print)
         for package_ in self.package:
             package_.export(outfile, level, namespaceprefix_, name_='package', pretty_print=pretty_print)
     def build(self, node):
@@ -8758,6 +8941,11 @@ class packages(GeneratedsSuper):
             obj_.build(child_)
             self.product.append(obj_)
             obj_.original_tagname_ = 'product'
+        elif nodeName_ == 'container':
+            obj_ = container.factory()
+            obj_.build(child_)
+            self.container.append(obj_)
+            obj_.original_tagname_ = 'container'
         elif nodeName_ == 'package':
             obj_ = package.factory()
             obj_.build(child_)
@@ -8772,7 +8960,7 @@ class preferences(GeneratedsSuper):
     sections based on profiles combine to create on vaild definition"""
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, arch=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, release_version=None, rpm_locale_filtering=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
+    def __init__(self, profiles=None, arch=None, bootsplash_theme=None, bootloader_theme=None, keytable=None, locale=None, packagemanager=None, containerruntime=None, release_version=None, rpm_locale_filtering=None, rpm_check_signatures=None, rpm_excludedocs=None, showlicense=None, timezone=None, type_=None, version=None):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         self.arch = _cast(None, arch)
@@ -8796,6 +8984,10 @@ class preferences(GeneratedsSuper):
             self.packagemanager = []
         else:
             self.packagemanager = packagemanager
+        if containerruntime is None:
+            self.containerruntime = []
+        else:
+            self.containerruntime = containerruntime
         if release_version is None:
             self.release_version = []
         else:
@@ -8864,6 +9056,11 @@ class preferences(GeneratedsSuper):
     def add_packagemanager(self, value): self.packagemanager.append(value)
     def insert_packagemanager_at(self, index, value): self.packagemanager.insert(index, value)
     def replace_packagemanager_at(self, index, value): self.packagemanager[index] = value
+    def get_containerruntime(self): return self.containerruntime
+    def set_containerruntime(self, containerruntime): self.containerruntime = containerruntime
+    def add_containerruntime(self, value): self.containerruntime.append(value)
+    def insert_containerruntime_at(self, index, value): self.containerruntime.insert(index, value)
+    def replace_containerruntime_at(self, index, value): self.containerruntime[index] = value
     def get_release_version(self): return self.release_version
     def set_release_version(self, release_version): self.release_version = release_version
     def add_release_version(self, value): self.release_version.append(value)
@@ -8922,6 +9119,7 @@ class preferences(GeneratedsSuper):
             self.keytable or
             self.locale or
             self.packagemanager or
+            self.containerruntime or
             self.release_version or
             self.rpm_locale_filtering or
             self.rpm_check_signatures or
@@ -8982,6 +9180,9 @@ class preferences(GeneratedsSuper):
         for packagemanager_ in self.packagemanager:
             showIndent(outfile, level, pretty_print)
             outfile.write('<packagemanager>%s</packagemanager>%s' % (self.gds_encode(self.gds_format_string(quote_xml(packagemanager_), input_name='packagemanager')), eol_))
+        for containerruntime_ in self.containerruntime:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<containerruntime>%s</containerruntime>%s' % (self.gds_encode(self.gds_format_string(quote_xml(containerruntime_), input_name='containerruntime')), eol_))
         for release_version_ in self.release_version:
             showIndent(outfile, level, pretty_print)
             outfile.write('<release-version>%s</release-version>%s' % (self.gds_encode(self.gds_format_string(quote_xml(release_version_), input_name='release-version')), eol_))
@@ -9052,6 +9253,14 @@ class preferences(GeneratedsSuper):
                 packagemanager_ = ""
             packagemanager_ = self.gds_validate_string(packagemanager_, node, 'packagemanager')
             self.packagemanager.append(packagemanager_)
+        elif nodeName_ == 'containerruntime':
+            containerruntime_ = child_.text
+            if containerruntime_:
+                containerruntime_ = re_.sub(String_cleanup_pat_, " ", containerruntime_).strip()
+            else:
+                containerruntime_ = ""
+            containerruntime_ = self.gds_validate_string(containerruntime_, node, 'containerruntime')
+            self.containerruntime.append(containerruntime_)
         elif nodeName_ == 'release-version':
             release_version_ = child_.text
             release_version_ = self.gds_validate_string(release_version_, node, 'release_version')
@@ -9411,6 +9620,7 @@ __all__ = [
     "bootloadersettings",
     "collectionModule",
     "configoption",
+    "container",
     "containerconfig",
     "description",
     "dracut",
@@ -9445,6 +9655,7 @@ __all__ = [
     "product",
     "profile",
     "profiles",
+    "registry",
     "repository",
     "requires",
     "shimoption",

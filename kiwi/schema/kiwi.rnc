@@ -65,7 +65,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "7.6" }
+        attribute schemaversion { "7.7" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -89,6 +89,7 @@ div {
             k.drivers* &
             k.strip* &
             k.repository* &
+            k.registry* &
             k.packages* &
             k.extension?
         }
@@ -938,6 +939,21 @@ div {
 }
 
 #==========================================
+# common element <container>
+#
+div {
+    k.container.name.attribute = k.name.attribute
+    k.container.attlist =
+        k.container.name.attribute
+    k.container =
+        ## Name of container to install in the image
+        element container {
+            k.container.attlist,
+            empty
+        }
+}
+
+#==========================================
 # common element <package>
 #
 div {
@@ -955,6 +971,22 @@ div {
         element package {
             k.package.attlist,
             empty
+        }
+}
+
+#==========================================
+# common element <containerruntime>
+#
+div {
+    k.containerruntime.content =
+        "podman"
+    k.containerruntime.attlist = empty
+    k.containerruntime =
+        ## Name of the container orchestrator
+        ## Must be installed in the image
+        element containerruntime {
+            k.containerruntime.attlist,
+            k.containerruntime.content
         }
 }
 
@@ -1035,6 +1067,23 @@ div {
         }
 }
 
+#==========================================
+# common element <registry>
+#
+div {
+    k.registry.profiles.attribute = k.profiles.attribute
+    k.registry.path.attribute = k.path.attribute
+    k.registry.attlist =
+        k.registry.profiles.attribute? &
+        k.registry.path.attribute
+
+    k.registry =
+        ## The path to an OCI container registry
+        element registry {
+            k.registry.attlist
+    }
+}
+    
 #==========================================
 # common element <repository>
 #
@@ -3516,6 +3565,7 @@ div {
             k.namedCollection* &
             k.collectionModule* &
             k.product* &
+            k.container* &
             k.package*
         }
 }
@@ -3541,6 +3591,7 @@ div {
             k.keytable? &
             k.locale? &
             k.packagemanager? &
+            k.containerruntime? &
             k.release-version? &
             k.rpm-locale-filtering? &
             k.rpm-check-signatures? &
