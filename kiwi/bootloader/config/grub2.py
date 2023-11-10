@@ -1460,19 +1460,24 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         for menu_entry_file in glob.iglob(loader_entries_pattern):
             with open(menu_entry_file) as grub_menu_entry_file:
-                menu_entry = grub_menu_entry_file.read()
-                if self.bootpartition:
-                    menu_entry = re.sub(
-                        r'(linux|initrd) .*/boot(.*)',
-                        r'\1 \2',
-                        menu_entry
-                    )
-                else:
-                    menu_entry = re.sub(
-                        r'(linux|initrd) .*(/boot.*)',
-                        r'\1 \2',
-                        menu_entry
-                    )
+                menu_entry = grub_menu_entry_file.read().split(os.linesep)
+
+            for line_number, menu_entry_line in enumerate(menu_entry):
+                if bool(re.match(r'^(linux|initrd) .*', menu_entry_line)):
+
+                    log.debug(f'Existing loader entry: {menu_entry_line}')
+                    config_path = menu_entry_line.split(' ', 1)[0]
+
+                    basename = os.path.basename(menu_entry_line)
+                    if self.bootpartition:
+                        config_path = (f'{config_path} /{basename}')
+                    else:
+                        config_path = (f'{config_path} /boot/{basename}')
+
+                    menu_entry[line_number] = config_path
+                    log.debug(f'Updated loader entry: {config_path}')
+
+            menu_entry = os.linesep.join(menu_entry)
             with open(menu_entry_file, 'w') as grub_menu_entry_file:
                 grub_menu_entry_file.write(menu_entry)
 
