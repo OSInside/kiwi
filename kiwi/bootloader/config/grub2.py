@@ -893,7 +893,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 uuid, mbrid, lookup_path
             )
 
-    def _setup_bios_image(self, mbrid=None, lookup_path=None):
+    def _setup_bios_image(self, mbrid, lookup_path=None):
         """
         Provide bios grub image
         """
@@ -1020,7 +1020,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 efi_boot_config, mbrid
             )
 
-    def _create_bios_image(self, mbrid=None, lookup_path=None):
+    def _create_bios_image(self, mbrid, lookup_path=None):
         early_boot_script = os.path.normpath(
             os.sep.join([self._get_grub2_boot_path(), 'earlyboot.cfg'])
         )
@@ -1116,9 +1116,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             early_boot.write(
                 'set btrfs_relative_path="yes"{0}'.format(os.linesep)
             )
-            early_boot.write(
-                f'search --file --set=root /boot/{mbrid.get_id()}{os.linesep}'
-            )
+            if mbrid:
+                early_boot.write(
+                    f'search --file --set=root /boot/{mbrid.get_id()}{os.linesep}'
+                )
+            else:
+                # Fallback search for /boot/mbrid
+                early_boot.write(
+                    f'search --file --set=root /boot/mbrid{os.linesep}'
+                )
             early_boot.write(
                 'set prefix=($root)/boot/{0}{1}'.format(
                     self.boot_directory_name, os.linesep
