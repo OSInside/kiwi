@@ -210,6 +210,19 @@ the available kernel boot parameters for this modules:
   OS deployment is `/dev/sdj`. With `rd.kiwi.oem.maxdisk=500G` the
   deployment will land on that RAID disk.
 
+``rd.kiwi.oem.installdevice``
+  Configures the disk device that should be used in an OEM
+  installation. This overwrites/resets any other oem device specific
+  settings, e.g oem-device-filter, oem-unattended-id or rd.kiwi.oem.maxdisk
+  from the cmdline and just continues the installation on the given
+  device. However, the device must exist and must be a block special.
+
+.. note:: Non interactive mode activated by rd.kiwi.oem.installdevice
+
+   When setting rd.kiwi.oem.installdevice explicitly on the
+   kernel commandline, {kiwi} will not ask for confirmation
+   of the device and just use it !
+
 ``rd.live.overlay.size``
   Tells a live ISO image the size for the `tmpfs` filesystem that is used
   for the `overlayfs` mount process. If the write area of the overlayfs
