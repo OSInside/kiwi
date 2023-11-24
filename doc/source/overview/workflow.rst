@@ -63,7 +63,7 @@ These are the optional components of an image description:
 
 #. ``config.sh`` shell script
 
-   Is the configuration shell script that runs and the end of the
+   Is the configuration shell script that runs at the end of the
    :ref:`prepare step <prepare-step>` if present. It can be used to
    fine tune the unpacked image.
 
