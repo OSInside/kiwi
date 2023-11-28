@@ -20,6 +20,8 @@ function get_disk_list {
     declare kiwi_oemmultipath_scan=${kiwi_oemmultipath_scan}
     declare kiwi_devicepersistency=${kiwi_devicepersistency}
     declare kiwi_install_volid=${kiwi_install_volid}
+    declare kiwi_oemunattended=${kiwi_oemunattended}
+    declare kiwi_oemunattended_id=${kiwi_oemunattended_id}
     local disk_id="by-id"
     local disk_size
     local disk_device
@@ -38,6 +40,7 @@ function get_disk_list {
     max_disk=0
     kiwi_oemmultipath_scan=$(bool "${kiwi_oemmultipath_scan}")
     kiwi_oem_maxdisk=$(getarg rd.kiwi.oem.maxdisk=)
+    kiwi_oem_installdevice=$(getarg rd.kiwi.oem.installdevice=)
     if [ -n "${kiwi_oem_maxdisk}" ]; then
         max_disk=$(binsize_to_bytesize "${kiwi_oem_maxdisk}") || max_disk=0
     fi
@@ -107,6 +110,39 @@ function get_disk_list {
         fi
         list_items="${list_items} ${disk_device} ${disk_size}"
     done
+    if [ -n "${kiwi_oem_installdevice}" ];then
+        # install device overwritten by cmdline.
+        local device=${kiwi_oem_installdevice}
+        local device_meta
+        local device_size
+        if [ ! -e "${device}" ];then
+            local no_dev="Given device ${device} does not exist"
+            report_and_quit "${no_dev}"
+        fi
+        if [ ! -b "${device}" ];then
+            local no_block_dev="Given device ${device} is not a block special"
+            report_and_quit "${no_block_dev}"
+        fi
+        device_meta=$(
+            eval lsblk "${blk_opts}" "${device}" |\
+            grep -E "disk|raid" | tr ' ' ":"
+        )
+        device_size=$(echo "${device_meta}" | cut -f2 -d:)
+        list_items="${device} ${device_size}"
+        # activate unattended mode. In case a user explicitly
+        # provides the device name to deploy the image to via
+        # the kernel commandline, no further questions if this
+        # is wanted should appear
+        message="rd.kiwi.oem.installdevice set via cmdline to: ${device}"
+        message="${message} The following OEM device settings will be ignored:"
+        message="${message} oem-unattended,"
+        message="${message} oem-unattended-id,"
+        message="${message} oem-device-filter"
+        export kiwi_oemunattended="true"
+        export kiwi_oemunattended_id=""
+        export kiwi_oemdevicefilter=""
+        info "${message}" >&2
+    fi
     if [ -z "${list_items}" ];then
         local no_device_text="No device(s) for installation found"
         report_and_quit "${no_device_text}"
