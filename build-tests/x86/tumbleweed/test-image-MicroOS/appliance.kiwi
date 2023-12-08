@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 <image schemaversion="7.5" name="kiwi-test-image-MicroOS">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>MicroOS disk test build</specification>
     </description>
+    <profiles>
+        <profile name="Standard" description="MicroOS"/>
+        <profile name="Encrypted" description="MicroOS Encrypted"/>
+    </profiles>
     <preferences>
         <version>16.0.0</version>
         <packagemanager>zypper</packagemanager>
         <bootloader-theme>openSUSE</bootloader-theme>
         <rpm-excludedocs>true</rpm-excludedocs>
         <locale>en_US</locale>
+    </preferences>
+    <preferences profiles="Encrypted">
         <type
             image="oem"
+            luks="linux"
             filesystem="btrfs"
             firmware="uefi"
             installiso="true"
@@ -25,11 +32,6 @@
             btrfs_root_is_readonly_snapshot="true"
             btrfs_quota_groups="true"
             format="qcow2"
-            spare_part="5G"
-            spare_part_mountpoint="/var"
-            spare_part_fs="btrfs"
-            spare_part_is_last="true"
-            spare_part_fs_attributes="no-copy-on-write"
         >
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
@@ -45,6 +47,47 @@
                 <volume name="boot/grub2/x86_64-efi" mountpoint="boot/grub2/x86_64-efi"/>
                 <volume name="boot/writable"/>
                 <volume name="usr/local"/>
+                <volume name="var" copy_on_write="false"/>
+            </systemdisk>
+            <size unit="G">20</size>
+            <installmedia>
+                <initrd action="omit">
+                    <dracut module="combustion"/>
+                    <dracut module="ignition"/>
+                </initrd>
+            </installmedia>
+        </type>
+    </preferences>
+    <preferences profiles="Standard">
+        <type
+            image="oem"
+            filesystem="btrfs"
+            firmware="uefi"
+            installiso="true"
+            installboot="install"
+            kernelcmdline="quiet systemd.show_status=yes console=ttyS0,115200 console=tty0 net.ifnames=0 \$ignition_firstboot ignition.platform.id=qemu"
+            bootpartition="false"
+            devicepersistency="by-uuid"
+            btrfs_root_is_snapshot="true"
+            btrfs_root_is_readonly_snapshot="true"
+            btrfs_quota_groups="true"
+            format="qcow2"
+        >
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" console="serial" timeout="10"/>
+            <systemdisk>
+                <volume name="home"/>
+                <volume name="root"/>
+                <volume name="opt"/>
+                <volume name="srv"/>
+                <volume name="boot/grub2/i386-pc"/>
+                <volume name="boot/grub2/x86_64-efi" mountpoint="boot/grub2/x86_64-efi"/>
+                <volume name="boot/writable"/>
+                <volume name="usr/local"/>
+                <volume name="var" copy_on_write="false"/>
             </systemdisk>
             <size unit="G">20</size>
             <installmedia>
@@ -72,6 +115,13 @@
         <package name="qemu-guest-agent"/>
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
+        <package name="shadow"/>
+        <package name="snapper"/>
+        <package name="microos-tools"/>
+        <package name="health-checker-plugins-MicroOS"/>
+        <package name="squashfs"/>
+        <package name="systemd-network"/>
+        <package name="NetworkManager"/>
     </packages>
     <packages type="bootstrap">
         <package name="coreutils"/>
@@ -82,5 +132,9 @@
         <package name="glibc-locale-base"/>
         <package name="ca-certificates-mozilla"/>
         <package name="MicroOS-release-dvd"/>
+        <package name="diffutils"/>
+    </packages>
+    <packages type="image" profiles="Encrypted">
+        <package name="cryptsetup"/>
     </packages>
 </image>
