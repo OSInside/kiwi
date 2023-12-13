@@ -561,7 +561,6 @@ Requires:       dracut-network
 Requires:       device-mapper
 %endif
 Requires:       dracut
-Requires:       xorriso
 License:        GPL-3.0-or-later
 Group:          %{sysgroup}
 
