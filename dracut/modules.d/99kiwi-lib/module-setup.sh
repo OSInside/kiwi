@@ -15,9 +15,9 @@ depends() {
 install() {
     declare moddir=${moddir}
     inst_multiple \
-        blkid partx blockdev dd mkdir rmdir \
+        blkid blockdev dd mkdir rmdir \
         grep cut tail head tr bc true false mountpoint \
-        basename partprobe sfdisk sgdisk mkswap readlink lsblk \
+        basename sfdisk sgdisk mkswap readlink lsblk \
         btrfs xfs_growfs resize2fs \
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \
@@ -25,6 +25,14 @@ install() {
         pv curl xz \
         dmsetup
     inst_multiple -o dolly
+    if type partx &> /dev/null;then
+        inst_multiple partx
+    elif type partprobe &> /dev/null;then
+        inst_multiple partprobe
+    else
+        dfatal "Either partx or partprobe is required"
+        exit 1
+    fi
     if [[ "$(uname -m)" =~ s390 ]];then
         inst_multiple fdasd parted
     fi
