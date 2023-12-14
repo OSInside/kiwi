@@ -118,7 +118,7 @@ class IsoToolsXorrIso(IsoToolsBase):
                     'isohdpfx.bin', Defaults.get_syslinux_search_paths()
                 )
                 if not mbr_file_c:
-                    raise KiwiFileNotFound("isohdpfx.bin not found in the systlinux search paths")
+                    raise KiwiFileNotFound("isohdpfx.bin not found in the syslinux search paths")
                 mbr_file = mbr_file_c
                 self.iso_loaders += [
                     '-boot_image', 'isolinux', 'bin_path={0}'.format(
