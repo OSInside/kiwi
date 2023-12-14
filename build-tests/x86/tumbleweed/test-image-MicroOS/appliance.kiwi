@@ -49,7 +49,7 @@
                 <volume name="usr/local"/>
                 <volume name="var" copy_on_write="false"/>
             </systemdisk>
-            <size unit="G">20</size>
+            <size unit="G">5</size>
             <installmedia>
                 <initrd action="omit">
                     <dracut module="combustion"/>
