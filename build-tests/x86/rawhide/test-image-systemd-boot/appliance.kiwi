@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences>
-        <type image="oem" filesystem="xfs" kernelcmdline="console=ttyS0" firmware="efi" format="qcow2" efipartsize="200">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="efi" format="qcow2" efipartsize="200">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
