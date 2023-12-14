@@ -78,7 +78,11 @@ class TestRuntimeConfig:
         ]
 
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
-    def test_config_sections_defaults(self, mock_is_buildservice_worker):
+    @patch('kiwi.runtime_checker.Defaults.get_platform_name')
+    def test_config_sections_defaults(
+        self, mock_get_platform_name, mock_is_buildservice_worker
+    ):
+        mock_get_platform_name.return_value = 's390x'
         mock_is_buildservice_worker.return_value = True
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/defaults'}):
             runtime_config = RuntimeConfig(reread=True)
@@ -93,10 +97,15 @@ class TestRuntimeConfig:
         assert runtime_config.get_container_compression() is True
         assert runtime_config.get_iso_tool_category() == 'xorriso'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
-        assert runtime_config.get_mapper_tool() == 'partx'
+        assert runtime_config.get_mapper_tool() == 'kpartx'
         assert runtime_config.get_package_changes() is False
         assert runtime_config.\
             get_credentials_verification_metadata_signing_key_file() == ''
+
+        mock_get_platform_name.return_value = 'x86_64'
+        with patch.dict('os.environ', {'HOME': '../data/kiwi_config/defaults'}):
+            runtime_config = RuntimeConfig(reread=True)
+        assert runtime_config.get_mapper_tool() == 'partx'
 
     def test_config_sections_invalid(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/invalid'}):

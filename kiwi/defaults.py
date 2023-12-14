@@ -1791,6 +1791,9 @@ class Defaults:
 
         :rtype: str
         """
+        host_architecture = Defaults.get_platform_name()
+        if 's390' in host_architecture:
+            return 'kpartx'
         return 'partx'
 
     @staticmethod
