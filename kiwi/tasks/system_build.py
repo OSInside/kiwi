@@ -272,7 +272,6 @@ class SystemBuildTask(CliTask):
         setup.setup_plymouth_splash()
         setup.setup_timezone()
         setup.setup_permissions()
-        setup.setup_selinux_file_contexts()
 
         # make sure manager instance is cleaned up now
         del manager
@@ -282,6 +281,9 @@ class SystemBuildTask(CliTask):
 
         # call config.sh script if present
         setup.call_config_script()
+
+        # if configured, assign SELinux labels
+        setup.setup_selinux_file_contexts()
 
         # handle uninstall package requests, gracefully uninstall
         # with dependency cleanup

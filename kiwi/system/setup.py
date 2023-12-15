@@ -549,7 +549,12 @@ class SystemSetup:
         """
         security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
         if os.path.exists(self.root_dir + security_context):
-            self.set_selinux_file_contexts(security_context)
+            if Path.which(filename='setfiles', access_mode=os.X_OK):
+                self.set_selinux_file_contexts(security_context)
+            else:
+                log.warning(
+                    'security_context found but setfiles tool not installed'
+                )
 
     def export_modprobe_setup(self, target_root_dir: str) -> None:
         """
@@ -798,8 +803,8 @@ class SystemSetup:
             Path.wipe(fstab_patch_file)
 
         if os.path.exists(fstab_script_file):
-            Command.run(
-                ['chroot', self.root_dir, '/etc/fstab.script']
+            self._call_script(
+                name='etc/fstab.script', path_prefix=''
             )
             Path.wipe(fstab_script_file)
 
@@ -1114,8 +1119,10 @@ class SystemSetup:
                 ]
             )
 
-    def _call_script(self, name, option_list=None):
-        script_path = os.path.join(self.root_dir, 'image', name)
+    def _call_script(
+        self, name, option_list=None, path_prefix=defaults.IMAGE_METADATA_DIR
+    ):
+        script_path = os.path.join(self.root_dir, path_prefix, name)
         if os.path.exists(script_path):
             options = option_list or []
             if log.getLogFlags().get('run-scripts-in-screen'):
@@ -1128,7 +1135,7 @@ class SystemSetup:
             if not Path.access(script_path, os.X_OK):
                 command.append('bash')
             command.append(
-                os.path.join(defaults.IMAGE_METADATA_DIR, name)
+                os.path.join(os.sep, path_prefix, name)
             )
             command.extend(options)
             profile = Profile(self.xml_state)
@@ -1143,6 +1150,8 @@ class SystemSetup:
                 raise KiwiScriptFailed(
                     '{0} failed: {1}'.format(name, result.stderr)
                 )
+            # if configured, assign SELinux labels
+            self.setup_selinux_file_contexts()
 
     def _call_script_no_chroot(
         self, name, option_list, working_directory
