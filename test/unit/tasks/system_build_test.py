@@ -45,12 +45,6 @@ class TestSystemBuildTask:
             return_value=self.runtime_checker
         )
 
-        self.runtime_config = mock.Mock()
-        self.runtime_config.get_disabled_runtime_checks.return_value = []
-        kiwi.tasks.base.RuntimeConfig = mock.Mock(
-            return_value=self.runtime_config
-        )
-
         kiwi.tasks.system_build.SystemPrepare = mock.Mock(
             return_value=self.system_prepare
         )
@@ -76,6 +70,7 @@ class TestSystemBuildTask:
         )
 
         self.task = SystemBuildTask()
+        self.task.runtime_config = mock.MagicMock()
 
     def setup_method(self, cls):
         self.setup()
