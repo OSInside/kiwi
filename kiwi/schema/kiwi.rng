@@ -2160,7 +2160,7 @@ desired target by calling: blockdev --report device</a:documentation>
       </attribute>
       <sch:pattern id="target_blocksize" is-a="image_type">
         <sch:param name="attr" value="target_blocksize"/>
-        <sch:param name="types" value="oem"/>
+        <sch:param name="types" value="oem kis"/>
       </sch:pattern>
     </define>
     <define name="k.type.target_removable.attribute">
