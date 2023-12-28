@@ -9,7 +9,7 @@ on:
 jobs:
   unit_tests:
     name: Unit and Static Type tests for KIWI python code
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
