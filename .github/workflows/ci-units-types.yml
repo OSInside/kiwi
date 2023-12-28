@@ -25,5 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install tox
       - name: Run unit and type tests
-        run: |
-          tox -e unit_py3_9,unit_py3_10,unit_py3_11
+        run: tox -e "unit_py${PY_VER/./_}"
+        env:
+          PY_VER: ${{ matrix.python-version }}
