@@ -549,7 +549,7 @@ class SystemSetup:
         """
         security_context = '/etc/selinux/targeted/contexts/files/file_contexts'
         if os.path.exists(self.root_dir + security_context):
-            if Path.which(filename='setfiles', access_mode=os.X_OK):
+            if Path.which(filename='setfiles', access_mode=os.X_OK, root_dir=self.root_dir):
                 self.set_selinux_file_contexts(security_context)
             else:
                 log.warning(
