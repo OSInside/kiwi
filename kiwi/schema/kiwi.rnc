@@ -1486,7 +1486,7 @@ div {
         attribute target_blocksize { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "target_blocksize" is-a = "image_type"
             sch:param [ name = "attr" value = "target_blocksize" ]
-            sch:param [ name = "types" value = "oem" ]
+            sch:param [ name = "types" value = "oem kis" ]
         ]
     k.type.target_removable.attribute =
         ## Indicate if the target disk for oem images is deployed
