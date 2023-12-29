@@ -9,10 +9,10 @@ on:
 jobs:
   unit_tests:
     name: Unit and Static Type tests for KIWI python code
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v3
@@ -25,5 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install tox
       - name: Run unit and type tests
-        run: |
-          tox -e unit_py3_9,unit_py3_10,unit_py3_11
+        run: tox -e "unit_py${PY_VER/./_}" -- -n auto
+        env:
+          PY_VER: ${{ matrix.python-version }}
