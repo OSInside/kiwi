@@ -483,7 +483,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             ['btrfs', 'subvolume', 'list', self.mountpoint]
         )
         for subvolume in subvolume_list_call.output.split('\n'):
-            id_search = re.search('ID (\d+) .*path (.*)', subvolume)
+            id_search = re.search(r'ID (\d+) .*path (.*)', subvolume)
             if id_search:
                 volume_id = id_search.group(1)
                 volume_path = id_search.group(2)

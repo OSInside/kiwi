@@ -2806,7 +2806,7 @@ class XMLState:
         return name
 
     def _to_mega_byte(self, size):
-        value = re.search('(\d+)([MG]*)', format(size))
+        value = re.search(r'(\d+)([MG]*)', format(size))
         if value:
             number = value.group(1)
             unit = value.group(2)
