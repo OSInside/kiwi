@@ -101,7 +101,7 @@ class LoopDevice(DeviceProvider):
         )
         self.node_name = loop_call.output.rstrip(os.linesep)
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         if self.node_name:
             try:
                 Command.run(['losetup', '-d', self.node_name])
