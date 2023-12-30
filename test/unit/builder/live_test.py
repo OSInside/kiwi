@@ -34,11 +34,6 @@ class TestLiveImageBuilder:
             return_value=self.filesystem_setup
         )
 
-        self.loop = Mock()
-        kiwi.builder.live.LoopDevice = Mock(
-            return_value=self.loop
-        )
-
         self.bootloader = Mock()
         kiwi.builder.live.BootLoaderConfig.new = Mock(
             return_value=self.bootloader
@@ -133,6 +128,7 @@ class TestLiveImageBuilder:
         )
         assert live_image.arch == 'ix86'
 
+    @patch('kiwi.builder.live.LoopDevice')
     @patch('kiwi.builder.live.Command.run')
     @patch('kiwi.builder.live.DeviceProvider')
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
@@ -150,7 +146,7 @@ class TestLiveImageBuilder:
         self, mock_chmod, mock_exists, mock_grub_dir, mock_size,
         mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
         mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider,
-        mock_Command_run
+        mock_Command_run, mock_LoopDevice
     ):
         boot_names = Mock()
         boot_names.initrd_name = 'dracut_initrd_name'
@@ -169,6 +165,7 @@ class TestLiveImageBuilder:
             ['mv', 'kiwi_used_initrd_name', 'root_dir/boot/dracut_initrd_name']
         )
 
+    @patch('kiwi.builder.live.LoopDevice')
     @patch('kiwi.builder.live.DeviceProvider')
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.Temporary')
@@ -184,8 +181,11 @@ class TestLiveImageBuilder:
     def test_create_overlay_structure_boot_on_grub(
         self, mock_chmod, mock_exists, mock_grub_dir, mock_size,
         mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
-        mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider
+        mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider,
+        mock_LoopDevice
     ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         mock_exists.return_value = True
         mock_grub_dir.return_value = 'grub2'
 
@@ -229,7 +229,7 @@ class TestLiveImageBuilder:
 
         assert kiwi.builder.live.FileSystem.new.call_args_list == [
             call(
-                device_provider=self.loop, name='ext4',
+                device_provider=loop_provider, name='ext4',
                 root_dir='root_dir/',
                 custom_args={
                     'mount_options': ['async'],

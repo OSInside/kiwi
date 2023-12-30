@@ -65,27 +65,27 @@ class FileSystemClicFs(FileSystemBase):
         self.filename = filename
         container_dir = Temporary(prefix='kiwi_clicfs.').new_dir()
         clicfs_container_filesystem = container_dir.name + '/fsdata.ext4'
-        loop_provider = LoopDevice(
+        with LoopDevice(
             clicfs_container_filesystem,
             self._get_container_filesystem_size_mbytes()
-        )
-        loop_provider.create()
-        filesystem = FileSystemExt4(
-            loop_provider, self.root_dir
-        )
-        filesystem.create_on_device()
-        filesystem.sync_data()
-        Command.run(
-            ['resize2fs', '-f', loop_provider.get_device(), '-M']
-        )
+        ) as loop_provider:
+            loop_provider.create()
+            filesystem = FileSystemExt4(
+                loop_provider, self.root_dir
+            )
+            filesystem.create_on_device()
+            filesystem.sync_data()
+            Command.run(
+                ['resize2fs', '-f', loop_provider.get_device(), '-M']
+            )
 
-        # force cleanup and umount of container filesystem
-        # before mkclicfs is called
-        del filesystem
+            # force cleanup and umount of container filesystem
+            # before mkclicfs is called
+            del filesystem
 
-        Command.run(
-            ['mkclicfs', clicfs_container_filesystem, self.filename]
-        )
+            Command.run(
+                ['mkclicfs', clicfs_container_filesystem, self.filename]
+            )
 
     def _get_container_filesystem_size_mbytes(self):
         size = SystemSize(self.root_dir)

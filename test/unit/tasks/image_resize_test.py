@@ -41,13 +41,13 @@ class TestImageResizeTask:
         self.firmware.get_partition_table_type = Mock(
             return_value='gpt'
         )
-        self.loop_provider = Mock()
+#        self.loop_provider = Mock()
         kiwi.tasks.image_resize.FirmWare = Mock(
             return_value=self.firmware
         )
-        kiwi.tasks.image_resize.LoopDevice = Mock(
-            return_value=self.loop_provider
-        )
+#        kiwi.tasks.image_resize.LoopDevice = Mock(
+#            return_value=self.loop_provider
+#        )
 
         self.task = ImageResizeTask()
 
@@ -94,9 +94,14 @@ class TestImageResizeTask:
         with raises(KiwiSizeError):
             self.task.process()
 
+    @patch('kiwi.tasks.image_resize.LoopDevice')
     @patch('kiwi.tasks.image_resize.DiskFormat.new')
     @patch('kiwi.tasks.image_resize.Partitioner.new')
-    def test_process_image_resize_gb(self, mock_Partitioner, mock_DiskFormat):
+    def test_process_image_resize_gb(
+        self, mock_Partitioner, mock_DiskFormat, mock_LoopDevice
+    ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         partitioner = Mock()
         mock_Partitioner.return_value = partitioner
         image_format = Mock()
@@ -105,16 +110,21 @@ class TestImageResizeTask:
         self._init_command_args()
         self.task.command_args['resize'] = True
         self.task.process()
-        self.loop_provider.create.assert_called_once_with(overwrite=False)
+        loop_provider.create.assert_called_once_with(overwrite=False)
         partitioner.resize_table.assert_called_once_with()
         image_format.resize_raw_disk.assert_called_once_with(
             42 * 1024 * 1024 * 1024
         )
         image_format.create_image_format.assert_called_once_with()
 
+    @patch('kiwi.tasks.image_resize.LoopDevice')
     @patch('kiwi.tasks.image_resize.DiskFormat.new')
     @patch('kiwi.tasks.image_resize.Partitioner.new')
-    def test_process_image_resize_mb(self, mock_Partitioner, mock_DiskFormat):
+    def test_process_image_resize_mb(
+        self, mock_Partitioner, mock_DiskFormat, mock_LoopDevice
+    ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         partitioner = Mock()
         mock_Partitioner.return_value = partitioner
         image_format = Mock()
@@ -124,18 +134,21 @@ class TestImageResizeTask:
         self.task.command_args['resize'] = True
         self.task.command_args['--size'] = '42m'
         self.task.process()
-        self.loop_provider.create.assert_called_once_with(overwrite=False)
+        loop_provider.create.assert_called_once_with(overwrite=False)
         partitioner.resize_table.assert_called_once_with()
         image_format.resize_raw_disk.assert_called_once_with(
             42 * 1024 * 1024
         )
         image_format.create_image_format.assert_called_once_with()
 
+    @patch('kiwi.tasks.image_resize.LoopDevice')
     @patch('kiwi.tasks.image_resize.DiskFormat.new')
     @patch('kiwi.tasks.image_resize.Partitioner.new')
     def test_process_image_resize_bytes(
-        self, mock_Partitioner, mock_DiskFormat
+        self, mock_Partitioner, mock_DiskFormat, mock_LoopDevice
     ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         partitioner = Mock()
         mock_Partitioner.return_value = partitioner
         image_format = Mock()
@@ -145,18 +158,21 @@ class TestImageResizeTask:
         self.task.command_args['resize'] = True
         self.task.command_args['--size'] = '42'
         self.task.process()
-        self.loop_provider.create.assert_called_once_with(overwrite=False)
+        loop_provider.create.assert_called_once_with(overwrite=False)
         partitioner.resize_table.assert_called_once_with()
         image_format.resize_raw_disk.assert_called_once_with(
             42
         )
         image_format.create_image_format.assert_called_once_with()
 
+    @patch('kiwi.tasks.image_resize.LoopDevice')
     @patch('kiwi.tasks.image_resize.DiskFormat.new')
     @patch('kiwi.tasks.image_resize.Partitioner.new')
     def test_process_image_resize_not_needed(
-        self, mock_Partitioner, mock_DiskFormat
+        self, mock_Partitioner, mock_DiskFormat, mock_LoopDevice
     ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         partitioner = Mock()
         mock_Partitioner.return_value = partitioner
         image_format = Mock()
@@ -167,7 +183,7 @@ class TestImageResizeTask:
         self.task.command_args['--size'] = '42'
         with self._caplog.at_level(logging.INFO):
             self.task.process()
-            self.loop_provider.create.assert_called_once_with(overwrite=False)
+            loop_provider.create.assert_called_once_with(overwrite=False)
             partitioner.resize_table.assert_called_once_with()
             image_format.resize_raw_disk.assert_called_once_with(
                 42

@@ -1,5 +1,7 @@
 import logging
-from mock import patch
+from mock import (
+    patch, call
+)
 from pytest import (
     raises, fixture
 )
@@ -64,12 +66,15 @@ class TestLoopDevice:
         self.loop.node_name = None
 
     @patch('kiwi.storage.loop_device.Command.run')
-    def test_destructor(self, mock_command):
-        self.loop.node_name = '/dev/loop0'
-        mock_command.side_effect = Exception
-        self.loop.__del__()
+    @patch('os.path.exists')
+    def test_context_manager_exit(self, mock_os_path_exists, mock_command_run):
+        mock_os_path_exists.return_value = True
+        mock_command_run.side_effect = Exception
         with self._caplog.at_level(logging.WARNING):
-            mock_command.assert_called_once_with(
-                ['losetup', '-d', '/dev/loop0']
-            )
-        self.loop.node_name = None
+            with LoopDevice('loop-file', 20) as loop_provider:
+                loop_provider.node_name = '/dev/loop0'
+                loop_provider.create(overwrite=False)
+            assert mock_command_run.call_args_list == [
+                call(['losetup', '-f', '--show', 'loop-file']),
+                call(['losetup', '-d', '/dev/loop0'])
+            ]
