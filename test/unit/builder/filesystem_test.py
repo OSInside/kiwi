@@ -17,11 +17,6 @@ class TestFileSystemBuilder:
     @patch('kiwi.builder.filesystem.FileSystemSetup')
     def setup(self, mock_fs_setup):
         Defaults.set_platform_name('x86_64')
-        self.loop_provider = Mock()
-        self.loop_provider.get_device = Mock(
-            return_value='/dev/loop1'
-        )
-        self.loop_provider.create = Mock()
 
         self.filesystem = Mock()
         self.filesystem.create_on_device = Mock()
@@ -96,22 +91,26 @@ class TestFileSystemBuilder:
     @patch('kiwi.builder.filesystem.FileSystem.new')
     @patch('kiwi.builder.filesystem.FileSystemSetup')
     def test_create_on_loop(
-        self, mock_fs_setup, mock_fs, mock_loop
+        self, mock_fs_setup, mock_fs, mock_LoopDevice
     ):
         Defaults.set_platform_name('x86_64')
         mock_fs_setup.return_value = self.fs_setup
         mock_fs.return_value = self.filesystem
-        mock_loop.return_value = self.loop_provider
+        loop_provider = Mock()
+        loop_provider.get_device = Mock(
+            return_value='/dev/loop1'
+        )
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         fs = FileSystemBuilder(
             self.xml_state, 'target_dir', 'root_dir'
         )
         fs.create()
-        mock_loop.assert_called_once_with(
+        mock_LoopDevice.assert_called_once_with(
             'target_dir/myimage.x86_64-1.2.3.ext3', 42, 4096
         )
-        self.loop_provider.create.assert_called_once_with()
+        loop_provider.create.assert_called_once_with()
         mock_fs.assert_called_once_with(
-            'ext3', self.loop_provider, 'root_dir/', {
+            'ext3', loop_provider, 'root_dir/', {
                 'mount_options': ['async'],
                 'create_options': ['-O', 'option']
             }

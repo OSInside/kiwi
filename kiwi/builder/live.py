@@ -255,28 +255,28 @@ class LiveImageBuilder:
             self.xml_state, self.root_dir
         )
         root_image = Temporary().new_file()
-        loop_provider = LoopDevice(
+        with LoopDevice(
             root_image.name,
             filesystem_setup.get_size_mbytes(root_filesystem),
             self.xml_state.build_type.get_target_blocksize()
-        )
-        loop_provider.create()
-        live_filesystem = FileSystem.new(
-            name=root_filesystem,
-            device_provider=loop_provider,
-            root_dir=self.root_dir + os.sep,
-            custom_args=filesystem_custom_parameters
-        )
-        live_filesystem.create_on_device()
-        log.info(
-            '--> Syncing data to {0} root image'.format(root_filesystem)
-        )
-        live_filesystem.sync_data(
-            Defaults.
-            get_exclude_list_for_root_data_sync() + Defaults.
-            get_exclude_list_from_custom_exclude_files(self.root_dir)
-        )
-        live_filesystem.umount()
+        ) as loop_provider:
+            loop_provider.create()
+            live_filesystem = FileSystem.new(
+                name=root_filesystem,
+                device_provider=loop_provider,
+                root_dir=self.root_dir + os.sep,
+                custom_args=filesystem_custom_parameters
+            )
+            live_filesystem.create_on_device()
+            log.info(
+                '--> Syncing data to {0} root image'.format(root_filesystem)
+            )
+            live_filesystem.sync_data(
+                Defaults.
+                get_exclude_list_for_root_data_sync() + Defaults.
+                get_exclude_list_from_custom_exclude_files(self.root_dir)
+            )
+            live_filesystem.umount()
 
         log.info('--> Creating squashfs container for root image')
         self.live_container_dir = Temporary(

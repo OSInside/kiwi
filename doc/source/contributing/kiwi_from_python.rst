@@ -56,15 +56,15 @@ which contains your host `tmp` directory.
     from kiwi.storage.loop_device import LoopDevice
     from kiwi.filesystem import FileSystem
 
-    loop_provider = LoopDevice(
+    with LoopDevice(
         filename='my_tmp.ext4', filesize_mbytes=100
-    )
-    loop_provider.create()
+    ) as loop_provider:
+        loop_provider.create()
 
-    filesystem = FileSystem.new(
-        'ext4', loop_provider, '/tmp/'
-    )
-    filesystem.create_on_device(
-        label='TMP'
-    )
-    filesystem.sync_data()
+        filesystem = FileSystem.new(
+            'ext4', loop_provider, '/tmp/'
+        )
+        filesystem.create_on_device(
+            label='TMP'
+        )
+        filesystem.sync_data()
