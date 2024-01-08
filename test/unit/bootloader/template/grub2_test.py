@@ -26,12 +26,13 @@ class TestBootLoaderTemplateGrub2:
             boot_directory_name='grub2',
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_multiboot_install_template_console(self):
         assert self.grub2.get_multiboot_install_template(
-            terminal='console'
+            has_graphics=False
         ).substitute(
             search_params='--fs-uuid --set=root 0815',
             default_boot='0',
@@ -46,12 +47,13 @@ class TestBootLoaderTemplateGrub2:
             bootpath='/boot',
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_multiboot_install_template_serial(self):
         assert self.grub2.get_multiboot_install_template(
-            terminal='serial'
+            has_graphics=False, has_serial=True
         ).substitute(
             search_params='--fs-uuid --set=root 0815',
             default_boot='0',
@@ -66,11 +68,14 @@ class TestBootLoaderTemplateGrub2:
             bootpath='/boot',
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
-            terminal_setup='serial'
+            terminal_input='serial',
+            terminal_output='serial'
         )
 
     def test_get_install_template(self):
-        assert self.grub2.get_install_template().substitute(
+        assert self.grub2.get_install_template(
+            has_serial=True
+        ).substitute(
             search_params='--file --set=root /boot/0xd305fb7d',
             default_boot='0',
             kernel_file='boot/linux.vmx',
@@ -86,12 +91,13 @@ class TestBootLoaderTemplateGrub2:
             bootpath='/boot',
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_install_template_console_no_hybrid(self):
         assert self.grub2.get_install_template(
-            terminal='console',
+            has_graphics=False,
             hybrid=False
         ).substitute(
             search_params='--file --set=root /boot/0xd305fb7d',
@@ -106,12 +112,13 @@ class TestBootLoaderTemplateGrub2:
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_install_template_serial_no_hybrid(self):
         assert self.grub2.get_install_template(
-            terminal='serial',
+            has_graphics=False,
             hybrid=False
         ).substitute(
             search_params='--file --set=root /boot/0xd305fb7d',
@@ -126,7 +133,8 @@ class TestBootLoaderTemplateGrub2:
             title='LimeJeOS-SLE12-Community [ VMX ]',
             bootpath='/boot',
             efi_image_name='bootx64.efi',
-            terminal_setup='serial'
+            terminal_input='serial',
+            terminal_output='serial'
         )
 
     def test_get_iso_template(self):
@@ -146,12 +154,13 @@ class TestBootLoaderTemplateGrub2:
             bootpath='/boot',
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_iso_template_console_no_hybrid(self):
         assert self.grub2.get_iso_template(
-            terminal='console',
+            has_graphics=False,
             hybrid=False
         ).substitute(
             search_params='--file --set=root /boot/0xd305fb7d',
@@ -166,12 +175,14 @@ class TestBootLoaderTemplateGrub2:
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_iso_template_serial_no_hybrid(self):
         assert self.grub2.get_iso_template(
-            terminal='serial',
+            has_graphics=False,
+            has_serial=True,
             hybrid=False
         ).substitute(
             search_params='--file --set=root /boot/0xd305fb7d',
@@ -186,7 +197,8 @@ class TestBootLoaderTemplateGrub2:
             title='LimeJeOS-SLE12-Community',
             bootpath='/boot',
             efi_image_name='bootx64.efi',
-            terminal_setup='serial'
+            terminal_input='serial',
+            terminal_output='serial'
         )
 
     def test_get_iso_template_checkiso_no_hybrid(self):
@@ -208,7 +220,8 @@ class TestBootLoaderTemplateGrub2:
             bootpath='/boot',
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_iso_template_checkiso(self):
@@ -228,7 +241,8 @@ class TestBootLoaderTemplateGrub2:
             bootpath='/boot',
             boot_directory_name='grub2',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_multiboot_iso_template(self):
@@ -249,12 +263,13 @@ class TestBootLoaderTemplateGrub2:
             boot_directory_name='grub2',
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_multiboot_iso_template_console(self):
         assert self.grub2.get_multiboot_iso_template(
-            terminal='console'
+            has_graphics=False
         ).substitute(
             search_params='--fs-uuid --set=root 0815',
             default_boot='0',
@@ -269,12 +284,14 @@ class TestBootLoaderTemplateGrub2:
             bootpath='/boot',
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )
 
     def test_get_multiboot_iso_template_serial(self):
         assert self.grub2.get_multiboot_iso_template(
-            terminal='serial'
+            has_graphics=False,
+            has_serial=True
         ).substitute(
             search_params='--fs-uuid --set=root 0815',
             default_boot='0',
@@ -289,7 +306,8 @@ class TestBootLoaderTemplateGrub2:
             bootpath='/boot',
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
-            terminal_setup='serial'
+            terminal_input='serial',
+            terminal_output='serial'
         )
 
     def test_get_multiboot_iso_template_checkiso(self):
@@ -310,5 +328,6 @@ class TestBootLoaderTemplateGrub2:
             boot_directory_name='grub2',
             hypervisor='xen.gz',
             efi_image_name='bootx64.efi',
-            terminal_setup='console'
+            terminal_input='console',
+            terminal_output='console'
         )

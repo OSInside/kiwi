@@ -102,11 +102,28 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.custom_args and 'config_options' in self.custom_args:
             self.config_options = self.custom_args['config_options']
 
-        self.terminal = self.xml_state.get_build_type_bootloader_console()
-        if self.terminal is None:
-            self.terminal = 'gfxterm'
-        else:
-            self.terminal = self.terminal.replace('none', '').lstrip()
+        terminal_output = self.xml_state.get_build_type_bootloader_console()[0]
+        terminal_input = self.xml_state.get_build_type_bootloader_console()[1]
+        terminal_input_grub = [
+            'console',
+            'serial',
+            'at_keyboard',
+            'usb_keyboard'
+        ]
+        terminal_output_grub = [
+            'console',
+            'serial',
+            'gfxterm',
+            'vga_text',
+            'mda_text',
+            'morse',
+            'spkmodem'
+        ]
+
+        self.terminal_output = \
+            terminal_output if terminal_output in terminal_output_grub else ''
+        self.terminal_input = \
+            terminal_input if terminal_input in terminal_input_grub else ''
 
         self.gfxmode = self.get_gfxmode('grub2')
         self.theme = self.get_boot_theme()
@@ -318,6 +335,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
         log.info('Creating grub2 install config file from template')
         self.iso_boot = True
+        has_graphics = False
+        has_serial = False
+        if 'gfxterm' in self.terminal_output:
+            has_graphics = True
+        if 'serial' in self.terminal_output or 'serial' in self.terminal_input:
+            has_serial = True
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': self.get_install_image_boot_default(),
@@ -338,7 +361,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
             'efi_image_name': Defaults.get_efi_image_name(self.arch),
-            'terminal_setup': self.terminal
+            'terminal_input': self.terminal_input,
+            'terminal_output': self.terminal_output
         }
         custom_template_path = self._get_custom_template()
         if custom_template_path:
@@ -349,14 +373,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.info('--> Using multiboot install template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_install_template(
-                self.failsafe_boot, self.terminal,
+                self.failsafe_boot, has_graphics, has_serial,
                 self.continue_on_timeout
             )
         else:
             log.info('--> Using standard boot install template')
             hybrid_boot = True
             template = self.grub2.get_install_template(
-                self.failsafe_boot, hybrid_boot, self.terminal,
+                self.failsafe_boot, hybrid_boot, has_graphics, has_serial,
                 self.continue_on_timeout
             )
         try:
@@ -383,6 +407,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
         log.info('Creating grub2 live ISO config file from template')
         self.iso_boot = True
+        has_graphics = False
+        has_serial = False
+        if 'gfxterm' in self.terminal_output:
+            has_graphics = True
+        if 'serial' in self.terminal_output or 'serial' in self.terminal_input:
+            has_serial = True
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': '0',
@@ -403,7 +433,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'bootpath': self.get_boot_path('iso'),
             'boot_directory_name': self.boot_directory_name,
             'efi_image_name': Defaults.get_efi_image_name(self.arch),
-            'terminal_setup': self.terminal
+            'terminal_input': self.terminal_input,
+            'terminal_output': self.terminal_output
         }
         custom_template_path = self._get_custom_template()
         if custom_template_path:
@@ -414,14 +445,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.info('--> Using multiboot template')
             parameters['hypervisor'] = hypervisor
             template = self.grub2.get_multiboot_iso_template(
-                self.failsafe_boot, self.terminal, self.mediacheck_boot
+                self.failsafe_boot, has_graphics, has_serial,
+                self.mediacheck_boot
             )
         else:
             log.info('--> Using standard boot template')
             hybrid_boot = True
             template = self.grub2.get_iso_template(
                 self.failsafe_boot, hybrid_boot,
-                self.terminal, self.mediacheck_boot
+                has_graphics, has_serial, self.mediacheck_boot
             )
         try:
             self.config = template.substitute(parameters)
@@ -687,7 +719,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * GRUB_CMDLINE_LINUX
         * GRUB_CMDLINE_LINUX_DEFAULT
         * GRUB_GFXMODE
-        * GRUB_TERMINAL
+        * GRUB_TERMINAL_INPUT
+        * GRUB_TERMINAL_OUTPUT
         * GRUB_DISTRIBUTOR
         * GRUB_DISABLE_LINUX_UUID
         * GRUB_DISABLE_LINUX_PARTUUID
@@ -700,9 +733,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         # elements to set in any case
         grub_default_entries = {
             'GRUB_TIMEOUT': self.timeout,
-            'GRUB_GFXMODE': self.gfxmode,
-            'GRUB_TERMINAL': '"{0}"'.format(self.terminal)
+            'GRUB_GFXMODE': self.gfxmode
         }
+        if self.terminal_input:
+            grub_default_entries['GRUB_TERMINAL_INPUT'] = '"{0}"'.format(
+                self.terminal_input
+            )
+        if self.terminal_output:
+            grub_default_entries['GRUB_TERMINAL_OUTPUT'] = '"{0}"'.format(
+                self.terminal_output
+            )
         grub_final_cmdline = re.sub(
             r'(^root=[^\s]+)|( root=[^\s]+)', '', self.cmdline
         ).strip()
@@ -730,8 +770,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             grub_default_entries['GRUB_CMDLINE_LINUX_DEFAULT'] = '"{0}"'.format(
                 grub_final_cmdline
             )
-        if self.terminal and 'serial' in self.terminal and \
-           self.serial_line_setup:
+        if self.serial_line_setup and \
+           'serial' in self.terminal_input or 'serial' in self.terminal_output:
             grub_default_entries['GRUB_SERIAL_COMMAND'] = '"{0}"'.format(
                 self.serial_line_setup
             )
@@ -1301,7 +1341,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             if not os.path.exists(theme_dir):
                 log.warning('Theme %s not found', theme_dir)
                 log.warning('Set bootloader terminal to console mode')
-                self.terminal = 'console'
+                self.terminal_input = 'console'
+                self.terminal_output = 'console'
 
     def _setup_EFI_path(self, lookup_path):
         """
