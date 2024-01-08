@@ -61,7 +61,7 @@ class BootLoaderTemplateGrub2:
             export linux initrd
         ''').strip() + os.linesep
 
-        self.header_gfxterm = dedent('''
+        self.header_gfxmode = dedent('''
             if [ "$${grub_platform}" = "efi" ]; then
                 echo "Please press 't' to show the boot menu on this console"
             fi
@@ -73,8 +73,8 @@ class BootLoaderTemplateGrub2:
         ''').strip() + os.linesep
 
         self.header_terminal_setup = dedent('''
-            terminal_input ${terminal_setup}
-            terminal_output ${terminal_setup}
+            terminal_input ${terminal_input}
+            terminal_output ${terminal_output}
         ''').strip() + os.linesep
 
         self.fonts = dedent('''
@@ -310,14 +310,16 @@ class BootLoaderTemplateGrub2:
         ''').strip() + os.linesep
 
     def get_iso_template(
-        self, failsafe=True, hybrid=True, terminal='gfxterm', checkiso=False
+        self, failsafe=True, hybrid=True,
+        has_graphics=True, has_serial=False, checkiso=False
     ):
         """
         Bootloader configuration template for live ISO media
 
         :param bool failsafe: with failsafe true|false
         :param bool hybrid: with hybrid true|false
-        :param string terminal: output terminal name
+        :param bool has_graphics: supports graphics terminal
+        :param bool has_serial: supports serial terminal
 
         :return: instance of :class:`Template`
 
@@ -328,10 +330,10 @@ class BootLoaderTemplateGrub2:
         template_data += self.timeout_style
         if hybrid:
             template_data += self.header_hybrid
-        if 'gfxterm' in terminal:
-            template_data += self.header_gfxterm
+        if has_graphics:
+            template_data += self.header_gfxmode
             template_data += self.header_theme_iso
-        if 'serial' in terminal:
+        if has_serial:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
         if hybrid:
@@ -348,19 +350,21 @@ class BootLoaderTemplateGrub2:
                 template_data += self.menu_mediacheck_entry
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_entry_boot_snapshots
-        if 'gfxterm' in terminal:
+        if has_graphics:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
 
     def get_multiboot_iso_template(
-        self, failsafe=True, terminal='gfxterm', checkiso=False
+        self, failsafe=True,
+        has_graphics=True, has_serial=False, checkiso=False
     ):
         """
         Bootloader configuration template for live ISO media with
         hypervisor, e.g Xen dom0
 
         :param bool failsafe: with failsafe true|false
-        :param string terminal: output terminal name
+        :param bool has_graphics: supports graphics terminal
+        :param bool has_serial: supports serial terminal
 
         :return: instance of :class:`Template`
 
@@ -369,10 +373,10 @@ class BootLoaderTemplateGrub2:
         template_data = self.header
         template_data += self.timeout
         template_data += self.timeout_style
-        if 'gfxterm' in terminal:
-            template_data += self.header_gfxterm
+        if has_graphics:
+            template_data += self.header_gfxmode
             template_data += self.header_theme_iso
-        if 'serial' in terminal:
+        if has_serial:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
         template_data += self.menu_entry_multiboot
@@ -382,19 +386,21 @@ class BootLoaderTemplateGrub2:
             template_data += self.menu_mediacheck_entry_multiboot
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_entry_boot_snapshots
-        if 'gfxterm' in terminal:
+        if has_graphics:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
 
     def get_install_template(
-        self, failsafe=True, hybrid=True, terminal='gfxterm', with_timeout=True
+        self, failsafe=True, hybrid=True,
+        has_graphics=True, has_serial=False, with_timeout=True
     ):
         """
         Bootloader configuration template for install media
 
         :param bool failsafe: with failsafe true|false
         :param bool hybrid: with hybrid true|false
-        :param string terminal: output terminal name
+        :param bool has_graphics: supports graphics terminal
+        :param bool has_serial: supports serial terminal
 
         :return: instance of :class:`Template`
 
@@ -406,10 +412,10 @@ class BootLoaderTemplateGrub2:
             template_data += self.timeout_style
         if hybrid:
             template_data += self.header_hybrid
-        if 'gfxterm' in terminal:
-            template_data += self.header_gfxterm
+        if has_graphics:
+            template_data += self.header_gfxmode
             template_data += self.header_theme_iso
-        if 'serial' in terminal:
+        if has_serial:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
         template_data += self.menu_iso_harddisk_entry
@@ -422,19 +428,21 @@ class BootLoaderTemplateGrub2:
             if failsafe:
                 template_data += self.menu_install_entry_failsafe
         template_data += self.menu_entry_boot_snapshots
-        if 'gfxterm' in terminal:
+        if has_graphics:
             template_data += self.menu_entry_console_switch
         return Template(template_data)
 
     def get_multiboot_install_template(
-        self, failsafe=True, terminal='gfxterm', with_timeout=True
+        self, failsafe=True,
+        has_graphics=True, has_serial=False, with_timeout=True
     ):
         """
         Bootloader configuration template for install media with
         hypervisor, e.g Xen dom0
 
         :param bool failsafe: with failsafe true|false
-        :param string terminal: output terminal name
+        :param bool has_graphics: supports graphics terminal
+        :param bool has_serial: supports serial terminal
 
         :return: instance of :class:`Template`
 
@@ -444,10 +452,10 @@ class BootLoaderTemplateGrub2:
         if with_timeout:
             template_data += self.timeout
             template_data += self.timeout_style
-        if 'gfxterm' in terminal:
-            template_data += self.header_gfxterm
+        if has_graphics:
+            template_data += self.header_gfxmode
             template_data += self.header_theme_iso
-        if 'serial' in terminal:
+        if has_serial:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
         template_data += self.menu_iso_harddisk_entry
@@ -455,6 +463,6 @@ class BootLoaderTemplateGrub2:
         if failsafe:
             template_data += self.menu_install_entry_failsafe_multiboot
         template_data += self.menu_entry_boot_snapshots
-        if 'gfxterm' in terminal:
+        if has_graphics:
             template_data += self.menu_entry_console_switch
         return Template(template_data)

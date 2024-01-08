@@ -11,7 +11,7 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" timeout="10" console="serial gfxterm"/>
+            <bootloader name="grub2" timeout="10" console="serial"/>
             <size unit="M">10240</size>
         </type>
         <version>0.3.10</version>

@@ -976,18 +976,28 @@ class XMLState:
         return bootloader.get_name() if bootloader else \
             Defaults.get_default_bootloader()
 
-    def get_build_type_bootloader_console(self) -> Optional[str]:
+    def get_build_type_bootloader_console(self) -> List[str]:
         """
         Return bootloader console setting for selected build type
 
-        :return: console string
+        :return:
+            list of console settings for output (first element)
+            and input (second element)
 
-        :rtype: str
+        :rtype: list
         """
+        result = ['', '']
         bootloader = self.get_build_type_bootloader_section()
         if bootloader:
-            return bootloader.get_console()
-        return None
+            combined_console = bootloader.get_console()
+            if combined_console:
+                console_out, *console_in = combined_console.split(' ')[:2]
+                console_in = console_out if not console_in else console_in[0]
+                result = [
+                    console_out if console_out != 'none' else '',
+                    console_in if console_in != 'none' else ''
+                ]
+        return result
 
     def get_build_type_bootloader_serial_line_setup(self) -> Optional[str]:
         """

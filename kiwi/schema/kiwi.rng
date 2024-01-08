@@ -88,7 +88,7 @@
   </define>
   <define name="grub_console">
     <data type="token">
-      <param name="pattern">(none|console|gfxterm|serial)( (console|gfxterm|serial))*</param>
+      <param name="pattern">(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (none|console|serial|at_keyboard|usb_keyboard))*</param>
     </data>
   </define>
   <define name="fs_attributes">
@@ -4136,7 +4136,7 @@ setting only affects the oem and iso image types.</a:documentation>
       <attribute name="console">
         <a:documentation>Specifies the bootloader console.
 The value is available for grub and isolinux bootloader
-types. By default a graphics console setup is used</a:documentation>
+types.</a:documentation>
         <ref name="grub_console"/>
       </attribute>
       <sch:pattern id="loader_console" is-a="bootloader_name_type">

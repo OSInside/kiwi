@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.3 (main, Jun 03 2023, 22:12:18) [GCC]
+# Python 3.11.5 (main, Sep 06 2023, 11:21:05) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -5606,7 +5606,7 @@ class bootloader(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_grub_console_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_patterns_, ))
-    validate_grub_console_patterns_ = [['^(none|console|gfxterm|serial)( (console|gfxterm|serial))*$']]
+    validate_grub_console_patterns_ = [['^(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (none|console|serial|at_keyboard|usb_keyboard))*$']]
     def hasContent_(self):
         if (
             self.bootloadersettings is not None

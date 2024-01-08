@@ -1036,7 +1036,7 @@ class TestXMLState:
     def test_get_build_type_bootloader_console(self, mock_bootloader):
         mock_bootloader.return_value = [self.bootloader]
         assert self.state.get_build_type_bootloader_console() == \
-            'some-console'
+            ['some-console', 'some-console']
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_serial_line_setup(self, mock_bootloader):
