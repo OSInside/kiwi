@@ -176,10 +176,29 @@ function initialize {
     # The method will exit from the initrd if the profile
     # file does not exist
     # """
+    local kiwi_oem_installdevice
     local profile=/.profile
 
     test -f ${profile} || \
         report_and_quit "No profile setup found"
 
     import_file ${profile}
+
+    # Handle overwrites
+    kiwi_oem_installdevice=$(getarg rd.kiwi.oem.installdevice=)
+    if [ -n "${kiwi_oem_installdevice}" ];then
+        # activate unattended mode. In case a user explicitly
+        # provides the device name to deploy the image to via
+        # the kernel commandline, no further questions if this
+        # is wanted should appear
+        message="rd.kiwi.oem.installdevice explicitly set via cmdline."
+        message="${message} The following OEM device settings will be ignored:"
+        message="${message} oem-unattended,"
+        message="${message} oem-unattended-id,"
+        message="${message} oem-device-filter"
+        export kiwi_oemunattended="true"
+        export kiwi_oemunattended_id=""
+        export kiwi_oemdevicefilter=""
+        info "${message}" >&2
+    fi
 }

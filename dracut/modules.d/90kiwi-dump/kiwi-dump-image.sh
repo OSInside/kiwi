@@ -129,19 +129,6 @@ function get_disk_list {
         )
         device_size=$(echo "${device_meta}" | cut -f2 -d:)
         list_items="${device} ${device_size}"
-        # activate unattended mode. In case a user explicitly
-        # provides the device name to deploy the image to via
-        # the kernel commandline, no further questions if this
-        # is wanted should appear
-        message="rd.kiwi.oem.installdevice set via cmdline to: ${device}"
-        message="${message} The following OEM device settings will be ignored:"
-        message="${message} oem-unattended,"
-        message="${message} oem-unattended-id,"
-        message="${message} oem-device-filter"
-        export kiwi_oemunattended="true"
-        export kiwi_oemunattended_id=""
-        export kiwi_oemdevicefilter=""
-        info "${message}" >&2
     fi
     if [ -z "${list_items}" ];then
         local no_device_text="No device(s) for installation found"
