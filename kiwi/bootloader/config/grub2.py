@@ -771,7 +771,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 grub_final_cmdline
             )
         if self.serial_line_setup and \
-           'serial' in self.terminal_input or 'serial' in self.terminal_output:
+           ('serial' in self.terminal_input or 'serial' in self.terminal_output):
             grub_default_entries['GRUB_SERIAL_COMMAND'] = '"{0}"'.format(
                 self.serial_line_setup
             )
