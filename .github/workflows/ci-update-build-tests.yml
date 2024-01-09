@@ -3,7 +3,7 @@ name: CI-Update-Build-Tests
 on:
   push:
     branches:
-      - "master"
+      - "main"
     paths:
       - "build-tests/**"
 

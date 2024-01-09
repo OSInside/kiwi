@@ -4,7 +4,7 @@ name: CI-Config-Functions
 on:
   push:
     branches:
-      - "master"
+      - "main"
     paths:
       - "kiwi/config/functions.sh"
       - ".github/workflows/**"
