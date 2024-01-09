@@ -1,0 +1,14 @@
+name: CI-Compliant-To-Kiwi-9
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  compliance_test:
+    name: Capable for Rebase to kiwi v9.x.x
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run rebase
+        run: git fetch --all; git config user.email rebase@action.com; git config user.name git_action; git checkout master; git cherry-pick "origin/main..origin/${GITHUB_HEAD_REF}"
