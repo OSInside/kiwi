@@ -54,7 +54,6 @@ class FileSystem(metaclass=ABCMeta):
             'fat16': 'Fat16',
             'fat32': 'Fat32',
             'squashfs': 'SquashFs',
-            'clicfs': 'ClicFs',
             'swap': 'Swap'
         }
         try:

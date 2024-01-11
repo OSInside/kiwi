@@ -65,7 +65,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "7.6" }
+        attribute schemaversion { "8.0" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -1938,7 +1938,7 @@ div {
     k.type.image.attribute =
         ## Specifies the image type
         attribute image {
-            "btrfs" | "clicfs" | "cpio" | "docker" | "ext2" | "ext3" |
+            "btrfs" | "cpio" | "docker" | "ext2" | "ext3" |
             "ext4" | "iso" | "oem" | "pxe" | "kis" | "squashfs" | "tbz" |
             "xfs" | "oci" | "appx"
         }

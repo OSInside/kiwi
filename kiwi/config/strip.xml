@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.6" name="initrd-strip-metadata">
+<image schemaversion="8.0" name="initrd-strip-metadata">
     <description type="boot">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -93,7 +93,6 @@
         <file name="checkmedia"/>
         <file name="chroot"/>
         <file name="clear"/>
-        <file name="clicfs"/>
         <file name="cmp"/>
         <file name="column"/>
         <file name="cp"/>
