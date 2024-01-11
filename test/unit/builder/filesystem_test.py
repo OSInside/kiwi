@@ -95,7 +95,7 @@ class TestFileSystemBuilder:
     ):
         Defaults.set_platform_name('x86_64')
         mock_fs_setup.return_value = self.fs_setup
-        mock_fs.return_value = self.filesystem
+        mock_fs.return_value.__enter__.return_value = self.filesystem
         loop_provider = Mock()
         loop_provider.get_device = Mock(
             return_value='/dev/loop1'
@@ -135,7 +135,7 @@ class TestFileSystemBuilder:
         Defaults.set_platform_name('x86_64')
         provider = Mock()
         mock_provider.return_value = provider
-        mock_fs.return_value = self.filesystem
+        mock_fs.return_value.__enter__.return_value = self.filesystem
         self.xml_state.get_build_type_name = Mock(
             return_value='squashfs'
         )

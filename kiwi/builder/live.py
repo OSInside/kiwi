@@ -261,22 +261,21 @@ class LiveImageBuilder:
             self.xml_state.build_type.get_target_blocksize()
         ) as loop_provider:
             loop_provider.create()
-            live_filesystem = FileSystem.new(
+            with FileSystem.new(
                 name=root_filesystem,
                 device_provider=loop_provider,
                 root_dir=self.root_dir + os.sep,
                 custom_args=filesystem_custom_parameters
-            )
-            live_filesystem.create_on_device()
-            log.info(
-                '--> Syncing data to {0} root image'.format(root_filesystem)
-            )
-            live_filesystem.sync_data(
-                Defaults.
-                get_exclude_list_for_root_data_sync() + Defaults.
-                get_exclude_list_from_custom_exclude_files(self.root_dir)
-            )
-            live_filesystem.umount()
+            ) as live_filesystem:
+                live_filesystem.create_on_device()
+                log.info(
+                    '--> Syncing data to {0} root image'.format(root_filesystem)
+                )
+                live_filesystem.sync_data(
+                    Defaults.
+                    get_exclude_list_for_root_data_sync() + Defaults.
+                    get_exclude_list_from_custom_exclude_files(self.root_dir)
+                )
 
         log.info('--> Creating squashfs container for root image')
         self.live_container_dir = Temporary(
@@ -286,7 +285,7 @@ class LiveImageBuilder:
         shutil.copy(
             root_image.name, self.live_container_dir.name + '/LiveOS/rootfs.img'
         )
-        live_container_image = FileSystem.new(
+        with FileSystem.new(
             name='squashfs',
             device_provider=DeviceProvider(),
             root_dir=self.live_container_dir.name,
@@ -294,24 +293,25 @@ class LiveImageBuilder:
                 'compression':
                     self.xml_state.build_type.get_squashfscompression()
             }
-        )
-        container_image = Temporary().new_file()
-        live_container_image.create_on_file(
-            container_image.name
-        )
-        Path.create(self.media_dir.name + '/LiveOS')
-        os.chmod(container_image.name, 0o644)
-        shutil.copy(
-            container_image.name, self.media_dir.name + '/LiveOS/squashfs.img'
-        )
+        ) as live_container_image:
+            container_image = Temporary().new_file()
+            live_container_image.create_on_file(
+                container_image.name
+            )
+            Path.create(self.media_dir.name + '/LiveOS')
+            os.chmod(container_image.name, 0o644)
+            shutil.copy(
+                container_image.name,
+                self.media_dir.name + '/LiveOS/squashfs.img'
+            )
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
-        iso_image = FileSystemIsoFs(
+        with FileSystemIsoFs(
             device_provider=DeviceProvider(), root_dir=self.media_dir.name,
             custom_args=custom_iso_args
-        )
-        iso_image.create_on_file(self.isoname)
+        ) as iso_image:
+            iso_image.create_on_file(self.isoname)
 
         # include metadata for checkmedia tool
         if self.xml_state.build_type.get_mediacheck() is True:

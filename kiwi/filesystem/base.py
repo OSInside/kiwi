@@ -76,6 +76,9 @@ class FileSystemBase:
         self.post_init(custom_args)
         self.veritysetup: Optional[VeritySetup] = None
 
+    def __enter__(self):
+        return self
+
     def post_init(self, custom_args: Dict):
         """
         Post initialization method
@@ -174,7 +177,7 @@ class FileSystemBase:
 
     def sync_data(self, exclude: List[str] = []):
         """
-        Copy root data tree into filesystem
+        Copy data tree into filesystem
 
         :param list exclude: list of exclude dirs/files
         """
@@ -345,6 +348,5 @@ class FileSystemBase:
                     ]
                 )
 
-    def __del__(self):
-        log.info('Cleaning up %s instance', type(self).__name__)
+    def __exit__(self, exc_type, exc_value, traceback):
         self.umount()

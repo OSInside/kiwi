@@ -29,15 +29,6 @@ class TestInstallImageBuilder:
         kiwi.builder.install.FirmWare = mock.Mock(
             return_value=self.firmware
         )
-        self.squashed_image = mock.Mock()
-        kiwi.builder.install.FileSystemSquashFs = mock.Mock(
-            return_value=self.squashed_image
-        )
-        self.iso_image = mock.Mock()
-        self.iso_image.create_on_file.return_value = 42
-        kiwi.builder.install.FileSystemIsoFs = mock.Mock(
-            return_value=self.iso_image
-        )
         self.mbrid = mock.Mock()
         self.mbrid.get_id = mock.Mock(
             return_value='0xffffffff'
@@ -124,6 +115,8 @@ class TestInstallImageBuilder:
         )
         assert install_image.arch == 'ix86'
 
+    @patch('kiwi.builder.install.FileSystemIsoFs')
+    @patch('kiwi.builder.install.FileSystemSquashFs')
     @patch('kiwi.builder.install.DeviceProvider')
     @patch('kiwi.builder.install.BootLoaderConfig.new')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
@@ -135,7 +128,7 @@ class TestInstallImageBuilder:
     def test_create_install_iso(
         self, mock_Iso, mock_grub_dir, mock_command, mock_Temporary, mock_copy,
         mock_setup_media_loader_directory, mock_BootLoaderConfig,
-        mock_DeviceProvider
+        mock_DeviceProvider, mock_FileSystemSquashFs, mock_FileSystemIsoFs
     ):
         temp_squashfs = Mock()
         temp_squashfs.new_dir.return_value.name = 'temp-squashfs'
@@ -147,6 +140,9 @@ class TestInstallImageBuilder:
         temp_esp_file.new_file.return_value.name = 'temp_esp'
 
         tmp_names = [temp_esp_file, temp_squashfs, temp_media_dir]
+
+        iso_image = mock_FileSystemIsoFs.return_value.__enter__.return_value
+        iso_image.create_on_file.return_value = 42
 
         def side_effect(prefix, path):
             return tmp_names.pop()
@@ -183,7 +179,9 @@ class TestInstallImageBuilder:
             device_provider=mock_DeviceProvider.return_value,
             root_dir='temp-squashfs'
         )
-        self.squashed_image.create_on_file.assert_called_once_with(
+        squashed_image = mock_FileSystemSquashFs \
+            .return_value.__enter__.return_value
+        squashed_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.raw.squashfs'
         )
         mock_BootLoaderConfig.assert_called_once_with(
@@ -231,7 +229,7 @@ class TestInstallImageBuilder:
                 'mv', 'initrd', 'temp_media_dir/boot/x86_64/loader/initrd'
             ])
         ]
-        self.iso_image.create_on_file.assert_called_once_with(
+        iso_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.install.iso'
         )
 

@@ -1,9 +1,10 @@
 import logging
-from mock import patch
+from mock import (
+    patch, Mock
+)
 from pytest import (
     raises, fixture
 )
-import mock
 
 import kiwi.defaults as defaults
 
@@ -18,11 +19,11 @@ class TestFileSystemBase:
         self._caplog = caplog
 
     def setup(self):
-        provider = mock.Mock()
-        provider.get_device = mock.Mock(
+        provider = Mock()
+        provider.get_device = Mock(
             return_value='/dev/loop0'
         )
-        provider.get_byte_size = mock.Mock(
+        provider.get_byte_size = Mock(
             return_value=1073741824  # 1GB
         )
         custom_args = {
@@ -34,12 +35,12 @@ class TestFileSystemBase:
         self.setup()
 
     def test_root_dir_does_not_exist(self):
-        fsbase = FileSystemBase(mock.Mock(), 'root_dir_not_existing')
+        fsbase = FileSystemBase(Mock(), 'root_dir_not_existing')
         with raises(KiwiFileSystemSyncError):
             fsbase.sync_data()
 
     def test_root_dir_not_defined(self):
-        fsbase = FileSystemBase(mock.Mock())
+        fsbase = FileSystemBase(Mock())
         with raises(KiwiFileSystemSyncError):
             fsbase.sync_data()
 
@@ -63,11 +64,11 @@ class TestFileSystemBase:
     ):
         mock_exists.return_value = True
 
-        filesystem_mount = mock.Mock()
+        filesystem_mount = Mock()
         filesystem_mount.mountpoint = 'tmpdir'
         mock_mount.return_value = filesystem_mount
 
-        data_sync = mock.Mock()
+        data_sync = Mock()
         mock_sync.return_value = data_sync
 
         self.fsbase.sync_data(['exclude_me'])
@@ -95,7 +96,7 @@ class TestFileSystemBase:
         mock_VeritySetup.return_value.format.assert_called_once_with()
 
     def test_create_verification_metadata(self):
-        veritysetup = mock.Mock()
+        veritysetup = Mock()
         self.fsbase.veritysetup = veritysetup
         self.fsbase.create_verification_metadata('/some/device')
         veritysetup.create_verity_verification_metadata.assert_called_once_with()
@@ -105,13 +106,13 @@ class TestFileSystemBase:
         )
 
     def test_umount(self):
-        mount = mock.Mock()
+        mount = Mock()
         self.fsbase.filesystem_mount = mount
         self.fsbase.umount()
         mount.umount.assert_called_once_with()
 
     def test_mount(self):
-        mount = mock.Mock()
+        mount = Mock()
         self.fsbase.filesystem_mount = mount
         self.fsbase.mount()
         mount.mount.assert_called_once_with([])
@@ -134,6 +135,8 @@ class TestFileSystemBase:
         with self._caplog.at_level(logging.WARNING):
             self.fsbase.set_uuid()
 
-    def test_destructor_valid_mountpoint(self):
-        self.fsbase.filesystem_mount = mock.Mock()
-        self.fsbase.__del__()
+    def test_context_manager_exit(self):
+        mount_manager = Mock()
+        with FileSystemBase(Mock()) as fsbase:
+            fsbase.filesystem_mount = mount_manager
+        mount_manager.umount.assert_called_once_with()

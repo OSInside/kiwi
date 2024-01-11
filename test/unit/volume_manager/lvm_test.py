@@ -161,7 +161,7 @@ class TestVolumeManagerLVM:
 
         mock_os_exists.side_effect = mock_os_exists_return
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.volume_manager.mountpoint = 'tmpdir'
         mock_mapped_device.return_value = 'mapped_device'
         size = Mock()

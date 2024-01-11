@@ -191,15 +191,15 @@ class InstallImageBuilder:
                 self.target_dir, '/', self.squashed_diskname, '.squashfs'
             ]
         )
-        squashed_image = FileSystemSquashFs(
+        with FileSystemSquashFs(
             device_provider=DeviceProvider(),
             root_dir=self.squashed_contents.name,
             custom_args={
                 'compression':
                     self.xml_state.build_type.get_squashfscompression()
             }
-        )
-        squashed_image.create_on_file(squashed_image_file)
+        ) as squashed_image:
+            squashed_image.create_on_file(squashed_image_file)
         Command.run(
             ['mv', squashed_image_file, self.media_dir.name]
         )
@@ -261,11 +261,11 @@ class InstallImageBuilder:
 
         # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')
-        iso_image = FileSystemIsoFs(
+        with FileSystemIsoFs(
             device_provider=DeviceProvider(), root_dir=self.media_dir.name,
             custom_args=self.custom_iso_args
-        )
-        iso_image.create_on_file(self.isoname)
+        ) as iso_image:
+            iso_image.create_on_file(self.isoname)
         self.boot_image_task.cleanup()
 
     def create_install_pxe_archive(self) -> None:

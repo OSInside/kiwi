@@ -198,7 +198,7 @@ class TestLiveImageBuilder:
         tmpdir_name = [temp_squashfs, temp_media_dir]
 
         filesystem = Mock()
-        mock_filesystem.return_value = filesystem
+        mock_filesystem.return_value.__enter__.return_value = filesystem
 
         def side_effect():
             return tmpdir_name.pop()
@@ -210,7 +210,7 @@ class TestLiveImageBuilder:
 
         iso_image = Mock()
         iso_image.create_on_file.return_value = 'offset'
-        mock_isofs.return_value = iso_image
+        mock_isofs.return_value.__enter__.return_value = iso_image
 
         rootsize = Mock()
         rootsize.accumulate_mbyte_file_sizes = Mock(

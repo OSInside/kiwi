@@ -327,16 +327,16 @@ class VolumeManagerLVM(VolumeManagerBase):
             # perform a second lookup of a label specified via the
             # rootfs_label from the type setup
             volume_label = self.custom_args['root_label']
-        filesystem = FileSystem.new(
+        with FileSystem.new(
             name=filesystem_name,
             device_provider=MappedDevice(
                 device=device_node, device_provider=self.device_provider_root
             ),
             custom_args=self.custom_filesystem_args
-        )
-        filesystem.create_on_device(
-            label=volume_label
-        )
+        ) as filesystem:
+            filesystem.create_on_device(
+                label=volume_label
+            )
 
     def _add_to_mount_list(self, volume_name, realpath):
         device_node = self.volume_map[volume_name]
