@@ -79,10 +79,6 @@ class TestDiskBuilder:
         kiwi.builder.disk.BlockID = Mock(
             return_value=self.block_operation
         )
-        self.loop_provider = Mock()
-        kiwi.builder.disk.LoopDevice = Mock(
-            return_value=self.loop_provider
-        )
         self.disk = Mock()
         provider = Mock()
         provider.get_device = Mock(
@@ -290,6 +286,7 @@ class TestDiskBuilder:
             {'signing_keys': ['key_file_a', 'key_file_b']}
         )
 
+    @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('random.randrange')
     @patch('kiwi.builder.disk.Command.run')
@@ -298,8 +295,10 @@ class TestDiskBuilder:
     @patch('os.path.exists')
     def test_create_disk_standard_root_with_kiwi_initrd(
         self, mock_path, mock_ImageSystem, mock_grub_dir,
-        mock_command, mock_rand, mock_fs
+        mock_command, mock_rand, mock_fs, mock_LoopDevice
     ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         mock_path.return_value = True
         mock_rand.return_value = 15
         filesystem = Mock()
@@ -320,7 +319,7 @@ class TestDiskBuilder:
         self.disk_setup.get_disksize_mbytes.assert_called_once_with(
             root_clone=0, boot_clone=0
         )
-        self.loop_provider.create.assert_called_once_with()
+        loop_provider.create.assert_called_once_with()
         self.disk.wipe.assert_called_once_with()
         self.disk.create_efi_csm_partition.assert_called_once_with(
             self.firmware.get_legacy_bios_partition_size()
@@ -638,6 +637,7 @@ class TestDiskBuilder:
             call(label='SWAP')
         ]
 
+    @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('random.randrange')
     @patch('kiwi.builder.disk.Command.run')
@@ -651,8 +651,11 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_with_dracut_initrd(
         self, mock_Temporary_new_file, mock_VeritySetup,
         mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
-        mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs
+        mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs,
+        mock_LoopDevice
     ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         tempfile = Mock()
         tempfile.name = 'tempfile'
         mock_Temporary_new_file.return_value = tempfile
@@ -682,7 +685,7 @@ class TestDiskBuilder:
         self.disk_setup.get_disksize_mbytes.assert_called_once_with(
             root_clone=0, boot_clone=0
         )
-        assert self.loop_provider.create.call_args_list == [
+        assert loop_provider.create.call_args_list == [
             call(), call()
         ]
         self.disk.wipe.assert_called_once_with()
@@ -829,6 +832,7 @@ class TestDiskBuilder:
             'clone:1024:1024', 1
         )
 
+    @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.DeviceProvider')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.FileSystemSquashFs')
@@ -842,8 +846,11 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_is_overlay(
         self, mock_BlockID, mock_rand, mock_temp,
         mock_getsize, mock_exists, mock_grub_dir, mock_command,
-        mock_squashfs, mock_fs, mock_DeviceProvider
+        mock_squashfs, mock_fs, mock_DeviceProvider,
+        mock_LoopDevice
     ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         block_operation = Mock()
         block_operation.get_blkid.return_value = 'partuuid'
         block_operation.get_filesystem.return_value = 'ext3'
@@ -924,11 +931,14 @@ class TestDiskBuilder:
             config={'modules': ['kiwi-overlay']}
         )
 
+    @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     def test_create_disk_standard_root_no_hypervisor_found(
-        self, mock_command, mock_fs
+        self, mock_command, mock_fs, mock_LoopDevice
     ):
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         self.kernel.get_xen_hypervisor.return_value = False
         self.disk_builder.volume_manager_name = None
         self.disk_builder.xen_server = True
@@ -1417,10 +1427,10 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Partitioner.new')
     @patch('kiwi.builder.disk.DiskFormat.new')
     def test_append_unpartitioned_space(
-        self, mock_diskformat, mock_partitioner, mock_loopdevice
+        self, mock_diskformat, mock_partitioner, mock_LoopDevice
     ):
-        loopdevice = Mock()
-        mock_loopdevice.return_value = loopdevice
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         partitioner = Mock()
         mock_partitioner.return_value = partitioner
         disk_format = Mock()
@@ -1430,7 +1440,7 @@ class TestDiskBuilder:
         disk_format.resize_raw_disk.assert_called_once_with(
             1024, append=True
         )
-        loopdevice.create.assert_called_once_with(overwrite=False)
+        loop_provider.create.assert_called_once_with(overwrite=False)
         assert partitioner.resize_table.called
 
     @patch('kiwi.builder.disk.FileSystem.new')

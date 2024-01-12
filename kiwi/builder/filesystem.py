@@ -170,26 +170,26 @@ class FileSystemBuilder:
 
     def _operate_on_loop(self) -> None:
         filesystem = None
-        loop_provider = LoopDevice(
+        with LoopDevice(
             self.filename,
             self.filesystem_setup.get_size_mbytes(),
             self.blocksize
-        )
-        loop_provider.create()
-        filesystem = FileSystem.new(
-            self.requested_filesystem, loop_provider,
-            self.root_dir + os.sep, self.filesystem_custom_parameters
-        )
-        filesystem.create_on_device(self.label)
-        self.root_uuid = loop_provider.get_uuid(loop_provider.get_device())
-        log.info(
-            f'--> Syncing data to filesystem on {loop_provider.get_device()}'
-        )
-        filesystem.sync_data(
-            Defaults.
-            get_exclude_list_for_root_data_sync() + Defaults.
-            get_exclude_list_from_custom_exclude_files(self.root_dir)
-        )
+        ) as loop_provider:
+            loop_provider.create()
+            filesystem = FileSystem.new(
+                self.requested_filesystem, loop_provider,
+                self.root_dir + os.sep, self.filesystem_custom_parameters
+            )
+            filesystem.create_on_device(self.label)
+            self.root_uuid = loop_provider.get_uuid(loop_provider.get_device())
+            log.info(
+                f'--> Syncing data to filesystem on {loop_provider.get_device()}'
+            )
+            filesystem.sync_data(
+                Defaults.
+                get_exclude_list_for_root_data_sync() + Defaults.
+                get_exclude_list_from_custom_exclude_files(self.root_dir)
+            )
 
     def _operate_on_file(self) -> None:
         default_provider = DeviceProvider()

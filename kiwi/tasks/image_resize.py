@@ -120,13 +120,12 @@ class ImageResizeTask(CliTask):
 
         # resize raw disk partition table
         firmware = FirmWare(self.xml_state)
-        loop_provider = LoopDevice(image_format.diskname)
-        loop_provider.create(overwrite=False)
-        partitioner = Partitioner.new(
-            firmware.get_partition_table_type(), loop_provider
-        )
-        partitioner.resize_table()
-        del loop_provider
+        with LoopDevice(image_format.diskname) as loop_provider:
+            loop_provider.create(overwrite=False)
+            partitioner = Partitioner.new(
+                firmware.get_partition_table_type(), loop_provider
+            )
+            partitioner.resize_table()
 
         # resize disk format from resized raw disk
         if disk_format and resize_result is True:

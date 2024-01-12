@@ -104,49 +104,49 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         Command.run(
             ['sgdisk', '-n', ':1.0', '-t', '1:EF00', path]
         )
-        loop_provider = LoopDevice(path)
-        loop_provider.create(overwrite=False)
-        disk = Disk('gpt', loop_provider)
-        disk.map_partitions()
-        disk.partitioner.partition_id = 1
-        disk._add_to_map('efi')
-        Command.run(
-            ['mkdosfs', '-n', 'BOOT', disk.partition_map['efi']]
-        )
-        Path.create(f'{self.root_dir}/boot/efi')
-        efi_mount = MountManager(
-            device=disk.partition_map['efi'],
-            mountpoint=f'{self.root_dir}/boot/efi'
-        )
-        device_mount = MountManager(
-            device='/dev',
-            mountpoint=f'{self.root_dir}/dev'
-        )
-        proc_mount = MountManager(
-            device='/proc',
-            mountpoint=f'{self.root_dir}/proc'
-        )
-        sys_mount = MountManager(
-            device='/sys',
-            mountpoint=f'{self.root_dir}/sys'
-        )
-        efi_mount.mount()
-        device_mount.bind_mount()
-        proc_mount.bind_mount()
-        sys_mount.bind_mount()
-        try:
-            self._run_bootctl(self.root_dir)
-            self.set_loader_entry(self.root_dir, self.target.live)
-        finally:
-            efi_mount.umount()
-            device_mount.umount()
-            proc_mount.umount()
-            sys_mount.umount()
-        Command.run(
-            ['dd', f'if={disk.partition_map["efi"]}', f'of={path}.img']
-        )
-        del disk
-        del loop_provider
+        with LoopDevice(path) as loop_provider:
+            loop_provider.create(overwrite=False)
+            disk = Disk('gpt', loop_provider)
+            disk.map_partitions()
+            disk.partitioner.partition_id = 1
+            disk._add_to_map('efi')
+            Command.run(
+                ['mkdosfs', '-n', 'BOOT', disk.partition_map['efi']]
+            )
+            Path.create(f'{self.root_dir}/boot/efi')
+            efi_mount = MountManager(
+                device=disk.partition_map['efi'],
+                mountpoint=f'{self.root_dir}/boot/efi'
+            )
+            device_mount = MountManager(
+                device='/dev',
+                mountpoint=f'{self.root_dir}/dev'
+            )
+            proc_mount = MountManager(
+                device='/proc',
+                mountpoint=f'{self.root_dir}/proc'
+            )
+            sys_mount = MountManager(
+                device='/sys',
+                mountpoint=f'{self.root_dir}/sys'
+            )
+            efi_mount.mount()
+            device_mount.bind_mount()
+            proc_mount.bind_mount()
+            sys_mount.bind_mount()
+            try:
+                self._run_bootctl(self.root_dir)
+                self.set_loader_entry(self.root_dir, self.target.live)
+            finally:
+                efi_mount.umount()
+                device_mount.umount()
+                proc_mount.umount()
+                sys_mount.umount()
+            Command.run(
+                ['dd', f'if={disk.partition_map["efi"]}', f'of={path}.img']
+            )
+            del disk
+
         Command.run(
             ['mv', f'{path}.img', path]
         )
