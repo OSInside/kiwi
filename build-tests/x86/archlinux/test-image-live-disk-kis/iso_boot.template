@@ -34,8 +34,8 @@ fi
 if [ -f ($$root)/boot/${boot_directory_name}/themes/${theme}/theme.txt ];then
   set theme=($$root)/boot/${boot_directory_name}/themes/${theme}/theme.txt
 fi
-terminal_input ${terminal_setup}
-terminal_output ${terminal_setup}
+terminal_input ${terminal_input}
+terminal_output ${terminal_output}
 
 menuentry "${title}" --class os --unrestricted {
     set gfxpayload=keep
