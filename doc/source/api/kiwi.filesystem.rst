@@ -22,14 +22,6 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.filesystem.clicfs` Module
--------------------------------
-
-.. automodule:: kiwi.filesystem.clicfs
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 `kiwi.filesystem.ext2` Module
 -----------------------------
 
