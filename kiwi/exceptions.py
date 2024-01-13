@@ -451,6 +451,12 @@ class KiwiOCIArchiveToolError(KiwiError):
     """
 
 
+class KiwiOSReleaseImportError(KiwiError):
+    """
+    Exception raised if reading etc/os-release caused an issue
+    """
+
+
 class KiwiPackageManagerSetupError(KiwiError):
     """
     Exception raised if an attempt was made to create a package

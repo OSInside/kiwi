@@ -10,5 +10,6 @@ class TestBootLoaderTemplateSystemdBoot:
 
     def test_get_loader_template(self):
         assert self.systemd_boot.get_loader_template().substitute(
-            boot_timeout='10'
+            boot_timeout='10',
+            default_entry='main.conf'
         )
