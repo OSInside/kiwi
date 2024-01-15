@@ -18,7 +18,7 @@
 import os
 import logging
 from typing import (
-    Dict, List, Optional, Tuple, Any
+    Dict, List, Optional, Tuple, Union
 )
 
 # project
@@ -49,6 +49,7 @@ from kiwi.storage.device_provider import DeviceProvider
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.volume_manager import VolumeManager
+from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.command import Command
 from kiwi.system.setup import SystemSetup
 from kiwi.builder.install import InstallImageBuilder
@@ -234,7 +235,8 @@ class DiskBuilder:
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
         # which could live on another part of the disk
-        system: Any = None
+        system: Union[FileSystemBase, VolumeManagerBase] = \
+            FileSystemBase(DeviceProvider())
 
         # an instance of a class with the sync_data capability
         # representing the boot/ area of the disk if not part of
@@ -644,7 +646,7 @@ class DiskBuilder:
         self,
         device_map: Dict,
         disk: Disk,
-        system: Any,
+        system: Union[FileSystemBase, VolumeManagerBase],
         system_boot: Optional[FileSystemBase],
         system_efi: Optional[FileSystemBase],
         system_spare: Optional[FileSystemBase],
@@ -1136,13 +1138,15 @@ class DiskBuilder:
             )
 
     def _write_generic_fstab_to_system_image(
-        self, device_map: Dict, system: Any
+        self, device_map: Dict,
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         log.info('Creating generic system etc/fstab')
         self._write_generic_fstab(device_map, self.system_setup, system)
 
     def _write_generic_fstab_to_boot_image(
-        self, device_map: Dict, system: Any
+        self, device_map: Dict,
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         if self.initrd_system == 'kiwi':
             log.info('Creating generic boot image etc/fstab')
@@ -1152,7 +1156,7 @@ class DiskBuilder:
 
     def _write_generic_fstab(
         self, device_map: Dict, setup: SystemSetup,
-        system: Any
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         root_is_snapshot = \
             self.xml_state.build_type.get_btrfs_root_is_snapshot()
@@ -1291,7 +1295,8 @@ class DiskBuilder:
             )
 
     def _write_bootloader_meta_data_to_system_image(
-        self, device_map: Dict, disk: Disk, system: Any
+        self, device_map: Dict, disk: Disk,
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         if self.bootloader != 'custom':
             log.info('Creating %s bootloader configuration', self.bootloader)
@@ -1353,7 +1358,8 @@ class DiskBuilder:
         )
 
     def _sync_system_to_image(
-        self, device_map: Dict, system: Any,
+        self, device_map: Dict,
+        system: Union[FileSystemBase, VolumeManagerBase],
         system_boot: Optional[FileSystemBase],
         system_efi: Optional[FileSystemBase],
         system_spare: Optional[FileSystemBase],
@@ -1551,7 +1557,8 @@ class DiskBuilder:
             self.integrity_root.write_integrity_metadata()
 
     def _install_bootloader(
-        self, device_map: Dict, disk, system: Any
+        self, device_map: Dict, disk,
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         root_device = device_map['root']
         boot_device = root_device
@@ -1632,7 +1639,9 @@ class DiskBuilder:
             self.diskname, boot_device.get_device()
         )
 
-    def _setup_property_root_is_readonly_snapshot(self, system: Any) -> None:
+    def _setup_property_root_is_readonly_snapshot(
+        self, system: Union[FileSystemBase, VolumeManagerBase]
+    ) -> None:
         if self.volume_manager_name:
             root_is_snapshot = \
                 self.xml_state.build_type.get_btrfs_root_is_snapshot()

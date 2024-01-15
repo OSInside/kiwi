@@ -265,6 +265,56 @@ class FileSystemBase:
             log.info('umount %s instance', type(self).__name__)
             self.filesystem_mount.umount()
 
+    def umount_volumes(self) -> None:
+        """
+        Consistency layer with regards to VolumeManager classes
+
+        Invokes umount
+        """
+        self.umount()
+
+    def mount_volumes(self) -> None:
+        """
+        Consistency layer with regards to VolumeManager classes
+
+        Invokes mount
+        """
+        self.mount()
+
+    def get_volumes(self) -> Dict:
+        """
+        Consistency layer with regards to VolumeManager classes
+
+        Raises
+        """
+        raise NotImplementedError
+
+    def get_root_volume_name(self) -> None:
+        """
+        Consistency layer with regards to VolumeManager classes
+
+        Raises
+        """
+        raise NotImplementedError
+
+    def get_fstab(
+        self, persistency_type: str = 'by-label', filesystem_name: str = ''
+    ) -> List[str]:
+        """
+        Consistency layer with regards to VolumeManager classes
+
+        Raises
+        """
+        raise NotImplementedError
+
+    def set_property_readonly_root(self) -> None:
+        """
+        Consistency layer with regards to VolumeManager classes
+
+        Raises
+        """
+        raise NotImplementedError
+
     def _map_size(self, size: float, from_unit: str, to_unit: str) -> float:
         """
         Return byte size value for given size and unit

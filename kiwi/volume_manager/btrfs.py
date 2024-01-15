@@ -269,7 +269,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     volume_mount
                 )
 
-    def get_fstab(self, persistency_type='by-label', filesystem_name=None):
+    def get_fstab(
+        self, persistency_type: str = 'by-label', filesystem_name: str = ''
+    ) -> List[str]:
         """
         Implements creation of the fstab entries. The method
         returns a list of fstab compatible entries

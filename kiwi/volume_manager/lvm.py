@@ -17,6 +17,9 @@
 #
 import os
 import logging
+from typing import (
+    Dict, List
+)
 
 # project
 import kiwi.defaults as defaults
@@ -228,7 +231,9 @@ class VolumeManagerLVM(VolumeManagerBase):
         for mount_path in Path.sort_by_hierarchy(sorted(volume_paths.keys())):
             self.mount_list.append(volume_paths[mount_path])
 
-    def get_fstab(self, persistency_type, filesystem_name):
+    def get_fstab(
+        self, persistency_type: str = 'by-label', filesystem_name: str = ''
+    ) -> List[str]:
         """
         Implements creation of the fstab entries. The method
         returns a list of fstab compatible entries
@@ -266,7 +271,7 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         return fstab_entries
 
-    def get_volumes(self):
+    def get_volumes(self) -> Dict:
         """
         Return dict of volumes
 

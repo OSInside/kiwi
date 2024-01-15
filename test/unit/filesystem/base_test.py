@@ -111,11 +111,39 @@ class TestFileSystemBase:
         self.fsbase.umount()
         mount.umount.assert_called_once_with()
 
+    def test_umount_volumes(self):
+        mount = Mock()
+        self.fsbase.filesystem_mount = mount
+        self.fsbase.umount_volumes()
+        mount.umount.assert_called_once_with()
+
     def test_mount(self):
         mount = Mock()
         self.fsbase.filesystem_mount = mount
         self.fsbase.mount()
         mount.mount.assert_called_once_with([])
+
+    def test_mount_volumes(self):
+        mount = Mock()
+        self.fsbase.filesystem_mount = mount
+        self.fsbase.mount_volumes()
+        mount.mount.assert_called_once_with([])
+
+    def test_get_volumes(self):
+        with raises(NotImplementedError):
+            self.fsbase.get_volumes()
+
+    def test_get_root_volume_name(self):
+        with raises(NotImplementedError):
+            self.fsbase.get_root_volume_name()
+
+    def test_get_fstab(self):
+        with raises(NotImplementedError):
+            self.fsbase.get_fstab()
+
+    def test_set_property_readonly_root(self):
+        with raises(NotImplementedError):
+            self.fsbase.set_property_readonly_root()
 
     def test_fs_size(self):
         # size of 100k must be 100k (default unit)
