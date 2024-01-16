@@ -28,7 +28,6 @@ class BootLoaderTemplateSystemdBoot:
 
         self.loader = dedent('''
             # kiwi generated loader config file
-            default main.conf
             console-mode max
             editor  no
         ''').strip() + self.cr

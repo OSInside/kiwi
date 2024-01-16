@@ -7,7 +7,8 @@ from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
 
 from kiwi.exceptions import (
     KiwiTemplateError,
-    KiwiBootLoaderTargetError
+    KiwiBootLoaderTargetError,
+    KiwiKernelLookupError
 )
 
 
@@ -41,6 +42,8 @@ class TestBootLoaderSystemdBoot:
             self.bootloader.setup_loader('iso')
 
     @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.systemd_boot.OsRelease')
+    @patch('kiwi.bootloader.config.systemd_boot.glob.iglob')
     @patch('kiwi.bootloader.config.systemd_boot.BootImageBase.get_boot_names')
     @patch('kiwi.bootloader.config.systemd_boot.Path.wipe')
     @patch('kiwi.bootloader.config.systemd_boot.Path.create')
@@ -54,8 +57,14 @@ class TestBootLoaderSystemdBoot:
         mock_get_template_parameters, mock_write_config_file,
         mock_BootLoaderTemplateSystemdBoot, mock_Command_run,
         mock_Path_create, mock_Path_wipe, mock_BootImageBase_get_boot_names,
+        mock_iglob,
+        mock_OsRelease,
         mock_os_path_exists
     ):
+        mock_iglob.return_value = ['/lib/modules/5.3.18-59.10-default']
+        os_release = Mock()
+        os_release.get.return_value = 'opensuse-leap'
+        mock_OsRelease.return_value = os_release
         kernel_info = Mock()
         kernel_info.kernel_version = 'kernel-version'
         kernel_info.kernel_filename = 'kernel-filename'
@@ -65,13 +74,16 @@ class TestBootLoaderSystemdBoot:
         self.bootloader.setup_loader('disk')
         assert mock_write_config_file.call_args_list == [
             call(
-                mock_BootLoaderTemplateSystemdBoot.return_value.get_loader_template.return_value,
+                mock_BootLoaderTemplateSystemdBoot.
+                return_value.get_loader_template.return_value,
                 'system_root_mount/boot/efi/loader/loader.conf',
                 mock_get_template_parameters.return_value
             ),
             call(
-                mock_BootLoaderTemplateSystemdBoot.return_value.get_entry_template.return_value,
-                'system_root_mount/boot/efi/loader/entries/main.conf',
+                mock_BootLoaderTemplateSystemdBoot.
+                return_value.get_entry_template.return_value,
+                'system_root_mount/boot/efi/loader/entries/'
+                'opensuse-leap-5.3.18-59.10-default.conf',
                 mock_get_template_parameters.return_value
             )
         ]
@@ -104,9 +116,26 @@ class TestBootLoaderSystemdBoot:
             )
         ]
 
+    @patch('kiwi.bootloader.config.systemd_boot.OsRelease')
+    @patch('kiwi.bootloader.config.systemd_boot.glob.iglob')
     @patch.object(BootLoaderSystemdBoot, '_write_config_file')
-    def test_set_loader_entry(self, mock_write_config_file):
+    def test_set_loader_entry(
+        self, mock_write_config_file, mock_iglob, mock_OsRelease
+    ):
+        mock_iglob.return_value = ['/lib/modules/5.3.18-59.10-default']
+        os_release = Mock()
+        os_release.get.return_value = 'opensuse-leap'
+        mock_OsRelease.return_value = os_release
         self.bootloader.set_loader_entry('root_dir', 'disk')
+
+    @patch('kiwi.bootloader.config.systemd_boot.OsRelease')
+    @patch('kiwi.bootloader.config.systemd_boot.glob.iglob')
+    def test_set_loader_entry_kernel_lookup_raises(
+        self, mock_iglob, mock_OsRelease
+    ):
+        mock_iglob.return_value = None
+        with raises(KiwiKernelLookupError):
+            self.bootloader.set_loader_entry('root_dir', 'disk')
 
     def test_create_loader_image(self):
         self.bootloader.create_loader_image('disk')
@@ -120,7 +149,8 @@ class TestBootLoaderSystemdBoot:
             'boot_options': '',
             'boot_timeout': 0,
             'bootpath': 'bootpath',
-            'title': 'title'
+            'title': 'title',
+            'default_entry': 'main.conf'
         }
 
     @patch('kiwi.bootloader.config.systemd_boot.Path.create')

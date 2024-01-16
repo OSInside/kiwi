@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import glob
 from string import Template
 from typing import Dict
 
@@ -28,10 +29,12 @@ from kiwi.mount_manager import MountManager
 from kiwi.storage.loop_device import LoopDevice
 from kiwi.storage.disk import Disk
 from kiwi.command import Command
+from kiwi.utils.os_release import OsRelease
 
 from kiwi.exceptions import (
     KiwiTemplateError,
-    KiwiBootLoaderTargetError
+    KiwiBootLoaderTargetError,
+    KiwiKernelLookupError
 )
 
 import kiwi.defaults as defaults
@@ -83,10 +86,20 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         :param str target:
             target identifier, one of disk, live(iso) or install(iso)
         """
+        os_release = OsRelease(root_dir)
+        try:
+            kernel_name = os.path.basename(
+                list(glob.iglob(f'{root_dir}/lib/modules/*'))[0]
+            )
+        except Exception as issue:
+            raise KiwiKernelLookupError(
+                f'Kernel lookup in {root_dir}/lib/modules failed with {issue}'
+            )
+        default_entry = f'{os_release.get("ID")}-{kernel_name}.conf'
         BootLoaderSystemdBoot._write_config_file(
             BootLoaderTemplateSystemdBoot().get_entry_template(),
-            root_dir + '/boot/efi/loader/entries/main.conf',
-            self._get_template_parameters()
+            root_dir + f'/boot/efi/loader/entries/{default_entry}',
+            self._get_template_parameters(default_entry)
         )
 
     def _create_embedded_fat_efi_image(self, path: str):
@@ -192,14 +205,17 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             self._get_template_parameters()
         )
 
-    def _get_template_parameters(self) -> Dict[str, str]:
+    def _get_template_parameters(
+        self, default_entry: str = 'main.conf'
+    ) -> Dict[str, str]:
         return {
             'kernel_file': self.custom_args['kernel'] or 'vmlinuz',
             'initrd_file': self.custom_args['initrd'] or 'initrd',
             'boot_options': self.cmdline,
             'boot_timeout': self.timeout,
             'bootpath': self.get_boot_path(),
-            'title': self.get_menu_entry_title()
+            'title': self.get_menu_entry_title(),
+            'default_entry': default_entry
         }
 
     @staticmethod
