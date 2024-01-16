@@ -49,18 +49,6 @@ class BootLoaderTemplateGrub2:
             set timeout_style=${boot_timeout_style}
         ''').strip() + os.linesep
 
-        self.header_hybrid = dedent('''
-            set linux=linux
-            set initrd=initrd
-            if [ "$${grub_cpu}" = "x86_64" -o "$${grub_cpu}" = "i386" ]; then
-                if [ "$${grub_platform}" = "efi" ]; then
-                    set linux=linuxefi
-                    set initrd=initrdefi
-                fi
-            fi
-            export linux initrd
-        ''').strip() + os.linesep
-
         self.header_gfxmode = dedent('''
             if [ "$${grub_platform}" = "efi" ]; then
                 echo "Please press 't' to show the boot menu on this console"
@@ -143,16 +131,6 @@ class BootLoaderTemplateGrub2:
             fi
         ''').strip() + os.linesep
 
-        self.menu_entry_hybrid = dedent('''
-            menuentry "${title}" --class os --unrestricted {
-                set gfxpayload=keep
-                echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${boot_options}
-                echo Loading initrd...
-                $$initrd ($$root)${bootpath}/${initrd_file}
-            }
-        ''').strip() + os.linesep
-
         self.menu_entry_multiboot = dedent('''
             menuentry "${title}" --class os --unrestricted {
                 set gfxpayload=keep
@@ -172,16 +150,6 @@ class BootLoaderTemplateGrub2:
                 linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
-            }
-        ''').strip() + os.linesep
-
-        self.menu_entry_failsafe_hybrid = dedent('''
-            menuentry "Failsafe -- ${title}" --class os --unrestricted {
-                set gfxpayload=keep
-                echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} $${extra_cmdline} $${isoboot} ${failsafe_boot_options}
-                echo Loading initrd...
-                $$initrd ($$root)${bootpath}/${initrd_file}
             }
         ''').strip() + os.linesep
 
@@ -207,16 +175,6 @@ class BootLoaderTemplateGrub2:
             }
         ''').strip() + os.linesep
 
-        self.menu_install_entry_hybrid = dedent('''
-            menuentry "Install ${title}" --class os --unrestricted {
-                set gfxpayload=keep
-                echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${boot_options}
-                echo Loading initrd...
-                $$initrd ($$root)${bootpath}/${initrd_file}
-            }
-        ''').strip() + os.linesep
-
         self.menu_install_entry_multiboot = dedent('''
             menuentry "Install -- ${title}" --class os --unrestricted {
                 set gfxpayload=keep
@@ -239,16 +197,6 @@ class BootLoaderTemplateGrub2:
             }
         ''').strip() + os.linesep
 
-        self.menu_mediacheck_entry_hybrid = dedent('''
-            menuentry "Mediacheck" --class os --unrestricted {
-                set gfxpayload=keep
-                echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} mediacheck=1 plymouth.enable=0 $${isoboot} ${boot_options}
-                echo Loading initrd...
-                $$initrd ($$root)${bootpath}/${initrd_file}
-            }
-        ''').strip() + os.linesep
-
         self.menu_mediacheck_entry_multiboot = dedent('''
             menuentry "Mediacheck" --class os --unrestricted {
                 set gfxpayload=keep
@@ -268,16 +216,6 @@ class BootLoaderTemplateGrub2:
                 linux ($$root)${bootpath}/${kernel_file} mediacheck=1 plymouth.enable=0 $${isoboot} ${boot_options}
                 echo Loading initrd...
                 initrd ($$root)${bootpath}/${initrd_file}
-            }
-        ''').strip() + os.linesep
-
-        self.menu_install_entry_failsafe_hybrid = dedent('''
-            menuentry "Failsafe -- Install ${title}" --class os --unrestricted {
-                set gfxpayload=keep
-                echo Loading kernel...
-                $$linux ($$root)${bootpath}/${kernel_file} cdinst=1 ${failsafe_boot_options}
-                echo Loading initrd...
-                $$initrd ($$root)${bootpath}/${initrd_file}
             }
         ''').strip() + os.linesep
 
@@ -310,14 +248,13 @@ class BootLoaderTemplateGrub2:
         ''').strip() + os.linesep
 
     def get_iso_template(
-        self, failsafe=True, hybrid=True,
+        self, failsafe=True,
         has_graphics=True, has_serial=False, checkiso=False
     ):
         """
         Bootloader configuration template for live ISO media
 
         :param bool failsafe: with failsafe true|false
-        :param bool hybrid: with hybrid true|false
         :param bool has_graphics: supports graphics terminal
         :param bool has_serial: supports serial terminal
 
@@ -328,26 +265,17 @@ class BootLoaderTemplateGrub2:
         template_data = self.header
         template_data += self.timeout
         template_data += self.timeout_style
-        if hybrid:
-            template_data += self.header_hybrid
         if has_graphics:
             template_data += self.header_gfxmode
             template_data += self.header_theme_iso
         if has_serial:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
-        if hybrid:
-            template_data += self.menu_entry_hybrid
-            if failsafe:
-                template_data += self.menu_entry_failsafe_hybrid
-            if checkiso:
-                template_data += self.menu_mediacheck_entry_hybrid
-        else:
-            template_data += self.menu_entry
-            if failsafe:
-                template_data += self.menu_entry_failsafe
-            if checkiso:
-                template_data += self.menu_mediacheck_entry
+        template_data += self.menu_entry
+        if failsafe:
+            template_data += self.menu_entry_failsafe
+        if checkiso:
+            template_data += self.menu_mediacheck_entry
         template_data += self.menu_iso_harddisk_entry
         template_data += self.menu_entry_boot_snapshots
         if has_graphics:
@@ -391,14 +319,13 @@ class BootLoaderTemplateGrub2:
         return Template(template_data)
 
     def get_install_template(
-        self, failsafe=True, hybrid=True,
+        self, failsafe=True,
         has_graphics=True, has_serial=False, with_timeout=True
     ):
         """
         Bootloader configuration template for install media
 
         :param bool failsafe: with failsafe true|false
-        :param bool hybrid: with hybrid true|false
         :param bool has_graphics: supports graphics terminal
         :param bool has_serial: supports serial terminal
 
@@ -410,8 +337,6 @@ class BootLoaderTemplateGrub2:
         if with_timeout:
             template_data += self.timeout
             template_data += self.timeout_style
-        if hybrid:
-            template_data += self.header_hybrid
         if has_graphics:
             template_data += self.header_gfxmode
             template_data += self.header_theme_iso
@@ -419,14 +344,9 @@ class BootLoaderTemplateGrub2:
             template_data += self.header_serial
         template_data += self.header_terminal_setup
         template_data += self.menu_iso_harddisk_entry
-        if hybrid:
-            template_data += self.menu_install_entry_hybrid
-            if failsafe:
-                template_data += self.menu_install_entry_failsafe_hybrid
-        else:
-            template_data += self.menu_install_entry
-            if failsafe:
-                template_data += self.menu_install_entry_failsafe
+        template_data += self.menu_install_entry
+        if failsafe:
+            template_data += self.menu_install_entry_failsafe
         template_data += self.menu_entry_boot_snapshots
         if has_graphics:
             template_data += self.menu_entry_console_switch

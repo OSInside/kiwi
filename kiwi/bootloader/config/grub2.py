@@ -312,7 +312,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         # One fine day the following fix methods can hopefully
         # be deleted...
         if self.xml_state.build_type.get_overlayroot_write_partition() is not False:
-            self._fix_grub_to_support_dynamic_efi_and_bios_boot(config_file)
             self._fix_grub_root_device_reference(config_file, boot_options)
             self._fix_grub_loader_entries_boot_cmdline()
             self._fix_grub_loader_entries_linux_and_initrd_paths()
@@ -713,8 +712,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         * SUSE_REMOVE_LINUX_ROOT_PARAM
         * GRUB_BACKGROUND
         * GRUB_THEME
-        * GRUB_USE_LINUXEFI
-        * GRUB_USE_INITRDEFI
         * GRUB_SERIAL_COMMAND
         * GRUB_CMDLINE_LINUX
         * GRUB_CMDLINE_LINUX_DEFAULT
@@ -787,18 +784,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
             if os.path.exists(os.sep.join([self.root_dir, theme_background])):
                 grub_default_entries['GRUB_BACKGROUND'] = theme_background
-        if self.firmware.efi_mode():
-            # linuxefi/initrdefi only exist on x86, others always use efi
-            if self.arch == 'ix86' or self.arch == 'x86_64':
-                use_linuxefi_implemented = Command.run(
-                    [
-                        'grep', '-q', 'GRUB_USE_LINUXEFI',
-                        self._get_grub2_mkconfig_tool()
-                    ], raise_on_error=False
-                )
-                if use_linuxefi_implemented.returncode == 0:
-                    grub_default_entries['GRUB_USE_LINUXEFI'] = 'true'
-                    grub_default_entries['GRUB_USE_INITRDEFI'] = 'true'
         if self.xml_state.build_type.get_btrfs_root_is_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
         if self.custom_args.get('crypto_disk'):
@@ -1389,37 +1374,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         return Path.which(
             filename='shim-install', root_dir=self.boot_dir
         )
-
-    def _fix_grub_to_support_dynamic_efi_and_bios_boot(self, config_file):
-        if self.firmware.efi_mode() and self.arch in ['x86_64', 'ix86']:
-            # On systems that are configured to use EFI with grub2
-            # there is no support for dynamic EFI environment checking.
-            # In this condition we change the grub config to add this
-            # support as follows:
-            #
-            # * Apply on grub with EFI
-            #    1. Modify grub.cfg to set linux/initrd as variables
-            #    2. Prepend hybrid setup to select linux vs. linuxefi on demand
-            #
-            # Please note this is a one time modification done by kiwi
-            # Any subsequent call of the grub config tool will overwrite
-            # the setup and disables dynamic EFI environment checking
-            # at boot time
-            with open(config_file) as grub_config_file:
-                grub_config = grub_config_file.read()
-                grub_config = re.sub(
-                    r'([ \t]+)linux(efi|16)*([ \t]+)', r'\1$linux\3',
-                    grub_config
-                )
-                grub_config = re.sub(
-                    r'([ \t]+)initrd(efi|16)*([ \t]+)', r'\1$initrd\3',
-                    grub_config
-                )
-            with open(config_file, 'w') as grub_config_file:
-                grub_config_file.write(
-                    Template(self.grub2.header_hybrid).substitute()
-                )
-                grub_config_file.write(grub_config)
 
     def _fix_grub_root_device_reference(self, config_file, boot_options):
         if self.root_reference:
