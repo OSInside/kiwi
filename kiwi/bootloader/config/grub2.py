@@ -174,13 +174,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
 
         if self.xml_state.is_xen_server():
-            self.hybrid_boot = False
             self.multiboot = True
         elif self.xen_guest:
-            self.hybrid_boot = False
             self.multiboot = False
         else:
-            self.hybrid_boot = True
             self.multiboot = False
 
         self.grub2 = BootLoaderTemplateGrub2()
@@ -377,9 +374,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         else:
             log.info('--> Using standard boot install template')
-            hybrid_boot = True
             template = self.grub2.get_install_template(
-                self.failsafe_boot, hybrid_boot, has_graphics, has_serial,
+                self.failsafe_boot, has_graphics, has_serial,
                 self.continue_on_timeout
             )
         try:
@@ -449,10 +445,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         else:
             log.info('--> Using standard boot template')
-            hybrid_boot = True
             template = self.grub2.get_iso_template(
-                self.failsafe_boot, hybrid_boot,
-                has_graphics, has_serial, self.mediacheck_boot
+                self.failsafe_boot, has_graphics, has_serial,
+                self.mediacheck_boot
             )
         try:
             self.config = template.substitute(parameters)
