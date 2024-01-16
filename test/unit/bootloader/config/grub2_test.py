@@ -16,7 +16,6 @@ from kiwi.defaults import grub_loader_type
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
-from kiwi.bootloader.template.grub2 import BootLoaderTemplateGrub2
 from kiwi.utils.sysconfig import SysConfig
 
 from kiwi.exceptions import (
@@ -87,9 +86,7 @@ class TestBootLoaderConfigGrub2:
             return_value='0xffffffff'
         )
 
-        grub_template = BootLoaderTemplateGrub2()
         self.grub2 = Mock()
-        self.grub2.header_hybrid = grub_template.header_hybrid
         kiwi.bootloader.config.grub2.BootLoaderTemplateGrub2 = Mock(
             return_value=self.grub2
         )
@@ -253,7 +250,6 @@ class TestBootLoaderConfigGrub2:
         mock_exists.return_value = True
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is True
-        assert self.bootloader.hybrid_boot is False
         assert self.bootloader.xen_guest is False
 
     @patch('os.path.exists')
@@ -268,7 +264,6 @@ class TestBootLoaderConfigGrub2:
         mock_exists.return_value = True
         self.bootloader.post_init(None)
         assert self.bootloader.multiboot is False
-        assert self.bootloader.hybrid_boot is False
         assert self.bootloader.xen_guest is True
 
     @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
@@ -602,8 +597,6 @@ class TestBootLoaderConfigGrub2:
             'GRUB_THEME': '/boot/grub2/themes/openSUSE/theme.txt',
             'GRUB_TIMEOUT': 10,
             'GRUB_TIMEOUT_STYLE': 'countdown',
-            'GRUB_USE_INITRDEFI': 'true',
-            'GRUB_USE_LINUXEFI': 'true',
             'SUSE_BTRFS_SNAPSHOT_BOOTING': 'true',
             'GRUB_DEFAULT': 'saved'
         }
@@ -998,32 +991,11 @@ class TestBootLoaderConfigGrub2:
             mock_copy_grub_config_to_efi_path.assert_called_once_with(
                 'efi_mount_point', 'earlyboot.cfg'
             )
-            assert file_handle_grub.write.call_args_list == [
-                # first write of grub.cfg, adapting to linux/initrd as variables
-                call(
-                    'set linux=linux\n'
-                    'set initrd=initrd\n'
-                    'if [ "${grub_cpu}" = "x86_64" -o '
-                    '"${grub_cpu}" = "i386" ]; then\n'
-                    '    if [ "${grub_platform}" = "efi" ]; then\n'
-                    '        set linux=linuxefi\n'
-                    '        set initrd=initrdefi\n'
-                    '    fi\n'
-                    'fi\n'
-                    'export linux initrd\n'
-                ),
-                call(
-                    'root=rootdev nomodeset console=ttyS0 console=tty0'
-                    '\n'
-                    'root=PARTUUID=xx'
-                ),
-                # second write of grub.cfg, setting overlay root
-                call(
-                    'root=overlay:UUID=ID nomodeset console=ttyS0 console=tty0'
-                    '\n'
-                    'root=overlay:UUID=ID'
-                )
-            ]
+            file_handle_grub.write.assert_called_once_with == (
+                'root=overlay:UUID=ID nomodeset console=ttyS0 console=tty0'
+                '\n'
+                'root=overlay:UUID=ID'
+            )
             file_handle_grubenv.write.assert_called_once_with(
                 'root=overlay:UUID=ID'
             )
@@ -1047,63 +1019,6 @@ class TestBootLoaderConfigGrub2:
                 file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
             assert 'initrd /initrd' in \
                 file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
-
-    @patch.object(BootLoaderConfigGrub2, '_mount_system')
-    @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
-    @patch('kiwi.bootloader.config.grub2.Command.run')
-    @patch('kiwi.bootloader.config.grub2.Path.which')
-    def test_setup_disk_image_config_validate_linuxefi(
-        self, mock_Path_which, mock_Command_run,
-        mock_copy_grub_config_to_efi_path, mock_mount_system
-    ):
-        mock_Path_which.return_value = '/path/to/grub2-mkconfig'
-        self.firmware.efi_mode = Mock(
-            return_value='uefi'
-        )
-        self.bootloader.root_mount = Mock()
-        self.bootloader.root_mount.mountpoint = 'root_mount_point'
-        self.bootloader.efi_mount = Mock()
-        self.bootloader.efi_mount.mountpoint = 'efi_mount_point'
-        with patch('builtins.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=io.IOBase)
-            file_handle = mock_open.return_value.__enter__.return_value
-            file_handle.read.return_value = os.linesep.join(
-                [
-                    '\tlinuxefi ${rel_dirname}/${basename} ...',
-                    '\tlinux ${rel_dirname}/${basename} ...',
-                    '\tlinux16 ${rel_dirname}/${basename} ...',
-                    '\tinitrdefi ${rel_dirname}/${initrd}',
-                    '\tinitrd ${rel_dirname}/${initrd}',
-                    '\tinitrd16 ${rel_dirname}/${initrd}'
-                ]
-            )
-            self.bootloader.setup_disk_image_config(
-                boot_options={
-                    'root_device': 'rootdev', 'boot_device': 'bootdev'
-                }
-            )
-            assert file_handle.write.call_args_list == [
-                call(
-                    'set linux=linux\n'
-                    'set initrd=initrd\n'
-                    'if [ "${grub_cpu}" = "x86_64" -o '
-                    '"${grub_cpu}" = "i386" ]; then\n'
-                    '    if [ "${grub_platform}" = "efi" ]; then\n'
-                    '        set linux=linuxefi\n'
-                    '        set initrd=initrdefi\n'
-                    '    fi\n'
-                    'fi\n'
-                    'export linux initrd\n'
-                ),
-                call(
-                    '\t$linux ${rel_dirname}/${basename} ...\n'
-                    '\t$linux ${rel_dirname}/${basename} ...\n'
-                    '\t$linux ${rel_dirname}/${basename} ...\n'
-                    '\t$initrd ${rel_dirname}/${initrd}\n'
-                    '\t$initrd ${rel_dirname}/${initrd}\n'
-                    '\t$initrd ${rel_dirname}/${initrd}'
-                )
-            ]
 
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     def test_setup_install_image_config_standard(
