@@ -65,9 +65,8 @@ class CloneDevice(DeviceProvider):
             if target_filesystem in Defaults.get_filesystem_image_types():
                 # Simple filesystem clones needs to be unique on the UUID
                 # to avoid conflicts on the running system
-                FileSystem.new(
-                    target_filesystem, target_device
-                ).set_uuid()
+                with FileSystem.new(target_filesystem, target_device) as fs:
+                    fs.set_uuid()
             elif target_filesystem == 'LVM2_member':
                 # Volume Group clones requires to be unique on the vgroup
                 # name to avoid conflicts on the running system
@@ -104,10 +103,11 @@ class CloneDevice(DeviceProvider):
                             md_name, md_device, target_device.get_device()
                         ]
                     )
-                    FileSystem.new(
+                    with FileSystem.new(
                         BlockID(md_device).get_filesystem(),
                         MappedDevice(md_device, target_device)
-                    ).set_uuid()
+                    ) as fs:
+                        fs.set_uuid()
                     Command.run(
                         ['mdadm', '--stop', md_device]
                     )

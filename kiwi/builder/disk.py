@@ -18,7 +18,7 @@
 import os
 import logging
 from typing import (
-    Dict, List, Optional, Tuple, Any
+    Dict, List, Optional, Tuple, Union
 )
 
 # project
@@ -49,6 +49,7 @@ from kiwi.storage.device_provider import DeviceProvider
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.volume_manager import VolumeManager
+from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.command import Command
 from kiwi.system.setup import SystemSetup
 from kiwi.builder.install import InstallImageBuilder
@@ -129,7 +130,8 @@ class DiskBuilder:
         self.use_disk_password = \
             xml_state.get_build_type_bootloader_use_disk_password()
         self.integrity_root = xml_state.build_type.get_standalone_integrity()
-        self.integrity_legacy_hmac = xml_state.build_type.get_integrity_legacy_hmac()
+        self.integrity_legacy_hmac = \
+            xml_state.build_type.get_integrity_legacy_hmac()
         self.integrity_keyfile = xml_state.build_type.get_integrity_keyfile()
         self.integrity_key_description = \
             xml_state.build_type.get_integrity_metadata_key_description()
@@ -233,7 +235,8 @@ class DiskBuilder:
         # an instance of a class with the sync_data capability
         # representing the entire image system except for the boot/ area
         # which could live on another part of the disk
-        system: Any = None
+        system: Union[FileSystemBase, VolumeManagerBase] = \
+            FileSystemBase(DeviceProvider())
 
         # an instance of a class with the sync_data capability
         # representing the boot/ area of the disk if not part of
@@ -444,144 +447,65 @@ class DiskBuilder:
                     self.requested_filesystem
                 )
                 volume_manager.mount_volumes()
-                system = volume_manager
                 device_map['root'] = volume_manager.get_device().get('root')
                 device_map['swap'] = volume_manager.get_device().get('swap')
+                system = volume_manager
             else:
                 if not self.root_filesystem_is_overlay or \
                    self.root_filesystem_has_write_partition is not False:
                     log.info(
-                        'Creating root(%s) filesystem on %s',
-                        self.requested_filesystem, device_map['root'].get_device()
+                        'Creating root({0}) filesystem on {1}'.format(
+                            self.requested_filesystem,
+                            device_map['root'].get_device()
+                        )
                     )
                     filesystem_custom_parameters = {
                         'mount_options': self.custom_root_mount_args,
                         'create_options': self.custom_root_creation_args
                     }
-                    filesystem = FileSystem.new(
+                    with FileSystem.new(
                         self.requested_filesystem, device_map['root'],
                         self.root_dir + '/',
                         filesystem_custom_parameters
-                    )
-                    if self.root_filesystem_embed_integrity_metadata:
-                        filesystem.create_on_device(
-                            label=self.disk_setup.get_root_label(),
-                            size=-defaults.DM_METADATA_OFFSET,
-                            unit=defaults.UNIT.byte
-                        )
-                    else:
-                        filesystem.create_on_device(
-                            label=self.disk_setup.get_root_label(),
-                        )
-                    system = filesystem
+                    ) as filesystem:
+                        if self.root_filesystem_embed_integrity_metadata:
+                            filesystem.create_on_device(
+                                label=self.disk_setup.get_root_label(),
+                                size=-defaults.DM_METADATA_OFFSET,
+                                unit=defaults.UNIT.byte
+                            )
+                        else:
+                            filesystem.create_on_device(
+                                label=self.disk_setup.get_root_label(),
+                            )
+                        system = filesystem
 
-            # create swap on current root device if requested
-            if self.swap_mbytes:
-                swap = FileSystem.new(
-                    'swap', device_map['swap']
+            # sync system data, configure system, setup loader and initrd
+            try:
+                self._build_main_system(
+                    device_map,
+                    disk,
+                    system,
+                    system_boot,
+                    system_efi,
+                    system_spare,
+                    system_custom_parts,
+                    luks_root,
+                    raid_root
                 )
-                swap.create_on_device(
-                    label='SWAP'
-                )
-
-            # store root partition/filesystem uuid for profile
-            self._preserve_root_partition_uuid(device_map)
-            self._preserve_root_filesystem_uuid(device_map)
-
-            # create a random image identifier
-            self.mbrid = SystemIdentifier()
-            self.mbrid.calculate_id()
-
-            # create first stage metadata to boot image
-            self._write_partition_id_config_to_boot_image(disk)
-
-            self._write_recovery_metadata_to_boot_image()
-
-            self._write_raid_config_to_boot_image(raid_root)
-
-            self._write_generic_fstab_to_boot_image(device_map, system)
-
-            self.system_setup.export_modprobe_setup(
-                self.boot_image.boot_root_directory
-            )
-
-            # create first stage metadata to system image
-            self._write_image_identifier_to_system_image()
-
-            self._write_crypttab_to_system_image(luks_root)
-
-            self._write_integritytab_to_system_image(self.integrity_root)
-
-            self._write_generic_fstab_to_system_image(device_map, system)
-
-            if self.initrd_system == 'dracut':
-                if self.root_filesystem_is_multipath is False:
-                    self.boot_image.omit_module('multipath')
-                if self.root_filesystem_is_overlay:
-                    self.boot_image.include_module('kiwi-overlay')
-                    self.boot_image.write_system_config_file(
-                        config={'modules': ['kiwi-overlay']}
-                    )
-                if self.disk_resize_requested:
-                    self.boot_image.include_module('kiwi-repart')
-
-            # create initrd
-            if self.boot_image.has_initrd_support():
-                self.boot_image.create_initrd(self.mbrid)
-
-            # create second stage metadata to system image
-            self._copy_first_boot_files_to_system_image()
-
-            self._write_bootloader_meta_data_to_system_image(
-                device_map, disk, system
-            )
-
-            self.mbrid.write_to_disk(
-                disk.storage_provider
-            )
-
-            # run pre sync script hook
-            if self.system_setup.script_exists(
-                defaults.PRE_DISK_SYNC_SCRIPT
-            ):
-                disk_system = SystemSetup(
-                    self.xml_state, self.root_dir
-                )
-                disk_system.call_pre_disk_script()
-
-            # syncing system data to disk image
-            self._sync_system_to_image(
-                device_map, system, system_boot, system_efi, system_spare,
-                system_custom_parts
-            )
-
-            # run post sync script hook
-            if self.system_setup.script_exists(
-                defaults.POST_DISK_SYNC_SCRIPT
-            ):
-                image_system = ImageSystem(
-                    device_map, self.root_dir,
-                    system.get_volumes() if self.volume_manager_name else {}
-                )
-                image_system.mount()
-                disk_system = SystemSetup(
-                    self.xml_state, image_system.mountpoint()
-                )
-                try:
-                    disk_system.call_disk_script()
-                finally:
-                    image_system.umount()
-
-            # install boot loader
-            self._install_bootloader(device_map, disk, system)
-
-            # set root filesystem properties
-            self._setup_property_root_is_readonly_snapshot(system)
-
-            Result.verify_image_size(
-                self.runtime_config.get_max_size_constraint(),
-                self.diskname
-            )
+            finally:
+                for map_name in sorted(system_custom_parts.keys()):
+                    system_custom_parts[map_name].umount()
+                if system_efi:
+                    system_efi.umount()
+                if system_spare:
+                    system_spare.umount()
+                if system_boot:
+                    system_boot.umount()
+                if self.volume_manager_name:
+                    system.umount_volumes()
+                elif system:
+                    system.umount()
 
         # store image bundle_format in result
         if self.bundle_format:
@@ -718,6 +642,121 @@ class DiskBuilder:
 
         return result_instance
 
+    def _build_main_system(
+        self,
+        device_map: Dict,
+        disk: Disk,
+        system: Union[FileSystemBase, VolumeManagerBase],
+        system_boot: Optional[FileSystemBase],
+        system_efi: Optional[FileSystemBase],
+        system_spare: Optional[FileSystemBase],
+        system_custom_parts: Dict[str, FileSystemBase],
+        luks_root: Optional[LuksDevice] = None,
+        raid_root: Optional[RaidDevice] = None
+    ) -> None:
+        # create swap on current root device if requested
+        if self.swap_mbytes:
+            with FileSystem.new(
+                'swap', device_map['swap']
+            ) as swap:
+                swap.create_on_device(
+                    label='SWAP'
+                )
+
+        # store root partition/filesystem uuid for profile
+        self._preserve_root_partition_uuid(device_map)
+        self._preserve_root_filesystem_uuid(device_map)
+
+        # create a random image identifier
+        self.mbrid = SystemIdentifier()
+        self.mbrid.calculate_id()
+
+        # create first stage metadata to boot image
+        self._write_partition_id_config_to_boot_image(disk)
+
+        self._write_recovery_metadata_to_boot_image()
+
+        self._write_raid_config_to_boot_image(raid_root)
+
+        self._write_generic_fstab_to_boot_image(device_map, system)
+
+        self.system_setup.export_modprobe_setup(
+            self.boot_image.boot_root_directory
+        )
+
+        # create first stage metadata to system image
+        self._write_image_identifier_to_system_image()
+
+        self._write_crypttab_to_system_image(luks_root)
+
+        self._write_integritytab_to_system_image(self.integrity_root)
+
+        self._write_generic_fstab_to_system_image(device_map, system)
+
+        if self.initrd_system == 'dracut':
+            if self.root_filesystem_is_multipath is False:
+                self.boot_image.omit_module('multipath')
+            if self.root_filesystem_is_overlay:
+                self.boot_image.include_module('kiwi-overlay')
+                self.boot_image.write_system_config_file(
+                    config={'modules': ['kiwi-overlay']}
+                )
+            if self.disk_resize_requested:
+                self.boot_image.include_module('kiwi-repart')
+
+        # create initrd
+        if self.boot_image.has_initrd_support():
+            self.boot_image.create_initrd(self.mbrid)
+
+        # create second stage metadata to system image
+        self._copy_first_boot_files_to_system_image()
+
+        self._write_bootloader_meta_data_to_system_image(
+            device_map, disk, system
+        )
+
+        self.mbrid.write_to_disk(
+            disk.storage_provider
+        )
+
+        # run pre sync script hook
+        if self.system_setup.script_exists(
+            defaults.PRE_DISK_SYNC_SCRIPT
+        ):
+            disk_system = SystemSetup(
+                self.xml_state, self.root_dir
+            )
+            disk_system.call_pre_disk_script()
+
+        # syncing system data to disk image
+        self._sync_system_to_image(
+            device_map, system, system_boot, system_efi, system_spare,
+            system_custom_parts
+        )
+
+        # run post sync script hook
+        if self.system_setup.script_exists(
+            defaults.POST_DISK_SYNC_SCRIPT
+        ):
+            image_system = ImageSystem(
+                device_map, self.root_dir,
+                system.get_volumes() if self.volume_manager_name else {}
+            )
+            image_system.mount()
+            disk_system = SystemSetup(
+                self.xml_state, image_system.mountpoint()
+            )
+            try:
+                disk_system.call_disk_script()
+            finally:
+                image_system.umount()
+
+        # install boot loader
+        self._install_bootloader(device_map, disk, system)
+
+        # set root filesystem properties
+        self._setup_property_root_is_readonly_snapshot(system)
+
     def _install_image_requested(self) -> bool:
         return bool(
             self.install_iso or self.install_stick or self.install_pxe
@@ -768,39 +807,39 @@ class DiskBuilder:
                 if map_name in device_map:
                     ptable_entry = custom_partitions[map_name]
                     if ptable_entry.filesystem:
-                        filesystem = FileSystem.new(
+                        with FileSystem.new(
                             ptable_entry.filesystem,
                             device_map[map_name],
                             f'{self.root_dir}{ptable_entry.mountpoint}/'
-                        )
-                        if ptable_entry.filesystem == 'squashfs':
-                            squashed_root_file = Temporary().new_file()
-                            filesystem.create_on_file(
-                                filename=squashed_root_file.name,
-                                exclude=[Defaults.get_shared_cache_location()]
-                            )
-                            readonly_target = device_map[map_name].get_device()
-                            readonly_target_bytesize = device_map[map_name].get_byte_size(
-                                readonly_target
-                            )
-                            log.info(
-                                '--> Dumping {0!r} file({1} bytes) -> {2}({3} bytes)'.format(
-                                    map_name, os.path.getsize(squashed_root_file.name),
-                                    readonly_target, readonly_target_bytesize
+                        ) as filesystem:
+                            if ptable_entry.filesystem == 'squashfs':
+                                squashed_root_file = Temporary().new_file()
+                                filesystem.create_on_file(
+                                    filename=squashed_root_file.name,
+                                    exclude=[Defaults.get_shared_cache_location()]
                                 )
-                            )
-                            Command.run(
-                                [
-                                    'dd',
-                                    'if=%s' % squashed_root_file.name,
-                                    'of=%s' % readonly_target
-                                ]
-                            )
-                        else:
-                            filesystem.create_on_device(
-                                label=map_name.upper()
-                            )
-                        filesystem_dict[map_name] = filesystem
+                                readonly_target = device_map[map_name].get_device()
+                                readonly_target_bytesize = device_map[map_name].get_byte_size(
+                                    readonly_target
+                                )
+                                log.info(
+                                    '--> Dumping {0!r} file({1} bytes) -> {2}({3} bytes)'.format(
+                                        map_name, os.path.getsize(squashed_root_file.name),
+                                        readonly_target, readonly_target_bytesize
+                                    )
+                                )
+                                Command.run(
+                                    [
+                                        'dd',
+                                        'if=%s' % squashed_root_file.name,
+                                        'of=%s' % readonly_target
+                                    ]
+                                )
+                            else:
+                                filesystem.create_on_device(
+                                    label=map_name.upper()
+                                )
+                            filesystem_dict[map_name] = filesystem
         return filesystem_dict
 
     def _build_spare_filesystem(self, device_map: Dict) -> Optional[FileSystemBase]:
@@ -814,16 +853,16 @@ class DiskBuilder:
                 spare_part_data_path = self.root_dir + '{0}/'.format(
                     self.spare_part_mountpoint
                 )
-            filesystem = FileSystem.new(
+            with FileSystem.new(
                 self.spare_part_fs,
                 device_map['spare'],
                 spare_part_data_path,
                 spare_part_custom_parameters
-            )
-            filesystem.create_on_device(
-                label='SPARE'
-            )
-            return filesystem
+            ) as filesystem:
+                filesystem.create_on_device(
+                    label='SPARE'
+                )
+                return filesystem
         return None
 
     def _build_boot_filesystems(
@@ -836,13 +875,13 @@ class DiskBuilder:
                 'Creating EFI(fat16) filesystem on %s',
                 device_map['efi'].get_device()
             )
-            filesystem = FileSystem.new(
+            with FileSystem.new(
                 'fat16', device_map['efi'], self.root_dir + '/boot/efi/'
-            )
-            filesystem.create_on_device(
-                label=self.disk_setup.get_efi_label()
-            )
-            system_efi = filesystem
+            ) as filesystem:
+                filesystem.create_on_device(
+                    label=self.disk_setup.get_efi_label()
+                )
+                system_efi = filesystem
 
         if 'boot' in device_map:
             boot_filesystem = self.requested_boot_filesystem
@@ -855,13 +894,13 @@ class DiskBuilder:
                 'Creating boot(%s) filesystem on %s',
                 boot_filesystem, device_map['boot'].get_device()
             )
-            filesystem = FileSystem.new(
+            with FileSystem.new(
                 boot_filesystem, device_map['boot'], boot_directory
-            )
-            filesystem.create_on_device(
-                label=self.disk_setup.get_boot_label()
-            )
-            system_boot = filesystem
+            ) as filesystem:
+                filesystem.create_on_device(
+                    label=self.disk_setup.get_boot_label()
+                )
+                system_boot = filesystem
         return system_boot, system_efi
 
     def _build_and_map_disk_partitions(
@@ -934,17 +973,17 @@ class DiskBuilder:
             squashed_rootfs_mbsize = self.root_filesystem_read_only_partsize
             if not self.root_filesystem_read_only_partsize:
                 squashed_root_file = Temporary().new_file()
-                squashed_root = FileSystemSquashFs(
+                with FileSystemSquashFs(
                     device_provider=DeviceProvider(), root_dir=self.root_dir,
                     custom_args={
                         'compression':
                             self.xml_state.build_type.get_squashfscompression()
                     }
-                )
-                squashed_root.create_on_file(
-                    filename=squashed_root_file.name,
-                    exclude=[Defaults.get_shared_cache_location()]
-                )
+                ) as squashed_root:
+                    squashed_root.create_on_file(
+                        filename=squashed_root_file.name,
+                        exclude=[Defaults.get_shared_cache_location()]
+                    )
                 squashed_rootfs_mbsize = int(
                     os.path.getsize(squashed_root_file.name) / 1048576
                 ) + Defaults.get_min_partition_mbytes()
@@ -1099,13 +1138,15 @@ class DiskBuilder:
             )
 
     def _write_generic_fstab_to_system_image(
-        self, device_map: Dict, system: Any
+        self, device_map: Dict,
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         log.info('Creating generic system etc/fstab')
         self._write_generic_fstab(device_map, self.system_setup, system)
 
     def _write_generic_fstab_to_boot_image(
-        self, device_map: Dict, system: Any
+        self, device_map: Dict,
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         if self.initrd_system == 'kiwi':
             log.info('Creating generic boot image etc/fstab')
@@ -1115,7 +1156,7 @@ class DiskBuilder:
 
     def _write_generic_fstab(
         self, device_map: Dict, setup: SystemSetup,
-        system: Any
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         root_is_snapshot = \
             self.xml_state.build_type.get_btrfs_root_is_snapshot()
@@ -1254,7 +1295,8 @@ class DiskBuilder:
             )
 
     def _write_bootloader_meta_data_to_system_image(
-        self, device_map: Dict, disk: Disk, system: Any
+        self, device_map: Dict, disk: Disk,
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         if self.bootloader != 'custom':
             log.info('Creating %s bootloader configuration', self.bootloader)
@@ -1316,7 +1358,8 @@ class DiskBuilder:
         )
 
     def _sync_system_to_image(
-        self, device_map: Dict, system: Any,
+        self, device_map: Dict,
+        system: Union[FileSystemBase, VolumeManagerBase],
         system_boot: Optional[FileSystemBase],
         system_efi: Optional[FileSystemBase],
         system_spare: Optional[FileSystemBase],
@@ -1367,52 +1410,54 @@ class DiskBuilder:
         log.info('--> Syncing root filesystem data')
         if self.root_filesystem_is_overlay:
             squashed_root_file = Temporary().new_file()
-            squashed_root = FileSystemSquashFs(
+            with FileSystemSquashFs(
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
                     'compression':
                         self.xml_state.build_type.get_squashfscompression()
                 }
-            )
-            exclude_list = self._get_exclude_list_for_root_data_sync(device_map)
-            # To allow running custom scripts in a read-only root
-            # it's required to keep the /image mountpoint directory
-            # such that it can be bind mounted from the unpacked
-            # root tree
-            exclude_list.remove('image')
-            exclude_list.append('image/*')
-            squashed_root.create_on_file(
-                filename=squashed_root_file.name,
-                exclude=exclude_list
-            )
-
-            if self.root_filesystem_verity_blocks:
-                squashed_root.create_verity_layer(
-                    self.root_filesystem_verity_blocks if
-                    self.root_filesystem_verity_blocks != 'all' else None
+            ) as squashed_root:
+                exclude_list = self._get_exclude_list_for_root_data_sync(
+                    device_map
+                )
+                # To allow running custom scripts in a read-only root
+                # it's required to keep the /image mountpoint directory
+                # such that it can be bind mounted from the unpacked
+                # root tree
+                exclude_list.remove('image')
+                exclude_list.append('image/*')
+                squashed_root.create_on_file(
+                    filename=squashed_root_file.name,
+                    exclude=exclude_list
                 )
 
-            readonly_target = device_map['readonly'].get_device()
-            readonly_target_bytesize = device_map['readonly'].get_byte_size(
-                readonly_target
-            )
-            log.info(
-                '--> Dumping rootfs file({0} bytes) -> {1}({2} bytes)'.format(
-                    os.path.getsize(squashed_root_file.name),
-                    readonly_target, readonly_target_bytesize
-                )
-            )
-            Command.run(
-                [
-                    'dd',
-                    'if=%s' % squashed_root_file.name,
-                    'of=%s' % readonly_target
-                ]
-            )
-            if self.root_filesystem_embed_verity_metadata:
-                squashed_root.create_verification_metadata(
+                if self.root_filesystem_verity_blocks:
+                    squashed_root.create_verity_layer(
+                        self.root_filesystem_verity_blocks if
+                        self.root_filesystem_verity_blocks != 'all' else None
+                    )
+
+                readonly_target = device_map['readonly'].get_device()
+                readonly_target_bytesize = device_map['readonly'].get_byte_size(
                     readonly_target
                 )
+                log.info(
+                    '--> Dumping rootfs file({0} bytes) -> {1}({2} bytes)'.format(
+                        os.path.getsize(squashed_root_file.name),
+                        readonly_target, readonly_target_bytesize
+                    )
+                )
+                Command.run(
+                    [
+                        'dd',
+                        'if=%s' % squashed_root_file.name,
+                        'of=%s' % readonly_target
+                    ]
+                )
+                if self.root_filesystem_embed_verity_metadata:
+                    squashed_root.create_verification_metadata(
+                        readonly_target
+                    )
             if device_map.get('rootclone1'):
                 log.info(
                     '--> Dumping readonly root clone data at extra partition'
@@ -1441,24 +1486,24 @@ class DiskBuilder:
                     'mount_options': self.custom_root_mount_args,
                     'create_options': self.custom_root_creation_args
                 }
-                filesystem = FileSystem.new(
+                with FileSystem.new(
                     self.requested_filesystem, loop_provider,
                     self.root_dir + '/',
                     filesystem_custom_parameters
-                )
-                filesystem.create_on_device(
-                    label=self.disk_setup.get_root_label(),
-                    uuid=BlockID(root_target).get_uuid()
-                )
-                filesystem.sync_data(
-                    self._get_exclude_list_for_root_data_sync(device_map)
-                )
-                filesystem.umount()
+                ) as filesystem:
+                    filesystem.create_on_device(
+                        label=self.disk_setup.get_root_label(),
+                        uuid=BlockID(root_target).get_uuid()
+                    )
+                    filesystem.sync_data(
+                        self._get_exclude_list_for_root_data_sync(device_map)
+                    )
                 filesystem.create_verity_layer(
                     self.root_filesystem_verity_blocks if
                     self.root_filesystem_verity_blocks != 'all' else None,
                     verity_root_file.name
                 )
+
             log.info(
                 '--> Dumping rootfs file({0} bytes) -> {1}({2} bytes)'.format(
                     os.path.getsize(verity_root_file.name),
@@ -1512,7 +1557,8 @@ class DiskBuilder:
             self.integrity_root.write_integrity_metadata()
 
     def _install_bootloader(
-        self, device_map: Dict, disk, system: Any
+        self, device_map: Dict, disk,
+        system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         root_device = device_map['root']
         boot_device = root_device
@@ -1593,7 +1639,9 @@ class DiskBuilder:
             self.diskname, boot_device.get_device()
         )
 
-    def _setup_property_root_is_readonly_snapshot(self, system: Any) -> None:
+    def _setup_property_root_is_readonly_snapshot(
+        self, system: Union[FileSystemBase, VolumeManagerBase]
+    ) -> None:
         if self.volume_manager_name:
             root_is_snapshot = \
                 self.xml_state.build_type.get_btrfs_root_is_snapshot()

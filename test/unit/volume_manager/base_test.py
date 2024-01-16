@@ -213,9 +213,17 @@ class TestVolumeManagerBase:
         with raises(NotImplementedError):
             self.volume_manager.mount_volumes()
 
+    def test_mount(self):
+        with raises(NotImplementedError):
+            self.volume_manager.mount()
+
     def test_umount_volumes(self):
         with raises(NotImplementedError):
             self.volume_manager.umount_volumes()
+
+    def test_umount(self):
+        with raises(NotImplementedError):
+            self.volume_manager.umount()
 
     def test_get_volumes(self):
         with raises(NotImplementedError):

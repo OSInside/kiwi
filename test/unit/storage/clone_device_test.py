@@ -41,7 +41,8 @@ class TestCloneDevice:
         mock_FileSystem_new.assert_called_once_with(
             'ext3', self.target_device
         )
-        mock_FileSystem_new.return_value.set_uuid.assert_called_once_with()
+        mock_FileSystem_new.return_value.__enter__ \
+            .return_value.set_uuid.assert_called_once_with()
 
     @patch('kiwi.storage.clone_device.Command.run')
     @patch('kiwi.storage.clone_device.BlockID')
@@ -106,7 +107,8 @@ class TestCloneDevice:
             mock_BlockID.return_value.get_filesystem.return_value,
             mock_MappedDevice.return_value
         )
-        mock_FileSystem_new.return_value.set_uuid.assert_called_once_with()
+        mock_FileSystem_new.return_value.__enter__ \
+            .return_value.set_uuid.assert_called_once_with()
         assert mock_Command_run.call_args_list == [
             call(
                 ['dd', 'if=/dev/source-device', 'of=/dev/target-device']

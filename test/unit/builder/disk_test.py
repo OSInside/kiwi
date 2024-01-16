@@ -302,7 +302,7 @@ class TestDiskBuilder:
         mock_path.return_value = True
         mock_rand.return_value = 15
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.initrd_system = 'kiwi'
 
@@ -448,7 +448,7 @@ class TestDiskBuilder:
         mock_path.return_value = True
         filesystem = Mock()
         filesystem.filename = ''
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.custom_partitions = {
             'var': ptable_entry_type(
                 mbsize=100,
@@ -513,7 +513,7 @@ class TestDiskBuilder:
         mock_path.return_value = True
         filesystem = Mock()
         filesystem.filename = ''
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.custom_partitions = {
             'var': ptable_entry_type(
                 mbsize=100,
@@ -609,7 +609,7 @@ class TestDiskBuilder:
         )
         mock_path.return_value = True
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.integrity_root = True
         self.disk_builder.integrity_legacy_hmac = True
         self.disk_builder.root_filesystem_embed_integrity_metadata = True
@@ -667,7 +667,7 @@ class TestDiskBuilder:
         mock_path.return_value = True
         mock_rand.return_value = 15
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.root_filesystem_verity_blocks = 10
         self.disk_builder.root_filesystem_embed_verity_metadata = True
         self.disk_builder.root_filesystem_is_overlay = False
@@ -864,7 +864,7 @@ class TestDiskBuilder:
         self.disk_builder.root_filesystem_embed_integrity_metadata = True
         self.disk_builder.volume_manager_name = None
         squashfs = Mock()
-        mock_squashfs.return_value = squashfs
+        mock_squashfs.return_value.__enter__.return_value = squashfs
         mock_getsize.return_value = 1048576
         tempfile = Mock()
         tempfile.name = 'kiwi-tempname'
@@ -953,7 +953,7 @@ class TestDiskBuilder:
         self, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.xen_server = True
         self.firmware.efi_mode = Mock(
@@ -975,7 +975,7 @@ class TestDiskBuilder:
     ):
         self.disk_builder.arch = 's390x'
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.firmware.efi_mode = Mock(
             return_value=False
@@ -994,7 +994,7 @@ class TestDiskBuilder:
         self, mock_grub_dir, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.firmware.efi_mode = Mock(
             return_value='uefi'
@@ -1012,7 +1012,7 @@ class TestDiskBuilder:
         self, mock_grub_dir, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.mdraid = 'mirroring'
         self.disk.public_partition_id_map = self.id_map
@@ -1041,7 +1041,7 @@ class TestDiskBuilder:
         self, mock_grub_dir, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.luks = 'passphrase'
         self.disk_setup.need_boot_partition.return_value = False
@@ -1081,7 +1081,7 @@ class TestDiskBuilder:
         self, mock_BootLoaderInstall, mock_grub_dir, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.luks = 'passphrase'
         self.disk_builder.use_disk_password = True
@@ -1174,7 +1174,7 @@ class TestDiskBuilder:
         self.disk_builder.volume_manager_name = None
 
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
 
         with patch('builtins.open'):
             self.disk_builder.create_disk()
@@ -1232,7 +1232,7 @@ class TestDiskBuilder:
         )
         mock_volume_manager.return_value = volume_manager
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = 'btrfs'
         self.disk_builder.btrfs_default_volume_requested = False
 
@@ -1266,7 +1266,7 @@ class TestDiskBuilder:
         )
         mock_volume_manager.return_value = volume_manager
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = 'lvm'
 
         with patch('builtins.open'):
@@ -1305,7 +1305,7 @@ class TestDiskBuilder:
         self, mock_grub_dir, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
         self.disk_builder.hybrid_mbr = True
@@ -1322,7 +1322,7 @@ class TestDiskBuilder:
         self, mock_grub_dir, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
         self.disk_builder.force_mbr = True
@@ -1339,7 +1339,7 @@ class TestDiskBuilder:
         self, mock_grub_dir, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
         self.disk_builder.disk_start_sector = 4096
@@ -1378,7 +1378,7 @@ class TestDiskBuilder:
         self, mock_grub_dir, mock_command, mock_fs
     ):
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
         self.disk_builder.spare_part_mbsize = 42
@@ -1451,7 +1451,7 @@ class TestDiskBuilder:
         mock_DiskFormat.return_value = disk_subformat
         result_instance = Mock()
         filesystem = Mock()
-        mock_fs.return_value = filesystem
+        mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.install_media = False
         self.disk_builder.image_format = 'vmdk'
 

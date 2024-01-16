@@ -109,16 +109,16 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         self.setup_mountpoint()
 
-        filesystem = FileSystem.new(
+        with FileSystem.new(
             name='btrfs',
             device_provider=MappedDevice(
                 device=self.device, device_provider=self.device_provider_root
             ),
             custom_args=self.custom_filesystem_args
-        )
-        filesystem.create_on_device(
-            label=self.custom_args['root_label']
-        )
+        ) as filesystem:
+            filesystem.create_on_device(
+                label=self.custom_args['root_label']
+            )
         self.toplevel_mount = MountManager(
             device=self.device, mountpoint=self.mountpoint
         )
@@ -269,7 +269,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     volume_mount
                 )
 
-    def get_fstab(self, persistency_type='by-label', filesystem_name=None):
+    def get_fstab(
+        self, persistency_type: str = 'by-label', filesystem_name: str = ''
+    ) -> List[str]:
         """
         Implements creation of the fstab entries. The method
         returns a list of fstab compatible entries

@@ -187,6 +187,22 @@ class VolumeManagerBase(DeviceProvider):
         """
         raise NotImplementedError
 
+    def umount(self):
+        """
+        Consistency layer with regards to FileSystem classes
+
+        Invokes umount_volumes
+        """
+        self.umount_volumes()
+
+    def mount(self):
+        """
+        Consistency layer with regards to FileSystem classes
+
+        Invokes mount_volumes
+        """
+        self.mount_volumes()
+
     def is_loop(self):
         """
         Check if storage provider is loop based
