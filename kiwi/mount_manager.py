@@ -27,7 +27,7 @@ from typing import (
 from kiwi.path import Path
 from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
-from kiwi.exceptions import KiwiUmountBusyError
+from kiwi.exceptions import KiwiCommandError, KiwiUmountBusyError
 
 log = logging.getLogger('kiwi')
 
@@ -155,10 +155,12 @@ class MountManager:
                     Command.run(['umount', self.mountpoint])
                     umounted_successfully = True
                     break
-                except Exception:
+                # we only want to catch KiwiCommandError, everything else
+                # indicates either a bug in the code or a bigger problem, like
+                # umount not being available
+                except KiwiCommandError as kw_err:
                     log.warning(
-                        '%d umount of %s failed, try again in 1sec',
-                        busy, self.mountpoint
+                        f'{busy} umount of {self.mountpoint} failed with {kw_err}, try again in 1sec',
                     )
                     time.sleep(1)
             if not umounted_successfully:

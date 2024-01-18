@@ -1,11 +1,12 @@
 import logging
+from typing import NoReturn
 from pytest import (
     fixture, raises
 )
 from mock import (
     patch, call, Mock
 )
-from kiwi.exceptions import KiwiUmountBusyError
+from kiwi.exceptions import KiwiCommandError, KiwiUmountBusyError
 from kiwi.mount_manager import MountManager
 
 
@@ -103,7 +104,10 @@ class TestMountManager:
     def test_umount_with_errors(
         self, mock_sleep, mock_mounted, mock_command
     ):
-        mock_command.side_effect = Exception
+        def _cmd_err(args) -> NoReturn:
+            raise KiwiCommandError("foo")
+
+        mock_command.side_effect = _cmd_err
         mock_mounted.return_value = True
         with self._caplog.at_level(logging.WARNING):
             assert self.mount_manager.umount(raise_on_busy=False) is False
@@ -129,7 +133,7 @@ class TestMountManager:
     ):
         def command_call(args):
             if 'umount' in args:
-                raise Exception
+                raise KiwiCommandError("foo")
 
         mock_Path_which.return_value = None
         mock_command.side_effect = command_call
@@ -146,7 +150,7 @@ class TestMountManager:
     ):
         def command_call(args, raise_on_error=None):
             if 'umount' in args:
-                raise Exception
+                raise KiwiCommandError("foo")
             else:
                 call_return = Mock()
                 call_return.output = 'HEADLINE\ndata'
