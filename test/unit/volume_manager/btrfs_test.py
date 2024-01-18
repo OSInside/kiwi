@@ -9,6 +9,8 @@ from pytest import (
 from lxml import etree
 from xml.dom import minidom
 
+import pytest
+
 from kiwi.volume_manager.btrfs import VolumeManagerBtrfs
 from kiwi.xml_state import volume_type
 
@@ -83,6 +85,11 @@ class TestVolumeManagerBtrfs:
         ]
         self.volume_manager.post_init({'root_is_snapshot': True})
         assert self.volume_manager.custom_args['root_is_snapshot'] is False
+
+    def test_fails_to_get_mountpoint_without_mountpoint(self):
+        self.volume_manager.mountpoint = ''
+        with pytest.raises(KiwiVolumeManagerSetupError):
+            self.volume_manager.get_mountpoint()
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Command.run')
