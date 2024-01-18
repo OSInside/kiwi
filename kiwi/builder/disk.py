@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from contextlib import ExitStack
 import os
 import sys
 import logging
@@ -732,35 +733,28 @@ class DiskBuilder:
         raid_root = self.storage_map['raid_root']
         integrity_root = self.storage_map['integrity_root']
         try:
-            self._build_main_system(
-                device_map,
-                disk,
-                system,
-                system_boot,
-                system_efi,
-                system_spare,
-                system_custom_parts,
-                luks_root,
-                raid_root,
-                integrity_root
-            )
+            with ExitStack() as stack:
+                self._build_main_system(
+                    stack,
+                    device_map,
+                    disk,
+                    system,
+                    system_boot,
+                    system_efi,
+                    system_spare,
+                    system_custom_parts,
+                    luks_root,
+                    raid_root,
+                    integrity_root
+                )
         finally:
-            for map_name in sorted(system_custom_parts.keys()):
-                system_custom_parts[map_name].umount()
-            if system_efi:
-                system_efi.umount()
-            if system_spare:
-                system_spare.umount()
-            if system_boot:
-                system_boot.umount()
             if system:
                 if self.volume_manager_name:
                     system.umount_volumes()
-                else:
-                    system.umount()
 
     def _build_main_system(
         self,
+        stack: ExitStack,
         device_map: Dict,
         disk: Disk,
         system: Optional[Union[FileSystemBase, VolumeManagerBase]],
@@ -861,7 +855,7 @@ class DiskBuilder:
 
         # syncing system data to disk image
         self._sync_system_to_image(
-            device_map, system, system_boot, system_efi, system_spare,
+            stack, device_map, system, system_boot, system_efi, system_spare,
             system_custom_parts, integrity_root
         )
 
@@ -1507,7 +1501,9 @@ class DiskBuilder:
             )
 
     def _sync_system_to_image(
-        self, device_map: Dict,
+        self,
+        stack: ExitStack,
+        device_map: Dict,
         system: Optional[Union[FileSystemBase, VolumeManagerBase]],
         system_boot: Optional[FileSystemBase],
         system_efi: Optional[FileSystemBase],
@@ -1518,13 +1514,13 @@ class DiskBuilder:
         log.info('Syncing system to image')
         if system_spare:
             log.info('--> Syncing spare partition data')
-            system_spare.sync_data()
+            stack.push(system_spare.sync_data())
 
         for map_name in sorted(system_custom_parts.keys()):
             system_custom_part = system_custom_parts[map_name]
             log.info('--> Syncing custom partition(s) data')
             if not system_custom_part.filename:
-                system_custom_part.sync_data()
+                stack.push(system_custom_part.sync_data())
             if device_map.get(f'{map_name}clone1'):
                 log.info(
                     f'--> Dumping {map_name!r} clone data at extra partition'
@@ -1540,13 +1536,13 @@ class DiskBuilder:
 
         if system_efi:
             log.info('--> Syncing EFI boot data to EFI partition')
-            system_efi.sync_data()
+            stack.push(system_efi.sync_data())
 
         if system_boot:
             log.info('--> Syncing boot data at extra partition')
-            system_boot.sync_data(
+            stack.push(system_boot.sync_data(
                 self._get_exclude_list_for_boot_data_sync()
-            )
+            ))
             if device_map.get('bootclone1'):
                 log.info(
                     '--> Dumping boot clone data at extra partition'
@@ -1679,9 +1675,11 @@ class DiskBuilder:
                     self._get_clone_devices('rootclone', device_map)
                 )
         elif system:
-            system.sync_data(
+            system_mount = system.sync_data(
                 self._get_exclude_list_for_root_data_sync(device_map)
             )
+            if system_mount:
+                stack.push(system_mount)
             if device_map.get('rootclone1'):
                 log.info(
                     '--> Dumping root clone data at extra partition'
