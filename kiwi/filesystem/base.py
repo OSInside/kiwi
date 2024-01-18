@@ -175,11 +175,13 @@ class FileSystemBase:
             return self.filesystem_mount.mountpoint
         return None
 
-    def sync_data(self, exclude: List[str] = []):
+    def sync_data(self, exclude: List[str] = []) -> MountManager:
         """
         Copy data tree into filesystem
 
         :param list exclude: list of exclude dirs/files
+        :return: The mount created for syncing data. It should be used to
+            un-mount the filesystem again.
         """
         if not self.root_dir:
             raise KiwiFileSystemSyncError(
@@ -202,6 +204,7 @@ class FileSystemBase:
         data.sync_data(
             exclude=exclude, options=Defaults.get_sync_options()
         )
+        return self.filesystem_mount
 
     def create_verity_layer(
         self, blocks: Optional[int] = None, filename: str = None

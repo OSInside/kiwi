@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from collections import namedtuple
-from typing import Optional
+from typing import List, Optional
 import logging
 import os
 
@@ -58,7 +58,7 @@ class VolumeManagerBase(DeviceProvider):
 
     :raises KiwiVolumeManagerSetupError: if the given root_dir doesn't exist
     """
-    def __init__(self, device_map, root_dir, volumes, custom_args=None):
+    def __init__(self, device_map, root_dir: str, volumes, custom_args=None) -> None:
         self.temp_directories = []
         # all volumes are combined into one mountpoint. This is
         # needed at sync_data time. How to mount the volumes is
@@ -121,7 +121,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         pass
 
-    def setup(self, name=None):
+    def setup(self, name: str=None):
         """
         Implements setup required prior to the creation of volumes
 
@@ -274,7 +274,7 @@ class VolumeManagerBase(DeviceProvider):
 
     def get_volume_mbsize(
         self, volume, all_volumes, filesystem_name, resize_on_boot=False
-    ):
+    ) -> int:
         """
         Implements size lookup for the given path and desired
         filesystem according to the specified size type
@@ -335,7 +335,7 @@ class VolumeManagerBase(DeviceProvider):
             )
         return mbsize
 
-    def get_mountpoint(self):
+    def get_mountpoint(self) -> str:
         """
         Provides mount point directory
 
@@ -360,20 +360,26 @@ class VolumeManagerBase(DeviceProvider):
         """
         return '/'
 
-    def sync_data(self, exclude=None):
+    def sync_data(self, exclude: Optional[List[str]]=None) -> Optional[MountManager]:
         """
         Implements sync of root directory to mounted volumes
 
         :param list exclude: file patterns to exclude
+
+        :return: If a mount was created, then a context manager implementing the
+            unmount is returned.
         """
-        if self.mountpoint:
-            root_mount = MountManager(device=None, mountpoint=self.mountpoint)
-            if not root_mount.is_mounted():
-                self.mount_volumes()
-            data = DataSync(self.root_dir, self.mountpoint)
-            data.sync_data(
-                options=Defaults.get_sync_options(), exclude=exclude
-            )
+        if not self.mountpoint:
+            return None
+
+        root_mount = MountManager(device=None, mountpoint=self.mountpoint)
+        if not root_mount.is_mounted():
+            self.mount_volumes()
+        data = DataSync(self.root_dir, self.mountpoint)
+        data.sync_data(
+            options=Defaults.get_sync_options(), exclude=exclude or []
+        )
+        return root_mount
 
     def create_verity_layer(
         self, blocks: Optional[int] = None, filename: str = None
