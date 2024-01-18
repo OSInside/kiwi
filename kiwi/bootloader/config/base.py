@@ -93,7 +93,8 @@ class BootLoaderConfigBase:
         pass
 
     def setup_disk_image_config(
-        self, boot_uuid, root_uuid, hypervisor, kernel, initrd, boot_options={}
+        self, boot_uuid=None, root_uuid=None, hypervisor=None,
+        kernel=None, initrd=None, boot_options={}
     ):
         """
         Create boot config file to boot from disk.

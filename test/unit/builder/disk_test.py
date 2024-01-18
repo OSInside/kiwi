@@ -610,7 +610,7 @@ class TestDiskBuilder:
         mock_path.return_value = True
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
-        self.disk_builder.integrity_root = True
+        self.disk_builder.integrity = True
         self.disk_builder.integrity_legacy_hmac = True
         self.disk_builder.root_filesystem_embed_integrity_metadata = True
         self.disk_builder.root_filesystem_is_overlay = False
@@ -860,7 +860,7 @@ class TestDiskBuilder:
         self.disk_builder.root_filesystem_has_write_partition = False
         self.disk_builder.root_filesystem_verity_blocks = 10
         self.disk_builder.root_filesystem_embed_verity_metadata = True
-        self.disk_builder.integrity_root = True
+        self.disk_builder.integrity = True
         self.disk_builder.root_filesystem_embed_integrity_metadata = True
         self.disk_builder.volume_manager_name = None
         squashfs = Mock()
