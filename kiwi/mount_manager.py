@@ -36,10 +36,11 @@ class MountManager:
     """
     **Implements methods for mounting, umounting and mount checking**
 
-    If a MountManager instance is used to mount a device the caller
-    must care for the time when umount needs to be called. The class
-    does not automatically release the mounted device, which is
-    intentional
+    The caller is responsible for unmounting the device if the MountManager is
+    used as is.
+
+    The class also supports to be used as a context manager, where the device is
+    unmounted once the context manager's with block is left
 
     * :param string device: device node name
     * :param string mountpoint: mountpoint directory name
@@ -59,6 +60,12 @@ class MountManager:
         else:
             Path.create(mountpoint)
             self.mountpoint = mountpoint
+
+    def __enter__(self) -> "MountManager":
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.umount()
 
     def get_attributes(self) -> Dict[str, str]:
         """

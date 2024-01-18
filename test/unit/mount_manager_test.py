@@ -80,6 +80,16 @@ class TestMountManager:
 
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
+    def test_context_manager(self, mock_mounted, mock_command):
+        mock_mounted.return_value = True
+        with self.mount_manager:
+            pass
+        mock_command.assert_called_once_with(
+            ['umount', '/some/mountpoint']
+        )
+
+    @patch('kiwi.mount_manager.Command.run')
+    @patch('kiwi.mount_manager.MountManager.is_mounted')
     def test_umount_lazy(self, mock_mounted, mock_command):
         mock_mounted.return_value = True
         self.mount_manager.umount_lazy()
