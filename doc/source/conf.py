@@ -3,6 +3,7 @@
 #
 # KIWI NG documentation build configuration file
 #
+from datetime import datetime
 import sys
 from os.path import abspath, dirname, join, normpath
 import shlex
@@ -131,8 +132,8 @@ default_role="py:obj"
 
 # General information about the project.
 project = 'KIWI NG'
-copyright = '2020, Marcus Schäfer'
 author = 'Marcus Schäfer'
+copyright = f'2020-{datetime.now().year}, {author}'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
