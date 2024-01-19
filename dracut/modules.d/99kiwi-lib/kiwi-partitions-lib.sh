@@ -178,7 +178,7 @@ function create_dasd_partitions {
             echo >> ${partition_setup_file}
             continue
         fi
-        echo $cmd >> ${partition_setup_file}
+        echo "$cmd" >> ${partition_setup_file}
     done
     echo "w" >> ${partition_setup_file}
     echo "q" >> ${partition_setup_file}
