@@ -825,10 +825,10 @@ class DiskBuilder:
 
         # write bootloader meta data to system image
         if self.bootloader != 'custom':
-            bootloader_config = self._bootloader_instance(disk)
-            self._write_bootloader_meta_data_to_system_image(
-                device_map, disk, system, bootloader_config
-            )
+            with self._bootloader_instance(disk) as bootloader_config:
+                self._write_bootloader_meta_data_to_system_image(
+                    device_map, disk, system, bootloader_config
+                )
 
         # call edit_boot_config script
         partition_id_map = disk.get_public_partition_id_map()
@@ -878,10 +878,10 @@ class DiskBuilder:
 
         # install boot loader
         if self.bootloader != 'custom':
-            bootloader_config = self._bootloader_instance(disk)
-            self._install_bootloader(
-                device_map, disk, system, bootloader_config
-            )
+            with self._bootloader_instance(disk) as bootloader_config:
+                self._install_bootloader(
+                    device_map, disk, system, bootloader_config
+                )
 
         # call edit_boot_install script
         boot_device = device_map['root']

@@ -134,14 +134,6 @@ class TestDiskBuilder:
         kiwi.builder.disk.BootLoaderInstall.new = MagicMock(
             return_value=self.bootloader_install
         )
-        self.bootloader_config = Mock()
-        self.bootloader_config.use_disk_password = True
-        self.bootloader_config.get_boot_cmdline = Mock(
-            return_value='boot_cmdline'
-        )
-        kiwi.builder.disk.BootLoaderConfig.new = MagicMock(
-            return_value=self.bootloader_config
-        )
         kiwi.builder.disk.DiskSetup = MagicMock(
             return_value=self.disk_setup
         )
@@ -286,6 +278,7 @@ class TestDiskBuilder:
             {'signing_keys': ['key_file_a', 'key_file_b']}
         )
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('random.randrange')
@@ -295,8 +288,15 @@ class TestDiskBuilder:
     @patch('os.path.exists')
     def test_create_disk_standard_root_with_kiwi_initrd(
         self, mock_path, mock_ImageSystem, mock_grub_dir,
-        mock_command, mock_rand, mock_fs, mock_LoopDevice
+        mock_command, mock_rand, mock_fs, mock_LoopDevice,
+        mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         loop_provider = Mock()
         mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         mock_path.return_value = True
@@ -340,15 +340,15 @@ class TestDiskBuilder:
             'all_free', 0
         )
         self.disk.map_partitions.assert_called_once_with()
-        self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
+        bootloader_config.setup_disk_boot_images.assert_called_once_with(
             '0815'
         )
-        self.bootloader_config.write_meta_data.assert_called_once_with(
+        bootloader_config.write_meta_data.assert_called_once_with(
             root_device='/dev/readonly-root-device',
             write_device='/dev/root-device',
             boot_options=''
         )
-        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
+        bootloader_config.setup_disk_image_config.assert_called_once_with(
             boot_options={
                 'boot_device': '/dev/boot-device',
                 'root_device': '/dev/readonly-root-device',
@@ -422,6 +422,7 @@ class TestDiskBuilder:
             'target_dir'
         )
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.VolumeManager.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
@@ -435,8 +436,15 @@ class TestDiskBuilder:
     def test_create_lvm_disk_standard_root_with_clone(
         self, mock_CloneDevice, mock_Temporary_new_file, mock_ImageSystem,
         mock_SystemSetup, mock_os_path_getsize, mock_path,
-        mock_grub_dir, mock_command, mock_fs, mock_volume_manager
+        mock_grub_dir, mock_command, mock_fs, mock_volume_manager,
+        mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         tempfile = Mock()
         tempfile.name = 'tempfile'
         mock_Temporary_new_file.return_value = tempfile
@@ -488,6 +496,7 @@ class TestDiskBuilder:
         volume_manager.\
             umount_volumes.call_args_list[0].assert_called_once_with()
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
@@ -500,8 +509,14 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_with_clone(
         self, mock_CloneDevice, mock_Temporary_new_file, mock_ImageSystem,
         mock_SystemSetup, mock_os_path_getsize, mock_path,
-        mock_grub_dir, mock_command, mock_fs
+        mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         tempfile = Mock()
         tempfile.name = 'tempfile'
         mock_Temporary_new_file.return_value = tempfile
@@ -586,6 +601,7 @@ class TestDiskBuilder:
             call([self.device_map['rootclone1']])
         ]
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
@@ -597,8 +613,14 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_with_dm_integrity(
         self, mock_Temporary_new_file, mock_ImageSystem,
         mock_SystemSetup, mock_os_path_getsize, mock_path,
-        mock_grub_dir, mock_command, mock_fs
+        mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         tempfile = Mock()
         tempfile.name = 'tempfile'
         mock_Temporary_new_file.return_value = tempfile
@@ -637,6 +659,7 @@ class TestDiskBuilder:
             call(label='SWAP')
         ]
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('random.randrange')
@@ -652,8 +675,14 @@ class TestDiskBuilder:
         self, mock_Temporary_new_file, mock_VeritySetup,
         mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
         mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs,
-        mock_LoopDevice
+        mock_LoopDevice, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         loop_provider = Mock()
         mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         tempfile = Mock()
@@ -705,15 +734,15 @@ class TestDiskBuilder:
             'all_free', 0
         )
         self.disk.map_partitions.assert_called_once_with()
-        self.bootloader_config.setup_disk_boot_images.assert_called_once_with(
+        bootloader_config.setup_disk_boot_images.assert_called_once_with(
             '0815'
         )
-        self.bootloader_config.write_meta_data.assert_called_once_with(
+        bootloader_config.write_meta_data.assert_called_once_with(
             root_device='/dev/readonly-root-device',
             write_device='/dev/root-device',
             boot_options=''
         )
-        self.bootloader_config.setup_disk_image_config.assert_called_once_with(
+        bootloader_config.setup_disk_image_config.assert_called_once_with(
             boot_options={
                 'boot_device': '/dev/boot-device',
                 'root_device': '/dev/readonly-root-device',
@@ -801,6 +830,7 @@ class TestDiskBuilder:
             '/dev/root-device'
         )
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('random.randrange')
     @patch('kiwi.builder.disk.Command.run')
@@ -813,7 +843,8 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_with_fixed_rootfs_size(
         self, mock_Temporary_new_file,
         mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
-        mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs
+        mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs,
+        mock_BootLoaderConfig
     ):
         self.disk_builder.root_filesystem_embed_verity_metadata = False
         self.disk_builder.root_filesystem_is_overlay = False
@@ -824,6 +855,13 @@ class TestDiskBuilder:
         self.disk_builder.oem_systemsize = 1024
         self.disk_builder.oem_resize = False
 
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
+
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
             self.disk_builder.create_disk()
@@ -832,6 +870,7 @@ class TestDiskBuilder:
             'clone:1024:1024', 1
         )
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.DeviceProvider')
     @patch('kiwi.builder.disk.FileSystem.new')
@@ -847,8 +886,14 @@ class TestDiskBuilder:
         self, mock_BlockID, mock_rand, mock_temp,
         mock_getsize, mock_exists, mock_grub_dir, mock_command,
         mock_squashfs, mock_fs, mock_DeviceProvider,
-        mock_LoopDevice
+        mock_LoopDevice, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         loop_provider = Mock()
         mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         block_operation = Mock()
@@ -947,11 +992,18 @@ class TestDiskBuilder:
             with raises(KiwiDiskBootImageError):
                 self.disk_builder.create_disk()
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     def test_create_disk_standard_root_xen_server_boot(
-        self, mock_command, mock_fs
+        self, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -967,13 +1019,20 @@ class TestDiskBuilder:
             'root_dir', '/boot/xen.gz'
         )
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_standard_root_s390_boot(
-        self, mock_grub_dir, mock_command, mock_fs
+        self, mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
         self.disk_builder.arch = 's390x'
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -985,14 +1044,21 @@ class TestDiskBuilder:
         with patch('builtins.open'):
             self.disk_builder.create_disk()
 
-        self.bootloader_config.write.assert_called_once_with()
+        bootloader_config.write.assert_called_once_with()
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_standard_root_secure_boot(
-        self, mock_grub_dir, mock_command, mock_fs
+        self, mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -1002,15 +1068,23 @@ class TestDiskBuilder:
         with patch('builtins.open'):
             self.disk_builder.create_disk()
 
-        bootloader = self.bootloader_config
-        bootloader.setup_disk_boot_images.assert_called_once_with('0815')
+        bootloader_config.setup_disk_boot_images.assert_called_once_with(
+            '0815'
+        )
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_mdraid_root(
-        self, mock_grub_dir, mock_command, mock_fs
+        self, mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -1034,12 +1108,19 @@ class TestDiskBuilder:
             'kiwi_RaidDev': '/dev/md0'
         }
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_luks_root(
-        self, mock_grub_dir, mock_command, mock_fs
+        self, mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -1073,13 +1154,22 @@ class TestDiskBuilder:
             config_file='root_dir/etc/dracut.conf.d/99-luks-boot.conf'
         )
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('kiwi.builder.disk.BootLoaderInstall.new')
     def test_create_disk_luks_root_with_disk_password(
-        self, mock_BootLoaderInstall, mock_grub_dir, mock_command, mock_fs
+        self, mock_BootLoaderInstall, mock_grub_dir, mock_command, mock_fs,
+        mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.use_disk_password = True
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -1091,9 +1181,6 @@ class TestDiskBuilder:
         self.disk_builder.boot_is_crypto = True
         self.disk.public_partition_id_map = self.id_map
         self.disk.public_partition_id_map['kiwi_ROPart'] = 1
-        bootloader_config = Mock()
-        bootloader_config.use_disk_password = True
-        self.disk_builder.bootloader_config = bootloader_config
         bootloader = mock_BootLoaderInstall.return_value
 
         with patch('builtins.open'):
@@ -1119,14 +1206,22 @@ class TestDiskBuilder:
         )
         bootloader.set_disk_password.assert_called_once_with('passphrase')
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
     @patch('kiwi.builder.disk.BlockID')
     def test_create_disk_uses_custom_partitions(
-        self, mock_BlockID, mock_exists, mock_grub_dir, mock_command, mock_fs
+        self, mock_BlockID, mock_exists, mock_grub_dir, mock_command, mock_fs,
+        mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         self.fstype_mock_list = [
             'ext3',
             'squashfs',
@@ -1207,6 +1302,7 @@ class TestDiskBuilder:
             call('LABEL=blkid_result /var ext3 defaults 0 0')
         ] in self.disk_builder.fstab.add_entry.call_args_list
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.VolumeManager.new')
     @patch('kiwi.builder.disk.Command.run')
@@ -1215,8 +1311,14 @@ class TestDiskBuilder:
     @patch('os.path.exists')
     def test_create_disk_btrfs_managed_root(
         self, mock_exists, mock_ImageSystem, mock_grub_dir, mock_command,
-        mock_volume_manager, mock_fs
+        mock_volume_manager, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         mock_exists.return_value = True
         volume_manager = Mock()
         volume_manager.get_device = Mock(
@@ -1243,6 +1345,7 @@ class TestDiskBuilder:
             call('UUID=blkid_result / blkid_result_fs ro,defaults,subvol=@ 0 0')
         ] in self.disk_builder.fstab.add_entry.call_args_list
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.VolumeManager.new')
     @patch('kiwi.builder.disk.Command.run')
@@ -1251,8 +1354,14 @@ class TestDiskBuilder:
     @patch('os.path.exists')
     def test_create_disk_volume_managed_root(
         self, mock_exists, mock_ImageSystem, mock_grub_dir, mock_command,
-        mock_volume_manager, mock_fs
+        mock_volume_manager, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         mock_exists.return_value = True
         volume_manager = Mock()
         volume_manager.get_device = Mock(
@@ -1298,12 +1407,19 @@ class TestDiskBuilder:
             self.disk_builder.fstab
         )
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_hybrid_gpt_requested(
-        self, mock_grub_dir, mock_command, mock_fs
+        self, mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -1315,12 +1431,19 @@ class TestDiskBuilder:
 
         self.disk.create_hybrid_mbr.assert_called_once_with()
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_force_mbr_requested(
-        self, mock_grub_dir, mock_command, mock_fs
+        self, mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -1332,12 +1455,19 @@ class TestDiskBuilder:
 
         self.disk.create_mbr.assert_called_once_with()
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_custom_start_sector_requested(
-        self, mock_grub_dir, mock_command, mock_fs
+        self, mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None
@@ -1371,12 +1501,19 @@ class TestDiskBuilder:
         append_unpartitioned.assert_called_once_with()
         create_disk_format.assert_called_once_with(result)
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     def test_create_disk_spare_part_requested(
-        self, mock_grub_dir, mock_command, mock_fs
+        self, mock_grub_dir, mock_command, mock_fs, mock_BootLoaderConfig
     ):
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
         self.disk_builder.volume_manager_name = None

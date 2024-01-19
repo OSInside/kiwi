@@ -23,6 +23,7 @@ import shutil
 # project
 from kiwi.utils.temporary import Temporary
 from kiwi.bootloader.config import BootLoaderConfig
+from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.filesystem.setup import FileSystemSetup
@@ -146,93 +147,80 @@ class LiveImageBuilder:
         log.info(
             'Setting up live image bootloader configuration'
         )
-        if self.firmware.efi_mode():
-            # setup bootloader config to boot the ISO via EFI
-            # This also embedds an MBR and the respective BIOS modules
-            # for compat boot. The complete bootloader setup will be
-            # based on grub
-            bootloader_config = BootLoaderConfig.new(
-                self.bootloader, self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir.name, custom_args={
-                    'grub_directory_name':
-                        Defaults.get_grub_boot_directory_name(self.root_dir),
-                    'grub_load_command':
-                        'configfile'
-                }
-            )
-            bootloader_config.setup_live_boot_images(
-                mbrid=self.mbrid, lookup_path=self.root_dir
-            )
-        else:
-            # setup bootloader config to boot the ISO via isolinux.
-            # This allows for booting on x86 platforms in BIOS mode
-            # only.
-            bootloader_config = BootLoaderConfig.new(
-                'isolinux', self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir.name
-            )
-        IsoToolsBase.setup_media_loader_directory(
-            self.boot_image.boot_root_directory, self.media_dir.name,
-            bootloader_config.get_boot_theme()
-        )
-        if self.firmware.bios_mode():
-            Iso(self.media_dir.name).setup_isolinux_boot_path()
-        bootloader_config.write_meta_data()
-        bootloader_config.setup_live_image_config(
-            mbrid=self.mbrid
-        )
-        bootloader_config.write()
-
-        # call custom editbootconfig script if present
-        self.system_setup.call_edit_boot_config_script(
-            filesystem='iso:{0}'.format(self.media_dir.name), boot_part_id=1,
-            working_directory=self.root_dir
-        )
-
-        # prepare dracut initrd call
-        self.boot_image.prepare()
-
-        # create dracut initrd for live image
-        log.info('Creating live ISO boot image')
-        live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
-            self.live_type
-        )
-        live_dracut_modules.append('pollcdrom')
-        for dracut_module in live_dracut_modules:
-            self.boot_image.include_module(dracut_module)
-        self.boot_image.omit_module('multipath')
-        self.boot_image.write_system_config_file(
-            config={
-                'modules': live_dracut_modules,
-                'omit_modules': ['multipath']
-            },
-            config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
-        )
-        self.boot_image.create_initrd(self.mbrid)
-        if self.bootloader == 'systemd_boot':
-            # make sure the initrd name follows the dracut naming conventions
-            boot_names = self.boot_image.get_boot_names()
-            if self.boot_image.initrd_filename:
-                Command.run(
-                    [
-                        'mv', self.boot_image.initrd_filename,
-                        self.root_dir + ''.join(
-                            ['/boot/', boot_names.initrd_name]
-                        )
-                    ]
+        with self._bootloader_instance() as bootloader_config:
+            if self.firmware.efi_mode():
+                bootloader_config.setup_live_boot_images(
+                    mbrid=self.mbrid, lookup_path=self.root_dir
                 )
 
-        # create EFI FAT image
-        if self.firmware.efi_mode():
-            efi_loader = Temporary(
-                prefix='efi-loader.', path=self.target_dir
-            ).new_file()
-            bootloader_config._create_embedded_fat_efi_image(efi_loader.name)
-            custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
+            IsoToolsBase.setup_media_loader_directory(
+                self.boot_image.boot_root_directory, self.media_dir.name,
+                bootloader_config.get_boot_theme()
+            )
+            if self.firmware.bios_mode():
+                Iso(self.media_dir.name).setup_isolinux_boot_path()
+            bootloader_config.write_meta_data()
+            bootloader_config.setup_live_image_config(
+                mbrid=self.mbrid
+            )
+            bootloader_config.write()
+
+            # call custom editbootconfig script if present
+            self.system_setup.call_edit_boot_config_script(
+                filesystem='iso:{0}'.format(self.media_dir.name),
+                boot_part_id=1,
+                working_directory=self.root_dir
+            )
+
+            # prepare dracut initrd call
+            self.boot_image.prepare()
+
+            # create dracut initrd for live image
+            log.info('Creating live ISO boot image')
+            live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
+                self.live_type
+            )
+            live_dracut_modules.append('pollcdrom')
+            for dracut_module in live_dracut_modules:
+                self.boot_image.include_module(dracut_module)
+            self.boot_image.omit_module('multipath')
+            self.boot_image.write_system_config_file(
+                config={
+                    'modules': live_dracut_modules,
+                    'omit_modules': ['multipath']
+                },
+                config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
+            )
+            self.boot_image.create_initrd(self.mbrid)
+            if self.bootloader == 'systemd_boot':
+                # make sure the initrd name follows the dracut
+                # naming conventions
+                boot_names = self.boot_image.get_boot_names()
+                if self.boot_image.initrd_filename:
+                    Command.run(
+                        [
+                            'mv', self.boot_image.initrd_filename,
+                            self.root_dir + ''.join(
+                                ['/boot/', boot_names.initrd_name]
+                            )
+                        ]
+                    )
+
+            # create EFI FAT image
+            if self.firmware.efi_mode():
+                efi_loader = Temporary(
+                    prefix='efi-loader.', path=self.target_dir
+                ).new_file()
+                bootloader_config._create_embedded_fat_efi_image(
+                    efi_loader.name
+                )
+                custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
 
         # setup kernel file(s) and initrd in ISO boot layout
         if self.bootloader != 'systemd_boot':
-            log.info('Setting up kernel file(s) and boot image in ISO boot layout')
+            log.info(
+                'Setting up kernel file(s) and boot image in ISO boot layout'
+            )
             self._setup_live_iso_kernel_and_initrd()
 
         # calculate size and decide if we need UDF
@@ -358,6 +346,30 @@ class LiveImageBuilder:
             shasum=False
         )
         return self.result
+
+    def _bootloader_instance(self) -> BootLoaderConfigBase:
+        if self.firmware.efi_mode():
+            # setup bootloader config to boot the ISO via EFI
+            # This also embedds an MBR and the respective BIOS modules
+            # for compat boot. The complete bootloader setup will be
+            # based on grub
+            return BootLoaderConfig.new(
+                self.bootloader, self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.media_dir.name, custom_args={
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir),
+                    'grub_load_command':
+                        'configfile'
+                }
+            )
+        else:
+            # setup bootloader config to boot the ISO via isolinux.
+            # This allows for booting on x86 platforms in BIOS mode
+            # only.
+            return BootLoaderConfig.new(
+                'isolinux', self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.media_dir.name
+            )
 
     def _setup_live_iso_kernel_and_initrd(self) -> None:
         """

@@ -37,7 +37,6 @@ class TestInstallImageBuilder:
             return_value=self.mbrid
         )
         kiwi.builder.install.Path = mock.Mock()
-        kiwi.builder.install.BootLoaderConfig.new = mock.Mock()
         self.checksum = mock.Mock()
         kiwi.builder.install.Checksum = mock.Mock(
             return_value=self.checksum
@@ -148,7 +147,8 @@ class TestInstallImageBuilder:
             return tmp_names.pop()
 
         bootloader_config = mock.Mock()
-        mock_BootLoaderConfig.return_value = bootloader_config
+        mock_BootLoaderConfig.return_value.__enter__.return_value = \
+            bootloader_config
         mock_Temporary.side_effect = side_effect
 
         self.firmware.bios_mode.return_value = False
@@ -274,11 +274,13 @@ class TestInstallImageBuilder:
         )
         bootloader_config._create_embedded_fat_efi_image.assert_not_called()
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     def test_create_install_iso_no_kernel_found(
-        self, mock_command, mock_Temporary, mock_setup_media_loader_directory
+        self, mock_command, mock_Temporary, mock_setup_media_loader_directory,
+        mock_BootLoaderConfig
     ):
         self.firmware.bios_mode.return_value = False
         self.kernel.get_kernel.return_value = False
@@ -286,11 +288,13 @@ class TestInstallImageBuilder:
             with raises(KiwiInstallBootImageError):
                 self.install_image.create_install_iso()
 
+    @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     def test_create_install_iso_no_hypervisor_found(
-        self, mock_command, mock_Temporary, mock_setup_media_loader_directory
+        self, mock_command, mock_Temporary, mock_setup_media_loader_directory,
+        mock_BootLoaderConfig
     ):
         self.firmware.bios_mode.return_value = False
         self.kernel.get_xen_hypervisor.return_value = False
