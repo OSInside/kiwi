@@ -112,7 +112,7 @@ function probe_filesystem {
     if [ "${fstype}" = "crypto_LUKS" ];then
         fstype=luks
     fi
-    echo ${fstype}
+    echo "${fstype}"
 }
 
 #======================================
