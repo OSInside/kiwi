@@ -74,9 +74,6 @@
         <package name="NetworkManager"/>
         <package name="btrfs-progs"/>
     </packages>
-    <packages type="image" profiles="Live,Disk">
-        <package name="syslinux"/>
-    </packages>
     <packages type="image" profiles="Live">
         <package name="dracut-kiwi-live"/>
     </packages>

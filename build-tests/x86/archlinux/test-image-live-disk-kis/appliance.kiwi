@@ -105,11 +105,9 @@
         <package name="grub"/>
     </packages>
     <packages type="image" profiles="Live">
-        <package name="syslinux"/>
         <package name="dracut-kiwi-live"/>
     </packages>
     <packages type="image" profiles="Disk">
-        <package name="syslinux"/>
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>

@@ -41,7 +41,6 @@
         <package name="plymouth"/>
         <package name="psmisc"/>
         <package name="rsync"/>
-        <package name="syslinux"/>
         <package name="systemd"/>
         <package name="systemd-sysvinit"/>
         <package name="sudo"/>

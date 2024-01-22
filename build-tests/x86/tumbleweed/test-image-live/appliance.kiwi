@@ -11,7 +11,6 @@
         <specification>live iso test build</specification>
     </description>
     <profiles>
-        <profile name="BIOS" description="BIOS only Live Boot based on isolinux"/>
         <profile name="Standard" description="Standard EFI/BIOS Live Boot"/>
         <profile name="Secure" description="SecureBoot/BIOS Live Boot"/>
         <profile name="SDBoot" description="EFI Boot via systemd-boot"/>
@@ -26,11 +25,6 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-    </preferences>
-    <preferences profiles="BIOS">
-        <type image="iso" flags="overlay" firmware="bios" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
-            <bootloader name="isolinux" console="serial" timeout="10"/>
-        </type>
     </preferences>
     <preferences profiles="SDBoot">
         <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="false">
@@ -62,9 +56,6 @@
         <package name="grub2-x86_64-efi" arch="x86_64"/>
         <package name="grub2-i386-pc"/>
         <package name="shim"/>
-    </packages>
-    <packages type="image" profiles="BIOS">
-        <package name="syslinux"/>
     </packages>
     <packages type="image">
         <package name="bind-utils"/>
