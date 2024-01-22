@@ -118,7 +118,6 @@ k.bootdelete.attribute =
     attribute bootdelete { xsd:boolean }
 k.displayname.attribute =
     ## A friendly display name. Used in the boot menu
-    ## for isolinux and grub
     attribute displayname { text }
 k.arch.attribute        =
     ## A system architecture name, matching the 'uname -m' information
@@ -1834,7 +1833,6 @@ div {
         ## if an extra boot partition is required this attribute
         ## specify which filesystem should be used for it. The
         ## type of the bootloader might overwrite this setting
-        ## e.g for the syslinux loader fat is required
         attribute bootfilesystem {
             "btrfs" | "ext2" | "ext3" | "ext4" | "xfs" | "fat32" | "fat16"
         }
@@ -1958,8 +1956,7 @@ div {
         ]
     k.type.installboot.attribute =
         ## Specifies the bootloader default boot entry for the
-        ## initial boot of a kiwi install image. This value is
-        ## only evaluated for grub and ext|syslinux
+        ## initial boot of a kiwi install image.
         attribute installboot {
             "failsafe-install" | "harddisk" | "install"
         }
@@ -2734,14 +2731,14 @@ div {
     ]
     k.bootloader.name.attribute =
         ## Specifies the bootloader used for booting the image.
-        ## At the moment grub2, systemd_boot(EFI only), isolinux, and the
+        ## At the moment grub2, systemd_boot(EFI only), and the
         ## combination of zipl plus userspace grub2(grub2_s390x_emu) are supported.
         ## The special custom entry allows to skip the bootloader
         ## configuration and installation and leaves this up to the
         ## user which can be done by using the editbootinstall and
         ## editbootconfig custom scripts
         attribute name {
-            "grub2" | "isolinux" | "grub2_s390x_emu" | "systemd_boot" | "custom"
+            "grub2" | "grub2_s390x_emu" | "systemd_boot" | "custom"
         }
         >> sch:pattern [ id = "loader_name" is-a = "bootloader_image_type"
             sch:param [ name = "attr" value = "name" ]
@@ -2761,12 +2758,10 @@ div {
         ]
     k.bootloader.console.attribute =
         ## Specifies the bootloader console.
-        ## The value is available for grub and isolinux bootloader
-        ## types.
         attribute console { grub_console }
         >> sch:pattern [ id = "loader_console" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "console" ]
-            sch:param [ name = "types" value = "grub2 isolinux grub2_s390x_emu" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
         ]
     k.bootloader.serial_line.attribute =
         ## Specifies the bootloader serial line setup. The setup
@@ -2785,7 +2780,7 @@ div {
         attribute timeout { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "timeout" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "timeout" ]
-            sch:param [ name = "types" value = "grub2 isolinux grub2_s390x_emu systemd_boot" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu systemd_boot" ]
         ]
     k.bootloader.timeout_style.attribute =
         ## Specifies the boot timeout style to control the way in which

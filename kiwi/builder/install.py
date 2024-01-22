@@ -42,7 +42,6 @@ from kiwi.archive.tar import ArchiveTar
 from kiwi.system.setup import SystemSetup
 from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.xml_state import XMLState
-from kiwi.iso_tools.iso import Iso
 
 
 from kiwi.exceptions import (
@@ -207,20 +206,16 @@ class InstallImageBuilder:
         log.info(
             'Setting up install image bootloader configuration'
         )
-        with self._bootloader_instance() as bootloader_config:
-            if self.firmware.efi_mode():
-                bootloader_config.setup_install_boot_images(
-                    mbrid=self.mbrid,
-                    lookup_path=self.boot_image_task.boot_root_directory
-                )
-
+        with self._create_bootloader_instance() as bootloader_config:
+            bootloader_config.setup_install_boot_images(
+                mbrid=self.mbrid,
+                lookup_path=self.boot_image_task.boot_root_directory
+            )
             IsoToolsBase.setup_media_loader_directory(
                 self.boot_image_task.boot_root_directory,
                 self.media_dir.name,
                 bootloader_config.get_boot_theme()
             )
-            if self.firmware.bios_mode():
-                Iso(self.media_dir.name).setup_isolinux_boot_path()
             bootloader_config.write_meta_data()
             bootloader_config.setup_install_image_config(
                 mbrid=self.mbrid
@@ -361,29 +356,16 @@ class InstallImageBuilder:
         archive.create(self.pxe_dir.name)
         self.boot_image_task.cleanup()
 
-    def _bootloader_instance(self):
-        if self.firmware.efi_mode():
-            # setup bootloader config to boot the ISO via EFI
-            # This also embedds an MBR and the respective BIOS modules
-            # for compat boot. The complete bootloader setup will be
-            # based on grub
-            return BootLoaderConfig.new(
-                self.bootloader, self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir.name, custom_args={
-                    'grub_directory_name':
-                        Defaults.get_grub_boot_directory_name(self.root_dir),
-                    'grub_load_command':
-                        'configfile'
-                }
-            )
-        else:
-            # setup bootloader config to boot the ISO via isolinux.
-            # This allows for booting on x86 platforms in BIOS mode
-            # only.
-            return BootLoaderConfig.new(
-                'isolinux', self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir.name
-            )
+    def _create_bootloader_instance(self):
+        return BootLoaderConfig.new(
+            self.bootloader, self.xml_state, root_dir=self.root_dir,
+            boot_dir=self.media_dir.name, custom_args={
+                'grub_directory_name':
+                    Defaults.get_grub_boot_directory_name(self.root_dir),
+                'grub_load_command':
+                    'configfile'
+            }
+        )
 
     def _create_pxe_install_kernel_and_initrd(self) -> None:
         kernelname = 'pxeboot.{0}.kernel'.format(self.pxename)

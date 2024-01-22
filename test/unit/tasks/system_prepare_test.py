@@ -145,9 +145,6 @@ class TestSystemPrepareTask:
         self.runtime_checker.\
             check_efi_mode_for_disk_overlay_correctly_setup.\
             assert_called_once_with()
-        self.runtime_checker.\
-            check_architecture_supports_iso_firmware_setup.\
-            assert_called_once_with()
         self.system_prepare.setup_repositories.assert_called_once_with(
             True, ['some_key', 'some_other_key'], None
         )

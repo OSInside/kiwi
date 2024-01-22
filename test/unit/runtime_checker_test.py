@@ -410,40 +410,6 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_image_version_provided()
 
-    def test_check_architecture_supports_iso_firmware_setup(self):
-        Defaults.set_platform_name('aarch64')
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'iso'
-        )
-        runtime_checker = RuntimeChecker(xml_state)
-        with raises(KiwiRuntimeError):
-            runtime_checker.check_architecture_supports_iso_firmware_setup()
-        xml_state = XMLState(
-            self.description.load(), ['xenDom0Flavour'], 'oem'
-        )
-        runtime_checker = RuntimeChecker(xml_state)
-        with raises(KiwiRuntimeError):
-            runtime_checker.check_architecture_supports_iso_firmware_setup()
-
-    @patch('kiwi.runtime_checker.Path.which')
-    def test_check_syslinux_installed_if_isolinux_is_used(
-        self, mock_Path_which
-    ):
-        Defaults.set_platform_name('x86_64')
-        mock_Path_which.return_value = None
-        xml_state = XMLState(
-            self.description.load(), ['vmxFlavour'], 'iso'
-        )
-        runtime_checker = RuntimeChecker(xml_state)
-        with raises(KiwiRuntimeError):
-            runtime_checker.check_syslinux_installed_if_isolinux_is_used()
-        xml_state = XMLState(
-            self.description.load(), ['xenDom0Flavour'], 'oem'
-        )
-        runtime_checker = RuntimeChecker(xml_state)
-        with raises(KiwiRuntimeError):
-            runtime_checker.check_syslinux_installed_if_isolinux_is_used()
-
     def test_check_image_type_unique(self):
         description = XMLDescription(
             '../data/example_runtime_checker_conflicting_types.xml'

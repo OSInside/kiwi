@@ -186,9 +186,6 @@ Provides:       kiwi-image:iso
 Requires:       checkmedia
 %endif
 Requires:       xorriso
-%ifarch %{ix86} x86_64
-Requires:       syslinux
-%endif
 Requires:       kiwi-systemdeps-core = %{version}-%{release}
 Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
 Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}

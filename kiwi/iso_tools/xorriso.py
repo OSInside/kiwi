@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from typing import (
     Dict, List, Optional
 )
@@ -24,8 +25,10 @@ from typing import (
 from kiwi.iso_tools.base import IsoToolsBase
 from kiwi.path import Path
 from kiwi.command import Command
-from kiwi.exceptions import KiwiFileNotFound, KiwiIsoToolError
+from kiwi.exceptions import KiwiIsoToolError
 from kiwi.defaults import Defaults
+
+log = logging.getLogger('kiwi')
 
 
 class IsoToolsXorrIso(IsoToolsBase):
@@ -70,10 +73,7 @@ class IsoToolsXorrIso(IsoToolsBase):
 
         :param list custom_args: custom ISO meta data
         """
-        efi_mode = False
         if custom_args:
-            if custom_args.get('efi_mode'):
-                efi_mode = True
             if 'mbr_id' in custom_args:
                 self.iso_parameters += [
                     '-application_id', custom_args['mbr_id']
@@ -96,39 +96,30 @@ class IsoToolsXorrIso(IsoToolsBase):
         ]
 
         if Defaults.is_x86_arch(self.arch):
-            if efi_mode:
-                mbr_file = os.sep.join(
-                    [self.source_dir, self.boot_path, '/loader/boot_hybrid.img']
-                )
-                if os.path.exists(mbr_file):
-                    loader_file = os.sep.join(
-                        [
-                            self.boot_path, 'loader',
-                            Defaults.get_isolinux_bios_grub_loader()
-                        ]
-                    )
-                    self.iso_loaders += [
-                        '-boot_image', 'grub', 'bin_path={0}'.format(loader_file),
-                        '-boot_image', 'grub', 'grub2_mbr={0}'.format(mbr_file),
-                        '-boot_image', 'grub', 'grub2_boot_info=on'
-                    ]
-            else:
-                loader_file = self.boot_path + '/loader/isolinux.bin'
-                mbr_file_c = Path.which(
-                    'isohdpfx.bin', Defaults.get_syslinux_search_paths()
-                )
-                if not mbr_file_c:
-                    raise KiwiFileNotFound("isohdpfx.bin not found in the syslinux search paths")
-                mbr_file = mbr_file_c
-                self.iso_loaders += [
-                    '-boot_image', 'isolinux', 'bin_path={0}'.format(
-                        loader_file
-                    ),
-                    '-boot_image', 'isolinux', 'system_area={0}'.format(
-                        mbr_file
-                    ),
-                    '-boot_image', 'isolinux', 'partition_table=on',
+            mbr_file = os.sep.join(
+                [
+                    self.source_dir, self.boot_path, 'loader',
+                    Defaults.get_iso_grub_mbr()
                 ]
+            )
+            loader_file = os.sep.join(
+                [
+                    self.boot_path, 'loader',
+                    Defaults.get_iso_grub_loader()
+                ]
+            )
+            self.iso_loaders += [
+                '-boot_image', 'grub', 'bin_path={0}'.format(loader_file)
+            ]
+            if os.path.exists(mbr_file):
+                self.iso_loaders += [
+                    '-boot_image', 'grub', 'grub2_mbr={0}'.format(mbr_file)
+                ]
+            else:
+                log.warning(f'No hybrid MBR file found: {mbr_file}: skipped')
+            self.iso_loaders += [
+                '-boot_image', 'grub', 'grub2_boot_info=on'
+            ]
 
         self.iso_loaders += [
             '-boot_image', 'any', 'partition_offset=16',

@@ -475,31 +475,31 @@ class Defaults:
 
             .. code:: python
 
-                {'kernel_hex_mode': video_type(grub2='mode', isolinux='mode')}
+                {'kernel_hex_mode': video_type(grub2='mode')}
 
         :rtype: dict
         """
         video_type = namedtuple(
-            'video_type', ['grub2', 'isolinux']
+            'video_type', ['grub2']
         )
         return {
-            '0x301': video_type(grub2='640x480', isolinux='640 480'),
-            '0x310': video_type(grub2='640x480', isolinux='640 480'),
-            '0x311': video_type(grub2='640x480', isolinux='640 480'),
-            '0x312': video_type(grub2='640x480', isolinux='640 480'),
-            '0x303': video_type(grub2='800x600', isolinux='800 600'),
-            '0x313': video_type(grub2='800x600', isolinux='800 600'),
-            '0x314': video_type(grub2='800x600', isolinux='800 600'),
-            '0x315': video_type(grub2='800x600', isolinux='800 600'),
-            '0x305': video_type(grub2='1024x768', isolinux='1024 768'),
-            '0x316': video_type(grub2='1024x768', isolinux='1024 768'),
-            '0x317': video_type(grub2='1024x768', isolinux='1024 768'),
-            '0x318': video_type(grub2='1024x768', isolinux='1024 768'),
-            '0x307': video_type(grub2='1280x1024', isolinux='1280 1024'),
-            '0x319': video_type(grub2='1280x1024', isolinux='1280 1024'),
-            '0x31a': video_type(grub2='1280x1024', isolinux='1280 1024'),
-            '0x31b': video_type(grub2='1280x1024', isolinux='1280 1024'),
-            'auto': video_type(grub2='auto', isolinux='800 600')
+            '0x301': video_type(grub2='640x480'),
+            '0x310': video_type(grub2='640x480'),
+            '0x311': video_type(grub2='640x480'),
+            '0x312': video_type(grub2='640x480'),
+            '0x303': video_type(grub2='800x600'),
+            '0x313': video_type(grub2='800x600'),
+            '0x314': video_type(grub2='800x600'),
+            '0x315': video_type(grub2='800x600'),
+            '0x305': video_type(grub2='1024x768'),
+            '0x316': video_type(grub2='1024x768'),
+            '0x317': video_type(grub2='1024x768'),
+            '0x318': video_type(grub2='1024x768'),
+            '0x307': video_type(grub2='1280x1024'),
+            '0x319': video_type(grub2='1280x1024'),
+            '0x31a': video_type(grub2='1280x1024'),
+            '0x31b': video_type(grub2='1280x1024'),
+            'auto': video_type(grub2='auto')
         }
 
     @staticmethod
@@ -937,56 +937,26 @@ class Defaults:
                 return bios_grub_core
 
     @staticmethod
-    def get_syslinux_modules():
+    def get_iso_grub_loader():
         """
-        Returns list of syslinux modules to include on ISO
-        images that boots via isolinux
-
-        :return: base file names
-
-        :rtype: list
-        """
-        return [
-            'isolinux.bin',
-            'ldlinux.c32',
-            'libcom32.c32',
-            'libutil.c32',
-            'gfxboot.c32',
-            'gfxboot.com',
-            'menu.c32',
-            'chain.c32',
-            'mboot.c32'
-        ]
-
-    @staticmethod
-    def get_syslinux_search_paths():
-        """
-        syslinux is packaged differently between distributions.
-        This method returns a list of directories to search for
-        syslinux data
-
-        :return: directory names
-
-        :rtype: list
-        """
-        return [
-            '/usr/share/syslinux',
-            '/usr/lib/syslinux/bios',
-            '/usr/lib/syslinux/modules/bios',
-            '/usr/lib/ISOLINUX'
-        ]
-
-    @staticmethod
-    def get_isolinux_bios_grub_loader():
-        """
-        Return name of eltorito grub image used as isolinux loader
-        in BIOS mode if isolinux.bin should not be used
+        Return name of eltorito grub image used as ISO loader
 
         :return: file base name
 
         :rtype: str
         """
         return 'eltorito.img'
+
+    @staticmethod
+    def get_iso_grub_mbr():
+        """
+        Return name of hybrid MBR image used as ISO boot record
+
+        :return: file base name
+
+        :rtype: str
+        """
+        return 'boot_hybrid.img'
 
     @staticmethod
     def get_signed_grub_loader(
