@@ -57,7 +57,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         Store custom btrfs initialization arguments
 
-        :param list custom_args: custom btrfs volume manager arguments
+        :param dict custom_args: custom btrfs volume manager arguments
         """
         if custom_args:
             self.custom_args = custom_args
@@ -407,6 +407,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         :rtype: string
         """
+        if not self.mountpoint:
+            raise KiwiVolumeManagerSetupError("No mountpoint exists")
         sync_target: List[str] = [self.mountpoint]
         if self.root_volume_name != '/':
             sync_target.append(self.root_volume_name)

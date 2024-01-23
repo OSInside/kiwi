@@ -567,7 +567,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             grub_image = Defaults.get_signed_grub_loader(self.root_dir, target_type)
             if grub_image and grub_image.filename:
                 bash_command = [
-                    'strings', grub_image.filename, '|', 'grep', 'EFI\/'
+                    'strings', grub_image.filename, '|', 'grep', r'EFI\/'
                 ]
                 efi_boot_path = Command.run(
                     ['bash', '-c', ' '.join(bash_command)],

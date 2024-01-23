@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from collections import namedtuple
-from typing import Optional
+from typing import Any, Dict, List, Optional
 import logging
 import os
 
@@ -29,6 +29,7 @@ from kiwi.utils.sync import DataSync
 from kiwi.path import Path
 from kiwi.system.size import SystemSize
 from kiwi.defaults import Defaults
+from kiwi.xml_state import volume_type
 
 from kiwi.exceptions import (
     KiwiVolumeManagerSetupError
@@ -41,31 +42,32 @@ class VolumeManagerBase(DeviceProvider):
     """
     **Implements base class for volume management interface**
 
-    :param str mountpoint: root mountpoint for volumes
     :param object device_map:
         dictionary of low level DeviceProvider intances
     :param str root_dir: root directory path name
     :param list volumes: list of volumes from :class:`XMLState::get_volumes()`
-    :param str volume_group: volume group name
-    :param map volume_map: map volume name to device node
-    :param list mount_list: list of volume MountManager's
-    :param str device: storage device node name
     :param dict custom_args: custom volume manager arguments for all
         volume manager and filesystem specific tasks
-    :param list custom_filesystem_args: custom filesystem creation and mount
-        arguments, subset of the custom_args information suitable to
-        be passed to a FileSystem instance
 
     :raises KiwiVolumeManagerSetupError: if the given root_dir doesn't exist
     """
-    def __init__(self, device_map, root_dir, volumes, custom_args=None):
-        self.temp_directories = []
+
+    def __init__(
+        self,
+        device_map: Dict[str, DeviceProvider],
+        root_dir: str,
+        volumes: List[volume_type],
+        custom_args: Optional[Dict[str, Any]] = None
+    ) -> None:
+
+        self.temp_directories: List[Temporary] = []
         # all volumes are combined into one mountpoint. This is
         # needed at sync_data time. How to mount the volumes is
         # special to the volume management class
-        self.mountpoint = None
+        #: root mountpoint for volumes
+        self.mountpoint: Optional[str] = None
 
-        # dictionary of mapped DeviceProviders
+        #: dictionary of mapped DeviceProviders
         self.device_map = device_map
 
         # bind the device providing class instance to this object.
@@ -73,17 +75,22 @@ class VolumeManagerBase(DeviceProvider):
         # the device should be released.
         self.device_provider_root = device_map['root']
 
-        # An indicator for the mount of the filesystem and its volumes
-        # when mounted for the first time
+        #: An indicator for the mount of the filesystem and its volumes
+        #: when mounted for the first time
         self.volumes_mounted_initially = False
 
+        #: root directory path name
         self.root_dir = root_dir
+        #: list of volumes from :class:`XMLState::get_volumes()`
         self.volumes = volumes
+        #: volume group name
         self.volume_group = None
-        self.volume_map = {}
-        self.mount_list = []
+        #: map volume name to device node
+        self.volume_map: Dict[str, str] = {}
+        #: list of volume MountManager's
+        self.mount_list: List[MountManager] = []
 
-        # Main device to operate on
+        #: main storage device node name
         self.device = self.device_provider_root.get_device()
 
         if not os.path.exists(root_dir):
@@ -91,8 +98,11 @@ class VolumeManagerBase(DeviceProvider):
                 'given root directory %s does not exist' % root_dir
             )
 
-        self.custom_args = {}
-        self.custom_filesystem_args = {
+        self.custom_args: Dict[str, Any] = {}
+
+        #: custom filesystem creation and mount arguments, subset of the
+        #: custom_args information suitable to be passed to a FileSystem instance
+        self.custom_filesystem_args: Dict[str, Any] = {
             'create_options': [],
             'mount_options': []
         }
@@ -121,7 +131,7 @@ class VolumeManagerBase(DeviceProvider):
         """
         pass
 
-    def setup(self, name=None):
+    def setup(self, name: str = None):
         """
         Implements setup required prior to the creation of volumes
 
@@ -154,7 +164,7 @@ class VolumeManagerBase(DeviceProvider):
                     ]
                 )
 
-    def get_fstab(self, persistency_type, filesystem_name):
+    def get_fstab(self, persistency_type: str, filesystem_name: str) -> List[str]:
         """
         Implements setup of the fstab entries. The method should
         return a list of fstab compatible entries
@@ -274,7 +284,7 @@ class VolumeManagerBase(DeviceProvider):
 
     def get_volume_mbsize(
         self, volume, all_volumes, filesystem_name, resize_on_boot=False
-    ):
+    ) -> int:
         """
         Implements size lookup for the given path and desired
         filesystem according to the specified size type
@@ -335,7 +345,7 @@ class VolumeManagerBase(DeviceProvider):
             )
         return mbsize
 
-    def get_mountpoint(self):
+    def get_mountpoint(self) -> Optional[str]:
         """
         Provides mount point directory
 
@@ -360,20 +370,26 @@ class VolumeManagerBase(DeviceProvider):
         """
         return '/'
 
-    def sync_data(self, exclude=None):
+    def sync_data(self, exclude: Optional[List[str]] = None) -> Optional[MountManager]:
         """
         Implements sync of root directory to mounted volumes
 
         :param list exclude: file patterns to exclude
+
+        :return: If a mount was created, then a context manager implementing the
+            unmount is returned.
         """
-        if self.mountpoint:
-            root_mount = MountManager(device=None, mountpoint=self.mountpoint)
-            if not root_mount.is_mounted():
-                self.mount_volumes()
-            data = DataSync(self.root_dir, self.mountpoint)
-            data.sync_data(
-                options=Defaults.get_sync_options(), exclude=exclude
-            )
+        if not self.mountpoint:
+            return None
+
+        root_mount = MountManager(device="", mountpoint=self.mountpoint)
+        if not root_mount.is_mounted():
+            self.mount_volumes()
+        data = DataSync(self.root_dir, self.mountpoint)
+        data.sync_data(
+            options=Defaults.get_sync_options(), exclude=exclude or []
+        )
+        return root_mount
 
     def create_verity_layer(
         self, blocks: Optional[int] = None, filename: str = None

@@ -254,6 +254,12 @@ class TestVolumeManagerBase:
         )
         assert self.volume_manager.get_mountpoint() == 'mountpoint'
 
+    @patch('kiwi.volume_manager.base.MountManager.is_mounted')
+    def test_sync_data_without_mountpoint(self, mock_mounted):
+        self.volume_manager.mountpoint = ''
+        assert self.volume_manager.sync_data() is None
+        mock_mounted.assert_not_called()
+
     def test_create_verity_layer(self):
         with raises(NotImplementedError):
             self.volume_manager.create_verity_layer()
