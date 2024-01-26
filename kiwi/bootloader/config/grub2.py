@@ -31,6 +31,7 @@ from kiwi.defaults import Defaults
 from kiwi.exceptions import KiwiFileNotFound
 from kiwi.firmware import FirmWare
 from kiwi.path import Path
+from kiwi.system.identifier import SystemIdentifier
 from kiwi.utils.sync import DataSync
 from kiwi.utils.sysconfig import SysConfig
 
@@ -393,7 +394,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
 
     def setup_live_image_config(
-        self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
+        self, mbrid: SystemIdentifier, hypervisor='xen.gz', kernel='linux', initrd='initrd'
     ):
         """
         Create grub2 config file to boot a live media ISO image
@@ -463,7 +464,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.boot_dir, self.early_boot_script_efi, 'iso'
             )
 
-    def setup_install_boot_images(self, mbrid, lookup_path=None):
+    def setup_install_boot_images(self, mbrid: SystemIdentifier, lookup_path: str = None) -> None:
         """
         Create/Provide grub2 boot images and metadata
 
@@ -514,7 +515,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             loopback_file
         )
 
-    def setup_live_boot_images(self, mbrid, lookup_path=None):
+    def setup_live_boot_images(self, mbrid: SystemIdentifier, lookup_path=None):
         """
         Create/Provide grub2 boot images and metadata
 
