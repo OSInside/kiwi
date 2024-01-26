@@ -1,12 +1,13 @@
 from mock import (
-    patch, call, mock_open, ANY, Mock
+    MagicMock, patch, call, mock_open, ANY, Mock
 )
 from pytest import raises
 import mock
-import kiwi
+import kiwi.builder.install
 
 from collections import namedtuple
 
+from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 from kiwi.defaults import Defaults
 from kiwi.builder.install import InstallImageBuilder
 from kiwi.exceptions import KiwiInstallBootImageError
@@ -37,6 +38,11 @@ class TestInstallImageBuilder:
             return_value=self.mbrid
         )
         kiwi.builder.install.Path = mock.Mock()
+
+        create_boot_loader_config_mock = mock.Mock(return_value=MagicMock())
+        create_boot_loader_config_mock.return_value.__enter__.return_value = mock.Mock()
+        kiwi.builder.install.create_boot_loader_config = create_boot_loader_config_mock
+
         self.checksum = mock.Mock()
         kiwi.builder.install.Checksum = mock.Mock(
             return_value=self.checksum
@@ -117,7 +123,7 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.FileSystemIsoFs')
     @patch('kiwi.builder.install.FileSystemSquashFs')
     @patch('kiwi.builder.install.DeviceProvider')
-    @patch('kiwi.builder.install.BootLoaderConfig.new')
+    @patch('kiwi.builder.install.create_boot_loader_config')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.shutil.copy')
     @patch('kiwi.builder.install.Temporary')
@@ -125,7 +131,7 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.Defaults.get_grub_boot_directory_name')
     def test_create_install_iso(
         self, mock_grub_dir, mock_command, mock_Temporary, mock_copy,
-        mock_setup_media_loader_directory, mock_BootLoaderConfig,
+        mock_setup_media_loader_directory, mock_create_boot_loader_config,
         mock_DeviceProvider, mock_FileSystemSquashFs, mock_FileSystemIsoFs
     ):
         temp_squashfs = Mock()
@@ -145,9 +151,8 @@ class TestInstallImageBuilder:
         def side_effect(prefix, path):
             return tmp_names.pop()
 
-        bootloader_config = mock.Mock()
-        mock_BootLoaderConfig.return_value.__enter__.return_value = \
-            bootloader_config
+        bootloader_config = mock.MagicMock(spec=BootLoaderConfigGrub2)
+        mock_create_boot_loader_config.return_value.__enter__.return_value = bootloader_config
         mock_Temporary.side_effect = side_effect
 
         self.firmware.bios_mode.return_value = False
@@ -183,8 +188,8 @@ class TestInstallImageBuilder:
         squashed_image.create_on_file.assert_called_once_with(
             'target_dir/result-image.raw.squashfs'
         )
-        mock_BootLoaderConfig.assert_called_once_with(
-            'grub2', self.xml_state, root_dir='root_dir',
+        mock_create_boot_loader_config.assert_called_once_with(
+            name='grub2', xml_state=self.xml_state, root_dir='root_dir',
             boot_dir='temp_media_dir', custom_args={
                 'grub_directory_name': mock_grub_dir.return_value,
                 'grub_load_command': 'configfile'
@@ -258,13 +263,13 @@ class TestInstallImageBuilder:
             call('IMAGE="result-image.raw"\n')
         ]
 
-    @patch('kiwi.builder.disk.BootLoaderConfig.new')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     def test_create_install_iso_no_kernel_found(
         self, mock_command, mock_Temporary, mock_setup_media_loader_directory,
-        mock_BootLoaderConfig
+        mock_create_boot_loader_config
     ):
         self.firmware.bios_mode.return_value = False
         self.kernel.get_kernel.return_value = False
@@ -272,13 +277,13 @@ class TestInstallImageBuilder:
             with raises(KiwiInstallBootImageError):
                 self.install_image.create_install_iso()
 
-    @patch('kiwi.builder.disk.BootLoaderConfig.new')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     def test_create_install_iso_no_hypervisor_found(
         self, mock_command, mock_Temporary, mock_setup_media_loader_directory,
-        mock_BootLoaderConfig
+        mock_create_boot_loader_config
     ):
         self.firmware.bios_mode.return_value = False
         self.kernel.get_xen_hypervisor.return_value = False

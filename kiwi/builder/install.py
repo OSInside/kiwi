@@ -28,7 +28,7 @@ from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.boot.image.base import BootImageBase
 from kiwi.boot.image import BootImage
-from kiwi.bootloader.config import BootLoaderConfig
+from kiwi.bootloader.config import create_boot_loader_config
 from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.firmware import FirmWare
@@ -357,8 +357,9 @@ class InstallImageBuilder:
         self.boot_image_task.cleanup()
 
     def _create_bootloader_instance(self):
-        return BootLoaderConfig.new(
-            self.bootloader, self.xml_state, root_dir=self.root_dir,
+        return create_boot_loader_config(
+            name=self.bootloader, xml_state=self.xml_state,
+            root_dir=self.root_dir,
             boot_dir=self.media_dir.name, custom_args={
                 'grub_directory_name':
                     Defaults.get_grub_boot_directory_name(self.root_dir),
