@@ -52,7 +52,6 @@
         <package name="group(wheel)"/>
         <package name="grub2-branding-openSUSE"/>
         <package name="iputils"/>
-        <package name="zypper-lifecycle-plugin"/>
         <package name="vim"/>
         <package name="grub2"/>
         <package name="grub2-arm64-efi" arch="aarch64"/>
