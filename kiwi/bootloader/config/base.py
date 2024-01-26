@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from abc import ABC, abstractmethod
 import os
 import re
 import logging
@@ -34,7 +35,7 @@ from kiwi.exceptions import (
 log = logging.getLogger('kiwi')
 
 
-class BootLoaderConfigBase:
+class BootLoaderConfigBase(ABC):
     """
     **Base class for bootloader configuration**
 
@@ -73,13 +74,13 @@ class BootLoaderConfigBase:
         """
         self.custom_args = custom_args
 
+    @abstractmethod
     def write(self):
         """
         Write config data to config file.
 
         Implementation in specialized bootloader class required
         """
-        raise NotImplementedError
 
     def write_meta_data(
         self, root_device=None, write_device=None, boot_options=''
@@ -95,6 +96,7 @@ class BootLoaderConfigBase:
         """
         pass
 
+    @abstractmethod
     def setup_disk_image_config(
         self, boot_uuid=None, root_uuid=None, hypervisor=None,
         kernel=None, initrd=None, boot_options={}
@@ -119,8 +121,8 @@ class BootLoaderConfigBase:
 
         Implementation in specialized bootloader class required
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def setup_install_image_config(
         self, mbrid, hypervisor, kernel, initrd
     ):
@@ -134,8 +136,8 @@ class BootLoaderConfigBase:
 
         Implementation in specialized bootloader class required
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def setup_live_image_config(
         self, mbrid, hypervisor, kernel, initrd
     ):
@@ -149,8 +151,8 @@ class BootLoaderConfigBase:
 
         Implementation in specialized bootloader class required
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
         """
         Create bootloader images for disk boot
@@ -164,8 +166,8 @@ class BootLoaderConfigBase:
 
         Implementation in specialized bootloader class required
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def setup_install_boot_images(self, mbrid, lookup_path=None):
         """
         Create bootloader images for ISO boot an install media
@@ -175,8 +177,8 @@ class BootLoaderConfigBase:
 
         Implementation in specialized bootloader class required
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def setup_live_boot_images(self, mbrid, lookup_path=None):
         """
         Create bootloader images for ISO boot a live ISO image
@@ -186,8 +188,8 @@ class BootLoaderConfigBase:
 
         Implementation in specialized bootloader class required
         """
-        raise NotImplementedError
 
+    @abstractmethod
     def setup_sysconfig_bootloader(self):
         """
         Create or update etc/sysconfig/bootloader by parameters
@@ -195,7 +197,6 @@ class BootLoaderConfigBase:
 
         Implementation in specialized bootloader class required
         """
-        raise NotImplementedError
 
     def create_efi_path(self, in_sub_dir='boot/efi'):
         """

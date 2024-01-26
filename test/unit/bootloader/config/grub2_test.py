@@ -8,6 +8,7 @@ from mock import (
 from pytest import (
     raises, fixture
 )
+import pytest
 
 import kiwi
 
@@ -125,6 +126,17 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_theme')
     def setup_method(self, cls, mock_theme, mock_firmware):
         self.setup()
+
+    def test_setup_sysconfig_bootloader_not_impl(self):
+        xml_state = MagicMock()
+        xml_state.build_type.get_firmware = Mock(
+            return_value=None
+        )
+
+        with pytest.raises(NotImplementedError):
+            BootLoaderConfigGrub2(
+                xml_state=xml_state, root_dir='root_dir'
+            ).setup_sysconfig_bootloader()
 
     @patch('kiwi.bootloader.config.grub2.Path.which')
     def test_post_init_grub2_boot_directory(self, mock_which):

@@ -204,6 +204,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             with open(config_file, 'w') as config:
                 config.write(self.config)
 
+    def setup_sysconfig_bootloader(self):
+        raise NotImplementedError
+
     def write_meta_data(
         self, root_device=None, write_device=None, boot_options=''
     ):

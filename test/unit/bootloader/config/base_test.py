@@ -13,6 +13,38 @@ from kiwi.exceptions import KiwiBootLoaderTargetError
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 
 
+class BootLoaderConfigTestImpl(BootLoaderConfigBase):
+    def setup_install_image_config(self, mbrid, hypervisor, kernel, initrd):
+        return super().setup_install_image_config(mbrid, hypervisor, kernel, initrd)
+
+    def setup_disk_image_config(
+            self, boot_uuid=None, root_uuid=None, hypervisor=None, kernel=None,
+            initrd=None, boot_options=...):
+        return super().setup_disk_image_config(
+            boot_uuid, root_uuid, hypervisor, kernel, initrd, boot_options
+        )
+
+    def write(self):
+        return super().write()
+
+    def setup_live_image_config(self, mbrid, hypervisor, kernel, initrd):
+        return super().setup_live_image_config(
+            mbrid, hypervisor, kernel, initrd
+        )
+
+    def setup_install_boot_images(self, mbrid, lookup_path=None):
+        return super().setup_install_boot_images(mbrid, lookup_path)
+
+    def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
+        return super().setup_disk_boot_images(boot_uuid, lookup_path)
+
+    def setup_live_boot_images(self, mbrid, lookup_path=None):
+        return super().setup_live_boot_images(mbrid, lookup_path)
+
+    def setup_sysconfig_bootloader(self):
+        return super().setup_sysconfig_bootloader()
+
+
 class TestBootLoaderConfigBase:
     @fixture(autouse=True)
     def inject_fixtures(self, caplog):
@@ -26,51 +58,12 @@ class TestBootLoaderConfigBase:
         self.state = XMLState(
             description.load()
         )
-        self.bootloader = BootLoaderConfigBase(
+        self.bootloader = BootLoaderConfigTestImpl(
             self.state, 'root_dir'
         )
 
     def setup_method(self, cls):
         self.setup()
-
-    def test_write(self):
-        with raises(NotImplementedError):
-            self.bootloader.write()
-
-    def test_setup_disk_image_config(self):
-        with raises(NotImplementedError):
-            self.bootloader.setup_disk_image_config(
-                'boot_uuid', 'root_uuid', 'hypervisor',
-                'kernel', 'initrd', 'options'
-            )
-
-    def test_setup_install_image_config(self):
-        with raises(NotImplementedError):
-            self.bootloader.setup_install_image_config(
-                'mbrid', 'hypervisor', 'kernel', 'initrd'
-            )
-
-    def test_setup_live_image_config(self):
-        with raises(NotImplementedError):
-            self.bootloader.setup_live_image_config(
-                'mbrid', 'hypervisor', 'kernel', 'initrd'
-            )
-
-    def test_setup_disk_boot_images(self):
-        with raises(NotImplementedError):
-            self.bootloader.setup_disk_boot_images('uuid')
-
-    def test_setup_install_boot_images(self):
-        with raises(NotImplementedError):
-            self.bootloader.setup_install_boot_images('mbrid')
-
-    def test_setup_live_boot_images(self):
-        with raises(NotImplementedError):
-            self.bootloader.setup_live_boot_images('mbrid')
-
-    def test_setup_sysconfig_bootloader(self):
-        with raises(NotImplementedError):
-            self.bootloader.setup_sysconfig_bootloader()
 
     @patch('kiwi.path.Path.create')
     def test_create_efi_path(self, mock_path):
@@ -383,7 +376,7 @@ class TestBootLoaderConfigBase:
 
         mock_MountManager.side_effect = mount_managers_effect
 
-        with BootLoaderConfigBase(self.state, 'root_dir') as bootloader:
+        with BootLoaderConfigTestImpl(self.state, 'root_dir') as bootloader:
             bootloader.root_filesystem_is_overlay = True
             bootloader._mount_system(
                 'rootdev', 'bootdev', 'efidev', {
