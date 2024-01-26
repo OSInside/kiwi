@@ -60,6 +60,9 @@ class BootLoaderConfigBase:
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.post_init(custom_args)
 
+    def __enter__(self):
+        return self
+
     def post_init(self, custom_args):
         """
         Post initialization method
@@ -658,8 +661,7 @@ class BootLoaderConfigBase:
             'node': f'/dev/disk/{persistency_type}/{location}'
         }
 
-    def __del__(self):
-        log.info('Cleaning up %s instance', type(self).__name__)
+    def __exit__(self, exc_type, exc_value, traceback):
         for volume_mount in reversed(self.volumes_mount):
             volume_mount.umount()
         if self.device_mount:

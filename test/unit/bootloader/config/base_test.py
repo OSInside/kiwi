@@ -390,38 +390,38 @@ class TestBootLoaderConfigBase:
             return mount_managers.pop()
 
         mock_MountManager.side_effect = mount_managers_effect
-        self.bootloader.root_filesystem_is_overlay = True
-        self.bootloader._mount_system(
-            'rootdev', 'bootdev', 'efidev', {
-                'boot/grub2': {
-                    'volume_options': 'subvol=@/boot/grub2',
-                    'volume_device': 'device'
-                }
-            }, root_volume_name='root'
-        )
-        assert mock_MountManager.call_args_list == [
-            call(device='rootdev'),
-            call(device='bootdev', mountpoint='root_mount_point/boot'),
-            call(device='efidev', mountpoint='root_mount_point/boot/efi'),
-            call(device='device', mountpoint='root_mount_point/boot/grub2'),
-            call(device='/tmp', mountpoint='root_mount_point/tmp'),
-            call(device='/dev', mountpoint='root_mount_point/dev'),
-            call(device='/proc', mountpoint='root_mount_point/proc'),
-            call(device='/sys', mountpoint='root_mount_point/sys')
-        ]
-        root_mount.mount.assert_called_once_with(
-            options=['subvol=root']
-        )
-        boot_mount.mount.assert_called_once_with()
-        efi_mount.mount.assert_called_once_with()
-        volume_mount.mount.assert_called_once_with(
-            options=['subvol=@/boot/grub2']
-        )
-        proc_mount.bind_mount.assert_called_once_with()
-        sys_mount.bind_mount.assert_called_once_with()
-        dev_mount.bind_mount.assert_called_once_with()
 
-        del self.bootloader
+        with BootLoaderConfigBase(self.state, 'root_dir') as bootloader:
+            bootloader.root_filesystem_is_overlay = True
+            bootloader._mount_system(
+                'rootdev', 'bootdev', 'efidev', {
+                    'boot/grub2': {
+                        'volume_options': 'subvol=@/boot/grub2',
+                        'volume_device': 'device'
+                    }
+                }, root_volume_name='root'
+            )
+            assert mock_MountManager.call_args_list == [
+                call(device='rootdev'),
+                call(device='bootdev', mountpoint='root_mount_point/boot'),
+                call(device='efidev', mountpoint='root_mount_point/boot/efi'),
+                call(device='device', mountpoint='root_mount_point/boot/grub2'),
+                call(device='/tmp', mountpoint='root_mount_point/tmp'),
+                call(device='/dev', mountpoint='root_mount_point/dev'),
+                call(device='/proc', mountpoint='root_mount_point/proc'),
+                call(device='/sys', mountpoint='root_mount_point/sys')
+            ]
+            root_mount.mount.assert_called_once_with(
+                options=['subvol=root']
+            )
+            boot_mount.mount.assert_called_once_with()
+            efi_mount.mount.assert_called_once_with()
+            volume_mount.mount.assert_called_once_with(
+                options=['subvol=@/boot/grub2']
+            )
+            proc_mount.bind_mount.assert_called_once_with()
+            sys_mount.bind_mount.assert_called_once_with()
+            dev_mount.bind_mount.assert_called_once_with()
 
         volume_mount.umount.assert_called_once_with()
         tmp_mount.umount.assert_called_once_with()

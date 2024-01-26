@@ -207,57 +207,42 @@ class InstallImageBuilder:
         log.info(
             'Setting up install image bootloader configuration'
         )
-        if self.firmware.efi_mode():
-            # setup bootloader config to boot the ISO via EFI
-            # This also embedds an MBR and the respective BIOS modules
-            # for compat boot. The complete bootloader setup will be
-            # based on grub
-            bootloader_config = BootLoaderConfig.new(
-                self.bootloader, self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir.name, custom_args={
-                    'grub_directory_name':
-                        Defaults.get_grub_boot_directory_name(self.root_dir),
-                    'grub_load_command':
-                        'configfile'
-                }
-            )
-            bootloader_config.setup_install_boot_images(
-                mbrid=self.mbrid,
-                lookup_path=self.boot_image_task.boot_root_directory
-            )
-        else:
-            # setup bootloader config to boot the ISO via isolinux.
-            # This allows for booting on x86 platforms in BIOS mode
-            # only.
-            bootloader_config = BootLoaderConfig.new(
-                'isolinux', self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir.name
-            )
-        IsoToolsBase.setup_media_loader_directory(
-            self.boot_image_task.boot_root_directory, self.media_dir.name,
-            bootloader_config.get_boot_theme()
-        )
-        if self.firmware.bios_mode():
-            Iso(self.media_dir.name).setup_isolinux_boot_path()
-        bootloader_config.write_meta_data()
-        bootloader_config.setup_install_image_config(
-            mbrid=self.mbrid
-        )
-        bootloader_config.write()
+        with self._bootloader_instance() as bootloader_config:
+            if self.firmware.efi_mode():
+                bootloader_config.setup_install_boot_images(
+                    mbrid=self.mbrid,
+                    lookup_path=self.boot_image_task.boot_root_directory
+                )
 
-        # create initrd for install image
-        log.info('Creating install image boot image')
-        self._create_iso_install_kernel_and_initrd()
+            IsoToolsBase.setup_media_loader_directory(
+                self.boot_image_task.boot_root_directory,
+                self.media_dir.name,
+                bootloader_config.get_boot_theme()
+            )
+            if self.firmware.bios_mode():
+                Iso(self.media_dir.name).setup_isolinux_boot_path()
+            bootloader_config.write_meta_data()
+            bootloader_config.setup_install_image_config(
+                mbrid=self.mbrid
+            )
+            bootloader_config.write()
 
-        # the system image initrd is stored to allow kexec
-        self._copy_system_image_initrd_to_iso_image()
+            # create initrd for install image
+            log.info('Creating install image boot image')
+            self._create_iso_install_kernel_and_initrd()
 
-        if self.firmware.efi_mode():
-            efi_loader = Temporary(
-                prefix='efi-loader.', path=self.target_dir
-            ).new_file()
-            bootloader_config._create_embedded_fat_efi_image(efi_loader.name)
-            self.custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
+            # the system image initrd is stored to allow kexec
+            self._copy_system_image_initrd_to_iso_image()
+
+            if self.firmware.efi_mode():
+                efi_loader = Temporary(
+                    prefix='efi-loader.', path=self.target_dir
+                ).new_file()
+                bootloader_config._create_embedded_fat_efi_image(
+                    efi_loader.name
+                )
+                self.custom_iso_args['meta_data']['efi_loader'] = \
+                    efi_loader.name
 
         # create iso filesystem from media_dir
         log.info('Creating ISO filesystem')
@@ -375,6 +360,30 @@ class InstallImageBuilder:
 
         archive.create(self.pxe_dir.name)
         self.boot_image_task.cleanup()
+
+    def _bootloader_instance(self):
+        if self.firmware.efi_mode():
+            # setup bootloader config to boot the ISO via EFI
+            # This also embedds an MBR and the respective BIOS modules
+            # for compat boot. The complete bootloader setup will be
+            # based on grub
+            return BootLoaderConfig.new(
+                self.bootloader, self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.media_dir.name, custom_args={
+                    'grub_directory_name':
+                        Defaults.get_grub_boot_directory_name(self.root_dir),
+                    'grub_load_command':
+                        'configfile'
+                }
+            )
+        else:
+            # setup bootloader config to boot the ISO via isolinux.
+            # This allows for booting on x86 platforms in BIOS mode
+            # only.
+            return BootLoaderConfig.new(
+                'isolinux', self.xml_state, root_dir=self.root_dir,
+                boot_dir=self.media_dir.name
+            )
 
     def _create_pxe_install_kernel_and_initrd(self) -> None:
         kernelname = 'pxeboot.{0}.kernel'.format(self.pxename)
