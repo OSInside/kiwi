@@ -50,16 +50,6 @@ systemdeps packages:
     through some BIOS or firmware.
   * Depends on the `-core` kiwi-systemdeps packages.
 
-  .. note::
-
-     The `iso` type is an exception which might not require the
-     `-bootloaders` systemdeps. In case of the `firmware` attribute
-     to be set to `bios`, {kiwi} builds bootable ISO images still
-     based on isolinux which is provided with the `-iso-media`
-     systemdeps. However, by default, any {kiwi} created ISO image
-     is BIOS and EFI capable and based on the grub bootloader which
-     causes a requirement to the `-bootloaders` systemdeps.
-
 `kiwi-systemdeps-filesystems`:
   * Supports building `fs-type`, `oem`, `pxe`,
     `kis` and live `iso` image types.

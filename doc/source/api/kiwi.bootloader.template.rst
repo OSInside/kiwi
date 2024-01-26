@@ -14,14 +14,6 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-`kiwi.bootloader.template.isolinux` Module
-------------------------------------------
-
-.. automodule:: kiwi.bootloader.template.isolinux
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. _db_kiwi_bootloader_template_content:
 
 Module Contents

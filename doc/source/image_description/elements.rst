@@ -975,7 +975,7 @@ the `dm_integrity` feature:
 <preferences><type><bootloader>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The `bootloader` element is used to select the bootloader. At the moment,
-`grub2`, `systemd_boot`, `isolinux` and the combination of zipl
+`grub2`, `systemd_boot` and the combination of zipl
 plus userspace grub2 `grub2_s390x_emu` are supported. The special
 `custom` entry allows to skip the bootloader configuration and installation
 and leaves this up to the user, which can be done by using
@@ -992,7 +992,7 @@ the `editbootinstall` and `editbootconfig` custom scripts.
    selected bootloader the image build process will fail with
    an exception message.
 
-name="grub2|systemd_boot|isolinux|grub2_s390x_emu":
+name="grub2|systemd_boot|grub2_s390x_emu":
   Specifies the bootloader to use for this image.
 
   .. note:: systemd_boot ESP size
@@ -1019,11 +1019,8 @@ attributes are supported:
 
 console="none|console|gfxterm|serial":
   Specifies the bootloader console. The attribute is available for the
-  `grub` and `isolinux` bootloader types. The behavior for setting up
+  `grub` bootloader type. The behavior for setting up
   the console is different per bootloader:
-
-  For `isolinux` the console setting is taken as provided, whereas
-  only the values `serial` and `console` are taken into account.
 
   For `grub` the console setting is split into the setting for the
   output and the input console:
