@@ -147,7 +147,7 @@ class LiveImageBuilder:
         log.info(
             'Setting up live image bootloader configuration'
         )
-        with self._bootloader_instance() as bootloader_config:
+        with self._create_bootloader_instance() as bootloader_config:
             if self.firmware.efi_mode():
                 bootloader_config.setup_live_boot_images(
                     mbrid=self.mbrid, lookup_path=self.root_dir
@@ -347,7 +347,7 @@ class LiveImageBuilder:
         )
         return self.result
 
-    def _bootloader_instance(self) -> BootLoaderConfigBase:
+    def _create_bootloader_instance(self) -> BootLoaderConfigBase:
         if self.firmware.efi_mode():
             # setup bootloader config to boot the ISO via EFI
             # This also embedds an MBR and the respective BIOS modules
