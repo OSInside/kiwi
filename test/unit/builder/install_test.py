@@ -246,7 +246,7 @@ class TestInstallImageBuilder:
 
         self.boot_image_task.include_module.assert_any_call('kiwi-dump')
         self.boot_image_task.include_module.assert_any_call('kiwi-dump-reboot')
-        self.boot_image_task.omit_module.call_args_list == [
+        assert self.boot_image_task.omit_module.call_args_list == [
             call('multipath'), call('module1'), call('module2')
         ]
         self.boot_image_task.set_static_modules.assert_called_once_with(
@@ -437,7 +437,7 @@ class TestInstallImageBuilder:
 
         self.boot_image_task.include_module.assert_any_call('kiwi-dump')
         self.boot_image_task.include_module.assert_any_call('kiwi-dump-reboot')
-        self.boot_image_task.omit_module.call_args_list == [
+        assert self.boot_image_task.omit_module.call_args_list == [
             call('multipath'), call('module1'), call('module2')
         ]
         self.boot_image_task.set_static_modules.assert_called_once_with(
