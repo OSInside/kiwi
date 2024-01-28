@@ -353,10 +353,7 @@ class BootLoaderConfigBase:
             log.warning('Switching to standard install')
             boot_id = 1
 
-        if loader and loader == 'isolinux':
-            return menu_list[boot_id].name
-        else:
-            return menu_list[boot_id].menu_id
+        return menu_list[boot_id].menu_id
 
     def get_boot_path(self, target='disk'):
         """
@@ -499,8 +496,6 @@ class BootLoaderConfigBase:
 
         if target == 'grub2':
             return gfxmode_map[gfxmode].grub2
-        elif target == 'isolinux':
-            return gfxmode_map[gfxmode].isolinux
         else:
             return gfxmode
 

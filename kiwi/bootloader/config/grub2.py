@@ -936,7 +936,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 os.sep.join(
                     [
                         self._get_bios_modules_path(lookup_path),
-                        Defaults.get_isolinux_bios_grub_loader()
+                        Defaults.get_iso_grub_loader()
                     ]
                 )
             ]

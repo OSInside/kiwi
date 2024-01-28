@@ -368,17 +368,6 @@ class TestLiveImageBuilder:
             'target_dir'
         )
 
-        self.firmware.efi_mode.return_value = None
-        self.firmware.bios_mode.return_value = True
-        tmpdir_name = [temp_squashfs, temp_media_dir]
-        kiwi.builder.live.BootLoaderConfig.new.reset_mock()
-        self.live_image.create()
-        mock_Iso.return_value.setup_isolinux_boot_path.assert_called_once_with()
-        kiwi.builder.live.BootLoaderConfig.new.assert_called_once_with(
-            'isolinux', self.xml_state, root_dir='root_dir',
-            boot_dir='temp_media_dir'
-        )
-
     @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.Temporary')

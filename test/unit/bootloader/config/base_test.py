@@ -198,16 +198,10 @@ class TestBootLoaderConfigBase:
     def test_get_install_image_boot_default(self, mock_installboot):
         mock_installboot.return_value = None
         assert self.bootloader.get_install_image_boot_default() == '0'
-        assert self.bootloader.get_install_image_boot_default('isolinux') == \
-            'Boot_from_Hard_Disk'
         mock_installboot.return_value = 'failsafe-install'
         assert self.bootloader.get_install_image_boot_default() == '2'
-        assert self.bootloader.get_install_image_boot_default('isolinux') == \
-            'Failsafe_--_Install_Bob'
         mock_installboot.return_value = 'install'
         assert self.bootloader.get_install_image_boot_default() == '1'
-        assert self.bootloader.get_install_image_boot_default('isolinux') == \
-            'Install_Bob'
 
     @patch('kiwi.xml_parse.type_.get_installboot')
     @patch('kiwi.xml_parse.type_.get_installprovidefailsafe')
@@ -318,13 +312,11 @@ class TestBootLoaderConfigBase:
     @patch('kiwi.xml_parse.type_.get_vga')
     def test_get_gfxmode_default(self, mock_get_vga):
         mock_get_vga.return_value = None
-        assert self.bootloader.get_gfxmode('isolinux') == '800 600'
         assert self.bootloader.get_gfxmode('grub2') == 'auto'
 
     @patch('kiwi.xml_parse.type_.get_vga')
     def test_get_gfxmode(self, mock_get_vga):
         mock_get_vga.return_value = '0x318'
-        assert self.bootloader.get_gfxmode('isolinux') == '1024 768'
         assert self.bootloader.get_gfxmode('grub2') == '1024x768'
 
     @patch('kiwi.xml_parse.type_.get_vga')

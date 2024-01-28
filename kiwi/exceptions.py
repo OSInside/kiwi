@@ -352,12 +352,6 @@ class KiwiPackagesDeletePhaseFailed(KiwiError):
     """
 
 
-class KiwiIsoLoaderError(KiwiError):
-    """
-    Exception raised if no isolinux loader file could be found.
-    """
-
-
 class KiwiIsoMetaDataError(KiwiError):
     """
     Exception raised if an inconsistency in the ISO header

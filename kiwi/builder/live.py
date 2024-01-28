@@ -148,17 +148,13 @@ class LiveImageBuilder:
             'Setting up live image bootloader configuration'
         )
         with self._create_bootloader_instance() as bootloader_config:
-            if self.firmware.efi_mode():
-                bootloader_config.setup_live_boot_images(
-                    mbrid=self.mbrid, lookup_path=self.root_dir
-                )
-
+            bootloader_config.setup_live_boot_images(
+                mbrid=self.mbrid, lookup_path=self.root_dir
+            )
             IsoToolsBase.setup_media_loader_directory(
                 self.boot_image.boot_root_directory, self.media_dir.name,
                 bootloader_config.get_boot_theme()
             )
-            if self.firmware.bios_mode():
-                Iso(self.media_dir.name).setup_isolinux_boot_path()
             bootloader_config.write_meta_data()
             bootloader_config.setup_live_image_config(
                 mbrid=self.mbrid
@@ -348,28 +344,15 @@ class LiveImageBuilder:
         return self.result
 
     def _create_bootloader_instance(self) -> BootLoaderConfigBase:
-        if self.firmware.efi_mode():
-            # setup bootloader config to boot the ISO via EFI
-            # This also embedds an MBR and the respective BIOS modules
-            # for compat boot. The complete bootloader setup will be
-            # based on grub
-            return BootLoaderConfig.new(
-                self.bootloader, self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir.name, custom_args={
-                    'grub_directory_name':
-                        Defaults.get_grub_boot_directory_name(self.root_dir),
-                    'grub_load_command':
-                        'configfile'
-                }
-            )
-        else:
-            # setup bootloader config to boot the ISO via isolinux.
-            # This allows for booting on x86 platforms in BIOS mode
-            # only.
-            return BootLoaderConfig.new(
-                'isolinux', self.xml_state, root_dir=self.root_dir,
-                boot_dir=self.media_dir.name
-            )
+        return BootLoaderConfig.new(
+            self.bootloader, self.xml_state, root_dir=self.root_dir,
+            boot_dir=self.media_dir.name, custom_args={
+                'grub_directory_name':
+                    Defaults.get_grub_boot_directory_name(self.root_dir),
+                'grub_load_command':
+                    'configfile'
+            }
+        )
 
     def _setup_live_iso_kernel_and_initrd(self) -> None:
         """

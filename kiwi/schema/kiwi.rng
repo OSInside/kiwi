@@ -250,8 +250,7 @@ along with it too</a:documentation>
   </define>
   <define name="k.displayname.attribute">
     <attribute name="displayname">
-      <a:documentation>A friendly display name. Used in the boot menu
-for isolinux and grub</a:documentation>
+      <a:documentation>A friendly display name. Used in the boot menu</a:documentation>
     </attribute>
   </define>
   <define name="k.arch.attribute">
@@ -2614,8 +2613,7 @@ This will overwrite kiwi's default layout</a:documentation>
       <attribute name="bootfilesystem">
         <a:documentation>if an extra boot partition is required this attribute
 specify which filesystem should be used for it. The
-type of the bootloader might overwrite this setting
-e.g for the syslinux loader fat is required</a:documentation>
+type of the bootloader might overwrite this setting</a:documentation>
         <choice>
           <value>btrfs</value>
           <value>ext2</value>
@@ -2802,8 +2800,7 @@ that image type</a:documentation>
     <define name="k.type.installboot.attribute">
       <attribute name="installboot">
         <a:documentation>Specifies the bootloader default boot entry for the
-initial boot of a kiwi install image. This value is
-only evaluated for grub and ext|syslinux</a:documentation>
+initial boot of a kiwi install image.</a:documentation>
         <choice>
           <value>failsafe-install</value>
           <value>harddisk</value>
@@ -4098,7 +4095,7 @@ references file names in linux lib directories to keep.</a:documentation>
     <define name="k.bootloader.name.attribute">
       <attribute name="name">
         <a:documentation>Specifies the bootloader used for booting the image.
-At the moment grub2, systemd_boot(EFI only), isolinux, and the
+At the moment grub2, systemd_boot(EFI only), and the
 combination of zipl plus userspace grub2(grub2_s390x_emu) are supported.
 The special custom entry allows to skip the bootloader
 configuration and installation and leaves this up to the
@@ -4106,7 +4103,6 @@ user which can be done by using the editbootinstall and
 editbootconfig custom scripts</a:documentation>
         <choice>
           <value>grub2</value>
-          <value>isolinux</value>
           <value>grub2_s390x_emu</value>
           <value>systemd_boot</value>
           <value>custom</value>
@@ -4133,14 +4129,12 @@ setting only affects the oem and iso image types.</a:documentation>
     </define>
     <define name="k.bootloader.console.attribute">
       <attribute name="console">
-        <a:documentation>Specifies the bootloader console.
-The value is available for grub and isolinux bootloader
-types.</a:documentation>
+        <a:documentation>Specifies the bootloader console.</a:documentation>
         <ref name="grub_console"/>
       </attribute>
       <sch:pattern id="loader_console" is-a="bootloader_name_type">
         <sch:param name="attr" value="console"/>
-        <sch:param name="types" value="grub2 isolinux grub2_s390x_emu"/>
+        <sch:param name="types" value="grub2 grub2_s390x_emu"/>
       </sch:pattern>
     </define>
     <define name="k.bootloader.serial_line.attribute">
@@ -4164,7 +4158,7 @@ to 10sec</a:documentation>
       </attribute>
       <sch:pattern id="timeout" is-a="bootloader_name_type">
         <sch:param name="attr" value="timeout"/>
-        <sch:param name="types" value="grub2 isolinux grub2_s390x_emu systemd_boot"/>
+        <sch:param name="types" value="grub2 grub2_s390x_emu systemd_boot"/>
       </sch:pattern>
     </define>
     <define name="k.bootloader.timeout_style.attribute">

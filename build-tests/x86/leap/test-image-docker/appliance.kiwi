@@ -43,7 +43,6 @@
         <package name="iputils"/>
         <package name="tar"/>
         <package name="psmisc"/>
-        <package name="syslinux"/>
         <package name="lvm2"/>
         <package name="fontconfig"/>
         <package name="fonts-config"/>

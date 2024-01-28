@@ -55,7 +55,6 @@
         <source path='obsrepositories:/'/>
     </repository>
     <packages type="image">
-        <package name="syslinux"/>
         <package name="gdisk"/>
         <package name="grub2"/>
         <package name="kernel"/>

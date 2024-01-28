@@ -48,7 +48,6 @@ class BootLoaderConfig(metaclass=ABCMeta):
         name_map = {
             'grub2': {'grub2': 'BootLoaderConfigGrub2'},
             'grub2_s390x_emu': {'grub2': 'BootLoaderConfigGrub2'},
-            'isolinux': {'isolinux': 'BootLoaderConfigIsoLinux'},
             'systemd_boot': {'systemd_boot': 'BootLoaderSystemdBoot'}
         }
         try:

@@ -123,9 +123,8 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Defaults.get_grub_boot_directory_name')
-    @patch('kiwi.builder.install.Iso')
     def test_create_install_iso(
-        self, mock_Iso, mock_grub_dir, mock_command, mock_Temporary, mock_copy,
+        self, mock_grub_dir, mock_command, mock_Temporary, mock_copy,
         mock_setup_media_loader_directory, mock_BootLoaderConfig,
         mock_DeviceProvider, mock_FileSystemSquashFs, mock_FileSystemIsoFs
     ):
@@ -258,21 +257,6 @@ class TestInstallImageBuilder:
         assert m_open.return_value.write.call_args_list == [
             call('IMAGE="result-image.raw"\n')
         ]
-
-        mock_BootLoaderConfig.reset_mock()
-        tmp_names = [temp_esp_file, temp_squashfs, temp_media_dir]
-        self.firmware.efi_mode.return_value = None
-        self.firmware.bios_mode.return_value = True
-
-        with patch('builtins.open', m_open, create=True):
-            self.install_image.create_install_iso()
-
-        mock_Iso.return_value.setup_isolinux_boot_path.assert_called_once_with()
-        mock_BootLoaderConfig.assert_called_once_with(
-            'isolinux', self.xml_state, root_dir='root_dir',
-            boot_dir='temp_media_dir'
-        )
-        bootloader_config._create_embedded_fat_efi_image.assert_not_called()
 
     @patch('kiwi.builder.disk.BootLoaderConfig.new')
     @patch('kiwi.builder.install.IsoToolsBase.setup_media_loader_directory')

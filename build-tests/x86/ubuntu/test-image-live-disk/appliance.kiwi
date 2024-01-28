@@ -68,9 +68,6 @@
         <package name="grub2-common"/>
         <package name="grub-efi-amd64-bin"/>
         <package name="linux-generic"/>
-        <package name="isolinux"/>
-        <package name="syslinux"/>
-        <package name="syslinux-common"/>
         <package name="systemd"/>
         <package name="dracut"/>
         <package name="init"/>

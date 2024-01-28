@@ -72,9 +72,6 @@
         <package name="xz-utils"/>
         <package name="binutils"/>
         <package name="linux-image-amd64"/>
-        <package name="isolinux"/>
-        <package name="syslinux"/>
-        <package name="syslinux-common"/>
         <package name="init"/>
         <package name="gnupg"/>
         <package name="iproute2"/>

@@ -623,40 +623,6 @@ class RuntimeChecker:
                     )
                 )
 
-    def check_syslinux_installed_if_isolinux_is_used(self) -> None:
-        """
-        ISO images that are configured to use isolinux
-        requires the host to provide a set of syslinux
-        binaries.
-        """
-        message = dedent('''\n
-            Required syslinux module(s) not found
-
-            The ISO image build for this image setup uses isolinux
-            and therefore requires the syslinux modules to be
-            available on the build host. Please make sure your
-            build host has the syslinux package installed.
-        ''')
-        firmware = FirmWare(self.xml_state)
-        if Defaults.is_x86_arch(
-            Defaults.get_platform_name()
-        ) and not firmware.efi_mode():
-            image_builds_iso = False
-            build_type = self.xml_state.get_build_type_name()
-            if build_type == 'iso':
-                image_builds_iso = True
-            elif build_type == 'oem':
-                install_iso = self.xml_state.build_type.get_installiso()
-                install_stick = self.xml_state.build_type.get_installstick()
-                if install_iso or install_stick:
-                    image_builds_iso = True
-            if image_builds_iso:
-                syslinux_check_file = Path.which(
-                    'isohdpfx.bin', Defaults.get_syslinux_search_paths()
-                )
-                if not syslinux_check_file:
-                    raise KiwiRuntimeError(message)
-
     def check_dracut_module_versions_compatible_to_kiwi(
         self, root_dir: str
     ) -> None:
@@ -769,44 +735,6 @@ class RuntimeChecker:
                     raise KiwiRuntimeError(
                         message.format(required_dracut_package)
                     )
-
-    def check_architecture_supports_iso_firmware_setup(self) -> None:
-        """
-        For creating ISO images a different bootloader setup is
-        performed depending on the configured firmware. If the
-        firmware is set to bios, isolinux is used and that limits
-        the architecture to x86 only. In any other case the appliance
-        configured bootloader is used. This check examines if the
-        host architecture is supported with the configured firmware
-        on request of an ISO image.
-        """
-        message = dedent('''\n
-            Unsupported firmware setup: {0} on {1} architecture
-
-            The selected firmware limits the creation of images to
-            the x86 platform. For the detected build host architecture
-            and the request to build a live or install ISO media
-            the EFI firmware must be used:
-
-            <type ... firmware="efi"/>
-        ''')
-        arch = Defaults.get_platform_name()
-        build_type = self.xml_state.get_build_type_name()
-        firmware = self.xml_state.build_type.get_firmware() or \
-            Defaults.get_default_firmware(arch)
-        if firmware == 'bios' and not Defaults.is_x86_arch(arch):
-            iso_build_requested = False
-            if build_type == 'iso':
-                iso_build_requested = True
-            elif build_type == 'oem':
-                install_iso = self.xml_state.build_type.get_installiso()
-                install_stick = self.xml_state.build_type.get_installstick()
-                if install_iso or install_stick:
-                    iso_build_requested = True
-            if iso_build_requested:
-                raise KiwiRuntimeError(
-                    message.format(firmware, arch)
-                )
 
     def check_dracut_module_for_disk_oem_in_package_list(self) -> None:
         """
