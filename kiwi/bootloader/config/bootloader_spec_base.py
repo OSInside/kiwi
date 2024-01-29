@@ -21,6 +21,7 @@ from typing import (
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
+from kiwi.system.identifier import SystemIdentifier
 
 target_type = NamedTuple(
     'target_type', [
@@ -110,7 +111,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.setup_loader(self.target.disk)
 
     def setup_install_image_config(
-        self, mbrid: str, hypervisor: str = '',
+        self, mbrid: SystemIdentifier, hypervisor: str = '',
         kernel: str = '', initrd: str = ''
     ) -> None:
         """
@@ -126,7 +127,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         pass
 
     def setup_live_image_config(
-        self, mbrid: str, hypervisor: str = '',
+        self, mbrid: SystemIdentifier, hypervisor: str = '',
         kernel: str = '', initrd: str = ''
     ) -> None:
         """
@@ -155,7 +156,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.create_loader_image(self.target.disk)
 
     def setup_install_boot_images(
-        self, mbrid: str, lookup_path: str = ''
+        self, mbrid: SystemIdentifier, lookup_path: str = ''
     ) -> None:
         """
         Create bootloader image(s) for install ISO boot
@@ -168,7 +169,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.create_loader_image(self.target.install)
 
     def setup_live_boot_images(
-        self, mbrid: str, lookup_path: str = ''
+        self, mbrid: SystemIdentifier, lookup_path: str = ''
     ) -> None:
         """
         Create bootloader image(s) for live ISO boot

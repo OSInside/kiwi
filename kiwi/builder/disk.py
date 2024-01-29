@@ -36,7 +36,7 @@ from kiwi.system.mount import ImageSystem
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.defaults import Defaults
 from kiwi.filesystem.base import FileSystemBase
-from kiwi.bootloader.config import BootLoaderConfig
+from kiwi.bootloader.config import create_boot_loader_config
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.install import BootLoaderInstall
 from kiwi.system.identifier import SystemIdentifier
@@ -514,9 +514,9 @@ class DiskBuilder:
         )
 
     def _bootloader_instance(self, disk: Disk) -> BootLoaderConfigBase:
-        return BootLoaderConfig.new(
-            self.bootloader,
-            self.xml_state,
+        return create_boot_loader_config(
+            name=self.bootloader,
+            xml_state=self.xml_state,
             root_dir=self.root_dir,
             boot_dir=self.root_dir,
             custom_args={

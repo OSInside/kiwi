@@ -22,7 +22,7 @@ import shutil
 
 # project
 from kiwi.utils.temporary import Temporary
-from kiwi.bootloader.config import BootLoaderConfig
+from kiwi.bootloader.config import create_boot_loader_config
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
@@ -344,8 +344,9 @@ class LiveImageBuilder:
         return self.result
 
     def _create_bootloader_instance(self) -> BootLoaderConfigBase:
-        return BootLoaderConfig.new(
-            self.bootloader, self.xml_state, root_dir=self.root_dir,
+        return create_boot_loader_config(
+            name=self.bootloader, xml_state=self.xml_state,
+            root_dir=self.root_dir,
             boot_dir=self.media_dir.name, custom_args={
                 'grub_directory_name':
                     Defaults.get_grub_boot_directory_name(self.root_dir),

@@ -7,7 +7,7 @@ from kiwi.defaults import Defaults
 
 class TestShell:
     def test_quote(self):
-        assert Shell.quote('aa\!') == 'aa\\\\\\!'
+        assert Shell.quote(r'aa\!') == 'aa\\\\\\!'
 
     @patch('kiwi.path.Path.which')
     def test_quote_key_value_file(self, mock_which):
