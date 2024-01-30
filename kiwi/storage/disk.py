@@ -99,6 +99,9 @@ class Disk(DeviceProvider):
 
         self.table_type = table_type
 
+    def __enter__(self):
+        return self
+
     def get_device(self) -> Dict[str, MappedDevice]:
         """
         Names of partition devices
@@ -510,7 +513,7 @@ class Disk(DeviceProvider):
             self.partition_map[name] = device_node
             self.partition_id_map[name] = partition_number
 
-    def __del__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self.storage_provider.is_loop() and self.is_mapped:
             log.info('Cleaning up %s instance', type(self).__name__)
             try:
@@ -524,8 +527,9 @@ class Disk(DeviceProvider):
                     Command.run(
                         ['partx', '--delete', self.storage_provider.get_device()]
                     )
-            except Exception:
-                log.warning(
-                    'cleanup of partition device maps failed, %s still busy',
-                    self.storage_provider.get_device()
+            except Exception as issue:
+                log.error(
+                    'cleanup of partition maps on {} failed with: {}'.format(
+                        self.storage_provider.get_device(), issue
+                    )
                 )

@@ -306,50 +306,46 @@ class TestDisk:
 
     @patch('kiwi.storage.disk.Command.run')
     def test_destructor_partx_loop_cleanup_failed(self, mock_command):
-        self.disk.is_mapped = True
-        self.disk.partition_map = {'root': '/dev/loop0p1'}
         mock_command.side_effect = Exception
-        self.disk.__del__()
+        with Disk('gpt', self.storage_provider) as disk:
+            disk.is_mapped = True
+            disk.partition_map = {'root': '/dev/loop0p1'}
         with self._caplog.at_level(logging.WARNING):
             mock_command.assert_called_once_with(
                 ['partx', '--delete', '/dev/loop0']
             )
-        self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
     def test_destructor_dm_loop_cleanup_failed(self, mock_command):
-        self.disk.partition_mapper = 'kpartx'
-        self.disk.is_mapped = True
-        self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
         mock_command.side_effect = Exception
-        self.disk.__del__()
+        with Disk('gpt', self.storage_provider) as disk:
+            disk.partition_mapper = 'kpartx'
+            disk.is_mapped = True
+            disk.partition_map = {'root': '/dev/mapper/loop0p1'}
         with self._caplog.at_level(logging.WARNING):
             mock_command.assert_called_once_with(
                 ['dmsetup', 'remove', '/dev/mapper/loop0p1']
             )
-        self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
     def test_destructor_partx(self, mock_command):
-        self.disk.is_mapped = True
-        self.disk.partition_map = {'root': '/dev/loop0p1'}
-        self.disk.__del__()
+        with Disk('gpt', self.storage_provider) as disk:
+            disk.is_mapped = True
+            disk.partition_map = {'root': '/dev/loop0p1'}
         assert mock_command.call_args_list == [
             call(['partx', '--delete', '/dev/loop0'])
         ]
-        self.disk.is_mapped = False
 
     @patch('kiwi.storage.disk.Command.run')
     def test_destructor_kpartx(self, mock_command):
-        self.disk.partition_mapper = 'kpartx'
-        self.disk.is_mapped = True
-        self.disk.partition_map = {'root': '/dev/mapper/loop0p1'}
-        self.disk.__del__()
+        with Disk('gpt', self.storage_provider) as disk:
+            disk.partition_mapper = 'kpartx'
+            disk.is_mapped = True
+            disk.partition_map = {'root': '/dev/mapper/loop0p1'}
         assert mock_command.call_args_list == [
             call(['dmsetup', 'remove', '/dev/mapper/loop0p1']),
             call(['kpartx', '-d', '/dev/loop0'])
         ]
-        self.disk.is_mapped = False
 
     def test_get_public_partition_id_map(self):
         assert self.disk.get_public_partition_id_map() == {}

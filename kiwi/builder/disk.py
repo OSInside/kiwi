@@ -336,40 +336,39 @@ class DiskBuilder:
             loop_provider.create()
 
             # create the disk partitioner, still unmapped
-            disk = self._disk_instance(loop_provider)
+            with self._disk_instance(loop_provider) as disk:
+                # create disk partitions and instance device map
+                device_map = self._build_and_map_disk_partitions(
+                    disk, disksize_mbytes
+                )
 
-            # create disk partitions and instance device map
-            device_map = self._build_and_map_disk_partitions(
-                disk, disksize_mbytes
-            )
+                # update device and disk id map if no root write partition
+                if self.root_filesystem_is_overlay and \
+                   self.root_filesystem_has_write_partition is False:
+                    device_map['root'] = device_map['readonly']
+                    disk.public_partition_id_map['kiwi_RootPart'] = \
+                        disk.public_partition_id_map['kiwi_ROPart']
 
-            # update device and disk id map in case of no root write partition
-            if self.root_filesystem_is_overlay and \
-               self.root_filesystem_has_write_partition is False:
-                device_map['root'] = device_map['readonly']
-                disk.public_partition_id_map['kiwi_RootPart'] = \
-                    disk.public_partition_id_map['kiwi_ROPart']
+                # create raid on current root device if requested
+                if self.mdraid:
+                    raid_root = self._raid_instance(device_map)
+                    device_map = self._map_raid(device_map, disk, raid_root)
 
-            # create raid on current root device if requested
-            if self.mdraid:
-                raid_root = self._raid_instance(device_map)
-                device_map = self._map_raid(device_map, disk, raid_root)
+                # create integrity on current root device if requested
+                if self.integrity:
+                    integrity_root = self._integrity_instance(device_map)
+                    device_map = self._map_integrity(device_map, integrity_root)
 
-            # create integrity on current root device if requested
-            if self.integrity:
-                integrity_root = self._integrity_instance(device_map)
-                device_map = self._map_integrity(device_map, integrity_root)
+                # create luks on current root device if requested
+                if self.luks is not None:
+                    luks_root = self._luks_instance(device_map)
+                    device_map = self._map_luks(device_map, luks_root)
 
-            # create luks on current root device if requested
-            if self.luks is not None:
-                luks_root = self._luks_instance(device_map)
-                device_map = self._map_luks(device_map, luks_root)
+                # create system layout for root system
+                self._create_system_instance(device_map)
 
-            # create system layout for root system
-            self._create_system_instance(device_map)
-
-            # sync system data, configure system, setup loader and initrd
-            self._process_build(device_map, disk)
+                # sync system data, configure system, setup loader and initrd
+                self._process_build(device_map, disk)
 
         # store image bundle_format in result
         if self.bundle_format:
