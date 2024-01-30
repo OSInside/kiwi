@@ -63,7 +63,7 @@ class ImageBuilder(metaclass=ABCMeta):
             return builder.__dict__[builder_name](
                 xml_state, target_dir, root_dir, custom_args
             )
-        except Exception:
+        except Exception as issue:
             raise KiwiRequestedTypeError(
-                f'Requested image type {image_type} not supported'
+                f'Requested image type {image_type} not supported: {issue}'
             )
