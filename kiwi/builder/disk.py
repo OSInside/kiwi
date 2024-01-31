@@ -514,25 +514,26 @@ class DiskBuilder:
         )
 
     def _bootloader_instance(self, disk: Disk) -> BootLoaderConfigBase:
+        custom_args = {
+            'targetbase':
+                disk.storage_provider.get_device(),
+            'crypto_disk':
+                True if self.luks is not None else False,
+            'boot_is_crypto':
+                self.boot_is_crypto,
+            'config_options':
+                self.xml_state.get_bootloader_config_options()
+        }
+        if self.bootloader.startswith('grub'):
+            custom_args.update(
+                Defaults.get_grub_custom_arguments(self.root_dir)
+            )
         return create_boot_loader_config(
             name=self.bootloader,
             xml_state=self.xml_state,
             root_dir=self.root_dir,
             boot_dir=self.root_dir,
-            custom_args={
-                'targetbase':
-                    disk.storage_provider.get_device(),
-                'grub_directory_name':
-                    Defaults.get_grub_boot_directory_name(
-                        self.root_dir
-                    ),
-                'crypto_disk':
-                    True if self.luks is not None else False,
-                'boot_is_crypto':
-                    self.boot_is_crypto,
-                'config_options':
-                    self.xml_state.get_bootloader_config_options()
-            }
+            custom_args=custom_args
         )
 
     def _raid_instance(self, device_map: Dict) -> RaidDevice:

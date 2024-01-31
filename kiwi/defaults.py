@@ -23,7 +23,7 @@ import platform
 import yaml
 from pkg_resources import resource_filename
 from typing import (
-    List, NamedTuple, Optional
+    List, NamedTuple, Optional, Dict
 )
 
 # project
@@ -569,6 +569,15 @@ class Defaults:
         :rtype: str
         """
         return 'grub2'
+
+    @staticmethod
+    def get_grub_custom_arguments(root_dir: str) -> Dict[str, str]:
+        return {
+            'grub_directory_name':
+                Defaults.get_grub_boot_directory_name(root_dir),
+            'grub_load_command':
+                'configfile'
+        }
 
     @staticmethod
     def get_grub_boot_directory_name(lookup_path):
