@@ -16,6 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import csv
+from io import TextIOWrapper
+from typing import Iterable
 
 # project
 from kiwi.exceptions import KiwiOSReleaseImportError
@@ -30,12 +32,27 @@ class OsRelease:
         os_release = root_dir + '/etc/os-release'
         try:
             with open(os_release) as osdata:
-                reader = csv.reader(osdata, delimiter='=')
+                reader = csv.reader(OsRelease._rip(osdata), delimiter='=')
                 self.data = dict(reader)
         except Exception as issue:
             raise KiwiOSReleaseImportError(
                 f'Import of {os_release} failed with {issue}'
             )
+
+    @staticmethod
+    def _is_comment(line: str) -> bool:
+        return line.startswith('#')
+
+    @staticmethod
+    def _is_whitespace(line: str) -> bool:
+        return line.isspace()
+
+    @staticmethod
+    def _rip(csvfile: TextIOWrapper) -> Iterable[str]:
+        for row in csvfile:
+            if not OsRelease._is_comment(row) \
+               and not OsRelease._is_whitespace(row):
+                yield row
 
     def get(self, key: str) -> str:
         """
