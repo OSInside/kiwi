@@ -194,7 +194,7 @@ class TestBootLoaderSystemdBoot:
     ):
         target = Mock()
         self.bootloader.target = target
-        mock_Disk.return_value.partition_map = {
+        mock_Disk.return_value.__enter__.return_value.partition_map = {
             'efi': 'efi_device'
         }
         self.bootloader._create_embedded_fat_efi_image('ESP')
