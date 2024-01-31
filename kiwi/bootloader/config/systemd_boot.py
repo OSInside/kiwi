@@ -18,6 +18,7 @@
 import os
 import glob
 from string import Template
+from contextlib import ExitStack
 from typing import Dict
 
 # project
@@ -127,34 +128,33 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
                     ['mkdosfs', '-n', 'BOOT', disk.partition_map['efi']]
                 )
                 Path.create(f'{self.root_dir}/boot/efi')
-                efi_mount = MountManager(
-                    device=disk.partition_map['efi'],
-                    mountpoint=f'{self.root_dir}/boot/efi'
-                )
-                device_mount = MountManager(
-                    device='/dev',
-                    mountpoint=f'{self.root_dir}/dev'
-                )
-                proc_mount = MountManager(
-                    device='/proc',
-                    mountpoint=f'{self.root_dir}/proc'
-                )
-                sys_mount = MountManager(
-                    device='/sys',
-                    mountpoint=f'{self.root_dir}/sys'
-                )
-                efi_mount.mount()
-                device_mount.bind_mount()
-                proc_mount.bind_mount()
-                sys_mount.bind_mount()
-                try:
+                with ExitStack() as stack:
+                    efi_mount = MountManager(
+                        device=disk.partition_map['efi'],
+                        mountpoint=f'{self.root_dir}/boot/efi'
+                    )
+                    stack.push(efi_mount)
+                    device_mount = MountManager(
+                        device='/dev',
+                        mountpoint=f'{self.root_dir}/dev'
+                    )
+                    stack.push(device_mount)
+                    proc_mount = MountManager(
+                        device='/proc',
+                        mountpoint=f'{self.root_dir}/proc'
+                    )
+                    stack.push(proc_mount)
+                    sys_mount = MountManager(
+                        device='/sys',
+                        mountpoint=f'{self.root_dir}/sys'
+                    )
+                    stack.push(sys_mount)
+                    efi_mount.mount()
+                    device_mount.bind_mount()
+                    proc_mount.bind_mount()
+                    sys_mount.bind_mount()
                     self._run_bootctl(self.root_dir)
                     self.set_loader_entry(self.root_dir, self.target.live)
-                finally:
-                    efi_mount.umount()
-                    device_mount.umount()
-                    proc_mount.umount()
-                    sys_mount.umount()
                 Command.run(
                     ['dd', f'if={disk.partition_map["efi"]}', f'of={path}.img']
                 )
