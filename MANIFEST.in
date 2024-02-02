@@ -37,7 +37,6 @@ include tox.ini
 include kiwi.yml
 
 recursive-include doc/build/man *
-recursive-include *.gz *.iso *.kiwi *.pf2 *.py *.txt *.xml *.xz
 
 include .bumpversion.cfg
 include .coverage*
