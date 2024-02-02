@@ -347,12 +347,10 @@ class LiveImageBuilder:
         return create_boot_loader_config(
             name=self.bootloader, xml_state=self.xml_state,
             root_dir=self.root_dir,
-            boot_dir=self.media_dir.name, custom_args={
-                'grub_directory_name':
-                    Defaults.get_grub_boot_directory_name(self.root_dir),
-                'grub_load_command':
-                    'configfile'
-            }
+            boot_dir=self.media_dir.name,
+            custom_args=Defaults.get_grub_custom_arguments(
+                self.root_dir
+            ) if self.bootloader.startswith('grub') else {}
         )
 
     def _setup_live_iso_kernel_and_initrd(self) -> None:
