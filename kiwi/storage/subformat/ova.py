@@ -63,15 +63,15 @@ class DiskFormatOva(DiskFormatBase):
         ovftool = Path.which(filename='ovftool', access_mode=os.X_OK)
         if not ovftool:
             tool_not_found_message = dedent('''\n
-                Required tool {0} not found in PATH on the build host
+                Required ovftool not found in PATH on the build host
 
-                Building OVA images requires VMware's {0} tool which
+                Building OVA images requires VMware's ovftool tool which
                 can be installed from the following location
 
-                https://www.vmware.com/support/developer/ovf
+                https://developer.vmware.com/web/tool/ovf
             ''')
             raise KiwiCommandNotFound(
-                tool_not_found_message.format(ovftool)
+                tool_not_found_message
             )
 
         # Create the vmdk disk image and vmx config
