@@ -349,26 +349,33 @@ class DiskBuilder:
                     disk.public_partition_id_map['kiwi_RootPart'] = \
                         disk.public_partition_id_map['kiwi_ROPart']
 
-                # create raid on current root device if requested
-                if self.mdraid:
-                    raid_root = self._raid_instance(device_map)
-                    device_map = self._map_raid(device_map, disk, raid_root)
+                with ExitStack() as stack:
+                    if self.mdraid:
+                        # create raid on current root device
+                        raid_root = self._raid_instance(device_map)
+                        stack.push(raid_root)
+                        device_map = self._map_raid(
+                            device_map, disk, raid_root
+                        )
 
-                # create integrity on current root device if requested
-                if self.integrity:
-                    integrity_root = self._integrity_instance(device_map)
-                    device_map = self._map_integrity(device_map, integrity_root)
+                    if self.integrity:
+                        # create integrity on current root device
+                        integrity_root = self._integrity_instance(device_map)
+                        stack.push(integrity_root)
+                        device_map = self._map_integrity(
+                            device_map, integrity_root
+                        )
 
-                # create luks on current root device if requested
-                if self.luks is not None:
-                    luks_root = self._luks_instance(device_map)
-                    device_map = self._map_luks(device_map, luks_root)
+                    if self.luks is not None:
+                        # create luks on current root device
+                        luks_root = self._luks_instance(device_map)
+                        stack.push(luks_root)
+                        device_map = self._map_luks(
+                            device_map, luks_root
+                        )
 
-                # create system layout for root system
-                self._create_system_instance(device_map)
-
-                # sync system data, configure system, setup loader and initrd
-                self._process_build(device_map, disk)
+                    # build bootable disk
+                    self._process_build(device_map, disk)
 
         # store image bundle_format in result
         if self.bundle_format:
@@ -703,6 +710,9 @@ class DiskBuilder:
         self.storage_map['system'] = filesystem
 
     def _process_build(self, device_map: Dict, disk: Disk) -> None:
+        # create system layout for root system
+        self._create_system_instance(device_map)
+
         # representing the entire image system except for the boot/ area
         # which could live on another part of the disk
         system: Optional[Union[FileSystemBase, VolumeManagerBase]] = \

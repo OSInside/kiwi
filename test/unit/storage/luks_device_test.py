@@ -1,14 +1,21 @@
+import logging
 import io
 from mock import (
     patch, call, MagicMock, Mock
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.exceptions import KiwiLuksSetupError
 from kiwi.storage.luks_device import LuksDevice
 
 
 class TestLuksDevice:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         storage_device = Mock()
         storage_device.get_byte_size = Mock(
@@ -175,12 +182,11 @@ class TestLuksDevice:
 
     @patch('kiwi.storage.luks_device.Command.run')
     @patch('kiwi.storage.luks_device.log.warning')
-    def test_destructor(self, mock_log_warn, mock_command):
-        self.luks.luks_device = '/dev/mapper/luksRoot'
+    def test_context_manager_exit(self, mock_log_warn, mock_command):
         mock_command.side_effect = Exception
-        self.luks.__del__()
+        with self._caplog.at_level(logging.ERROR):
+            with LuksDevice(Mock()) as luks:
+                luks.luks_device = '/dev/mapper/luksRoot'
         mock_command.assert_called_once_with(
             ['cryptsetup', 'luksClose', 'luksRoot']
         )
-        assert mock_log_warn.called
-        self.luks.luks_device = None

@@ -1,6 +1,9 @@
+import logging
 import io
 from textwrap import dedent
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 from mock import (
     patch, Mock, call, MagicMock
 )
@@ -15,6 +18,10 @@ import kiwi.defaults as defaults
 
 
 class TestIntegrityDevice:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     @patch('os.path.getsize')
     def setup(self, mock_os_path_getsize):
         mock_os_path_getsize.return_value = 42
@@ -222,11 +229,12 @@ class TestIntegrityDevice:
     @patch('kiwi.storage.integrity_device.Command.run')
     @patch('kiwi.storage.integrity_device.log.warning')
     def test_destructor(self, mock_log_warn, mock_Command_run):
-        self.integrity.integrity_device = '/dev/mapper/integrityRoot'
         mock_Command_run.side_effect = Exception
-        self.integrity.__del__()
+        with self._caplog.at_level(logging.ERROR):
+            with IntegrityDevice(
+                Mock(), defaults.INTEGRITY_ALGORITHM
+            ) as integrity:
+                integrity.integrity_device = '/dev/mapper/integrityRoot'
         mock_Command_run.assert_called_once_with(
             ['integritysetup', 'close', 'integrityRoot']
         )
-        assert mock_log_warn.called
-        self.integrity.integrity_device = None

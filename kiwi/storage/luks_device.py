@@ -57,6 +57,9 @@ class LuksDevice(DeviceProvider):
             ]
         }
 
+    def __enter__(self):
+        return self
+
     def get_device(self) -> Optional[MappedDevice]:
         """
         Instance of MappedDevice providing the luks device
@@ -208,15 +211,15 @@ class LuksDevice(DeviceProvider):
             keyfile.write(os.urandom(Defaults.get_luks_key_length()))
         os.chmod(filename, 0o600)
 
-    def __del__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self.luks_device:
-            log.info('Cleaning up %s instance', type(self).__name__)
             try:
                 Command.run(
                     ['cryptsetup', 'luksClose', self.luks_name]
                 )
-            except Exception:
-                log.warning(
-                    'Shutdown of luks map %s failed, %s still busy',
-                    self.luks_name, self.luks_device
+            except Exception as issue:
+                log.error(
+                    'Shutdown of luks map {0}:{1} failed with: {2}'.format(
+                        self.luks_name, self.luks_device, issue
+                    )
                 )

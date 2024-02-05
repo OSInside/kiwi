@@ -99,6 +99,9 @@ class IntegrityDevice(DeviceProvider):
         self.integrity_metadata_file: Optional[IO[bytes]] = None
         self.credentials = credentials
 
+    def __enter__(self):
+        return self
+
     def get_device(self) -> Optional[MappedDevice]:
         """
         Instance of MappedDevice providing the dm_integrity device
@@ -298,15 +301,15 @@ class IntegrityDevice(DeviceProvider):
                     integrity[entry[0]] = entry[1]
         return integrity
 
-    def __del__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self.integrity_device:
-            log.info('Cleaning up %s instance', type(self).__name__)
             try:
                 Command.run(
                     ['integritysetup', 'close', self.integrity_name]
                 )
-            except Exception:
-                log.warning(
-                    'Shutdown of integrity map %s failed, %s still busy',
-                    self.integrity_name, self.integrity_device
+            except Exception as issue:
+                log.error(
+                    'Shutdown of integrity map {0}:{1} failed with {2}'.format(
+                        self.integrity_name, self.integrity_device, issue
+                    )
                 )

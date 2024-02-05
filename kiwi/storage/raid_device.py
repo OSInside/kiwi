@@ -49,6 +49,9 @@ class RaidDevice(DeviceProvider):
         }
         self.raid_device = None
 
+    def __enter__(self):
+        return self
+
     def get_device(self) -> Optional[MappedDevice]:
         """
         Instance of MappedDevice providing the raid device
@@ -123,15 +126,15 @@ class RaidDevice(DeviceProvider):
         """
         return self.storage_provider.is_loop()
 
-    def __del__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self.raid_device:
-            log.info('Cleaning up %s instance', type(self).__name__)
             try:
                 Command.run(
                     ['mdadm', '--stop', self.raid_device]
                 )
-            except Exception:
-                log.warning(
-                    'Shutdown of raid device failed, %s still busy',
-                    self.raid_device
+            except Exception as issue:
+                log.error(
+                    'Shutdown of raid device {0} failed with: {1}'.format(
+                        self.raid_device, issue
+                    )
                 )

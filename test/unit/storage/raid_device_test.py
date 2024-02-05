@@ -1,7 +1,10 @@
+import logging
 from mock import (
     patch, Mock, mock_open
 )
-from pytest import raises
+from pytest import (
+    raises, fixture
+)
 
 from kiwi.storage.raid_device import RaidDevice
 
@@ -9,6 +12,10 @@ from kiwi.exceptions import KiwiRaidSetupError
 
 
 class TestRaidDevice:
+    @fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def setup(self):
         storage_device = Mock()
         storage_device.get_device = Mock(
@@ -78,12 +85,11 @@ class TestRaidDevice:
 
     @patch('kiwi.storage.raid_device.Command.run')
     @patch('kiwi.storage.raid_device.log.warning')
-    def test_destructor(self, mock_log_warn, mock_command):
-        self.raid.raid_device = '/dev/md0'
+    def test_context_manager_exit(self, mock_log_warn, mock_command):
         mock_command.side_effect = Exception
-        self.raid.__del__()
+        with self._caplog.at_level(logging.ERROR):
+            with RaidDevice(Mock()) as raid:
+                raid.raid_device = '/dev/md0'
         mock_command.assert_called_once_with(
             ['mdadm', '--stop', '/dev/md0']
         )
-        assert mock_log_warn.called
-        self.raid.raid_device = None
