@@ -171,7 +171,7 @@ class TestBootLoaderInstallGrub2:
         self.bootloader.root_mount.mount.assert_called_once_with(
             options=['subvol=root']
         )
-        self.bootloader.boot_mount.mount.assert_called_once_with()
+        self.boot_mount.mount.assert_called_once_with()
         mock_glob.assert_called_once_with(
             'tmp_root/boot/*/grubenv'
         )
@@ -219,7 +219,7 @@ class TestBootLoaderInstallGrub2:
         self.bootloader.root_mount.mount.assert_called_once_with(
             options=['subvol=root']
         )
-        self.bootloader.boot_mount.mount.assert_called_once_with()
+        self.boot_mount.mount.assert_called_once_with()
         assert mock_command.call_args_list == [
             call(
                 [
@@ -263,10 +263,10 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.bootloader.root_mount.mount.assert_called_once_with(
+        self.root_mount.mount.assert_called_once_with(
             options=['subvol=root']
         )
-        self.bootloader.boot_mount.mount.assert_called_once_with()
+        self.boot_mount.mount.assert_called_once_with()
         mock_wipe.assert_called_once_with(
             'tmp_root/boot/grub2/grubenv'
         )
@@ -304,10 +304,10 @@ class TestBootLoaderInstallGrub2:
         mock_mount_manager.side_effect = side_effect
 
         self.bootloader.install()
-        self.bootloader.root_mount.mount.assert_called_once_with(
+        self.root_mount.mount.assert_called_once_with(
             options=['subvol=root']
         )
-        self.bootloader.boot_mount.mount.assert_called_once_with()
+        self.boot_mount.mount.assert_called_once_with()
         mock_wipe.assert_called_once_with(
             'tmp_root/boot/grub2/grubenv'
         )
@@ -460,28 +460,3 @@ class TestBootLoaderInstallGrub2:
             file_handle.write.assert_called_once_with(
                 'data__cryptomount -p "credentials"__data'
             )
-
-    @patch('kiwi.bootloader.install.grub2.Command.run')
-    @patch('kiwi.bootloader.install.grub2.MountManager')
-    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
-    @patch('os.path.exists')
-    def test_destructor(
-        self, mock_exists, mock_grub_path, mock_mount_manager, mock_command
-    ):
-        mock_exists.return_value = True
-        self.firmware.efi_mode.return_value = 'uefi'
-
-        def side_effect(device, mountpoint=None):
-            return self.mount_managers.pop()
-
-        mock_mount_manager.side_effect = side_effect
-
-        self.bootloader.install()
-        self.bootloader.__del__()
-
-        self.device_mount.umount.assert_called_once_with()
-        self.proc_mount.umount.assert_called_once_with()
-        self.sysfs_mount.umount.assert_called_once_with()
-        self.efi_mount.umount.assert_called_once_with()
-        self.boot_mount.umount.assert_called_once_with()
-        self.root_mount.umount.assert_called_once_with()

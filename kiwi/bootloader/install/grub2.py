@@ -19,6 +19,7 @@ import glob
 import os
 import re
 import logging
+from contextlib import ExitStack
 
 # project
 from kiwi.bootloader.install.base import BootLoaderInstallBase
@@ -65,15 +66,9 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.install_arguments = []
         self.shim_install_arguments = []
         self.firmware = None
-        self.efi_mount = None
         self.root_mount = None
-        self.boot_mount = None
-        self.device_mount = None
-        self.proc_mount = None
-        self.sysfs_mount = None
         self.volumes = None
         self.root_volume_name = None
-        self.volumes_mount = []
         self.target_removable = None
         if custom_args and 'target_removable' in custom_args:
             self.target_removable = custom_args['target_removable']
@@ -174,114 +169,119 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 self.arch
             )
 
-        self._mount_device_and_volumes()
+        with ExitStack() as stack:
+            self._mount_device_and_volumes(stack)
 
-        # check if a grub installation could be found in the image system
-        module_directory = Defaults.get_grub_path(
-            self.root_mount.mountpoint, self.target, raise_on_error=False
-        )
-        if not module_directory:
-            raise KiwiBootLoaderGrubDataError(
-                'No grub2 installation found in {0} for target {1}'.format(
-                    self.root_mount.mountpoint, self.target
+            # check if a grub installation could be found in the image system
+            module_directory = Defaults.get_grub_path(
+                self.root_mount.mountpoint, self.target, raise_on_error=False
+            )
+            if not module_directory:
+                raise KiwiBootLoaderGrubDataError(
+                    'No grub2 installation found in {0} for target {1}'.format(
+                        self.root_mount.mountpoint, self.target
+                    )
                 )
+            module_directory = module_directory.replace(
+                self.root_mount.mountpoint, ''
             )
-        module_directory = module_directory.replace(
-            self.root_mount.mountpoint, ''
-        )
-        boot_directory = '/boot'
+            boot_directory = '/boot'
 
-        # wipe existing grubenv to allow the grub installer to create a new one
-        grubenv_glob = os.sep.join(
-            [self.root_mount.mountpoint, 'boot', '*', 'grubenv']
-        )
-        for grubenv in glob.glob(grubenv_glob):
-            Path.wipe(grubenv)
+            # wipe existing grubenv to allow the grub installer
+            # to create a new one
+            grubenv_glob = os.sep.join(
+                [self.root_mount.mountpoint, 'boot', '*', 'grubenv']
+            )
+            for grubenv in glob.glob(grubenv_glob):
+                Path.wipe(grubenv)
 
-        # install grub2 boot code
-        if self.firmware.get_partition_table_type() == 'dasd':
-            # On s390 and in CDL mode (4k DASD) the call of grub2-install
-            # does not work because grub2-install is not able to identify
-            # a 4k fdasd partitioned device as a grub supported device
-            # and fails. As grub2-install is only used to invoke
-            # grub2-zipl-setup and has no other job to do we can
-            # circumvent this problem by directly calling grub2-zipl-setup
-            # instead.
-            Command.run(
-                [
-                    'chroot', self.root_mount.mountpoint,
-                    'grub2-zipl-setup', '--keep'
-                ]
-            )
-            zipl_config_file = ''.join(
-                [
-                    self.root_mount.mountpoint, '/boot/zipl/config'
-                ]
-            )
-            zipl2grub_config_file_orig = ''.join(
-                [
-                    self.root_mount.mountpoint,
-                    '/etc/default/zipl2grub.conf.in.orig'
-                ]
-            )
-            if os.path.exists(zipl2grub_config_file_orig):
+            # install grub2 boot code
+            if self.firmware.get_partition_table_type() == 'dasd':
+                # On s390 and in CDL mode (4k DASD) the call of grub2-install
+                # does not work because grub2-install is not able to identify
+                # a 4k fdasd partitioned device as a grub supported device
+                # and fails. As grub2-install is only used to invoke
+                # grub2-zipl-setup and has no other job to do we can
+                # circumvent this problem by directly calling grub2-zipl-setup
+                # instead.
                 Command.run(
                     [
-                        'mv', zipl2grub_config_file_orig,
-                        zipl2grub_config_file_orig.replace('.orig', '')
+                        'chroot', self.root_mount.mountpoint,
+                        'grub2-zipl-setup', '--keep'
                     ]
                 )
-            if os.path.exists(zipl_config_file):
-                Command.run(
-                    ['mv', zipl_config_file, zipl_config_file + '.kiwi']
+                zipl_config_file = ''.join(
+                    [
+                        self.root_mount.mountpoint, '/boot/zipl/config'
+                    ]
                 )
-        else:
-            Command.run(
-                [
-                    'chroot', self.root_mount.mountpoint,
-                    self._get_grub2_install_tool_name(
-                        self.root_mount.mountpoint
+                zipl2grub_config_file_orig = ''.join(
+                    [
+                        self.root_mount.mountpoint,
+                        '/etc/default/zipl2grub.conf.in.orig'
+                    ]
+                )
+                if os.path.exists(zipl2grub_config_file_orig):
+                    Command.run(
+                        [
+                            'mv', zipl2grub_config_file_orig,
+                            zipl2grub_config_file_orig.replace('.orig', '')
+                        ]
                     )
-                ] + self.install_arguments + [
-                    '--directory', module_directory,
-                    '--boot-directory', boot_directory,
-                    '--target', self.target,
-                    '--modules', self.modules,
-                    self.install_device
-                ]
-            )
+                if os.path.exists(zipl_config_file):
+                    Command.run(
+                        ['mv', zipl_config_file, zipl_config_file + '.kiwi']
+                    )
+            else:
+                Command.run(
+                    [
+                        'chroot', self.root_mount.mountpoint,
+                        self._get_grub2_install_tool_name(
+                            self.root_mount.mountpoint
+                        )
+                    ] + self.install_arguments + [
+                        '--directory', module_directory,
+                        '--boot-directory', boot_directory,
+                        '--target', self.target,
+                        '--modules', self.modules,
+                        self.install_device
+                    ]
+                )
 
     def secure_boot_install(self):
         if self.firmware and self.firmware.efi_mode() == 'uefi' and (
             Defaults.is_x86_arch(self.arch)
             or 'arm' in self.arch or self.arch == 'aarch64'     # noqa: W503
         ):
-            self._mount_device_and_volumes()
-            shim_install = self._get_shim_install_tool_name(
-                self.root_mount.mountpoint
-            )
-            # if shim-install does _not_ exist the fallback mechanism
-            # has applied at the bootloader/config level and we expect
-            # no further tool calls to be required
-            if shim_install:
-                # Before we call shim-install, the grub installer binary is
-                # replaced by a noop. Actually there is no reason for
-                # shim-install to call the grub installer because it should
-                # only setup the system for EFI secure boot which does not
-                # require any bootloader code in the master boot record.
-                # In addition kiwi has called the grub installer right
-                # before
-                self._disable_grub2_install(self.root_mount.mountpoint)
-                Command.run(
-                    [
-                        'chroot', self.root_mount.mountpoint,
-                        'shim-install', '--removable'
-                    ] + self.shim_install_arguments + [
-                        self.device
-                    ]
+            with ExitStack() as stack:
+                self._mount_device_and_volumes(stack)
+                shim_install = self._get_shim_install_tool_name(
+                    self.root_mount.mountpoint
                 )
-                # restore the grub installer noop
-                self._enable_grub2_install(self.root_mount.mountpoint)
+                # if shim-install does _not_ exist the fallback mechanism
+                # has applied at the bootloader/config level and we expect
+                # no further tool calls to be required
+                if shim_install:
+                    # Before we call shim-install, the grub installer binary is
+                    # replaced by a noop. Actually there is no reason for
+                    # shim-install to call the grub installer because it should
+                    # only setup the system for EFI secure boot which does not
+                    # require any bootloader code in the master boot record.
+                    # In addition kiwi has called the grub installer right
+                    # before
+                    try:
+                        self._disable_grub2_install(self.root_mount.mountpoint)
+                        Command.run(
+                            [
+                                'chroot', self.root_mount.mountpoint,
+                                'shim-install', '--removable'
+                            ] + self.shim_install_arguments + [
+                                self.device
+                            ]
+                        )
+                    finally:
+                        # restore the grub installer noop
+                        self._enable_grub2_install(self.root_mount.mountpoint)
 
     def set_disk_password(self, password: str):
         if self.root_mount and password is not None:
@@ -301,38 +301,39 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                     grub_config_file.write(grub_config)
                     log.debug(f'<<< {grub_config} >>>')
 
-    def _mount_device_and_volumes(self):
-        if self.root_mount is None:
-            self.root_mount = MountManager(
-                device=self.custom_args['root_device']
+    def _mount_device_and_volumes(self, stack: ExitStack):
+        self.root_mount = MountManager(
+            device=self.custom_args['root_device']
+        )
+        stack.push(self.root_mount)
+        custom_root_mount_args = []
+        if self.root_volume_name and self.root_volume_name != '/':
+            custom_root_mount_args += [f'subvol={self.root_volume_name}']
+        self.root_mount.mount(options=custom_root_mount_args)
+
+        if 's390' in self.arch:
+            boot_mount = MountManager(
+                device=self.custom_args['boot_device'],
+                mountpoint=self.root_mount.mountpoint + '/boot/zipl'
             )
-            custom_root_mount_args = []
-            if self.root_volume_name and self.root_volume_name != '/':
-                custom_root_mount_args += [f'subvol={self.root_volume_name}']
-            self.root_mount.mount(options=custom_root_mount_args)
+        else:
+            boot_mount = MountManager(
+                device=self.custom_args['boot_device'],
+                mountpoint=self.root_mount.mountpoint + '/boot'
+            )
+        stack.push(boot_mount)
+        if not self.root_mount.device == boot_mount.device:
+            boot_mount.mount()
 
-        if self.boot_mount is None:
-            if 's390' in self.arch:
-                self.boot_mount = MountManager(
-                    device=self.custom_args['boot_device'],
-                    mountpoint=self.root_mount.mountpoint + '/boot/zipl'
-                )
-            else:
-                self.boot_mount = MountManager(
-                    device=self.custom_args['boot_device'],
-                    mountpoint=self.root_mount.mountpoint + '/boot'
-                )
-            if not self.root_mount.device == self.boot_mount.device:
-                self.boot_mount.mount()
-
-        if self.efi_mount is None and self.custom_args.get('efi_device'):
-            self.efi_mount = MountManager(
+        if self.custom_args.get('efi_device'):
+            efi_mount = MountManager(
                 device=self.custom_args['efi_device'],
                 mountpoint=self.root_mount.mountpoint + '/boot/efi'
             )
-            self.efi_mount.mount()
+            stack.push(efi_mount)
+            efi_mount.mount()
 
-        if self.volumes and not self.volumes_mount:
+        if self.volumes:
             for volume_path in Path.sort_by_hierarchy(
                 sorted(self.volumes.keys())
             ):
@@ -340,28 +341,30 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                     device=self.volumes[volume_path]['volume_device'],
                     mountpoint=self.root_mount.mountpoint + '/' + volume_path
                 )
-                self.volumes_mount.append(volume_mount)
+                stack.push(volume_mount)
                 volume_mount.mount(
                     options=[self.volumes[volume_path]['volume_options']]
                 )
-        if self.device_mount is None:
-            self.device_mount = MountManager(
-                device='/dev',
-                mountpoint=self.root_mount.mountpoint + '/dev'
-            )
-            self.device_mount.bind_mount()
-        if self.proc_mount is None:
-            self.proc_mount = MountManager(
-                device='/proc',
-                mountpoint=self.root_mount.mountpoint + '/proc'
-            )
-            self.proc_mount.bind_mount()
-        if self.sysfs_mount is None:
-            self.sysfs_mount = MountManager(
-                device='/sys',
-                mountpoint=self.root_mount.mountpoint + '/sys'
-            )
-            self.sysfs_mount.bind_mount()
+        device_mount = MountManager(
+            device='/dev',
+            mountpoint=self.root_mount.mountpoint + '/dev'
+        )
+        stack.push(device_mount)
+        device_mount.bind_mount()
+
+        proc_mount = MountManager(
+            device='/proc',
+            mountpoint=self.root_mount.mountpoint + '/proc'
+        )
+        stack.push(proc_mount)
+        proc_mount.bind_mount()
+
+        sysfs_mount = MountManager(
+            device='/sys',
+            mountpoint=self.root_mount.mountpoint + '/sys'
+        )
+        stack.push(sysfs_mount)
+        sysfs_mount.bind_mount()
 
     def _disable_grub2_install(self, root_path):
         if os.access(root_path, os.W_OK):
@@ -430,21 +433,3 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             # an exception at invocation time in order to log the
             # expected call and its arguments
             return lookup_list[0]
-
-    def __del__(self):
-        log.info('Cleaning up %s instance', type(self).__name__)
-        for volume_mount in reversed(self.volumes_mount):
-            volume_mount.umount()
-        if self.device_mount:
-            self.device_mount.umount()
-        if self.proc_mount:
-            self.proc_mount.umount()
-        if self.sysfs_mount:
-            self.sysfs_mount.umount()
-        if self.efi_mount:
-            self.efi_mount.umount()
-        if self.boot_mount:
-            self.boot_mount.umount()
-        if self.root_mount:
-            self._enable_grub2_install(self.root_mount.mountpoint)
-            self.root_mount.umount()
