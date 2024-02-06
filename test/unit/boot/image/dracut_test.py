@@ -177,10 +177,3 @@ class TestBootImageKiwi:
 
     def test_has_initrd_support(self):
         assert self.boot_image.has_initrd_support() is True
-
-    def test_destructor(self):
-        self.boot_image.device_mount = Mock()
-        self.boot_image.proc_mount = Mock()
-        self.boot_image.__del__()
-        self.boot_image.device_mount.umount.assert_called_once_with()
-        self.boot_image.proc_mount.umount.assert_called_once_with()

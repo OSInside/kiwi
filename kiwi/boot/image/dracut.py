@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from contextlib import ExitStack
 from typing import (
     List, Optional, Dict
 )
@@ -51,9 +52,6 @@ class BootImageDracut(BootImageBase):
 
         Initialize empty list of dracut caller options
         """
-        self.device_mount: Optional[MountManager] = None
-        self.proc_mount: Optional[MountManager] = None
-
         # signing keys are only taken into account on install of
         # packages. As dracut runs from a pre defined root directory,
         # no signing keys will be used in the process of creating
@@ -198,30 +196,32 @@ class BootImageDracut(BootImageBase):
             ] if self.omit_modules else []
             options = self.dracut_options + modules_args + included_files
             if kernel_details:
-                self.device_mount = MountManager(
-                    device='/dev',
-                    mountpoint=self.boot_root_directory + '/dev'
-                )
-                self.device_mount.bind_mount()
-                self.proc_mount = MountManager(
-                    device='/proc',
-                    mountpoint=self.boot_root_directory + '/proc'
-                )
-                self.proc_mount.bind_mount()
-                dracut_call = Command.run(
-                    [
-                        'chroot', self.boot_root_directory,
-                        'dracut', '--verbose',
-                        '--no-hostonly',
-                        '--no-hostonly-cmdline'
-                    ] + options + [
-                        dracut_initrd_basename,
-                        kernel_details.version
-                    ],
-                    stderr_to_stdout=True
-                )
-                self.device_mount.umount()
-                self.proc_mount.umount()
+                with ExitStack() as stack:
+                    device_mount = MountManager(
+                        device='/dev',
+                        mountpoint=self.boot_root_directory + '/dev'
+                    )
+                    stack.push(device_mount)
+                    device_mount.bind_mount()
+                    proc_mount = MountManager(
+                        device='/proc',
+                        mountpoint=self.boot_root_directory + '/proc'
+                    )
+                    stack.push(proc_mount)
+                    proc_mount.bind_mount()
+                    dracut_call = Command.run(
+                        [
+                            'chroot', self.boot_root_directory,
+                            'dracut', '--verbose',
+                            '--no-hostonly',
+                            '--no-hostonly-cmdline'
+                        ] + options + [
+                            dracut_initrd_basename,
+                            kernel_details.version
+                        ],
+                        stderr_to_stdout=True
+                    )
+
             log.debug(dracut_call.output)
             Command.run(
                 [
@@ -259,10 +259,3 @@ class BootImageDracut(BootImageBase):
         profile.create(
             Defaults.get_profile_file(self.boot_root_directory)
         )
-
-    def __del__(self):
-        log.info('Cleaning up %s instance', type(self).__name__)
-        if self.device_mount:
-            self.device_mount.umount()
-        if self.proc_mount:
-            self.proc_mount.umount()
