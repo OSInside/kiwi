@@ -174,7 +174,7 @@ And place the following content:
 
     <?xml version="1.0" encoding="utf-8"?>
 
-    <image schemaversion="6.8" name="Leap-VM">
+    <image schemaversion="8.0" name="Leap-VM">
         <description type="system">
             <author>The Author</author>
             <contact>user@example.org</contact>
@@ -194,8 +194,8 @@ And place the following content:
             <keytable>us</keytable>
             <timezone>UTC</timezone>
         </preferences>
-        <repository type="rpm-md" alias="Leap_15_3">
-            <source path="obs://openSUSE:Leap:15.3/standard"/>
+        <repository type="rpm-md" alias="Leap">
+            <source path="{exc_repo_leap}"/>
         </repository>
         <packages type="image">
             <package name="grub2"/>
@@ -215,7 +215,7 @@ container at SUSE, call the following `stackbuild` command:
 .. code:: bash
 
     $ sudo kiwi-ng system stackbuild \
-        --stash leap:15.3 \
+        --stash leap:{exc_os_version} \
         --from-registry registry.opensuse.org/opensuse \
         --target-dir /tmp/myLeap \
         --description container_to_VM_layer
