@@ -79,13 +79,13 @@ prolog_replacements = {
     '{exc_description_live}': 'x86/leap/test-image-live',
     '{exc_description_wsl}': 'x86/tumbleweed/test-image-wsl',
     '{exc_description_docker}': 'x86/leap/test-image-docker',
-    '{exc_os_version}': '15.3',
+    '{exc_os_version}': '15.5',
     '{exc_image_version}': '1.15.3',
-    '{exc_repo_leap}': 'obs://openSUSE:Leap:15.3/standard',
+    '{exc_repo_leap}': 'obs://openSUSE:Leap:15.5/standard',
     '{exc_repo_tumbleweed}': 'http://download.opensuse.org/tumbleweed/repo/oss',
     '{exc_kiwi_repo}':
-        'obs://Virtualization:Appliances:Builder/openSUSE_Leap_15.3',
-    '{schema_version}': '7.4',
+        'obs://Virtualization:Appliances:Builder/openSUSE_Leap_15.5',
+    '{schema_version}': '8.0',
     '{kiwi}': 'KIWI NG',
     '{kiwi-product}': 'KIWI Next Generation (KIWI NG)',
     '{kiwi-legacy}': 'KIWI Legacy'
