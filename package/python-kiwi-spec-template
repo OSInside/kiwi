@@ -620,7 +620,7 @@ make buildroot=%{buildroot}/ install
 # Install dracut modules
 make buildroot=%{buildroot}/ install_dracut
 
-# Install documentation in PDF format
+# Install documentation README / LICENSE
 make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ install_package_docs
 
 # Create symlinks for correct binaries
@@ -696,7 +696,6 @@ fi
 %{_defaultdocdir}/python-kiwi/README
 
 %files -n kiwi-man-pages
-%{_defaultdocdir}/python-kiwi/kiwi.pdf
 %config %_sysconfdir/kiwi.yml
 %doc %{_mandir}/man8/*
 

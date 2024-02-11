@@ -18,8 +18,6 @@ install_dracut:
 
 install_package_docs:
 	install -d -m 755 ${buildroot}${docdir}/python-kiwi
-	install -m 644 doc/build/latex/kiwi.pdf \
-		${buildroot}${docdir}/python-kiwi/kiwi.pdf
 	install -m 644 LICENSE \
 		${buildroot}${docdir}/python-kiwi/LICENSE
 	install -m 644 README.rst \
@@ -49,6 +47,8 @@ kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 	# whenever the schema is changed this target will convert
 	# the short form of the RelaxNG schema to the format used
 	# in code and auto generates the python data structures
+	@type -p trang &>/dev/null || \
+		(echo "ERROR: trang not found in path: $(PATH)"; exit 1)
 	trang -I rnc -O rng kiwi/schema/kiwi.rnc kiwi/schema/kiwi.rng
 	# XML parser code is auto generated from schema using generateDS
 	# http://pythonhosted.org/generateDS
@@ -101,13 +101,6 @@ build: clean tox
 	mv setup.pye setup.py
 	# provide rpm source tarball
 	mv dist/kiwi-${version}.tar.gz dist/python-kiwi.tar.gz
-	# append PDF documentation to tarball
-	gzip -d dist/python-kiwi.tar.gz
-	mkdir -p kiwi-${version}/doc/build/latex
-	mv doc/build/latex/kiwi.pdf kiwi-${version}/doc/build/latex
-	tar -uf dist/python-kiwi.tar kiwi-${version}/doc/build/latex/kiwi.pdf
-	gzip dist/python-kiwi.tar
-	rm -rf kiwi-${version}
 	# update rpm changelog using reference file
 	helper/update_changelog.py --since package/python-kiwi.changes > \
 		dist/python-kiwi.changes
