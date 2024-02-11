@@ -11,13 +11,6 @@ version := $(shell \
     'from kiwi.version import __version__; print(__version__)'\
 )
 
-.PHONY: tools
-tools:
-	# apart from python sources there are also some legacy
-	# C tools used in custom kiwi boot descriptions.
-	# Note: These information will be missing when installed from pip
-	${MAKE} -C tools all
-
 install_dracut:
 	for dracut in dracut/modules.d/*; do \
 		${MAKE} -C $$dracut install ;\
@@ -34,9 +27,8 @@ install_package_docs:
 
 install:
 	# apart from python sources there are also
-	# the C tools, the manual pages and the completion
+	# the manual pages and the completion
 	# Note: These information will be missing when installed from pip
-	${MAKE} -C tools buildroot=${buildroot} install
 	# manual pages
 	install -d -m 755 ${buildroot}usr/share/man/man8
 	for man in doc/build/man/*.8; do \
@@ -139,4 +131,3 @@ clean: clean_git_attributes
 	$(python) setup.py clean
 	rm -rf doc/build
 	rm -rf doc/dist
-	${MAKE} -C tools clean

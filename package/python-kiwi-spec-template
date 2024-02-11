@@ -124,7 +124,6 @@ Requires:       dpkg
 Requires:       gnupg
 %endif
 # tools required by kiwi
-Requires:       kiwi-tools
 Requires:       mtools
 Requires:       rsync
 Requires:       tar >= 1.2.7
@@ -397,17 +396,6 @@ Recommends:     kiwi-systemdeps = %{version}-%{release}
 Python 3 library of the KIWI Image System. Provides an operating system
 image builder for Linux supported hardware platforms as well as for
 virtualization and cloud systems like Xen, KVM, VMware, EC2 and more.
-
-%package -n kiwi-tools
-Summary:        KIWI - Collection of Boot Helper Tools
-License:        GPL-3.0-or-later
-Group:          %{sysgroup}
-
-%description -n kiwi-tools
-This package contains a small set of helper tools used for the
-kiwi created initial ramdisk which is used to control the very
-first boot of an appliance. The tools are not meant to be used
-outside of the scope of kiwi appliance building.
 
 %if "%{_vendor}" != "debbuild"
 %ifarch %{ix86} x86_64
@@ -711,11 +699,6 @@ fi
 %{_defaultdocdir}/python-kiwi/kiwi.pdf
 %config %_sysconfdir/kiwi.yml
 %doc %{_mandir}/man8/*
-
-%files -n kiwi-tools
-%{_bindir}/dcounter
-%{_bindir}/isconsole
-%{_bindir}/utimer
 
 %files -n dracut-kiwi-lib
 %{_usr}/lib/dracut/modules.d/99kiwi-lib
