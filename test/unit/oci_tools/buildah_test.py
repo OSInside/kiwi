@@ -30,15 +30,6 @@ class TestOCIBuildah:
     def setup_method(self, cls, mock_datetime):
         self.setup()
 
-    @patch('kiwi.oci_tools.umoci.Command.run')
-    def teardown(self, mock_cmd_run):
-        self.oci.__del__()
-        mock_cmd_run.reset_mock()
-
-    @patch('kiwi.oci_tools.umoci.Command.run')
-    def teardown_method(self, cls, mock_cmd_run):
-        self.teardown()
-
     @patch('kiwi.oci_tools.buildah.random.choice')
     @patch('kiwi.oci_tools.buildah.Command.run')
     def test_init_container(self, mock_Command_run, mock_choice):
@@ -255,3 +246,16 @@ class TestOCIBuildah:
                 ['myimage:tag2', 'myimage:tag3']
             )
             mock_wipe.assert_called_once_with('image.tar')
+
+    @patch('kiwi.oci_tools.buildah.Command.run')
+    def test_context_manager_exit(self, mock_Command_run):
+        with OCIBuildah() as oci:
+            oci.working_container = 'working_container'
+            oci.working_image = 'working_image'
+            oci.imported_image = 'imported_image'
+        assert mock_Command_run.call_args_list == [
+            call(['buildah', 'umount', 'working_container']),
+            call(['buildah', 'rm', 'working_container']),
+            call(['buildah', 'rmi', 'working_image']),
+            call(['buildah', 'rmi', 'imported_image'])
+        ]

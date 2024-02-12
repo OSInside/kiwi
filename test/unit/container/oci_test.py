@@ -141,7 +141,7 @@ class TestContainerImageOCI:
         mock_Compress.return_value = compress
         mock_cache.return_value = 'var/cache/kiwi'
         mock_oci = Mock()
-        mock_OCI.new.return_value = mock_oci
+        mock_OCI.new.return_value.__enter__.return_value = mock_oci
 
         self.oci.archive_transport = 'oci-archive'
         self.oci.create('result.tar', '', True, True)
@@ -187,7 +187,7 @@ class TestContainerImageOCI:
     ):
         mock_cache.return_value = 'var/cache/kiwi'
         mock_oci = Mock()
-        mock_OCI.new.return_value = mock_oci
+        mock_OCI.new.return_value.__enter__.return_value = mock_oci
 
         self.runtime_config.get_container_compression.return_value = 'xz'
 

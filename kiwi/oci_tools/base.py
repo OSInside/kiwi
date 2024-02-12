@@ -43,6 +43,9 @@ class OCIBase:
         )
         self.post_init()
 
+    def __enter__(self):
+        return self
+
     def post_init(self):
         """
         Post initialization method
@@ -172,3 +175,7 @@ class OCIBase:
             ):
                 return True
         return False
+
+    # pragma: no cover
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass

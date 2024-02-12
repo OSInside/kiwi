@@ -42,6 +42,9 @@ class OCIBuildah(OCIBase):
         self.imported_image = None
         self.working_container = None
 
+    def __enter__(self):
+        return self
+
     def import_container_image(self, container_image_ref):
         """
         Imports container image reference to the OCI containers storage.
@@ -333,7 +336,7 @@ class OCIBuildah(OCIBase):
         """
         return "".join(random.choice(allchars) for x in range(chars_num))
 
-    def __del__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self.working_container:
             Command.run(['buildah', 'umount', self.working_container])
             Command.run(['buildah', 'rm', self.working_container])

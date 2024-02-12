@@ -83,7 +83,10 @@ class ContainerImageOCI(ContainerImageBase):
             }
         }
     """
-    def __init__(self, root_dir: str, transport: str, custom_args: Optional[OciConfig] = None) -> None:
+    def __init__(
+        self, root_dir: str, transport: str,
+        custom_args: Optional[OciConfig] = None
+    ) -> None:
         self.root_dir = root_dir
         self.archive_transport = transport
         self.oci_config = custom_args or {}
@@ -132,63 +135,68 @@ class ContainerImageOCI(ContainerImageBase):
         :param bool compress_archive: compress container archive
         """
         exclude_list = Defaults.\
-            get_exclude_list_for_root_data_sync(ensure_empty_tmpdirs) + Defaults.\
-            get_exclude_list_from_custom_exclude_files(self.root_dir)
+            get_exclude_list_for_root_data_sync(
+                ensure_empty_tmpdirs
+            ) + Defaults.get_exclude_list_from_custom_exclude_files(
+                self.root_dir
+            )
         exclude_list.append('dev/*')
         exclude_list.append('sys/*')
         exclude_list.append('proc/*')
 
-        oci = OCI.new()
-        if base_image:
-            oci.import_container_image(
-                'oci-archive:{0}:{1}'.format(
-                    base_image, Defaults.get_container_base_image_tag()
+        with OCI.new() as oci:
+            if base_image:
+                oci.import_container_image(
+                    'oci-archive:{0}:{1}'.format(
+                        base_image, Defaults.get_container_base_image_tag()
+                    )
                 )
+            else:
+                # Apply default subcommand only for base images
+                if 'entry_command' not in self.oci_config and \
+                   'entry_subcommand' not in self.oci_config:
+                    self.oci_config['entry_subcommand'] = \
+                        Defaults.get_default_container_subcommand()
+                oci.init_container()
+
+            image_ref = '{0}:{1}'.format(
+                self.oci_config['container_name'],
+                self.oci_config['container_tag']
             )
-        else:
-            # Apply default subcommand only for base images
-            if 'entry_command' not in self.oci_config and \
-                    'entry_subcommand' not in self.oci_config:
-                self.oci_config['entry_subcommand'] = \
-                    Defaults.get_default_container_subcommand()
-            oci.init_container()
 
-        image_ref = '{0}:{1}'.format(
-            self.oci_config['container_name'], self.oci_config['container_tag']
-        )
+            oci.unpack()
+            oci.sync_rootfs(self.root_dir, exclude_list)
+            oci.repack(self.oci_config)
+            oci.set_config(self.oci_config)
+            oci.post_process()
 
-        oci.unpack()
-        oci.sync_rootfs(self.root_dir, exclude_list)
-        oci.repack(self.oci_config)
-        oci.set_config(self.oci_config)
-        oci.post_process()
+            image_ref = '{0}:{1}'.format(
+                self.oci_config['container_name'],
+                self.oci_config['container_tag']
+            )
+            additional_refs: List[str] = []
+            if self.archive_transport == 'docker-archive':
+                if 'additional_names' in self.oci_config:
+                    additional_refs = []
+                    for name in self.oci_config['additional_names']:
+                        name_parts = name.partition(':')
+                        if not name_parts[0]:
+                            additional_refs.append('{0}:{1}'.format(
+                                self.oci_config['container_name'], name_parts[2]
+                            ))
+                        elif not name_parts[2]:
+                            additional_refs.append('{0}:{1}'.format(
+                                name_parts[0], self.oci_config['container_tag']
+                            ))
+                        else:
+                            additional_refs.append('{0}:{1}'.format(
+                                name_parts[0], name_parts[2]
+                            ))
 
-        image_ref = '{0}:{1}'.format(
-            self.oci_config['container_name'],
-            self.oci_config['container_tag']
-        )
-        additional_refs: List[str] = []
-        if self.archive_transport == 'docker-archive':
-            if 'additional_names' in self.oci_config:
-                additional_refs = []
-                for name in self.oci_config['additional_names']:
-                    name_parts = name.partition(':')
-                    if not name_parts[0]:
-                        additional_refs.append('{0}:{1}'.format(
-                            self.oci_config['container_name'], name_parts[2]
-                        ))
-                    elif not name_parts[2]:
-                        additional_refs.append('{0}:{1}'.format(
-                            name_parts[0], self.oci_config['container_tag']
-                        ))
-                    else:
-                        additional_refs.append('{0}:{1}'.format(
-                            name_parts[0], name_parts[2]
-                        ))
+            oci.export_container_image(
+                filename, self.archive_transport, image_ref, additional_refs
+            )
 
-        oci.export_container_image(
-            filename, self.archive_transport, image_ref, additional_refs
-        )
         if compress_archive:
             compress = Compress(filename)
             filename = compress.xz(RuntimeConfig().get_xz_options())
