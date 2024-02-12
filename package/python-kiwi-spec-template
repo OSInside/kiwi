@@ -606,10 +606,6 @@ Provides manual pages to describe the kiwi commands
 # as an independent script
 sed -e "s|#!/usr/bin/env python||" -i kiwi/xml_parse.py
 
-%build
-# Build C-Tools
-make CFLAGS="${RPM_OPT_FLAGS}" tools
-
 %install
 # Install Python 3 version
 python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
