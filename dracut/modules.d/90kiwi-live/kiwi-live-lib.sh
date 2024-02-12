@@ -134,6 +134,14 @@ function mountReadOnlyRootImageFromContainer {
     local rootfs_image="${container_mount_point}/LiveOS/rootfs.img"
     local root_mount_point="${overlay_base}/rootfsbase"
     mkdir -m 0755 -p "${root_mount_point}"
+
+    if ! [ -e "${rootfs_image}" ] && [ -d "${container_mount_point}/proc" ]; then
+        # It's the root filesystem directly, just do a bind mount
+        mount -n --bind "${container_mount_point}" "${root_mount_point}"
+        echo "${root_mount_point}"
+        return
+    fi
+
     if ! mount -n "${rootfs_image}" "${root_mount_point}"; then
         die "Failed to mount live ISO root filesystem"
     fi
