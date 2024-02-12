@@ -141,13 +141,6 @@ class CommandProcess:
                         '[ INFO    ]: Processing'
                     )
 
-    def __del__(self):
-        if self.command and self.command.get_error_code() is None:
-            log.info(
-                'Terminating subprocess %d', self.command.get_pid()
-            )
-            self.command.kill()
-
 
 class CommandIterator:
     """
