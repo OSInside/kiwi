@@ -833,77 +833,82 @@ class DiskBuilder:
         # create second stage metadata to system image
         self._copy_first_boot_files_to_system_image()
 
-        # write bootloader meta data to system image
-        if self.bootloader != 'custom':
-            with self._bootloader_instance(disk) as bootloader_config:
+        with self._bootloader_instance(disk) as bootloader_config:
+            # write bootloader meta data to system image
+            if self.bootloader != 'custom':
                 self._write_bootloader_meta_data_to_system_image(
                     device_map, disk, system, bootloader_config
                 )
 
-        # call edit_boot_config script
-        partition_id_map = disk.get_public_partition_id_map()
-        boot_partition_id = partition_id_map['kiwi_RootPart']
-        if 'kiwi_BootPart' in partition_id_map:
-            boot_partition_id = partition_id_map['kiwi_BootPart']
-        self.system_setup.call_edit_boot_config_script(
-            self.requested_filesystem, int(boot_partition_id)
-        )
-
-        # write MBR id
-        self.mbrid.write_to_disk(
-            disk.storage_provider
-        )
-
-        # run pre sync script hook
-        if self.system_setup.script_exists(
-            defaults.PRE_DISK_SYNC_SCRIPT
-        ):
-            disk_system = SystemSetup(
-                self.xml_state, self.root_dir
+            # call edit_boot_config script
+            partition_id_map = disk.get_public_partition_id_map()
+            boot_partition_id = partition_id_map['kiwi_RootPart']
+            if 'kiwi_BootPart' in partition_id_map:
+                boot_partition_id = partition_id_map['kiwi_BootPart']
+            self.system_setup.call_edit_boot_config_script(
+                self.requested_filesystem, int(boot_partition_id)
             )
-            disk_system.call_pre_disk_script()
 
-        # syncing system data to disk image
-        self._sync_system_to_image(
-            stack, device_map, system, system_boot, system_efi, system_spare,
-            system_custom_parts, integrity_root
-        )
-
-        # run post sync script hook
-        if system and self.system_setup.script_exists(
-            defaults.POST_DISK_SYNC_SCRIPT
-        ):
-            image_system = ImageSystem(
-                device_map, self.root_dir,
-                system.get_volumes() if self.volume_manager_name else {}
+            # write MBR id
+            self.mbrid.write_to_disk(
+                disk.storage_provider
             )
-            image_system.mount()
-            disk_system = SystemSetup(
-                self.xml_state, image_system.mountpoint()
-            )
-            try:
-                disk_system.call_disk_script()
-            finally:
-                image_system.umount()
 
-        # install boot loader
-        if self.bootloader != 'custom':
-            with self._bootloader_instance(disk) as bootloader_config:
+            # run pre sync script hook
+            if self.system_setup.script_exists(
+                defaults.PRE_DISK_SYNC_SCRIPT
+            ):
+                disk_system = SystemSetup(
+                    self.xml_state, self.root_dir
+                )
+                disk_system.call_pre_disk_script()
+
+            # syncing system data to disk image
+            self._sync_system_to_image(
+                stack,
+                device_map,
+                system,
+                system_boot,
+                system_efi,
+                system_spare,
+                system_custom_parts,
+                integrity_root
+            )
+
+            # run post sync script hook
+            if system and self.system_setup.script_exists(
+                defaults.POST_DISK_SYNC_SCRIPT
+            ):
+                image_system = ImageSystem(
+                    device_map, self.root_dir,
+                    system.get_volumes() if self.volume_manager_name else {}
+                )
+                image_system.mount()
+                disk_system = SystemSetup(
+                    self.xml_state, image_system.mountpoint()
+                )
+                try:
+                    disk_system.call_disk_script()
+                finally:
+                    image_system.umount()
+
+            # install boot loader
+            if self.bootloader != 'custom':
                 self._install_bootloader(
                     device_map, disk, system, bootloader_config
                 )
 
-        # call edit_boot_install script
-        boot_device = device_map['root']
-        if 'boot' in device_map:
-            boot_device = device_map['boot']
-        self.system_setup.call_edit_boot_install_script(
-            self.diskname, boot_device.get_device()
-        )
+            # call edit_boot_install script
+            boot_device = device_map['root']
+            if 'boot' in device_map:
+                boot_device = device_map['boot']
+            self.system_setup.call_edit_boot_install_script(
+                self.diskname, boot_device.get_device()
+            )
 
-        # set root filesystem properties
-        if system:
-            self._setup_property_root_is_readonly_snapshot(system)
+            # set root filesystem properties
+            if system:
+                self._setup_property_root_is_readonly_snapshot(system)
 
     def _install_image_requested(self) -> bool:
         return bool(
