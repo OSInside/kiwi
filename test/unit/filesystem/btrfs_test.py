@@ -37,5 +37,5 @@ class TestFileSystemBtrfs:
     def test_set_uuid(self, mock_command):
         self.btrfs.set_uuid()
         mock_command.assert_called_once_with(
-            ['btrfstune', '-u', '/dev/foo']
+            ['btrfstune', '-f', '-u', '/dev/foo']
         )

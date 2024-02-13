@@ -67,5 +67,5 @@ class FileSystemBtrfs(FileSystemBase):
         """
         device = self.device_provider.get_device()
         Command.run(
-            ['btrfstune', '-u', device]
+            ['btrfstune', '-f', '-u', device]
         )
