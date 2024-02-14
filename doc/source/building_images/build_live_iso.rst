@@ -43,6 +43,18 @@ live ISO images:
   Both modules support a different set of live features.
   For details see :ref:`live_features`
 
+- `filesystem`: Specifies the root filesystem for the live system.
+
+  If set to `squashfs`, the root filesystem is written into a squashfs image.
+  This option is not compatible with device-mapper specific features of the
+  dmsquash-live dracut module. In that case, using overayfs is required.
+
+  If set to a value different from `squashfs`, the root filesystem is written
+  into a filesystem image of the specified type and that filesystem image
+  written into a squashfs image for compression.
+
+  The default value for this option is `ext4`.
+
 - `hybridpersistent`: Accepts `true` or `false`, if set to `true` then the
   resulting image will be created with a COW file to keep data persistent
   over a reboot
