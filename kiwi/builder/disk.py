@@ -644,6 +644,21 @@ class DiskBuilder:
         #
         luks_need_keyfile = \
             True if self.boot_is_crypto or self.luks == '' else False
+        if self.use_disk_password and self.luks:
+            # In case a disk password is configured, no keyfile
+            # will be used. The setup of the disk password is a
+            # method to store an insecure password into the bootloader
+            # configuration and directly call cryptomount with
+            # that password to boot into the system once. The
+            # insecure credentials will then be replaced by a
+            # secure version e.g from a TPM. This concept for
+            # non-interactive boot of an encrypted system is similar
+            # to specifying an empty luks passphrase but also
+            # works from within the bootloader and therefore allows
+            # to keep /boot encrypted. In constrast to cryptsetup
+            # cryptomount requires to input credentials even if
+            # they are empty.
+            luks_need_keyfile = False
         luks_root.create_crypto_luks(
             passphrase=self.luks or '',
             osname=self.luks_os,

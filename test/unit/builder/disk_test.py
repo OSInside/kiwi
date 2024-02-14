@@ -1220,7 +1220,7 @@ class TestDiskBuilder:
 
         self.luks_root.create_crypto_luks.assert_called_once_with(
             passphrase='passphrase', osname=None,
-            options=[], keyfile='/root/.root.keyfile',
+            options=[], keyfile='',
             randomize=True,
             root_dir='root_dir'
         )
@@ -1228,14 +1228,9 @@ class TestDiskBuilder:
             'root_dir/etc/crypttab'
         )
         assert self.boot_image_task.include_file.call_args_list == [
-            call('/root/.root.keyfile'),
             call('/config.partids'),
             call('/etc/crypttab')
         ]
-        self.boot_image_task.write_system_config_file.assert_called_once_with(
-            config={'install_items': ['/root/.root.keyfile']},
-            config_file='root_dir/etc/dracut.conf.d/99-luks-boot.conf'
-        )
         bootloader.set_disk_password.assert_called_once_with('passphrase')
 
     @patch('kiwi.builder.disk.Disk')
