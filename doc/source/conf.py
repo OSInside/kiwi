@@ -195,8 +195,6 @@ html_sidebars = {
 
 html_theme = "sphinx_rtd_theme"
 
-html_static_path = ['.static']
-
 html_theme_options = {
     'collapse_navigation': False,
     'display_version': False

@@ -33,6 +33,11 @@ Let's take a look at the following example:
        <partitions>
            <partition name="home" size="10" mountpoint="/home" filesystem="ext3" clone="2"/>
        </partitions>
+       <oemconfig>
+           <oem-systemsize>2048</oem-systemsize>
+           <oem-resize>false</oem-resize>
+       </oemconfig>
+       <size unit="G">100</size>
    </type>
 
 With the above setup {kiwi} will create a disk image that
@@ -48,8 +53,8 @@ contains the following partition table:
       5         1275904         1296383   10.0 MiB    8300  p.lxhomeclone1
       6         1296384         1316863   10.0 MiB    8300  p.lxhomeclone2
       7         1316864         1337343   10.0 MiB    8300  p.lxhome
-      8         1337344         3864575   1.2 GiB     8300  p.lxrootclone1
-      9         3864576         6287326   1.2 GiB     8300  p.lxroot
+      8         1337344         3864575   2 GiB       8300  p.lxrootclone1
+      9         3864576         6287326   2 GiB       8300  p.lxroot
 
 When booting the system only the origin partitions `p.lxboot`, `p.lxroot`
 and `p.lxhome` will be mounted and visible in e.g. :file:`/etc/fstab`,
@@ -66,6 +71,25 @@ can hold that many partitions).
 
    There is a limit how many partitions a partition table can hold.
    This also limits how many clones can be created.
+
+It's important when using the `root_clone` attribute to specify a size for
+the part of the system that represents the root partition. As of today {kiwi}
+does not automatically divide the root partition into two identical pieces.
+In order to create a clone of the partition a size specification is required.
+In the above example the size for root is provided via the `oem-systemsize`
+element. Using a root clone and fixed size values has the following consequences:
+
+1. The resize capability must be disabled. This is done via `oem-resize`
+   element. The reason is that only the last partition in the partition
+   table can be resized without destroying data. If there is a clone of
+   the root partition it should never be resized because then the two
+   partitions will be different in size and no longer clones of each other
+
+2. There can be unpartitioned space left. In the above example the overall
+   disk size is set to 100G. The sum of all partition sizes will be smaller
+   than this value and there is no resize available anymore. Depending
+   on the overall size setup for the disk this will leave unpartitioned
+   space free on the disk.
 
 Use Case
 --------
