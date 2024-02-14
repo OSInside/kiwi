@@ -5,6 +5,7 @@ on:
 
 jobs:
   compliance_test:
+    if: ${{ github.repository == 'OSInside/kiwi' }}
     name: Capable for Rebase to kiwi v9.x.x
     runs-on: ubuntu-latest
 
