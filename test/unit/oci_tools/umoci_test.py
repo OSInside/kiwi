@@ -247,3 +247,12 @@ class TestOCIUmoci:
         mock_Command_run.assert_called_once_with(
             ['umoci', 'gc', '--layout', 'tmpdir/oci_layout']
         )
+
+    @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
+    def test_context_manager_exit(
+        self, mock_CommandCapabilities_has_option_in_help
+    ):
+        mock_CommandCapabilities_has_option_in_help.return_value = True
+        with OCIUmoci():
+            pass
+            # just pass

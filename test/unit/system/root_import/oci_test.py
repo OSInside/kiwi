@@ -46,7 +46,7 @@ class TestRootImportOCI:
     @patch('kiwi.system.root_import.oci.OCI')
     def test_sync_data(self, mock_OCI, mock_path, mock_md5, mock_compress):
         oci = Mock()
-        mock_OCI.new.return_value = oci
+        mock_OCI.new.return_value.__enter__.return_value = oci
         mock_md5.return_value = Mock()
 
         uncompress = Mock()
@@ -74,7 +74,7 @@ class TestRootImportOCI:
         mock_path_create, mock_compress
     ):
         oci = Mock()
-        mock_OCI.new.return_value = oci
+        mock_OCI.new.return_value.__enter__.return_value = oci
 
         self.oci_import.overlay_data()
 
@@ -103,7 +103,7 @@ class TestRootImportOCI:
         self, mock_OCI, mock_path, mock_md5, mock_compress
     ):
         oci = Mock()
-        mock_OCI.new.return_value = oci
+        mock_OCI.new.return_value.__enter__.return_value = oci
         mock_md5.return_value = Mock()
 
         uncompress = Mock()
@@ -131,7 +131,7 @@ class TestRootImportOCI:
     ):
         mock_exists.return_value = True
         oci = Mock()
-        mock_OCI.new.return_value = oci
+        mock_OCI.new.return_value.__enter__.return_value = oci
         mock_md5.return_value = Mock()
         with patch.dict('os.environ', {'HOME': '../data'}):
             oci_import = RootImportOCI(

@@ -44,21 +44,22 @@ class RootImportOCI(RootImportBase):
         """
         image_uri = self._get_image_uri()
 
-        oci = OCI.new()
-        oci.import_container_image(image_uri)
-        oci.unpack()
-        oci.import_rootfs(self.root_dir)
+        with OCI.new() as oci:
+            oci.import_container_image(image_uri)
+            oci.unpack()
+            oci.import_rootfs(self.root_dir)
 
-        # A copy of the uncompressed image and its checksum are
-        # kept inside the root_dir in order to ensure the later steps
-        # i.e. system create are atomic and don't need any third
-        # party archive.
-        image_copy = Defaults.get_imported_root_image(self.root_dir)
-        Path.create(os.path.dirname(image_copy))
-        oci.export_container_image(
-            image_copy, 'oci-archive', Defaults.get_container_base_image_tag()
-        )
-        self._make_checksum(image_copy)
+            # A copy of the uncompressed image and its checksum are
+            # kept inside the root_dir in order to ensure the later steps
+            # i.e. system create are atomic and don't need any third
+            # party archive.
+            image_copy = Defaults.get_imported_root_image(self.root_dir)
+            Path.create(os.path.dirname(image_copy))
+            oci.export_container_image(
+                image_copy, 'oci-archive',
+                Defaults.get_container_base_image_tag()
+            )
+            self._make_checksum(image_copy)
 
     def overlay_data(self) -> None:
         """
@@ -69,15 +70,15 @@ class RootImportOCI(RootImportBase):
 
         root_dir_ro = f'{self.root_dir}_ro'
 
-        oci = OCI.new()
-        oci.import_container_image(image_uri)
-        oci.unpack()
-        oci.import_rootfs(self.root_dir)
-        Path.rename(self.root_dir, root_dir_ro)
-        Path.create(self.root_dir)
+        with OCI.new() as oci:
+            oci.import_container_image(image_uri)
+            oci.unpack()
+            oci.import_rootfs(self.root_dir)
+            Path.rename(self.root_dir, root_dir_ro)
+            Path.create(self.root_dir)
 
-        self.overlay = MountManager(device='', mountpoint=self.root_dir)
-        self.overlay.overlay_mount(root_dir_ro)
+            self.overlay = MountManager(device='', mountpoint=self.root_dir)
+            self.overlay.overlay_mount(root_dir_ro)
 
     def _get_image_uri(self) -> str:
         if not self.unknown_uri:
