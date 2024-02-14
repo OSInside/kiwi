@@ -61,7 +61,6 @@ def setup(app):
     app.add_config_value('prolog_replacements', {}, True)
     app.connect('source-read', prologReplace)
     app.connect("autodoc-process-docstring", remove_module_docstring)
-    app.add_css_file('css/custom.css')
 
 
 prolog_replacements = {
