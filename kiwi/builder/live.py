@@ -230,7 +230,9 @@ class LiveImageBuilder:
                 self.live_type
             )
         )
-        root_filesystem = Defaults.get_default_live_iso_root_filesystem()
+        root_filesystem = self.xml_state.build_type.get_filesystem()
+        root_filesystem = root_filesystem if root_filesystem else \
+            Defaults.get_default_live_iso_root_filesystem()
         filesystem_custom_parameters = {
             'mount_options': self.xml_state.get_fs_mount_option_list(),
             'create_options': self.xml_state.get_fs_create_option_list()
@@ -238,56 +240,80 @@ class LiveImageBuilder:
         filesystem_setup = FileSystemSetup(
             self.xml_state, self.root_dir
         )
-        root_image = Temporary().new_file()
-        with LoopDevice(
-            root_image.name,
-            filesystem_setup.get_size_mbytes(root_filesystem),
-            self.xml_state.build_type.get_target_blocksize()
-        ) as loop_provider:
-            loop_provider.create()
-            with FileSystem.new(
-                name=root_filesystem,
-                device_provider=loop_provider,
-                root_dir=self.root_dir + os.sep,
-                custom_args=filesystem_custom_parameters
-            ) as live_filesystem:
-                live_filesystem.create_on_device()
-                log.info(
-                    '--> Syncing data to {0} root image'.format(root_filesystem)
-                )
-                live_filesystem.sync_data(
-                    Defaults.
-                    get_exclude_list_for_root_data_sync() + Defaults.
-                    get_exclude_list_from_custom_exclude_files(self.root_dir)
-                )
+        if root_filesystem != 'squashfs':
+            # Create a filesystem image of the specified type
+            # and put it into a SquashFS container
+            root_image = Temporary().new_file()
+            with LoopDevice(
+                root_image.name,
+                filesystem_setup.get_size_mbytes(root_filesystem),
+                self.xml_state.build_type.get_target_blocksize()
+            ) as loop_provider:
+                loop_provider.create()
+                with FileSystem.new(
+                    name=root_filesystem,
+                    device_provider=loop_provider,
+                    root_dir=self.root_dir + os.sep,
+                    custom_args=filesystem_custom_parameters
+                ) as live_filesystem:
+                    live_filesystem.create_on_device()
+                    log.info(
+                        '--> Syncing data to {0} root image'.format(root_filesystem)
+                    )
+                    live_filesystem.sync_data(
+                        Defaults.
+                        get_exclude_list_for_root_data_sync() + Defaults.
+                        get_exclude_list_from_custom_exclude_files(self.root_dir)
+                    )
 
-        log.info('--> Creating squashfs container for root image')
-        self.live_container_dir = Temporary(
-            prefix='live-container.', path=self.target_dir
-        ).new_dir()
-        Path.create(self.live_container_dir.name + '/LiveOS')
-        shutil.copy(
-            root_image.name, self.live_container_dir.name + '/LiveOS/rootfs.img'
-        )
-        with FileSystem.new(
-            name='squashfs',
-            device_provider=DeviceProvider(),
-            root_dir=self.live_container_dir.name,
-            custom_args={
-                'compression':
-                    self.xml_state.build_type.get_squashfscompression()
-            }
-        ) as live_container_image:
-            container_image = Temporary().new_file()
-            live_container_image.create_on_file(
-                container_image.name
-            )
-            Path.create(self.media_dir.name + '/LiveOS')
-            os.chmod(container_image.name, 0o644)
+            log.info('--> Creating squashfs container for root image')
+            self.live_container_dir = Temporary(
+                prefix='live-container.', path=self.target_dir
+            ).new_dir()
+            Path.create(self.live_container_dir.name + '/LiveOS')
             shutil.copy(
-                container_image.name,
-                self.media_dir.name + '/LiveOS/squashfs.img'
+                root_image.name, self.live_container_dir.name + '/LiveOS/rootfs.img'
             )
+            with FileSystem.new(
+                name='squashfs',
+                device_provider=DeviceProvider(),
+                root_dir=self.live_container_dir.name,
+                custom_args={
+                    'compression':
+                        self.xml_state.build_type.get_squashfscompression()
+                }
+            ) as live_container_image:
+                container_image = Temporary().new_file()
+                live_container_image.create_on_file(
+                    container_image.name
+                )
+                Path.create(self.media_dir.name + '/LiveOS')
+                os.chmod(container_image.name, 0o644)
+                shutil.copy(
+                    container_image.name,
+                    self.media_dir.name + '/LiveOS/squashfs.img'
+                )
+        else:
+            # Put the root filesystem into SquashFS directly
+            with FileSystem.new(
+                name='squashfs',
+                device_provider=DeviceProvider(),
+                root_dir=self.root_dir + os.sep,
+                custom_args={
+                    'compression':
+                        self.xml_state.build_type.get_squashfscompression()
+                }
+            ) as live_container_image:
+                container_image = Temporary().new_file()
+                live_container_image.create_on_file(
+                    container_image.name
+                )
+                Path.create(self.media_dir.name + '/LiveOS')
+                os.chmod(container_image.name, 0o644)
+                shutil.copy(
+                    container_image.name,
+                    self.media_dir.name + '/LiveOS/squashfs.img'
+                )
 
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')

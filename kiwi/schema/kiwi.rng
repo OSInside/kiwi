@@ -2403,7 +2403,7 @@ structure</a:documentation>
       </attribute>
       <sch:pattern id="filesystem" is-a="image_type">
         <sch:param name="attr" value="filesystem"/>
-        <sch:param name="types" value="oem pxe kis"/>
+        <sch:param name="types" value="oem pxe kis iso"/>
       </sch:pattern>
       <sch:pattern id="filesystem_mandatory" is-a="image_type_requirement">
         <sch:param name="attr" value="filesystem"/>

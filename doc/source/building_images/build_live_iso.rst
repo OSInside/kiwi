@@ -32,15 +32,28 @@ To add a live ISO build to your appliance, create a `type` element with
 The following attributes of the `type` element are relevant when building
 live ISO images:
 
-- `flags`: Specifies the live ISO technology and dracut module to use, can
-  be set to `overlay` or to `dmsquash`.
+- `flags`: Specifies the dracut module to use.
 
-  If set to `overlay`, the kiwi-live dracut module will be used to support a
-  live ISO system based on squashfs and overlayfs.
-  If set to `dmsquash`, the dracut standard dmsquash-live module will be
-  used to support a live ISO system based on squashfs and the device
-  mapper. Note, both modules support a different set of live features.
+  If set to `overlay`, the kiwi supplied kiwi-live dracut module will used
+  for booting.
+
+  If set to `dmsquash`, the dracut supplied dmsquash-live module will be
+  used for booting.
+
+  Both modules support a different set of live features.
   For details see :ref:`live_features`
+
+- `filesystem`: Specifies the root filesystem for the live system.
+
+  If set to `squashfs`, the root filesystem is written into a squashfs image.
+  This option is not compatible with device-mapper specific features of the
+  dmsquash-live dracut module. In that case, using overayfs is required.
+
+  If set to a value different from `squashfs`, the root filesystem is written
+  into a filesystem image of the specified type and that filesystem image
+  written into a squashfs image for compression.
+
+  The default value for this option is `ext4`.
 
 - `hybridpersistent`: Accepts `true` or `false`, if set to `true` then the
   resulting image will be created with a COW file to keep data persistent
@@ -78,13 +91,14 @@ deployment.
 Decision for a live ISO technology
 ----------------------------------
 
-The decision for the `overlay` vs. `dmsquash` dracut module depends on
-the features one wants to use. From a design perspective the `overlay`
-module is conceived for live ISO deployments on disk devices which
-allows the creation of a write partition or cow file. The `dmsquash`
-module is conceived as a generic mapping technology using device-mapper
-snapshots. The following list describes important live ISO features and
-their support status compared to the `overlay` and `dmsquash` modules.
+The decision for the `overlay` vs. `dmsquash` dracut module depends on the
+features one wants to use. The `overlay` module only supports overlayfs
+based overlays, but with automatic creation of a writable layer for
+persistence. The `dmsquash` module supports overlayfs as well as
+device-mapper based overlays.
+
+The following list describes important live ISO features and their support
+status compared to the `overlay` and `dmsquash` modules.
 
 ISO scan
   Usable in the same way with both dracut modules. This feature allows
@@ -100,8 +114,8 @@ ISO in RAM completely
   to setup RAM only deployments in {kiwi} see: :ref:`ramdisk_deployment`
 
 Overlay based on overlayfs
-  Usable with the `overlay` module. A squashfs compressed readonly root
-  gets overlayed with a readwrite filesystem using the kernel overlayfs
+  Usable with both dracut modules. The readonly root filesystem gets
+  overlayed with a readwrite filesystem using the kernel overlayfs
   filesystem.
 
 Overlay based on device mapper snapshots

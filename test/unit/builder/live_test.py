@@ -1,7 +1,7 @@
 from mock import (
     MagicMock, patch, call, Mock
 )
-from pytest import raises
+from pytest import raises, mark
 import sys
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 import kiwi.builder.live
@@ -171,6 +171,7 @@ class TestLiveImageBuilder:
             ['mv', 'kiwi_used_initrd_name', 'root_dir/boot/dracut_initrd_name']
         )
 
+    @mark.parametrize('xml_filesystem', [None, 'squashfs'])
     @patch('kiwi.builder.live.create_boot_loader_config')
     @patch('kiwi.builder.live.LoopDevice')
     @patch('kiwi.builder.live.DeviceProvider')
@@ -189,7 +190,7 @@ class TestLiveImageBuilder:
         self, mock_chmod, mock_exists, mock_grub_dir, mock_size,
         mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
         mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider,
-        mock_LoopDevice, mock_create_boot_loader_config
+        mock_LoopDevice, mock_create_boot_loader_config, xml_filesystem
     ):
         bootloader_config = Mock()
         mock_create_boot_loader_config.return_value.__enter__.return_value = \
@@ -218,6 +219,10 @@ class TestLiveImageBuilder:
 
         self.live_image.live_type = 'overlay'
 
+        self.xml_state.build_type.get_filesystem = Mock(
+            return_value=xml_filesystem
+        )
+
         iso_image = Mock()
         iso_image.create_on_file.return_value = 'offset'
         mock_isofs.return_value.__enter__.return_value = iso_image
@@ -237,34 +242,52 @@ class TestLiveImageBuilder:
 
         self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')
 
-        assert kiwi.builder.live.FileSystem.new.call_args_list == [
-            call(
-                device_provider=loop_provider, name='ext4',
-                root_dir='root_dir/',
-                custom_args={
-                    'mount_options': ['async'],
-                    'create_options': ['-O', 'option']
-                }
-            ),
-            call(
-                device_provider=mock_DeviceProvider.return_value,
-                name='squashfs',
-                root_dir='temp-squashfs',
-                custom_args={'compression': 'lzo'}
-            )
-        ]
+        if xml_filesystem == 'squashfs':
+            assert kiwi.builder.live.FileSystem.new.call_args_list == [
+                call(
+                    device_provider=mock_DeviceProvider.return_value,
+                    name='squashfs',
+                    root_dir='root_dir/',
+                    custom_args={'compression': 'lzo'}
+                )
+            ]
 
-        filesystem.create_on_device.assert_called_once_with()
-        filesystem.sync_data.assert_called_once_with([
-            'image', '.profile', '.kconfig',
-            'run/*', 'tmp/*', '.buildenv', 'var/cache/kiwi'
-        ])
-        filesystem.create_on_file.assert_called_once_with('kiwi-tmpfile')
+            filesystem.create_on_file.assert_called_once_with('kiwi-tmpfile')
 
-        assert mock_shutil.copy.call_args_list == [
-            call('kiwi-tmpfile', 'temp-squashfs/LiveOS/rootfs.img'),
-            call('kiwi-tmpfile', 'temp_media_dir/LiveOS/squashfs.img')
-        ]
+            assert mock_shutil.copy.call_args_list == [
+                call('kiwi-tmpfile', 'temp_media_dir/LiveOS/squashfs.img')
+            ]
+        else:
+            assert kiwi.builder.live.FileSystem.new.call_args_list == [
+                call(
+                    device_provider=loop_provider, name='ext4',
+                    root_dir='root_dir/',
+                    custom_args={
+                        'mount_options': ['async'],
+                        'create_options': ['-O', 'option']
+                    }
+                ),
+                call(
+                    device_provider=mock_DeviceProvider.return_value,
+                    name='squashfs',
+                    root_dir='temp-squashfs',
+                    custom_args={'compression': 'lzo'}
+                )
+            ]
+
+            filesystem.create_on_device.assert_called_once_with()
+            filesystem.sync_data.assert_called_once_with([
+                'image', '.profile', '.kconfig',
+                'run/*', 'tmp/*', '.buildenv', 'var/cache/kiwi'
+            ])
+
+            filesystem.create_on_file.assert_called_once_with('kiwi-tmpfile')
+
+            assert mock_shutil.copy.call_args_list == [
+                call('kiwi-tmpfile', 'temp-squashfs/LiveOS/rootfs.img'),
+                call('kiwi-tmpfile', 'temp_media_dir/LiveOS/squashfs.img')
+            ]
+
         assert mock_chmod.call_args_list == [
             call('initrd', 0o644), call('kiwi-tmpfile', 0o644)
         ]
