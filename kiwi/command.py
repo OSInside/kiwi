@@ -169,7 +169,10 @@ class Command:
         )
 
     @staticmethod
-    def call(command, custom_env=None):
+    def call(
+            command: List[str],
+            custom_env: Optional[MutableMapping[str, str]] = None
+    ) -> CommandCallT:
         """
         Execute a program and return an io file handle pair back.
         stdout and stderr are both on different channels. The caller
@@ -201,9 +204,7 @@ class Command:
         """
         from .path import Path
         log.debug('EXEC: [%s]', ' '.join(command))
-        environment = os.environ
-        if custom_env:
-            environment = custom_env
+        environment = custom_env or os.environ
         if not Path.which(
             command[0], custom_env=environment, access_mode=os.X_OK
         ):
@@ -220,31 +221,32 @@ class Command:
         except Exception as e:
             raise KiwiCommandError(
                 '%s: %s' % (type(e).__name__, format(e))
-            )
+            ) from e
 
-        def output_available():
+        # guaranteed to be true as stdout & stderr equal subprocess.PIPE
+        assert process.stdout and process.stderr
+
+        def output_available() -> Callable[[], bool]:
             def _select():
-                descriptor_lists = select.select(
+                readable, _, exceptional = select.select(
                     [process.stdout], [], [process.stdout], 1e-4
                 )
-                readable = descriptor_lists[0]
-                exceptional = descriptor_lists[2]
                 if readable and not exceptional:
                     return True
+                return False
             return _select
 
-        def error_available():
+        def error_available() -> Callable[[], bool]:
             def _select():
-                descriptor_lists = select.select(
+                readable, _, exceptional = select.select(
                     [process.stderr], [], [process.stderr], 1e-4
                 )
-                readable = descriptor_lists[0]
-                exceptional = descriptor_lists[2]
                 if readable and not exceptional:
                     return True
+                return False
             return _select
 
-        return command_call_type(
+        return CommandCallT(
             output=process.stdout,
             output_available=output_available(),
             error=process.stderr,
