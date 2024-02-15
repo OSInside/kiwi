@@ -134,7 +134,6 @@ class TestPath:
         mock_exists.return_value = False
         with self._caplog.at_level(logging.DEBUG):
             assert Path.which('file') is None
-            print(self._caplog.text)
             assert (
                 '"file": in paths "{0}" exists: "False" mode match: '
                 'not checked'
