@@ -11,7 +11,7 @@ class TestShell:
 
     @patch('kiwi.path.Path.which')
     def test_quote_key_value_file(self, mock_which):
-        mock_which.return_value = 'cp'
+        mock_which.side_effect = ['cp', 'bash']
         assert Shell.quote_key_value_file('../data/key_value') == [
             "foo='bar'",
             "bar='xxx'",

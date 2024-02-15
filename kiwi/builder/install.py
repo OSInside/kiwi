@@ -281,6 +281,8 @@ class InstallImageBuilder:
             keep_source_on_compress=True
         )
         compress.xz(self.xz_options)
+        # set by compress.xz
+        assert compress.compressed_filename
         Command.run(
             ['mv', compress.compressed_filename, pxe_image_filename]
         )

@@ -15,11 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import NamedTuple
-import select
-import os
+from typing import IO, Callable, List, MutableMapping, NamedTuple, Optional, overload
 import logging
+import os
+import select
 import subprocess
+import sys
+
+if sys.version_info >= (3, 8):
+    from typing import Literal  # pragma: no cover
+else:  # pragma: no cover
+    from typing_extensions import Literal  # pragma: no cover
 
 # project
 from kiwi.utils.codec import Codec
@@ -54,16 +60,39 @@ class Command:
     commands in blocking and non blocking mode. Control of
     stdout and stderr is given to the caller
     """
+
+    @overload
     @staticmethod
     def run(
-        command, custom_env=None, raise_on_error=True, stderr_to_stdout=False
-    ):
+        command: List[str], custom_env: Optional[MutableMapping[str, str]] = None,
+        raise_on_error: bool = True, stderr_to_stdout: bool = False,
+        raise_on_command_not_found: Literal[False] = False
+    ) -> CommandT:
+        ...  # pragma: no cover
+
+    @overload
+    @staticmethod
+    def run(
+        command: List[str], custom_env: Optional[MutableMapping[str, str]] = None,
+        raise_on_error: bool = True, stderr_to_stdout: bool = False,
+        raise_on_command_not_found: bool = True
+    ) -> Optional[CommandT]:
+        ...  # pragma: no cover
+
+    @staticmethod
+    def run(
+        command: List[str], custom_env: Optional[MutableMapping[str, str]] = None,
+        raise_on_error: bool = True, stderr_to_stdout: bool = False,
+        raise_on_command_not_found: bool = True
+    ) -> Optional[CommandT]:
         """
         Execute a program and block the caller. The return value
-        is a hash containing the stdout, stderr and return code
-        information. Unless raise_on_error is set to false an
-        exception is thrown if the command exits with an error
-        code not equal to zero
+        is a CommandT namedtuple containing the stdout, stderr
+        and return code information. Unless raise_on_error is
+        set to `False` an exception is thrown if the command
+        exits with an error code not equal to zero. If
+        raise_on_command_not_found is `False` and the command is
+        not found, then `None` is returned.
 
         Example:
 
@@ -72,7 +101,7 @@ class Command:
             result = Command.run(['ls', '-l'])
 
         :param list command: command and arguments
-        :param list custom_env: custom os.environ
+        :param dict custom_env: custom os.environ
         :param bool raise_on_error: control error behaviour
         :param bool stderr_to_stdout: redirects stderr to stdout
 
@@ -81,40 +110,42 @@ class Command:
 
             .. code:: python
 
-                command(output='string', error='string', returncode=int)
+                CommandT(output='string', error='string', returncode=int)
 
-        :rtype: namedtuple
+        :rtype: CommandT
         """
         from .path import Path
         log.debug('EXEC: [%s]', ' '.join(command))
-        environment = os.environ
-        if custom_env:
-            environment = custom_env
-        if not Path.which(
-            command[0], custom_env=environment, access_mode=os.X_OK
-        ):
+        environment = custom_env or os.environ
+        cmd_abspath: Optional[str]
+        if command[0].startswith("/"):
+            cmd_abspath = command[0]
+            if not os.path.exists(cmd_abspath):
+                cmd_abspath = None
+        else:
+            cmd_abspath = Path.which(
+                command[0], custom_env=environment, access_mode=os.X_OK
+            )
+
+        if not cmd_abspath:
             message = 'Command "%s" not found in the environment' % command[0]
-            if not raise_on_error:
-                log.debug('EXEC: %s', message)
-                return command_type(
-                    output=None,
-                    error=None,
-                    returncode=-1
-                )
-            else:
+            if raise_on_command_not_found:
                 raise KiwiCommandNotFound(message)
+            log.debug('EXEC: %s', message)
+            return None
         stderr = subprocess.STDOUT if stderr_to_stdout else subprocess.PIPE
         try:
             process = subprocess.Popen(
-                command,
+                [cmd_abspath] + command[1:],
                 stdout=subprocess.PIPE,
                 stderr=stderr,
                 env=environment
             )
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             raise KiwiCommandError(
                 '%s: %s: %s' % (command[0], type(e).__name__, format(e))
-            )
+            ) from e
+
         output, error = process.communicate()
         if process.returncode != 0 and raise_on_error:
             if not error:
@@ -131,7 +162,7 @@ class Command:
                     command[0], Codec.decode(error), Codec.decode(output)
                 )
             )
-        return command_type(
+        return CommandT(
             output=Codec.decode(output),
             error=Codec.decode(error),
             returncode=process.returncode
