@@ -31,23 +31,19 @@ from kiwi.exceptions import (
 
 log = logging.getLogger('kiwi')
 
-command_type = NamedTuple(
-    'command_type', [
-        ('output', str),
-        ('error', str),
-        ('returncode', int)
-    ]
-)
 
-command_call_type = NamedTuple(
-    'command_call_type', [
-        ('output', str),
-        ('output_available', bool),
-        ('error', str),
-        ('error_available', bool),
-        ('process', subprocess.Popen)
-    ]
-)
+class CommandT(NamedTuple):
+    output: str
+    error: str
+    returncode: int
+
+
+class CommandCallT(NamedTuple):
+    output: IO[bytes]
+    output_available: Callable[[], bool]
+    error: IO[bytes]
+    error_available: Callable[[], bool]
+    process: subprocess.Popen
 
 
 class Command:

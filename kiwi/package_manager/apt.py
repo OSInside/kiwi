@@ -24,7 +24,7 @@ from typing import (
 )
 
 # project
-from kiwi.command import command_call_type
+from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.path import Path
 from kiwi.package_manager.base import PackageManagerBase
@@ -128,7 +128,7 @@ class PackageManagerApt(PackageManagerBase):
 
     def process_install_requests_bootstrap(
         self, root_bind: RootBind = None, bootstrap_package: str = None
-    ) -> command_call_type:
+    ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)
         Either debootstrap or a prebuilt bootstrap package can be used
@@ -155,7 +155,7 @@ class PackageManagerApt(PackageManagerBase):
 
     def _process_install_requests_bootstrap_prebuild_root(
         self, bootstrap_package: str
-    ) -> command_call_type:
+    ) -> CommandCallT:
         """
         Process bootstrap phase (no chroot) using a prebuilt bootstrap
         package. The package has to provide a tarball below the
@@ -207,7 +207,7 @@ class PackageManagerApt(PackageManagerBase):
 
     def _process_install_requests_bootstrap_debootstrap(
         self, root_bind: RootBind = None
-    ) -> command_call_type:
+    ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)
         The debootstrap program is used to bootstrap a new system
@@ -316,7 +316,7 @@ class PackageManagerApt(PackageManagerBase):
         if root_bind:
             root_bind.mount_kernel_file_systems(delta_root)
 
-    def process_install_requests(self) -> command_call_type:
+    def process_install_requests(self) -> CommandCallT:
         """
         Process package install requests for image phase (chroot)
 
@@ -344,7 +344,7 @@ class PackageManagerApt(PackageManagerBase):
             apt_get_command, self.command_env
         )
 
-    def process_delete_requests(self, force: bool = False) -> command_call_type:
+    def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
         Process package delete requests (chroot)
 
@@ -452,7 +452,7 @@ class PackageManagerApt(PackageManagerBase):
             ]
         )
 
-    def update(self) -> command_call_type:
+    def update(self) -> CommandCallT:
         """
         Process package update requests (chroot)
 

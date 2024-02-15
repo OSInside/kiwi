@@ -20,7 +20,7 @@ from typing import (
 )
 
 # project
-from kiwi.command import command_call_type
+from kiwi.command import CommandCallT
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.system.root_bind import RootBind
 from kiwi.api_helper import decommissioned
@@ -60,22 +60,22 @@ class PackageManagerDnf(PackageManagerBase):
     @decommissioned
     def process_install_requests_bootstrap(
         self, root_bind: RootBind = None, bootstrap_package: str = None
-    ) -> command_call_type:
+    ) -> CommandCallT:
         pass  # pragma: no cover
 
     @no_type_check
     @decommissioned
-    def process_install_requests(self) -> command_call_type:
+    def process_install_requests(self) -> CommandCallT:
         pass  # pragma: no cover
 
     @no_type_check
     @decommissioned
-    def process_delete_requests(self, force: bool = False) -> command_call_type:
+    def process_delete_requests(self, force: bool = False) -> CommandCallT:
         pass  # pragma: no cover
 
     @no_type_check
     @decommissioned
-    def update(self) -> command_call_type:
+    def update(self) -> CommandCallT:
         pass  # pragma: no cover
 
     @decommissioned
