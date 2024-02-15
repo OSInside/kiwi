@@ -78,8 +78,8 @@ tested with QEMU as follows:
    $ sudo qemu
        -kernel /tmp/myimage/*.kernel \
        -initrd /tmp/myimage/*.initrd \
-       -append $(cat /tmp/myimage/*.append) \
-       -hda /tmp/myimage/{exc_image_base_name_pxe}.*-{exc_image_version} \
+       -append "$(cat /tmp/myimage/*.append) rw" \
+       -drive file=/tmp/myimage/{exc_image_base_name_pxe}.*-{exc_image_version},if=virtio,driver=raw \
        -serial stdio
 
 .. note::
