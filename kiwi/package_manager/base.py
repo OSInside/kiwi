@@ -243,7 +243,7 @@ class PackageManagerBase:
 
         :rtype: boolean
         """
-        return True if returncode != 0 else False
+        return returncode != 0
 
     def get_error_details(self) -> str:
         """
