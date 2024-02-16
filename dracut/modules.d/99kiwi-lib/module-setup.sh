@@ -34,7 +34,7 @@ install() {
         exit 1
     fi
     if [[ "$(uname -m)" =~ s390 ]];then
-        inst_multiple fdasd parted
+        inst_multiple fdasd parted partprobe
     fi
     inst_simple \
         "${moddir}/kiwi-lib.sh" "/lib/kiwi-lib.sh"
