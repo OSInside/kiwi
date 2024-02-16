@@ -280,11 +280,9 @@ class InstallImageBuilder:
             source_filename=self.diskname,
             keep_source_on_compress=True
         )
-        compress.xz(self.xz_options)
-        # set by compress.xz
-        assert compress.compressed_filename
+        xz_archive = compress.xz(self.xz_options)
         Command.run(
-            ['mv', compress.compressed_filename, pxe_image_filename]
+            ['mv', xz_archive, pxe_image_filename]
         )
 
         # the system image transfer is checked against a checksum

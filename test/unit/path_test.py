@@ -108,7 +108,7 @@ class TestPath:
         assert Path.which('some-file') is None
         mock_env.return_value = None
         mock_exists.return_value = True
-        assert Path.which('some-file', ['alternative']) == \
+        assert Path.which('some-file', alternative_lookup_paths=['alternative']) == \
             'alternative/some-file'
         mock_access.return_value = False
         mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'

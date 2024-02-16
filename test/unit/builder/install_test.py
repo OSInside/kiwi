@@ -342,6 +342,8 @@ class TestInstallImageBuilder:
         mock_md5.return_value = checksum
 
         compress = mock.Mock()
+        src = 'target_dir/result-image.x86_64-1.2.3.raw'
+        compress.xz.return_value = src
         mock_compress.return_value = compress
 
         m_open = mock_open()
@@ -349,15 +351,11 @@ class TestInstallImageBuilder:
             self.install_image.create_install_pxe_archive()
 
         mock_compress.assert_called_once_with(
-            keep_source_on_compress=True,
-            source_filename='target_dir/result-image.x86_64-1.2.3.raw'
+            keep_source_on_compress=True, source_filename=src
         )
         compress.xz.assert_called_once_with(None)
         assert mock_command.call_args_list[0] == call(
-            [
-                'mv', compress.compressed_filename,
-                'tmpdir/result-image.x86_64-1.2.3.xz'
-            ]
+            ['mv', src, 'tmpdir/result-image.x86_64-1.2.3.xz']
         )
         mock_md5.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.raw'
