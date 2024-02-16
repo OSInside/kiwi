@@ -21,6 +21,8 @@
         <type
             image="oem"
             luks="linux"
+            luks_pbkdf="pbkdf2"
+            luks_version="luks2"
             filesystem="btrfs"
             firmware="uefi"
             installiso="true"
@@ -30,12 +32,13 @@
             devicepersistency="by-uuid"
             btrfs_root_is_snapshot="true"
             btrfs_root_is_readonly_snapshot="true"
+            btrfs_root_is_subvolume="true"
             btrfs_quota_groups="true"
             format="qcow2"
         >
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
-                <oem-resize>false</oem-resize>
+                <oem-resize>true</oem-resize>
             </oemconfig>
             <bootloader name="grub2" console="serial" timeout="10"/>
             <systemdisk>
@@ -49,7 +52,7 @@
                 <volume name="usr/local"/>
                 <volume name="var" copy_on_write="false"/>
             </systemdisk>
-            <size unit="G">5</size>
+            <size unit="G">2</size>
             <installmedia>
                 <initrd action="omit">
                     <dracut module="combustion"/>
@@ -109,9 +112,10 @@
         <package name="patterns-base-bootloader"/>
         <package name="patterns-microos-defaults"/>
         <package name="kernel-default"/>
-        <package name="ignition-dracut"/>
-        <package name="combustion"/>
-        <package name="growpart-generator"/>
+        <!-- disabled as it causes the system to be no longer bootable -->
+        <!-- <package name="ignition-dracut"/>-->
+        <!-- <package name="combustion"/>-->
+        <!-- <package name="growpart-generator"/>-->
         <package name="qemu-guest-agent"/>
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
@@ -125,6 +129,7 @@
     </packages>
     <packages type="bootstrap">
         <package name="coreutils"/>
+        <package name="shadow"/>
         <package name="gzip"/>
         <package name="gawk"/>
         <package name="openssl"/>
