@@ -1,7 +1,7 @@
 import logging
 from pytest import fixture
-from mock import patch
-import mock
+from unittest.mock import patch
+import unittest.mock as mock
 
 from kiwi.filesystem.isofs import FileSystemIsoFs
 

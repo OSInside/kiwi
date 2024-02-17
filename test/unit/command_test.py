@@ -1,7 +1,7 @@
-from mock import patch
+from unittest.mock import patch
 from collections import namedtuple
 from pytest import raises
-import mock
+import unittest.mock as mock
 import os
 
 from kiwi.command import Command

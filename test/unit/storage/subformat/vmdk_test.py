@@ -1,5 +1,5 @@
 import os
-from mock import (
+from unittest.mock import (
     patch, call, Mock, mock_open
 )
 from pytest import raises

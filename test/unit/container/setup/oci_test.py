@@ -1,6 +1,6 @@
-from mock import patch
-from mock import call
-import mock
+from unittest.mock import patch
+from unittest.mock import call
+import unittest.mock as mock
 
 from kiwi.container.setup.oci import ContainerSetupOCI
 

@@ -1,9 +1,9 @@
 from pytest import raises
-from mock import (
+from unittest.mock import (
     patch, call, MagicMock
 )
 import io
-import mock
+import unittest.mock as mock
 import os
 
 from kiwi.defaults import Defaults

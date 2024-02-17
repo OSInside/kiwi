@@ -1,4 +1,4 @@
-import mock
+import unittest.mock as mock
 from pytest import raises
 
 from kiwi.package_manager.base import PackageManagerBase

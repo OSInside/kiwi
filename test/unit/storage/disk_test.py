@@ -1,12 +1,12 @@
 import logging
-from mock import (
+from unittest.mock import (
     patch, mock_open, call, Mock
 )
 from pytest import (
     fixture, raises
 )
 
-import mock
+import unittest.mock as mock
 
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.disk import Disk

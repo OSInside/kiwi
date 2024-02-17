@@ -1,8 +1,8 @@
-from mock import (
+from unittest.mock import (
     patch, call, mock_open
 )
 from pytest import raises
-import mock
+import unittest.mock as mock
 import kiwi
 
 from kiwi.defaults import Defaults

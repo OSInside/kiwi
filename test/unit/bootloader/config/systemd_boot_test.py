@@ -1,6 +1,6 @@
 import io
 from pytest import raises
-from mock import (
+from unittest.mock import (
     Mock, patch, call, MagicMock
 )
 from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot

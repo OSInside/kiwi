@@ -1,6 +1,6 @@
-from mock import patch
+from unittest.mock import patch
 
-import mock
+import unittest.mock as mock
 
 from kiwi.filesystem.fat16 import FileSystemFat16
 

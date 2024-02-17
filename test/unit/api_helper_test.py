@@ -1,5 +1,5 @@
 from pytest import raises
-from mock import patch
+from unittest.mock import patch
 from kiwi.api_helper import (
     obsolete,
     decommissioned

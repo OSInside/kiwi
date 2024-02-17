@@ -1,4 +1,4 @@
-from mock import (
+from unittest.mock import (
     MagicMock, patch, call, Mock
 )
 from pytest import raises, mark

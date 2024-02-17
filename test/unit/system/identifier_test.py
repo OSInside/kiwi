@@ -1,4 +1,4 @@
-from mock import (
+from unittest.mock import (
     patch, mock_open
 )
 

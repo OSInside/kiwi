@@ -1,6 +1,6 @@
-from mock import patch
+from unittest.mock import patch
 from pytest import raises
-import mock
+import unittest.mock as mock
 
 from kiwi.repository import Repository
 from kiwi.exceptions import KiwiRepositorySetupError

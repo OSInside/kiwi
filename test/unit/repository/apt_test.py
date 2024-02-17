@@ -1,8 +1,8 @@
-from mock import (
+from unittest.mock import (
     patch, call, MagicMock
 )
 import io
-import mock
+import unittest.mock as mock
 
 from kiwi.repository.apt import RepositoryApt
 

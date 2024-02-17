@@ -1,10 +1,10 @@
 import io
-from mock import (
+from unittest.mock import (
     patch, call, mock_open, MagicMock, Mock
 )
 from pytest import raises
 import os
-import mock
+import unittest.mock as mock
 
 from lxml import etree
 

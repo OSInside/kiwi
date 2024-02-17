@@ -1,4 +1,4 @@
-from mock import (
+from unittest.mock import (
     patch, Mock
 )
 from kiwi.solver.repository.deb import SolverRepositoryDeb

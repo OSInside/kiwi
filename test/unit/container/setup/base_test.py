@@ -1,4 +1,4 @@
-from mock import (
+from unittest.mock import (
     patch, call, mock_open
 )
 from pytest import raises

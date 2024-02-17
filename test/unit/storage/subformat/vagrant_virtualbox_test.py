@@ -1,4 +1,4 @@
-from mock import (
+from unittest.mock import (
     call, patch, Mock, MagicMock, mock_open
 )
 import kiwi

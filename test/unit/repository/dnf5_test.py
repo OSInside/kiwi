@@ -1,8 +1,8 @@
 from pytest import fixture
-from mock import (
+from unittest.mock import (
     patch, call, mock_open
 )
-import mock
+import unittest.mock as mock
 
 from kiwi.repository.dnf5 import RepositoryDnf5
 

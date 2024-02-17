@@ -1,7 +1,7 @@
 import logging
-from mock import patch
+from unittest.mock import patch
 from pytest import fixture
-import mock
+import unittest.mock as mock
 
 from kiwi.filesystem.setup import FileSystemSetup
 

@@ -1,8 +1,8 @@
-from mock import (
+from unittest.mock import (
     patch, call
 )
 from pytest import raises
-import mock
+import unittest.mock as mock
 
 from kiwi.package_manager.dnf4 import PackageManagerDnf4
 

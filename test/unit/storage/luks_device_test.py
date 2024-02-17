@@ -1,6 +1,6 @@
 import logging
 import io
-from mock import (
+from unittest.mock import (
     patch, call, MagicMock, Mock
 )
 from pytest import (

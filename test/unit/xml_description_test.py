@@ -1,6 +1,6 @@
 import logging
-from mock import patch
-import mock
+from unittest.mock import patch
+import unittest.mock as mock
 from builtins import bytes
 from lxml import etree
 from pytest import raises

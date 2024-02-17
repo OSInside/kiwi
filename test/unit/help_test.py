@@ -1,4 +1,4 @@
-from mock import patch
+from unittest.mock import patch
 from pytest import raises
 
 from kiwi.help import Help

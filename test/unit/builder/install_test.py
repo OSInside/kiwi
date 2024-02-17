@@ -1,8 +1,8 @@
-from mock import (
+from unittest.mock import (
     MagicMock, patch, call, mock_open, ANY, Mock
 )
 from pytest import raises
-import mock
+import unittest.mock as mock
 import kiwi.builder.install
 
 from collections import namedtuple

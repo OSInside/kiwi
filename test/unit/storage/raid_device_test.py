@@ -1,5 +1,5 @@
 import logging
-from mock import (
+from unittest.mock import (
     patch, Mock, mock_open
 )
 from pytest import (

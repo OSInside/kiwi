@@ -1,6 +1,6 @@
 import logging
 import sys
-from mock import (
+from unittest.mock import (
     call, patch, mock_open, Mock, MagicMock, ANY
 )
 from pytest import (

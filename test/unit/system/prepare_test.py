@@ -3,7 +3,7 @@ import os
 from pytest import (
     raises, fixture
 )
-from mock import (
+from unittest.mock import (
     patch, call, Mock, MagicMock, ANY
 )
 
