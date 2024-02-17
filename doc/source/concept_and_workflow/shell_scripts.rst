@@ -301,6 +301,11 @@ $kiwi_type
   The image type as extracted from the `type` element in
   :file:`config.xml`.
 
+.. note:: **.profile.extra**
+
+   If there is the file :file:`/.profile.extra` available in the
+   initrd, {kiwi} will import this additional environment file
+   after the import of the :file:`/.profile` file.
 
 Configuration Tips
 ------------------

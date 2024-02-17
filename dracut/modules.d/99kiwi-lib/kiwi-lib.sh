@@ -178,11 +178,17 @@ function initialize {
     # """
     local kiwi_oem_installdevice
     local profile=/.profile
+    local profile_extra=/.profile.extra
 
     test -f ${profile} || \
         report_and_quit "No profile setup found"
 
     import_file ${profile}
+
+    test -f ${profile_extra} || \
+        cat >${profile_extra}</dev/null
+
+    import_file ${profile_extra}
 
     # Handle overwrites
     kiwi_oem_installdevice=$(getarg rd.kiwi.oem.installdevice=)
