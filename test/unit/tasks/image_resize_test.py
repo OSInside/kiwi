@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from mock import (
+from unittest.mock import (
     Mock, patch
 )
 from pytest import (

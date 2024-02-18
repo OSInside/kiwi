@@ -1,6 +1,6 @@
 import logging
 from pytest import fixture
-from mock import (
+from unittest.mock import (
     patch, mock_open, Mock
 )
 

@@ -1,5 +1,5 @@
 from pytest import raises
-from mock import (
+from unittest.mock import (
     patch, Mock
 )
 

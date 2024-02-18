@@ -1,8 +1,8 @@
-from mock import patch, call
+from unittest.mock import patch, call
 from pytest import (
     raises, fixture
 )
-import mock
+import unittest.mock as mock
 
 from kiwi.package_manager.pacman import PackageManagerPacman
 

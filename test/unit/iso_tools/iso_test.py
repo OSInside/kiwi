@@ -1,4 +1,4 @@
-from mock import patch
+from unittest.mock import patch
 
 from kiwi.defaults import Defaults
 from kiwi.iso_tools.iso import Iso

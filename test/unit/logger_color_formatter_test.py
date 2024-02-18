@@ -1,4 +1,4 @@
-from mock import patch
+from unittest.mock import patch
 from collections import namedtuple
 
 from kiwi.logger_color_formatter import ColorFormatter

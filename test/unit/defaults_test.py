@@ -1,8 +1,8 @@
 import logging
-from mock import patch
+from unittest.mock import patch
 
 import sys
-from mock import MagicMock
+from unittest.mock import MagicMock
 from pytest import fixture
 
 from .test_helper import argv_kiwi_tests

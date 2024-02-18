@@ -1,7 +1,7 @@
-from mock import patch
+from unittest.mock import patch
 from pytest import raises
 import sys
-import mock
+import unittest.mock as mock
 import kiwi
 
 from ..test_helper import argv_kiwi_tests

@@ -1,8 +1,8 @@
 import sys
-import mock
+import unittest.mock as mock
 import os
 
-from mock import patch
+from unittest.mock import patch
 
 import kiwi
 

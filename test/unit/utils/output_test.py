@@ -1,9 +1,9 @@
 import logging
 from pytest import fixture
-from mock import patch
+from unittest.mock import patch
 from kiwi.utils.output import DataOutput
 import json
-import mock
+import unittest.mock as mock
 
 
 class TestDataOutput:

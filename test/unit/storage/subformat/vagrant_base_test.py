@@ -1,9 +1,9 @@
 import io
 from pytest import raises
-from mock import (
+from unittest.mock import (
     call, patch, mock_open
 )
-from mock import (
+from unittest.mock import (
     Mock, MagicMock
 )
 

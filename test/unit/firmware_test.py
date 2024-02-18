@@ -1,5 +1,5 @@
 from pytest import raises
-import mock
+import unittest.mock as mock
 
 from kiwi.firmware import FirmWare
 from kiwi.defaults import Defaults

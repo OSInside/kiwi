@@ -1,9 +1,9 @@
 import logging
 import sys
-import mock
+import unittest.mock as mock
 import os
 from pytest import fixture
-from mock import (
+from unittest.mock import (
     patch, call
 )
 

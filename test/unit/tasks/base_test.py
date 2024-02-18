@@ -1,5 +1,5 @@
 import sys
-from mock import (
+from unittest.mock import (
     patch, call
 )
 from pytest import (

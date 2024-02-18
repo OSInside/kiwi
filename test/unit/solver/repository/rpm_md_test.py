@@ -1,6 +1,6 @@
-from mock import patch, call
+from unittest.mock import patch, call
 
-import mock
+import unittest.mock as mock
 
 from lxml import etree
 

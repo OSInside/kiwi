@@ -1,6 +1,6 @@
-import mock
+import unittest.mock as mock
 import os
-from mock import patch
+from unittest.mock import patch
 from pytest import raises
 
 from kiwi.system.kernel import Kernel

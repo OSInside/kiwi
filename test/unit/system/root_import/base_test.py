@@ -1,6 +1,6 @@
 import io
 import os
-from mock import (
+from unittest.mock import (
     patch, call, Mock, MagicMock
 )
 from pytest import raises

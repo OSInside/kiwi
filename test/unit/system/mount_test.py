@@ -1,6 +1,6 @@
 import os
 import logging
-from mock import (
+from unittest.mock import (
     patch, MagicMock, Mock, call
 )
 from pytest import fixture

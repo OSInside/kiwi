@@ -3,7 +3,7 @@ from typing import NoReturn
 from pytest import (
     fixture, raises
 )
-from mock import (
+from unittest.mock import (
     patch, call, Mock
 )
 from kiwi.exceptions import KiwiCommandError, KiwiUmountBusyError

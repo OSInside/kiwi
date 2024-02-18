@@ -1,8 +1,8 @@
-from mock import (
+from unittest.mock import (
     patch, call
 )
 
-import mock
+import unittest.mock as mock
 
 from kiwi.filesystem.ext2 import FileSystemExt2
 

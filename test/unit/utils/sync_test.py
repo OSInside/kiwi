@@ -3,7 +3,7 @@ import errno
 import logging
 from pytest import fixture
 from stat import ST_MODE
-from mock import patch
+from unittest.mock import patch
 
 from kiwi.utils.sync import DataSync
 

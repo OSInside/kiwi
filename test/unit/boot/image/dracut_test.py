@@ -1,4 +1,4 @@
-from mock import (
+from unittest.mock import (
     patch, call, Mock
 )
 from collections import namedtuple

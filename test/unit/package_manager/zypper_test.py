@@ -1,6 +1,6 @@
-from mock import patch
+from unittest.mock import patch
 from pytest import raises
-import mock
+import unittest.mock as mock
 
 from kiwi.path import Path
 from kiwi.package_manager.zypper import PackageManagerZypper

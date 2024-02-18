@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 import io
-from mock import (
+from unittest.mock import (
     patch, call, Mock, MagicMock, mock_open
 )
 from pytest import (

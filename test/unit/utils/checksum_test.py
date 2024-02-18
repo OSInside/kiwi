@@ -1,6 +1,6 @@
 from builtins import bytes
 import encodings.ascii as encoding
-from mock import (
+from unittest.mock import (
     patch, call, Mock, mock_open
 )
 from pytest import raises

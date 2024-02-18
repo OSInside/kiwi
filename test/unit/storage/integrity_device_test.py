@@ -4,7 +4,7 @@ from textwrap import dedent
 from pytest import (
     raises, fixture
 )
-from mock import (
+from unittest.mock import (
     patch, Mock, call, MagicMock
 )
 

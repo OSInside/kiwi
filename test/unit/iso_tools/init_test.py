@@ -1,6 +1,6 @@
 from pytest import raises
-from mock import patch
-import mock
+from unittest.mock import patch
+import unittest.mock as mock
 
 from kiwi.iso_tools import IsoTools
 from kiwi.exceptions import KiwiIsoToolError

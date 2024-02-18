@@ -1,12 +1,12 @@
 import logging
 import os
-from mock import (
+from unittest.mock import (
     patch, Mock
 )
 from pytest import (
     raises, fixture
 )
-import mock
+import unittest.mock as mock
 
 from kiwi.system.uri import Uri
 

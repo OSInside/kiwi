@@ -1,6 +1,6 @@
 import sys
 from builtins import bytes
-from mock import (
+from unittest.mock import (
     call, patch, Mock, mock_open
 )
 from pytest import raises

@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from pytest import raises
-from mock import Mock
+from unittest.mock import Mock
 
 from kiwi.bootloader.config.custom import BootLoaderConfigCustom
 

@@ -1,4 +1,4 @@
-from mock import patch
+from unittest.mock import patch
 
 from kiwi.container.setup.docker import ContainerSetupDocker
 

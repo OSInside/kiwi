@@ -1,9 +1,9 @@
 import io
-from mock import (
+from unittest.mock import (
     patch, call, MagicMock
 )
 from pytest import raises
-import mock
+import unittest.mock as mock
 
 from kiwi.bootloader.install.grub2 import BootLoaderInstallGrub2
 from kiwi.defaults import Defaults

@@ -2,7 +2,7 @@ import io
 import os
 import logging
 from collections import namedtuple
-from mock import (
+from unittest.mock import (
     patch, call, MagicMock, Mock
 )
 from pytest import (
