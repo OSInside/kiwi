@@ -1,4 +1,5 @@
 import logging
+import importlib
 from unittest.mock import (
     patch, Mock, MagicMock
 )
@@ -21,7 +22,7 @@ class TestSat:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('importlib.import_module')
+    @patch.object(importlib, 'import_module')
     def setup(self, mock_import_module):
         self.sat = Sat()
         self.solver = MagicMock()
@@ -44,11 +45,11 @@ class TestSat:
         self.sat.pool.setarch.assert_called_once_with()
         self.sat.pool.setarch.reset_mock()
 
-    @patch('importlib.import_module')
+    @patch.object(importlib, 'import_module')
     def setup_method(self, cls, mock_import_module):
         self.setup()
 
-    @patch('importlib.import_module')
+    @patch.object(importlib, 'import_module')
     def test_setup_no_sat_plugin(self, mock_import_module):
         mock_import_module.side_effect = Exception
         with raises(KiwiSatSolverPluginError):
