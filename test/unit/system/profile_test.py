@@ -27,7 +27,7 @@ class TestProfile:
 
     @patch('kiwi.path.Path.which')
     def test_create_live(self, mock_which):
-        mock_which.return_value = 'cp'
+        mock_which.side_effect = ['cp', 'bash']
         self.live_profile.create(self.profile_file)
         os.remove(self.profile_file)
         assert self.live_profile.dot_profile == {
@@ -76,7 +76,7 @@ class TestProfile:
 
     @patch('kiwi.path.Path.which')
     def test_create_oem(self, mock_which):
-        mock_which.return_value = 'cp'
+        mock_which.side_effect = ['cp', 'bash']
         self.profile.create(self.profile_file)
         os.remove(self.profile_file)
         assert self.profile.dot_profile == {
@@ -159,7 +159,7 @@ class TestProfile:
 
     @patch('kiwi.path.Path.which')
     def test_create_displayname_is_image_name(self, mock_which):
-        mock_which.return_value = 'cp'
+        mock_which.side_effect = ['cp', 'bash']
         description = XMLDescription('../data/example_pxe_config.xml')
         profile = Profile(
             XMLState(description.load())
@@ -171,7 +171,7 @@ class TestProfile:
 
     @patch('kiwi.path.Path.which')
     def test_create_cpio(self, mock_which):
-        mock_which.return_value = 'cp'
+        mock_which.side_effect = ['cp', 'bash']
         description = XMLDescription('../data/example_dot_profile_config.xml')
         profile = Profile(
             XMLState(description.load(), None, 'cpio')

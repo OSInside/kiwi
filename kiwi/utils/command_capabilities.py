@@ -78,7 +78,7 @@ class CommandCapabilities:
     def check_version(
         call, version_waterline, version_flags=None,
         root=None, raise_on_error=True
-    ):
+    ) -> bool:
         """
         Checks if the given command version is equal or higher than
         the given version tuple.

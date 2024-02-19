@@ -91,7 +91,8 @@ class PartitionerMsDos(PartitionerBase):
             raise KiwiPartitionerMsDosFlagError(
                 'Unknown partition flag %s' % flag_name
             )
-        if self.flag_map[flag_name]:
+        flag_val = self.flag_map[flag_name]
+        if flag_val:
             if flag_name == 'f.active':
                 Command.run(
                     [
@@ -100,10 +101,11 @@ class PartitionerMsDos(PartitionerBase):
                     ]
                 )
             else:
+                assert isinstance(flag_val, str), f"flag {flag_name} must be a string but got a {type(flag_val)}"
                 Command.run(
                     [
                         'sfdisk', '-c', self.disk_device,
-                        format(partition_id), self.flag_map[flag_name]
+                        format(partition_id), flag_val
                     ]
                 )
         else:

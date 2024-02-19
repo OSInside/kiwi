@@ -18,7 +18,7 @@
 import os
 import logging
 import collections
-from typing import Dict, List, Optional
+from typing import Dict, List, MutableMapping, Optional
 
 # project
 from kiwi.command import Command
@@ -224,7 +224,7 @@ class Path:
     @staticmethod
     def which(
         filename: str, alternative_lookup_paths: Optional[List[str]] = None,
-        custom_env: Optional[Dict[str, str]] = None,
+        custom_env: Optional[MutableMapping[str, str]] = None,
         access_mode: Optional[int] = None,
         root_dir: Optional[str] = None
     ) -> Optional[str]:

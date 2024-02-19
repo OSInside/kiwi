@@ -20,7 +20,7 @@ from typing import (
 )
 
 from kiwi.api_helper import decommissioned
-from kiwi.command import command_call_type
+from kiwi.command import CommandCallT
 from kiwi.system.root_bind import RootBind
 from kiwi.repository.base import RepositoryBase
 
@@ -117,7 +117,7 @@ class PackageManagerBase:
 
     def process_install_requests_bootstrap(
         self, root_bind: RootBind = None, bootstrap_package: str = None
-    ) -> command_call_type:
+    ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)
 
@@ -125,7 +125,7 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def process_install_requests(self) -> command_call_type:
+    def process_install_requests(self) -> CommandCallT:
         """
         Process package install requests for image phase (chroot)
 
@@ -133,7 +133,7 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def process_delete_requests(self, force: bool = False) -> command_call_type:
+    def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
         Process package delete requests (chroot)
 
@@ -143,7 +143,7 @@ class PackageManagerBase:
         """
         raise NotImplementedError
 
-    def update(self) -> command_call_type:
+    def update(self) -> CommandCallT:
         """
         Process package update requests (chroot)
 
@@ -243,7 +243,7 @@ class PackageManagerBase:
 
         :rtype: boolean
         """
-        return True if returncode != 0 else False
+        return returncode != 0
 
     def get_error_details(self) -> str:
         """

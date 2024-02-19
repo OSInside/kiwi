@@ -108,6 +108,8 @@ class RaidDevice(DeviceProvider):
 
         :param string filename: config file name
         """
+        if not self.raid_device:
+            raise KiwiRaidSetupError("No raid device defined, cannot create raid config!")
         mdadm_call = Command.run(
             ['mdadm', '-Db', self.raid_device]
         )

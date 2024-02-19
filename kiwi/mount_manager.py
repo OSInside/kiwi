@@ -216,7 +216,4 @@ class MountManager:
             command=['mountpoint', '-q', self.mountpoint],
             raise_on_error=False
         )
-        if mountpoint_call.returncode == 0:
-            return True
-        else:
-            return False
+        return mountpoint_call.returncode == 0

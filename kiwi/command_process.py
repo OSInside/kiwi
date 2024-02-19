@@ -17,6 +17,7 @@
 #
 import logging
 from collections import namedtuple
+from kiwi.command import CommandCallT
 
 # project
 from kiwi.utils.codec import Codec
@@ -37,7 +38,7 @@ class CommandProcess:
     :param subprocess command: instance of subprocess
     :param string log_topic: topic string for logging
     """
-    def __init__(self, command, log_topic='system'):
+    def __init__(self, command: CommandCallT, log_topic='system') -> None:
         self.command = CommandIterator(command)
         self.log_topic = log_topic
         self.items_processed = 0
@@ -154,7 +155,7 @@ class CommandIterator:
 
     :param subprocess command: instance of subprocess
     """
-    def __init__(self, command):
+    def __init__(self, command: CommandCallT) -> None:
         self.command = command
         self.command_error_output = bytes(b'')
         self.command_output_line = bytes(b'')
@@ -196,7 +197,7 @@ class CommandIterator:
         """
         return Codec.decode(self.command_error_output)
 
-    def get_error_code(self):
+    def get_error_code(self) -> int:
         """
         Provide return value from processed command
 
@@ -206,7 +207,7 @@ class CommandIterator:
         """
         return self.command.process.returncode
 
-    def get_pid(self):
+    def get_pid(self) -> int:
         """
         Provide process ID of command while running
 
@@ -216,7 +217,7 @@ class CommandIterator:
         """
         return self.command.process.pid
 
-    def kill(self):
+    def kill(self) -> None:
         """
         Send kill signal SIGTERM to command process
         """

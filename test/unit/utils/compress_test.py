@@ -95,9 +95,11 @@ class TestCompress:
 
     @patch('kiwi.path.Path.which')
     def test_get_format(self, mock_which):
-        mock_which.return_value = 'ziptool'
+        mock_which.side_effect = ['xz']
         xz = Compress('../data/xz_data.xz')
         assert xz.get_format() == 'xz'
+
+        mock_which.side_effect = ['xz', 'gzip']
         gzip = Compress('../data/gz_data.gz')
         assert gzip.get_format() == 'gzip'
 

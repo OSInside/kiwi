@@ -102,7 +102,7 @@ class TestResultBundleTask:
         checksum = Mock()
         compress = Mock()
         mock_path_which.return_value = 'zsyncmake'
-        compress.compressed_filename = 'compressed_filename'
+        compress.xz.return_value = 'compressed_filename'
         mock_compress.return_value = compress
         mock_checksum.return_value = checksum
         mock_exists.return_value = False
@@ -139,7 +139,7 @@ class TestResultBundleTask:
             os.sep.join([self.abs_bundle_dir, 'test-image-1.2.3-Build_42'])
         )
         mock_checksum.assert_called_once_with(
-            compress.compressed_filename
+            'compressed_filename'
         )
         checksum.sha256.assert_called_once_with()
         m_open.return_value.write.assert_called_once_with(
@@ -168,7 +168,7 @@ class TestResultBundleTask:
         checksum = Mock()
         compress = Mock()
         mock_path_which.return_value = 'zsyncmake'
-        compress.compressed_filename = 'compressed_filename'
+        compress.xz.return_value = 'compressed_filename'
         mock_compress.return_value = compress
         mock_checksum.return_value = checksum
         mock_exists.return_value = False
@@ -303,7 +303,7 @@ class TestResultBundleTask:
         checksum = Mock()
         compress = Mock()
         mock_path_which.return_value = None
-        compress.compressed_filename = 'compressed_filename'
+        compress.xz.return_value = 'compressed_filename'
         mock_compress.return_value = compress
         mock_checksum.return_value = checksum
         mock_exists.return_value = False

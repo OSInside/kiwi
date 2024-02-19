@@ -80,6 +80,16 @@ class TestRaidDevice:
         m_open.return_value.write.assert_called_once_with('data')
         self.raid.raid_device = None
 
+    @patch('kiwi.storage.raid_device.Command.run')
+    def test_create_raid_config_without_raid_device(self, mock_command):
+        self.raid.raid_device = None
+
+        with raises(KiwiRaidSetupError) as raid_err_ctx:
+            self.raid.create_raid_config('mdadm.conf')
+
+        assert "No raid device" in str(raid_err_ctx.value)
+        mock_command.assert_not_called()
+
     def test_is_loop(self):
         assert self.raid.is_loop() is True
 

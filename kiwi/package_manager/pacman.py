@@ -22,7 +22,7 @@ from typing import (
 )
 
 # project
-from kiwi.command import command_call_type
+from kiwi.command import CommandCallT
 from kiwi.command import Command
 from kiwi.package_manager.base import PackageManagerBase
 from kiwi.system.root_bind import RootBind
@@ -110,7 +110,7 @@ class PackageManagerPacman(PackageManagerBase):
 
     def process_install_requests_bootstrap(
         self, root_bind: RootBind = None, bootstrap_package: str = None
-    ) -> command_call_type:
+    ) -> CommandCallT:
         """
         Process package install requests for bootstrap phase (no chroot)
 
@@ -139,7 +139,7 @@ class PackageManagerPacman(PackageManagerBase):
             pacman_command, self.command_env
         )
 
-    def process_install_requests(self) -> command_call_type:
+    def process_install_requests(self) -> CommandCallT:
         """
         Process package install requests for image phase (chroot)
 
@@ -158,7 +158,7 @@ class PackageManagerPacman(PackageManagerBase):
             pacman_command, self.command_env
         )
 
-    def process_delete_requests(self, force: bool = False) -> command_call_type:
+    def process_delete_requests(self, force: bool = False) -> CommandCallT:
         """
         Process package delete requests (chroot)
 
@@ -195,7 +195,7 @@ class PackageManagerPacman(PackageManagerBase):
             self.command_env
         )
 
-    def update(self) -> command_call_type:
+    def update(self) -> CommandCallT:
         """
         Process package update requests (chroot)
 

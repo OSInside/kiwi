@@ -196,8 +196,7 @@ class ResultBundleTask(CliTask):
                 if result_file.compress:
                     log.info('--> XZ compressing')
                     compress = Compress(bundle_file)
-                    compress.xz(self.runtime_config.get_xz_options())
-                    bundle_file = compress.compressed_filename
+                    bundle_file = compress.xz(self.runtime_config.get_xz_options())
 
                 if self.command_args['--zsync-source'] and result_file.shasum:
                     # Files with a checksum are considered to be image files

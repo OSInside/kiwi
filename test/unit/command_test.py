@@ -4,6 +4,8 @@ from pytest import raises
 import unittest.mock as mock
 import os
 
+import pytest
+
 from kiwi.command import Command
 
 from kiwi.exceptions import (
@@ -30,7 +32,7 @@ class TestCommand:
     @patch('subprocess.Popen')
     def test_run_failure(self, mock_popen, mock_which):
         mock_which.return_value = 'command'
-        mock_popen.side_effect = KiwiCommandError('Run failure')
+        mock_popen.side_effect = OSError('Run failure')
         with raises(KiwiCommandError):
             Command.run(['command', 'args'])
 
@@ -55,10 +57,33 @@ class TestCommand:
     @patch('kiwi.path.Path.which')
     def test_run_does_not_raise_error_if_command_not_found(self, mock_which):
         mock_which.return_value = None
-        result = Command.run(['command', 'args'], os.environ, False)
-        assert result.error is None
-        assert result.output is None
-        assert result.returncode == -1
+        result = Command.run(['command', 'args'], os.environ, raise_on_command_not_found=False)
+        assert result is None
+
+    @patch('kiwi.path.Path.which')
+    @patch('os.path.exists')
+    @patch('subprocess.Popen')
+    def test_run_does_not_call_which_for_abspaths(self, mock_popen, mock_exists, mock_which):
+        mock_exists.return_value = True
+        proc = mock.MagicMock()
+        proc.communicate.return_value = (str.encode("stdout"), str.encode("stderr"))
+        proc.returncode = 0
+        mock_popen.return_value = proc
+
+        result = Command.run(['/bin/command', 'args'])
+        mock_which.assert_not_called()
+        assert result is not None
+
+    @patch('kiwi.path.Path.which')
+    @patch('os.path.exists')
+    def test_run_fails_for_non_existent_abspath(self, mock_exists, mock_which):
+        mock_exists.return_value = False
+
+        with pytest.raises(KiwiCommandNotFound) as cmd_not_found_err:
+            Command.run(['/bin/command', 'args'])
+
+        mock_which.assert_not_called()
+        assert '"/bin/command" not found' in str(cmd_not_found_err.value)
 
     @patch('os.access')
     @patch('os.path.exists')
@@ -90,17 +115,18 @@ class TestCommand:
         with raises(KiwiCommandNotFound):
             Command.call(['does-not-exist'], os.environ)
 
+    @pytest.mark.parametrize("available", (True, False))
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')
     @patch('select.select')
-    def test_call(self, mock_select, mock_popen, mock_which):
+    def test_call(self, mock_select, mock_popen, mock_which, available: bool):
         mock_which.return_value = 'command'
-        mock_select.return_value = [True, False, False]
+        mock_select.return_value = [True, False, not available]
         mock_process = mock.Mock()
         mock_popen.return_value = mock_process
         call = Command.call(['command', 'args'])
-        assert call.output_available()
-        assert call.error_available()
+        assert call.output_available() == available
+        assert call.error_available() == available
         assert call.output == mock_process.stdout
         assert call.error == mock_process.stderr
         assert call.process == mock_process

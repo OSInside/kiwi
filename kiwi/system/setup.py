@@ -23,7 +23,7 @@ import pathlib
 from collections import OrderedDict
 from collections import namedtuple
 from typing import (
-    Any, List
+    Any, List, Optional
 )
 
 # project
@@ -1154,7 +1154,7 @@ class SystemSetup:
             self.setup_selinux_file_contexts()
 
     def _call_script_no_chroot(
-        self, name, option_list, working_directory
+        self, name: str, option_list: List[str], working_directory: Optional[str]
     ):
         if not working_directory:
             working_directory = self.root_dir
