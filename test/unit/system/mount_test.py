@@ -1,5 +1,4 @@
 import os
-import logging
 from unittest.mock import (
     patch, MagicMock, Mock, call
 )
@@ -103,10 +102,16 @@ class TestImageSystem:
         self.image_system.umount()
         some_mount.umount.assert_called_once_with()
 
-    def test_destructor(self):
-        some_mount = MagicMock()
-        some_mount.is_mounted.return_value = True
-        self.image_system.mount_list.append(some_mount)
-        with self._caplog.at_level(logging.INFO):
-            self.image_system.__del__()
-        some_mount.umount.assert_called_once_with()
+    @patch('os.path.exists')
+    @patch('kiwi.system.mount.MountManager')
+    def test_context_manager_exit(self, mock_MountManager, mock_os_path_exists):
+        mount = MagicMock()
+        mount.is_mounted.return_value = True
+        mock_os_path_exists.return_value = True
+        mock_MountManager.return_value = mount
+        device_map = {
+            'root': MappedDevice('/dev/root-device', Mock())
+        }
+        with ImageSystem(device_map, 'root_dir') as system:
+            system.mount()
+        mount.umount.assert_called()
