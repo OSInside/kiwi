@@ -134,13 +134,13 @@ class TestCli:
     def test_set_target_arch(self):
         sys.argv = [
             sys.argv[0],
-            '--target-arch', 'artificial', 'system', 'build',
+            '--target-arch', 'x86_64', 'system', 'build',
             '--description', 'description',
             '--target-dir', 'directory'
         ]
         cli = Cli()
         cli.get_global_args()
-        assert Defaults.get_platform_name() == 'artificial'
+        assert Defaults.get_platform_name() == 'x86_64'
 
     def test_get_servicename_image(self):
         sys.argv = [

@@ -1,5 +1,4 @@
 import datetime
-import logging
 from unittest.mock import (
     patch, call, Mock, mock_open
 )
@@ -455,32 +454,6 @@ class TestVolumeManagerBtrfs:
         self.volume_manager.toplevel_mount.is_mounted.assert_called_once_with()
         self.volume_manager.toplevel_mount.umount.assert_called_once_with()
 
-    def test_umount_sub_volumes_busy(self):
-        self.volume_manager.toplevel_mount = Mock()
-        volume_mount = Mock()
-        volume_mount.is_mounted = Mock(
-            return_value=True
-        )
-        volume_mount.umount = Mock(
-            return_value=False
-        )
-        self.volume_manager.subvol_mount_list = [volume_mount]
-        assert self.volume_manager.umount_volumes() is False
-
-    def test_umount_toplevel_busy(self):
-        self.volume_manager.toplevel_mount = Mock()
-        volume_mount = Mock()
-        volume_mount.is_mounted = Mock(
-            return_value=True
-        )
-        self.volume_manager.toplevel_mount.is_mounted = Mock(
-            return_value=True
-        )
-        self.volume_manager.toplevel_mount.umount = Mock(
-            return_value=False
-        )
-        assert self.volume_manager.umount_volumes() is False
-
     @patch('kiwi.volume_manager.btrfs.SysConfig')
     @patch('kiwi.volume_manager.btrfs.DataSync')
     @patch('kiwi.volume_manager.btrfs.Command.run')
@@ -656,14 +629,14 @@ class TestVolumeManagerBtrfs:
         )
 
     @patch('kiwi.volume_manager.btrfs.VolumeManagerBtrfs.umount_volumes')
-    def test_destructor(self, mock_umount_volumes):
-        mock_umount_volumes.return_value = True
-        self.volume_manager.toplevel_mount = Mock()
-        with self._caplog.at_level(logging.INFO):
-            self.volume_manager.__del__()
-            mock_umount_volumes.assert_called_once_with()
-        mock_umount_volumes.reset_mock()
-        mock_umount_volumes.return_value = False
-        with self._caplog.at_level(logging.WARNING):
-            self.volume_manager.__del__()
-            mock_umount_volumes.assert_called_once_with()
+    @patch('os.path.exists')
+    def test_context_manager_exit(
+        self, mock_os_path_exists, mock_VolumeManagerBtrfs_umount_volumes
+    ):
+        mock_os_path_exists.return_value = True
+        with VolumeManagerBtrfs(
+            self.device_map, 'root_dir', self.volumes
+        ) as volume_manager:
+            volume_manager.toplevel_mount = Mock()
+
+        mock_VolumeManagerBtrfs_umount_volumes.assert_called_once_with()

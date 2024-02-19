@@ -289,8 +289,10 @@ class TestDiskBuilder:
         mock_Disk.return_value.__enter__.return_value = disk
         mock_path.return_value = True
         mock_rand.return_value = 15
-        filesystem = Mock()
-        mock_fs.return_value.__enter__.return_value = filesystem
+
+        filesystem = MagicMock()
+        mock_fs.return_value = filesystem
+
         self.disk_builder.volume_manager_name = None
         self.disk_builder.initrd_system = 'kiwi'
 
@@ -360,24 +362,33 @@ class TestDiskBuilder:
 
         self.boot_image_task.prepare.assert_called_once_with()
 
+        call = filesystem.__enter__.return_value \
+            .create_on_device.call_args_list[0]
+        assert filesystem.__enter__.return_value \
+            .create_on_device.call_args_list[0] == \
+            call(label='EFI')
+        call = filesystem.__enter__.return_value \
+            .create_on_device.call_args_list[1]
+        assert filesystem.__enter__.return_value \
+            .create_on_device.call_args_list[1] == \
+            call(label='BOOT')
+
         call = filesystem.create_on_device.call_args_list[0]
         assert filesystem.create_on_device.call_args_list[0] == \
-            call(label='EFI')
-        call = filesystem.create_on_device.call_args_list[1]
-        assert filesystem.create_on_device.call_args_list[1] == \
-            call(label='BOOT')
-        call = filesystem.create_on_device.call_args_list[2]
-        assert filesystem.create_on_device.call_args_list[2] == \
             call(label='ROOT')
 
+        call = filesystem.__enter__.return_value \
+            .sync_data.call_args_list[0]
+        assert filesystem.__enter__.return_value \
+            .sync_data.call_args_list[0] == \
+            call()
+        call = filesystem.__enter__.return_value \
+            .sync_data.call_args_list[1]
+        assert filesystem.__enter__.return_value \
+            .sync_data.call_args_list[1] == \
+            call(['efi/*'])
         call = filesystem.sync_data.call_args_list[0]
         assert filesystem.sync_data.call_args_list[0] == \
-            call()
-        call = filesystem.sync_data.call_args_list[1]
-        assert filesystem.sync_data.call_args_list[1] == \
-            call(['efi/*'])
-        call = filesystem.sync_data.call_args_list[2]
-        assert filesystem.sync_data.call_args_list[2] == \
             call([
                 'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi', 'boot/*', 'boot/.*',
@@ -629,8 +640,8 @@ class TestDiskBuilder:
             initrd_name='initramfs-1.2.3.img'
         )
         mock_path.return_value = True
-        filesystem = Mock()
-        mock_fs.return_value.__enter__.return_value = filesystem
+        filesystem = MagicMock()
+        mock_fs.return_value = filesystem
         self.disk_builder.integrity = True
         self.disk_builder.integrity_legacy_hmac = True
         self.disk_builder.root_filesystem_embed_integrity_metadata = True
@@ -650,12 +661,14 @@ class TestDiskBuilder:
         self.integrity_root.create_integrity_metadata.assert_called_once_with()
         self.integrity_root.sign_integrity_metadata.assert_called_once_with()
         self.integrity_root.write_integrity_metadata.assert_called_once_with()
-        assert filesystem.create_on_device.call_args_list == [
+        assert filesystem.__enter__.return_value.create_on_device.call_args_list == [
             call(label='EFI'),
             call(label='BOOT'),
-            # root must be created DM_METADATA_OFFSET smaller
-            call(label='ROOT', size=-4096, unit='b'),
             call(label='SWAP')
+        ]
+        assert filesystem.create_on_device.call_args_list == [
+            # root must be created DM_METADATA_OFFSET smaller
+            call(label='ROOT', size=-4096, unit='b')
         ]
 
     @patch('kiwi.builder.disk.Disk')
@@ -698,8 +711,8 @@ class TestDiskBuilder:
         )
         mock_path.return_value = True
         mock_rand.return_value = 15
-        filesystem = Mock()
-        mock_fs.return_value.__enter__.return_value = filesystem
+        filesystem = MagicMock()
+        mock_fs.return_value = filesystem
         self.disk_builder.root_filesystem_verity_blocks = 10
         self.disk_builder.root_filesystem_embed_verity_metadata = True
         self.disk_builder.root_filesystem_is_overlay = False
@@ -773,19 +786,23 @@ class TestDiskBuilder:
             '/dev/boot-device'
         )
         self.boot_image_task.prepare.assert_called_once_with()
-        assert filesystem.create_on_device.call_args_list[0] == \
-            call(label='EFI')
-        assert filesystem.create_on_device.call_args_list[1] == \
-            call(label='BOOT')
-        assert filesystem.create_on_device.call_args_list[2] == \
-            call(label='ROOT')
 
-        assert filesystem.sync_data.call_args_list[0] == \
-            call()
-        assert filesystem.sync_data.call_args_list[1] == \
-            call(['efi/*'])
-        assert filesystem.sync_data.call_args_list[2] == \
-            call([
+        filesystem.create_on_device.assert_called_once_with(
+            label='ROOT'
+        )
+
+        assert filesystem.__enter__.return_value \
+            .create_on_device.call_args_list[0] == call(label='EFI')
+        assert filesystem.__enter__.return_value \
+            .create_on_device.call_args_list[1] == call(label='BOOT')
+
+        assert filesystem.__enter__.return_value \
+            .sync_data.call_args_list[0] == call()
+        assert filesystem.__enter__.return_value \
+            .sync_data.call_args_list[1] == call(['efi/*'])
+
+        assert filesystem.__enter__.return_value \
+            .sync_data.call_args_list[2] == call([
                 'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi', 'boot/*', 'boot/.*',
                 'boot/efi/*', 'boot/efi/.*'
@@ -828,10 +845,10 @@ class TestDiskBuilder:
         self.boot_image_task.omit_module.assert_called_once_with('multipath')
         assert self.boot_image_task.write_system_config_file.call_args_list == \
             []
-        filesystem.create_verity_layer.assert_called_once_with(10, 'tempfile')
-        filesystem.create_verification_metadata.assert_called_once_with(
-            '/dev/root-device'
-        )
+        filesystem.__enter__.return_value \
+            .create_verity_layer.assert_called_once_with(10, 'tempfile')
+        filesystem.__enter__.return_value \
+            .create_verification_metadata.assert_called_once_with('/dev/root-device')
 
     @patch('kiwi.builder.disk.Disk')
     @patch('kiwi.builder.disk.create_boot_loader_config')
@@ -1573,8 +1590,8 @@ class TestDiskBuilder:
         )
         mock_create_boot_loader_config.return_value.__enter__.return_value = \
             bootloader_config
-        filesystem = Mock()
-        mock_fs.return_value.__enter__.return_value = filesystem
+        filesystem = MagicMock()
+        mock_fs.return_value = filesystem
         self.disk_builder.volume_manager_name = None
         self.disk_builder.install_media = False
         self.disk_builder.spare_part_mbsize = 42

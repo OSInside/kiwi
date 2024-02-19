@@ -32,7 +32,8 @@ from kiwi.filesystem import FileSystem
 from kiwi.path import Path
 
 from kiwi.exceptions import (
-    KiwiVolumeGroupConflict
+    KiwiVolumeGroupConflict,
+    KiwiCommandError
 )
 
 log = logging.getLogger('kiwi')
@@ -306,17 +307,10 @@ class VolumeManagerLVM(VolumeManagerBase):
     def umount_volumes(self):
         """
         Umount lvm volumes
-
-        :return: True if all subvolumes are successfully unmounted
-
-        :rtype: bool
         """
-        all_volumes_umounted = True
         for volume_mount in reversed(self.mount_list):
             if volume_mount.is_mounted():
-                if not volume_mount.umount():
-                    all_volumes_umounted = False
-        return all_volumes_umounted
+                volume_mount.umount()
 
     def _is_volume_enabled_for_fs_check(self, volume_name):
         for volume in self.volumes:
@@ -397,18 +391,18 @@ class VolumeManagerLVM(VolumeManagerBase):
             if volume_name == volume.name and volume.label == 'SWAP':
                 return True
 
-    def __del__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self.volume_group:
-            log.info('Cleaning up %s instance', type(self).__name__)
-            if self.umount_volumes():
-                try:
-                    Command.run(
-                        ['vgchange'] + self.lvm_tool_options + [
-                            '-an', self.volume_group
-                        ]
+            try:
+                self.umount_volumes()
+                Command.run(
+                    ['vgchange'] + self.lvm_tool_options + [
+                        '-an', self.volume_group
+                    ]
+                )
+            except KiwiCommandError as issue:
+                log.error(
+                    'volume group {0} detach failed with {1}'.format(
+                        self.volume_group, issue
                     )
-                except Exception:
-                    log.warning(
-                        'volume group %s still busy', self.volume_group
-                    )
-                    return
+                )

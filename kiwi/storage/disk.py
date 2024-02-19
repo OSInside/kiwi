@@ -68,15 +68,13 @@ class Disk(DeviceProvider):
             of that extended partition
         """
         self.partition_mapper = RuntimeConfig().get_mapper_tool()
-        # bind the underlaying block device providing class instance
-        # to this object (e.g loop) if present. This is done to guarantee
-        # the correct destructor order when the device should be released.
+        #: the underlaying device provider
         self.storage_provider = storage_provider
 
-        # list of protected map ids. If used in a custom partitions
-        # setup this will lead to a raise conditition in order to
-        # avoid conflicts with the existing partition layout and its
-        # customizaton capabilities
+        #: list of protected map ids. If used in a custom partitions
+        #: setup this will lead to a raise conditition in order to
+        #: avoid conflicts with the existing partition layout and its
+        #: customizaton capabilities
         self.protected_map_ids = [
             'root',
             'readonly',
