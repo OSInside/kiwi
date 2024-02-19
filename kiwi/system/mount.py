@@ -49,6 +49,9 @@ class ImageSystem:
         self.volumes = volumes
         self.mount_list: List[MountManager] = []
 
+    def __enter__(self):
+        return self
+
     def mountpoint(self) -> str:
         """
         Return image root mountpoint
@@ -175,6 +178,5 @@ class ImageSystem:
                 options=[self.volumes[volume_path]['volume_options']]
             )
 
-    def __del__(self):
-        log.info('Cleaning up %s instance', type(self).__name__)
+    def __exit__(self, exc_type, exc_value, traceback):
         self.umount()

@@ -879,18 +879,15 @@ class DiskBuilder:
             if system and self.system_setup.script_exists(
                 defaults.POST_DISK_SYNC_SCRIPT
             ):
-                image_system = ImageSystem(
+                with ImageSystem(
                     device_map, self.root_dir,
                     system.get_volumes() if self.volume_manager_name else {}
-                )
-                image_system.mount()
-                disk_system = SystemSetup(
-                    self.xml_state, image_system.mountpoint()
-                )
-                try:
+                ) as image_system:
+                    image_system.mount()
+                    disk_system = SystemSetup(
+                        self.xml_state, image_system.mountpoint()
+                    )
                     disk_system.call_disk_script()
-                finally:
-                    image_system.umount()
 
             # install boot loader
             if self.bootloader != 'custom':
