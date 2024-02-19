@@ -78,7 +78,7 @@ function _setup_interactive_service {
         echo "Wants=systemd-vconsole-setup.service"
         echo "Conflicts=emergency.service emergency.target"
         echo "[Service]"
-        echo "EnvironmentFile=/.profile.extra"
+        echo "EnvironmentFile=/dialog_profile"
         echo "Environment=HOME=/"
         echo "Environment=DRACUT_SYSTEMD=1"
         echo "Environment=NEWROOT=/sysroot"

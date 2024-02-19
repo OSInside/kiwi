@@ -185,10 +185,10 @@ function initialize {
 
     import_file ${profile}
 
-    test -f ${profile_extra} || \
-        cat >${profile_extra}</dev/null
+    test -f ${profile_extra} && source ${profile_extra}
 
-    import_file ${profile_extra}
+    # Used in the systemd dialog unit
+    env >/dialog_profile
 
     # Handle overwrites
     kiwi_oem_installdevice=$(getarg rd.kiwi.oem.installdevice=)
