@@ -152,6 +152,6 @@ function ask_and_shutdown {
     if ! run_dialog --yesno "\"${text_message}\"" 7 80; then
         die "${text_message}"
     else
-        reboot -f -p
+        systemctl halt
     fi
 }
