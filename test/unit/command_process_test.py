@@ -1,6 +1,7 @@
-import unittest.mock as mock
 import logging
-from unittest.mock import patch
+from unittest.mock import (
+    patch, Mock
+)
 from pytest import (
     raises, fixture
 )
@@ -61,7 +62,7 @@ class TestCommandProcess:
 
     @patch('kiwi.command.Command')
     def test_returncode(self, mock_command):
-        command = mock.Mock()
+        command = Mock()
         mock_command.return_value = command
         process = CommandProcess(command)
         assert process.returncode() == command.process.returncode
@@ -146,15 +147,15 @@ class TestCommandProcess:
         )
         assert match_method('a', 'b') is True
 
-    @patch('kiwi.command.Command')
-    def test_destructor(self, mock_command):
-        process = CommandProcess(mock_command)
-        process.command.command.process.returncode = None
-        process.command.command.process.pid = 42
-        process.command.command.process.kill = mock.Mock()
-        process.__del__()
-        process.command.command.process.kill.assert_called_once_with()
-
     def test_command_iterator(self):
-        iterator = CommandIterator(mock.Mock())
+        iterator = CommandIterator(Mock())
         assert iterator.__iter__() == iterator
+
+    def test_kill(self):
+        iterator = CommandIterator(Mock())
+        iterator.kill()
+        iterator.command.process.kill.assert_called_once_with()
+
+    def test_get_pid(self):
+        iterator = CommandIterator(Mock())
+        assert iterator.get_pid() == iterator.command.process.pid
