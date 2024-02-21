@@ -9,7 +9,10 @@ from pytest import (
 from kiwi.volume_manager.lvm import VolumeManagerLVM
 from kiwi.defaults import Defaults
 
-from kiwi.exceptions import KiwiVolumeGroupConflict
+from kiwi.exceptions import (
+    KiwiVolumeGroupConflict,
+    KiwiCommandError
+)
 from kiwi.xml_state import volume_type
 
 
@@ -313,7 +316,7 @@ class TestVolumeManagerLVM:
         volume_mount = Mock()
         volume_mount.mountpoint = 'volume_mount_point'
         self.volume_manager.mount_list = [volume_mount]
-        assert self.volume_manager.umount_volumes() is True
+        self.volume_manager.umount_volumes()
         volume_mount.umount.assert_called_once_with()
 
     def test_get_volumes(self):
@@ -357,37 +360,23 @@ class TestVolumeManagerLVM:
         ]
 
     @patch('kiwi.volume_manager.lvm.Command.run')
-    def test_destructor_busy_volumes(self, mock_command):
-        self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.volume_group = 'volume_group'
-        volume_mount = Mock()
-        volume_mount.is_mounted.return_value = True
-        volume_mount.umount.return_value = False
-        volume_mount.mountpoint = 'volume_mount_point'
-        volume_mount.device = '/dev/volume_group/LVRoot'
-        self.volume_manager.mount_list = [volume_mount]
-
-        self.volume_manager.__del__()
-
-        volume_mount.umount.assert_called_once_with()
-        self.volume_manager.volume_group = None
-
     @patch('kiwi.volume_manager.lvm.VolumeManagerLVM.umount_volumes')
-    @patch('kiwi.volume_manager.lvm.Command.run')
-    def test_destructor(
-        self, mock_command, mock_umount_volumes
+    @patch('os.path.exists')
+    def test_context_manager_exit(
+        self, mock_os_path_exists, mock_VolumeManagerLVM_umount_volumes,
+        mock_Command_run
     ):
-        mock_umount_volumes.return_value = True
-        mock_command.side_effect = Exception
-        self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.volume_group = 'volume_group'
+        mock_os_path_exists.return_value = True
+        mock_Command_run.side_effect = KiwiCommandError('error')
+        with self._caplog.at_level(logging.ERROR):
+            with VolumeManagerLVM(
+                self.device_map, 'root_dir', self.volumes
+            ) as volume_manager:
+                volume_manager.volume_group = 'volume_group'
 
-        with self._caplog.at_level(logging.WARNING):
-            self.volume_manager.__del__()
-            mock_umount_volumes.assert_called_once_with()
-            mock_command.assert_called_once_with(
-                ['vgchange'] + self.volume_manager.lvm_tool_options + [
-                    '-an', 'volume_group'
-                ]
-            )
-            self.volume_manager.volume_group = None
+        mock_VolumeManagerLVM_umount_volumes.assert_called_once_with()
+        mock_Command_run.assert_called_once_with(
+            ['vgchange'] + self.volume_manager.lvm_tool_options + [
+                '-an', 'volume_group'
+            ]
+        )

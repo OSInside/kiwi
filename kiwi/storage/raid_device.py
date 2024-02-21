@@ -38,9 +38,7 @@ class RaidDevice(DeviceProvider):
     :param object storage_provider: Instance of class based on DeviceProvider
     """
     def __init__(self, storage_provider: DeviceProvider):
-        # bind the underlaying block device providing class instance
-        # to this object (e.g loop) if present. This is done to guarantee
-        # the correct destructor order when the device should be released.
+        #: the underlaying device provider
         self.storage_provider = storage_provider
 
         self.raid_level_map = {

@@ -374,8 +374,24 @@ class DiskBuilder:
                             device_map, luks_root
                         )
 
+                    # create system layout for root system
+                    device_map = self._create_system_instance(
+                        device_map, stack
+                    )
                     # build bootable disk
-                    self._process_build(device_map, disk)
+                    self._build_main_system(
+                        stack,
+                        device_map,
+                        disk,
+                        self.storage_map['system'],
+                        self.storage_map['system_boot'],
+                        self.storage_map['system_efi'],
+                        self.storage_map['system_spare'],
+                        self.storage_map['system_custom_parts'] or {},
+                        self.storage_map['luks_root'],
+                        self.storage_map['raid_root'],
+                        self.storage_map['integrity_root']
+                    )
 
         # store image bundle_format in result
         if self.bundle_format:
@@ -562,7 +578,9 @@ class DiskBuilder:
             )
         )
 
-    def _create_system_instance(self, device_map: Dict) -> None:
+    def _create_system_instance(
+        self, device_map: Dict, stack: ExitStack
+    ) -> Dict:
         # create spare filesystem on spare partition if present
         self.storage_map[
             'system_spare'
@@ -586,16 +604,20 @@ class DiskBuilder:
                 self.volumes,
                 self.volume_manager_custom_parameters
             )
+            stack.push(volume_manager)
             device_map = self._map_root_volume_manager(
                 device_map, volume_manager
             )
         elif self.need_root_filesystem:
-            with FileSystem.new(
+            filesystem = FileSystem.new(
                 self.requested_filesystem, device_map['root'],
                 self.root_dir + '/',
                 self.filesystem_custom_parameters
-            ) as filesystem:
-                self._map_root_filesystem(device_map, filesystem)
+            )
+            stack.push(filesystem)
+            self._map_root_filesystem(device_map, filesystem)
+
+        return device_map
 
     def _map_raid(
         self, device_map: Dict, disk: Disk, raid_root: RaidDevice
@@ -708,59 +730,6 @@ class DiskBuilder:
                 label=self.disk_setup.get_root_label(),
             )
         self.storage_map['system'] = filesystem
-
-    def _process_build(self, device_map: Dict, disk: Disk) -> None:
-        # create system layout for root system
-        self._create_system_instance(device_map)
-
-        # representing the entire image system except for the boot/ area
-        # which could live on another part of the disk
-        system: Optional[Union[FileSystemBase, VolumeManagerBase]] = \
-            self.storage_map['system']
-
-        # an instance of a class with the sync_data capability
-        # representing the boot/ area of the disk if not part of
-        # system
-        system_boot: Optional[FileSystemBase] = \
-            self.storage_map['system_boot']
-
-        # an instance of a class with the sync_data capability
-        # representing the boot/efi area of the disk
-        system_efi: Optional[FileSystemBase] = \
-            self.storage_map['system_efi']
-
-        # an instance of a class with the sync_data capability
-        # representing the spare_part_mountpoint area of the disk
-        system_spare: Optional[FileSystemBase] = \
-            self.storage_map['system_spare']
-
-        # a dict of instances with the sync_data capability
-        # representing the custom partitions area of the disk
-        system_custom_parts: Dict[str, FileSystemBase] = \
-            self.storage_map['system_custom_parts'] or {}
-
-        luks_root = self.storage_map['luks_root']
-        raid_root = self.storage_map['raid_root']
-        integrity_root = self.storage_map['integrity_root']
-        try:
-            with ExitStack() as stack:
-                self._build_main_system(
-                    stack,
-                    device_map,
-                    disk,
-                    system,
-                    system_boot,
-                    system_efi,
-                    system_spare,
-                    system_custom_parts,
-                    luks_root,
-                    raid_root,
-                    integrity_root
-                )
-        finally:
-            if system:
-                if self.volume_manager_name:
-                    system.umount_volumes()
 
     def _build_main_system(
         self,

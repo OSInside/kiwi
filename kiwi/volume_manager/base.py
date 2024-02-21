@@ -61,18 +61,15 @@ class VolumeManagerBase(DeviceProvider):
     ) -> None:
 
         self.temp_directories: List[Temporary] = []
-        # all volumes are combined into one mountpoint. This is
-        # needed at sync_data time. How to mount the volumes is
-        # special to the volume management class
-        #: root mountpoint for volumes
+        #: all volumes are combined into one mountpoint. This is
+        #: needed at sync_data time. How to mount the volumes is
+        #: special to the volume management class
         self.mountpoint: Optional[str] = None
 
         #: dictionary of mapped DeviceProviders
         self.device_map = device_map
 
-        # bind the device providing class instance to this object.
-        # This is done to guarantee the correct destructor order when
-        # the device should be released.
+        #: the underlaying device provider
         self.device_provider_root = device_map['root']
 
         #: An indicator for the mount of the filesystem and its volumes
@@ -98,10 +95,12 @@ class VolumeManagerBase(DeviceProvider):
                 'given root directory %s does not exist' % root_dir
             )
 
+        #: custom arguments passed to setup the volumes
         self.custom_args: Dict[str, Any] = {}
 
         #: custom filesystem creation and mount arguments, subset of the
-        #: custom_args information suitable to be passed to a FileSystem instance
+        #: custom_args information suitable to be passed to a
+        #: FileSystem instance
         self.custom_filesystem_args: Dict[str, Any] = {
             'create_options': [],
             'mount_options': []
@@ -120,6 +119,9 @@ class VolumeManagerBase(DeviceProvider):
                 custom_args['fs_create_options']
 
         self.post_init(custom_args)
+
+    def __enter__(self):
+        return self
 
     def post_init(self, custom_args):
         """
@@ -164,7 +166,9 @@ class VolumeManagerBase(DeviceProvider):
                     ]
                 )
 
-    def get_fstab(self, persistency_type: str, filesystem_name: str) -> List[str]:
+    def get_fstab(
+        self, persistency_type: str, filesystem_name: str
+    ) -> List[str]:
         """
         Implements setup of the fstab entries. The method should
         return a list of fstab compatible entries
@@ -370,7 +374,9 @@ class VolumeManagerBase(DeviceProvider):
         """
         return '/'
 
-    def sync_data(self, exclude: Optional[List[str]] = None) -> Optional[MountManager]:
+    def sync_data(
+        self, exclude: Optional[List[str]] = None
+    ) -> Optional[MountManager]:
         """
         Implements sync of root directory to mounted volumes
 
@@ -421,3 +427,6 @@ class VolumeManagerBase(DeviceProvider):
         self.mountpoint_tempdir = Temporary(prefix='kiwi_volumes.').new_dir()
         self.mountpoint = self.mountpoint_tempdir.name
         self.temp_directories.append(self.mountpoint_tempdir)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass

@@ -60,9 +60,7 @@ class FileSystemBase:
         # as a file there
         self.filesystem_mount: Optional[MountManager] = None
 
-        # bind the block device providing class instance to this object.
-        # This is done to guarantee the correct destructor order when
-        # the device should be released. This is only required if the
+        # the underlaying device provider. This is only required if the
         # filesystem required a block device to become created
         self.device_provider = device_provider
 

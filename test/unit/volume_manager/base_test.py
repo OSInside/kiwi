@@ -291,3 +291,10 @@ class TestVolumeManagerBase:
         mock_command.assert_called_once_with(
             ['chattr', '+C', 'toplevel/etc']
         )
+
+    @patch('os.path.exists')
+    def test_context_manager_exit(self, mock_os_path_exists):
+        mock_os_path_exists.return_value = True
+        with VolumeManagerBase(self.device_map, 'root_dir', Mock()):
+            pass
+            # just pass

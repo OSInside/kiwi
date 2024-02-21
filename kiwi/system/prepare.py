@@ -105,10 +105,7 @@ class SystemPrepare:
         self.profiles = xml_state.profiles
         self.root_bind = root_bind
 
-        # A list of Uri references is stored inside of the System instance
-        # in order to delay the Uri destructors until the System instance
-        # dies. This is needed to keep bind mounted Uri locations alive
-        # for System operations
+        #: A list of Uri references
         self.uri_list: List[Uri] = []
 
     def setup_repositories(

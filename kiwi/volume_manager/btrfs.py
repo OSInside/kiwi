@@ -376,26 +376,16 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         self.volumes_mounted_initially = True
 
-    def umount_volumes(self):
+    def umount_volumes(self) -> None:
         """
         Umount btrfs subvolumes
-
-        :return: True if all subvolumes are successfully unmounted
-
-        :rtype: bool
         """
-        all_volumes_umounted = True
         for volume_mount in reversed(self.subvol_mount_list):
             if volume_mount.is_mounted():
-                if not volume_mount.umount():
-                    all_volumes_umounted = False
+                volume_mount.umount()
 
-        if all_volumes_umounted:
-            if self.toplevel_mount.is_mounted():
-                if not self.toplevel_mount.umount():
-                    all_volumes_umounted = False
-
-        return all_volumes_umounted
+        if self.toplevel_mount.is_mounted():
+            self.toplevel_mount.umount()
 
     def get_mountpoint(self) -> str:
         """
@@ -576,8 +566,6 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         with open(filename, 'w') as snapshot_info_file:
             snapshot_info_file.write(self._xml_pretty(snapshot))
 
-    def __del__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self.toplevel_mount:
-            log.info('Cleaning up %s instance', type(self).__name__)
-            if not self.umount_volumes():
-                log.warning('Subvolumes still busy')
+            self.umount_volumes()

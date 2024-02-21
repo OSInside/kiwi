@@ -61,9 +61,7 @@ class IntegrityDevice(DeviceProvider):
         self, storage_provider: DeviceProvider, integrity_algorithm: str,
         credentials: integrity_credentials_type = None
     ) -> None:
-        # bind the underlaying block device providing class instance
-        # to this object (e.g loop) if present. This is done to guarantee
-        # the correct destructor order when the device should be released.
+        #: the underlaying device provider
         self.storage_provider = storage_provider
 
         self.integrity_device: Optional[str] = None
