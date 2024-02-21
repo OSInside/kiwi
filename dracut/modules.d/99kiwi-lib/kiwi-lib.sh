@@ -176,21 +176,28 @@ function initialize {
     # The method will exit from the initrd if the profile
     # file does not exist
     # """
+    local term
     local kiwi_oem_installdevice
     local profile=/.profile
     local profile_extra=/.profile.extra
 
+    # Read and import mandatory image profile to env
     test -f ${profile} || \
         report_and_quit "No profile setup found"
-
     import_file ${profile}
 
+    # Optional env TERM setup
+    term=$(getarg "rd.kiwi.term=")
+    [ -n "${term}" ] && export TERM="${term}"
+
+    # Source optional profile.extra to env
     test -f ${profile_extra} && source ${profile_extra}
 
+    # Create dialog profile from current env
     # Used in the systemd dialog unit
     env >/dialog_profile
 
-    # Handle overwrites
+    # Handle kiwi specific env overwrites
     kiwi_oem_installdevice=$(getarg rd.kiwi.oem.installdevice=)
     if [ -n "${kiwi_oem_installdevice}" ];then
         # activate unattended mode. In case a user explicitly

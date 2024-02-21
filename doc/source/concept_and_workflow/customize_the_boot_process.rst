@@ -181,6 +181,14 @@ A dracut generated initrd in a {kiwi} image build process includes one or
 more of the {kiwi} provided dracut modules. The following list documents
 the available kernel boot parameters for this modules:
 
+``rd.kiwi.term``
+  Exports the TERM variable into the initrd environment. In case
+  the default value for the terminal emulation is not appropriate
+  `rd.kiwi.term` can be used to overwrite the default. The
+  environment is also passed to the systemd unit which calls
+  dialog based programs in {kiwi} dracut code, such that the
+  TERM setting will be effective there too.
+
 ``rd.kiwi.debug``
   Activates the debug log file for the {kiwi} part of
   the boot process at :file:`/run/initramfs/log/boot.kiwi`.
