@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from contextlib import ExitStack
 from typing import (
     List, Any, Optional
 )
@@ -145,78 +146,80 @@ class SystemPrepare:
             repository_options.append(
                 f'_target_arch%{target_arch}'
             )
-        repo = Repository.new(
+        with Repository.new(
             self.root_bind, package_manager, repository_options
-        )
-        repo.setup_package_database_configuration()
-        if signing_keys:
-            repo.import_trusted_keys(signing_keys)
-        for xml_repo in repository_sections:
-            repo_type = xml_repo.get_type()
-            repo_source = xml_repo.get_source().get_path()
-            repo_user = xml_repo.get_username()
-            repo_secret = xml_repo.get_password()
-            repo_alias = xml_repo.get_alias()
-            repo_priority = xml_repo.get_priority()
-            repo_dist = xml_repo.get_distribution()
-            repo_components = xml_repo.get_components()
-            repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
-            repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
-            repo_customization_script = self._get_repo_customization_script(
-                xml_repo
-            )
-            repo_sourcetype = xml_repo.get_sourcetype()
-            repo_use_for_bootstrap = \
-                True if xml_repo.get_use_for_bootstrap() else False
-            log.info(
-                'Setting up repository %s', Uri.print_sensitive(repo_source)
-            )
-            log.info('--> Type: {0}'.format(repo_type))
-            if repo_sourcetype:
-                log.info('--> SourceType: {0}'.format(repo_sourcetype))
-            if repo_priority:
-                log.info('--> Priority: {0}'.format(repo_priority))
-
-            uri = Uri(repo_source, repo_type)
-            repo_source_translated = uri.translate()
-            log.info(
-                '--> Translated: {0}'.format(
-                    Uri.print_sensitive(repo_source_translated)
+        ) as repo:
+            repo.setup_package_database_configuration()
+            if signing_keys:
+                repo.import_trusted_keys(signing_keys)
+            for xml_repo in repository_sections:
+                repo_type = xml_repo.get_type()
+                repo_source = xml_repo.get_source().get_path()
+                repo_user = xml_repo.get_username()
+                repo_secret = xml_repo.get_password()
+                repo_alias = xml_repo.get_alias()
+                repo_priority = xml_repo.get_priority()
+                repo_dist = xml_repo.get_distribution()
+                repo_components = xml_repo.get_components()
+                repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
+                repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
+                repo_customization_script = self._get_repo_customization_script(
+                    xml_repo
                 )
-            )
-            if not repo_alias:
-                repo_alias = uri.alias()
-            log.info('--> Alias: {0}'.format(repo_alias))
-
-            if not uri.is_remote() and not os.path.exists(
-                repo_source_translated
-            ):
-                log.warning(
-                    'repository %s does not exist and will be skipped',
-                    repo_source
+                repo_sourcetype = xml_repo.get_sourcetype()
+                repo_use_for_bootstrap = \
+                    True if xml_repo.get_use_for_bootstrap() else False
+                log.info(
+                    'Setting up repository %s', Uri.print_sensitive(repo_source)
                 )
-                continue
+                log.info('--> Type: {0}'.format(repo_type))
+                if repo_sourcetype:
+                    log.info('--> SourceType: {0}'.format(repo_sourcetype))
+                if repo_priority:
+                    log.info('--> Priority: {0}'.format(repo_priority))
 
-            if not uri.is_remote():
-                self.root_bind.mount_shared_directory(repo_source_translated)
+                uri = Uri(repo_source, repo_type)
+                repo_source_translated = uri.translate()
+                log.info(
+                    '--> Translated: {0}'.format(
+                        Uri.print_sensitive(repo_source_translated)
+                    )
+                )
+                if not repo_alias:
+                    repo_alias = uri.alias()
+                log.info('--> Alias: {0}'.format(repo_alias))
 
-            repo.add_repo(
-                repo_alias, repo_source_translated,
-                repo_type, repo_priority, repo_dist, repo_components,
-                repo_user, repo_secret, uri.credentials_file_name(),
-                repo_repository_gpgcheck, repo_package_gpgcheck,
-                repo_sourcetype, repo_use_for_bootstrap,
-                repo_customization_script
+                if not uri.is_remote() and not os.path.exists(
+                    repo_source_translated
+                ):
+                    log.warning(
+                        'repository %s does not exist and will be skipped',
+                        repo_source
+                    )
+                    continue
+
+                if not uri.is_remote():
+                    self.root_bind.mount_shared_directory(
+                        repo_source_translated
+                    )
+
+                repo.add_repo(
+                    repo_alias, repo_source_translated,
+                    repo_type, repo_priority, repo_dist, repo_components,
+                    repo_user, repo_secret, uri.credentials_file_name(),
+                    repo_repository_gpgcheck, repo_package_gpgcheck,
+                    repo_sourcetype, repo_use_for_bootstrap,
+                    repo_customization_script
+                )
+                if clear_cache:
+                    repo.delete_repo_cache(repo_alias)
+                self.uri_list.append(uri)
+            repo.cleanup_unused_repos()
+            return PackageManager.new(
+                repository=repo,
+                package_manager_name=package_manager,
+                release_version=release_version
             )
-            if clear_cache:
-                repo.delete_repo_cache(repo_alias)
-            self.uri_list.append(uri)
-        repo.cleanup_unused_repos()
-        return PackageManager.new(
-            repository=repo,
-            package_manager_name=package_manager,
-            release_version=release_version
-        )
 
     def install_bootstrap(
         self, manager: PackageManagerBase, plus_packages: List = None
@@ -404,19 +407,20 @@ class SystemPrepare:
                 )
             )
             try:
-                if manager is None:
-                    package_manager = self.xml_state.get_package_manager()
-                    release_version = self.xml_state.get_release_version()
-                    manager = PackageManager.new(
-                        repository=Repository.new(
-                            self.root_bind, package_manager
-                        ),
-                        package_manager_name=package_manager,
-                        release_version=release_version
+                with ExitStack() as stack:
+                    if manager is None:
+                        package_manager = self.xml_state.get_package_manager()
+                        release_version = self.xml_state.get_release_version()
+                        repo = Repository.new(self.root_bind, package_manager)
+                        stack.push(repo)
+                        manager = PackageManager.new(
+                            repository=repo,
+                            package_manager_name=package_manager,
+                            release_version=release_version
+                        )
+                    self.delete_packages(
+                        manager, to_become_deleted_packages, force
                     )
-                self.delete_packages(
-                    manager, to_become_deleted_packages, force
-                )
             except Exception as issue:
                 raise KiwiPackagesDeletePhaseFailed(
                     self.issue_message.format(
@@ -535,12 +539,13 @@ class SystemPrepare:
         """
         package_manager = self.xml_state.get_package_manager()
         release_version = self.xml_state.get_release_version()
-        manager = PackageManager.new(
-            repository=Repository.new(self.root_bind, package_manager),
-            package_manager_name=package_manager,
-            release_version=release_version
-        )
-        manager.clean_leftovers()
+        with Repository.new(self.root_bind, package_manager) as repo:
+            manager = PackageManager.new(
+                repository=repo,
+                package_manager_name=package_manager,
+                release_version=release_version
+            )
+            manager.clean_leftovers()
 
     def _install_archives(self, archive_list, archive_target_dir_dict):
         log.info("Installing archives")

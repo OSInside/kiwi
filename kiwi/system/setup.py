@@ -139,52 +139,52 @@ class SystemSetup:
         root = RootInit(
             root_dir=self.root_dir, allow_existing=True
         )
-        repo = Repository.new(
+        with Repository.new(
             RootBind(root), self.xml_state.get_package_manager()
-        )
-        repo.use_default_location()
-        for xml_repo in repository_sections:
-            repo_type = xml_repo.get_type()
-            repo_source = xml_repo.get_source().get_path()
-            repo_user = xml_repo.get_username()
-            repo_secret = xml_repo.get_password()
-            repo_alias = xml_repo.get_alias()
-            repo_priority = xml_repo.get_priority()
-            repo_dist = xml_repo.get_distribution()
-            repo_components = xml_repo.get_components()
-            repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
-            repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
-            repo_customization_script = self._get_repo_customization_script(
-                xml_repo
-            )
-            repo_sourcetype = xml_repo.get_sourcetype()
-            repo_use_for_bootstrap = False
-            uri = Uri(repo_source, repo_type)
-            repo_source_translated = uri.translate(
-                check_build_environment=False
-            )
-            if not repo_alias:
-                repo_alias = uri.alias()
-            log.info(
-                'Setting up image repository {0}'.format(
-                    Uri.print_sensitive(repo_source)
+        ) as repo:
+            repo.use_default_location()
+            for xml_repo in repository_sections:
+                repo_type = xml_repo.get_type()
+                repo_source = xml_repo.get_source().get_path()
+                repo_user = xml_repo.get_username()
+                repo_secret = xml_repo.get_password()
+                repo_alias = xml_repo.get_alias()
+                repo_priority = xml_repo.get_priority()
+                repo_dist = xml_repo.get_distribution()
+                repo_components = xml_repo.get_components()
+                repo_repository_gpgcheck = xml_repo.get_repository_gpgcheck()
+                repo_package_gpgcheck = xml_repo.get_package_gpgcheck()
+                repo_customization_script = self._get_repo_customization_script(
+                    xml_repo
                 )
-            )
-            log.info('--> Type: {0}'.format(repo_type))
-            log.info(
-                '--> Translated: {0}'.format(
-                    Uri.print_sensitive(repo_source_translated)
+                repo_sourcetype = xml_repo.get_sourcetype()
+                repo_use_for_bootstrap = False
+                uri = Uri(repo_source, repo_type)
+                repo_source_translated = uri.translate(
+                    check_build_environment=False
                 )
-            )
-            log.info('--> Alias: {0}'.format(repo_alias))
-            repo.add_repo(
-                repo_alias, repo_source_translated,
-                repo_type, repo_priority, repo_dist, repo_components,
-                repo_user, repo_secret, uri.credentials_file_name(),
-                repo_repository_gpgcheck, repo_package_gpgcheck,
-                repo_sourcetype, repo_use_for_bootstrap,
-                repo_customization_script
-            )
+                if not repo_alias:
+                    repo_alias = uri.alias()
+                log.info(
+                    'Setting up image repository {0}'.format(
+                        Uri.print_sensitive(repo_source)
+                    )
+                )
+                log.info('--> Type: {0}'.format(repo_type))
+                log.info(
+                    '--> Translated: {0}'.format(
+                        Uri.print_sensitive(repo_source_translated)
+                    )
+                )
+                log.info('--> Alias: {0}'.format(repo_alias))
+                repo.add_repo(
+                    repo_alias, repo_source_translated,
+                    repo_type, repo_priority, repo_dist, repo_components,
+                    repo_user, repo_secret, uri.credentials_file_name(),
+                    repo_repository_gpgcheck, repo_package_gpgcheck,
+                    repo_sourcetype, repo_use_for_bootstrap,
+                    repo_customization_script
+                )
 
     def import_cdroot_files(self, target_dir: str) -> None:
         """

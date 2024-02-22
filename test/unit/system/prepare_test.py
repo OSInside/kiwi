@@ -254,7 +254,7 @@ class TestSystemPrepare:
             return_value='credentials-file'
         )
         repo = Mock()
-        mock_repo.return_value = repo
+        mock_repo.return_value.__enter__.return_value = repo
 
         self.system.setup_repositories(
             clear_cache=True,
@@ -324,7 +324,7 @@ class TestSystemPrepare:
             return_value='uri-alias'
         )
         repo = Mock()
-        mock_repo.return_value = repo
+        mock_repo.return_value.__enter__.return_value = repo
         with self._caplog.at_level(logging.WARNING):
             self.system.setup_repositories()
 
