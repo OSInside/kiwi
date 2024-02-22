@@ -5,18 +5,18 @@ Build an ISO Hybrid Live Image
 
 .. sidebar:: Abstract
 
-   This page explains how to build a live image. It contains:
+   This page explains how to build a live image. It covers the following topics:
 
    * how to build an ISO image
-   * how to run it with QEMU
+   * how to run the image with QEMU
 
-A Live ISO image is a system on a removable media, e.g CD/DVD or USB stick.
-Once built and deployed it boots off from this media without interfering
-with other system storage components making it a useful pocket system for
-testing and demo- and debugging-purposes.
+A Live ISO image is a system on a removable media, for example a CD/DVD or a USB
+stick. Booting a Live ISO image does not interfere
+with other system storage components, making it a useful portable system for
+demonstration, testing, and debugging.
 
-To add a live ISO build to your appliance, create a `type` element with
-`image` set to `iso` in your :file:`config.xml` as shown below:
+To add a Live ISO build to your appliance, create a `type` element with
+`image` set to `iso` in the :file:`config.xml` file as shown below:
 
 .. code:: xml
 
@@ -30,14 +30,14 @@ To add a live ISO build to your appliance, create a `type` element with
    </image>
 
 The following attributes of the `type` element are relevant when building
-live ISO images:
+Live ISO images:
 
 - `flags`: Specifies the dracut module to use.
 
-  If set to `overlay`, the kiwi supplied kiwi-live dracut module will used
+  If set to `overlay`, the kiwi-live dracut module supplied by {kiwi} is used
   for booting.
 
-  If set to `dmsquash`, the dracut supplied dmsquash-live module will be
+  If set to `dmsquash`, the dracut-supplied dmsquash-live module is
   used for booting.
 
   Both modules support a different set of live features.
@@ -47,24 +47,24 @@ live ISO images:
 
   If set to `squashfs`, the root filesystem is written into a squashfs image.
   This option is not compatible with device-mapper specific features of the
-  dmsquash-live dracut module. In that case, using overayfs is required.
+  dmsquash-live dracut module. In that case, use overayfs.
 
   If set to a value different from `squashfs`, the root filesystem is written
-  into a filesystem image of the specified type and that filesystem image
+  into a filesystem image of the specified type, and the filesystem image
   written into a squashfs image for compression.
 
-  The default value for this option is `ext4`.
+  The default value of this option is `ext4`.
 
-- `hybridpersistent`: Accepts `true` or `false`, if set to `true` then the
-  resulting image will be created with a COW file to keep data persistent
-  over a reboot
+- `hybridpersistent`: Accepts `true` or `false`, if set to `true`, the
+  resulting image is created with a COW file to keep data persistent
+  over a reboot.
 
 - `hybridpersistent_filesystem`: The filesystem used for the COW
-  file. Possible values are `ext4` or `xfs`, with `ext4` being the default.
+  file. Valid values are `ext4` or `xfs`, with `ext4` being the default.
 
 
-With the appropriate settings present in :file:`config.xml` {kiwi} can now
-build the image:
+With the appropriate settings specified in :file:`config.xml`, you can build an
+image using {kiwi}:
 
 .. code:: bash
 
@@ -73,7 +73,7 @@ build the image:
          --set-repo {exc_repo_leap} \
          --target-dir /tmp/myimage
 
-The resulting image is saved in the folder :file:`/tmp/myimage` and can
+The resulting image is saved in :file:`/tmp/myimage`, and the image can
 be tested with QEMU:
 
 .. code:: bash
@@ -88,53 +88,51 @@ deployment.
 
 .. _live_features:
 
-Decision for a live ISO technology
+`overlay` or `dmsquash`
 ----------------------------------
 
-The decision for the `overlay` vs. `dmsquash` dracut module depends on the
-features one wants to use. The `overlay` module only supports overlayfs
+Whether you choose the `overlay` or `dmsquash` dracut module depends on the
+features you intend to use. The `overlay` module supports only overlayfs
 based overlays, but with automatic creation of a writable layer for
 persistence. The `dmsquash` module supports overlayfs as well as
 device-mapper based overlays.
 
-The following list describes important live ISO features and their support
-status compared to the `overlay` and `dmsquash` modules.
+The following list describes important Live ISO features and their support
+status in the `overlay` and `dmsquash` modules.
 
 ISO scan
   Usable in the same way with both dracut modules. This feature allows
-  to boot the live ISO as a file from a grub loopback configured bootloader.
-  The `live-grub-stick` tool is just one example that uses this feature.
+  to boot the Live ISO as a file from a grub loopback configured bootloader.
+  The `live-grub-stick` tool is one example that uses this feature.
   For details how to setup ISO scan with the `overlay` module see
   :ref:`iso_as_file_to_usb_stick`
 
 ISO in RAM completely
   Usable with the `dmsquash` module through `rd.live.ram`. The `overlay`
-  module does not support this mode but {kiwi} supports RAM only systems
+  module does not support this mode, while {kiwi} supports RAM only systems
   as OEM deployment into RAM from an install ISO media. For details how
   to setup RAM only deployments in {kiwi} see: :ref:`ramdisk_deployment`
 
 Overlay based on overlayfs
-  Usable with both dracut modules. The readonly root filesystem gets
-  overlayed with a readwrite filesystem using the kernel overlayfs
+  Usable with both dracut modules. The readonly root filesystem is
+  overlaid with a readwrite filesystem using the kernel overlayfs
   filesystem.
 
 Overlay based on device mapper snapshots
   Usable with the `dmsquash` module. A squashfs compressed readonly root
-  gets overlayed with a readwrite filesystem using a device mapper
-  snapshot. This method was the preferred one before overlayfs existed
-  in the Linux kernel.
+  is overlaid with a readwrite filesystem using a device mapper
+  snapshot.
 
 Media Checksum Verification
-  Boot the live iso only for ISO checksum verification. This is possible
-  with both modules but the `overlay` module uses the `checkmedia` tool
-  whereas the upstream `dmsquash` module uses `checkisomd5`. The activation
-  of the verification process is done by passing the kernel option
-  `mediacheck` for the `overlay` module and `rd.live.check` for
-  the `dmsquash` module.
+  Boot the Live iso only for ISO checksum verification. This is possible with
+  both modules but the `overlay` module uses the `checkmedia` tool, whereas the
+  upstream `dmsquash` module uses `checkisomd5`. The verification process is
+  triggered by passing the kernel option `mediacheck` for the `overlay` module
+  and `rd.live.check` for the `dmsquash` module.
 
 Live ISO through PXE boot
-  Boot the live image via the network. This is possible with both
-  modules but uses different technologies. The `overlay` module supports
+  Boot the Live image via the network. This is possible with both
+  modules, but it uses different technologies. The `overlay` module supports
   network boot only in combination with the AoE (Ata Over Ethernet) protocol.
   For details see :ref:`network_live_boot`. The `dmsquash` module supports
   network boot by fetching the ISO image into memory from `root=live:<url>`
