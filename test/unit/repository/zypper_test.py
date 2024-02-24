@@ -426,9 +426,10 @@ class TestRepositoryZypper:
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
-    def test_destructor(self, mock_exists, mock_command):
-        mock_exists.return_value = True
-        self.repo.__del__()
-        mock_command.assert_called_once_with(
+    def test_context_manager_exit(self, mock_os_path_exists, mock_command_run):
+        mock_os_path_exists.return_value = True
+        with RepositoryZypper(self.root_bind):
+            pass
+        mock_command_run.assert_called_once_with(
             ['mv', '-f', '/shared-dir/packages.moved', '/shared-dir/packages']
         )

@@ -44,6 +44,9 @@ class RepositoryBase:
 
         self.post_init(custom_args or [])
 
+    def __enter__(self):
+        return self
+
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
@@ -166,3 +169,6 @@ class RepositoryBase:
         Command.run(
             ['bash', '--norc', script_path, repo_file]
         )
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass  # pragma: no cover

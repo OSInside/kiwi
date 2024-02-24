@@ -1591,7 +1591,7 @@ class TestSystemSetup:
         )
         mock_uri.return_value = uri
         repo = Mock()
-        mock_repo.return_value = repo
+        mock_repo.return_value.__enter__.return_value = repo
         self.setup_with_real_xml.import_repositories_marked_as_imageinclude()
         assert repo.add_repo.call_args_list[0] == call(
             'uri-alias', 'uri', 'rpm-md', None, None, None, None, None,

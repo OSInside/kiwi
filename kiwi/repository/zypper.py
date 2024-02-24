@@ -450,7 +450,9 @@ class RepositoryZypper(RepositoryBase):
         """
         self._move_package_cache(restore=True)
 
-    def _move_package_cache(self, backup: bool = False, restore: bool = False) -> None:
+    def _move_package_cache(
+        self, backup: bool = False, restore: bool = False
+    ) -> None:
         package_cache = self.shared_location + '/packages'
         package_cache_moved = package_cache + '.moved'
         if backup and os.path.exists(package_cache):
@@ -462,5 +464,5 @@ class RepositoryZypper(RepositoryBase):
                 ['mv', '-f', package_cache_moved, package_cache]
             )
 
-    def __del__(self) -> None:
+    def __exit__(self, exc_type, exc_value, traceback):
         self._restore_package_cache()
