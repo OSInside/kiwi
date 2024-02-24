@@ -374,7 +374,7 @@ class SystemPrepare:
                 )
 
     def pinch_system(
-        self, manager: PackageManagerBase = None, force: bool = False
+        self, manager: Optional[PackageManagerBase] = None, force: bool = False
     ) -> None:
         """
         Delete packages marked for deletion in the XML description. If force
