@@ -121,6 +121,17 @@ class PartitionerMsDos(PartitionerBase):
         """
         pass
 
+    def set_uuid(self, partition_id: int, uuid: str) -> None:
+        """
+        Set partition UUID
+
+        Nothing to be done here for MSDOS devices
+
+        :param int partition_id: unused
+        :param string uuid: unused
+        """
+        pass  # pragma: nocover
+
     def set_start_sector(self, start_sector: int):
         """
         Set start sector of first partition as configured.

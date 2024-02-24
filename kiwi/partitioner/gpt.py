@@ -114,6 +114,21 @@ class PartitionerGpt(PartitionerBase):
         else:
             log.warning('Flag %s ignored on GPT', flag_name)
 
+    def set_uuid(self, partition_id: int, uuid: str) -> None:
+        """
+        Set partition UUID (GUID)
+
+        :param int partition_id: partition number
+        :param string uuid: UUID
+        """
+        Command.run(
+            [
+                'sgdisk',
+                '--partition-guid', f'{partition_id}:{uuid}',
+                self.disk_device
+            ]
+        )
+
     def set_hybrid_mbr(self) -> None:
         """
         Turn partition table into hybrid GPT/MBR table
