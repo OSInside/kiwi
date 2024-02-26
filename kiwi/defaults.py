@@ -1875,6 +1875,83 @@ class Defaults:
         elif package_manager == 'pacman':
             return 'pacman'
 
+    @staticmethod
+    def get_discoverable_partition_ids() -> Dict[str, str]:
+        """
+        Provides arch specific partition UUIDs as defined
+        by the UAPI group
+
+        :return: partition UUIDs
+
+        :rtype: dict
+        """
+        arch = Defaults.get_platform_name()
+        part_uuids_archs = {
+            'x86_64': {
+                'root':
+                    '4f68bce3e8cd4db196e7fbcaf984b709',
+                'usr':
+                    '8484680c952148c69c11b0720656f69e',
+                'usr-verity':
+                    '77ff5f63e7b64633acf41565b864c0e6'
+            },
+            'ix86': {
+                'root':
+                    '44479540f29741b29af7d131d5f0458a',
+                'usr':
+                    '75250d768cc6458ebd66bd47cc81a812',
+                'usr-verity':
+                    '8f461b0d14ee4e819aa9049b6fb97abd'
+            },
+            'aarch64': {
+                'root':
+                    'b921b0451df041c3af444c6f280d3fae',
+                'usr':
+                    'b0e01050ee5f4390949a9101b17104e9',
+                'usr-verity':
+                    '6e11a4e7fbca4dedb9e9e1a512bb664e'
+            },
+            'riscv64': {
+                'root':
+                    '72ec70a6cf7440e6bd494bda08e8f224',
+                'usr':
+                    'beaec34b8442439ba40b984381ed097d',
+                'usr-verity':
+                    '8f1056be9b0547c481d6be53128e5b54'
+            }
+        }
+        part_uuids_arch = part_uuids_archs.get(arch) or {}
+        return {
+            'root':
+                part_uuids_arch.get('root') or '',
+            'usr':
+                part_uuids_arch.get('usr') or '',
+            'usr-verity':
+                part_uuids_arch.get('usr-verity') or '',
+            'usr-secondary':
+                '75250d768cc6458ebd66bd47cc81a812',
+            'usr-secondary-verity':
+                '8f461b0d14ee4e819aa9049b6fb97abd',
+            'esp':
+                'c12a7328f81f11d2ba4b00a0c93ec93b',
+            'xbootldr':
+                'bc13c2ff59e64262a352b275fd6f7172',
+            'swap':
+                '0657fd6da4ab43c484e50933c84b4f4f',
+            'home':
+                '933ac7e12eb44f13b8440e14e2aef915',
+            'srv':
+                '3b8f842520e04f3b907f1a25a76f98e8',
+            'var':
+                '4d21b016b53445c2a9fb5c16e091fd2d',
+            'tmp':
+                '7ec6f5573bc54acab29316ef5df639d1',
+            'user-home':
+                '773f91ef66d449b5bd83d683bf40ad16',
+            'linux-generic':
+                '0fc63daf848347728e793d69d8477de4'
+        }
+
     def get(self, key):
         """
         Implements get method for profile elements

@@ -23,6 +23,7 @@ from typing import (
 )
 
 # project
+from kiwi.defaults import Defaults
 from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
@@ -31,8 +32,7 @@ from kiwi.partitioner import Partitioner
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.exceptions import (
     KiwiCustomPartitionConflictError,
-    KiwiCommandError,
-    KiwiCommandNotFound
+    KiwiError
 )
 
 ptable_entry_type = NamedTuple(
@@ -492,14 +492,14 @@ class Disk(DeviceProvider):
                     line = ' '.join(line.split())
                     partition_name, uuid = line.split(' ')
                     discoverable_ids[partition_name] = uuid
-        except KiwiCommandNotFound as issue:
-            log.warning(
-                f'Failed to call systemd-id128: {issue}'
-            )
-        except KiwiCommandError as issue:
+        except KiwiError as issue:
             log.warning(
                 f'Failed to obtain discoverable partition IDs: {issue}'
             )
+            log.warning(
+                'Using built-in table'
+            )
+            discoverable_ids = Defaults.get_discoverable_partition_ids()
         return discoverable_ids
 
     def _create_clones(

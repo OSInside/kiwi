@@ -12,8 +12,7 @@ from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.disk import Disk
 from kiwi.exceptions import (
     KiwiCustomPartitionConflictError,
-    KiwiCommandError,
-    KiwiCommandNotFound
+    KiwiCommandError
 )
 
 
@@ -401,6 +400,5 @@ class TestDisk:
         assert self.disk.get_discoverable_partition_ids()['root'] == \
             '4f68bce3e8cd4db196e7fbcaf984b709'
         mock_Command_run.side_effect = KiwiCommandError('issue')
-        assert self.disk.get_discoverable_partition_ids().get('root') is None
-        mock_Command_run.side_effect = KiwiCommandNotFound('issue')
-        assert self.disk.get_discoverable_partition_ids().get('root') is None
+        assert self.disk.get_discoverable_partition_ids().get('root') == \
+            '4f68bce3e8cd4db196e7fbcaf984b709'
