@@ -145,9 +145,10 @@ class TestDiskFormatBase:
 
     @patch('kiwi.storage.subformat.base.Path.wipe')
     @patch('os.path.exists')
-    def test_destructor(self, mock_exists, mock_wipe):
+    def test_context_manager_exit(self, mock_exists, mock_wipe):
         mock_exists.return_value = True
-        self.disk_format.temp_image_dir = 'tmpdir'
-        self.disk_format.__del__()
-        self.disk_format.temp_image_dir = None
+        with DiskFormatBase(
+            self.xml_state, 'root_dir', 'target_dir'
+        ) as disk_format:
+            disk_format.temp_image_dir = 'tmpdir'
         mock_wipe.assert_called_once_with('tmpdir')

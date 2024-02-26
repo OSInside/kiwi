@@ -228,7 +228,7 @@ class TestIntegrityDevice:
 
     @patch('kiwi.storage.integrity_device.Command.run')
     @patch('kiwi.storage.integrity_device.log.warning')
-    def test_destructor(self, mock_log_warn, mock_Command_run):
+    def test_context_manager_exit(self, mock_log_warn, mock_Command_run):
         mock_Command_run.side_effect = Exception
         with self._caplog.at_level(logging.ERROR):
             with IntegrityDevice(

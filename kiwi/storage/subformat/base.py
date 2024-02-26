@@ -60,6 +60,9 @@ class DiskFormatBase:
 
         self.post_init(custom_args or {})
 
+    def __enter__(self):
+        return self
+
     def post_init(self, custom_args: dict) -> None:
         """
         Post initialization method
@@ -198,7 +201,6 @@ class DiskFormatBase:
             shasum=True
         )
 
-    def __del__(self):
+    def __exit__(self, exc_type, exc_value, traceback):
         if self.temp_image_dir and os.path.exists(self.temp_image_dir):
-            log.info('Cleaning up %s instance', type(self).__name__)
             Path.wipe(self.temp_image_dir)

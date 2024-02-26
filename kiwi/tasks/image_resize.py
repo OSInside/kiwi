@@ -99,43 +99,41 @@ class ImageResizeTask(CliTask):
 
         disk_format = self.xml_state.build_type.get_format()
 
-        image_format = DiskFormat.new(
+        with DiskFormat.new(
             disk_format or 'raw', self.xml_state, image_root,
             abs_target_dir_path
-        )
-        if not image_format.has_raw_disk():
-            raise KiwiImageResizeError(
-                'no raw disk image {0} found in build results'.format(
-                    image_format.diskname
+        ) as image_format:
+            if not image_format.has_raw_disk():
+                raise KiwiImageResizeError(
+                    'no raw disk image {0} found in build results'.format(
+                        image_format.diskname
+                    )
                 )
-            )
 
-        new_disk_size = StringToSize.to_bytes(self.command_args['--size'])
+            new_disk_size = StringToSize.to_bytes(self.command_args['--size'])
 
-        # resize raw disk
-        log.info(
-            'Resizing raw disk to {0} bytes'.format(new_disk_size)
-        )
-        resize_result = image_format.resize_raw_disk(new_disk_size)
-
-        # resize raw disk partition table
-        firmware = FirmWare(self.xml_state)
-        with LoopDevice(image_format.diskname) as loop_provider:
-            loop_provider.create(overwrite=False)
-            partitioner = Partitioner.new(
-                firmware.get_partition_table_type(), loop_provider
-            )
-            partitioner.resize_table()
-
-        # resize disk format from resized raw disk
-        if disk_format and resize_result is True:
+            # resize raw disk
             log.info(
-                'Creating {0} disk format from resized raw disk'.format(
-                    disk_format
+                f'Resizing raw disk to {new_disk_size} bytes'
+            )
+            resize_result = image_format.resize_raw_disk(new_disk_size)
+
+            # resize raw disk partition table
+            firmware = FirmWare(self.xml_state)
+            with LoopDevice(image_format.diskname) as loop_provider:
+                loop_provider.create(overwrite=False)
+                partitioner = Partitioner.new(
+                    firmware.get_partition_table_type(), loop_provider
                 )
-            )
-            image_format.create_image_format()
-        elif resize_result is False:
-            log.info(
-                'Raw disk is already at {0} bytes'.format(new_disk_size)
-            )
+                partitioner.resize_table()
+
+            # resize disk format from resized raw disk
+            if disk_format and resize_result is True:
+                log.info(
+                    f'Creating {disk_format} disk format from resized raw disk'
+                )
+                image_format.create_image_format()
+            elif resize_result is False:
+                log.info(
+                    f'Raw disk is already at {new_disk_size} bytes'
+                )

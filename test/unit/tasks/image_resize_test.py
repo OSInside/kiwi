@@ -73,7 +73,7 @@ class TestImageResizeTask:
     def test_process_no_raw_disk_found(self, mock_DiskFormat):
         image_format = Mock()
         image_format.has_raw_disk.return_value = False
-        mock_DiskFormat.return_value = image_format
+        mock_DiskFormat.return_value.__enter__.return_value = image_format
         self._init_command_args()
         self.task.command_args['resize'] = True
         with raises(KiwiImageResizeError):
@@ -83,7 +83,7 @@ class TestImageResizeTask:
     def test_process_unsupported_size_format(self, mock_DiskFormat):
         image_format = Mock()
         image_format.has_raw_disk.return_value = True
-        mock_DiskFormat.return_value = image_format
+        mock_DiskFormat.return_value.__enter__.return_value = image_format
         self._init_command_args()
         self.task.command_args['--size'] = '20x'
         self.task.command_args['resize'] = True
@@ -102,7 +102,7 @@ class TestImageResizeTask:
         mock_Partitioner.return_value = partitioner
         image_format = Mock()
         image_format.resize_raw_disk.return_value = True
-        mock_DiskFormat.return_value = image_format
+        mock_DiskFormat.return_value.__enter__.return_value = image_format
         self._init_command_args()
         self.task.command_args['resize'] = True
         self.task.process()
@@ -125,7 +125,7 @@ class TestImageResizeTask:
         mock_Partitioner.return_value = partitioner
         image_format = Mock()
         image_format.resize_raw_disk.return_value = True
-        mock_DiskFormat.return_value = image_format
+        mock_DiskFormat.return_value.__enter__.return_value = image_format
         self._init_command_args()
         self.task.command_args['resize'] = True
         self.task.command_args['--size'] = '42m'
@@ -149,7 +149,7 @@ class TestImageResizeTask:
         mock_Partitioner.return_value = partitioner
         image_format = Mock()
         image_format.resize_raw_disk.return_value = True
-        mock_DiskFormat.return_value = image_format
+        mock_DiskFormat.return_value.__enter__.return_value = image_format
         self._init_command_args()
         self.task.command_args['resize'] = True
         self.task.command_args['--size'] = '42'
@@ -173,7 +173,7 @@ class TestImageResizeTask:
         mock_Partitioner.return_value = partitioner
         image_format = Mock()
         image_format.resize_raw_disk.return_value = False
-        mock_DiskFormat.return_value = image_format
+        mock_DiskFormat.return_value.__enter__.return_value = image_format
         self._init_command_args()
         self.task.command_args['resize'] = True
         self.task.command_args['--size'] = '42'
