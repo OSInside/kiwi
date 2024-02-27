@@ -109,6 +109,9 @@ class SystemPrepare:
         #: A list of Uri references
         self.uri_list: List[Uri] = []
 
+    def __enter__(self):
+        return self
+
     def setup_repositories(
         self, clear_cache: bool = False,
         signing_keys: List[str] = None, target_arch: Optional[str] = None
@@ -611,20 +614,8 @@ class SystemPrepare:
             )
         return script_path
 
-    def __del__(self):
-        log.info('Cleaning up {:s} instance'.format(type(self).__name__))
-        try:
-            if hasattr(self, 'root_bind'):
-                self.root_bind.cleanup()
-            if self.root_import:
-                self.root_import.overlay_finalize(self.xml_state)
-        except Exception as exc:
-            log.info(
-                'Cleaning up {self_name:s} instance failed, got an exception '
-                'of type {exc_type:s}: {exc:s}'
-                .format(
-                    self_name=type(self).__name__,
-                    exc_type=type(exc).__name__,
-                    exc=str(exc)
-                )
-            )
+    def __exit__(self, exc_type, exc_value, traceback):
+        if hasattr(self, 'root_bind'):
+            self.root_bind.cleanup()
+        if self.root_import:
+            self.root_import.overlay_finalize(self.xml_state)
