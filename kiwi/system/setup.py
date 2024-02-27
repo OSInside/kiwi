@@ -513,7 +513,7 @@ class SystemSetup:
         # call options.
         if CommandCapabilities.has_option_in_help(
             'setfiles', 'setfiles -c policyfile', ['--help'],
-            root=self.root_dir, raise_on_error=False
+            root=self.root_dir, raise_on_error=False, silent=True
         ):
             Command.run(
                 [
