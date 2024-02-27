@@ -20,8 +20,8 @@ elements of the `systemdisk` element:
 .. code:: xml
 
    <image schemaversion="{schema_version}" name="openSUSE-Leap-15.1">
-     <type image="oem" filesystem="btrfs" preferlvm="true">
-       <systemdisk name="vgroup">
+     <type image="oem" filesystem="btrfs">
+       <systemdisk name="vgroup" preferlvm="true">
          <volume name="usr/lib" size="1G" label="library"/>
          <volume name="@root" freespace="500M"/>
          <volume name="etc_volume" mountpoint="etc" copy_on_write="false"/>
