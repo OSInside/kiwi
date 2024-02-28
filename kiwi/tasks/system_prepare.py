@@ -122,6 +122,8 @@ from kiwi.defaults import Defaults
 from kiwi.system.profile import Profile
 from kiwi.command import Command
 
+from kiwi.exceptions import KiwiCommandError
+
 log = logging.getLogger('kiwi')
 
 
@@ -232,7 +234,7 @@ class SystemPrepareTask(CliTask):
                     log.warning(
                         'debootstrap will only be called once, skipped'
                     )
-                except Exception:
+                except KiwiCommandError:
                     run_bootstrap = True
 
             if run_bootstrap:

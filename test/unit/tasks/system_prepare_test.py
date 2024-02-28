@@ -9,6 +9,8 @@ import kiwi
 
 from ..test_helper import argv_kiwi_tests
 
+from kiwi.exceptions import KiwiCommandError
+
 from kiwi.tasks.system_prepare import SystemPrepareTask
 
 
@@ -191,7 +193,7 @@ class TestSystemPrepareTask:
         self.task.command_args['--allow-existing-root'] = True
 
         # debootstrap must be called if chroot with apt-get failed
-        self.command.run.side_effect = Exception
+        self.command.run.side_effect = KiwiCommandError('error')
         self.task.process()
         assert system_prepare.install_bootstrap.called
 
