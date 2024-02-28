@@ -18323,30 +18323,6 @@ CommitDate: Wed Jun 5 18:28:07 2019 +0200
     the overhead calculation and leads to more accurate results
     on the specified size constraints
 
-commit 0e6bb6ab33b66c56a86a0ad2cd5438612f912dab
-Author:     Marcus Schäfer <marcus.schaefer@gmail.com>
-AuthorDate: Wed Feb 20 12:37:23 2019 +0100
-Commit:     Marcus Schäfer <marcus.schaefer@gmail.com>
-CommitDate: Mon Jun 3 10:47:07 2019 +0200
-
-    Extend spare partition setup
-    
-    The spare partition could be used to introduce one additional
-    partition table entry. With this patch the following new type
-    attributes will be added:
-    
-    * spare_part_fs="fsname"
-    * spare_part_mountpoint="/location"
-    * spare_part_is_last="true|false"
-    
-    Along with the setup of the partition size the filesystem and
-    its mountpoint can be specified. If set the contents of the
-    rootfs at the specified spare location will be synced to that
-    partition. The spare_part_is_last attribute will place the
-    spare partition at the end of the disk. Note this attribute
-    is only available for the simple vmx disk type. This is
-    related to bsc#1129566
-
 commit 1d3b9a077fae84d16a1a683275541f1b0f323828
 Author:     Marcus Schäfer <marcus.schaefer@gmail.com>
 AuthorDate: Mon May 27 11:59:56 2019 +0200
