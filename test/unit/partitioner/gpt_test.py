@@ -116,3 +116,10 @@ class TestPartitionerGpt:
         mock_command.assert_called_once_with(
             ['sgdisk', '--resize-table', '42', '/dev/loop0']
         )
+
+    @patch('kiwi.partitioner.gpt.Command.run')
+    def test_set_uuid(self, mock_Command_run):
+        self.partitioner.set_uuid(42, 'ID')
+        mock_Command_run.assert_called_once_with(
+            ['sgdisk', '--partition-guid', '42:ID', '/dev/loop0']
+        )

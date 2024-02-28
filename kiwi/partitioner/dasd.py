@@ -83,6 +83,17 @@ class PartitionerDasd(PartitionerBase):
             # that point.
             log.debug('potential fdasd errors were ignored')
 
+    def set_uuid(self, partition_id: int, uuid: str) -> None:
+        """
+        Set partition UUID
+
+        Nothing to be done here for DASD devices
+
+        :param int partition_id: unused
+        :param string uuid: unused
+        """
+        pass  # pragma: nocover
+
     def resize_table(self, entries: int = None) -> None:
         """
         Resize partition table

@@ -18,6 +18,10 @@ class TestPartitionerBase:
     def test_get_id(self):
         assert self.partitioner.get_id() == 0
 
+    def test_set_uuid(self):
+        with raises(NotImplementedError):
+            self.partitioner.set_uuid(100, 'ID')
+
     def test_create(self):
         with raises(NotImplementedError):
             self.partitioner.create('name', 100, 'type', ['flag'])

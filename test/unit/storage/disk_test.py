@@ -10,7 +10,10 @@ import unittest.mock as mock
 
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.disk import Disk
-from kiwi.exceptions import KiwiCustomPartitionConflictError
+from kiwi.exceptions import (
+    KiwiCustomPartitionConflictError,
+    KiwiCommandError
+)
 
 
 class TestDisk:
@@ -18,9 +21,13 @@ class TestDisk:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
+    @patch.object(Disk, 'get_discoverable_partition_ids')
     @patch('kiwi.storage.disk.Partitioner.new')
     @patch('kiwi.storage.disk.RuntimeConfig')
-    def setup(self, mock_RuntimeConfig, mock_partitioner):
+    def setup(
+        self, mock_RuntimeConfig, mock_partitioner,
+        mock_get_discoverable_partition_ids
+    ):
         runtime_config = Mock()
         runtime_config.get_mapper_tool.return_value = 'partx'
         mock_RuntimeConfig.return_value = runtime_config
@@ -304,8 +311,11 @@ class TestDisk:
             ['partprobe', '/dev/loop0']
         )
 
+    @patch.object(Disk, 'get_discoverable_partition_ids')
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor_partx_loop_cleanup_failed(self, mock_command):
+    def test_context_manager_exit_partx_loop_cleanup_failed(
+        self, mock_command, mock_get_discoverable_partition_ids
+    ):
         mock_command.side_effect = Exception
         with Disk('gpt', self.storage_provider) as disk:
             disk.is_mapped = True
@@ -315,8 +325,11 @@ class TestDisk:
                 ['partx', '--delete', '/dev/loop0']
             )
 
+    @patch.object(Disk, 'get_discoverable_partition_ids')
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor_dm_loop_cleanup_failed(self, mock_command):
+    def test_context_manager_exit_dm_loop_cleanup_failed(
+        self, mock_command, mock_get_discoverable_partition_ids
+    ):
         mock_command.side_effect = Exception
         with Disk('gpt', self.storage_provider) as disk:
             disk.partition_mapper = 'kpartx'
@@ -327,8 +340,11 @@ class TestDisk:
                 ['dmsetup', 'remove', '/dev/mapper/loop0p1']
             )
 
+    @patch.object(Disk, 'get_discoverable_partition_ids')
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor_partx(self, mock_command):
+    def test_context_manager_exit_partx(
+        self, mock_command, mock_get_discoverable_partition_ids
+    ):
         with Disk('gpt', self.storage_provider) as disk:
             disk.is_mapped = True
             disk.partition_map = {'root': '/dev/loop0p1'}
@@ -336,8 +352,11 @@ class TestDisk:
             call(['partx', '--delete', '/dev/loop0'])
         ]
 
+    @patch.object(Disk, 'get_discoverable_partition_ids')
     @patch('kiwi.storage.disk.Command.run')
-    def test_destructor_kpartx(self, mock_command):
+    def test_context_manager_exit_kpartx(
+        self, mock_command, mock_get_discoverable_partition_ids
+    ):
         with Disk('gpt', self.storage_provider) as disk:
             disk.partition_mapper = 'kpartx'
             disk.is_mapped = True
@@ -371,3 +390,15 @@ class TestDisk:
         (size, clone_size) = self.disk._parse_size('clone:100:all_free')
         assert size == '100'
         assert clone_size == 'all_free'
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_get_discoverable_partition_ids(self, mock_Command_run):
+        command = Mock()
+        with open('../data/systemd-id128.out') as ids:
+            command.output = ids.read()
+        mock_Command_run.return_value = command
+        assert self.disk.get_discoverable_partition_ids()['root'] == \
+            '4f68bce3e8cd4db196e7fbcaf984b709'
+        mock_Command_run.side_effect = KiwiCommandError('issue')
+        assert self.disk.get_discoverable_partition_ids().get('root') == \
+            '4f68bce3e8cd4db196e7fbcaf984b709'
