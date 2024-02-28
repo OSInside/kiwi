@@ -1,5 +1,5 @@
 commit 31deb0938e910458764ddbb7b82e55aa55df1f67
-Author:     David Cassany <david@localhost.localdomain>
+Author:     David Cassany <dcassany@suse.com>
 AuthorDate: Fri Feb 16 15:08:49 2024 +0100
 Commit:     Marcus Schäfer <marcus.schaefer@gmail.com>
 CommitDate: Mon Feb 19 13:09:37 2024 +0100
@@ -12,7 +12,7 @@ CommitDate: Mon Feb 19 13:09:37 2024 +0100
     
     Fixes bsc#1219798
     
-    Signed-off-by: David Cassany <david@localhost.localdomain>
+    Signed-off-by: David Cassany <dcassany@suse.com>
 
 commit 66933c659bba3e54e4963a0b20efb1efe2f37c83
 Author:     Marcus Schäfer <marcus.schaefer@gmail.com>
