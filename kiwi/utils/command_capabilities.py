@@ -37,7 +37,7 @@ class CommandCapabilities:
     @staticmethod
     def has_option_in_help(
         call: str, flag: str, help_flags: List[str] = [],
-        root: str = '', raise_on_error: bool = True
+        root: str = '', raise_on_error: bool = True, silent: bool = False
     ):
         """
         Checks if the given flag is present in the help output
@@ -51,6 +51,7 @@ class CommandCapabilities:
             raises KiwiCommandCapabilitiesError and message if the
             specified flag does not occur on stdout/stderr of the
             command call
+        :param bool silent: don't log parsing failures
 
         :return: True if the flag is found, False in any other case
 
@@ -71,13 +72,14 @@ class CommandCapabilities:
         message = 'Could not parse {} output'.format(call)
         if raise_on_error:
             raise KiwiCommandCapabilitiesError(message)
-        log.warning(message)
+        if not silent:
+            log.warning(message)
         return False
 
     @staticmethod
     def check_version(
-        call, version_waterline, version_flags=None,
-        root=None, raise_on_error=True
+        call: str, version_waterline: tuple, version_flags: List[str] = [],
+        root: str = '', raise_on_error: bool = True, silent: bool = False
     ) -> bool:
         """
         Checks if the given command version is equal or higher than
@@ -88,6 +90,7 @@ class CommandCapabilities:
         :param list version_flags: a list with the required command arguments.
         :param str root: root directory of the env to validate
         :param bool raise_on_error: control error behavior
+        :param bool silent: don't log parsing failures
 
         :raises KiwiCommandCapabilitiesError: if raise_on_error is True and
             command execution fails or version can't be parsed.
@@ -118,6 +121,7 @@ class CommandCapabilities:
             message = 'Could not parse {0} version'.format(call)
             if raise_on_error:
                 raise KiwiCommandCapabilitiesError(message)
-            log.warning(message)
+            if not silent:
+                log.warning(message)
             return False
         return version_info >= version_waterline
