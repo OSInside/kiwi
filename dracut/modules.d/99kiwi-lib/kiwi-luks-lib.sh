@@ -39,7 +39,7 @@ function activate_luks {
         luksOpen "${device}" luks
     else
         # There is a keyfile and we need to get prompted to enter the passphrase
-        /usr/lib/systemd/systemd-cryptsetup attach luks "${device}"
+        systemctl start systemd-cryptsetup@luks
     fi
     wait_for_storage_device "/dev/mapper/luks"
     set_root_map "/dev/mapper/luks"
