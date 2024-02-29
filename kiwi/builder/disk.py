@@ -452,12 +452,12 @@ class DiskBuilder:
         """
         if self.image_format:
             log.info('Creating %s Disk Format', self.image_format)
-            disk_format = DiskFormat.new(
+            with DiskFormat.new(
                 self.image_format, self.xml_state,
                 self.root_dir, self.target_dir
-            )
-            disk_format.create_image_format()
-            disk_format.store_to_result(result_instance)
+            ) as disk_format:
+                disk_format.create_image_format()
+                disk_format.store_to_result(result_instance)
 
         return result_instance
 
@@ -470,17 +470,19 @@ class DiskBuilder:
                 'Expanding disk with %d bytes of unpartitioned space',
                 self.unpartitioned_bytes
             )
-            disk_format = DiskFormat.new(
+            with DiskFormat.new(
                 'raw', self.xml_state, self.root_dir, self.target_dir
-            )
-            disk_format.resize_raw_disk(self.unpartitioned_bytes, append=True)
-            firmware = FirmWare(self.xml_state)
-            with LoopDevice(disk_format.diskname) as loop_provider:
-                loop_provider.create(overwrite=False)
-                partitioner = Partitioner.new(
-                    firmware.get_partition_table_type(), loop_provider
+            ) as disk_format:
+                disk_format.resize_raw_disk(
+                    self.unpartitioned_bytes, append=True
                 )
-                partitioner.resize_table()
+                firmware = FirmWare(self.xml_state)
+                with LoopDevice(disk_format.diskname) as loop_provider:
+                    loop_provider.create(overwrite=False)
+                    partitioner = Partitioner.new(
+                        firmware.get_partition_table_type(), loop_provider
+                    )
+                    partitioner.resize_table()
 
     def create_install_media(self, result_instance: Result) -> Result:
         """

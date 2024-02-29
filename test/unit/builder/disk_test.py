@@ -1647,7 +1647,7 @@ class TestDiskBuilder:
         partitioner = Mock()
         mock_partitioner.return_value = partitioner
         disk_format = Mock()
-        mock_diskformat.return_value = disk_format
+        mock_diskformat.return_value.__enter__.return_value = disk_format
         self.disk_builder.unpartitioned_bytes = 1024
         self.disk_builder.append_unpartitioned_space()
         disk_format.resize_raw_disk.assert_called_once_with(
@@ -1661,7 +1661,7 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.DiskFormat.new')
     def test_create_disk_format(self, mock_DiskFormat, mock_command, mock_fs):
         disk_subformat = Mock()
-        mock_DiskFormat.return_value = disk_subformat
+        mock_DiskFormat.return_value.__enter__.return_value = disk_subformat
         result_instance = Mock()
         filesystem = Mock()
         mock_fs.return_value.__enter__.return_value = filesystem
