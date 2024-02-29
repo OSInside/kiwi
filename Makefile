@@ -102,10 +102,8 @@ build: clean tox
 	# provide rpm source tarball
 	mv dist/kiwi-${version}.tar.gz dist/python-kiwi.tar.gz
 	# update rpm changelog using reference file
-	helper/update_changelog.py \
-		--since package/python-kiwi.changes \
-		--fix package/python-kiwi.changes.deb6ca.fix \
-	> dist/python-kiwi.changes
+	helper/update_changelog.py --since package/python-kiwi.changes --fix > \
+		dist/python-kiwi.changes
 	helper/update_changelog.py --file package/python-kiwi.changes >> \
 		dist/python-kiwi.changes
 	# update package version in spec file

@@ -2,7 +2,7 @@
 """
 usage: update_changelog (--since=<reference_file>|--file=<reference_file>)
             [--utc]
-            [--fix=<fixfile>...]
+            [--fix]
 
 arguments:
     --since=<reference_file>
@@ -11,11 +11,12 @@ arguments:
         changes from the given file
     --utc
         print date/time in UTC
-    --fix=<fixfile>
-        use fix file to overwrite broken commit messages
+    --fix
+        lookup .fix files and apply them
 """
 import docopt
 import os
+import glob
 import subprocess
 import sys
 from dateutil import parser
@@ -55,7 +56,8 @@ reference_file = arguments['--since'] or arguments['--file']
 # Custom fix files
 fix_dict = {}
 if arguments['--fix']:
-    for fix in arguments['--fix']:
+    for fix in glob.iglob(f'{os.path.dirname(reference_file)}/*.fix'):
+        sys.stderr.write(f'Reading fix: {fix}{os.linesep}')
         with open(fix, 'r') as fixlog:
             commit = fixlog.readline()
             fix_dict[commit] = fixlog.read()
@@ -82,7 +84,7 @@ if arguments['--since']:
         if line.startswith(b'commit'):
             commit = line.decode()
             if from_git_log and fix_dict.get(commit):
-                # There is a fix for this commit
+                sys.stderr.write(f'  Apply fix for: {commit}')
                 from_git_log = False
                 log_lines.append(line)
                 for fix_line in fix_dict.get(commit).split(os.linesep):
