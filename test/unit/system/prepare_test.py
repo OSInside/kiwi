@@ -499,9 +499,21 @@ class TestSystemPrepare:
         self.system.update_system(self.manager)
         self.manager.update.assert_called_once_with()
 
-    def test_destructor(self):
-        self.system.__del__()
-        self.system.root_bind.cleanup.assert_called_once_with()
+    @patch('kiwi.system.prepare.RootBind')
+    @patch('kiwi.system.prepare.RootInit')
+    @patch('kiwi.logger.Logger.get_logfile')
+    def test_context_manager_exit(
+        self, mock_get_logfile, mock_RootInit, mock_RootBind
+    ):
+        root_bind = Mock()
+        mock_RootBind.return_value = root_bind
+        root_import = Mock()
+        with SystemPrepare(
+            xml_state=self.state, root_dir='root_dir', allow_existing=True
+        ) as system:
+            system.root_import = root_import
+        root_bind.cleanup.assert_called_once_with()
+        root_import.overlay_finalize.assert_called_once_with(self.state)
 
     @patch('kiwi.system.prepare.Repository.new')
     @patch('kiwi.system.prepare.PackageManager.new')
@@ -510,12 +522,3 @@ class TestSystemPrepare:
         mock_manager.return_value = manager
         self.system.clean_package_manager_leftovers()
         manager.clean_leftovers.assert_called_once_with()
-
-    def test_destructor_raising(self):
-        self.system.root_bind = Mock()
-        self.system.root_bind.cleanup.side_effect = ValueError("nothing")
-        with self._caplog.at_level(logging.INFO):
-            del self.system
-            assert 'Cleaning up SystemPrepare instance' in self._caplog.text
-            assert 'Cleaning up SystemPrepare instance failed, '
-            'got an exception of type ValueError: nothing' in self._caplog.text

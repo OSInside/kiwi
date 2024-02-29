@@ -62,7 +62,6 @@ htmlcov/
 .tox/
 .coverage
 .cache
-nosetests.xml
 coverage.xml
 
 # Translations
@@ -74,9 +73,6 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 doc/xml/
-
-# PyBuilder
-target/
 
 # man pages
 *.1.gz

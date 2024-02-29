@@ -1,5 +1,8 @@
 import sys
-import unittest.mock as mock
+import os
+from unittest.mock import (
+    patch, Mock
+)
 
 import kiwi
 
@@ -16,17 +19,13 @@ class TestSystemUpdateTask:
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'update',
             '--root', '../data/root-dir'
         ]
-        self.manager = mock.Mock()
-        self.system_prepare = mock.Mock()
-        kiwi.tasks.system_update.Privileges = mock.Mock()
-        self.system_prepare.setup_repositories = mock.Mock(
-            return_value=self.manager
-        )
-        kiwi.tasks.system_update.SystemPrepare = mock.Mock(
-            return_value=self.system_prepare
-        )
-        kiwi.tasks.system_update.Help = mock.Mock(
-            return_value=mock.Mock()
+        self.abs_target_dir = os.path.abspath('some-target')
+
+        kiwi.tasks.system_update.Privileges = Mock()
+        kiwi.tasks.system_update.Path = Mock()
+
+        kiwi.tasks.system_update.Help = Mock(
+            return_value=Mock()
         )
         self.task = SystemUpdateTask()
 
@@ -47,37 +46,58 @@ class TestSystemUpdateTask:
         self.task.command_args['--delete-package'] = []
         self.task.command_args['--root'] = '../data/root-dir'
 
-    def test_process_system_update(self):
+    @patch('kiwi.tasks.system_update.SystemPrepare')
+    def test_process_system_update(self, mock_SystemPrepare):
+        manager = Mock()
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
+            return_value=manager
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
         self.task.command_args['update'] = True
         self.task.process()
-        self.task.system.setup_repositories.assert_called_once_with(
+        system_prepare.setup_repositories.assert_called_once_with(
             target_arch=None
         )
-        self.task.system.update_system.assert_called_once_with(self.manager)
+        system_prepare.update_system.assert_called_once_with(manager)
 
-    def test_process_system_update_add_package(self):
+    @patch('kiwi.tasks.system_update.SystemPrepare')
+    def test_process_system_update_add_package(self, mock_SystemPrepare):
+        manager = Mock()
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
+            return_value=manager
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
         self.task.command_args['update'] = True
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
-        self.task.system.setup_repositories.assert_called_once_with(
+        system_prepare.setup_repositories.assert_called_once_with(
             target_arch=None
         )
-        self.task.system.install_packages.assert_called_once_with(
-            self.manager, ['vim']
+        system_prepare.install_packages.assert_called_once_with(
+            manager, ['vim']
         )
 
-    def test_process_system_update_delete_package(self):
+    @patch('kiwi.tasks.system_update.SystemPrepare')
+    def test_process_system_update_delete_package(self, mock_SystemPrepare):
+        manager = Mock()
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
+            return_value=manager
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
         self.task.command_args['update'] = True
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
-        self.task.system.setup_repositories.assert_called_once_with(
+        system_prepare.setup_repositories.assert_called_once_with(
             target_arch=None
         )
-        self.task.system.delete_packages.assert_called_once_with(
-            self.manager, ['vim']
+        system_prepare.delete_packages.assert_called_once_with(
+            manager, ['vim']
         )
 
     def test_process_system_update_help(self):

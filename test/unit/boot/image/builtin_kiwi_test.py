@@ -30,18 +30,9 @@ class TestBootImageKiwi:
         self.xml_state = XMLState(
             description.load()
         )
-
-        self.manager = Mock()
-        self.system_prepare = Mock()
         self.setup = Mock()
         self.profile = Mock()
         self.profile.dot_profile = dict()
-        self.system_prepare.setup_repositories = Mock(
-            return_value=self.manager
-        )
-        kiwi.boot.image.builtin_kiwi.SystemPrepare = Mock(
-            return_value=self.system_prepare
-        )
         kiwi.boot.image.builtin_kiwi.SystemSetup = Mock(
             return_value=self.setup
         )
@@ -64,19 +55,26 @@ class TestBootImageKiwi:
 
     @patch('kiwi.defaults.Defaults.get_boot_image_description_path')
     @patch('kiwi.boot.image.builtin_kiwi.Temporary')
-    def test_prepare(self, mock_Temporary, mock_boot_path):
+    @patch('kiwi.boot.image.builtin_kiwi.SystemPrepare')
+    def test_prepare(self, mock_SystemPrepare, mock_Temporary, mock_boot_path):
+        system_prepare = Mock()
+        manager = Mock()
+        system_prepare.setup_repositories = Mock(
+            return_value=manager
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         mock_Temporary.return_value.new_dir.return_value.name = \
             'boot-root-directory'
         mock_boot_path.return_value = '../data'
         self.boot_image.prepare()
-        self.system_prepare.setup_repositories.assert_called_once_with(
+        system_prepare.setup_repositories.assert_called_once_with(
             signing_keys=None, target_arch=None
         )
-        self.system_prepare.install_bootstrap.assert_called_once_with(
-            self.manager
+        system_prepare.install_bootstrap.assert_called_once_with(
+            manager
         )
-        self.system_prepare.install_system.assert_called_once_with(
-            self.manager
+        system_prepare.install_system.assert_called_once_with(
+            manager
         )
         assert self.profile.add.call_args_list[0] == call(
             'kiwi_initrdname', 'initrd-oemboot-suse-13.2'
@@ -89,8 +87,8 @@ class TestBootImageKiwi:
             follow_links=True
         )
         self.setup.call_config_script.assert_called_once_with()
-        self.system_prepare.pinch_system.assert_called_once_with(
-            manager=self.manager, force=True
+        system_prepare.pinch_system.assert_called_once_with(
+            manager=manager, force=True
         )
         self.setup.call_image_script.assert_called_once_with()
 

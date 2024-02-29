@@ -34,19 +34,9 @@ class TestSystemBuildTask:
             return_value=mock.Mock()
         )
 
-        self.manager = mock.Mock()
-        self.system_prepare = mock.Mock()
-        self.system_prepare.setup_repositories = mock.Mock(
-            return_value=self.manager
-        )
-
         self.runtime_checker = mock.Mock()
         kiwi.tasks.base.RuntimeChecker = mock.Mock(
             return_value=self.runtime_checker
-        )
-
-        kiwi.tasks.system_build.SystemPrepare = mock.Mock(
-            return_value=self.system_prepare
         )
 
         self.setup = mock.Mock()
@@ -105,7 +95,16 @@ class TestSystemBuildTask:
 
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
-    def test_process_system_build(self, mock_keys, mock_log):
+    @patch('kiwi.tasks.system_build.SystemPrepare')
+    def test_process_system_build(
+        self, mock_SystemPrepare, mock_keys, mock_log
+    ):
+        manager = mock.Mock()
+        system_prepare = mock.Mock()
+        system_prepare.setup_repositories = mock.Mock(
+            return_value=manager
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         mock_keys.return_value = ['some_key', 'some_other_key']
         self._init_command_args()
         self.task.command_args['build'] = True
@@ -159,14 +158,14 @@ class TestSystemBuildTask:
         self.runtime_checker.\
             check_efi_mode_for_disk_overlay_correctly_setup.\
             assert_called_once_with()
-        self.system_prepare.setup_repositories.assert_called_once_with(
+        system_prepare.setup_repositories.assert_called_once_with(
             False, ['some_key', 'some_other_key'], None
         )
-        self.system_prepare.install_bootstrap.assert_called_once_with(
-            self.manager, []
+        system_prepare.install_bootstrap.assert_called_once_with(
+            manager, []
         )
-        self.system_prepare.install_system.assert_called_once_with(
-            self.manager
+        system_prepare.install_system.assert_called_once_with(
+            manager
         )
         self.profile.create.assert_called_once_with(
             self.abs_target_dir + '/build/image-root/.profile'
@@ -186,10 +185,10 @@ class TestSystemBuildTask:
         self.setup.setup_timezone.assert_called_once_with()
         self.setup.setup_permissions.assert_called_once_with()
         self.setup.setup_selinux_file_contexts.assert_called_once_with()
-        self.system_prepare.pinch_system.assert_has_calls(
+        system_prepare.pinch_system.assert_has_calls(
             [call(force=False), call(force=True)]
         )
-        assert self.system_prepare.clean_package_manager_leftovers.called
+        assert system_prepare.clean_package_manager_leftovers.called
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()
         self.result.print_results.assert_called_once_with()
@@ -199,36 +198,55 @@ class TestSystemBuildTask:
 
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
-    def test_process_system_build_add_package(self, mock_keys, mock_log):
+    @patch('kiwi.tasks.system_build.SystemPrepare')
+    def test_process_system_build_add_package(
+        self, mock_SystemPrepare, mock_keys, mock_log
+    ):
+        manager = mock.Mock()
+        system_prepare = mock.Mock()
+        system_prepare.setup_repositories = mock.Mock(
+            return_value=manager
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         mock_keys.return_value = ['some_key', 'some_other_key']
         self._init_command_args()
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with(
+        system_prepare.setup_repositories.assert_called_once_with(
             False, ['some_key', 'some_other_key'], None
         )
-        self.system_prepare.install_packages.assert_called_once_with(
-            self.manager, ['vim']
+        system_prepare.install_packages.assert_called_once_with(
+            manager, ['vim']
         )
 
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
-    def test_process_system_update_delete_package(self, mock_keys, mock_log):
+    @patch('kiwi.tasks.system_build.SystemPrepare')
+    def test_process_system_update_delete_package(
+        self, mock_SystemPrepare, mock_keys, mock_log
+    ):
+        manager = mock.Mock()
+        system_prepare = mock.Mock()
+        system_prepare.setup_repositories = mock.Mock(
+            return_value=manager
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         mock_keys.return_value = ['some_key', 'some_other_key']
         self._init_command_args()
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
-        self.system_prepare.setup_repositories.assert_called_once_with(
+        system_prepare.setup_repositories.assert_called_once_with(
             False, ['some_key', 'some_other_key'], None
         )
-        self.system_prepare.delete_packages.assert_called_once_with(
-            self.manager, ['vim']
+        system_prepare.delete_packages.assert_called_once_with(
+            manager, ['vim']
         )
 
     @patch('kiwi.xml_state.XMLState.set_container_config_tag')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_build_prepare_stage_set_container_tag(
-        self, mock_log, mock_set_container_tag
+        self, mock_SystemPrepare, mock_log, mock_set_container_tag
     ):
         self._init_command_args()
         self.task.command_args['--set-container-tag'] = 'new_tag'
@@ -239,8 +257,9 @@ class TestSystemBuildTask:
 
     @patch('kiwi.xml_state.XMLState.add_container_config_label')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_build_add_container_label(
-        self, mock_log, mock_add_container_label
+        self, mock_SystemPrepare, mock_log, mock_add_container_label
     ):
         self._init_command_args()
         self.task.command_args['--add-container-label'] = [
@@ -253,8 +272,9 @@ class TestSystemBuildTask:
         ])
 
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_build_add_container_label_invalid_format(
-        self, mock_logger
+        self, mock_SystemPrepare, mock_logger
     ):
         self._init_command_args()
         self.task.command_args['--add-container-label'] = ['newLabel:value']
@@ -263,8 +283,9 @@ class TestSystemBuildTask:
 
     @patch('kiwi.xml_state.XMLState.set_derived_from_image_uri')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_build_prepare_stage_set_derived_from_uri(
-        self, mock_log, mock_set_derived_from_uri
+        self, mock_SystemPrepare, mock_log, mock_set_derived_from_uri
     ):
         self._init_command_args()
         self.task.command_args['--set-container-derived-from'] = 'file:///new'
@@ -277,8 +298,10 @@ class TestSystemBuildTask:
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('os.path.isfile')
     @patch('os.unlink')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_build_prepare_stage_set_repo(
-        self, mock_os_unlink, mock_os_path_is_file, mock_log, mock_set_repo
+        self, mock_SystemPrepare, mock_os_unlink, mock_os_path_is_file,
+        mock_log, mock_set_repo
     ):
         mock_os_path_is_file.return_value = False
         self._init_command_args()
@@ -307,8 +330,9 @@ class TestSystemBuildTask:
 
     @patch('kiwi.xml_state.XMLState.add_repository')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_build_prepare_stage_add_repo(
-        self, mock_log, mock_add_repo
+        self, mock_SystemPrepare, mock_log, mock_add_repo
     ):
         self._init_command_args()
         self.task.command_args['--add-repo'] = [
@@ -363,8 +387,9 @@ class TestSystemBuildTask:
 
     @patch('kiwi.xml_state.XMLState.delete_repository_sections')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_prepare_ignore_repos(
-        self, mock_log, mock_delete_repos
+        self, mock_SystemPrepare, mock_log, mock_delete_repos
     ):
         self._init_command_args()
         self.task.command_args['--ignore-repos'] = True
@@ -373,8 +398,9 @@ class TestSystemBuildTask:
 
     @patch('kiwi.xml_state.XMLState.delete_repository_sections_used_for_build')
     @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_prepare_ignore_repos_used_for_build(
-        self, mock_log, mock_delete_repos
+        self, mock_SystemPrepare, mock_log, mock_delete_repos
     ):
         self._init_command_args()
         self.task.command_args['--ignore-repos-used-for-build'] = True

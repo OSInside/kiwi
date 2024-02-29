@@ -85,44 +85,42 @@ class BootImageKiwi(BootImageBase):
             self.import_system_description_elements()
 
             log.info('Preparing boot image')
-            system = SystemPrepare(
+            with SystemPrepare(
                 xml_state=self.boot_xml_state,
                 root_dir=self.boot_root_directory,
                 allow_existing=True
-            )
-            manager = system.setup_repositories(
-                signing_keys=self.signing_keys, target_arch=self.target_arch
-            )
-            system.install_bootstrap(
-                manager
-            )
-            system.install_system(
-                manager
-            )
+            ) as system:
+                manager = system.setup_repositories(
+                    signing_keys=self.signing_keys, target_arch=self.target_arch
+                )
+                system.install_bootstrap(
+                    manager
+                )
+                system.install_system(
+                    manager
+                )
 
-            profile = Profile(self.boot_xml_state)
-            profile.add('kiwi_initrdname', boot_image_name)
+                profile = Profile(self.boot_xml_state)
+                profile.add('kiwi_initrdname', boot_image_name)
 
-            defaults = Defaults()
-            defaults.to_profile(profile)
+                defaults = Defaults()
+                defaults.to_profile(profile)
 
-            self.setup = SystemSetup(
-                self.boot_xml_state, self.boot_root_directory
-            )
-            profile.create(
-                Defaults.get_profile_file(self.boot_root_directory)
-            )
-            self.setup.import_description()
-            self.setup.import_overlay_files(
-                follow_links=True
-            )
-            self.setup.call_config_script()
+                self.setup = SystemSetup(
+                    self.boot_xml_state, self.boot_root_directory
+                )
+                profile.create(
+                    Defaults.get_profile_file(self.boot_root_directory)
+                )
+                self.setup.import_description()
+                self.setup.import_overlay_files(
+                    follow_links=True
+                )
+                self.setup.call_config_script()
 
-            system.pinch_system(
-                manager=manager, force=True
-            )
-            # make sure system instance is cleaned up before setting up
-            del system
+                system.pinch_system(
+                    manager=manager, force=True
+                )
 
             self.setup.call_image_script()
             self.setup.create_init_link_from_linuxrc()

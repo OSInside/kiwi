@@ -1,5 +1,7 @@
 import sys
-import unittest.mock as mock
+from unittest.mock import (
+    Mock, MagicMock
+)
 import os
 
 import kiwi
@@ -19,36 +21,35 @@ class TestSystemCreateTask:
         self.abs_root_dir = os.path.abspath('../data/root-dir')
         self.abs_target_dir = os.path.abspath('some-target')
 
-        kiwi.tasks.system_create.Path = mock.Mock()
-        kiwi.tasks.system_create.Privileges = mock.Mock()
-        kiwi.tasks.system_create.Path = mock.Mock()
+        kiwi.tasks.system_create.Path = Mock()
+        kiwi.tasks.system_create.Privileges = Mock()
 
-        kiwi.tasks.system_create.Help = mock.Mock(
-            return_value=mock.Mock()
+        kiwi.tasks.system_create.Help = Mock(
+            return_value=Mock()
         )
 
-        self.runtime_checker = mock.Mock()
-        kiwi.tasks.base.RuntimeChecker = mock.Mock(
+        self.runtime_checker = Mock()
+        kiwi.tasks.base.RuntimeChecker = Mock(
             return_value=self.runtime_checker
         )
 
-        self.runtime_config = mock.Mock()
+        self.runtime_config = Mock()
         self.runtime_config.get_disabled_runtime_checks.return_value = []
-        kiwi.tasks.base.RuntimeConfig = mock.Mock(
+        kiwi.tasks.base.RuntimeConfig = Mock(
             return_value=self.runtime_config
         )
 
-        self.setup = mock.Mock()
-        kiwi.tasks.system_create.SystemSetup = mock.Mock(
+        self.setup = Mock()
+        kiwi.tasks.system_create.SystemSetup = Mock(
             return_value=self.setup
         )
 
-        self.result = mock.Mock()
-        self.builder = mock.MagicMock()
-        self.builder.create = mock.Mock(
+        self.result = Mock()
+        self.builder = MagicMock()
+        self.builder.create = Mock(
             return_value=self.result
         )
-        kiwi.tasks.system_create.ImageBuilder.new = mock.Mock(
+        kiwi.tasks.system_create.ImageBuilder.new = Mock(
             return_value=self.builder
         )
 
