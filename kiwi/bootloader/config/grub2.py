@@ -122,9 +122,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         ]
 
         self.terminal_output = \
-            terminal_output if terminal_output in terminal_output_grub else ''
+            terminal_output if terminal_output in terminal_output_grub else 'gfxterm'
         self.terminal_input = \
-            terminal_input if terminal_input in terminal_input_grub else ''
+            terminal_input if terminal_input in terminal_input_grub else 'console'
 
         self.gfxmode = self.get_gfxmode('grub2')
         self.theme = self.get_boot_theme()
