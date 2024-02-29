@@ -2,12 +2,17 @@
 """
 usage: update_changelog (--since=<reference_file>|--file=<reference_file>)
             [--utc]
+            [--fix=<fixfile>...]
 
 arguments:
     --since=<reference_file>
         changes since the latest entry in the reference file
+    --file=<reference_file>
+        changes from the given file
     --utc
         print date/time in UTC
+    --fix=<fixfile>
+        use fix file to overwrite broken commit messages
 """
 import docopt
 import os
@@ -47,6 +52,14 @@ commit_message = []
 # Open reference log file
 reference_file = arguments['--since'] or arguments['--file']
 
+# Custom fix files
+fix_dict = {}
+if arguments['--fix']:
+    for fix in arguments['--fix']:
+        with open(fix, 'r') as fixlog:
+            commit = fixlog.readline()
+            fix_dict[commit] = fixlog.read()
+
 if arguments['--since']:
     # Read latest date from reference file
     with open(reference_file, 'r') as gitlog:
@@ -64,8 +77,21 @@ if arguments['--since']:
             '--since="{0}"'.format(latest_date)
         ], stdout=subprocess.PIPE
     )
+    from_git_log = True
     for line in iter(process.stdout.readline, b''):
-        log_lines.append(line)
+        if line.startswith(b'commit'):
+            commit = line.decode()
+            if from_git_log and fix_dict.get(commit):
+                # There is a fix for this commit
+                from_git_log = False
+                log_lines.append(line)
+                for fix_line in fix_dict.get(commit).split(os.linesep):
+                    log_lines.append(fix_line.encode())
+            elif not from_git_log:
+                from_git_log = True
+
+        if from_git_log:
+            log_lines.append(line)
 else:
     with open(reference_file, 'rb') as gitlog:
         log_lines = gitlog.readlines()
