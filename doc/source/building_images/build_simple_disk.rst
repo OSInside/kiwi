@@ -6,20 +6,20 @@ Build a Virtual Disk Image
 .. sidebar:: Abstract
 
    This page explains how to build a simple disk image.
-   It contains how to:
+   It covers the following topics:
 
    - define a simple disk image in the image description
    - build a simple disk image
    - run it with QEMU
 
-A simple Virtual Disk Image is a compressed system disk with additional
+A simple virtual disk image is a compressed system disk with additional
 metadata useful for cloud frameworks like Amazon EC2, Google Compute Engine,
-or Microsoft Azure. It is used as the native disk of a system and does
-not require an extra installation workflow or a complex first boot setup
-procedure which is why we call it a *simple* disk image.
+or Microsoft Azure. It is used as the native disk of a system, and it does
+not require an additional installation workflow or a complex first boot setup
+procedure.
 
-To instruct {kiwi} to build a simple disk image add a `type` element with
-`image="oem"` in :file:`config.xml` that has the `oem-resize` feature
+To enable {kiwi} to build a simple disk image, add a `type` element with
+`image="oem"` in :file:`config.xml`, where the `oem-resize` option
 disabled. An example configuration for a 42 GB large VMDK image with
 512 MB RAM, an IDE controller and a bridged network interface is shown
 below:
@@ -45,7 +45,7 @@ below:
      <!-- snip -->
    </image>
 
-The following attributes of the `type` element are of special interest
+The following attributes of the `type` element are deserve attention
 when building simple disk images:
 
 - `format`: Specifies the format of the virtual disk, possible values are:
@@ -53,19 +53,18 @@ when building simple disk images:
   `vhd-fixed`.
 
 - `formatoptions`: Specifies additional format options passed to
-  :command:`qemu-img`. `formatoptions` is a comma separated list of format
-  specific options in a ``name=value`` format like :command:`qemu-img`
-  expects it. {kiwi} will forward the settings from this attribute as a
+  :command:`qemu-img`. `formatoptions` is a comma-separated list of format
+  specific options in a ``name=value`` format as expected by
+  :command:`qemu-img`. {kiwi} forwards the settings from the attribute as a
   parameter to the `-o` option in the :command:`qemu-img` call.
 
 The `bootloader`, `size` and `machine` child-elements of `type` can be
-used to customize the virtual machine image further. We describe them in
+used to customize the virtual machine image. These elements are described in
 the following sections: :ref:`disk-bootloader`, :ref:`disk-the-size-element`
 and :ref:`disk-the-machine-element`
 
-Once your image description is finished (or you are content with a image
-from the :ref:`example descriptions <example-descriptions>` and use one of
-them) build the image with {kiwi}:
+Once your image description is finished , you can build the image using the
+following {kiwi} command:
 
 .. code:: bash
 
@@ -74,10 +73,9 @@ them) build the image with {kiwi}:
         --set-repo {exc_repo_leap} \
         --target-dir /tmp/myimage
 
-The created image will be in the target directory :file:`/tmp/myimage` with
-the file extension :file:`.raw`.
+The resulting :file:`.raw` image is stored in :file:`/tmp/myimage`.
 
-The live image can then be tested with QEMU:
+You can test the image using QEMU:
 
 .. code:: bash
 
@@ -85,18 +83,18 @@ The live image can then be tested with QEMU:
        -drive file={exc_image_base_name_disk_simple}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
        -m 4096
 
-For further information how to setup the image to work within a cloud
+For further information on how to configure the image to work within a cloud
 framework see:
 
 * :ref:`setup_for_ec2`
 * :ref:`setup_for_azure`
 * :ref:`setup_for_gce`
 
-For information how to setup a Vagrant box, see: :ref:`setup_vagrant`.
+For information on how to setup a Vagrant system, see: :ref:`setup_vagrant`.
 
 .. _disk-bootloader:
 
-Setting up the Bootloader of the Image
+Setting up the Bootloader in the Image
 --------------------------------------
 
 .. code:: xml
@@ -107,8 +105,8 @@ Setting up the Bootloader of the Image
      </type>
    </preferences>
 
-The `bootloader` element defines which bootloader will be used in the
-image and offers several options for customizing its configuration.
+The `bootloader` element defines which bootloader to use in the
+image, and the element offers several options for customizing its configuration.
 
 For details, see: :ref:`preferences-type-bootloader`
 
@@ -118,8 +116,8 @@ Modifying the Size of the Image
 -------------------------------
 
 The `size` child element of `type` specifies the size of the resulting
-disk image. The following example shows a image description where 20 GB are
-added to the virtual machine image of which 5 GB are left unpartitioned:
+disk image. The following example shows an image description, where 20 GB are
+added to the virtual machine image, of which 5 GB are left unpartitioned:
 
 .. code:: xml
 
@@ -132,20 +130,19 @@ added to the virtual machine image of which 5 GB are left unpartitioned:
      </type>
    </preferences>
 
-The following optional attributes can be used to customize the image size
-further:
+The following optional attributes can be used to futher customize the image size:
 
 - `unit`: Defines the unit used for the provided numerical value, possible
-  settings are `M` for megabytes and `G` for gigabytes. The default unit
-  are megabytes.
+  values are `M` for megabytes and `G` for gigabytes. The default unit
+  is megabytes.
 
-- `additive`: boolean value that determines whether the provided value will
-  be added to the current image's size (`additive="true"`) or whether it is
-  the total size (`additive="false"`). The default is `false`.
+- `additive`: Boolean value that determines whether the provided value is added
+  to the current image size (`additive="true"`) or whether it is the total size
+  (`additive="false"`). The default value is `false`.
 
-- `unpartitioned`: Specifies the image space in the image that will not be
-  partitioned. This value uses the same unit as defined in the attribute
-  `unit` or the default.
+- `unpartitioned`: Specifies the image space in the image that is not
+  partitioned. The attribute uses either the same unit as defined in the attribute
+  `unit` or the default value.
 
 
 .. _disk-the-machine-element:
@@ -154,31 +151,30 @@ Customizing the Virtual Machine
 -------------------------------
 
 The `machine` child element of `type` can be used to customize the virtual
-machine configuration which is used when the image is run, like the number
-of CPUs or the connected network interfaces.
+machine configuration, including the number of CPUs and the connected network
+interfaces.
 
 The following attributes are supported by the `machine` element:
 
-- `ovftype`: The OVF configuration type. The Open Virtualization Format is
-  a standard for describing virtual appliances and distribute them in an
-  archive called Open Virtual Appliance (OVA). The standard describes the
-  major components associated with a disk image. The exact specification
-  depends on the product using the format.
-
-  Supported values are `zvm`, `powervm`, `xen` and `vmware`.
+- `ovftype`: The OVF configuration type. The Open Virtualization Format is a
+  standard for describing virtual appliances and distribute them in an archive
+  called Open Virtual Appliance (OVA). The standard describes the major
+  components associated with a disk image. The exact specification depends on
+  the product using the format. Supported values are `zvm`, `powervm`, `xen` and
+  `vmware`.
 
 - `HWversion`: The virtual machine's hardware version (`vmdk` and `ova`
-  formats only), see https://kb.vmware.com/s/article/1003746 for further
-  details which value to choose.
+  formats only), refer https://kb.vmware.com/s/article/1003746 for further
+  information on which value to choose.
 
-- `arch`: the VM architecture (`vmdk` format only), possible values are:
+- `arch`: the VM architecture (`vmdk` format only). Valid values are
   `ix86` (= `i585` and `i686`) and `x86_64`.
 
-- `xen_loader`: the Xen target loader which is expected to load this guest,
-  supported values are: `hvmloader`, `pygrub` and `pvgrub`.
+- `xen_loader`: the Xen target loader which is expected to load the guest.
+  Valid values are: `hvmloader`, `pygrub` and `pvgrub`.
 
 - `guestOS`: The virtual guest OS' identification string for the VM (only
-  applicable for `vmdk` and `ova` formats, note that the name designation
+  applicable for `vmdk` and `ova` formats. Note that the name designation
   is different for the two formats).
 
 - `min_memory`: The virtual machine's minimum memory in MB (`ova` format
@@ -193,11 +189,11 @@ The following attributes are supported by the `machine` element:
 
 - `memory`: The virtual machine's memory in MB (all formats).
 
-- `ncpus`: The umber of virtual CPUs available to the virtual machine (all
+- `ncpus`: The number of virtual CPUs available to the virtual machine (all
   formats).
 
-Additionally, `machine` supports additional child elements that are covered
-in the following subsections.
+`machine` also supports additional child elements that are covered in the following
+subsections.
 
 Modifying the VM Configuration Directly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -208,9 +204,8 @@ the `vmdk` format where the provided strings are directly pasted into the
 :file:`.vmx` file.
 
 The `vmconfig-entry` element has no attributes and can appear multiple
-times, the entries are added to the configuration file in the provided
-order. Note, that {kiwi} does not check the entries for correctness. {kiwi} only
-forwards them.
+times. The entries are added to the configuration file in the provided
+order. Note that {kiwi} does not check the entries for correctness.
 
 The following example adds the two entries `numvcpus = "4"` and
 `cpuid.coresPerSocket = "2"` into the VM configuration file:
@@ -230,13 +225,13 @@ Adding Network Interfaces to the VM
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Network interfaces can be explicitly specified for the VM when required via
-the `vmnic` element. This can be used to add another bridged interface or
-to specify the driver which is being used.
+the `vmnic` element. This makes is possible to add another bridged interface or
+to specify the driver wto be used.
 
-Note, that this element is only used for the `vmdk` image format.
+Note that this element is used for the `vmdk` image format only.
 
-In the following example we add a bridged network interface using the
-`e1000` driver:
+The following example adds a bridged network interface that uses the `e1000`
+driver:
 
 .. code:: xml
 
@@ -250,29 +245,29 @@ In the following example we add a bridged network interface using the
 
 The `vmnic` element supports the following attributes:
 
-- `interface`: **mandatory** interface ID for the VM's network interface.
+- `interface`: **Mandatory** interface ID for the VM's network interface.
 
-- `driver`: optionally the driver which will be used can be specified
+- `driver`: An optional driver.
 
-- `mac`: this interfaces' MAC address
+- `mac`: The MAC address of the specified interface.
 
-- `mode`: this interfaces' mode.
+- `mode`: The mode of the interface.
 
-Note that {kiwi} will **not** verify the values that are passed to these
-attributes, it will only paste them into the appropriate configuration
+Note that {kiwi} doesn **not** verify the values of the
+attributes, it only inserts them into the appropriate configuration
 files.
 
 
 Specifying Disks and Disk Controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `vmdisk` element can be used to customize the disks and disk
-controllers for the virtual machine. This element can be specified multiple
-times, each time for each disk or disk controller present.
+The `vmdisk` element can be used to customize the disks and disk controllers for
+the virtual machine. This element can be specified for each disk or disk
+controller present.
 
-Note that this element is only used for `vmdk` and `ova` image formats.
+Note that this element is used for `vmdk` and `ova` image formats only.
 
-The following example adds a disk with the ID 0 using an IDE controller:
+The following example adds a disk with the ID 0 that uses an IDE controller:
 
 .. code:: xml
 
@@ -284,7 +279,7 @@ The following example adds a disk with the ID 0 using an IDE controller:
      </type>
    </preferences>
 
-Each `vmdisk` element can be further customized via the following optional
+Each `vmdisk` element can be further customized using optional
 attributes:
 
 - `controller`: The disk controller used for the VM guest (`vmdk` format
@@ -293,12 +288,12 @@ attributes:
 
 - `device`: The disk device to appear in the guest (`xen` format only).
 
-- `diskmode`: The disk mode (`vmdk` format only), possible values are:
+- `diskmode`: The disk mode (`vmdk` format only). Valid values are
   `monolithicSparse`, `monolithicFlat`, `twoGbMaxExtentSparse`,
   `twoGbMaxExtentFlat` and `streamOptimized` (see also
   https://www.vmware.com/support/developer/converter-sdk/conv60_apireference/vim.OvfManager.CreateImportSpecParams.DiskProvisioningType.html).
 
-- `disktype`: The type of the disk as it is internally handled by the VM
+- `disktype`: The type of the disk handled internally by the VM
   (`ova` format only). This attribute is currently unused.
 
 - `id`: The disk ID of the VM disk (`vmdk` format only).
@@ -306,9 +301,9 @@ attributes:
 Adding CD/DVD Drives
 ^^^^^^^^^^^^^^^^^^^^
 
-{kiwi} supports the addition of IDE and SCSCI CD/DVD drives to the virtual
-machine using the `vmdvd` element for the `vmdk` image format. In the
-following example we add two drives: one with a SCSCI and another with a
+{kiwi} supports adding IDE and SCSCI CD/DVD drives to the virtual
+machine using the `vmdvd` element for the `vmdk` image format. The
+following example adds two drives: one with a SCSCI and another with a
 IDE controller:
 
 .. code:: xml
@@ -322,9 +317,9 @@ IDE controller:
      </type>
    </preferences>
 
-The `vmdvd` element features just these two **mandatory** attributes:
+The `vmdvd` element features two **mandatory** attributes:
 
-- `id`: The CD/DVD ID of the drive
+- `id`: The CD/DVD ID of the drive.
 
-- `controller`: The CD/DVD controller used for the VM guest, supported
+- `controller`: The CD/DVD controller used for the VM guest. Valid
   values are `ide` and `scsi`.

@@ -421,7 +421,8 @@ element, for example:
 The `installmedia` is only available for OEM image types that include the
 request to create an installation media.
 
-The `initrd` child element of `installmedia` lists dracut modules, they
-can be omitted, added or statically set the list of included ones. This is
-specified with the `action` attribute and can take `action="omit"`,
-`action="add"` or `action="set"` values. 
+The `initrd` child element of `installmedia` lists dracut modules. The element's
+`action` attribute determines whether the dracut module is omitted
+(`action="omit"`) or added (`action="add"`). Use `action="set"` to use only the
+listed modules and nothing else (that is, none of the dracut modules included by
+default).
