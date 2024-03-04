@@ -13,7 +13,8 @@ from kiwi.exceptions import (
 
 
 class TestBootLoaderSystemdBoot:
-    def setup(self):
+    @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
+    def setup(self, mock_FirmWare):
         self.state = Mock()
         self.state.xml_data.get_name.return_value = 'image-name'
         self.state.get_image_version.return_value = 'image-version'
@@ -34,7 +35,8 @@ class TestBootLoaderSystemdBoot:
             return_value='title'
         )
 
-    def setup_method(self, cls):
+    @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
+    def setup_method(self, cls, mock_FirmWare):
         self.setup()
 
     def test_setup_loader_raises_invalid_target(self):

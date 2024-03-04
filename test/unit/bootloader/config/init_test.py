@@ -37,6 +37,18 @@ class TestBootLoaderConfig:
             xml_state, 'root_dir', 'boot_dir', None
         )
 
+    @patch('kiwi.bootloader.config.zipl.BootLoaderZipl')
+    @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
+    def test_bootloader_config_zipl(self, mock_FirmWare, mock_zipl):
+        xml_state = Mock()
+        create_boot_loader_config(
+            name='zipl', xml_state=xml_state,
+            root_dir='root_dir', boot_dir='boot_dir'
+        )
+        mock_zipl.assert_called_once_with(
+            xml_state, 'root_dir', 'boot_dir', None
+        )
+
     @patch('kiwi.bootloader.config.custom.BootLoaderConfigCustom')
     def test_bootloader_config_custom(self, mock_custom):
         xml_state = Mock()

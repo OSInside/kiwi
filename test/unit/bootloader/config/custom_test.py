@@ -27,6 +27,9 @@ class TestBootLoaderConfigCustom:
             Mock(), 'root_dir'
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     def test_setup_disk_boot_images(self):
         with raises(NotImplementedError):
             self.bootloader.setup_disk_boot_images('0815')
