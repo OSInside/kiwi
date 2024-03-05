@@ -61,6 +61,7 @@
         <source path="obs://Ubuntu:23.04/standard"/>
     </repository>
     <packages type="image">
+        <package name="util-linux"/>
         <package name="grub2-themes-ubuntu-mate"/>
         <package name="plymouth-theme-sabily"/>
         <package name="plymouth"/>
