@@ -88,7 +88,7 @@
         <package name="net-tools"/>
         <package name="dbus"/>
         <package name="netbase"/>
-        <package name="language-pack-en"/>
+        <package name="locales-all"/>
     </packages>
     <packages type="image" profiles="Virtual">
         <package name="shim-signed"/>
