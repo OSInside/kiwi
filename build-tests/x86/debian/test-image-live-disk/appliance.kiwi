@@ -82,6 +82,7 @@
         <package name="netbase"/>
         <package name="bsdmainutils"/>
         <package name="usrmerge"/>
+        <package name="usr-is-merged"/>
     </packages>
     <packages type="image" profiles="Virtual">
         <package name="shim-signed"/>
