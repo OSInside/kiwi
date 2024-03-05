@@ -18,6 +18,6 @@
         <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
-        <package name="python3-kiwi"/>
+        <package name="vim"/>
     </packages>
 </image>
