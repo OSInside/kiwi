@@ -82,6 +82,7 @@
         <package name="btrfs-progs"/>
         <package name="xz-utils"/>
         <package name="usrmerge"/>
+        <package name="language-pack-en"/>
         <!--
             mawk is included so OBS adds it as a build dependency,
             however this is installed by debootstrap
