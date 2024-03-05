@@ -51,14 +51,14 @@
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
+    <repository type="apt-deb" repository_gpgcheck="false">
+        <source path="obs://Virtualization:Appliances:Staging/Debian_12"/>
+    </repository>
     <repository type="apt-deb" distribution="bookworm" components="main contrib non-free" repository_gpgcheck="false">
         <source path="obs://Debian:12/universe"/>
     </repository>
     <repository type="apt-deb" distribution="bookworm" components="main contrib non-free" repository_gpgcheck="false">
         <source path="obs://Debian:12/standard"/>
-    </repository>
-    <repository type="apt-deb" repository_gpgcheck="false">
-        <source path="obs://Virtualization:Appliances:Staging/Debian_12"/>
     </repository>
     <packages type="image">
         <package name="grub-theme-starfield"/>
