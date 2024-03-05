@@ -7,15 +7,15 @@
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.de</contact>
-        <specification>Debian Buster Appliance</specification>
+        <specification>Debian Bookworm Appliance</specification>
     </description>
     <profiles>
-        <profile name="Live" description="Live image of Debian Buster"/>
-        <profile name="Virtual" description="Virtual image of Debian Buster"/>
-        <profile name="Disk" description="OEM image of Debian Buster"/>
+        <profile name="Live" description="Live image of Debian"/>
+        <profile name="Virtual" description="Virtual image of Debian"/>
+        <profile name="Disk" description="OEM image of Debian"/>
     </profiles>
     <preferences>
-        <version>11.1</version>
+        <version>12.1</version>
         <packagemanager>apt</packagemanager>
         <bootsplash-theme>fade-in</bootsplash-theme>
         <bootloader-theme>starfield</bootloader-theme>
@@ -51,14 +51,14 @@
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="apt-deb" distribution="buster" components="main contrib non-free" repository_gpgcheck="false">
-        <source path="obs://Debian:11/universe"/>
+    <repository type="apt-deb" distribution="bookworm" components="main contrib non-free" repository_gpgcheck="false">
+        <source path="obs://Debian:12/universe"/>
     </repository>
-    <repository type="apt-deb" distribution="buster" components="main contrib non-free" repository_gpgcheck="false">
-        <source path="obs://Debian:11/standard"/>
+    <repository type="apt-deb" distribution="bookworm" components="main contrib non-free" repository_gpgcheck="false">
+        <source path="obs://Debian:12/standard"/>
     </repository>
     <repository type="apt-deb" repository_gpgcheck="false">
-        <source path="obs://Virtualization:Appliances:Staging/Debian_11"/>
+        <source path="obs://Virtualization:Appliances:Staging/Debian_12"/>
     </repository>
     <packages type="image">
         <package name="grub-theme-starfield"/>
