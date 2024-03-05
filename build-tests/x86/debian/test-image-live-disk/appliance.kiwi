@@ -83,6 +83,11 @@
         <package name="bsdmainutils"/>
         <package name="usrmerge"/>
         <package name="usr-is-merged"/>
+        <package name="netplan.io"/>
+        <package name="networkd-dispatcher"/>
+        <package name="net-tools"/>
+        <package name="dbus"/>
+        <package name="netbase"/>
     </packages>
     <packages type="image" profiles="Virtual">
         <package name="shim-signed"/>
