@@ -24,13 +24,13 @@
         <user name="vagrant" password="vh4vw1N4alxKQ" home="/home/vagrant" groups="vagrant"/>
     </users>
     <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
-        <source path="obs://Virtualization:Appliances:Staging/xUbuntu_22.04"/>
+        <source path="obs://Virtualization:Appliances:Staging/xUbuntu_23.10"/>
     </repository>
-    <repository type="apt-deb" alias="Ubuntu-Jammy-Universe" distribution="jammy" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:22.04/universe"/>
+    <repository type="apt-deb" alias="Ubuntu-Mantic-Universe" distribution="mantic" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:23.10/universe"/>
     </repository>
-    <repository type="apt-deb" alias="Ubuntu-Jammy" distribution="jammy" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:22.04/standard"/>
+    <repository type="apt-deb" alias="Ubuntu-Mantic" distribution="mantic" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:23.10/standard"/>
     </repository>
     <packages type="image">
         <package name="gnupg"/>
