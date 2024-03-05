@@ -69,49 +69,19 @@ environment for Python 3:
    {kiwi} uses tox to create a devel environment and to run
    tests, linters and other tasks in the tox generated environment.
    A tox version >= 3.3 is required for this setup process. On your
-   host a python version >= 3.7 is required for tox to work.
+   host a python version >= 3.9 is required for tox to work.
 
 .. code:: shell-session
 
-   $ tox -e devel
-   $ source .tox/devel/bin/activate
+   $ poetry install
 
-The commands above automatically creates the application script
+The command above automatically creates the application script
 called :command:`kiwi-ng`, which allows you to run {kiwi} from the
-Python sources inside the virtual environment:
+Python sources inside the virtual environment using Poetry:
 
 .. code:: shell-session
 
-    $ kiwi-ng --help
-
-.. warning::
-
-   The virtualenv's `$PATH` will not be taken into account when calling
-   {kiwi} via :command:`sudo`! Use the absolute path to the {kiwi} executable
-   to run an actual build using your local changes:
-
-   .. code:: shell-session
-
-      $ sudo $PWD/.tox/devel/bin/kiwi-ng system build ...
-
-To leave the development mode, run:
-
-.. code:: shell-session
-
-    $ deactivate
-
-To resume your work, :command:`cd` into your local Git repository and call:
-
-.. code:: shell-session
-
-    $ source .tox/devel/bin/activate
-
-Alternatively, you can launch single commands inside the virtualenv without
-sourcing it directly:
-
-.. code:: shell-session
-
-   $ tox -e devel -- kiwi-ng --version
+    $ poetry run kiwi-ng --help
 
 
 Running the Unit Tests

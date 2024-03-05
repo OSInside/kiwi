@@ -4,8 +4,8 @@
 
 -r .virtualenv.requirements.txt
 
-# setuptools for pypi upload
-setuptools
+# poetry for building/installing/upload
+poetry
 
 # virtualenv-based automation of test activities
 tox

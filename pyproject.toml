@@ -1,0 +1,109 @@
+[tool.poetry]
+name = "kiwi"
+version = "10.0.0"
+description = "KIWI - Appliance Builder"
+license = "GPL-3.0-or-later"
+readme = "README.rst"
+homepage = "https://osinside.github.io/kiwi/"
+documentation = "https://osinside.github.io/kiwi/"
+repository = "https://github.com/OSInside/kiwi"
+
+authors = [
+   "Marcus Schäfer <marcus.schaefer@suse.com>",
+]
+maintainers = [
+   "Marcus Schäfer <marcus.schaefer@suse.com>",
+   "David Cassany Viladomat <dcassany@suse.com>",
+   "Neal Gompa <neal@gompa.dev>",
+   "Dan Čermák <dcermak@suse.com>",
+]
+
+packages = [
+   { include = "kiwi"},
+]
+
+include = [
+   { path = ".bumpversion.cfg", format = "sdist" },
+   { path = ".coverage*", format = "sdist" },
+   { path = ".virtualenv.requirements*.txt", format = "sdist" },
+   { path = "doc/source", format = "sdist" },
+   { path = "doc/Makefile", format = "sdist" },
+   { path = "dracut", format = "sdist" },
+   { path = "helper", format = "sdist" },
+   { path = "kiwi.yml", format = "sdist" },
+   { path = "Makefile", format = "sdist" },
+   { path = "package", format = "sdist" },
+   { path = "test", format = "sdist" },
+   { path = "tox.ini", format = "sdist" },
+]
+
+classifiers = [
+   # classifier: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+   "Development Status :: 5 - Production/Stable",
+   "Intended Audience :: Developers",
+   "Operating System :: POSIX :: Linux",
+   "Topic :: System :: Operating System",
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/OSInside/kiwi/issues"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+docopt-ng = ">=0.6.2"
+lxml = ">=4.6.0"
+requests = ">=2.25.0"
+PyYAML = ">=5.4.0"
+setuptools = ">=50"
+simplejson = ">=3.17.0"
+
+# Optional dependencies for markup extra
+anymarkup-core = { version = ">=0.8.0", optional = true }
+xmltodict = { version = ">=0.12.0", optional = true }
+
+[tool.poetry.extras]
+markup = [ "anymarkup-core", "xmltodict" ]
+
+[tool.poetry.plugins]
+[tool.poetry.plugins."kiwi.tasks"]
+image_info = "kiwi.tasks.image_info"
+image_resize = "kiwi.tasks.image_resize"
+result_bundle = "kiwi.tasks.result_bundle"
+result_list = "kiwi.tasks.result_list"
+system_build = "kiwi.tasks.system_build"
+system_create = "kiwi.tasks.system_create"
+system_prepare = "kiwi.tasks.system_prepare"
+system_update = "kiwi.tasks.system_update"
+
+[tool.poetry.scripts]
+kiwi-ng = "kiwi.kiwi:main"
+
+[tool.poetry.group.test]
+[tool.poetry.group.test.dependencies]
+# python unit testing framework
+pytest = ">=6.2.0"
+pytest-cov = "*"
+pytest-xdist = "*"
+pytest-container = "*"
+# type checking
+mypy = ">=0.971"
+types-pkg_resources = "*"
+types-requests = "*"
+types-PyYAML = "*"
+types-mock = "*"
+types-simplejson = "*"
+
+[tool.poetry.group.style]
+[tool.poetry.group.style.dependencies]
+flake8 = ">=4.0.0"
+
+[tool.poetry.group.docs]
+[tool.poetry.group.docs.dependencies]
+sphinx = ">=5.0.0"
+sphinx_rtd_theme = "*"
+sphinxcontrib-spelling = "*"
+pyenchant = "*"
+
+[build-system]
+requires = ["poetry-core>=1.2.0"]
+build-backend = "poetry.core.masonry.api"

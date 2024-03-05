@@ -19,16 +19,17 @@
 
 # If they aren't provided by a system installed macro, define them
 %{!?_defaultdocdir: %global _defaultdocdir %{_datadir}/doc}
+
+%if 0%{?suse_version} && 0%{?suse_version} < 1600
+%global __python3 /usr/bin/python3.11
+%global python3_pkgversion 311
+%else
 %{!?__python3: %global __python3 /usr/bin/python3}
+%{!?python3_pkgversion:%global python3_pkgversion 3}
+%endif
 
 %if %{undefined python3_sitelib}
 %global python3_sitelib %(%{__python3} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
-%endif
-
-%if 0%{?el7}
-%global python3_pkgversion 36
-%else
-%{!?python3_pkgversion:%global python3_pkgversion 3}
 %endif
 
 %if 0%{?debian} || 0%{?ubuntu}
@@ -57,9 +58,6 @@ Group:          %{pygroup}
 Source:         %{name}.tar.gz
 Source1:        %{name}-rpmlintrc
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:  gcc
-BuildRequires:  python%{python3_pkgversion}-%{develsuffix} >= 3.6
-BuildRequires:  python%{python3_pkgversion}-setuptools
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  fdupes
 %endif
@@ -68,6 +66,32 @@ BuildRequires:  shadow
 %endif
 %if 0%{?debian} || 0%{?ubuntu}
 BuildRequires:  passwd
+%endif
+# Main build requirements
+BuildRequires:  gcc
+BuildRequires:  make
+BuildRequires:  python%{python3_pkgversion}-%{develsuffix} >= 3.9
+BuildRequires:  python%{python3_pkgversion}-build
+BuildRequires:  python%{python3_pkgversion}-installer
+BuildRequires:  python%{python3_pkgversion}-poetry-core >= 1.2.0
+BuildRequires:  python%{python3_pkgversion}-wheel
+# doc build requirements
+BuildRequires:  python%{python3_pkgversion}-docopt >= 0.6.2
+BuildRequires:  python%{python3_pkgversion}-lxml
+BuildRequires:  python%{python3_pkgversion}-requests
+BuildRequires:  python%{python3_pkgversion}-setuptools
+BuildRequires:  python%{python3_pkgversion}-simplejson
+%if 0%{?suse_version}
+BuildRequires:  python%{python3_pkgversion}-Sphinx
+%else
+BuildRequires:  python%{python3_pkgversion}-sphinx
+%endif
+%if 0%{?debian} || 0%{?ubuntu}
+BuildRequires:  python%{python3_pkgversion}-sphinx-rtd-theme
+BuildRequires:  python%{python3_pkgversion}-yaml
+%else
+BuildRequires:  python%{python3_pkgversion}-sphinx_rtd_theme
+BuildRequires:  python%{python3_pkgversion}-PyYAML
 %endif
 
 %description
@@ -359,10 +383,9 @@ Obsoletes:      python2-kiwi
 Conflicts:      python2-kiwi
 Conflicts:      kiwi-man-pages < %{version}
 Requires:       screen
-Requires:       python%{python3_pkgversion} >= 3.6
+Requires:       python%{python3_pkgversion} >= 3.9
 %if 0%{?ubuntu} || 0%{?debian}
 Requires:       python%{python3_pkgversion}-yaml
-Requires:       python%{python3_pkgversion}-typing-extensions
 %else
 Requires:       python%{python3_pkgversion}-PyYAML
 %endif
@@ -372,12 +395,6 @@ Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-setuptools
 Requires:       python%{python3_pkgversion}-xmltodict
-%if 0%{?rhel} || 0%{?fedora}
-Requires:       (python%{python3_pkgversion}-typing-extensions if python%{python3_pkgversion} < 3.8)
-%endif
-%if 0%{?suse_version}
-Requires:       (python%{python3_pkgversion}-typing_extensions if python%{python3_pkgversion} < 3.8)
-%endif
 %if ! (0%{?rhel} && 0%{?rhel} < 8)
 Recommends:     kiwi-man-pages
 %endif
@@ -601,29 +618,46 @@ Group:          %{sysgroup}
 Provides manual pages to describe the kiwi commands
 
 %prep
-%setup -q -n kiwi-%{version}
+%autosetup -n kiwi-%{version}
+
+# Temporarily switch things back to docopt for everything but Fedora 41+
+# FIXME: Drop this hack as soon as we can...
+%if ! (0%{?fedora} >= 41 || 0%{?rhel} >= 10)
+sed -e "s/docopt-ng/docopt/" -i pyproject.toml
+%endif
 
 # Drop shebang for kiwi/xml_parse.py, as we don't intend to use it
 # as an independent script
 sed -e "s|#!/usr/bin/env python||" -i kiwi/xml_parse.py
 
-%install
-# Install Python 3 version
-python3 setup.py install --prefix=%{_prefix} --root=%{buildroot} %{?is_deb:--install-layout=deb}
+# Build documentation
+make -C doc man
 
-# Install C-Tools, man-pages, completion and kiwi default configuration
-make buildroot=%{buildroot}/ install
+# Build application wheel
+%{__python3} -m build --no-isolation --wheel
+
+%install
+# Install application
+%{__python3} -m installer --destdir %{buildroot} %{?is_deb:--no-compile-bytecode} dist/*.whl
+
+%if 0%{?is_deb}
+# Fix where files were installed
+mv %{buildroot}%{_prefix}/local/* %{buildroot}%{_prefix}
+mv %{buildroot}%{_prefix}/lib/python3* %{buildroot}%{_prefix}/lib/python3
+%endif
+
+# Install man-pages, completion and kiwi default configuration
+make buildroot=%{buildroot}/ python=%{__python3} install
 
 # Install dracut modules
-make buildroot=%{buildroot}/ install_dracut
+make buildroot=%{buildroot}/ python=%{__python3} install_dracut
 
 # Install documentation README / LICENSE
-make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ install_package_docs
+make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ python=%{__python3} install_package_docs
 
 # Create symlinks for correct binaries
 ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi
 ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi-ng-3
-ln -sr %{buildroot}%{_bindir}/kiwicompat %{buildroot}%{_bindir}/kiwicompat-3
 
 %if "%{_vendor}" != "debbuild"
 # kiwi pxeboot directory structure to be packed in kiwi-pxeboot
@@ -684,9 +718,7 @@ fi
 %dir %{_defaultdocdir}/python-kiwi
 %{_bindir}/kiwi
 %{_bindir}/kiwi-ng
-%{_bindir}/kiwicompat
 %{_bindir}/kiwi-ng-3*
-%{_bindir}/kiwicompat-3*
 %{python3_sitelib}/kiwi*
 %{_usr}/share/bash-completion/completions/kiwi-ng
 %{_defaultdocdir}/python-kiwi/LICENSE
