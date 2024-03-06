@@ -17,7 +17,7 @@ cp -a /usr/lib/firmware/*-raspi/device-tree/broadcom/* /boot/efi/
 #==========================================
 # copy initrd and kernel
 #------------------------------------------
-cp /boot/initrd.img-*-raspi /boot/efi/initrd.img
+cp /boot/initrd-*-raspi /boot/efi/initrd.img
 cp /boot/vmlinuz-*-raspi /boot/efi/vmlinuz
 
 #==========================================
