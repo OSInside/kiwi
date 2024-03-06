@@ -89,6 +89,7 @@
         <package name="dbus"/>
         <package name="netbase"/>
         <package name="locales-all"/>
+        <package name="tzdata"/>
     </packages>
     <packages type="image" profiles="Virtual">
         <package name="shim-signed"/>
