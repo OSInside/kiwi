@@ -3,7 +3,7 @@
 #
 
 # Shell interface for docopt, the command-line interface description language
-docopt
+docopt-ng
 
 # Powerful and Pythonic XML processing library
 lxml
@@ -14,9 +14,6 @@ PyYAML
 # TOML file parsing
 toml
 
-# Python wrapper for extended filesystem attributes
-xattr==0.9.3
-
 # Network request/response library
 requests
 
@@ -24,7 +21,15 @@ requests
 anymarkup-core
 xmltodict
 
+# provides pkg_resources
+setuptools
+
 # json support that also knows about tuples
 simplejson
 
-typing_extensions; python_version < '3.8'
+# TOML file parsing
+toml
+
+# markup support
+anymarkup-core
+xmltodict
