@@ -99,3 +99,9 @@ class TestPackageManagerBase:
 
     def test_clean_leftovers(self):
         self.manager.clean_leftovers()
+
+    def test_context_manager_exit(self):
+        repository = mock.Mock()
+        with PackageManagerBase(repository):
+            pass
+        repository.cleanup.assert_called_once_with()

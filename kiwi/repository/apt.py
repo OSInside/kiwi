@@ -21,7 +21,9 @@ from urllib.parse import urlparse
 from typing import List, Dict
 
 # project
-from kiwi.utils.temporary import Temporary
+from kiwi.utils.temporary import (
+    Temporary, TmpT
+)
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
@@ -52,6 +54,7 @@ class RepositoryApt(RepositoryBase):
 
         :param list custom_args: apt-get arguments
         """
+        self.runtime_apt_get_config_file = TmpT(name='')
         self.custom_args = custom_args
         self.exclude_docs = False
         self.signing_keys: List = []
@@ -87,8 +90,8 @@ class RepositoryApt(RepositoryBase):
         self.keyring = '{}/trusted.gpg'.format(self.manager_base)
 
         self.runtime_apt_get_config_file = Temporary(
-            path=self.root_dir
-        ).new_file()
+            path=self.root_dir, prefix='kiwi_apt.conf'
+        ).unmanaged_file()
 
         self.apt_get_args = [
             '-q', '-c', self.runtime_apt_get_config_file.name, '-y'
@@ -320,3 +323,10 @@ class RepositoryApt(RepositoryBase):
 
         with open(self.runtime_apt_get_config_file.name, 'w') as config:
             config.write(apt_conf_data)
+
+    def cleanup(self) -> None:
+        """
+        Delete intermediate apt config file
+        """
+        if os.path.isfile(self.runtime_apt_get_config_file.name):
+            os.unlink(self.runtime_apt_get_config_file.name)

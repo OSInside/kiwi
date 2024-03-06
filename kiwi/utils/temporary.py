@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import IO
+from typing import IO, NamedTuple
 
 from tempfile import (
     NamedTemporaryFile,
@@ -24,6 +24,10 @@ from tempfile import (
 
 # project
 import kiwi.defaults as defaults
+
+
+class TmpT(NamedTuple):
+    name: str
 
 
 class Temporary:
@@ -45,3 +49,6 @@ class Temporary:
         return TemporaryDirectory(
             dir=self.path, prefix=self.prefix
         )
+
+    def unmanaged_file(self) -> TmpT:
+        return TmpT(name=f'{self.path}/{self.prefix}')

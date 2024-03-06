@@ -150,19 +150,24 @@ class MountManager:
         """
         if self.is_mounted():
             umounted_successfully = False
-            for busy in range(0, 10):
+            for busy in range(0, 5):
                 try:
                     Command.run(['umount', self.mountpoint])
                     umounted_successfully = True
                     break
-                # we only want to catch KiwiCommandError, everything else
-                # indicates either a bug in the code or a bigger problem, like
-                # umount not being available
-                except KiwiCommandError as kw_err:
+                except KiwiCommandError as err:
                     log.warning(
-                        f'{busy} umount of {self.mountpoint} failed with {kw_err}, try again in 1sec',
+                        f'{busy} umount of {self.mountpoint} failed with: {err}'
                     )
                     time.sleep(1)
+            if not umounted_successfully:
+                try:
+                    Command.run(['umount', '--lazy', self.mountpoint])
+                    umounted_successfully = True
+                except KiwiCommandError as err:
+                    log.error(
+                        f'umount of {self.mountpoint} failed with: {err}'
+                    )
             if not umounted_successfully:
                 if raise_on_busy:
                     lsof = Path.which('lsof', access_mode=os.X_OK)

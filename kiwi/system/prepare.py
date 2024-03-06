@@ -421,6 +421,7 @@ class SystemPrepare:
                             package_manager_name=package_manager,
                             release_version=release_version
                         )
+                        stack.push(manager)
                     self.delete_packages(
                         manager, to_become_deleted_packages, force
                     )
@@ -543,12 +544,12 @@ class SystemPrepare:
         package_manager = self.xml_state.get_package_manager()
         release_version = self.xml_state.get_release_version()
         with Repository.new(self.root_bind, package_manager) as repo:
-            manager = PackageManager.new(
+            with PackageManager.new(
                 repository=repo,
                 package_manager_name=package_manager,
                 release_version=release_version
-            )
-            manager.clean_leftovers()
+            ) as manager:
+                manager.clean_leftovers()
 
     def _install_archives(self, archive_list, archive_target_dir_dict):
         log.info("Installing archives")

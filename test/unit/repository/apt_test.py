@@ -8,7 +8,7 @@ from kiwi.repository.apt import RepositoryApt
 
 
 class TestRepositoryApt:
-    @patch('kiwi.repository.apt.Temporary.new_file')
+    @patch('kiwi.repository.apt.Temporary.unmanaged_file')
     @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
     @patch('kiwi.repository.apt.Path.create')
     def setup(self, mock_path, mock_template, mock_temp):
@@ -50,7 +50,7 @@ class TestRepositoryApt:
             assert repo.custom_args == []
             assert repo.unauthenticated == 'true'
 
-    @patch('kiwi.repository.apt.Temporary.new_file')
+    @patch('kiwi.repository.apt.Temporary.unmanaged_file')
     @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
     @patch('kiwi.repository.apt.Path.create')
     def setup_method(self, cls, mock_path, mock_template, mock_temp):
@@ -286,3 +286,9 @@ class TestRepositoryApt:
             call('/shared-dir/apt-get/pkgcache.bin'),
             call('/shared-dir/apt-get/srcpkgcache.bin')
         ]
+
+    @patch('os.path.isfile')
+    @patch('os.unlink')
+    def test_cleanup(self, mock_os_unlink, mock_os_path_isfile):
+        self.repo.cleanup()
+        mock_os_unlink.assert_called_once_with('tmpfile')

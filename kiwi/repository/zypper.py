@@ -21,7 +21,9 @@ from configparser import ConfigParser
 from typing import List, Dict
 
 # project
-from kiwi.utils.temporary import Temporary
+from kiwi.utils.temporary import (
+    Temporary, TmpT
+)
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -52,6 +54,8 @@ class RepositoryZypper(RepositoryBase):
 
         :param list custom_args: zypper arguments
         """
+        self.runtime_zypper_config_file = TmpT(name='')
+        self.runtime_zypp_config_file = TmpT(name='')
         self.custom_args = custom_args
         self.exclude_docs = False
         self.gpgcheck = False
@@ -110,11 +114,11 @@ class RepositoryZypper(RepositoryBase):
         }
 
         self.runtime_zypper_config_file = Temporary(
-            path=self.root_dir
-        ).new_file()
+            path=self.root_dir, prefix='kiwi_zypper.conf'
+        ).unmanaged_file()
         self.runtime_zypp_config_file = Temporary(
-            path=self.root_dir
-        ).new_file()
+            path=self.root_dir, prefix='kiwi_zypp.conf'
+        ).unmanaged_file()
 
         self.zypper_args = [
             '--non-interactive',
@@ -463,6 +467,15 @@ class RepositoryZypper(RepositoryBase):
             Command.run(
                 ['mv', '-f', package_cache_moved, package_cache]
             )
+
+    def cleanup(self) -> None:
+        """
+        Delete intermediate zypp and zypper config files
+        """
+        if os.path.isfile(self.runtime_zypper_config_file.name):
+            os.unlink(self.runtime_zypper_config_file.name)
+        if os.path.isfile(self.runtime_zypp_config_file.name):
+            os.unlink(self.runtime_zypp_config_file.name)
 
     def __exit__(self, exc_type, exc_value, traceback):
         self._restore_package_cache()

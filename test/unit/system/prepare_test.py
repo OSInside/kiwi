@@ -519,6 +519,6 @@ class TestSystemPrepare:
     @patch('kiwi.system.prepare.PackageManager.new')
     def test_clean_package_manager_leftovers(self, mock_manager, mock_repo):
         manager = Mock()
-        mock_manager.return_value = manager
+        mock_manager.return_value.__enter__.return_value = manager
         self.system.clean_package_manager_leftovers()
         manager.clean_leftovers.assert_called_once_with()

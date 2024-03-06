@@ -22,7 +22,9 @@ from typing import (
 )
 
 # project
-from kiwi.utils.temporary import Temporary
+from kiwi.utils.temporary import (
+    Temporary, TmpT
+)
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.command import Command
@@ -48,13 +50,14 @@ class RepositoryPacman(RepositoryBase):
 
         :param list custom_args: pacman arguments
         """
+        self.runtime_pacman_config_file = TmpT(name='')
         self.custom_args = custom_args
         self.check_signatures = False
         self.repo_names: List = []
 
         self.runtime_pacman_config_file = Temporary(
-            path=self.root_dir
-        ).new_file()
+            path=self.root_dir, prefix='kiwi_pacman.conf'
+        ).unmanaged_file()
 
         if 'check_signatures' in self.custom_args:
             self.custom_args.remove('check_signatures')
@@ -254,3 +257,10 @@ class RepositoryPacman(RepositoryBase):
 
         with open(self.runtime_pacman_config_file.name, 'w') as config:
             runtime_pacman_config.write(config)
+
+    def cleanup(self) -> None:
+        """
+        Delete intermediate pacman config file
+        """
+        if os.path.isfile(self.runtime_pacman_config_file.name):
+            os.unlink(self.runtime_pacman_config_file.name)

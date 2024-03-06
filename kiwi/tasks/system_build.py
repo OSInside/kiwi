@@ -224,74 +224,74 @@ class SystemBuildTask(CliTask):
             image_root,
             self.command_args['--allow-existing-root']
         ) as system:
-            manager = system.setup_repositories(
+            with system.setup_repositories(
                 self.command_args['--clear-cache'],
                 self.command_args[
                     '--signing-key'
                 ] + self.xml_state.get_repositories_signing_keys(),
                 self.global_args['--target-arch']
-            )
-            system.install_bootstrap(
-                manager, self.command_args['--add-bootstrap-package']
-            )
-
-            setup = SystemSetup(
-                self.xml_state, image_root
-            )
-            setup.import_description()
-
-            # call post_bootstrap.sh script if present
-            setup.call_post_bootstrap_script()
-
-            system.install_system(
-                manager
-            )
-            if self.command_args['--add-package']:
-                system.install_packages(
-                    manager, self.command_args['--add-package']
-                )
-            if self.command_args['--delete-package']:
-                system.delete_packages(
-                    manager, self.command_args['--delete-package']
+            ) as manager:
+                system.install_bootstrap(
+                    manager, self.command_args['--add-bootstrap-package']
                 )
 
-            profile = Profile(self.xml_state)
+                setup = SystemSetup(
+                    self.xml_state, image_root
+                )
+                setup.import_description()
 
-            defaults = Defaults()
-            defaults.to_profile(profile)
-            profile.create(
-                Defaults.get_profile_file(image_root)
-            )
+                # call post_bootstrap.sh script if present
+                setup.call_post_bootstrap_script()
 
-            setup.import_overlay_files()
-            setup.import_image_identifier()
-            setup.setup_groups()
-            setup.setup_users()
-            setup.setup_keyboard_map()
-            setup.setup_locale()
-            setup.setup_plymouth_splash()
-            setup.setup_timezone()
-            setup.setup_permissions()
+                system.install_system(
+                    manager
+                )
+                if self.command_args['--add-package']:
+                    system.install_packages(
+                        manager, self.command_args['--add-package']
+                    )
+                if self.command_args['--delete-package']:
+                    system.delete_packages(
+                        manager, self.command_args['--delete-package']
+                    )
 
-            # setup permanent image repositories after cleanup
-            setup.import_repositories_marked_as_imageinclude()
+                profile = Profile(self.xml_state)
 
-            # call config.sh script if present
-            setup.call_config_script()
+                defaults = Defaults()
+                defaults.to_profile(profile)
+                profile.create(
+                    Defaults.get_profile_file(image_root)
+                )
 
-            # if configured, assign SELinux labels
-            setup.setup_selinux_file_contexts()
+                setup.import_overlay_files()
+                setup.import_image_identifier()
+                setup.setup_groups()
+                setup.setup_users()
+                setup.setup_keyboard_map()
+                setup.setup_locale()
+                setup.setup_plymouth_splash()
+                setup.setup_timezone()
+                setup.setup_permissions()
 
-            # handle uninstall package requests, gracefully uninstall
-            # with dependency cleanup
-            system.pinch_system(force=False)
+                # setup permanent image repositories after cleanup
+                setup.import_repositories_marked_as_imageinclude()
 
-            # handle delete package requests, forced uninstall without
-            # any dependency resolution
-            system.pinch_system(force=True)
+                # call config.sh script if present
+                setup.call_config_script()
 
-            # delete any custom rpm macros created
-            system.clean_package_manager_leftovers()
+                # if configured, assign SELinux labels
+                setup.setup_selinux_file_contexts()
+
+                # handle uninstall package requests, gracefully uninstall
+                # with dependency cleanup
+                system.pinch_system(force=False)
+
+                # handle delete package requests, forced uninstall without
+                # any dependency resolution
+                system.pinch_system(force=True)
+
+                # delete any custom rpm macros created
+                system.clean_package_manager_leftovers()
 
         setup.call_image_script()
 

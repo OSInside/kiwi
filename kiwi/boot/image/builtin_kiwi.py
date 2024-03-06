@@ -90,37 +90,37 @@ class BootImageKiwi(BootImageBase):
                 root_dir=self.boot_root_directory,
                 allow_existing=True
             ) as system:
-                manager = system.setup_repositories(
+                with system.setup_repositories(
                     signing_keys=self.signing_keys, target_arch=self.target_arch
-                )
-                system.install_bootstrap(
-                    manager
-                )
-                system.install_system(
-                    manager
-                )
+                ) as manager:
+                    system.install_bootstrap(
+                        manager
+                    )
+                    system.install_system(
+                        manager
+                    )
 
-                profile = Profile(self.boot_xml_state)
-                profile.add('kiwi_initrdname', boot_image_name)
+                    profile = Profile(self.boot_xml_state)
+                    profile.add('kiwi_initrdname', boot_image_name)
 
-                defaults = Defaults()
-                defaults.to_profile(profile)
+                    defaults = Defaults()
+                    defaults.to_profile(profile)
 
-                self.setup = SystemSetup(
-                    self.boot_xml_state, self.boot_root_directory
-                )
-                profile.create(
-                    Defaults.get_profile_file(self.boot_root_directory)
-                )
-                self.setup.import_description()
-                self.setup.import_overlay_files(
-                    follow_links=True
-                )
-                self.setup.call_config_script()
+                    self.setup = SystemSetup(
+                        self.boot_xml_state, self.boot_root_directory
+                    )
+                    profile.create(
+                        Defaults.get_profile_file(self.boot_root_directory)
+                    )
+                    self.setup.import_description()
+                    self.setup.import_overlay_files(
+                        follow_links=True
+                    )
+                    self.setup.call_config_script()
 
-                system.pinch_system(
-                    manager=manager, force=True
-                )
+                    system.pinch_system(
+                        manager=manager, force=True
+                    )
 
             self.setup.call_image_script()
             self.setup.create_init_link_from_linuxrc()

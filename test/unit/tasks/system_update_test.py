@@ -1,7 +1,7 @@
 import sys
 import os
 from unittest.mock import (
-    patch, Mock
+    patch, Mock, MagicMock
 )
 
 import kiwi
@@ -48,7 +48,7 @@ class TestSystemUpdateTask:
 
     @patch('kiwi.tasks.system_update.SystemPrepare')
     def test_process_system_update(self, mock_SystemPrepare):
-        manager = Mock()
+        manager = MagicMock()
         system_prepare = Mock()
         system_prepare.setup_repositories = Mock(
             return_value=manager
@@ -60,11 +60,13 @@ class TestSystemUpdateTask:
         system_prepare.setup_repositories.assert_called_once_with(
             target_arch=None
         )
-        system_prepare.update_system.assert_called_once_with(manager)
+        system_prepare.update_system.assert_called_once_with(
+            manager.__enter__.return_value
+        )
 
     @patch('kiwi.tasks.system_update.SystemPrepare')
     def test_process_system_update_add_package(self, mock_SystemPrepare):
-        manager = Mock()
+        manager = MagicMock()
         system_prepare = Mock()
         system_prepare.setup_repositories = Mock(
             return_value=manager
@@ -78,12 +80,12 @@ class TestSystemUpdateTask:
             target_arch=None
         )
         system_prepare.install_packages.assert_called_once_with(
-            manager, ['vim']
+            manager.__enter__.return_value, ['vim']
         )
 
     @patch('kiwi.tasks.system_update.SystemPrepare')
     def test_process_system_update_delete_package(self, mock_SystemPrepare):
-        manager = Mock()
+        manager = MagicMock()
         system_prepare = Mock()
         system_prepare.setup_repositories = Mock(
             return_value=manager
@@ -97,7 +99,7 @@ class TestSystemUpdateTask:
             target_arch=None
         )
         system_prepare.delete_packages.assert_called_once_with(
-            manager, ['vim']
+            manager.__enter__.return_value, ['vim']
         )
 
     def test_process_system_update_help(self):

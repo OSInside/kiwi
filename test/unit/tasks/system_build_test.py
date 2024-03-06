@@ -1,10 +1,9 @@
 import logging
 import sys
-import unittest.mock as mock
 import os
 from pytest import fixture
 from unittest.mock import (
-    patch, call
+    patch, call, Mock, MagicMock
 )
 
 import kiwi
@@ -27,40 +26,40 @@ class TestSystemBuildTask:
         ]
         self.abs_target_dir = os.path.abspath('some-target')
 
-        kiwi.tasks.system_build.Privileges = mock.Mock()
-        kiwi.tasks.system_build.Path = mock.Mock()
+        kiwi.tasks.system_build.Privileges = Mock()
+        kiwi.tasks.system_build.Path = Mock()
 
-        kiwi.tasks.system_build.Help = mock.Mock(
-            return_value=mock.Mock()
+        kiwi.tasks.system_build.Help = Mock(
+            return_value=Mock()
         )
 
-        self.runtime_checker = mock.Mock()
-        kiwi.tasks.base.RuntimeChecker = mock.Mock(
+        self.runtime_checker = Mock()
+        kiwi.tasks.base.RuntimeChecker = Mock(
             return_value=self.runtime_checker
         )
 
-        self.setup = mock.Mock()
-        kiwi.tasks.system_build.SystemSetup = mock.Mock(
+        self.setup = Mock()
+        kiwi.tasks.system_build.SystemSetup = Mock(
             return_value=self.setup
         )
 
-        self.profile = mock.Mock()
+        self.profile = Mock()
         self.profile.dot_profile = dict()
-        kiwi.tasks.system_build.Profile = mock.Mock(
+        kiwi.tasks.system_build.Profile = Mock(
             return_value=self.profile
         )
 
-        self.result = mock.Mock()
-        self.builder = mock.MagicMock()
-        self.builder.create = mock.Mock(
+        self.result = Mock()
+        self.builder = MagicMock()
+        self.builder.create = Mock(
             return_value=self.result
         )
-        kiwi.tasks.system_build.ImageBuilder.new = mock.Mock(
+        kiwi.tasks.system_build.ImageBuilder.new = Mock(
             return_value=self.builder
         )
 
         self.task = SystemBuildTask()
-        self.task.runtime_config = mock.MagicMock()
+        self.task.runtime_config = MagicMock()
 
     def setup_method(self, cls):
         self.setup()
@@ -99,9 +98,9 @@ class TestSystemBuildTask:
     def test_process_system_build(
         self, mock_SystemPrepare, mock_keys, mock_log
     ):
-        manager = mock.Mock()
-        system_prepare = mock.Mock()
-        system_prepare.setup_repositories = mock.Mock(
+        manager = MagicMock()
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
             return_value=manager
         )
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
@@ -162,10 +161,10 @@ class TestSystemBuildTask:
             False, ['some_key', 'some_other_key'], None
         )
         system_prepare.install_bootstrap.assert_called_once_with(
-            manager, []
+            manager.__enter__.return_value, []
         )
         system_prepare.install_system.assert_called_once_with(
-            manager
+            manager.__enter__.return_value
         )
         self.profile.create.assert_called_once_with(
             self.abs_target_dir + '/build/image-root/.profile'
@@ -202,9 +201,9 @@ class TestSystemBuildTask:
     def test_process_system_build_add_package(
         self, mock_SystemPrepare, mock_keys, mock_log
     ):
-        manager = mock.Mock()
-        system_prepare = mock.Mock()
-        system_prepare.setup_repositories = mock.Mock(
+        manager = MagicMock()
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
             return_value=manager
         )
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
@@ -216,7 +215,7 @@ class TestSystemBuildTask:
             False, ['some_key', 'some_other_key'], None
         )
         system_prepare.install_packages.assert_called_once_with(
-            manager, ['vim']
+            manager.__enter__.return_value, ['vim']
         )
 
     @patch('kiwi.logger.Logger.set_logfile')
@@ -225,9 +224,9 @@ class TestSystemBuildTask:
     def test_process_system_update_delete_package(
         self, mock_SystemPrepare, mock_keys, mock_log
     ):
-        manager = mock.Mock()
-        system_prepare = mock.Mock()
-        system_prepare.setup_repositories = mock.Mock(
+        manager = MagicMock()
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
             return_value=manager
         )
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
@@ -239,7 +238,7 @@ class TestSystemBuildTask:
             False, ['some_key', 'some_other_key'], None
         )
         system_prepare.delete_packages.assert_called_once_with(
-            manager, ['vim']
+            manager.__enter__.return_value, ['vim']
         )
 
     @patch('kiwi.xml_state.XMLState.set_container_config_tag')

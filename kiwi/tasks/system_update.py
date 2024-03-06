@@ -89,21 +89,20 @@ class SystemUpdateTask(CliTask):
             abs_root_path,
             allow_existing=True
         ) as system:
-            manager = system.setup_repositories(
+            with system.setup_repositories(
                 target_arch=self.global_args['--target-arch']
-            )
-
-            if not package_requests:
-                system.update_system(manager)
-            else:
-                if self.command_args['--add-package']:
-                    system.install_packages(
-                        manager, self.command_args['--add-package']
-                    )
-                if self.command_args['--delete-package']:
-                    system.delete_packages(
-                        manager, self.command_args['--delete-package']
-                    )
+            ) as manager:
+                if not package_requests:
+                    system.update_system(manager)
+                else:
+                    if self.command_args['--add-package']:
+                        system.install_packages(
+                            manager, self.command_args['--add-package']
+                        )
+                    if self.command_args['--delete-package']:
+                        system.delete_packages(
+                            manager, self.command_args['--delete-package']
+                        )
 
     def _help(self):
         if self.command_args['help']:

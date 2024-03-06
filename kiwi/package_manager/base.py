@@ -49,6 +49,9 @@ class PackageManagerBase:
 
         self.post_init(custom_args or [])
 
+    def __enter__(self):
+        return self
+
     def post_init(self, custom_args: List = []) -> None:
         """
         Post initialization method
@@ -276,3 +279,7 @@ class PackageManagerBase:
         del self.collection_requests[:]
         del self.product_requests[:]
         del self.exclude_requests[:]
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.repository:
+            self.repository.cleanup()

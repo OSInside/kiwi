@@ -12,7 +12,7 @@ class TestRepositoryDnf4:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    @patch('kiwi.repository.dnf4.Temporary.new_file')
+    @patch('kiwi.repository.dnf4.Temporary.unmanaged_file')
     @patch('kiwi.repository.dnf4.ConfigParser')
     @patch('kiwi.repository.dnf4.Path.create')
     def setup(self, mock_path, mock_config, mock_temp):
@@ -50,20 +50,20 @@ class TestRepositoryDnf4:
             call('main', {'enabled': '0'})
         ]
 
-    @patch('kiwi.repository.dnf4.Temporary.new_file')
+    @patch('kiwi.repository.dnf4.Temporary.unmanaged_file')
     @patch('kiwi.repository.dnf4.ConfigParser')
     @patch('kiwi.repository.dnf4.Path.create')
     def setup_method(self, cls, mock_path, mock_config, mock_temp):
         self.setup()
 
-    @patch('kiwi.repository.dnf4.Temporary.new_file')
+    @patch('kiwi.repository.dnf4.Temporary.unmanaged_file')
     @patch('kiwi.repository.dnf4.Path.create')
     def test_post_init_no_custom_args(self, mock_path, mock_temp):
         with patch('builtins.open', create=True):
             self.repo.post_init()
         assert self.repo.custom_args == []
 
-    @patch('kiwi.repository.dnf4.Temporary.new_file')
+    @patch('kiwi.repository.dnf4.Temporary.unmanaged_file')
     @patch('kiwi.repository.dnf4.Path.create')
     @patch('os.path.exists')
     def test_post_init_with_custom_args(
@@ -331,3 +331,9 @@ class TestRepositoryDnf4:
         mock_wipe.assert_called_once_with(
             'foo_cache'
         )
+
+    @patch('os.path.isfile')
+    @patch('os.unlink')
+    def test_cleanup(self, mock_os_unlink, mock_os_path_isfile):
+        self.repo.cleanup()
+        mock_os_unlink.assert_called_once_with('tmpfile')

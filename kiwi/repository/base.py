@@ -170,5 +170,13 @@ class RepositoryBase:
             ['bash', '--norc', script_path, repo_file]
         )
 
+    def cleanup(self) -> None:
+        """
+        Cleanup method
+
+        Implementation in specialized repository class
+        """
+        pass  # pragma: no cover
+
     def __exit__(self, exc_type, exc_value, traceback):
         pass  # pragma: no cover

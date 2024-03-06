@@ -211,96 +211,96 @@ class SystemPrepareTask(CliTask):
             abs_root_path,
             self.command_args['--allow-existing-root']
         ) as system:
-            manager = system.setup_repositories(
+            with system.setup_repositories(
                 self.command_args['--clear-cache'],
                 self.command_args[
                     '--signing-key'
                 ] + self.xml_state.get_repositories_signing_keys(),
                 self.global_args['--target-arch']
-            )
-            run_bootstrap = True
-            if self.xml_state.get_package_manager() == 'apt' and \
-               self.command_args['--allow-existing-root']:
-                # try to call apt-get inside of the existing root.
-                # If the call succeeds we skip calling debootstrap again
-                # and assume the root to be ok to proceed with apt-get
-                # if it fails, treat the root as dirty and give the
-                # bootstrap a try
-                try:
-                    Command.run(
-                        ['chroot', abs_root_path, 'apt-get', '--version']
+            ) as manager:
+                run_bootstrap = True
+                if self.xml_state.get_package_manager() == 'apt' and \
+                   self.command_args['--allow-existing-root']:
+                    # try to call apt-get inside of the existing root.
+                    # If the call succeeds we skip calling debootstrap again
+                    # and assume the root to be ok to proceed with apt-get
+                    # if it fails, treat the root as dirty and give the
+                    # bootstrap a try
+                    try:
+                        Command.run(
+                            ['chroot', abs_root_path, 'apt-get', '--version']
+                        )
+                        run_bootstrap = False
+                        log.warning(
+                            'debootstrap will only be called once, skipped'
+                        )
+                    except KiwiCommandError:
+                        run_bootstrap = True
+
+                if run_bootstrap:
+                    system.install_bootstrap(
+                        manager, self.command_args['--add-bootstrap-package']
                     )
-                    run_bootstrap = False
-                    log.warning(
-                        'debootstrap will only be called once, skipped'
+
+                setup = SystemSetup(
+                    self.xml_state, abs_root_path
+                )
+                setup.import_description()
+
+                # call post_bootstrap.sh script if present
+                setup.call_post_bootstrap_script()
+
+                system.install_system(
+                    manager
+                )
+
+                if self.command_args['--add-package']:
+                    system.install_packages(
+                        manager, self.command_args['--add-package']
                     )
-                except KiwiCommandError:
-                    run_bootstrap = True
+                if self.command_args['--delete-package']:
+                    system.delete_packages(
+                        manager, self.command_args['--delete-package']
+                    )
 
-            if run_bootstrap:
-                system.install_bootstrap(
-                    manager, self.command_args['--add-bootstrap-package']
+                profile = Profile(self.xml_state)
+
+                defaults = Defaults()
+                defaults.to_profile(profile)
+
+                profile.create(
+                    Defaults.get_profile_file(abs_root_path)
                 )
 
-            setup = SystemSetup(
-                self.xml_state, abs_root_path
-            )
-            setup.import_description()
+                setup.import_overlay_files()
+                setup.import_image_identifier()
+                setup.setup_groups()
+                setup.setup_users()
+                setup.setup_keyboard_map()
+                setup.setup_locale()
+                setup.setup_plymouth_splash()
+                setup.setup_timezone()
+                setup.setup_permissions()
 
-            # call post_bootstrap.sh script if present
-            setup.call_post_bootstrap_script()
+                # setup permanent image repositories after cleanup
+                setup.import_repositories_marked_as_imageinclude()
 
-            system.install_system(
-                manager
-            )
+                # call config.sh script if present
+                setup.call_config_script()
 
-            if self.command_args['--add-package']:
-                system.install_packages(
-                    manager, self.command_args['--add-package']
-                )
-            if self.command_args['--delete-package']:
-                system.delete_packages(
-                    manager, self.command_args['--delete-package']
-                )
+                # if configured, assign SELinux labels
+                setup.setup_selinux_file_contexts()
 
-            profile = Profile(self.xml_state)
+                # handle uninstall package requests, gracefully uninstall
+                # with dependency cleanup
+                system.pinch_system(force=False)
 
-            defaults = Defaults()
-            defaults.to_profile(profile)
+                # handle delete package requests, forced uninstall without
+                # any dependency resolution
+                system.pinch_system(force=True)
 
-            profile.create(
-                Defaults.get_profile_file(abs_root_path)
-            )
-
-            setup.import_overlay_files()
-            setup.import_image_identifier()
-            setup.setup_groups()
-            setup.setup_users()
-            setup.setup_keyboard_map()
-            setup.setup_locale()
-            setup.setup_plymouth_splash()
-            setup.setup_timezone()
-            setup.setup_permissions()
-
-            # setup permanent image repositories after cleanup
-            setup.import_repositories_marked_as_imageinclude()
-
-            # call config.sh script if present
-            setup.call_config_script()
-
-            # if configured, assign SELinux labels
-            setup.setup_selinux_file_contexts()
-
-            # handle uninstall package requests, gracefully uninstall
-            # with dependency cleanup
-            system.pinch_system(force=False)
-
-            # handle delete package requests, forced uninstall without
-            # any dependency resolution
-            system.pinch_system(force=True)
-
-            # delete any custom rpm macros created
-            system.clean_package_manager_leftovers()
+                # delete any custom rpm macros created
+                system.clean_package_manager_leftovers()
 
     def _help(self):
         if self.command_args['help']:

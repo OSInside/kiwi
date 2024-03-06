@@ -1,6 +1,6 @@
 import sys
 from unittest.mock import (
-    patch, call, Mock
+    patch, call, Mock, MagicMock
 )
 from pytest import raises
 
@@ -58,7 +58,7 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.builtin_kiwi.SystemPrepare')
     def test_prepare(self, mock_SystemPrepare, mock_Temporary, mock_boot_path):
         system_prepare = Mock()
-        manager = Mock()
+        manager = MagicMock()
         system_prepare.setup_repositories = Mock(
             return_value=manager
         )
@@ -71,10 +71,10 @@ class TestBootImageKiwi:
             signing_keys=None, target_arch=None
         )
         system_prepare.install_bootstrap.assert_called_once_with(
-            manager
+            manager.__enter__.return_value
         )
         system_prepare.install_system.assert_called_once_with(
-            manager
+            manager.__enter__.return_value
         )
         assert self.profile.add.call_args_list[0] == call(
             'kiwi_initrdname', 'initrd-oemboot-suse-13.2'
@@ -88,7 +88,7 @@ class TestBootImageKiwi:
         )
         self.setup.call_config_script.assert_called_once_with()
         system_prepare.pinch_system.assert_called_once_with(
-            manager=manager, force=True
+            manager=manager.__enter__.return_value, force=True
         )
         self.setup.call_image_script.assert_called_once_with()
 

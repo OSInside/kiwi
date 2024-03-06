@@ -101,11 +101,38 @@ class TestMountManager:
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
     @patch('time.sleep')
+    def test_umount_with_errors_but_lazy(
+        self, mock_sleep, mock_mounted, mock_command
+    ):
+        command_errors = [
+            True, False, False, False, False, False
+        ]
+
+        def _cmd_err(args) -> NoReturn:
+            if not command_errors.pop():
+                raise KiwiCommandError('error')
+
+        mock_command.side_effect = _cmd_err
+        mock_mounted.return_value = True
+        with self._caplog.at_level(logging.WARNING):
+            assert self.mount_manager.umount() is True
+        assert mock_command.call_args_list == [
+            call(['umount', '/some/mountpoint']),  # 1
+            call(['umount', '/some/mountpoint']),  # 2
+            call(['umount', '/some/mountpoint']),  # 3
+            call(['umount', '/some/mountpoint']),  # 4
+            call(['umount', '/some/mountpoint']),  # 5
+            call(['umount', '--lazy', '/some/mountpoint']),  # lazy
+        ]
+
+    @patch('kiwi.mount_manager.Command.run')
+    @patch('kiwi.mount_manager.MountManager.is_mounted')
+    @patch('time.sleep')
     def test_umount_with_errors(
         self, mock_sleep, mock_mounted, mock_command
     ):
         def _cmd_err(args) -> NoReturn:
-            raise KiwiCommandError("foo")
+            raise KiwiCommandError('error')
 
         mock_command.side_effect = _cmd_err
         mock_mounted.return_value = True
@@ -117,11 +144,7 @@ class TestMountManager:
             call(['umount', '/some/mountpoint']),  # 3
             call(['umount', '/some/mountpoint']),  # 4
             call(['umount', '/some/mountpoint']),  # 5
-            call(['umount', '/some/mountpoint']),  # 6
-            call(['umount', '/some/mountpoint']),  # 7
-            call(['umount', '/some/mountpoint']),  # 8
-            call(['umount', '/some/mountpoint']),  # 9
-            call(['umount', '/some/mountpoint'])   # 10
+            call(['umount', '--lazy', '/some/mountpoint']),  # lazy
         ]
 
     @patch('kiwi.mount_manager.Command.run')
@@ -133,7 +156,7 @@ class TestMountManager:
     ):
         def command_call(args):
             if 'umount' in args:
-                raise KiwiCommandError("foo")
+                raise KiwiCommandError('error')
 
         mock_Path_which.return_value = None
         mock_command.side_effect = command_call
@@ -150,7 +173,7 @@ class TestMountManager:
     ):
         def command_call(args, raise_on_error=None):
             if 'umount' in args:
-                raise KiwiCommandError("foo")
+                raise KiwiCommandError('error')
             else:
                 call_return = Mock()
                 call_return.output = 'HEADLINE\ndata'

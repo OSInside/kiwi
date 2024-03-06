@@ -1,9 +1,8 @@
 from pytest import raises
 from unittest.mock import (
-    patch, call, MagicMock
+    patch, call, MagicMock, Mock
 )
 import io
-import unittest.mock as mock
 import os
 
 from kiwi.defaults import Defaults
@@ -13,20 +12,20 @@ from kiwi.exceptions import KiwiCommandError
 
 class TestRepositoryZypper:
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.Temporary.new_file')
+    @patch('kiwi.repository.zypper.Temporary.unmanaged_file')
     def setup(self, mock_temp, mock_command):
-        self.context_manager_mock = mock.Mock()
-        self.file_mock = mock.Mock()
-        self.enter_mock = mock.Mock()
-        self.exit_mock = mock.Mock()
+        self.context_manager_mock = Mock()
+        self.file_mock = Mock()
+        self.enter_mock = Mock()
+        self.exit_mock = Mock()
         self.enter_mock.return_value = self.file_mock
         setattr(self.context_manager_mock, '__enter__', self.enter_mock)
         setattr(self.context_manager_mock, '__exit__', self.exit_mock)
 
-        tmpfile = mock.Mock()
+        tmpfile = Mock()
         tmpfile.name = 'tmpfile'
         mock_temp.return_value = tmpfile
-        self.root_bind = mock.Mock()
+        self.root_bind = Mock()
         self.root_bind.root_dir = '../data'
         self.root_bind.shared_location = '/shared-dir'
         with patch('builtins.open', create=True):
@@ -35,25 +34,25 @@ class TestRepositoryZypper:
             )
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.Temporary.new_file')
+    @patch('kiwi.repository.zypper.Temporary.unmanaged_file')
     def setup_method(self, cls, mock_temp, mock_command):
         self.setup()
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.Temporary.new_file')
+    @patch('kiwi.repository.zypper.Temporary.unmanaged_file')
     def test_custom_args_init_excludedocs(self, mock_temp, mock_command):
         with patch('builtins.open', create=True):
             repo = RepositoryZypper(self.root_bind)
             assert repo.custom_args == []
 
     @patch('kiwi.command.Command.run')
-    @patch('kiwi.repository.zypper.Temporary.new_file')
+    @patch('kiwi.repository.zypper.Temporary.unmanaged_file')
     @patch('kiwi.repository.zypper.ConfigParser')
     def test_custom_args_init_check_signatures(
         self, mock_config, mock_temp, mock_command
     ):
         Defaults.set_platform_name('x86_64')
-        runtime_zypp_config = mock.Mock()
+        runtime_zypp_config = Mock()
         mock_config.return_value = runtime_zypp_config
         with patch('builtins.open', create=True):
             repo = RepositoryZypper(
@@ -111,7 +110,7 @@ class TestRepositoryZypper:
         self, mock_uri, mock_exists, mock_wipe,
         mock_command, mock_config
     ):
-        repo_config = mock.Mock()
+        repo_config = Mock()
         mock_config.return_value = repo_config
         mock_exists.return_value = True
         with patch('builtins.open', create=True) as mock_open:
@@ -122,7 +121,7 @@ class TestRepositoryZypper:
             mock_wipe.assert_called_once_with(
                 '../data/shared-dir/zypper/repos/foo.repo'
             )
-            uri = mock.Mock()
+            uri = Mock()
             uri.is_remote.return_value = True
             mock_uri.return_value = uri
             assert mock_command.call_args_list == [
@@ -194,7 +193,7 @@ class TestRepositoryZypper:
     def test_add_repo_with_credentials_in_uri(
         self, mock_uri, mock_exists, mock_wipe, mock_command, mock_config
     ):
-        repo_config = mock.Mock()
+        repo_config = Mock()
         mock_config.return_value = repo_config
         mock_exists.return_value = True
         with patch('builtins.open', create=True) as mock_open:
@@ -225,7 +224,7 @@ class TestRepositoryZypper:
         self, mock_uri, mock_exists, mock_wipe,
         mock_command, mock_config
     ):
-        repo_config = mock.Mock()
+        repo_config = Mock()
         mock_config.return_value = repo_config
         mock_exists.return_value = True
         with patch('builtins.open', create=True) as mock_open:
@@ -274,7 +273,7 @@ class TestRepositoryZypper:
     def test_setup_package_database_configuration(
         self, mock_Path_create, mock_Command_run, mock_RpmDataBase
     ):
-        rpmdb = mock.Mock()
+        rpmdb = Mock()
         rpmdb.has_rpm.return_value = False
         rpmdb.rpmdb_host.expand_query.return_value = '/usr/lib/sysimage/rpm'
         mock_RpmDataBase.return_value = rpmdb
@@ -307,7 +306,7 @@ class TestRepositoryZypper:
     def test_setup_package_database_configuration_bootstrapped_system(
         self, mock_Path_create, mock_Command_run, mock_RpmDataBase
     ):
-        rpmdb = mock.Mock()
+        rpmdb = Mock()
         rpmdb.has_rpm.return_value = True
         rpmdb.rpmdb_host.expand_query.return_value = '/usr/lib/sysimage/rpm'
         mock_RpmDataBase.return_value = rpmdb
@@ -332,7 +331,7 @@ class TestRepositoryZypper:
 
     @patch('kiwi.repository.zypper.RpmDataBase')
     def test_import_trusted_keys(self, mock_RpmDataBase):
-        rpmdb = mock.Mock()
+        rpmdb = Mock()
         mock_RpmDataBase.return_value = rpmdb
         signing_keys = ['key-file-a.asc', 'key-file-b.asc']
         self.repo.import_trusted_keys(signing_keys)
@@ -424,12 +423,23 @@ class TestRepositoryZypper:
             call('../data/shared-dir/zypper/raw/foo')
         ]
 
+    @patch('os.path.isfile')
+    @patch('os.unlink')
+    def test_cleanup(self, mock_os_unlink, mock_os_path_isfile):
+        self.repo.cleanup()
+        assert mock_os_unlink.call_args_list == [
+            call('tmpfile'), call('tmpfile')
+        ]
+
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
-    def test_context_manager_exit(self, mock_os_path_exists, mock_command_run):
+    def test_context_manager_exit(
+        self, mock_os_path_exists, mock_command_run
+    ):
         mock_os_path_exists.return_value = True
-        with RepositoryZypper(self.root_bind):
-            pass
+        with patch('builtins.open', create=True):
+            with RepositoryZypper(self.root_bind):
+                pass
         mock_command_run.assert_called_once_with(
             ['mv', '-f', '/shared-dir/packages.moved', '/shared-dir/packages']
         )

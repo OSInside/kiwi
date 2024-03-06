@@ -9,7 +9,7 @@ from kiwi.repository.pacman import RepositoryPacman
 
 
 class TestRepositorPacman(object):
-    @patch('kiwi.repository.pacman.Temporary.new_file')
+    @patch('kiwi.repository.pacman.Temporary.unmanaged_file')
     @patch('kiwi.repository.pacman.ConfigParser')
     @patch('kiwi.repository.pacman.Path.create')
     def setup(self, mock_path, mock_config, mock_temp):
@@ -51,7 +51,7 @@ class TestRepositorPacman(object):
                 call('options', 'Include', '/shared-dir/pacman/repos/*.repo')
             ]
 
-    @patch('kiwi.repository.pacman.Temporary.new_file')
+    @patch('kiwi.repository.pacman.Temporary.unmanaged_file')
     @patch('kiwi.repository.pacman.ConfigParser')
     @patch('kiwi.repository.pacman.Path.create')
     def setup_method(self, cls, mock_path, mock_config, mock_temp):
@@ -212,3 +212,9 @@ class TestRepositorPacman(object):
     def test_delete_repo_cache(self, mock_path):
         self.repo.delete_repo_cache('foo')
         mock_path.wipe.assert_called_once_with('/shared-dir/pacman/cache')
+
+    @patch('os.path.isfile')
+    @patch('os.unlink')
+    def test_cleanup(self, mock_os_unlink, mock_os_path_isfile):
+        self.repo.cleanup()
+        mock_os_unlink.assert_called_once_with('tmpfile')

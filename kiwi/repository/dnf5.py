@@ -21,7 +21,9 @@ from configparser import ConfigParser
 from typing import List, Dict
 
 # project
-from kiwi.utils.temporary import Temporary
+from kiwi.utils.temporary import (
+    Temporary, TmpT
+)
 from kiwi.defaults import Defaults
 from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
@@ -49,6 +51,7 @@ class RepositoryDnf5(RepositoryBase):
 
         :param list custom_args: dnf arguments
         """
+        self.runtime_dnf_config_file = TmpT(name='')
         self.custom_args = custom_args
         self.exclude_docs = False
         self.locale = None
@@ -93,8 +96,8 @@ class RepositoryDnf5(RepositoryBase):
         }
 
         self.runtime_dnf_config_file = Temporary(
-            path=self.root_dir
-        ).new_file()
+            path=self.root_dir, prefix='kiwi_dnf5.conf'
+        ).unmanaged_file()
 
         self.dnf_args = [
             '--config', self.runtime_dnf_config_file.name, '-y'
@@ -353,3 +356,10 @@ class RepositoryDnf5(RepositoryBase):
                 path = f"{self.shared_dnf_dir['pluginconf-dir']}/{plugin_name}.conf"
                 with open(path, "w") as plugin_config_fobj:
                     plugin_config.write(plugin_config_fobj)
+
+    def cleanup(self) -> None:
+        """
+        Delete intermediate dnf config file
+        """
+        if os.path.isfile(self.runtime_dnf_config_file.name):
+            os.unlink(self.runtime_dnf_config_file.name)

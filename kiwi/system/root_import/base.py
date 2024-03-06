@@ -102,7 +102,9 @@ class RootImportBase:
             system.call_config_overlay_script()
 
             # Run config-host-overlay.sh
-            system.call_config_host_overlay_script(working_directory=self.root_dir)
+            system.call_config_host_overlay_script(
+                working_directory=self.root_dir
+            )
 
             # Umount and rename upper to be the new root
             self.overlay.umount()
@@ -110,6 +112,8 @@ class RootImportBase:
             Path.rename(self.overlay.upper, self.root_dir)
 
             # Create removed files metadata
+            if not os.path.isdir(pinch_reference):
+                Path.create(pinch_reference)
             exclude_options = []
             removed_files = []
             for item in Defaults.get_exclude_list_for_removed_files_detection():
