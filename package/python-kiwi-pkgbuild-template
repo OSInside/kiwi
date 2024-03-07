@@ -21,7 +21,7 @@ build() {
   cd kiwi-${pkgver}
   # Temporarily switch things back to docopt
   # FIXME: Drop this hack as soon as we can...
-  sed -e "s/docopt-ng/docopt/" -i pyproject.toml
+  sed -e 's/docopt-ng.*/docopt = ">=0.6.2"/' -i pyproject.toml
   make -C doc man
   python3 -m build --no-isolation --wheel
 }
