@@ -36,12 +36,12 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-build an image in one step. The build command combines kiwi's prepare and
-create steps in order to build an image with just one command call. The
-build command creates the root directory of the image below
-`<target-dir>/build/image-root` and if not specified differently writes
+Build an image in one step. The build command combines prepare and
+create steps in order to build an image using a single command. The
+build command creates the root directory of the image under
+`<target-dir>/build/image-root` and writes
 a log file `<target-dir>/build/image-root.log`. The result image files
-are created in the specified target-dir.
+are created in the specified target directory.
 
 .. _db_kiwi_system_build_opts:
 
@@ -50,31 +50,31 @@ OPTIONS
 
 --add-bootstrap-package=<name>
 
-  specify package to install as part of the early kiwi bootstrap phase.
-  The option can be specified multiple times
+  Specify package to install as part of the early {kiwi} bootstrap phase.
+  The option can be specified multiple times.
 
 --add-container-label=<name=value>
 
-  add a container label in the container configuration metadata. It
-  overwrites the label with the provided key-value pair in case it was
+  Add a container label in the container configuration metadata. It
+  overwrites the label with the provided key-value pair if it was
   already defined in the XML description
 
 --add-package=<name>
 
-  specify package to add(install). The option can be specified
-  multiple times
+  Specify package to add (install). The option can be specified
+  multiple times.
 
 --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
 
   Add a new repository to the existing repository setup in the XML
   description. This option can be specified multiple times.
-  For details about the provided option values see the **--set-repo**
-  information below
+  For details about the possible option values see the **--set-repo**
+  information below.
 
 --add-repo-credentials=<user:pass_or_filename>
 
-  For **uri://user:pass@location** type repositories, set the user and
-  password connected with an add-repo specification. The first
+  For **uri://user:pass@location** repositories, set the user and
+  password associated with an add-repo specification. The first
   add-repo-credentials is connected with the first add-repo
   specification and so on. If the provided value describes a filename
   in the filesystem, the first line of that file is read and used
