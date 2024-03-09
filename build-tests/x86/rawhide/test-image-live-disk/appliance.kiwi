@@ -58,9 +58,6 @@
     <repository type="rpm-md" alias="Fedora_Rawhide">
         <source path="obs://Fedora:Rawhide/standard"/>
     </repository>
-    <repository type="rpm-md" alias="Fedora_EPEL">
-        <source path="obs://Fedora:EPEL:8/standard"/>
-    </repository>
     <packages type="image">
         <package name="grub2"/>
         <package name="grubby"/>
