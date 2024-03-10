@@ -24,6 +24,9 @@ class TestCloneDevice:
             self.storage_device, 'root_dir'
         )
 
+    def setup_method(self, cls):
+        self.setup()
+
     @patch('kiwi.storage.clone_device.Command.run')
     @patch('kiwi.storage.clone_device.BlockID')
     @patch('kiwi.storage.clone_device.FileSystem.new')

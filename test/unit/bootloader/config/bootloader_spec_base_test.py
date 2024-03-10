@@ -16,7 +16,8 @@ class TestBootLoaderSpecBase:
     def inject_fixtures(self, caplog):
         self._caplog = caplog
 
-    def setup(self):
+    @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
+    def setup(self, mock_FirmWare):
         Defaults.set_platform_name('x86_64')
         description = XMLDescription(
             '../data/example_config.xml'
@@ -28,7 +29,8 @@ class TestBootLoaderSpecBase:
             self.state, 'root_dir'
         )
 
-    def setup_method(self, cls):
+    @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
+    def setup_method(self, cls, mock_FirmWare):
         self.setup()
 
     @patch.object(BootLoaderSpecBase, 'setup_loader')

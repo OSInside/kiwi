@@ -22,6 +22,22 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+`kiwi.bootloader.config.systemd_boot` Module
+--------------------------------------------
+
+.. automodule:: kiwi.bootloader.config.systemd_boot
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+`kiwi.bootloader.config.zipl` Module
+------------------------------------
+
+.. automodule:: kiwi.bootloader.config.zipl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. _db_kiwi_bootloader_config_contents:
 
 Module Contents

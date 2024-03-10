@@ -20,6 +20,7 @@ from typing import (
 )
 
 # project
+from kiwi.firmware import FirmWare
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.system.identifier import SystemIdentifier
 
@@ -62,6 +63,9 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         )
         self.custom_args = custom_args
         self.timeout = self.get_boot_timeout_seconds()
+        self.disk_type = self.xml_state.get_build_type_bootloader_targettype()
+        self.disk_blocksize = self.xml_state.build_type.get_target_blocksize()
+        self.firmware = FirmWare(self.xml_state)
         self.cmdline = ''
 
     def write(self) -> None:

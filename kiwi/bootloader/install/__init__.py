@@ -48,7 +48,8 @@ class BootLoaderInstall(metaclass=ABCMeta):
         name_map = {
             'grub2': {'grub2': 'BootLoaderInstallGrub2'},
             'grub2_s390x_emu': {'grub2': 'BootLoaderInstallGrub2'},
-            'systemd_boot': {'systemd_boot': 'BootLoaderInstallSystemdBoot'}
+            'systemd_boot': {'systemd_boot': 'BootLoaderInstallSystemdBoot'},
+            'zipl': {'zipl': 'BootLoaderInstallZipl'}
         }
         try:
             (bootloader_namespace, bootloader_name) = \

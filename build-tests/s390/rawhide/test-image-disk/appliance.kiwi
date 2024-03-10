@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="7.5" name="kiwi-test-image-disk">
+    <description type="system">
+        <author>Marcus Schaefer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Virtual and Physical disk image test</specification>
+    </description>
+    <profiles>
+        <profile name="Virtual" description="Image for use with kvm"/>
+        <profile name="Physical" description="Image for physical storage disk CDL mode"/>
+    </profiles>
+    <preferences>
+        <version>1.42.1</version>
+        <packagemanager>dnf5</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Virtual">
+        <type image="oem" filesystem="ext4" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="zipl" timeout="10"/>
+        </type>
+    </preferences>
+    <preferences profiles="Physical">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 dasd_mod.dasd=ipldev" bootpartition="false" target_blocksize="4096">
+            <bootloader name="zipl" targettype="CDL" timeout="10"/>
+            <oemconfig>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>512</oem-swapsize>
+            </oemconfig>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
+        <source path="obs://Virtualization:Appliances:Staging/Fedora_Rawhide"/>
+    </repository>
+    <repository type="rpm-md" alias="Fedora_Rawhide">
+        <source path="obs://Fedora:Rawhide/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="s390utils"/>
+        <package name="mariadb-connector-c-config"/>
+        <package name="kernel"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+        <package name="NetworkManager"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="btrfs-progs"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="fedora-release"/>
+    </packages>
+</image>
