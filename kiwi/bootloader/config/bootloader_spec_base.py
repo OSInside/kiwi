@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+import glob
 from typing import (
     Dict, NamedTuple
 )
@@ -23,6 +25,10 @@ from typing import (
 from kiwi.firmware import FirmWare
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.system.identifier import SystemIdentifier
+from kiwi.defaults import Defaults
+from kiwi.utils.os_release import OsRelease
+from kiwi.exceptions import KiwiKernelLookupError
+
 
 target_type = NamedTuple(
     'target_type', [
@@ -58,6 +64,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         Store custom arguments in an instance dict and initialize
         target identifiers
         """
+        self.entries_dir = Defaults.get_bls_loader_entries_dir()
         self.target = target_type(
             disk='disk', install='install(iso)', live='live(iso)'
         )
@@ -223,3 +230,33 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         Implementation in specialized loader class
         """
         raise NotImplementedError
+
+    def get_entry_name(self) -> str:
+        """
+        Construct entry filename of the form
+        [OS_release_ID]-[kernel-version].conf or use the
+        naming policy of an existing entries file
+
+        :return: file basename
+
+        :rtype: str
+        """
+        os_release = OsRelease(self.root_dir)
+        try:
+            kernel_name = os.path.basename(
+                list(glob.iglob(f'{self.root_dir}/lib/modules/*'))[0]
+            )
+        except Exception as issue:
+            raise KiwiKernelLookupError(
+                'Kernel lookup in {0}/lib/modules failed with: {1}'.format(
+                    self.root_dir, issue
+                )
+            )
+        entry_filename = f'{os_release.get("ID")}-{kernel_name}.conf'
+        # Check if there is already an entry file name produced by the
+        # distribution logic/policy. If we can find an already present
+        # entry name, prefer this name over the kiwi naming policy
+        for dist_entry in glob.iglob(f'{self.root_dir}/{self.entries_dir}/*'):
+            entry_filename = os.path.basename(dist_entry)
+            break
+        return entry_filename

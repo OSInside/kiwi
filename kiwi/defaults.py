@@ -1952,6 +1952,17 @@ class Defaults:
                 '0fc63daf848347728e793d69d8477de4'
         }
 
+    @staticmethod
+    def get_bls_loader_entries_dir() -> str:
+        """
+        Provide default loader entries directory for BLS loaders
+
+        :return: directory name
+
+        :rtype: str
+        """
+        return '/boot/loader/entries'
+
     def get(self, key):
         """
         Implements get method for profile elements

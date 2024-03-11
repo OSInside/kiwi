@@ -4,12 +4,12 @@ from unittest.mock import (
     Mock, patch, call, MagicMock
 )
 from kiwi.bootloader.config.zipl import BootLoaderZipl
+from kiwi.bootloader.config.bootloader_spec_base import BootLoaderSpecBase
 from kiwi.command import CommandT
 
 from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderTargetError,
-    KiwiKernelLookupError,
     KiwiDiskGeometryError
 )
 
@@ -51,8 +51,6 @@ class TestBootLoaderZipl:
             self.bootloader.setup_loader('iso')
 
     @patch('os.path.exists')
-    @patch('kiwi.bootloader.config.zipl.OsRelease')
-    @patch('kiwi.bootloader.config.zipl.glob.iglob')
     @patch('kiwi.bootloader.config.zipl.BootImageBase.get_boot_names')
     @patch('kiwi.bootloader.config.zipl.Path.wipe')
     @patch('kiwi.bootloader.config.zipl.Path.create')
@@ -60,21 +58,19 @@ class TestBootLoaderZipl:
     @patch('kiwi.bootloader.config.zipl.BootLoaderTemplateZipl')
     @patch.object(BootLoaderZipl, '_write_config_file')
     @patch.object(BootLoaderZipl, '_get_template_parameters')
+    @patch.object(BootLoaderSpecBase, 'get_entry_name')
     def test_setup_loader(
-        self, mock_get_template_parameters, mock_write_config_file,
-        mock_BootLoaderTemplateZipl, mock_Command_run,
+        self, mock_get_entry_name, mock_get_template_parameters,
+        mock_write_config_file, mock_BootLoaderTemplateZipl, mock_Command_run,
         mock_Path_create, mock_Path_wipe, mock_BootImageBase_get_boot_names,
-        mock_iglob,
-        mock_OsRelease,
         mock_os_path_exists
     ):
+        mock_get_entry_name.return_value = \
+            'opensuse-leap-5.3.18-59.10-default.conf'
+
         mock_get_template_parameters.return_value = {
             'targetbase': '/dev/loop'
         }
-        mock_iglob.return_value = ['/lib/modules/5.3.18-59.10-default']
-        os_release = Mock()
-        os_release.get.return_value = 'opensuse-leap'
-        mock_OsRelease.return_value = os_release
         kernel_info = Mock()
         kernel_info.kernel_version = 'kernel-version'
         kernel_info.kernel_filename = 'kernel-filename'
@@ -113,15 +109,6 @@ class TestBootLoaderZipl:
                 '--verbose'
             ]
         )
-
-    @patch('kiwi.bootloader.config.zipl.OsRelease')
-    @patch('kiwi.bootloader.config.zipl.glob.iglob')
-    def test_set_loader_entry_kernel_lookup_raises(
-        self, mock_iglob, mock_OsRelease
-    ):
-        mock_iglob.return_value = None
-        with raises(KiwiKernelLookupError):
-            self.bootloader.set_loader_entry('root_dir', 'disk')
 
     @patch.object(BootLoaderZipl, '_get_disk_geometry')
     @patch.object(BootLoaderZipl, '_get_partition_start')
