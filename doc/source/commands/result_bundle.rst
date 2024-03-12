@@ -38,7 +38,7 @@ OPTIONS
 
 --id=<bundle_id>
 
-  Bundle ID. It be a free-form text, and it is appended to the image
+  Bundle ID. It is a free-form text appended to the image
   version information as part of the result image filename.
 
 --target-dir=<directory>
