@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import glob
 from string import Template
 from typing import Dict
 
@@ -26,12 +25,10 @@ from kiwi.boot.image.base import BootImageBase
 from kiwi.bootloader.template.zipl import BootLoaderTemplateZipl
 from kiwi.bootloader.config.bootloader_spec_base import BootLoaderSpecBase
 from kiwi.command import Command
-from kiwi.utils.os_release import OsRelease
 
 from kiwi.exceptions import (
     KiwiTemplateError,
     KiwiBootLoaderTargetError,
-    KiwiKernelLookupError,
     KiwiDiskGeometryError
 )
 
@@ -86,25 +83,16 @@ class BootLoaderZipl(BootLoaderSpecBase):
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
         Setup/update loader entries of the form
-        /boot/loader/entries/[OS_release_ID]-[kernel-version].conf
+        /boot/loader/entries/[get_entry_name]
 
         :param str target:
             target identifier, one of disk, live(iso) or install(iso)
         """
-        os_release = OsRelease(root_dir)
-        try:
-            kernel_name = os.path.basename(
-                list(glob.iglob(f'{root_dir}/lib/modules/*'))[0]
-            )
-        except Exception as issue:
-            raise KiwiKernelLookupError(
-                f'Kernel lookup in {root_dir}/lib/modules failed with {issue}'
-            )
-        default_entry = f'{os_release.get("ID")}-{kernel_name}.conf'
+        entry_name = self.get_entry_name()
         BootLoaderZipl._write_config_file(
             BootLoaderTemplateZipl().get_entry_template(),
-            root_dir + f'/boot/loader/entries/{default_entry}',
-            self._get_template_parameters(default_entry)
+            root_dir + f'{self.entries_dir}/{entry_name}',
+            self._get_template_parameters(entry_name)
         )
 
     def _install_zipl(self, root_dir: str) -> None:
@@ -115,7 +103,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
             'chroot', root_dir, 'zipl',
             '--noninteractive',
             '--config', '/etc/zipl.conf',
-            '--blsdir', '/boot/loader/entries',
+            '--blsdir', self.entries_dir,
             '--verbose'
         ]
         Command.run(zipl)

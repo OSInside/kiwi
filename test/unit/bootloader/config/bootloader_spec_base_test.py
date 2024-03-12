@@ -9,6 +9,7 @@ from kiwi.defaults import Defaults
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.bootloader_spec_base import BootLoaderSpecBase
+from kiwi.exceptions import KiwiKernelLookupError
 
 
 class TestBootLoaderSpecBase:
@@ -94,3 +95,49 @@ class TestBootLoaderSpecBase:
     def test_write_meta_data(self):
         # just pass
         self.bootloader.write_meta_data()
+
+    @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
+    @patch('kiwi.bootloader.config.bootloader_spec_base.glob.iglob')
+    def test_get_entry_name_kernel_lookup_raises(
+        self, mock_iglob, mock_OsRelease
+    ):
+        mock_iglob.return_value = None
+        with raises(KiwiKernelLookupError):
+            self.bootloader.get_entry_name()
+
+    @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
+    @patch('kiwi.bootloader.config.bootloader_spec_base.glob.iglob')
+    def test_get_entry_name_kiwi_policy(
+        self, mock_iglob, mock_OsRelease
+    ):
+        glob_return_value = [
+            ['/lib/modules/5.3.18-59.10-default'],
+            []
+        ]
+
+        def get_glob(args):
+            return glob_return_value.pop(0)
+
+        mock_iglob.side_effect = get_glob
+        os_release = Mock()
+        os_release.get.return_value = 'opensuse-leap'
+        mock_OsRelease.return_value = os_release
+        assert self.bootloader.get_entry_name() == \
+            'opensuse-leap-5.3.18-59.10-default.conf'
+
+    @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
+    @patch('kiwi.bootloader.config.bootloader_spec_base.glob.iglob')
+    def test_get_entry_name_os_policy(
+        self, mock_iglob, mock_OsRelease
+    ):
+        glob_return_value = [
+            ['/lib/modules/5.3.18-59.10-default'],
+            ['/boot/loader/entries/bc8499a-5.3.18-59.10-default.conf']
+        ]
+
+        def get_glob(args):
+            return glob_return_value.pop(0)
+
+        mock_iglob.side_effect = get_glob
+        assert self.bootloader.get_entry_name() == \
+            'bc8499a-5.3.18-59.10-default.conf'

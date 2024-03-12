@@ -60,6 +60,7 @@
         <package name="NetworkManager"/>
         <package name="dracut-kiwi-oem-repart"/>
         <package name="btrfs-progs"/>
+        <package name="audit"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
