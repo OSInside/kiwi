@@ -9,6 +9,7 @@
 <xsl:import href="convert74to75.xsl"/>
 <xsl:import href="convert75to76.xsl"/>
 <xsl:import href="convert76to80.xsl"/>
+<xsl:import href="convert80to81.xsl"/>
 <xsl:import href="pretty.xsl"/>
 
 <xsl:output encoding="utf-8"/>
@@ -30,8 +31,12 @@
         <xsl:apply-templates select="exslt:node-set($v76)" mode="conv76to80"/>
     </xsl:variable>
 
+    <xsl:variable name="v81">
+        <xsl:apply-templates select="exslt:node-set($v80)" mode="conv80to81"/>
+    </xsl:variable>
+
     <xsl:apply-templates
-        select="exslt:node-set($v80)" mode="pretty"
+        select="exslt:node-set($v81)" mode="pretty"
     />
 </xsl:template>
 
