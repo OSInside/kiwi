@@ -135,7 +135,7 @@ OPTIONS
 
   - **type**
 
-    repository type, could be one of `rpm-md`, `rpm-dir` or `yast2`.
+    repository type, could be one of `rpm-md`, or `apt-deb`.
 
   - **alias**
 

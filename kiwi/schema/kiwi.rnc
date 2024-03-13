@@ -65,7 +65,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "8.0" }
+        attribute schemaversion { "8.1" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -1054,7 +1054,7 @@ div {
     k.repository.type.attribute =
         ## Type of repository
         attribute type {
-            "apt-deb" | "apt-rpm" | "deb-dir" | "mirrors" | "rpm-dir" | "rpm-md"
+            "apt-deb" | "apt-rpm" | "deb-dir" | "mirrors" | "rpm-md"
         }
     k.repository.alias.attribute =
         ## Alias name to be used for this repository. This is an

@@ -145,7 +145,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>8.0</value>
+        <value>8.1</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -1597,7 +1597,6 @@ definition can be composed by other existing profiles.</a:documentation>
           <value>apt-rpm</value>
           <value>deb-dir</value>
           <value>mirrors</value>
-          <value>rpm-dir</value>
           <value>rpm-md</value>
         </choice>
       </attribute>

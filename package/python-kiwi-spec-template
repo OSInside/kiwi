@@ -45,7 +45,7 @@
 
 Name:           python-kiwi
 Version:        %%VERSION
-Provides:       kiwi-schema = 7.5
+Provides:       kiwi-schema = 8.1
 Release:        0
 Url:            https://github.com/OSInside/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
