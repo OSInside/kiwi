@@ -54,6 +54,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
             raise KiwiBootLoaderTargetError(
                 'zipl is only supported with the disk image target'
             )
+        boot_path = self.get_boot_path()
         boot_options = self.custom_args['boot_options']
         self._mount_system(
             boot_options.get('root_device'),
@@ -66,9 +67,9 @@ class BootLoaderZipl(BootLoaderSpecBase):
             self.xml_state, root_dir, root_dir
         ).get_boot_names()
         self.custom_args['kernel'] = \
-            f'/boot/{os.path.basename(kernel_info.kernel_filename)}'
+            f'{boot_path}/{os.path.basename(kernel_info.kernel_filename)}'
         self.custom_args['initrd'] = \
-            f'/boot/{kernel_info.initrd_name}'
+            f'{boot_path}/{kernel_info.initrd_name}'
 
         BootLoaderZipl._write_config_file(
             BootLoaderTemplateZipl().get_loader_template(),
@@ -83,7 +84,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
         Setup/update loader entries of the form
-        /boot/loader/entries/[get_entry_name]
+        {boot_path}/loader/entries/{get_entry_name}
 
         :param str target:
             target identifier, one of disk, live(iso) or install(iso)
