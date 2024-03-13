@@ -338,6 +338,7 @@ class TestBootLoaderConfigBase:
             return mount_managers.pop()
 
         self.bootloader.arch = 's390x'
+        self.bootloader.bootloader = 'grub2_s390x_emu'
 
         mock_MountManager.side_effect = mount_managers_effect
         self.bootloader._mount_system(

@@ -47,6 +47,7 @@ class BootLoaderConfigBase(ABC):
         self.root_dir = root_dir
         self.boot_dir = boot_dir or root_dir
         self.xml_state = xml_state
+        self.bootloader = xml_state.get_build_type_bootloader_name()
         self.arch = Defaults.get_platform_name()
 
         self.volumes_mount = []
@@ -382,10 +383,13 @@ class BootLoaderConfigBase(ABC):
             disk_setup = DiskSetup(self.xml_state, self.boot_dir)
             need_boot_partition = disk_setup.need_boot_partition()
             if need_boot_partition:
-                # if an extra boot partition is used we will find the
-                # data directly in the root of this partition and not
-                # below the boot/ directory
-                bootpath = '/'
+                if self.bootloader != 'zipl':
+                    # if an extra boot partition is used we will find the
+                    # data directly in the root of this partition and not
+                    # below the boot/ directory. An exception to this case
+                    # is the zipl bootloader which finds its target
+                    # according to the mount path.
+                    bootpath = '/'
 
         if target == 'disk':
             if not need_boot_partition:
@@ -507,7 +511,7 @@ class BootLoaderConfigBase(ABC):
         self.root_mount = MountManager(
             device=root_device
         )
-        if 's390' in self.arch:
+        if 's390' in self.arch and self.bootloader == 'grub2_s390x_emu':
             self.boot_mount = MountManager(
                 device=boot_device,
                 mountpoint=self.root_mount.mountpoint + '/boot/zipl'
