@@ -89,7 +89,7 @@ OPTIONS
 
   Delete repository cache for each of the used repositories
   before installing any package. This is useful when an image build
-  takes and validates the signature of the package from the
+  validates the signature of the package from the
   original repository source for any build. Some package managers
   unconditionally trust the contents of the cache, which works for
   cache data dedicated to one build. In case of {kiwi}, the cache
@@ -199,7 +199,7 @@ OPTIONS
 
   Set the key file to be trusted and imported into the package
   manager database before performing any operation. This is useful
-  when an image build takes and validates repository and package
+  when an image build validates repository and package
   signatures during build time. This option can be specified multiple
   times.
 
