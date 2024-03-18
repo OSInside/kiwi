@@ -210,28 +210,6 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                         'grub2-zipl-setup', '--keep'
                     ]
                 )
-                zipl_config_file = ''.join(
-                    [
-                        self.root_mount.mountpoint, '/boot/zipl/config'
-                    ]
-                )
-                zipl2grub_config_file_orig = ''.join(
-                    [
-                        self.root_mount.mountpoint,
-                        '/etc/default/zipl2grub.conf.in.orig'
-                    ]
-                )
-                if os.path.exists(zipl2grub_config_file_orig):
-                    Command.run(
-                        [
-                            'mv', zipl2grub_config_file_orig,
-                            zipl2grub_config_file_orig.replace('.orig', '')
-                        ]
-                    )
-                if os.path.exists(zipl_config_file):
-                    Command.run(
-                        ['mv', zipl_config_file, zipl_config_file + '.kiwi']
-                    )
             else:
                 Command.run(
                     [
@@ -246,6 +224,31 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                         '--modules', self.modules,
                         self.install_device
                     ]
+                )
+            # Cleanup temporary modified zipl template and config files
+            # back to its original state or lave a .kiwi copy for
+            # reference in the system
+            zipl_config_file = ''.join(
+                [
+                    self.root_mount.mountpoint, '/boot/zipl/config'
+                ]
+            )
+            zipl2grub_config_file_orig = ''.join(
+                [
+                    self.root_mount.mountpoint,
+                    '/etc/default/zipl2grub.conf.in.orig'
+                ]
+            )
+            if os.path.exists(zipl2grub_config_file_orig):
+                Command.run(
+                    [
+                        'mv', zipl2grub_config_file_orig,
+                        zipl2grub_config_file_orig.replace('.orig', '')
+                    ]
+                )
+            if os.path.exists(zipl_config_file):
+                Command.run(
+                    ['mv', zipl_config_file, zipl_config_file + '.kiwi']
                 )
 
     def secure_boot_install(self):
