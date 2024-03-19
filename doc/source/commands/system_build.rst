@@ -36,12 +36,12 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-build an image in one step. The build command combines kiwi's prepare and
-create steps in order to build an image with just one command call. The
-build command creates the root directory of the image below
-`<target-dir>/build/image-root` and if not specified differently writes
-a log file `<target-dir>/build/image-root.log`. The result image files
-are created in the specified target-dir.
+Build an image in one step. The build command combines preparation and building
+steps, which makes it possible to create an image with a single command. The
+build command creates the root directory of the image under
+`<target-dir>/build/image-root` and writes a log file
+`<target-dir>/build/image-root.log`. The result image files are created in the
+specified target directory.
 
 .. _db_kiwi_system_build_opts:
 
@@ -50,76 +50,73 @@ OPTIONS
 
 --add-bootstrap-package=<name>
 
-  specify package to install as part of the early kiwi bootstrap phase.
-  The option can be specified multiple times
+  Specify package to install as part of the early {kiwi} bootstrap phase.
+  The option can be specified multiple times.
 
 --add-container-label=<name=value>
 
-  add a container label in the container configuration metadata. It
-  overwrites the label with the provided key-value pair in case it was
-  already defined in the XML description
+  Add a container label in the container configuration metadata. It
+  overwrites the label with the provided key-value pair if it is
+  already defined in the XML description.
 
 --add-package=<name>
 
-  specify package to add(install). The option can be specified
-  multiple times
+  Specify package to add (install). The option can be specified
+  multiple times.
 
 --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
 
   Add a new repository to the existing repository setup in the XML
   description. This option can be specified multiple times.
-  For details about the provided option values see the **--set-repo**
-  information below
+  For details about the possible option values see the **--set-repo**
+  information below.
 
 --add-repo-credentials=<user:pass_or_filename>
 
-  For **uri://user:pass@location** type repositories, set the user and
-  password connected with an add-repo specification. The first
-  add-repo-credentials is connected with the first add-repo
-  specification and so on. If the provided value describes a filename
-  in the filesystem, the first line of that file is read and used
-  as credentials information.
+  For **uri://user:pass@location** repositories, set the user and password
+  associated with an add-repo specification. If the provided value describes a
+  filename in the filesystem, the first line of that file is used as
+  credentials.
 
 --allow-existing-root
 
-  Allow to use an existing root directory from an earlier
-  build attempt. Use with caution this could cause an inconsistent
+  Use an existing root directory from a previous
+  build attempt. Use with caution, because this can cause an inconsistent
   root tree if the existing contents does not fit to the
-  former image type setup
+  previous image type setup.
 
 --clear-cache
 
-  delete repository cache for each of the used repositories
-  before installing any package. This is useful if an image build
-  should take and validate the signature of the package from the
+  Delete repository cache for each of the used repositories
+  before installing any package. This is useful when an image build
+  validates the signature of the package from the
   original repository source for any build. Some package managers
-  unconditionally trust the contents of the cache, which is ok for
-  cache data dedicated to one build but in case of kiwi the cache
+  unconditionally trust the contents of the cache, which works for
+  cache data dedicated to one build. In case of {kiwi}, the cache
   is shared between multiple image builds on that host for performance
   reasons.
 
 --delete-package=<name>
 
-  specify package to delete. The option can be specified
-  multiple times
+  Specify package to delete. The option can be specified
+  multiple times.
 
 --description=<directory>
 
-  Path to the XML description. This is a directory containing at least
+  Path to an XML description. This is a directory containing at least
   one _config.xml_ or _*.kiwi_ XML file.
 
 --ignore-repos
 
   Ignore all repository configurations from the XML description.
-  Using that option is usually done with a sequence of --add-repo
-  options otherwise there are no repositories available for the
-  image build which would lead to an error.
+  This option is used in combination with the `--add-repo``
+  option. Otherwise, there are no repositories available for an
+  image build, which leads to an error.
 
 --ignore-repos-used-for-build
 
-  Works the same way as --ignore-repos except that repository
-  configurations which has the imageonly attribute set to true
-  will not be ignored.
+  Works the same way as `--ignore-repos`, except that repository configuration
+  with the imageonly attribute set to **true** is not ignored.
 
 --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
 
@@ -128,55 +125,55 @@ OPTIONS
 
   - **source**
 
-    source url, pointing to a package repository which must be in a format
+    Source URL pointing to a package repository that must be in a format
     supported by the selected package manager. See the URI_TYPES section for
     details about the supported source locators.
 
   - **type**
 
-    repository type, could be one of `rpm-md`, or `apt-deb`.
+    Repository type: `rpm-md`, `apt-deb`.
 
   - **alias**
 
-    An alias name for the repository. If not specified kiwi generate
-    an alias name as result of hex representation from uuid4. The hex 
-    is used to uniquely identify the repository, but not very expressive. 
-    We recommend to set an expressive and uniq alias name.
+    An alias name for the repository. If not specified, {kiwi} generates
+    an alias name as result of hex representation from uuid4. While the hex 
+    is used to uniquely identify the repository, it is not descriptive. 
+    We recommend using descriptive aliases.
 
   - **priority**
 
     A number indicating the repository priority. How the value is evaluated
-    depends on the selected package manager. Please refer to the package
+    depends on the selected package manager. Refer to the package
     manager documentation for details about the supported priority ranges
     and their meaning.
 
   - **imageinclude**
 
-    Set to either **true** or **false** to specify if this repository
-    should be part of the system image repository setup or not.
+    Set to either **true** or **false** to indicate if the repository
+    is be part of the system image repository setup or not.
 
   - **package_gpgcheck**
 
-    Set to either **true** or **false** to specify if this repository
+    Set to either **true** or **false** to indicate if the repository
     should validate the package signatures.
 
   - **{signing_keys}**
 
     List of signing_keys enclosed in curly brackets and delimited by 
-    semicolon. The reference to a signing key must be provided as URI
-    format
+    the semicolon. The reference to a signing key must be provided in the URI
+    format.
 
   - **components**
 
-    Component list for debian based repos as string delimited by a space
+    Component list for Debian-based repos as space-delimited string.
 
   - **distribution**
 
-    Main distribution name for debian based repos
+    Main distribution name for Debian-based repos.
 
   - **repo_gpgcheck**
 
-    Set to either **true** or **false** to specify if this repository
+    Set to either **true** or **false** to indicate if the repository
     should validate the repository signature.
 
 --set-repo-credentials=<user:pass_or_filename>
@@ -184,27 +181,27 @@ OPTIONS
   For **uri://user:pass@location** type repositories, set the user and
   password connected to the set-repo specification. If the provided
   value describes a filename in the filesystem, the first line of that file
-  is read and used as credentials information.
+  is used as credentials.
 
 --set-container-derived-from=<uri>
 
   Overwrite the source location of the base container for the selected
-  image type. The setting is only effective if the configured image type
-  is setup with an initial derived_from reference
+  image type. The setting applies only if the configured image type
+  is setup with an initial derived_from reference.
 
 --set-container-tag=<name>
 
   Overwrite the container tag in the container configuration.
-  The setting is only effective if the container configuraiton
-  provides an initial tag value
+  The setting is only effective if the container configuration
+  provides the initial tag value.
 
 --signing-key=<key-file>
 
-  set the key file to be trusted and imported into the package
+  Set the key file to be trusted and imported into the package
   manager database before performing any operation. This is useful
-  if an image build should take and validate repository and package
+  when an image build validates repository and package
   signatures during build time. This option can be specified multiple
-  times
+  times.
 
 --target-dir=<directory>
 
@@ -217,23 +214,23 @@ URI_TYPES
 
 - **http://** | **https://** | **ftp://**
 
-  remote repository delivered via http or ftp protocol.
+  Remote repository delivered via the HTTP or FTP protocol.
 
 - **obs://**
 
   Open Buildservice repository. The source data is translated into
-  an http url pointing to http://download.opensuse.org.
+  an HTTP URL pointing to http://download.opensuse.org.
 
 - **ibs://**
 
   Internal Open Buildservice repository. The source data is translated into
-  an http url pointing to download.suse.de.
+  an HTTP URL pointing to download.suse.de.
 
 - **iso://**
 
-  Local iso file. kiwi loop mounts the file and uses the mount point
-  as temporary directory source type
+  Local ISO file. {kiwi} loop mounts the file and uses the mount point
+  as temporary directory source type.
 
 - **dir://**
 
-  Local directory
+  Local directory.

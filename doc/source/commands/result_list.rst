@@ -19,11 +19,10 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-List build results from a previous build or create command.
-Please note if you build an image several times with the same
-target directory the build result information will be overwritten
-each time you build the image. Therefore the build result list
-is valid for the last build
+List build results from a previous build or create command. During multiple
+image builds with the same target directory, the build result information is
+overwritten every time you build an image. This means that the build result list
+is valid for the last build only.
 
 .. _db_kiwi_result_list_opts:
 
@@ -32,4 +31,4 @@ OPTIONS
 
 --target-dir=<directory>
 
-  directory containing the kiwi build results
+  Directory containing the {kiwi} build results.

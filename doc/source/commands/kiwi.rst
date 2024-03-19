@@ -54,37 +54,31 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-{kiwi} is an imaging solution that is based on an image XML description.
-Such a description is represented by a directory which includes at least
-one :file:`config.xml` or :file:`.kiwi` file and may as well include other files like
-scripts or configuration data.
+{kiwi} is an imaging solution that is based on an image XML description. A
+description can consist of a single :file:`config.xml` or :file:`.kiwi` file. It
+may also include additional files, such as scripts or configuration data.
 
-A collection of example image descriptions can be found on the github
-repository here: https://github.com/OSInside/kiwi-descriptions. Most of the
-descriptions provide a so called appliance image. Appliance means that it's a small, text only based
-image including a predefined remote source setup to allow installation of missing software
-components at a later point in time.
+A collection of example image descriptions can be found in the following GitHub
+repository: https://github.com/OSInside/kiwi-descriptions. Most of the
+descriptions provide a so-called appliance image. Appliance is a
+small, text-based image including a predefined remote source setup to allow
+installation of missing software components.
 
-{kiwi} operates in two steps. The system build command combines
-both steps into one to make it easier to start with {kiwi}. The first
-step is the preparation step and if that step was successful, a
-creation step follows which is able to create different image output
-types.
+Although {kiwi} operates in two steps, the system build command combines both
+steps into one to make it easier to start with {kiwi}.
 
-In the preparation step, you prepare a directory including the contents
-of your new filesystem based on one or more software package source(s)
-The creation step is based on the result of the preparation step and
-uses the contents of the new image root tree to create the output
-image.
+The first step is to prepare a directory that includes the contents of a new
+filesystem based on one or more software package sources. The second step uses
+the prepared contents of the new image root tree to create an output image.
 
 {kiwi} supports the creation of the following image types:
 
 - ISO Live Systems
-- Virtual Disk for e.g cloud frameworks
-- OEM Expandable Disk for system deployment from ISO or the network
-- File system images for deployment in a pxe boot environment
+- virtual disk for e.g cloud frameworks
+- OEM expandable disk for system deployment from ISO or the network
+- file system images for deployment in a PXE boot environment
 
-Depending on the image type a variety of different disk formats and
+Depending on the image type, different disk formats and
 architectures are supported.
 
 .. _db_commands_kiwi_opts:
@@ -94,44 +88,42 @@ GLOBAL OPTIONS
 
 --color-output
 
-  Use Escape Sequences to print different types of information
-  in colored output. The underlaying terminal has to understand
-  those escape characters. Error messages appear red, warning
-  messages yellow and debugging information will be printed light
-  grey.
+  Use escape sequences to print different types of information in colored
+  output. for this option to work, the underlying terminal must support those
+  escape characters. Error messages appear in red, warning messages in yellow,
+  and debugging information is printed in light grey.
 
 --config=<configfile>
 
-  Use specified runtime configuration file. If not specified the
-  runtime configuration is looked up at :file:`~/.config/kiwi/config.yml`
-  or :file:`/etc/kiwi.yml`
+  Use specified runtime configuration file. If not specified, the
+  runtime configuration is expected to be in the :file:`~/.config/kiwi/config.yml`
+  or :file:`/etc/kiwi.yml` files.
 
 --debug
 
-  Print debug information on the commandline. Same as: '--loglevel 10'
+  Print debug information on the command line. Same as: `--loglevel 10`.
 
 --debug-run-scripts-in-screen
 
-  Run scripts called by kiwi in a screen session.
+  Run scripts called by {kiwi} in a screen session.
 
 --logfile=<filename>
 
   Specify log file. The logfile contains detailed information about
   the process. The special call: `--logfile stdout` sends all
-  information to standard out instead of writing to a file
+  information to standard out instead of writing to a file.
 
 --logsocket=<socketfile>
 
-  send log data to the given Unix Domain socket in the same
-  format as with --logfile
+  Send log data to the specified Unix Domain socket in the same
+  format as with `--logfile`.
 
 --loglevel=<number>
 
-  specify logging level as number. Details about the
+  Specify logging level as a number. Further info about the
   available log levels can be found at:
   https://docs.python.org/3/library/logging.html#logging-levels
-  Setting a log level causes all message >= level to be
-  displayed.
+  Setting a log level displays all messages above the specified level.
 
   .. code:: bash
 
@@ -150,41 +142,39 @@ GLOBAL OPTIONS
 
   Select profile to use. The specified profile must be part of the
   XML description. The option can be specified multiple times to
-  allow using a combination of profiles.
+  allow a combination of profiles.
 
 --shared-cache-dir=<directory>
 
   Specify an alternative shared cache directory. The directory
   is shared via bind mount between the build host and image
-  root system and contains information about package repositories
-  and their cache and meta data. The default location is set
-  to `/var/cache/kiwi`.
+  root system, and it contains information about package repositories
+  and their cache and meta data. The default location is `/var/cache/kiwi`.
 
 --temp-dir=<directory>
 
   Specify an alternative base temporary directory. The
   provided path is used as base directory to store temporary
-  files and directories. By default `/var/tmp` is used.
+  files and directories. Default is `/var/tmp`.
 
 --target-arch=<name>
 
-  Specify the image architecture. By default the host architecture is
-  used as the image architecture. If the specified architecture name
-  does not match the host architecture and is therefore requesting
-  a cross architecture image build, it's important to understand that
-  for this process to work a preparatory step to support the image
-  architecture and binary format on the building host is required
-  and not a responsibility of {kiwi}.
+  Specify an image architecture. By default, the host architecture is used as
+  the image architecture. If the specified architecture name does not match the
+  host architecture (thus requesting a cross architecture image build), you must
+  configure the support for the image architecture and binary format on the
+  building host. This must be done during the preparation stage, and it is
+  beyond the scope of {kiwi}.
 
 --type=<build_type>
 
-  Select image build type. The specified build type must be configured
+  Select an image build type. The specified build type must be configured
   as part of the XML description.
 
 --kiwi-file=<kiwifile>
 
-  Basename of kiwi file which contains the main image
-  configuration elements. If not specified kiwi searches for
+  Basename of kiwi file that contains the main image
+  configuration elements. If not specified, kiwi uses
   a file named `config.xml` or a file matching `*.kiwi`
 
 --version

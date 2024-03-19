@@ -22,11 +22,11 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-For disk based images, allow to resize the image to a new disk geometry.
-The additional space is free and not in use by the image. In order to
-make use of the additional free space a repartition process is required
-like it is provided by kiwi's oem boot code. Therefore the resize operation
-is useful for oem image builds most of the time.
+For disk based images, allow to resize the image to a new disk geometry. The
+additional space is free and not in use by the image. The OEM boot code in
+{kiwi} offers a resizing procedure that can be used to make use of the
+additional free space. For OEM image builds, it is advisable to run the resizing
+operation.
 
 .. _db_kiwi_image_resize_opts:
 
@@ -35,15 +35,15 @@ OPTIONS
 
 --root=<directory>
 
-  The path to the root directory, if not specified kiwi
-  searches the root directory in build/image-root below
-  the specified target directory
+  The path to the root directory. If not specified, kiwi
+  searches the root directory in build/image-root under
+  the specified target directory.
 
 --size=<size>
 
-  New size of the image. The value is either a size in bytes
-  or can be specified with m=MB or g=GB. Example: 20g
+  New size of the image. The value is either a size in bytes,
+  or it can be specified with m (MB) or g (GB). Example: 20g
 
 --target-dir=<directory>
 
-  Directory containing the kiwi build results
+  Directory containing the kiwi build results.
