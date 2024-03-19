@@ -12,6 +12,7 @@ SYNOPSIS
 
    kiwi-ng result bundle -h | --help
    kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
+       [--bundle-format=<format>]
        [--zsync_source=<download_location>]
        [--package-as-rpm]
    kiwi-ng result bundle help
@@ -35,6 +36,22 @@ OPTIONS
 
   Directory containing the bundle results, compressed versions of
   image results, and SHA checksum files.
+
+--bundle-format=<format>
+
+  Specify the bundle format to create the bundle. If provided,
+  this setting will overwrite an eventually provided `bundle_format`
+  attribute from the main image description. The format string
+  can contain placeholders for the following elements:
+
+  * %N : Image name
+  * %P : Concatenated profile name (_)
+  * %A : Architecture name
+  * %I : Bundle ID
+  * %T : Image build type name
+  * %M : Image Major version number
+  * %m : Image Minor version number
+  * %p : Image Patch version number
 
 --id=<bundle_id>
 

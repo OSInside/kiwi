@@ -18,6 +18,7 @@
 """
 usage: kiwi-ng result bundle -h | --help
        kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
+           [--bundle-format=<format>]
            [--zsync-source=<download_location>]
            [--package-as-rpm]
        kiwi-ng result bundle help
@@ -48,6 +49,11 @@ options:
         are placed to the same download location
     --package-as-rpm
         Take all result files and create an rpm package out of it
+    --bundle-format=<format>
+        specify the bundle format to create the bundle.
+        If provided this setting will overwrite an eventually
+        provided bundle_format attribute from the main
+        image description
 """
 from collections import OrderedDict
 from textwrap import dedent
@@ -111,6 +117,10 @@ class ResultBundleTask(CliTask):
         result = Result.load(
             result_directory + '/kiwi.result'
         )
+
+        if self.command_args['--bundle-format']:
+            result.add_bundle_format(self.command_args['--bundle-format'])
+
         image_version = result.xml_state.get_image_version()
         image_name = result.xml_state.xml_data.get_name()
         image_description = result.xml_state.get_description_section()
