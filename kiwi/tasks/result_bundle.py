@@ -165,6 +165,10 @@ class ResultBundleTask(CliTask):
             bundle_file_format_name = bundle_file_format_name.replace(
                 '%p', format(tags.p)
             )
+            # Insert Version string
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%v', format(tags.v)
+            )
             # Insert Bundle ID
             bundle_file_format_name = bundle_file_format_name.replace(
                 '%I', self.command_args['--id']

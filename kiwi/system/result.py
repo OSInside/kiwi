@@ -49,7 +49,8 @@ result_name_tags = NamedTuple(
         ('T', str),  # image type name
         ('M', int),  # Major version number
         ('m', int),  # Minor version number
-        ('p', int)   # Patch version number
+        ('p', int),  # Patch version number
+        ('v', str)   # Version string
     ]
 )
 
@@ -86,7 +87,8 @@ class Result:
             T=self.xml_state.get_build_type_name(),
             M=int(major),
             m=int(minor),
-            p=int(patch)
+            p=int(patch),
+            v=self.xml_state.get_image_version()
         )
         self.result_files['bundle_format'] = {
             'pattern': pattern,

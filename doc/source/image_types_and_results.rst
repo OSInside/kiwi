@@ -245,3 +245,6 @@ placeholders which gets replaced by their real value can be used:
 
 %p
   Turns into the patch number of the `<version>` section
+
+%v
+  Turns into the version text of the `<version>` section
