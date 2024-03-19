@@ -52,6 +52,7 @@ OPTIONS
   * %M : Image Major version number
   * %m : Image Minor version number
   * %p : Image Patch version number
+  * %v : Image Version string
 
 --id=<bundle_id>
 
