@@ -453,6 +453,25 @@ class TestSystemSetup:
             ])
         ])
 
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.system.setup.Shell.run_common_function')
+    @patch('kiwi.system.setup.Command.run')
+    @patch('os.path.exists')
+    def test_setup_keyboard_map_with_systemd_and_extension(
+        self, mock_path, mock_run, mock_shell, mock_caps
+    ):
+        mock_caps.return_value = True
+        mock_path.return_value = True
+        self.setup.preferences['keytable'] = 'keytable.map.gz'
+        self.setup.setup_keyboard_map()
+        mock_run.assert_has_calls([
+            call(['rm', '-r', '-f', 'root_dir/etc/vconsole.conf']),
+            call([
+                'chroot', 'root_dir', 'systemd-firstboot',
+                '--keymap=keytable'
+            ])
+        ])
+
     @patch('os.path.exists')
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     def test_setup_keyboard_skipped(self, mock_caps, mock_exists):
