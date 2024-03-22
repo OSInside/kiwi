@@ -60,7 +60,8 @@ class BootLoaderZipl(BootLoaderSpecBase):
             boot_options.get('root_device'),
             boot_options.get('boot_device'),
             boot_options.get('efi_device'),
-            boot_options.get('system_volumes')
+            boot_options.get('system_volumes'),
+            boot_options.get('system_root_volume')
         )
         root_dir = self.root_mount.mountpoint
         kernel_info = BootImageBase(
