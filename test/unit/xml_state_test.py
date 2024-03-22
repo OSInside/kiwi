@@ -197,6 +197,11 @@ class TestXMLState:
             'baz'
         ]
 
+    def test_get_bootstrap_ignore_packages(self):
+        assert self.state.get_bootstrap_ignore_packages() == [
+            'some'
+        ]
+
     def test_get_system_collection_type(self):
         assert self.state.get_system_collection_type() == 'plusRecommended'
 

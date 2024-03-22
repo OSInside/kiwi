@@ -238,6 +238,7 @@
         <namedCollection name="bootstrap-collection"/>
         <product name="kiwi"/>
         <archive name="bootstrap.tgz"/>
+        <ignore name="some"/>
     </packages>
     <packages type="delete">
         <package name="kernel-debug"/>

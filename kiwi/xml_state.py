@@ -578,6 +578,25 @@ class XMLState:
                 result.append(archive.get_name().strip())
         return sorted(result)
 
+    def get_ignore_packages(self, section_type: str) -> List:
+        """
+        List of ignore package names from the packages sections matching
+        section_type and type=build_type
+
+        :return: package names
+
+        :rtype: list
+        """
+        result = []
+        image_packages_sections = self.get_packages_sections(
+            [section_type, self.get_build_type_name()]
+        )
+        for packages in image_packages_sections:
+            for package in packages.get_ignore():
+                if self.package_matches_host_architecture(package):
+                    result.append(package.get_name().strip())
+        return sorted(result)
+
     def get_system_ignore_packages(self) -> List:
         """
         List of ignore package names from the packages sections matching
@@ -587,15 +606,18 @@ class XMLState:
 
         :rtype: list
         """
-        result = []
-        image_packages_sections = self.get_packages_sections(
-            ['image', self.get_build_type_name()]
-        )
-        for packages in image_packages_sections:
-            for package in packages.get_ignore():
-                if self.package_matches_host_architecture(package):
-                    result.append(package.get_name().strip())
-        return sorted(result)
+        return self.get_ignore_packages('image')
+
+    def get_bootstrap_ignore_packages(self) -> List:
+        """
+        List of ignore package names from the packages sections matching
+        type="image" and type=build_type
+
+        :return: package names
+
+        :rtype: list
+        """
+        return self.get_ignore_packages('bootstrap')
 
     def get_bootstrap_package_name(self) -> str:
         """

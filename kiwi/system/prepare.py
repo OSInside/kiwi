@@ -254,6 +254,7 @@ class SystemPrepare:
         bootstrap_products = self.xml_state.get_bootstrap_products()
         bootstrap_archives = self.xml_state.get_bootstrap_archives()
         bootstrap_archives_target_dirs = self.xml_state.get_bootstrap_archives_target_dirs()
+        bootstrap_packages_ignored = self.xml_state.get_bootstrap_ignore_packages()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -263,7 +264,8 @@ class SystemPrepare:
             manager,
             bootstrap_packages,
             bootstrap_collections,
-            bootstrap_products
+            bootstrap_products,
+            bootstrap_packages_ignored
         )
         manager.setup_repository_modules(
             self.xml_state.get_collection_modules()
