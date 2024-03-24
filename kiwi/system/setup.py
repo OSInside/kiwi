@@ -322,7 +322,7 @@ class SystemSetup:
                 Path.wipe(self.root_dir + '/etc/vconsole.conf')
                 Command.run([
                     'chroot', self.root_dir, 'systemd-firstboot',
-                    '--keymap=' + self.preferences['keytable']
+                    '--keymap=' + self.preferences['keytable'].replace('.map.gz', '')
                 ])
             elif os.path.exists(self.root_dir + '/etc/sysconfig/keyboard'):
                 Shell.run_common_function(
