@@ -66,6 +66,15 @@ function loadKernelModules {
     modprobe squashfs
 }
 
+function udev_pending {
+    declare DEVICE_TIMEOUT=${DEVICE_TIMEOUT}
+    local limit=120
+    if [[ "${DEVICE_TIMEOUT}" =~ ^[0-9]+$ ]]; then
+        limit="${DEVICE_TIMEOUT}"
+    fi
+    udevadm settle --timeout="${limit}"
+}
+
 function initGlobalDevices {
     if [ -z "$1" ]; then
         die "No root device for operation given"
@@ -223,6 +232,7 @@ function preparePersistentOverlayDiskBoot {
                 return 1
             fi
         fi
+        udev_pending
         if [ "$(_partition_count)" -le "${partitions_before_cow_part}" ];then
             return 1
         fi
