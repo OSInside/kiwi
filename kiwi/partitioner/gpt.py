@@ -116,7 +116,7 @@ class PartitionerGpt(PartitionerBase):
 
     def set_uuid(self, partition_id: int, uuid: str) -> None:
         """
-        Set partition UUID (GUID)
+        Set partition UUID (TypeCode)
 
         :param int partition_id: partition number
         :param string uuid: UUID
@@ -124,7 +124,7 @@ class PartitionerGpt(PartitionerBase):
         Command.run(
             [
                 'sgdisk',
-                '--partition-guid', f'{partition_id}:{uuid}',
+                '--typecode', f'{partition_id}:{uuid}',
                 self.disk_device
             ]
         )

@@ -121,5 +121,5 @@ class TestPartitionerGpt:
     def test_set_uuid(self, mock_Command_run):
         self.partitioner.set_uuid(42, 'ID')
         mock_Command_run.assert_called_once_with(
-            ['sgdisk', '--partition-guid', '42:ID', '/dev/loop0']
+            ['sgdisk', '--typecode', '42:ID', '/dev/loop0']
         )
