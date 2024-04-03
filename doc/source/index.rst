@@ -5,12 +5,7 @@ Building Linux System Appliances
 
 .. note::
    This documentation covers {kiwi-product} |version|- the command line
-   utility to build Linux system appliances. {kiwi} is stable and all
-   new features, bugfixes, and improvements will be developed here.
-   Versions older or equal to v7.x.x are out of maintenance and do
-   not get any updates or bugfixes. If you still need this version,
-   refer to the documentation for
-   `{kiwi-legacy} <https://doc.opensuse.org/projects/kiwi/doc>`__
+   utility to build Linux system appliances.
 
 .. toctree::
    :maxdepth: 1
@@ -40,6 +35,7 @@ Building Linux System Appliances
    * `Build Tests TumbleWeed(ppc64le) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_ppc:tumbleweed>`__
 
    * `Build Tests RawHide(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:rawhide>`__
+   * `Build Tests RawHide(s390) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_s390:rawhide>`__
 
    * `Build Tests Leap(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:leap>`__
 

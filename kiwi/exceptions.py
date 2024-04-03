@@ -175,13 +175,6 @@ class KiwiCompressionFormatUnknown(KiwiError):
     """
 
 
-class KiwiCompatError(KiwiError):
-    """
-    Exception raised if the given kiwi compatibility command line
-    could not be understood by the compat option parser.
-    """
-
-
 class KiwiConfigFileNotFound(KiwiError):
     """
     Exception raised if no kiwi XML description was found.

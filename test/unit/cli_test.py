@@ -11,7 +11,6 @@ from kiwi.cli import Cli
 from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
-    KiwiCompatError,
     KiwiLoadCommandUndefined,
     KiwiCommandNotLoaded,
     KiwiUnknownServiceName
@@ -26,8 +25,6 @@ class TestCli:
     def setup(self):
         self.expected_global_args = {
             'help': False,
-            '--compat': False,
-            'compat': False,
             '--type': None,
             'image': False,
             'system': True,
@@ -36,7 +33,6 @@ class TestCli:
             '--logsocket': None,
             '--loglevel': None,
             '--color-output': False,
-            '<legacy_args>': [],
             '--version': False,
             '--debug': False,
             '--debug-run-scripts-in-screen': False,
@@ -96,28 +92,6 @@ class TestCli:
         cli = Cli()
         assert cli.get_servicename() == 'system'
 
-    def test_get_servicename_compat_as_option(self):
-        sys.argv = [
-            sys.argv[0],
-            '--compat', '--',
-            '--build', 'description',
-            '--type', 'oem',
-            '-d', 'destination'
-        ]
-        cli = Cli()
-        assert cli.get_servicename() == 'compat'
-
-    def test_get_servicename_compat_as_service(self):
-        sys.argv = [
-            sys.argv[0],
-            'compat',
-            '--build', 'description',
-            '--type', 'oem',
-            '-d', 'destination'
-        ]
-        cli = Cli()
-        assert cli.get_servicename() == 'compat'
-
     def test_warning_on_use_of_legacy_disk_type(self):
         sys.argv = [
             sys.argv[0],
@@ -169,29 +143,6 @@ class TestCli:
 
     def test_load_command(self):
         assert self.cli.load_command() == self.loaded_command
-
-    @patch('kiwi.cli.Cli.invoke_kiwicompat')
-    def test_load_command_compat_mode(self, mock_compat):
-        sys.argv = [
-            sys.argv[0],
-            '--compat', '--',
-            '--build', 'description',
-            '--type', 'oem',
-            '-d', 'destination'
-        ]
-        cli = Cli()
-        cli.load_command()
-        mock_compat.assert_called_once_with(
-            ['--build', 'description', '--type', 'oem', '-d', 'destination']
-        )
-
-    @patch('kiwi.cli.Path.which')
-    @patch('os.execvp')
-    def test_invoke_kiwicompat_exec_failed(self, mock_exec, mock_which):
-        mock_which.return_value = 'kiwicompat'
-        mock_exec.side_effect = Exception
-        with raises(KiwiCompatError):
-            self.cli.invoke_kiwicompat([])
 
     def test_load_command_unknown(self):
         self.cli.loaded = False
