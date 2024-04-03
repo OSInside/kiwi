@@ -1588,7 +1588,7 @@ div {
         attribute efifatimagesize { xsd:nonNegativeInteger }
         >> sch:pattern [ id = "efifatimagesize" is-a = "image_type"
             sch:param [ name = "attr" value = "efifatimagesize" ]
-            sch:param [ name = "types" value = "oem" ]
+            sch:param [ name = "types" value = "iso" ]
         ]
     k.type.dosparttable_extended_layout.attribute =
         ## Specify to make use of logical partitions inside of an
