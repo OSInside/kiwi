@@ -147,6 +147,14 @@ class PackageManagerDnf5(PackageManagerBase):
 
         :rtype: namedtuple
         """
+        exclude_args = []
+        if self.exclude_requests:
+            # For DNF, excluding a package means removing it from
+            # the solver operation. This is done by adding --exclude
+            # to the command line. This means that if the package is
+            # hard required by another package, it will break the transaction.
+            for package in self.exclude_requests:
+                exclude_args.append('--exclude=' + package)
         Command.run(
             ['dnf5'] + self.dnf_args + [
                 f'--releasever={self.release_version}'
@@ -157,7 +165,7 @@ class PackageManagerDnf5(PackageManagerBase):
         ] + self.dnf_args + [
             '--installroot', self.root_dir,
             f'--releasever={self.release_version}'
-        ] + self.custom_args + [
+        ] + self.custom_args + exclude_args + [
             'install'
         ] + self.package_requests + self.collection_requests
         self.cleanup_requests()
@@ -299,7 +307,7 @@ class PackageManagerDnf5(PackageManagerBase):
         """
         return bool(
             re.match(
-                '.*Installing  : {0}.*'.format(re.escape(package_name)),
+                '.*Installing.*: {0}.*'.format(re.escape(package_name)),
                 package_manager_output
             )
         )
@@ -319,7 +327,7 @@ class PackageManagerDnf5(PackageManagerBase):
         """
         return bool(
             re.match(
-                '.*Removing: {0}.*'.format(re.escape(package_name)),
+                '.*Removing.*: {0}.*'.format(re.escape(package_name)),
                 package_manager_output
             )
         )

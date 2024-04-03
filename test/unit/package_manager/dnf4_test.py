@@ -86,6 +86,7 @@ class TestPackageManagerDnf4:
     def test_process_install_requests_bootstrap(self, mock_run, mock_call):
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
+        self.manager.request_package_exclusion('skipme')
         self.manager.process_install_requests_bootstrap()
         mock_run.assert_called_once_with(
             [
@@ -97,6 +98,7 @@ class TestPackageManagerDnf4:
             [
                 'dnf', '--config', '/root-dir/dnf.conf', '-y',
                 '--installroot', '/root-dir', '--releasever=0',
+                '--exclude=skipme',
                 'install', 'vim', '@collection'
             ], ['env']
         )
