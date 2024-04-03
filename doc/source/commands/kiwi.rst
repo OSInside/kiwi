@@ -45,7 +45,6 @@ SYNOPSIS
            [--config=<configfile>]
            [--kiwi-file=<kiwifile>]
        system <command> [<args>...]
-   kiwi-ng compat <legacy_args>...
    kiwi-ng -v | --version
    kiwi-ng help
 

@@ -52,8 +52,6 @@ usage: kiwi-ng -h | --help
                [--config=<configfile>]
                [--kiwi-file=<kiwifile>]
            system <command> [<args>...]
-       kiwi-ng compat <legacy_args>...
-       kiwi-ng --compat <legacy_args>...
        kiwi-ng -v | --version
        kiwi-ng help
 
@@ -128,10 +126,8 @@ from docopt import docopt
 from kiwi.exceptions import (
     KiwiUnknownServiceName,
     KiwiCommandNotLoaded,
-    KiwiLoadCommandUndefined,
-    KiwiCompatError
+    KiwiLoadCommandUndefined
 )
-from kiwi.path import Path
 from kiwi.version import __version__
 from kiwi.help import Help
 from kiwi.defaults import Defaults
@@ -179,36 +175,9 @@ class Cli:
             return 'system'
         elif self.all_args.get('result') is True:
             return 'result'
-        elif self.all_args.get('--compat') is True:
-            return 'compat'
-        elif self.all_args.get('compat') is True:
-            return 'compat'
         else:
             raise KiwiUnknownServiceName(
                 'Unknown/Invalid Servicename'
-            )
-
-    def invoke_kiwicompat(self, compat_args):
-        """
-        Execute kiwicompat with provided legacy KIWI command line arguments
-
-        Example:
-
-        .. code:: python
-
-            invoke_kiwicompat(
-                '--build', 'description', '--type', 'vmx',
-                '-d', 'destination'
-            )
-
-        :param list compat_args: legacy kiwi command arguments
-        """
-        kiwicompat = Path.which('kiwicompat', access_mode=os.X_OK)
-        try:
-            os.execvp(kiwicompat, ['kiwicompat'] + compat_args)
-        except Exception as e:
-            raise KiwiCompatError(
-                '%s: %s' % (type(e).__name__, format(e))
             )
 
     def get_command(self):
@@ -289,12 +258,6 @@ class Cli:
         }
         service = self.get_servicename()
         command = self.get_command()
-
-        if service == 'compat':
-            compat_arguments = self.all_args['<legacy_args>']
-            if '--' in compat_arguments:
-                compat_arguments.remove('--')
-            return self.invoke_kiwicompat(compat_arguments)
 
         if not command:
             raise KiwiLoadCommandUndefined(
