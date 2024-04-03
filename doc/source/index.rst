@@ -5,7 +5,12 @@ Building Linux System Appliances
 
 .. note::
    This documentation covers {kiwi-product} |version|- the command line
-   utility to build Linux system appliances.
+   utility to build Linux system appliances. If you are using a {kiwi}
+   schema version older than v74, upgrade the kiwi file as follows:
+
+   .. code:: shell-session
+
+      $ xsltproc /usr/share/kiwi/xsl_to_v74/update.xsl config.xml|*.kiwi]
 
 .. toctree::
    :maxdepth: 1
