@@ -39,6 +39,9 @@ install:
 	# kiwi default configuration
 	install -d -m 755 ${buildroot}etc
 	install -m 644 kiwi.yml ${buildroot}etc/kiwi.yml
+	# kiwi old XSL stylesheets for upgrade
+	install -d -m 755 ${buildroot}usr/share/kiwi
+	cp -a helper/xsl_to_v74 ${buildroot}usr/share/kiwi/
 
 tox:
 	tox -- "-n 5"

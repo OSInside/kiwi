@@ -29,7 +29,7 @@ class TestSchema:
     def setup(self):
         test_xml = bytes(
             b"""<?xml version="1.0" encoding="utf-8"?>
-            <image schemaversion="1.4" name="bob">
+            <image schemaversion="7.4" name="bob">
                 <description type="system">
                     <author>John Doe</author>
                     <contact>john@example.com</contact>
@@ -49,7 +49,7 @@ class TestSchema:
         )
         test_xml_extension = bytes(
             b"""<?xml version="1.0" encoding="utf-8"?>
-            <image schemaversion="1.4" name="bob">
+            <image schemaversion="7.4" name="bob">
                 <description type="system">
                     <author>John Doe</author>
                     <contact>john@example.com</contact>
@@ -74,7 +74,7 @@ class TestSchema:
         )
         test_xml_extension_not_unique = bytes(
             b"""<?xml version="1.0" encoding="utf-8"?>
-            <image schemaversion="1.4" name="bob">
+            <image schemaversion="7.4" name="bob">
                 <description type="system">
                     <author>John Doe</author>
                     <contact>john@example.com</contact>
@@ -98,7 +98,7 @@ class TestSchema:
         )
         test_xml_extension_invalid = bytes(
             b"""<?xml version="1.0" encoding="utf-8"?>
-            <image schemaversion="1.4" name="bob">
+            <image schemaversion="7.4" name="bob">
                 <description type="system">
                     <author>John Doe</author>
                     <contact>john@example.com</contact>
