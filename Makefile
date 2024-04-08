@@ -39,8 +39,11 @@ install:
 	# kiwi default configuration
 	install -d -m 755 ${buildroot}etc
 	install -m 644 kiwi.yml ${buildroot}etc/kiwi.yml
-	# kiwi old XSL stylesheets for upgrade
+	# kiwi runtime checker metadata
 	install -d -m 755 ${buildroot}usr/share/kiwi
+	install -m 644 kiwi/runtime_checker_metadata.yml \
+		${buildroot}usr/share/kiwi/runtime_checker_metadata.yml
+	# kiwi old XSL stylesheets for upgrade
 	cp -a helper/xsl_to_v74 ${buildroot}usr/share/kiwi/
 
 tox:

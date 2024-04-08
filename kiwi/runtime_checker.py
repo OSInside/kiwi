@@ -713,14 +713,15 @@ class RuntimeChecker:
         message = dedent('''\n
             Required dracut module package missing in package list
 
-            The package '{0}' is required to build an installation
-            image for the selected oem image type. Please add the
-            following in your <packages type="image"> section to
-            your system XML description:
+            One of the packages '{0}' is required
+            to build an installation image for the selected oem image type.
+            Depending on your distribution, add the following in the
+            <packages type="image"> section:
 
-            <package name="{0}"/>
+            <package name="ONE_FROM_ABOVE"/>
         ''')
-        required_dracut_package = 'dracut-kiwi-oem-dump'
+        meta = Defaults.get_runtime_checker_metadata()
+        required_dracut_packages = meta['package_names']['dracut_oem_dump']
         initrd_system = self.xml_state.get_initrd_system()
         build_type = self.xml_state.get_build_type_name()
         if build_type == 'oem' and initrd_system == 'dracut':
@@ -731,9 +732,11 @@ class RuntimeChecker:
                 package_names = \
                     self.xml_state.get_bootstrap_packages() + \
                     self.xml_state.get_system_packages()
-                if required_dracut_package not in package_names:
+                if not RuntimeChecker._package_in_list(
+                    package_names, required_dracut_packages
+                ):
                     raise KiwiRuntimeError(
-                        message.format(required_dracut_package)
+                        message.format(required_dracut_packages)
                     )
 
     def check_dracut_module_for_disk_oem_in_package_list(self) -> None:
@@ -747,14 +750,14 @@ class RuntimeChecker:
         message = dedent('''\n
             Required dracut module package missing in package list
 
-            The package '{0}' is required for the selected
-            oem image type. Please add the following in your
-            <packages type="image"> section to your system XML
-            description:
+            One of the packages '{0}' is required
+            for the selected oem image type. Depending on your distribution,
+            add the following in the <packages type="image"> section:
 
-            <package name="{0}"/>
+            <package name="ONE_FROM_ABOVE"/>
         ''')
-        required_dracut_package = 'dracut-kiwi-oem-repart'
+        meta = Defaults.get_runtime_checker_metadata()
+        required_dracut_packages = meta['package_names']['dracut_oem_repart']
         initrd_system = self.xml_state.get_initrd_system()
         disk_resize_requested = self.xml_state.get_oemconfig_oem_resize()
         build_type = self.xml_state.get_build_type_name()
@@ -763,9 +766,11 @@ class RuntimeChecker:
             package_names = \
                 self.xml_state.get_bootstrap_packages() + \
                 self.xml_state.get_system_packages()
-            if required_dracut_package not in package_names:
+            if not RuntimeChecker._package_in_list(
+                package_names, required_dracut_packages
+            ):
                 raise KiwiRuntimeError(
-                    message.format(required_dracut_package)
+                    message.format(required_dracut_packages)
                 )
 
     def check_dracut_module_for_live_iso_in_package_list(self) -> None:
@@ -779,23 +784,25 @@ class RuntimeChecker:
         message = dedent('''\n
             Required dracut module package missing in package list
 
-            The package '{0}' is required for the selected
-            live iso image type. Please add the following in your
-            <packages type="image"> section to your system XML
-            description:
+            One of the packages '{0}' is required
+            for the selected live iso image type. Depending on your distribution,
+            add the following in your <packages type="image"> section:
 
-            <package name="{0}"/>
+            <package name="ONE_FROM_ABOVE"/>
         ''')
-        required_dracut_package = 'dracut-kiwi-live'
+        meta = Defaults.get_runtime_checker_metadata()
+        required_dracut_packages = meta['package_names']['dracut_live']
         type_name = self.xml_state.get_build_type_name()
         type_flag = self.xml_state.build_type.get_flags()
         if type_name == 'iso' and type_flag != 'dmsquash':
             package_names = \
                 self.xml_state.get_bootstrap_packages() + \
                 self.xml_state.get_system_packages()
-            if required_dracut_package not in package_names:
+            if not RuntimeChecker._package_in_list(
+                package_names, required_dracut_packages
+            ):
                 raise KiwiRuntimeError(
-                    message.format(required_dracut_package)
+                    message.format(required_dracut_packages)
                 )
 
     def check_dracut_module_for_disk_overlay_in_package_list(self) -> None:
@@ -809,23 +816,26 @@ class RuntimeChecker:
         message = dedent('''\n
             Required dracut module package missing in package list
 
-            The package '{0}' is required for the selected
-            overlayroot activated image type. Please add the
-            following in your <packages type="image"> section to
-            your system XML description:
+            The package '{0}' is required
+            for the selected overlayroot activated image type.
+            Depending on your distribution, add the following in your
+            <packages type="image"> section:
 
-            <package name="{0}"/>
+            <package name="ONE_FROM_ABOVE"/>
         ''')
         initrd_system = self.xml_state.get_initrd_system()
-        required_dracut_package = 'dracut-kiwi-overlay'
+        meta = Defaults.get_runtime_checker_metadata()
+        required_dracut_packages = meta['package_names']['dracut_overlay']
         if initrd_system == 'dracut' and \
            self.xml_state.build_type.get_overlayroot():
             package_names = \
                 self.xml_state.get_bootstrap_packages() + \
                 self.xml_state.get_system_packages()
-            if required_dracut_package not in package_names:
+            if not RuntimeChecker._package_in_list(
+                package_names, required_dracut_packages
+            ):
                 raise KiwiRuntimeError(
-                    message.format(required_dracut_package)
+                    message.format(required_dracut_packages)
                 )
 
     def check_efi_mode_for_disk_overlay_correctly_setup(self) -> None:
@@ -991,6 +1001,17 @@ class RuntimeChecker:
             raise KiwiRuntimeError(
                 message.format(fat_image_mbsize)
             )
+
+    @staticmethod
+    def _package_in_list(
+        package_list: List[str], search_list: List[str]
+    ) -> str:
+        result = ''
+        for search in search_list:
+            if search in package_list:
+                result = search
+                break
+        return result
 
     @staticmethod
     def _get_dracut_module_version_from_pdb(

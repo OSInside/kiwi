@@ -731,6 +731,7 @@ fi
 %{python3_sitelib}/kiwi*
 %{_usr}/share/bash-completion/completions/kiwi-ng
 %{_usr}/share/kiwi/xsl_to_v74/
+%{_usr}/share/kiwi/runtime_checker_metadata.yml
 %{_defaultdocdir}/python-kiwi/LICENSE
 %{_defaultdocdir}/python-kiwi/README
 
