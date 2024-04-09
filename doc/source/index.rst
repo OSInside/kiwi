@@ -10,7 +10,7 @@ Building Linux System Appliances
 
    .. code:: shell-session
 
-      $ xsltproc /usr/share/kiwi/xsl_to_v74/update.xsl config.xml|*.kiwi]
+      $ xsltproc /usr/share/kiwi/xsl_to_v74/update.xsl config.xml|*.kiwi
 
 .. toctree::
    :maxdepth: 1
