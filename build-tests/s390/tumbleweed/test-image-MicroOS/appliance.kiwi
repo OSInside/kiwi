@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+<image schemaversion="7.5" name="kiwi-test-image-MicroOS">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>MicroOS disk test build</specification>
+    </description>
+    <profiles>
+        <profile name="Virtual-CC" description="MicroOS Confidental Compute Encrypted"/>
+        <profile name="Physical-CC" description="MicroOS Confidental Compute Encrypted CDL"/>
+    </profiles>
+    <preferences>
+        <version>16.0.0</version>
+        <packagemanager>zypper</packagemanager>
+        <bootloader-theme>openSUSE</bootloader-theme>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <locale>en_US</locale>
+    </preferences>
+    <preferences profiles="Virtual-CC">
+        <type
+            image="oem"
+            luks="linux"
+            luks_pbkdf="pbkdf2"
+            luks_version="luks2"
+            filesystem="btrfs"
+            kernelcmdline="systemd.show_status=yes console=ttyS0,115200 console=tty0 net.ifnames=0 \$ignition_firstboot ignition.platform.id=qemu"
+            devicepersistency="by-uuid"
+            btrfs_root_is_snapshot="true"
+            btrfs_root_is_readonly_snapshot="true"
+            btrfs_root_is_subvolume="true"
+            btrfs_quota_groups="true"
+            bootpartition="true"
+            bootfilesystem="ext3"
+            format="qcow2"
+        >
+            <luksformat>
+                <option name="--cipher" value="aes-xts-plain64"/>
+                <option name="--key-size" value="256"/>
+            </luksformat>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+                <oem-resize>true</oem-resize>
+            </oemconfig>
+            <bootloader name="zipl" timeout="10"/>
+            <systemdisk>
+                <volume name="home"/>
+                <volume name="root"/>
+                <volume name="opt"/>
+                <volume name="srv"/>
+                <!--<volume name="boot/grub2/i386-pc"/>-->
+                <!--<volume name="boot/grub2/x86_64-efi" mountpoint="boot/grub2/x86_64-efi"/>-->
+                <volume name="boot/writable"/>
+                <volume name="usr/local"/>
+                <volume name="var" copy_on_write="false"/>
+            </systemdisk>
+            <size unit="G">2</size>
+        </type>
+    </preferences>
+    <preferences profiles="Physical-CC">
+        <type
+            image="oem"
+            luks="linux"
+            luks_pbkdf="pbkdf2"
+            luks_version="luks2"
+            filesystem="btrfs"
+            kernelcmdline="systemd.show_status=yes console=ttyS0,115200 console=tty0 net.ifnames=0 \$ignition_firstboot ignition.platform.id=dasd dasd_mod.dasd=ipldev"
+            target_blocksize="4096"
+            devicepersistency="by-uuid"
+            btrfs_root_is_snapshot="true"
+            btrfs_root_is_readonly_snapshot="true"
+            btrfs_root_is_subvolume="true"
+            btrfs_quota_groups="true"
+            bootpartition="true"
+            bootfilesystem="ext3"
+        >
+            <luksformat>
+                <option name="--cipher" value="aes-xts-plain64"/>
+                <option name="--key-size" value="256"/>
+            </luksformat>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+                <oem-resize>true</oem-resize>
+            </oemconfig>
+            <bootloader name="zipl" targettype="CDL" timeout="10"/>
+            <systemdisk>
+                <volume name="home"/>
+                <volume name="root"/>
+                <volume name="opt"/>
+                <volume name="srv"/>
+                <!--<volume name="boot/grub2/i386-pc"/>-->
+                <!--<volume name="boot/grub2/x86_64-efi" mountpoint="boot/grub2/x86_64-efi"/>-->
+                <volume name="boot/writable"/>
+                <volume name="usr/local"/>
+                <volume name="var" copy_on_write="false"/>
+            </systemdisk>
+            <size unit="G">2</size>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+
+    <repository type="rpm-md" alias="KIWI">
+        <source path="https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/openSUSE_Tumbleweed"/>
+    </repository>
+    <repository type="rpm-md" alias="TW">
+        <source path="https://download.opensuse.org/ports/zsystems/tumbleweed/repo/oss/"/>
+    </repository>
+
+<!--
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+-->
+
+    <packages type="image">
+        <package name="patterns-base-bootloader"/>
+        <package name="kernel-default"/>
+        <!-- disabled as it causes the system to be no longer bootable -->
+        <!-- <package name="ignition-dracut"/>-->
+        <!-- <package name="combustion"/>-->
+        <!-- <package name="growpart-generator"/>-->
+        <package name="btrfsmaintenance"/>
+        <package name="btrfsprogs"/>
+        <package name="microos-tools"/>
+        <package name="snapper"/>
+        <package name="sudo"/>
+        <package name="s390-tools"/>
+        <package name="qemu-guest-agent"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="shadow"/>
+        <package name="snapper"/>
+        <package name="microos-tools"/>
+        <package name="health-checker-plugins-MicroOS"/>
+        <package name="squashfs"/>
+        <package name="systemd-network"/>
+        <package name="NetworkManager"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/> 
+        <package name="gzip"/>
+        <package name="udev"/>
+        <package name="xz"/>
+        <package name="shadow"/>
+        <package name="filesystem"/>
+        <package name="coreutils"/>
+        <package name="openssl"/>
+        <package name="glibc-locale-base"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="MicroOS-release-dvd"/>
+        <package name="systemd-presets-branding-MicroOS"/>
+        <package name="diffutils"/>
+    </packages>
+    <packages type="image" profiles="Encrypted">
+        <package name="cryptsetup"/>
+    </packages>
+</image>
