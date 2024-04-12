@@ -1,9 +1,13 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 test -f /.kconfig && . /.kconfig
 
 set -euxo pipefail
 
-echo "Configure image: [$kiwi_iname]-[$kiwi_profiles]..."
+declare kiwi_iname=${kiwi_iname}
+declare kiwi_profiles=${kiwi_profiles}
+
+echo "Configure image: [${kiwi_iname}]-[${kiwi_profiles}]..."
 
 # Systemd controls the console font now
 echo FONT="eurlatgr.psfu" >> /etc/vconsole.conf
@@ -69,10 +73,10 @@ EOF
 pushd /
 
 for file in /boot/* /boot/.*; do
-    if [ -L ${file} ];then
-        link_target=$(readlink ${file})
+    if [ -L "${file}" ];then
+        link_target=$(readlink "${file}")
         if [[ ${link_target} =~ usr/lib/modules ]];then
-            mv ${link_target} ${file}
+            mv "${link_target}" "${file}"
         fi
     fi
 done
