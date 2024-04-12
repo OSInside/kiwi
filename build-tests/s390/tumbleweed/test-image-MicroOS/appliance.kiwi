@@ -20,7 +20,7 @@
     <preferences profiles="Virtual-CC">
         <type
             image="oem"
-            luks="linux"
+            luks=""
             luks_pbkdf="pbkdf2"
             luks_version="luks2"
             filesystem="btrfs"
@@ -60,7 +60,7 @@
     <preferences profiles="Physical-CC">
         <type
             image="oem"
-            luks="linux"
+            luks=""
             luks_pbkdf="pbkdf2"
             luks_version="luks2"
             filesystem="btrfs"
