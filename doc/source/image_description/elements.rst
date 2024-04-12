@@ -1026,7 +1026,7 @@ the `editbootinstall` and `editbootconfig` custom scripts.
    selected bootloader the image build process will fail with
    an exception message.
 
-name="grub2|systemd_boot|grub2_s390x_emu":
+name="grub2|systemd_boot|grub2_s390x_emu|zipl":
   Specifies the bootloader to use for this image.
 
   .. note:: systemd_boot ESP size
@@ -1158,6 +1158,71 @@ targettype="CDL|LDL|FBA|SCSI":
   emulated DASD devices, use `FBA`. The attribute is available for the
   zipl loader only.
 
+<preferences><type><bootloader><securelinux>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used to specify data required to setup secure linux execution. Secure
+linux execution reads the kernel, initrd and boot parameters from an
+encrypted data blob and couples the image to the machine it gets
+executed on. Typically the private key is protected in hardware on
+the machine itself. {kiwi} supports secure execution for the IBM secure
+linux target on the s390 platform along with the bootloaders
+`zipl` and `grub2-s390x-emu`
+
+.. code:: xml
+
+   <securelinux>
+       <hkd_cert name="some1-host.crt"/>
+       <hkd_cert name="some2-host.crt"/>
+       <hkd_ca_cert name="some-ca.crt"/>
+       <hkd_sign_cert name="some1-signing.crt"/>
+       <hkd_sign_cert name="some2-signing.crt"/>
+       <hkd_revocation_list name="some1-revocation.crl"/>
+       <hkd_revocation_list name="some2-revocation.crl"/>
+   </securelinux>
+
+Except for the `hkd_ca_cert` all other certificates can be specified
+multiple times.
+
+hkd_cert:
+  The file specified in hkd_cert defines the `Host Key Document`
+  and tightly couples the image to the host matching the document
+
+hkd_ca_cert:
+  Required in combination with `hkd_cert`, providing the `Common Authority`
+  certificate (signed by the root CA) that is used to establish a chain
+  of trust for the verification of the `Host Key Document`.
+
+hkd_sign_cert:
+  Required in combination with `hkd_cert`, providing the `Signing`
+  certificate that is used to establish a chain of trust for the
+  verification of the `Host Key Document`.
+
+hkd_revocation_list:
+  Optional in combination with `hkd_cert`, providing the the
+  revocation list to check on use of expired certificates in
+  the chain of trust.
+
+<preferences><type><bootloader><bootloadersettings>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used to specify custom arguments for the tools called to setup
+secure boot e.g `shiminstall`, installation of the bootloader
+e.g `grub-install` or configuration of the bootloader e.g `grub-mkconfig`.
+
+.. code:: xml
+
+   <bootloadersettings>
+       <shimoption name="--suse-enable-tpm"/>
+       <shimoption name="--bootloader-id" value="some-id"/>
+       <installoption name="--suse-enable-tpm"/>
+       <configoption name="--debug"/>
+   </bootloadersettings>
+
+.. note::
+
+   {kiwi-ng} does not judge on the given parameters and if the provided
+   data is effectively used depends on the individual bootloader
+   implementation.
+
 <preferences><type><containerconfig>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to describe the container configuration metadata in docker or wsl
@@ -1184,27 +1249,6 @@ For details see: :ref:`custom_volumes`
    complete disk setup, so there cannot be any overlapping volumes
    or mount points. As a result, whatever is written in `<partitions>`
    cannot be expressed in the same way in `<volumes>`.
-
-<preferences><type><bootloader><bootloadersettings>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Used to specify custom arguments for the tools called to setup
-secure boot e.g `shiminstall`, installation of the bootloader
-e.g `grub-install` or configuration of the bootloader e.g `grub-mkconfig`.
-
-.. code:: xml
-
-   <bootloadersettings>
-       <shimoption name="--suse-enable-tpm"/>
-       <shimoption name="--bootloader-id" value="some-id"/>
-       <installoption name="--suse-enable-tpm"/>
-       <configoption name="--debug"/>
-   </bootloadersettings>
-
-.. note::
-
-   {kiwi-ng} does not judge on the given parameters and if the provided
-   data is effectively used depends on the individual bootloader
-   implementation.
 
 <preferences><type><partitions>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

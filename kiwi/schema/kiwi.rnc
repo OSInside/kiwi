@@ -2958,7 +2958,8 @@ div {
         ## and to provide configuration parameters for it
         element bootloader {
             k.bootloader.attlist &
-            k.bootloadersettings?
+            k.bootloadersettings? &
+            k.securelinux*
         }
 }
 
@@ -3236,6 +3237,74 @@ div {
             k.shimoption* &
             k.installoption* &
             k.configoption*
+        }
+}
+
+#==========================================
+# main block: <securelinux>
+#
+div {
+    sch:pattern [
+        abstract = "true"
+        id = "securelinux_loader_requirement"
+        sch:rule [
+            context = "securelinux"
+            sch:assert [
+                test = "../@name='zipl' or ../@name='grub2-s390x-emu'"
+                "<securelinux> section only available for the "
+                "bootloader types: zipl and grub2-s390x-emu"
+            ]
+        ]
+    ]
+    k.securelinux.hkd_ca_cert.attribute =
+        attribute hkd_ca_cert { text }
+    k.securelinux.hkd_sign_cert.attribute =
+        attribute hkd_sign_cert { text }
+    k.securelinux.attlist =
+        k.securelinux.hkd_ca_cert.attribute &
+        k.securelinux.hkd_sign_cert.attribute
+    k.securelinux =
+        ## securelinux contains all elements to describe
+        ## data required to setup a secure linux execution
+        ## process for the individual architecture in the scope
+        ## of the bootloader process
+        element securelinux {
+            k.securelinux.attlist &
+            k.hkd_cert+ &
+            k.hkd_revocation_list*
+        }
+        >> sch:pattern [
+            id = "bootloader_matches" is-a = "securelinux_loader_requirement"
+        ]
+}
+
+#==========================================
+# common element <hkd_cert>
+#
+div {
+    k.hkd_cert.name.attribute =
+        attribute name { text }
+    k.hkd_cert.attlist =
+        k.hkd_cert.name.attribute
+    k.hkd_cert =
+        element hkd_cert {
+            k.hkd_cert.attlist,
+            empty
+        }
+}
+
+#==========================================
+# common element <hkd_revocation_list>
+#
+div {
+    k.hkd_revocation_list.name.attribute =
+        attribute name { text }
+    k.hkd_revocation_list.attlist =
+        k.hkd_revocation_list.name.attribute
+    k.hkd_revocation_list =
+        element hkd_revocation_list {
+            k.hkd_revocation_list.attlist,
+            empty
         }
 }
 

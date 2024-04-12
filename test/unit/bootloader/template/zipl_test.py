@@ -19,10 +19,17 @@ class TestBootLoaderTemplateZipl:
             targetgeometry=''
         )
 
-    def test_get_entry_template(self):
+    def test_get_entry_template_standard(self):
         assert self.zipl.get_entry_template().substitute(
             title='title',
             boot_options='',
             kernel_file='linux',
             initrd_file='initrd'
+        )
+
+    def test_get_entry_template_secure(self):
+        assert self.zipl.get_entry_template(secure=True).substitute(
+            title='title',
+            boot_options='',
+            secure_image_file='linux'
         )

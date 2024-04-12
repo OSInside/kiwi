@@ -589,6 +589,63 @@ class TestBootLoaderConfigGrub2:
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.SysConfig')
     @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_default_grub_s390_secure_execution(
+        self, mock_Command_run, mock_sysconfig, mock_exists
+    ):
+        grep_grub_option = Mock()
+        grep_grub_option.returncode = 0
+        mock_Command_run.return_value = grep_grub_option
+        mock_exists.return_value = False
+        grub_default = SysConfig('some-file')
+        grub_default.write = Mock()
+        mock_sysconfig.return_value = grub_default
+        mock_exists.return_value = True
+        self.bootloader.terminal_input = 'serial'
+        self.bootloader.terminal_output = 'gfxterm'
+        self.bootloader.theme = 'openSUSE'
+        self.bootloader.displayname = 'Bob'
+        self.bootloader.arch = 's390x'
+        self.bootloader.host_key_certificates = [
+            {
+                'hkd_cert': ['/path/to/host.crt'],
+                'hkd_revocation_list': ['some1.crl', 'some2.crl'],
+                'hkd_ca_cert': '/path/to/DigiCertCA.crt',
+                'hkd_sign_cert': '/path/to/ibm-z-host-key-signing.crt'
+            }
+        ]
+        self.firmware.efi_mode.return_value = 'efi'
+
+        self.bootloader._setup_default_grub()
+
+        mock_sysconfig.assert_called_once_with('root_dir/etc/default/grub')
+        grub_default.write.assert_called_once_with()
+
+        assert grub_default.data_dict == {
+            'GRUB_BACKGROUND': '/boot/grub2/themes/openSUSE/background.png',
+            'GRUB_CMDLINE_LINUX_DEFAULT': '"some-cmdline"',
+            'GRUB_DISTRIBUTOR': '"Bob"',
+            'GRUB_ENABLE_BLSCFG': 'true',
+            'GRUB_ENABLE_CRYPTODISK': 'y',
+            'GRUB_GFXMODE': '800x600',
+            'GRUB_SERIAL_COMMAND': '"serial --speed=38400"',
+            'GRUB_TERMINAL_INPUT': '"serial"',
+            'GRUB_TERMINAL_OUTPUT': '"gfxterm"',
+            'GRUB_THEME': '/boot/grub2/themes/openSUSE/theme.txt',
+            'GRUB_TIMEOUT': 10,
+            'GRUB_TIMEOUT_STYLE': 'countdown',
+            'SUSE_BTRFS_SNAPSHOT_BOOTING': 'true',
+            'SUSE_S390_SE_CA_CERT': '/path/to/DigiCertCA.crt',
+            'SUSE_S390_SE_ENABLE': 'true',
+            'SUSE_S390_SE_HOST_KEY': '/path/to/host.crt',
+            'SUSE_S390_SE_HOST_KEY_SIGNING_KEY':
+                '/path/to/ibm-z-host-key-signing.crt',
+            'SUSE_S390_SE_REVOCATION_LIST': 'some1.crl,some2.crl',
+            'GRUB_DEFAULT': 'saved'
+        }
+
+    @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.grub2.SysConfig')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
     def test_setup_default_grub(
         self, mock_Command_run, mock_sysconfig, mock_exists
     ):

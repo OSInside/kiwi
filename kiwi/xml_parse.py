@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.9 (main, Apr 18 2024, 16:44:43) [GCC]
+# Python 3.11.10 (main, Sep 18 2024, 22:13:39) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/unit_py3_11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-Btua-i95-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -5967,7 +5967,7 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, bls=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None):
+    def __init__(self, name=None, bls=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None, securelinux=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.bls = _cast(bool, bls)
@@ -5978,7 +5978,14 @@ class bootloader(GeneratedsSuper):
         self.targettype = _cast(None, targettype)
         self.use_disk_password = _cast(bool, use_disk_password)
         self.grub_template = _cast(None, grub_template)
-        self.bootloadersettings = bootloadersettings
+        if bootloadersettings is None:
+            self.bootloadersettings = []
+        else:
+            self.bootloadersettings = bootloadersettings
+        if securelinux is None:
+            self.securelinux = []
+        else:
+            self.securelinux = securelinux
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5992,6 +5999,14 @@ class bootloader(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_bootloadersettings(self): return self.bootloadersettings
     def set_bootloadersettings(self, bootloadersettings): self.bootloadersettings = bootloadersettings
+    def add_bootloadersettings(self, value): self.bootloadersettings.append(value)
+    def insert_bootloadersettings_at(self, index, value): self.bootloadersettings.insert(index, value)
+    def replace_bootloadersettings_at(self, index, value): self.bootloadersettings[index] = value
+    def get_securelinux(self): return self.securelinux
+    def set_securelinux(self, securelinux): self.securelinux = securelinux
+    def add_securelinux(self, value): self.securelinux.append(value)
+    def insert_securelinux_at(self, index, value): self.securelinux.insert(index, value)
+    def replace_securelinux_at(self, index, value): self.securelinux[index] = value
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
     def get_bls(self): return self.bls
@@ -6019,7 +6034,8 @@ class bootloader(GeneratedsSuper):
     validate_grub_console_patterns_ = [['^(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (none|console|serial|at_keyboard|usb_keyboard))*$']]
     def hasContent_(self):
         if (
-            self.bootloadersettings is not None
+            self.bootloadersettings or
+            self.securelinux
         ):
             return True
         else:
@@ -6078,8 +6094,10 @@ class bootloader(GeneratedsSuper):
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.bootloadersettings is not None:
-            self.bootloadersettings.export(outfile, level, namespaceprefix_, name_='bootloadersettings', pretty_print=pretty_print)
+        for bootloadersettings_ in self.bootloadersettings:
+            bootloadersettings_.export(outfile, level, namespaceprefix_, name_='bootloadersettings', pretty_print=pretty_print)
+        for securelinux_ in self.securelinux:
+            securelinux_.export(outfile, level, namespaceprefix_, name_='securelinux', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6148,8 +6166,13 @@ class bootloader(GeneratedsSuper):
         if nodeName_ == 'bootloadersettings':
             obj_ = bootloadersettings.factory()
             obj_.build(child_)
-            self.bootloadersettings = obj_
+            self.bootloadersettings.append(obj_)
             obj_.original_tagname_ = 'bootloadersettings'
+        elif nodeName_ == 'securelinux':
+            obj_ = securelinux.factory()
+            obj_.build(child_)
+            self.securelinux.append(obj_)
+            obj_.original_tagname_ = 'securelinux'
 # end class bootloader
 
 
@@ -7218,6 +7241,262 @@ class bootloadersettings(GeneratedsSuper):
             self.configoption.append(obj_)
             obj_.original_tagname_ = 'configoption'
 # end class bootloadersettings
+
+
+class securelinux(GeneratedsSuper):
+    """securelinux contains all elements to describe data required to setup
+    a secure linux execution process for the individual architecture
+    in the scope of the bootloader process"""
+    subclass = None
+    superclass = None
+    def __init__(self, hkd_ca_cert=None, hkd_sign_cert=None, hkd_cert=None, hkd_revocation_list=None):
+        self.original_tagname_ = None
+        self.hkd_ca_cert = _cast(None, hkd_ca_cert)
+        self.hkd_sign_cert = _cast(None, hkd_sign_cert)
+        if hkd_cert is None:
+            self.hkd_cert = []
+        else:
+            self.hkd_cert = hkd_cert
+        if hkd_revocation_list is None:
+            self.hkd_revocation_list = []
+        else:
+            self.hkd_revocation_list = hkd_revocation_list
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, securelinux)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if securelinux.subclass:
+            return securelinux.subclass(*args_, **kwargs_)
+        else:
+            return securelinux(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_hkd_cert(self): return self.hkd_cert
+    def set_hkd_cert(self, hkd_cert): self.hkd_cert = hkd_cert
+    def add_hkd_cert(self, value): self.hkd_cert.append(value)
+    def insert_hkd_cert_at(self, index, value): self.hkd_cert.insert(index, value)
+    def replace_hkd_cert_at(self, index, value): self.hkd_cert[index] = value
+    def get_hkd_revocation_list(self): return self.hkd_revocation_list
+    def set_hkd_revocation_list(self, hkd_revocation_list): self.hkd_revocation_list = hkd_revocation_list
+    def add_hkd_revocation_list(self, value): self.hkd_revocation_list.append(value)
+    def insert_hkd_revocation_list_at(self, index, value): self.hkd_revocation_list.insert(index, value)
+    def replace_hkd_revocation_list_at(self, index, value): self.hkd_revocation_list[index] = value
+    def get_hkd_ca_cert(self): return self.hkd_ca_cert
+    def set_hkd_ca_cert(self, hkd_ca_cert): self.hkd_ca_cert = hkd_ca_cert
+    def get_hkd_sign_cert(self): return self.hkd_sign_cert
+    def set_hkd_sign_cert(self, hkd_sign_cert): self.hkd_sign_cert = hkd_sign_cert
+    def hasContent_(self):
+        if (
+            self.hkd_cert or
+            self.hkd_revocation_list
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='securelinux', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('securelinux')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='securelinux')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='securelinux', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='securelinux'):
+        if self.hkd_ca_cert is not None and 'hkd_ca_cert' not in already_processed:
+            already_processed.add('hkd_ca_cert')
+            outfile.write(' hkd_ca_cert=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.hkd_ca_cert), input_name='hkd_ca_cert')), ))
+        if self.hkd_sign_cert is not None and 'hkd_sign_cert' not in already_processed:
+            already_processed.add('hkd_sign_cert')
+            outfile.write(' hkd_sign_cert=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.hkd_sign_cert), input_name='hkd_sign_cert')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='securelinux', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for hkd_cert_ in self.hkd_cert:
+            hkd_cert_.export(outfile, level, namespaceprefix_, name_='hkd_cert', pretty_print=pretty_print)
+        for hkd_revocation_list_ in self.hkd_revocation_list:
+            hkd_revocation_list_.export(outfile, level, namespaceprefix_, name_='hkd_revocation_list', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('hkd_ca_cert', node)
+        if value is not None and 'hkd_ca_cert' not in already_processed:
+            already_processed.add('hkd_ca_cert')
+            self.hkd_ca_cert = value
+        value = find_attr_value_('hkd_sign_cert', node)
+        if value is not None and 'hkd_sign_cert' not in already_processed:
+            already_processed.add('hkd_sign_cert')
+            self.hkd_sign_cert = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'hkd_cert':
+            obj_ = hkd_cert.factory()
+            obj_.build(child_)
+            self.hkd_cert.append(obj_)
+            obj_.original_tagname_ = 'hkd_cert'
+        elif nodeName_ == 'hkd_revocation_list':
+            obj_ = hkd_revocation_list.factory()
+            obj_.build(child_)
+            self.hkd_revocation_list.append(obj_)
+            obj_.original_tagname_ = 'hkd_revocation_list'
+# end class securelinux
+
+
+class hkd_cert(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, name=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, hkd_cert)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if hkd_cert.subclass:
+            return hkd_cert.subclass(*args_, **kwargs_)
+        else:
+            return hkd_cert(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='hkd_cert', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('hkd_cert')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='hkd_cert')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='hkd_cert', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='hkd_cert'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='hkd_cert', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class hkd_cert
+
+
+class hkd_revocation_list(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, name=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, hkd_revocation_list)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if hkd_revocation_list.subclass:
+            return hkd_revocation_list.subclass(*args_, **kwargs_)
+        else:
+            return hkd_revocation_list(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='hkd_revocation_list', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('hkd_revocation_list')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='hkd_revocation_list')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='hkd_revocation_list', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='hkd_revocation_list'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='hkd_revocation_list', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class hkd_revocation_list
 
 
 class environment(GeneratedsSuper):
@@ -9880,6 +10159,8 @@ __all__ = [
     "extension",
     "file",
     "history",
+    "hkd_cert",
+    "hkd_revocation_list",
     "ignore",
     "image",
     "include",
@@ -9905,6 +10186,7 @@ __all__ = [
     "profiles",
     "repository",
     "requires",
+    "securelinux",
     "shimoption",
     "signing",
     "size",

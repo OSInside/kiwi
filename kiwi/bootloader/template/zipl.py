@@ -40,7 +40,13 @@ class BootLoaderTemplateZipl:
             secure=auto
         ''').strip() + self.cr
 
-        self.entry = dedent('''
+        self.entry_secure = dedent('''
+            title ${title}
+            options ${boot_options}
+            linux ${secure_image_file}
+        ''').strip() + self.cr
+
+        self.entry_standard = dedent('''
             title ${title}
             options ${boot_options}
             linux ${kernel_file}
@@ -58,7 +64,7 @@ class BootLoaderTemplateZipl:
         template_data = self.main_conf
         return Template(template_data)
 
-    def get_entry_template(self) -> Template:
+    def get_entry_template(self, secure: bool = False) -> Template:
         """
         Bootloader entry configuration template
 
@@ -66,5 +72,8 @@ class BootLoaderTemplateZipl:
 
         :rtype: Template
         """
-        template_data = self.entry
+        if secure:
+            template_data = self.entry_secure
+        else:
+            template_data = self.entry_standard
         return Template(template_data)
