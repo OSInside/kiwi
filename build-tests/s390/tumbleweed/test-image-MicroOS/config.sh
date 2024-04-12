@@ -9,21 +9,17 @@ declare kiwi_profiles=${kiwi_profiles}
 
 echo "Configure image: [${kiwi_iname}]-[${kiwi_profiles}]..."
 
-# Systemd controls the console font now
-echo FONT="eurlatgr.psfu" >> /etc/vconsole.conf
-
-#======================================
-# Specify default systemd target
-#--------------------------------------
-baseSetRunlevel multi-user.target
-
-# Add repos from /etc/YaST2/control.xml
+#=====================================
+# Set repos on target
+#-------------------------------------
 if [ -x /usr/sbin/add-yast-repos ]; then
     add-yast-repos
     zypper --non-interactive rm -u live-add-yast-repos
 fi
 
-# Adjust zypp conf
+#=====================================
+# Configure zypper
+#-------------------------------------
 sed -i 's/^multiversion =.*/multiversion =/g' /etc/zypp/zypp.conf
 
 #=====================================
@@ -40,22 +36,10 @@ if [ "${kiwi_btrfs_root_is_snapshot-false}" = 'true' ]; then
     sed -i'' 's/^NUMBER_LIMIT_IMPORTANT=.*$/NUMBER_LIMIT_IMPORTANT="4-10"/g' /etc/snapper/configs/root
 fi
 
-#=====================================
-# Enable chrony if installed
-#-------------------------------------
-if [ -f /etc/chrony.conf ]; then
-    systemctl enable chronyd
-fi
-
 #======================================
 # Activate services
 #--------------------------------------
 baseInsertService sshd
-
-# To make x-systemd.growfs work from inside the initrd
-cat >/etc/dracut.conf.d/50-microos-growfs.conf <<"EOF"
-install_items+=" /usr/lib/systemd/systemd-growfs "
-EOF
 
 # For image tests with an extra boot partition the
 # kernel must not be a symlink to another area of
