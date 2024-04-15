@@ -355,13 +355,6 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         )
 
         for volume_mount in self.subvol_mount_list:
-            if self.volumes_mounted_initially:
-                toplevel = self.root_volume_name
-                if self.custom_args['root_is_snapshot']:
-                    toplevel = f'{self.root_volume_name}/.snapshots/1/snapshot'
-                volume_mount.mountpoint = os.path.normpath(
-                    volume_mount.mountpoint.replace(toplevel, '', 1)
-                )
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
             subvol_path = volume_mount.get_attributes().get('subvol_path')
@@ -373,8 +366,6 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             volume_mount.mount(
                 options=[subvol_options]
             )
-
-        self.volumes_mounted_initially = True
 
     def umount_volumes(self) -> None:
         """

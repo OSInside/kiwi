@@ -393,51 +393,6 @@ class TestVolumeManagerBtrfs:
             options=['subvol=@/var/tmp']
         )
 
-    @patch('os.chmod')
-    @patch('os.path.exists')
-    @patch('kiwi.volume_manager.btrfs.Command.run')
-    @patch('kiwi.volume_manager.btrfs.FileSystem.new')
-    @patch('kiwi.volume_manager.btrfs.MappedDevice')
-    @patch('kiwi.volume_manager.btrfs.MountManager')
-    @patch('kiwi.volume_manager.base.Temporary')
-    def test_remount_volumes(
-        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
-        mock_command, mock_os_exists, mock_os_chmod
-    ):
-        mock_Temporary.return_value.new_dir.return_value.name = \
-            '/var/tmp/kiwi_volumes.xx'
-        toplevel_mount = Mock()
-        toplevel_mount.is_mounted = Mock(
-            return_value=False
-        )
-        mock_mount.return_value = toplevel_mount
-        command_call = Mock()
-        command_call.output = \
-            'ID 258 gen 26 top level 257 path @/.snapshots/1/snapshot'
-        mock_mapped_device.return_value = 'mapped_device'
-        mock_os_exists.return_value = False
-        mock_command.return_value = command_call
-        self.volume_manager.custom_args['root_is_snapshot'] = True
-
-        self.volume_manager.setup()
-        mock_os_chmod.assert_called_once_with(
-            '/var/tmp/kiwi_volumes.xx/@/.snapshots', 0o700
-        )
-        mock_os_exists.return_value = True
-        volume_mount = Mock()
-        volume_mount.mountpoint = \
-            '/var/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
-        volume_mount.get_attributes.return_value = {
-            'subvol_path': '@/var/tmp'
-        }
-        self.volume_manager.subvol_mount_list = [volume_mount]
-
-        self.volume_manager.mount_volumes()
-        self.volume_manager.umount_volumes()
-        self.volume_manager.mount_volumes()
-
-        assert volume_mount.mountpoint == '/var/tmp/kiwi_volumes.xx/var/tmp'
-
     def test_umount_volumes(self):
         self.volume_manager.toplevel_mount = Mock()
         volume_mount = Mock()
