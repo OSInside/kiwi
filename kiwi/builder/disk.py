@@ -1727,7 +1727,6 @@ class DiskBuilder:
             )
 
         if system and self.volume_manager_name:
-            system.umount_volumes()
             custom_install_arguments.update(
                 {
                     'system_volumes': system.get_volumes(),
