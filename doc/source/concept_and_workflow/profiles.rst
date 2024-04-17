@@ -4,7 +4,7 @@ Image Profiles
 ==============
 
 A *profile* is a namespace for additional settings that can be applied by
-{kiwi} on top of the default settings (or other profiles), thereby allowing
+{kiwi} in addition to the default settings (or other profiles), making it possible
 to build multiple appliances with the same build type but with different
 configurations.
 
@@ -32,17 +32,17 @@ machine images of the `oem` type are configured: one for QEMU (using the
        </preferences>
    </image>
 
-Each profile is declared via the element `profile`, which itself must be a
-child of `profiles` and must contain the `name` and `description`
+Each profile is declared via the element `profile` that must be a
+child of `profiles`, and it must contain the `name` and `description`
 attributes. The `description` is only present for documentation purposes,
-`name` on the other hand is used to instruct {kiwi} which profile to build
-via the command line. Additionally, one can provide the boolean attribute
+`name`, on the other hand, is used to instruct {kiwi} which profile to build
+via the command line. Additionally, you can provide the boolean attribute
 `import`, which defines whether this profile should be used by default when
 {kiwi} is invoked via the command line.
 
-A profile inherits the default settings which do not belong to any
+A profile inherits the default settings that do not belong to any
 profile. It applies only to elements that contain the profile in their
-`profiles` attribute. The attribute `profiles` expects a comma separated
+`profiles` attribute. The attribute `profiles` expects a comma-separated
 list of profiles for which the settings of this element apply.
 
 Profiles can furthermore inherit settings from another profile via the
@@ -57,8 +57,7 @@ Profiles can furthermore inherit settings from another profile via the
        </profile>
    </profiles>
 
-The profile `QEMU` would inherit the settings from `VM` in the above
-example.
+In the above example, the profile `QEMU` inherit the settings from `VM`.
 
-For further details on the usage of *profiles* see
+For further details on the usage of *profiles*, see
 :ref:`building-build-with-profiles`
