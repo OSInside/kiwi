@@ -72,10 +72,6 @@ class VolumeManagerBase(DeviceProvider):
         #: the underlaying device provider
         self.device_provider_root = device_map['root']
 
-        #: An indicator for the mount of the filesystem and its volumes
-        #: when mounted for the first time
-        self.volumes_mounted_initially = False
-
         #: root directory path name
         self.root_dir = root_dir
         #: list of volumes from :class:`XMLState::get_volumes()`

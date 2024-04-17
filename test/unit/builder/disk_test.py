@@ -1458,8 +1458,6 @@ class TestDiskBuilder:
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ]
         )
-        volume_manager.umount_volumes.call_args_list[0].assert_called_once_with(
-        )
         self.setup.create_fstab.assert_called_once_with(
             self.disk_builder.fstab
         )

@@ -1727,7 +1727,6 @@ class DiskBuilder:
             )
 
         if system and self.volume_manager_name:
-            system.umount_volumes()
             custom_install_arguments.update(
                 {
                     'system_volumes': system.get_volumes(),
@@ -1780,9 +1779,7 @@ class DiskBuilder:
                 log.info(
                     'Setting root filesystem into read-only mode'
                 )
-                system.mount_volumes()
                 system.set_property_readonly_root()
-                system.umount_volumes()
 
     def _copy_first_boot_files_to_system_image(self) -> None:
         boot_names = self.boot_image.get_boot_names()
