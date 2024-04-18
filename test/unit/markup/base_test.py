@@ -48,6 +48,13 @@ class TestMarkupBase:
                 '../data/example_include_config.xml'
             )
 
+    def test_apply_xslt_stylesheets_deprecated(self):
+        markup = MarkupBase('../data/example_deprecated_schema.xml')
+        with raises(KiwiDescriptionInvalid):
+            markup.apply_xslt_stylesheets(
+                '../data/example_deprecated_schema.xml'
+            )
+
     def test_apply_xslt_stylesheets_missing_include_reference(self):
         markup = MarkupBase(
             '../data/example_include_config_missing_reference.xml'
