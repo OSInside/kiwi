@@ -82,6 +82,7 @@ EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
 IMAGE_METADATA_DIR = 'image'
 ROOT_VOLUME_NAME = 'LVRoot'
 SHARED_CACHE_DIR = '/var/cache/kiwi'
+RUNTIME_CHECKER_METADATA = '/usr/share/kiwi/runtime_checker_metadata.yml'
 TEMP_DIR = '/var/tmp'
 CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
@@ -265,6 +266,16 @@ class Defaults:
         return '/var/tmp/kiwi/satsolver'
 
     @staticmethod
+    def set_runtime_checker_metadata(filename):
+        """
+        Sets the runtime checker metadata filename
+
+        :param str filename: a file path name
+        """
+        global RUNTIME_CHECKER_METADATA
+        RUNTIME_CHECKER_METADATA = filename
+
+    @staticmethod
     def set_shared_cache_location(location):
         """
         Sets the shared cache location once
@@ -388,6 +399,11 @@ class Defaults:
             Defaults.get_shared_cache_location()
         ]
         return exclude_list
+
+    @staticmethod
+    def get_runtime_checker_metadata() -> Dict:
+        with open(RUNTIME_CHECKER_METADATA) as meta:
+            return yaml.safe_load(meta)
 
     @staticmethod
     def get_exclude_list_from_custom_exclude_files(root_dir: str) -> List:

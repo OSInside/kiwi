@@ -24,6 +24,9 @@ class TestRuntimeChecker:
         self._caplog = caplog
 
     def setup(self):
+        Defaults.set_runtime_checker_metadata(
+            '../data/runtime_checker_metadata.yml'
+        )
         self.description = XMLDescription(
             '../data/example_runtime_checker_config.xml'
         )
@@ -427,6 +430,10 @@ class TestRuntimeChecker:
         runtime_checker = RuntimeChecker(xml_state)
         with raises(KiwiRuntimeError):
             runtime_checker.check_include_references_unresolvable()
+
+    def test_check_package_in_list(self):
+        assert RuntimeChecker._package_in_list(['a', 'b'], ['b']) == 'b'
+        assert RuntimeChecker._package_in_list(['a', 'b'], ['c']) == ''
 
     def teardown(self):
         sys.argv = argv_kiwi_tests

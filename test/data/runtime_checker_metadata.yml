@@ -1,0 +1,13 @@
+package_names:
+  dracut_oem_dump:
+    - dracut-kiwi-oem-dump
+    - kiwi-dracut-oem-dump
+  dracut_oem_repart:
+    - dracut-kiwi-oem-repart
+    - kiwi-dracut-oem-repart
+  dracut_live:
+    - dracut-kiwi-live
+    - kiwi-dracut-live
+  dracut_overlay:
+    - dracut-kiwi-overlay
+    - kiwi-dracut-overlay
