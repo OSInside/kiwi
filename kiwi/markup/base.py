@@ -89,6 +89,8 @@ class MarkupBase:
                 )
         except etree.XMLSyntaxError as issue:
             raise KiwiDescriptionInvalid(issue)
+        except etree.XSLTApplyError as issue:
+            raise KiwiDescriptionInvalid(issue)
 
         return self.description_xslt_processed.name
 

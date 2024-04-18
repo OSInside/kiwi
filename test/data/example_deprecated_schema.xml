@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.3" name="LimeJeOS">
+    <description type="system">
+        <author>Marcus</author>
+        <contact>ms@suse.com</contact>
+        <specification>
+            Testing too old schema version condition
+        </specification>
+    </description>
+    <preferences>
+        <version>1.13.2</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <type image="tbz"/>
+    </preferences>
+    <packages type="image" patternType="plusRecommended">
+        <namedCollection name="base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+    </packages>
+</image>
