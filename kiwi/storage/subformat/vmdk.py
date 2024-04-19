@@ -68,7 +68,7 @@ class DiskFormatVmdk(DiskFormatBase):
 
         :param object result: Instance of Result
         """
-        compression = self.runtime_config.get_bundle_compression(default=True)
+        compression = self.runtime_config.get_bundle_compression(default=False)
         if self.xml_state.get_luks_credentials() is not None:
             compression = False
         result.add(
