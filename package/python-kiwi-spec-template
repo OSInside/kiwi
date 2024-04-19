@@ -387,6 +387,8 @@ Obsoletes:      python2-kiwi
 Conflicts:      python2-kiwi
 Conflicts:      kiwi-man-pages < %{version}
 Requires:       screen
+Requires:       file
+Requires:       sed
 Requires:       python%{python3_pkgversion} >= 3.9
 %if 0%{?ubuntu} || 0%{?debian}
 Requires:       python%{python3_pkgversion}-yaml
