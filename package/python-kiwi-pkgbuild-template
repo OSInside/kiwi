@@ -33,7 +33,6 @@ package_python-kiwi(){
   python3 -m installer --destdir "${pkgdir}/" dist/*.whl
   ln -sr "${pkgdir}/usr/bin/kiwi-ng" "${pkgdir}/usr/bin/kiwi"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE" 
-  install -Dm644 kiwi/runtime_checker_metadata.yml "$pkgdir/usr/share/kiwi/runtime_checker_metadata.yml"
 }
 
 package_kiwi-man-pages(){

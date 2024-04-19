@@ -18,6 +18,8 @@
 import logging
 import os
 import glob
+from importlib.util import find_spec
+from importlib.machinery import ModuleSpec
 from collections import namedtuple
 import platform
 import yaml
@@ -82,7 +84,11 @@ EDIT_BOOT_INSTALL_SCRIPT = 'edit_boot_install.sh'
 IMAGE_METADATA_DIR = 'image'
 ROOT_VOLUME_NAME = 'LVRoot'
 SHARED_CACHE_DIR = '/var/cache/kiwi'
-RUNTIME_CHECKER_METADATA = '/usr/share/kiwi/runtime_checker_metadata.yml'
+MODULE_SPEC: Optional[ModuleSpec] = find_spec('kiwi')
+RUNTIME_CHECKER_METADATA = '{}/runtime_checker_metadata.yml'.format(
+    os.path.dirname(MODULE_SPEC.origin or 'unknown')
+) if MODULE_SPEC else 'unknown'
+
 TEMP_DIR = '/var/tmp'
 CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
