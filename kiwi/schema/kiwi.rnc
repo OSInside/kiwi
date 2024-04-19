@@ -2757,6 +2757,13 @@ div {
             sch:param [ name = "attr" value = "grub_template" ]
             sch:param [ name = "types" value = "oem iso" ]
         ]
+    k.bootloader.bls.attribute =
+        ## Specifies if the GRUB2 bootloader uses the boot loader specification
+        attribute bls { xsd:boolean }
+        >> sch:pattern [ id = "bls" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "bls" ]
+            sch:param [ name = "types" value = "grub2" ]
+        ]
     k.bootloader.console.attribute =
         ## Specifies the bootloader console.
         attribute console { grub_console }
@@ -2814,6 +2821,7 @@ div {
         attribute use_disk_password { xsd:boolean }
     k.bootloader.attlist =
         k.bootloader.name.attribute &
+        k.bootloader.bls.attribute? &
         k.bootloader.console.attribute? &
         k.bootloader.serial_line.attribute? &
         k.bootloader.timeout.attribute? &
