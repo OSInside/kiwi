@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install" bundle_format="openSUSE-Tumbleweed-%M%m%p-%T.%A.%I">
+        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install" bundle_format="openSUSE-Tumbleweed-%M%m%p-%T.%A.%I" format="vmdk">
             <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
@@ -69,6 +69,7 @@
         <package name="gzip"/>
         <package name="udev"/>
         <package name="xz"/>
+        <package name="shadow"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
