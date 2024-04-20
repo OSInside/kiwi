@@ -2296,7 +2296,7 @@ in MB. If not set the min efifatimage size is set to 20 MB</a:documentation>
       </attribute>
       <sch:pattern id="efifatimagesize" is-a="image_type">
         <sch:param name="attr" value="efifatimagesize"/>
-        <sch:param name="types" value="oem"/>
+        <sch:param name="types" value="oem iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.dosparttable_extended_layout.attribute">
