@@ -141,7 +141,8 @@ class TestPackageManagerDnf5:
             [
                 'chroot', '/root-dir', 'dnf5',
                 '--config', '/dnf.conf', '-y',
-                '--releasever=0', 'autoremove', 'vim'
+                '--releasever=0', '--setopt=clean_requirements_on_remove=true',
+                'remove', 'vim'
             ],
             ['env']
         )

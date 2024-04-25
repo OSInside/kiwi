@@ -244,9 +244,10 @@ class PackageManagerDnf5(PackageManagerBase):
             dnf_command = [
                 'chroot', self.root_dir, 'dnf5'
             ] + chroot_dnf_args + [
-                f'--releasever={self.release_version}'
+                f'--releasever={self.release_version}',
+                '--setopt=clean_requirements_on_remove=true'
             ] + self.custom_args + [
-                'autoremove'
+                'remove'
             ] + self.package_requests
             self.cleanup_requests()
             return Command.call(
