@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.5 (main, Sep 06 2023, 11:21:05) [GCC]
+# Python 3.11.9 (main, Apr 08 2024, 06:18:15) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/Project/kiwi/.tox/unit_py3_11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/aplanas/mnt/Documents/Work/kiwi/venv/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -5560,9 +5560,10 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None):
+    def __init__(self, name=None, bls=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
+        self.bls = _cast(bool, bls)
         self.console = _cast(None, console)
         self.serial_line = _cast(None, serial_line)
         self.timeout = _cast(int, timeout)
@@ -5586,6 +5587,8 @@ class bootloader(GeneratedsSuper):
     def set_bootloadersettings(self, bootloadersettings): self.bootloadersettings = bootloadersettings
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
+    def get_bls(self): return self.bls
+    def set_bls(self, bls): self.bls = bls
     def get_console(self): return self.console
     def set_console(self, console): self.console = console
     def get_serial_line(self): return self.serial_line
@@ -5639,6 +5642,9 @@ class bootloader(GeneratedsSuper):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.bls is not None and 'bls' not in already_processed:
+            already_processed.add('bls')
+            outfile.write(' bls="%s"' % self.gds_format_boolean(self.bls, input_name='bls'))
         if self.console is not None and 'console' not in already_processed:
             already_processed.add('console')
             outfile.write(' console=%s' % (quote_attrib(self.console), ))
@@ -5680,6 +5686,15 @@ class bootloader(GeneratedsSuper):
             already_processed.add('name')
             self.name = value
             self.name = ' '.join(self.name.split())
+        value = find_attr_value_('bls', node)
+        if value is not None and 'bls' not in already_processed:
+            already_processed.add('bls')
+            if value in ('true', '1'):
+                self.bls = True
+            elif value in ('false', '0'):
+                self.bls = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('console', node)
         if value is not None and 'console' not in already_processed:
             already_processed.add('console')

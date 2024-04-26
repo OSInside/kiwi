@@ -600,7 +600,6 @@ class TestBootLoaderConfigGrub2:
             'GRUB_BACKGROUND': '/boot/grub2/themes/openSUSE/background.png',
             'GRUB_CMDLINE_LINUX_DEFAULT': '"some-cmdline"',
             'GRUB_DISTRIBUTOR': '"Bob"',
-            'GRUB_ENABLE_BLSCFG': 'true',
             'GRUB_ENABLE_CRYPTODISK': 'y',
             'GRUB_GFXMODE': '800x600',
             'GRUB_SERIAL_COMMAND': '"serial --speed=38400"',
@@ -643,7 +642,6 @@ class TestBootLoaderConfigGrub2:
             call('GRUB_CMDLINE_LINUX', '"root=LABEL=some-label"'),
             call('GRUB_DISABLE_LINUX_UUID', 'true'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
-            call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
             call('GRUB_ENABLE_LINUX_LABEL', 'true'),
             call('GRUB_GFXMODE', '800x600'),
@@ -688,7 +686,6 @@ class TestBootLoaderConfigGrub2:
             call('GRUB_DISABLE_LINUX_PARTUUID', 'false'),
             call('GRUB_DISABLE_LINUX_UUID', 'true'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
-            call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
             call('GRUB_GFXMODE', '800x600'),
             call(
@@ -732,7 +729,6 @@ class TestBootLoaderConfigGrub2:
             call('GRUB_CMDLINE_LINUX_DEFAULT', '"abcd console=tty0"'),
             call('GRUB_DISABLE_LINUX_UUID', 'true'),
             call('GRUB_DISTRIBUTOR', '"Bob"'),
-            call('GRUB_ENABLE_BLSCFG', 'true'),
             call('GRUB_ENABLE_CRYPTODISK', 'y'),
             call('GRUB_ENABLE_LINUX_LABEL', 'true'),
             call('GRUB_GFXMODE', '800x600'),
@@ -747,6 +743,49 @@ class TestBootLoaderConfigGrub2:
             call('SUSE_BTRFS_SNAPSHOT_BOOTING', 'true'),
             call('SUSE_REMOVE_LINUX_ROOT_PARAM', 'true'),
         ]
+
+    @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.grub2.SysConfig')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    def test_setup_default_grub_use_of_bls(
+        self, mock_Command_run, mock_sysconfig, mock_exists
+    ):
+        grep_grub_option = Mock()
+        grep_grub_option.returncode = 0
+        mock_Command_run.return_value = grep_grub_option
+        mock_exists.return_value = False
+        grub_default = SysConfig('some-file')
+        grub_default.write = Mock()
+        mock_sysconfig.return_value = grub_default
+        mock_exists.return_value = True
+        self.bootloader.terminal_input = 'serial'
+        self.bootloader.terminal_output = 'gfxterm'
+        self.bootloader.theme = 'openSUSE'
+        self.bootloader.displayname = 'Bob'
+        self.bootloader.bls = True
+        self.firmware.efi_mode.return_value = 'efi'
+
+        self.bootloader._setup_default_grub()
+
+        mock_sysconfig.assert_called_once_with('root_dir/etc/default/grub')
+        grub_default.write.assert_called_once_with()
+
+        assert grub_default.data_dict == {
+            'GRUB_BACKGROUND': '/boot/grub2/themes/openSUSE/background.png',
+            'GRUB_CMDLINE_LINUX_DEFAULT': '"some-cmdline"',
+            'GRUB_DISTRIBUTOR': '"Bob"',
+            'GRUB_ENABLE_BLSCFG': 'true',
+            'GRUB_ENABLE_CRYPTODISK': 'y',
+            'GRUB_GFXMODE': '800x600',
+            'GRUB_SERIAL_COMMAND': '"serial --speed=38400"',
+            'GRUB_TERMINAL_INPUT': '"serial"',
+            'GRUB_TERMINAL_OUTPUT': '"gfxterm"',
+            'GRUB_THEME': '/boot/grub2/themes/openSUSE/theme.txt',
+            'GRUB_TIMEOUT': 10,
+            'GRUB_TIMEOUT_STYLE': 'countdown',
+            'SUSE_BTRFS_SNAPSHOT_BOOTING': 'true',
+            'GRUB_DEFAULT': 'saved'
+        }
 
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.SysConfig')

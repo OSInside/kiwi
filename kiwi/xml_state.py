@@ -998,6 +998,19 @@ class XMLState:
         return bootloader.get_name() if bootloader else \
             Defaults.get_default_bootloader()
 
+    def get_build_type_bootloader_bls(self) -> bool:
+        """
+        Return bootloader bls setting for selected build type
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_bls()
+        return False
+
     def get_build_type_bootloader_console(self) -> List[str]:
         """
         Return bootloader console setting for selected build type

@@ -4128,6 +4128,16 @@ setting only affects the oem and iso image types.</a:documentation>
         <sch:param name="types" value="oem iso"/>
       </sch:pattern>
     </define>
+    <define name="k.bootloader.bls.attribute">
+      <attribute name="bls">
+        <a:documentation>Specifies if the GRUB2 bootloader uses the boot loader specification</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="bls" is-a="bootloader_name_type">
+        <sch:param name="attr" value="bls"/>
+        <sch:param name="types" value="grub2"/>
+      </sch:pattern>
+    </define>
     <define name="k.bootloader.console.attribute">
       <attribute name="console">
         <a:documentation>Specifies the bootloader console.</a:documentation>
@@ -4207,6 +4217,9 @@ is useful for full disk encryption images</a:documentation>
     <define name="k.bootloader.attlist">
       <interleave>
         <ref name="k.bootloader.name.attribute"/>
+        <optional>
+          <ref name="k.bootloader.bls.attribute"/>
+        </optional>
         <optional>
           <ref name="k.bootloader.console.attribute"/>
         </optional>

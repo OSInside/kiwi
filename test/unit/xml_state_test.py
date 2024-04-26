@@ -58,6 +58,7 @@ class TestXMLState:
         self.bootloader.get_timeout.return_value = 'some-timeout'
         self.bootloader.get_timeout_style.return_value = 'some-style'
         self.bootloader.get_targettype.return_value = 'some-target'
+        self.bootloader.get_bls.return_value = False
         self.bootloader.get_console.return_value = 'some-console'
         self.bootloader.get_serial_line.return_value = 'some-serial'
         self.bootloader.get_use_disk_password.return_value = True
@@ -1036,6 +1037,11 @@ class TestXMLState:
         assert self.state.get_build_type_bootloader_use_disk_password() is False
         mock_bootloader.return_value = [self.bootloader]
         assert self.state.get_build_type_bootloader_use_disk_password() is True
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_bls(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_bls() is False
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_console(self, mock_bootloader):

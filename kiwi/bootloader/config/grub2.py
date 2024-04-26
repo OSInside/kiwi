@@ -133,6 +133,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.timeout_style = \
             self.xml_state.get_build_type_bootloader_timeout_style()
         self.displayname = self.xml_state.xml_data.get_displayname()
+        self.bls = self.xml_state.get_build_type_bootloader_bls()
         self.serial_line_setup = \
             self.xml_state.get_build_type_bootloader_serial_line_setup()
         self.continue_on_timeout = self.get_continue_on_timeout()
@@ -794,7 +795,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self._get_grub2_mkconfig_tool()
             ], raise_on_error=False
         )
-        if enable_blscfg_implemented.returncode == 0:
+        if self.bls and enable_blscfg_implemented.returncode == 0:
             grub_default_entries['GRUB_ENABLE_BLSCFG'] = 'true'
 
         if grub_default_entries:
