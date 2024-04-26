@@ -45,9 +45,7 @@ class TestRepositoryDnf5:
                 'obsoletes': '1',
                 'plugins': '0',
                 'gpgcheck': '0'
-            }),
-            call('main', {'enabled': '0'}),
-            call('main', {'enabled': '0'})
+            })
         ]
 
     @patch('kiwi.repository.dnf5.Temporary.unmanaged_file')
@@ -74,9 +72,7 @@ class TestRepositoryDnf5:
         with patch('builtins.open', m_open, create=True):
             self.repo.post_init(['check_signatures'])
             assert m_open.call_args_list == [
-                call(mock_temp.return_value.name, 'w'),
-                call('/shared-dir/dnf/pluginconf/priorities.conf', 'w'),
-                call('/shared-dir/dnf/pluginconf/versionlock.conf', 'w'),
+                call(mock_temp.return_value.name, 'w')
             ]
         assert self.repo.custom_args == []
         assert self.repo.gpg_check == '1'
@@ -101,9 +97,7 @@ class TestRepositoryDnf5:
                 'obsoletes': '1',
                 'plugins': '0',
                 'gpgcheck': '0'
-            }),
-            call('main', {'enabled': '0'}),
-            call('main', {'enabled': '0'})
+            })
         ]
 
     def test_runtime_config(self):

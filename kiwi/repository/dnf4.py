@@ -100,14 +100,13 @@ class RepositoryDnf4(RepositoryBase):
         ).unmanaged_file()
 
         self.dnf_args = [
-            '--config', self.runtime_dnf_config_file.name, '-y'
+            '--config', self.runtime_dnf_config_file.name, '-y', '--enableplugin=priorities', '--disableplugin=versionlock'
         ] + self.custom_args
 
         self.command_env = self._create_dnf_runtime_environment()
 
         # config file parameters for dnf tool
         self._create_runtime_config_parser()
-        self._create_runtime_plugin_config_parsers()
         self._write_runtime_config()
 
     def setup_package_database_configuration(self) -> None:
@@ -173,7 +172,6 @@ class RepositoryDnf4(RepositoryBase):
         self.shared_dnf_dir['vars-dir'] = \
             self.root_dir + '/etc/dnf/vars'
         self._create_runtime_config_parser()
-        self._create_runtime_plugin_config_parsers()
         self._write_runtime_config()
 
     def runtime_config(self) -> Dict:
@@ -341,21 +339,9 @@ class RepositoryDnf4(RepositoryBase):
                 "ignorearch": "1",
             })
 
-    def _create_runtime_plugin_config_parsers(self) -> None:
-        self.runtime_dnf_plugin_configs = {
-            plugin: ConfigParser(interpolation=None) for plugin in ("priorities", "versionlock")
-        }
-        self.runtime_dnf_plugin_configs["priorities"]["main"] = {"enabled": "1"}
-        self.runtime_dnf_plugin_configs["versionlock"]["main"] = {"enabled": "0"}
-
     def _write_runtime_config(self) -> None:
         with open(self.runtime_dnf_config_file.name, 'w') as config:
             self.runtime_dnf_config.write(config)
-        if os.path.exists(self.shared_dnf_dir['pluginconf-dir']):
-            for plugin_name, plugin_config in self.runtime_dnf_plugin_configs.items():
-                path = f"{self.shared_dnf_dir['pluginconf-dir']}/{plugin_name}.conf"
-                with open(path, "w") as plugin_config_fobj:
-                    plugin_config.write(plugin_config_fobj)
 
     def cleanup(self) -> None:
         """
