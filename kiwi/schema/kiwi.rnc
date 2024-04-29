@@ -2057,10 +2057,10 @@ div {
         ]
     k.type.luks_randomize.attribute =
         ## By default, all blocks of a LUKS volume will be filled
-	## with pseudo-random data. If you're shipping an image with
-	## a well-known key, which is going to be re-encrypted at
-	## deployment time, you can decrease the size of the image
-	## by setting this attribute to false.
+        ## with pseudo-random data. If you're shipping an image with
+        ## a well-known key, which is going to be re-encrypted at
+        ## deployment time, you can decrease the size of the image
+        ## by setting this attribute to false.
         attribute luks_randomize { xsd:boolean }
         >> sch:pattern [ id = "luks_randomize" is-a = "image_type"
             sch:param [ name = "attr" value = "luksversion" ]

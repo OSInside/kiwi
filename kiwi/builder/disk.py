@@ -164,8 +164,8 @@ class DiskBuilder:
         self.root_filesystem_embed_integrity_metadata = \
             xml_state.build_type.get_embed_integrity_metadata()
         self.luks_format_options = xml_state.get_luks_format_options()
-        self.luks_randomize = \
-            xml_state.build_type.get_luks_randomize() or True
+        self.luks_randomize = xml_state.build_type.get_luks_randomize() \
+            if xml_state.build_type.get_luks_randomize() is not None else True
         self.luks_os = xml_state.build_type.get_luksOS()
         self.xen_server = xml_state.is_xen_server()
         self.requested_filesystem = xml_state.build_type.get_filesystem()
