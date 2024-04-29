@@ -30,7 +30,7 @@ function get_disk_list {
     local list_items
     local max_disk
     local kiwi_oem_maxdisk
-    local blk_opts="-p -n -r -o NAME,SIZE,TYPE"
+    local blk_opts="-p -n -r --sort NAME -o NAME,SIZE,TYPE"
     local message
     local blk_opts_plus_label="${blk_opts},LABEL"
     local kiwi_install_disk_part
