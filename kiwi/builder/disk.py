@@ -399,7 +399,7 @@ class DiskBuilder:
 
         # store image file name in result
         compression = self.runtime_config.get_bundle_compression(default=True)
-        if self.luks is not None:
+        if self.luks is not None and self.luks_randomize:
             compression = False
         self.result.add(
             key='disk_image',
