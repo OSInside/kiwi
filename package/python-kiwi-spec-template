@@ -630,6 +630,11 @@ Provides manual pages to describe the kiwi commands
 %prep
 %autosetup -n kiwi-%{version}
 
+# Temporarily revert grub-bls default to false for SUSE distributions
+%if 0%{?suse_version}
+patch -p1 < package/kiwi-revert-bls-default-for-suse.patch
+%endif
+
 # Temporarily switch things back to docopt for everything but Fedora 41+
 # FIXME: Drop this hack as soon as we can...
 %if ! (0%{?fedora} >= 41 || 0%{?rhel} >= 10)
