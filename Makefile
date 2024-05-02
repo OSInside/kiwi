@@ -112,6 +112,8 @@ build: clean tox
 		-e s"@%%MD5SUM@$${md5sums}@" > dist/PKGBUILD
 	# provide rpm rpmlintrc
 	cp package/python-kiwi-rpmlintrc dist
+	# provide patches
+	cp package/*.patch dist
 
 pypi: clean tox
 	poetry build --format=sdist
