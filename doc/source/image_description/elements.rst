@@ -1017,6 +1017,12 @@ name="grub2|systemd_boot|grub2_s390x_emu":
 In addition to the mandatory name attribute, the following optional
 attributes are supported:
 
+bls="true|false":
+  Specifies whether to use Bootloader Spec-style configuration if
+  `grub` in the image supports it. It is a no-op if the `blscfg`
+  module is not available. This option is only available for `grub`
+  and defaults to true if not set.
+
 console="none|console|gfxterm|serial":
   Specifies the bootloader console. The attribute is available for the
   `grub` bootloader type. The behavior for setting up

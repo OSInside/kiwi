@@ -1009,7 +1009,7 @@ class XMLState:
         bootloader = self.get_build_type_bootloader_section()
         if bootloader:
             return bootloader.get_bls()
-        return False
+        return True
 
     def get_build_type_bootloader_console(self) -> List[str]:
         """

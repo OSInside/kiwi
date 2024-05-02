@@ -1,0 +1,67 @@
+From b0d850842b0c8d4c98f0486f66ffd7c6e8f1a685 Mon Sep 17 00:00:00 2001
+From: Neal Gompa <ngompa@opensuse.org>
+Date: Thu, 2 May 2024 06:23:45 -0400
+Subject: [PATCH] Revert "kiwi/bootloader: restore backward compatibility for
+ grub2 with bls"
+
+For the time being, SUSE distributions cannot handle KIWI's default to use
+BLS with GRUB2. Until they catch up, revert this.
+
+This reverts commit 155d969d7752d92c90c69044bdd69be70f0a1c24.
+---
+ kiwi/xml_state.py                         | 2 +-
+ test/unit/bootloader/config/grub2_test.py | 4 ----
+ 2 files changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/kiwi/xml_state.py b/kiwi/xml_state.py
+index eb39163cd..8c3fd45f3 100644
+--- a/kiwi/xml_state.py
++++ b/kiwi/xml_state.py
+@@ -1009,7 +1009,7 @@ class XMLState:
+         bootloader = self.get_build_type_bootloader_section()
+         if bootloader:
+             return bootloader.get_bls()
+-        return True
++        return False
+ 
+     def get_build_type_bootloader_console(self) -> List[str]:
+         """
+diff --git a/test/unit/bootloader/config/grub2_test.py b/test/unit/bootloader/config/grub2_test.py
+index e9189a609..d81d76ec7 100644
+--- a/test/unit/bootloader/config/grub2_test.py
++++ b/test/unit/bootloader/config/grub2_test.py
+@@ -600,7 +600,6 @@ class TestBootLoaderConfigGrub2:
+             'GRUB_BACKGROUND': '/boot/grub2/themes/openSUSE/background.png',
+             'GRUB_CMDLINE_LINUX_DEFAULT': '"some-cmdline"',
+             'GRUB_DISTRIBUTOR': '"Bob"',
+-            'GRUB_ENABLE_BLSCFG': 'true',
+             'GRUB_ENABLE_CRYPTODISK': 'y',
+             'GRUB_GFXMODE': '800x600',
+             'GRUB_SERIAL_COMMAND': '"serial --speed=38400"',
+@@ -643,7 +642,6 @@ class TestBootLoaderConfigGrub2:
+             call('GRUB_CMDLINE_LINUX', '"root=LABEL=some-label"'),
+             call('GRUB_DISABLE_LINUX_UUID', 'true'),
+             call('GRUB_DISTRIBUTOR', '"Bob"'),
+-            call('GRUB_ENABLE_BLSCFG', 'true'),
+             call('GRUB_ENABLE_CRYPTODISK', 'y'),
+             call('GRUB_ENABLE_LINUX_LABEL', 'true'),
+             call('GRUB_GFXMODE', '800x600'),
+@@ -688,7 +686,6 @@ class TestBootLoaderConfigGrub2:
+             call('GRUB_DISABLE_LINUX_PARTUUID', 'false'),
+             call('GRUB_DISABLE_LINUX_UUID', 'true'),
+             call('GRUB_DISTRIBUTOR', '"Bob"'),
+-            call('GRUB_ENABLE_BLSCFG', 'true'),
+             call('GRUB_ENABLE_CRYPTODISK', 'y'),
+             call('GRUB_GFXMODE', '800x600'),
+             call(
+@@ -732,7 +729,6 @@ class TestBootLoaderConfigGrub2:
+             call('GRUB_CMDLINE_LINUX_DEFAULT', '"abcd console=tty0"'),
+             call('GRUB_DISABLE_LINUX_UUID', 'true'),
+             call('GRUB_DISTRIBUTOR', '"Bob"'),
+-            call('GRUB_ENABLE_BLSCFG', 'true'),
+             call('GRUB_ENABLE_CRYPTODISK', 'y'),
+             call('GRUB_ENABLE_LINUX_LABEL', 'true'),
+             call('GRUB_GFXMODE', '800x600'),
+-- 
+2.44.0
+
