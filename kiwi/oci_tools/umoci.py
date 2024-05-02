@@ -238,6 +238,11 @@ class OCIUmoci(OCIBase):
             for vol in oci_config['volumes']:
                 arguments.append('--config.volume={0}'.format(vol))
 
+        if 'stopsignal' in oci_config:
+            arguments.append(
+                '--config.stopsignal={0}'.format(oci_config['stopsignal'])
+            )
+
         if 'expose_ports' in oci_config:
             for port in oci_config['expose_ports']:
                 arguments.append('--config.exposedports={0}'.format(port))

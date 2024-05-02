@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.9 (main, Apr 08 2024, 06:18:15) [GCC]
+# Python 3.11.5 (main, Sep 06 2023, 11:21:05) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/aplanas/mnt/Documents/Work/kiwi/venv/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/Project/kiwi/.tox/unit_py3_11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -5754,7 +5754,7 @@ class containerconfig(GeneratedsSuper):
     useful container information."""
     subclass = None
     superclass = None
-    def __init__(self, name=None, tag=None, additionalnames=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, environment=None, labels=None, history=None):
+    def __init__(self, name=None, tag=None, additionalnames=None, maintainer=None, user=None, workingdir=None, entrypoint=None, subcommand=None, expose=None, volumes=None, stopsignal=None, environment=None, labels=None, history=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.tag = _cast(None, tag)
@@ -5778,6 +5778,10 @@ class containerconfig(GeneratedsSuper):
             self.volumes = []
         else:
             self.volumes = volumes
+        if stopsignal is None:
+            self.stopsignal = []
+        else:
+            self.stopsignal = stopsignal
         if environment is None:
             self.environment = []
         else:
@@ -5821,6 +5825,11 @@ class containerconfig(GeneratedsSuper):
     def add_volumes(self, value): self.volumes.append(value)
     def insert_volumes_at(self, index, value): self.volumes.insert(index, value)
     def replace_volumes_at(self, index, value): self.volumes[index] = value
+    def get_stopsignal(self): return self.stopsignal
+    def set_stopsignal(self, stopsignal): self.stopsignal = stopsignal
+    def add_stopsignal(self, value): self.stopsignal.append(value)
+    def insert_stopsignal_at(self, index, value): self.stopsignal.insert(index, value)
+    def replace_stopsignal_at(self, index, value): self.stopsignal[index] = value
     def get_environment(self): return self.environment
     def set_environment(self, environment): self.environment = environment
     def add_environment(self, value): self.environment.append(value)
@@ -5854,6 +5863,7 @@ class containerconfig(GeneratedsSuper):
             self.subcommand or
             self.expose or
             self.volumes or
+            self.stopsignal or
             self.environment or
             self.labels or
             self.history
@@ -5914,6 +5924,9 @@ class containerconfig(GeneratedsSuper):
             expose_.export(outfile, level, namespaceprefix_, name_='expose', pretty_print=pretty_print)
         for volumes_ in self.volumes:
             volumes_.export(outfile, level, namespaceprefix_, name_='volumes', pretty_print=pretty_print)
+        for stopsignal_ in self.stopsignal:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<stopsignal>%s</stopsignal>%s' % (self.gds_encode(self.gds_format_string(quote_xml(stopsignal_), input_name='stopsignal')), eol_))
         for environment_ in self.environment:
             environment_.export(outfile, level, namespaceprefix_, name_='environment', pretty_print=pretty_print)
         for labels_ in self.labels:
@@ -5973,6 +5986,10 @@ class containerconfig(GeneratedsSuper):
             obj_.build(child_)
             self.volumes.append(obj_)
             obj_.original_tagname_ = 'volumes'
+        elif nodeName_ == 'stopsignal':
+            stopsignal_ = child_.text
+            stopsignal_ = self.gds_validate_string(stopsignal_, node, 'stopsignal')
+            self.stopsignal.append(stopsignal_)
         elif nodeName_ == 'environment':
             obj_ = environment.factory()
             obj_.build(child_)

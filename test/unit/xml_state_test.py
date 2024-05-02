@@ -912,6 +912,7 @@ class TestXMLState:
             'volumes': ['/tmp', '/var/log'],
             'entry_command': ['/bin/bash', '-x'],
             'expose_ports': ['80', '8080'],
+            'stopsignal': 'SIGINT',
             'history': {
                 'author': 'history author',
                 'comment': 'This is a comment',
