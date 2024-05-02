@@ -287,22 +287,26 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                         self._enable_grub2_install(self.root_mount.mountpoint)
 
     def set_disk_password(self, password: str):
-        if self.root_mount and password is not None:
-            log.debug('Include cryptomount credentials...')
-            config_file = '{0}/boot/efi/EFI/BOOT/grub.cfg'.format(
-                self.root_mount.mountpoint
-            )
-            if os.path.isfile(config_file):
-                with open(config_file) as config:
-                    grub_config = config.read()
-                    grub_config = re.sub(
-                        r'cryptomount',
-                        f'cryptomount -p "{password}"',
-                        grub_config
+        with ExitStack() as stack:
+            self._mount_device_and_volumes(stack)
+            if self.root_mount and password is not None:
+                log.debug('Include cryptomount credentials...')
+                config_file = f'{self.root_mount.mountpoint}/boot/efi/EFI/BOOT/grub.cfg'
+                if os.path.isfile(config_file):
+                    with open(config_file) as config:
+                        grub_config = config.read()
+                        grub_config = re.sub(
+                            r'cryptomount',
+                            f'cryptomount -p "{password}"',
+                            grub_config
+                        )
+                    with open(config_file, 'w') as grub_config_file:
+                        grub_config_file.write(grub_config)
+                        log.debug(f'<<< {grub_config} >>>')
+                else:
+                    raise KiwiBootLoaderGrubInstallError(
+                        f'grub2 config file {config_file} missing'
                     )
-                with open(config_file, 'w') as grub_config_file:
-                    grub_config_file.write(grub_config)
-                    log.debug(f'<<< {grub_config} >>>')
 
     def _mount_device_and_volumes(self, stack: ExitStack):
         self.root_mount = MountManager(
