@@ -50,6 +50,11 @@ specified.
 * ``volumes``: Creates mountpoints with the given name and marks them to hold
   external volumes from the host or from other containers. Equivalent to
   one or more `VOLUME` directives in a :file:`Dockerfile`.
+* ``stopsignal``: The stopsignal element sets the system call signal that
+  will be sent to the container to exit. This signal can be a signal name
+  in the format SIG[NAME], for instance SIGKILL, or an unsigned number that
+  matches a position in the kernel's syscall table, for instance 9.
+  The default is SIGTERM if not defined
 
 Other :file:`Dockerfile` directives such as ``RUN``, ``COPY`` or ``ADD``,
 can be mapped to {kiwi} using the

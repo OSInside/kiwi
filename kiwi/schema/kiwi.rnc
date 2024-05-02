@@ -2925,6 +2925,7 @@ div {
             k.subcommand? &
             k.expose? &
             k.volumes? &
+            k.stopsignal? &
             k.environment? &
             k.labels? &
             k.history?
@@ -3042,6 +3043,24 @@ div {
         element volumes {
             k.volumes.attlist &
             k.volume+
+        }
+}
+
+#==========================================
+# main block: <stopsignal>
+#
+div {
+    k.stopsignal.attlist = empty
+    k.stopsignal =
+        ## The stopsignal element sets the system call signal that
+        ## will be sent to the container to exit. This signal can be a
+        ## signal name in the format SIG<NAME>, for instance SIGKILL,
+        ## or an unsigned number that matches a position in the kernel's
+        ## syscall table, for instance 9. The default is SIGTERM if not
+        ## defined.
+        element stopsignal {
+            k.stopsignal.attlist &
+            text
         }
 }
 

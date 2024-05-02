@@ -156,6 +156,7 @@
                     <volume name="/tmp"/>
                     <volume name="/var/log"/>
                 </volumes>
+                <stopsignal>SIGINT</stopsignal>
                 <environment>
                     <env name="PATH" value="/bin:/usr/bin:/home/user/bin"/>
                     <env name="SOMEVAR" value="somevalue"/>

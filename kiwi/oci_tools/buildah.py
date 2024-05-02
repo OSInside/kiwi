@@ -285,6 +285,11 @@ class OCIBuildah(OCIBase):
             for vol in oci_config['volumes']:
                 arguments.append('--volume={0}'.format(vol))
 
+        if 'stopsignal' in oci_config:
+            arguments.append(
+                '--stop-signal={0}'.format(oci_config['stopsignal'])
+            )
+
         if 'expose_ports' in oci_config:
             for port in oci_config['expose_ports']:
                 arguments.append('--port={0}'.format(port))

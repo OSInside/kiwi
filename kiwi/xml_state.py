@@ -1482,6 +1482,9 @@ class XMLState:
             self._match_docker_volumes()
         )
         container_config.update(
+            self._match_docker_stopsignal()
+        )
+        container_config.update(
             self._match_docker_environment()
         )
         container_config.update(
@@ -2720,6 +2723,15 @@ class XMLState:
                 for volume in volumes[0].get_volume():
                     container_volumes['volumes'].append(volume.get_name())
         return container_volumes
+
+    def _match_docker_stopsignal(self) -> dict:
+        container_config_section = self.get_build_type_containerconfig_section()
+        container_stopsignal = {}
+        if container_config_section:
+            stopsignal_section = container_config_section.get_stopsignal()
+            if stopsignal_section:
+                container_stopsignal['stopsignal'] = stopsignal_section[0]
+        return container_stopsignal
 
     def _match_docker_environment(self):
         container_config_section = self.get_build_type_containerconfig_section()

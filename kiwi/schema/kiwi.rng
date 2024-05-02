@@ -4371,6 +4371,9 @@ section provides globally useful container information.</a:documentation>
             <ref name="k.volumes"/>
           </optional>
           <optional>
+            <ref name="k.stopsignal"/>
+          </optional>
+          <optional>
             <ref name="k.environment"/>
           </optional>
           <optional>
@@ -4540,6 +4543,30 @@ At least one volume must be configured</a:documentation>
           <oneOrMore>
             <ref name="k.volume"/>
           </oneOrMore>
+        </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <stopsignal>
+    
+  -->
+  <div>
+    <define name="k.stopsignal.attlist">
+      <empty/>
+    </define>
+    <define name="k.stopsignal">
+      <element name="stopsignal">
+        <a:documentation>The stopsignal element sets the system call signal that
+will be sent to the container to exit. This signal can be a
+signal name in the format SIG&lt;NAME&gt;, for instance SIGKILL,
+or an unsigned number that matches a position in the kernel's
+syscall table, for instance 9. The default is SIGTERM if not
+defined.</a:documentation>
+        <interleave>
+          <ref name="k.stopsignal.attlist"/>
+          <text/>
         </interleave>
       </element>
     </define>

@@ -119,6 +119,7 @@ class TestOCIUmoci:
             'workingdir': '/root',
             'expose_ports': ['80', '42'],
             'volumes': ['/var/log', '/tmp'],
+            'stopsignal': 'SIGINT',
             'environment': {'FOO': 'bar', 'PATH': '/bin'},
             'labels': {'a': 'value', 'b': 'value'},
         }
@@ -129,6 +130,7 @@ class TestOCIUmoci:
                 '--config.workingdir=/root', '--config.entrypoint=/bin/bash',
                 '--config.entrypoint=-x', '--config.cmd=ls', '--config.cmd=-l',
                 '--config.volume=/var/log', '--config.volume=/tmp',
+                '--config.stopsignal=SIGINT',
                 '--config.exposedports=80', '--config.exposedports=42',
                 '--config.env=FOO=bar', '--config.env=PATH=/bin',
                 '--config.label=a=value', '--config.label=b=value',

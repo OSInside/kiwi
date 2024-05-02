@@ -111,6 +111,7 @@ class TestOCIBuildah:
             'workingdir': '/root',
             'expose_ports': ['80', '42'],
             'volumes': ['/var/log', '/tmp'],
+            'stopsignal': 'SIGINT',
             'environment': {'FOO': 'bar', 'PATH': '/bin'},
             'labels': {'a': 'value', 'b': 'value'},
             'history': {
@@ -127,7 +128,9 @@ class TestOCIBuildah:
                 'buildah', 'config', '--author=tux', '--user=root',
                 '--workingdir=/root', '--entrypoint=["/bin/bash","-x"]',
                 '--cmd=ls -l',
-                '--volume=/var/log', '--volume=/tmp', '--port=80', '--port=42',
+                '--volume=/var/log', '--volume=/tmp',
+                '--stop-signal=SIGINT',
+                '--port=80', '--port=42',
                 '--env=FOO=bar', '--env=PATH=/bin', '--label=a=value',
                 '--label=b=value', '--history-comment=This is a comment',
                 '--created-by=created by text', 'kiwi-working'
