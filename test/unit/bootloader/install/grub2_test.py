@@ -11,7 +11,8 @@ from kiwi.defaults import Defaults
 from kiwi.exceptions import (
     KiwiBootLoaderGrubInstallError,
     KiwiBootLoaderGrubDataError,
-    KiwiBootLoaderGrubPlatformError
+    KiwiBootLoaderGrubPlatformError,
+    KiwiBootLoaderDiskPasswordError
 )
 
 
@@ -448,8 +449,16 @@ class TestBootLoaderInstallGrub2:
             filename='shim-install', root_dir='tmp_root'
         )
 
-    @patch('os.path.isfile')
-    def test_set_disk_password(self, mock_os_path_is_file):
+    @patch('kiwi.bootloader.install.grub2.Command.run')
+    @patch('kiwi.bootloader.install.grub2.MountManager')
+    def test_set_disk_password(self, mock_mount_manager, mock_command):
+        self.boot_mount.device = self.root_mount.device
+
+        def side_effect(device, mountpoint=None):
+            return self.mount_managers.pop()
+
+        mock_mount_manager.side_effect = side_effect
+
         self.bootloader.root_mount = MagicMock()
         self.bootloader.root_mount.mountpoint = 'root_mountpoint'
         with patch('builtins.open', create=True) as mock_open:
@@ -460,3 +469,23 @@ class TestBootLoaderInstallGrub2:
             file_handle.write.assert_called_once_with(
                 'data__cryptomount -p "credentials"__data'
             )
+
+    @patch('kiwi.bootloader.install.grub2.Command.run')
+    @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.ExitStack')
+    def test_set_disk_password_failed_to_open_grub_config(
+        self, mock_ExitStack, mock_mount_manager, mock_command
+    ):
+        self.boot_mount.device = self.root_mount.device
+
+        def side_effect(device, mountpoint=None):
+            return self.mount_managers.pop()
+
+        mock_mount_manager.side_effect = side_effect
+        self.bootloader.root_mount = MagicMock()
+        self.bootloader.root_mount.mountpoint = 'root_mountpoint'
+
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.side_effect = IOError()
+            with raises(KiwiBootLoaderDiskPasswordError):
+                self.bootloader.set_disk_password('credentials')

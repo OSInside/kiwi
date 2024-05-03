@@ -847,3 +847,9 @@ class KiwiOffsetError(KiwiError):
     Exception raised if the offset for a seek operation does not
     match the expected data to write
     """
+
+
+class KiwiBootLoaderDiskPasswordError(KiwiError):
+    """
+    Exception raised if the disk password could not be set
+    """
