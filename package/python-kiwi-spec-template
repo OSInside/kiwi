@@ -76,7 +76,11 @@ BuildRequires:  python%{python3_pkgversion}-installer
 BuildRequires:  python%{python3_pkgversion}-poetry-core >= 1.2.0
 BuildRequires:  python%{python3_pkgversion}-wheel
 # doc build requirements
+%if ! (0%{?fedora} >= 41 || 0%{?rhel} >= 10)
 BuildRequires:  python%{python3_pkgversion}-docopt >= 0.6.2
+%else
+BuildRequires:  python%{python3_pkgversion}-docopt-ng
+%endif
 BuildRequires:  python%{python3_pkgversion}-lxml
 BuildRequires:  python%{python3_pkgversion}-requests
 BuildRequires:  python%{python3_pkgversion}-setuptools
@@ -396,7 +400,11 @@ Requires:       python%{python3_pkgversion}-yaml
 Requires:       python%{python3_pkgversion}-PyYAML
 %endif
 Requires:       python%{python3_pkgversion}-simplejson
+%if ! (0%{?fedora} >= 41 || 0%{?rhel} >= 10)
 Requires:       python%{python3_pkgversion}-docopt
+%else
+Requires:       python%{python3_pkgversion}-docopt-ng
+%endif
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-setuptools
