@@ -35,7 +35,7 @@ class TestRepositoryDnf5:
 
         assert runtime_dnf_config.__setitem__.call_args_list == [
             call('main', {
-                'cachedir': '/shared-dir/dnf/cache',
+                'system_cachedir': '/shared-dir/dnf/cache',
                 'reposdir': '/shared-dir/dnf/repos',
                 'varsdir': '/shared-dir/dnf/vars',
                 'pluginconfpath': '/shared-dir/dnf/pluginconf',
@@ -87,10 +87,10 @@ class TestRepositoryDnf5:
 
         assert runtime_dnf_config.__setitem__.call_args_list == [
             call('main', {
-                'cachedir': '../data/var/cache/dnf',
+                'system_cachedir': '../data/var/cache/libdnf5',
                 'reposdir': '../data/etc/yum.repos.d',
                 'varsdir': '../data/etc/dnf/vars',
-                'pluginconfpath': '../data/etc/dnf/plugins',
+                'pluginconfpath': '../data/etc/dnf/libdnf5-plugins',
                 'keepcache': '1',
                 'debuglevel': '2',
                 'best': '1',

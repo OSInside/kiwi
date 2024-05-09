@@ -166,9 +166,9 @@ class RepositoryDnf5(RepositoryBase):
         self.shared_dnf_dir['reposd-dir'] = \
             self.root_dir + '/etc/yum.repos.d'
         self.shared_dnf_dir['cache-dir'] = \
-            self.root_dir + '/var/cache/dnf'
+            self.root_dir + '/var/cache/libdnf5'
         self.shared_dnf_dir['pluginconf-dir'] = \
-            self.root_dir + '/etc/dnf/plugins'
+            self.root_dir + '/etc/dnf/libdnf5-plugins'
         self.shared_dnf_dir['vars-dir'] = \
             self.root_dir + '/etc/dnf/vars'
         self._create_runtime_config_parser()
@@ -320,7 +320,7 @@ class RepositoryDnf5(RepositoryBase):
     def _create_runtime_config_parser(self) -> None:
         self.runtime_dnf_config = ConfigParser(interpolation=None)
         self.runtime_dnf_config["main"] = {
-            "cachedir": self.shared_dnf_dir['cache-dir'],
+            "system_cachedir": self.shared_dnf_dir['cache-dir'],
             "reposdir": self.shared_dnf_dir['reposd-dir'],
             "varsdir": self.shared_dnf_dir['vars-dir'],
             "pluginconfpath": self.shared_dnf_dir['pluginconf-dir'],
