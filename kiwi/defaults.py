@@ -18,12 +18,13 @@
 import logging
 import os
 import glob
+import importlib
+from importlib.resources import as_file
 from importlib.util import find_spec
 from importlib.machinery import ModuleSpec
 from collections import namedtuple
 import platform
 import yaml
-from pkg_resources import resource_filename
 from typing import (
     List, NamedTuple, Optional, Dict
 )
@@ -1682,11 +1683,22 @@ class Defaults:
         return Defaults.project_file('xsl/master.xsl')
 
     @staticmethod
+    def get_schematron_module_name():
+        """
+        Provides module name for XML SchemaTron validations
+
+        :return: python module name
+
+        :rtype: str
+        """
+        return 'lxml.isoschematron'
+
+    @staticmethod
     def project_file(filename):
         """
         Provides the python module base directory search path
 
-        The method uses the resource_filename method to identify
+        The method uses the importlib.resources.path method to identify
         files and directories from the application
 
         :param string filename: relative project file
@@ -1695,7 +1707,8 @@ class Defaults:
 
         :rtype: str
         """
-        return resource_filename('kiwi', filename)
+        with as_file(importlib.resources.files('kiwi')) as path:
+            return f'{path}/{filename}'
 
     @staticmethod
     def get_imported_root_image(root_dir):

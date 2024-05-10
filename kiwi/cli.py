@@ -119,7 +119,7 @@ global options for services: image, system
 import logging
 import sys
 import os
-import pkg_resources
+from importlib.metadata import entry_points
 from docopt import docopt
 
 # project
@@ -252,10 +252,16 @@ class Cli:
 
         :rtype: object
         """
-        discovered_tasks = {
-            entry_point.name: entry_point.load()
-            for entry_point in pkg_resources.iter_entry_points('kiwi.tasks')
-        }
+        discovered_tasks = {}
+        if sys.version_info >= (3, 12):
+            for entry in list(entry_points()):  # pragma: no cover
+                if entry.group == 'kiwi.tasks':
+                    discovered_tasks[entry.name] = entry.load()
+        else:  # pragma: no cover
+            module_entries = dict.get(entry_points(), 'kiwi.tasks')
+            for entry in module_entries:
+                discovered_tasks[entry.name] = entry.load()
+
         service = self.get_servicename()
         command = self.get_command()
 
