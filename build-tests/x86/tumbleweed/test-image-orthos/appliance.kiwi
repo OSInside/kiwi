@@ -31,6 +31,7 @@
     </repository>
     <packages type="image" patternType="plusRecommended">
         <package name="patterns-openSUSE-base"/>
+        <package name="procps"/>
         <package name="filesystem"/>
         <package name="kernel-default"/>
         <package name="iputils"/>

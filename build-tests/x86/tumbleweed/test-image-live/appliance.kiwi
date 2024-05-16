@@ -60,6 +60,7 @@
     <packages type="image">
         <package name="bind-utils"/>
         <package name="patterns-openSUSE-base"/>
+        <package name="procps"/>
         <package name="systemd"/>
         <package name="plymouth-theme-breeze"/>
         <package name="plymouth-plugin-script"/>

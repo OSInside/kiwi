@@ -32,6 +32,7 @@
     </repository>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>
+        <package name="procps"/>
         <package name="bind-utils"/>
         <package name="systemd"/>
         <package name="plymouth-theme-breeze"/>
