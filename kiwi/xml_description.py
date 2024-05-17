@@ -83,7 +83,9 @@ class XMLDescription:
         isoschematron = None
         schematron = None
         try:
-            isoschematron = importlib.import_module('lxml.isoschematron')
+            isoschematron = importlib.import_module(
+                Defaults.get_schematron_module_name()
+            )
         except Exception as error:
             log.warning(f"schematron validation skipped: {error}")
         try:

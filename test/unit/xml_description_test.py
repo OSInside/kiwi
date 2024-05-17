@@ -172,11 +172,11 @@ class TestSchema:
         with raises(KiwiSchemaImportError):
             self.description_from_file.load()
 
-    @patch('importlib.import_module')
+    @patch('kiwi.xml_description.Defaults.get_schematron_module_name')
     def test_load_schema_from_xml_content_skipping_isoschematron(
-        self, mock_import_module
+        self, mock_get_schematron_module_name
     ):
-        mock_import_module.side_effect = Exception
+        mock_get_schematron_module_name.return_value = 'bogus'
         with self._caplog.at_level(logging.WARNING):
             self.description_from_data.load()
             assert 'schematron validation skipped:' in self._caplog.text
