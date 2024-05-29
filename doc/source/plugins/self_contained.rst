@@ -64,13 +64,13 @@ Building an image with the `boxbuild` command is similar to building with
 the `build` command. The plugin validates the given command call with the
 capabilities of the `build` command. Thus one part of the `boxbuild` command
 is exactly the same as with the `build` command. The separation between
-`boxbuild` and `build` options is done using the `--` separator like
-shown in the following example:
+`boxbuild` and `build` options is done using the `--` separator. The following
+example shows how to build one of {kiwi}'s integration test image:
 
 .. code:: bash
 
-   $ kiwi-ng --type iso system boxbuild --box leap -- \
-         --description kiwi/build-tests/{exc_description_disk} \
+   $ kiwi-ng --type oem system boxbuild --box leap -- \
+         --description KIWI_GIT_CHECKOUT/build-tests/{exc_description_disk} \
          --set-repo {exc_repo_leap} \
          --target-dir /tmp/myimage
 
