@@ -23,6 +23,7 @@ from typing import (
 
 # project
 from kiwi.command import Command
+from kiwi.defaults import Defaults
 
 from kiwi.exceptions import KiwiKernelLookupError
 
@@ -90,6 +91,28 @@ class Kernel:
                             filename=kernel_file,
                             version=version
                         )
+
+        if Defaults.is_ostree(self.root_dir):
+            boot_ostree_dir = os.sep.join([self.root_dir, 'boot/ostree'])
+            kernel_ostree_pattern = '.*/boot/ostree/.*/vmlinuz-(.*)'
+            if os.path.isdir(boot_ostree_dir):
+                for deployment in sorted(os.listdir(boot_ostree_dir)):
+                    deployment_dir = os.sep.join([self.root_dir, 'boot/ostree', deployment])
+                    if os.path.isdir(deployment_dir):
+                        files = sorted(os.listdir(deployment_dir))
+                        for f in files:
+                            kernel_file = os.sep.join([self.root_dir, 'boot/ostree', deployment, f])
+                            version_match = re.match(kernel_ostree_pattern, kernel_file)
+                            if version_match:
+                                version = version_match.group(1)
+                                return kernel_type(
+                                    name=os.path.basename(
+                                        os.path.realpath(kernel_file)
+                                    ),
+                                    filename=kernel_file,
+                                    version=version
+                                )
+
         if raise_on_not_found:
             raise KiwiKernelLookupError(
                 'No kernel found in {0}, searched for {1}'.format(
