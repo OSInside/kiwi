@@ -55,13 +55,11 @@ License:        GPL-3.0-or-later
 Packager:       Marcus Schaefer <marcus.schaefer@suse.com>
 %endif
 Group:          %{pygroup}
-Source:         %{name}.tar.gz
+Source0:        %{name}.tar.gz
 Source1:        %{name}-rpmlintrc
-# PATCH-FIX-OPENSUSE kiwi-revert-bls-default-for-suse.patch
-# Temporarily revert grub-bls default to false for SUSE distributions
-%if 0%{?suse_version}
-Patch:          kiwi-revert-bls-default-for-suse.patch
-%endif
+# SUSE-specific patches (1001+)
+## PATCH-FIX-OPENSUSE kiwi-revert-bls-default-for-suse.patch -- temporary until opensuse has bls
+Patch1001:      kiwi-revert-bls-default-for-suse.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  fdupes
@@ -641,7 +639,12 @@ Group:          %{sysgroup}
 Provides manual pages to describe the kiwi commands
 
 %prep
-%autosetup -p1 -n kiwi-%{version}
+%setup -q -n kiwi-%{version}
+
+%if 0%{?suse_version}
+# Temporarily revert grub-bls default to false for SUSE distributions
+%patch -P 1001 -p1
+%endif
 
 # Temporarily switch things back to docopt for everything but Fedora 41+
 # FIXME: Drop this hack as soon as we can...
