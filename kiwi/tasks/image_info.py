@@ -19,6 +19,7 @@
 usage: kiwi-ng image info -h | --help
        kiwi-ng image info --description=<directory>
            [--resolve-package-list]
+           [--list-profiles]
            [--ignore-repos]
            [--add-repo=<source,type,alias,priority>...]
            [--print-xml|--print-yaml|--print-toml]
@@ -40,6 +41,8 @@ options:
         solve package dependencies and return a list of all
         packages including their attributes e.g size,
         shasum, etc...
+    --list-profiles
+        list profiles available for the selected/default type
     --print-xml|--print-yaml|--print-toml
         print image description in specified format
 """
@@ -92,6 +95,12 @@ class ImageInfoTask(CliTask):
         result = {
             'image': self.xml_state.xml_data.get_name()
         }
+
+        if self.command_args['--list-profiles']:
+            result['profile_names'] = []
+            for profiles_section in self.xml_state.xml_data.get_profiles():
+                for profile in profiles_section.get_profile():
+                    result['profile_names'].append(profile.get_name())
 
         if self.command_args['--resolve-package-list']:
             solver = self._setup_solver()

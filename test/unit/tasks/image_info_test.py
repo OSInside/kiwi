@@ -92,6 +92,7 @@ class TestImageInfoTask:
         self.task.command_args['--add-repo'] = []
         self.task.command_args['--ignore-repos'] = False
         self.task.command_args['--resolve-package-list'] = False
+        self.task.command_args['--list-profiles'] = False
         self.task.command_args['--print-xml'] = False
         self.task.command_args['--print-yaml'] = False
         self.task.command_args['--print-toml'] = False
@@ -114,6 +115,17 @@ class TestImageInfoTask:
         self.task.process()
         mock_out.assert_called_once_with(
             {'image': 'LimeJeOS'}, style='color'
+        )
+
+    @patch('kiwi.tasks.image_info.DataOutput')
+    def test_process_image_info_list_profiles(self, mock_out):
+        self._init_command_args()
+        self.task.command_args['info'] = True
+        self.task.command_args['--list-profiles'] = True
+        self.task.process()
+        self.runtime_checker.check_repositories_configured.assert_called_once_with()
+        mock_out.assert_called_once_with(
+            {'image': 'LimeJeOS', 'profile_names': ['some']}
         )
 
     @patch('kiwi.tasks.image_info.DataOutput')
