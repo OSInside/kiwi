@@ -19,6 +19,7 @@ import os
 import logging
 from typing import Dict
 import shutil
+import re
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -172,41 +173,58 @@ class LiveImageBuilder:
                 working_directory=self.root_dir
             )
 
-            # prepare dracut initrd call
-            self.boot_image.prepare()
+            if not Defaults.is_ostree(self.root_dir):
+                # prepare dracut initrd call
+                self.boot_image.prepare()
 
-            # create dracut initrd for live image
-            log.info('Creating live ISO boot image')
-            live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
-                self.live_type
-            )
-            live_dracut_modules.append('pollcdrom')
-            for dracut_module in live_dracut_modules:
-                self.boot_image.include_module(dracut_module)
-            self.boot_image.omit_module('multipath')
-            self.boot_image.write_system_config_file(
-                config={
-                    'modules': live_dracut_modules,
-                    'omit_modules': ['multipath']
-                },
-                config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
-            )
-            self.boot_image.create_initrd(self.mbrid)
-            # Clean up leftover dracut config file (which can break installs)
-            os.unlink(self.root_dir + '/etc/dracut.conf.d/02-livecd.conf')
-            if self.bootloader == 'systemd_boot':
-                # make sure the initrd name follows the dracut
-                # naming conventions
-                boot_names = self.boot_image.get_boot_names()
-                if self.boot_image.initrd_filename:
-                    Command.run(
-                        [
-                            'mv', self.boot_image.initrd_filename,
-                            self.root_dir + ''.join(
-                                ['/boot/', boot_names.initrd_name]
-                            )
-                        ]
-                    )
+                # create dracut initrd for live image
+                log.info('Creating live ISO boot image')
+                live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
+                    self.live_type
+                )
+                live_dracut_modules.append('pollcdrom')
+                for dracut_module in live_dracut_modules:
+                    self.boot_image.include_module(dracut_module)
+                self.boot_image.omit_module('multipath')
+                self.boot_image.write_system_config_file(
+                    config={
+                        'modules': live_dracut_modules,
+                        'omit_modules': ['multipath']
+                    },
+                    config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
+                )
+                self.boot_image.create_initrd(self.mbrid)
+                # Clean up leftover dracut config file (which can break installs)
+                os.unlink(self.root_dir + '/etc/dracut.conf.d/02-livecd.conf')
+                if self.bootloader == 'systemd_boot':
+                    # make sure the initrd name follows the dracut
+                    # naming conventions
+                    boot_names = self.boot_image.get_boot_names()
+                    if self.boot_image.initrd_filename:
+                        Command.run(
+                            [
+                                'mv', self.boot_image.initrd_filename,
+                                self.root_dir + ''.join(
+                                    ['/boot/', boot_names.initrd_name]
+                                )
+                            ]
+                        )
+            else:
+                # find the existing initrd in the ostree case
+                boot_ostree_dir = os.sep.join([self.root_dir, 'boot/ostree'])
+                initramfs_ostree_pattern = '.*/boot/ostree/.*/initramfs-(.*)'
+                if os.path.isdir(boot_ostree_dir):
+                    for deployment in sorted(os.listdir(boot_ostree_dir)):
+                        deployment_dir = os.sep.join([self.root_dir, 'boot/ostree', deployment])
+                        if os.path.isdir(deployment_dir):
+                            files = sorted(os.listdir(deployment_dir))
+                            for f in files:
+                                initramfs_file = os.sep.join([self.root_dir, 'boot/ostree', deployment, f])
+                                version_match = re.match(initramfs_ostree_pattern, initramfs_file)
+                                if version_match:
+                                    initrd_dest = os.sep.join([self.root_dir, 'boot/initramfs'])
+                                    Command.run(['cp', initramfs_file, initrd_dest])
+                                    self.boot_image.initrd_filename = initrd_dest
 
             # create EFI FAT image
             if self.firmware.efi_mode():
