@@ -13,6 +13,7 @@ SYNOPSIS
    kiwi-ng image info -h | --help
    kiwi-ng image info --description=<directory>
        [--resolve-package-list]
+       [--list-profiles]
        [--ignore-repos]
        [--add-repo=<source,type,alias,priority>...]
        [--print-xml|--print-yaml]
@@ -51,6 +52,17 @@ OPTIONS
   option. Otherwise there are no repositories available for the
   processing the requested image information, which could lead
   to an error.
+
+--list-profiles
+
+  list profiles available for the selected/default type.
+
+  NOTE:
+  If the image description is designed in a way that there
+  is no default build type configured and/or the main build
+  type is also profiled, it's required to provide this
+  information to kiwi to list further profiles for this type.
+  For example: kiwi-ng --profile top_level_entry_profile image info ...
 
 --resolve-package-list
 

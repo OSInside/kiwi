@@ -19,6 +19,9 @@
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
+    <profiles>
+        <profile name="some" description="text"/>
+    </profiles>
     <preferences>
         <type image="iso" mediacheck="true"/>
     </preferences>
