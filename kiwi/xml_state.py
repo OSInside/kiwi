@@ -407,6 +407,22 @@ class XMLState:
         """
         return self._section_matches_host_architecture(preferences)
 
+    def repository_matches_host_architecture(self, repository: Any) -> bool:
+        """
+        Tests if the given repository section is applicable for the
+        current host architecture. If no architecture is specified within
+        the section it is considered as a match returning True.
+
+        Note: The XML section pointer must provide an arch attribute
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return self._section_matches_host_architecture(repository)
+
     def get_package_sections(
         self, packages_sections: List
     ) -> List[package_type]:
@@ -1897,15 +1913,18 @@ class XMLState:
 
     def get_repository_sections(self) -> List:
         """
-        List of all repository sections matching configured profiles
+        List of all repository sections for the selected profiles that
+        matches the host architecture
 
         :return: <repository> section reference(s)
 
         :rtype: list
         """
-        return self._profiled(
-            self.xml_data.get_repository()
-        )
+        repository_list = []
+        for repository in self._profiled(self.xml_data.get_repository()):
+            if self.repository_matches_host_architecture(repository):
+                repository_list.append(repository)
+        return repository_list
 
     def get_repository_sections_used_for_build(self) -> List:
         """

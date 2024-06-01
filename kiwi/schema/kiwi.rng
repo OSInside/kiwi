@@ -1589,6 +1589,9 @@ definition can be composed by other existing profiles.</a:documentation>
     <define name="k.repository.profiles.attribute">
       <ref name="k.profiles.attribute"/>
     </define>
+    <define name="k.repository.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.repository.type.attribute">
       <attribute name="type">
         <a:documentation>Type of repository</a:documentation>
@@ -1724,6 +1727,9 @@ last one is picked.</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.profiles.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repository.arch.attribute"/>
         </optional>
         <optional>
           <ref name="k.repository.alias.attribute"/>

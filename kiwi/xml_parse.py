@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.5 (main, Sep 06 2023, 11:21:05) [GCC]
+# Python 3.11.8 (main, Feb 29 2024, 12:19:47) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -2412,11 +2412,12 @@ class repository(k_source):
     """The Name of the Repository"""
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, customize=None, package_gpgcheck=None, priority=None, password=None, username=None, use_for_bootstrap=None):
+    def __init__(self, source=None, type_=None, profiles=None, arch=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, customize=None, package_gpgcheck=None, priority=None, password=None, username=None, use_for_bootstrap=None):
         self.original_tagname_ = None
         super(repository, self).__init__(source, )
         self.type_ = _cast(None, type_)
         self.profiles = _cast(None, profiles)
+        self.arch = _cast(None, arch)
         self.alias = _cast(None, alias)
         self.sourcetype = _cast(None, sourcetype)
         self.components = _cast(None, components)
@@ -2445,6 +2446,8 @@ class repository(k_source):
     def set_type(self, type_): self.type_ = type_
     def get_profiles(self): return self.profiles
     def set_profiles(self, profiles): self.profiles = profiles
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
     def get_alias(self): return self.alias
     def set_alias(self, alias): self.alias = alias
     def get_sourcetype(self): return self.sourcetype
@@ -2471,6 +2474,13 @@ class repository(k_source):
     def set_username(self, username): self.username = username
     def get_use_for_bootstrap(self): return self.use_for_bootstrap
     def set_use_for_bootstrap(self, use_for_bootstrap): self.use_for_bootstrap = use_for_bootstrap
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
     def validate_safe_posix_name(self, value):
         # Validate type safe-posix-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -2514,6 +2524,9 @@ class repository(k_source):
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
         if self.alias is not None and 'alias' not in already_processed:
             already_processed.add('alias')
             outfile.write(' alias=%s' % (quote_attrib(self.alias), ))
@@ -2572,6 +2585,12 @@ class repository(k_source):
         if value is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             self.profiles = value
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
         value = find_attr_value_('alias', node)
         if value is not None and 'alias' not in already_processed:
             already_processed.add('alias')

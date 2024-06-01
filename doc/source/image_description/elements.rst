@@ -1208,7 +1208,7 @@ Setup software sources for the image.
 
 .. code:: xml
 
-   <repository>
+   <repository arch="arch">
      <source path="uri"/>
    </repository>
 
