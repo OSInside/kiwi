@@ -1051,6 +1051,7 @@ div {
         ]
     ]
     k.repository.profiles.attribute = k.profiles.attribute
+    k.repository.arch.attribute = k.arch.attribute
     k.repository.type.attribute =
         ## Type of repository
         attribute type {
@@ -1143,6 +1144,7 @@ div {
     k.repository.attlist =
         k.repository.type.attribute? &
         k.repository.profiles.attribute? &
+        k.repository.arch.attribute? &
         k.repository.alias.attribute? &
         k.repository.sourcetype.attribute? &
         k.repository.components.attribute? &
