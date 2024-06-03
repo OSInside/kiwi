@@ -89,6 +89,19 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         """
         pass
 
+    def write_meta_data(
+        self, root_device=None, write_device=None, boot_options=''
+    ):
+        """
+        For bootloaders following the bootloader spec take over
+        the cmdline options and store them for later use
+
+        :param string root_device: unused
+        :param string write_device: unused
+        :param string boot_options: kernel options as string
+        """
+        self.cmdline = f'{self.cmdline} {boot_options}'.strip()
+
     def setup_disk_image_config(
         self, boot_uuid: str = '', root_uuid: str = '', hypervisor: str = '',
         kernel: str = '', initrd: str = '', boot_options: Dict = {}
@@ -111,7 +124,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         self.custom_args['kernel'] = kernel
         self.custom_args['initrd'] = initrd
         self.custom_args['boot_options'] = boot_options
-        self.cmdline = ' '.join(
+        plus_cmdline = ' '.join(
             [
                 self.get_boot_cmdline(
                     boot_options.get('root_device'),
@@ -119,6 +132,7 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
                 )
             ]
         )
+        self.cmdline = f'{self.cmdline} {plus_cmdline}'.strip()
         self.setup_loader(self.target.disk)
 
     def setup_install_image_config(
