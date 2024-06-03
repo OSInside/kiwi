@@ -50,6 +50,7 @@ class BootLoaderConfigBase(ABC):
         self.bootloader = xml_state.get_build_type_bootloader_name()
         self.arch = Defaults.get_platform_name()
 
+        self.system_is_mounted = False
         self.volumes_mount = []
         self.root_mount = None
         self.boot_mount = None
@@ -578,6 +579,27 @@ class BootLoaderConfigBase(ABC):
         self.device_mount.bind_mount()
         self.proc_mount.bind_mount()
         self.sys_mount.bind_mount()
+        self.system_is_mounted = True
+
+    def _umount_system(self):
+        if self.system_is_mounted:
+            for volume_mount in reversed(self.volumes_mount):
+                volume_mount.umount()
+            if self.device_mount:
+                self.device_mount.umount()
+            if self.proc_mount:
+                self.proc_mount.umount()
+            if self.sys_mount:
+                self.sys_mount.umount()
+            if self.efi_mount:
+                self.efi_mount.umount()
+            if self.tmp_mount:
+                self.tmp_mount.umount()
+            if self.boot_mount:
+                self.boot_mount.umount()
+            if self.root_mount:
+                self.root_mount.umount()
+            self.system_is_mounted = False
 
     def _get_root_cmdline_parameter(self, boot_device):
         """
@@ -662,19 +684,4 @@ class BootLoaderConfigBase(ABC):
         }
 
     def __exit__(self, exc_type, exc_value, traceback):
-        for volume_mount in reversed(self.volumes_mount):
-            volume_mount.umount()
-        if self.device_mount:
-            self.device_mount.umount()
-        if self.proc_mount:
-            self.proc_mount.umount()
-        if self.sys_mount:
-            self.sys_mount.umount()
-        if self.efi_mount:
-            self.efi_mount.umount()
-        if self.tmp_mount:
-            self.tmp_mount.umount()
-        if self.boot_mount:
-            self.boot_mount.umount()
-        if self.root_mount:
-            self.root_mount.umount()
+        self._umount_system()
