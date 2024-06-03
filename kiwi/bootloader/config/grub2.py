@@ -322,6 +322,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._copy_grub_config_to_efi_path(
                 self.efi_mount.mountpoint, self.early_boot_script_efi
             )
+        self._umount_system()
 
     def setup_install_image_config(
         self, mbrid, hypervisor='xen.gz', kernel='linux', initrd='initrd'
