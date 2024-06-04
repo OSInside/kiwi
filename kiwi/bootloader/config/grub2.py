@@ -423,6 +423,24 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             has_graphics = True
         if 'serial' in self.terminal_output or 'serial' in self.terminal_input:
             has_serial = True
+
+        # Find the ostree=... parameter from the BLS config and add it to the boot options
+        if not Defaults.is_ostree(self.root_dir):
+            loader_entries_pattern = os.sep.join(
+                [
+                    self.root_mount.mountpoint,
+                    'boot', 'loader', 'entries', '*.conf'
+                ]
+            )
+            ostree_options_pattern = r'options (ostree=.*)'
+            for menu_entry_file in glob.iglob(loader_entries_pattern):
+                with open(menu_entry_file) as grub_menu_entry_file:
+                    for line in grub_menu_entry_file:
+                        options_match = re.match(ostree_options_pattern, line)
+                        if options_match:
+                            self.live_boot_options += options_match.group(1)
+                            break
+
         parameters = {
             'search_params': '--file --set=root /boot/' + mbrid.get_id(),
             'default_boot': '0',
