@@ -3,7 +3,7 @@
 Adding Users
 ============
 
-User accounts can be added or modified via the `users` element, which
+User accounts can be added or modified via the `users` element that
 supports a list of multiple `user` child elements:
 
 .. code:: xml
@@ -22,15 +22,15 @@ supports a list of multiple `user` child elements:
        </users>
    </image>
 
-Each `user` element represents a specific user that is added or
-modified. The following attributes are mandatory:
+Each `user` element represents a specific added or modified user.
+The following attributes are mandatory:
 
 - `name`: the UNIX username
 
-- `password`: The password for this user account. It can be provided either
-  in cleartext form (`pwdformat="plain"`) or in `crypt`'ed form
-  (`pwdformat="encrypted"`). Plain passwords are discouraged, as everyone
-  with access to the image description would know the password. It is
+- `password`: The password for the user account. It can be provided either
+  in clear-text form (`pwdformat="plain"`) or in encrypted form
+  (`pwdformat="encrypted"`). Using lain passwords is not advisable, as anyone
+  with access to the image description can see the password. It is
   recommended to generate a hash of your password using `openssl` as
   follows:
 
@@ -42,12 +42,12 @@ Additionally, the following optional attributes can be specified:
 
 - `home`: the path to the user's home directory
 
-- `groups`: A comma separated list of UNIX groups. The first element of the
+- `groups`: A comma-separated list of UNIX groups. The first element of the
   list is used as the user's primary group. The remaining elements are
-  appended to the user's supplementary groups. When no groups are assigned
-  then the system's default primary group will be used.
+  appended to the user's supplementary groups. When no groups are assigned,
+  the system's default primary group is be used.
 
-- `id`: The numeric user id of this account.
+- `id`: The numeric user ID of the account.
 
 - `pwdformat`: The format in which `password` is provided, either `plain`
   or `encrypted` (the latter is the default).
