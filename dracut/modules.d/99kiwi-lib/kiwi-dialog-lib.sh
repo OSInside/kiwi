@@ -116,12 +116,7 @@ function _fbiterm_ok {
         # no framebuffer terminal program found
         return 1
     fi
-    if command -v isconsole &>/dev/null;then
-        if ! isconsole;then
-            # inappropriate ioctl (not a linux console)
-            return 1
-        fi
-    elif ! fbiterm echo &>/dev/null;then
+    if ! fbiterm echo &>/dev/null;then
         # fbiterm can't be called with echo test cmd
         return 1
     fi
