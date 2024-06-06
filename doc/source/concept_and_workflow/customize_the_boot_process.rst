@@ -268,6 +268,12 @@ the available kernel boot parameters for this modules:
   Tells a live ISO image the name of the squashfs
   image file which holds the OS root. Defaults to `squashfs.img`.
 
+``rd.kiwi.allow_plymouth``
+  By default kiwi stops plymouth if present and active in the
+  initrd. Setting rd.kiwi.allow_plymouth will keep plymouth
+  active in the initrd including all effects that might have
+  to the available consoles.
+
 Boot Debugging
 ''''''''''''''
 

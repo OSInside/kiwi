@@ -58,8 +58,10 @@ function get_dialog_result {
 }
 
 function stop_plymouth {
-    if command -v plymouth &>/dev/null;then
-        plymouth --quit --wait
+    if ! getargbool 0 rd.kiwi.allow_plymouth; then
+        if command -v plymouth &>/dev/null;then
+            plymouth --quit --wait
+        fi
     fi
 }
 
