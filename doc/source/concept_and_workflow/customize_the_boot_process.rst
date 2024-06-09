@@ -4,22 +4,22 @@ Customizing the Boot Process
 ----------------------------
 
 Most Linux systems use a special boot image to control the system boot process
-after the system firmware, BIOS or UEFI, hands control of the hardware to the
-operating system. This boot image is called the :file:`initrd`. The Linux kernel
-loads the :file:`initrd`, a compressed cpio initial RAM disk, into the RAM and
+after BIOS or UEFI hands over control of the hardware to the operating system.
+This boot image is a compressed cpio initial RAM disk, and it's called the
+:file:`initrd`. The Linux kernel loads the :file:`initrd` into the RAM and
 executes :command:`init` or, if present, :command:`linuxrc`.
 
 Depending on the image type, {kiwi} creates the boot image automatically during
-the ``create`` step. It uses a tool called `dracut` to create this initrd.
-Dracut generated initrd archives can be extended by custom modules to add
-functionality which is not natively provided by dracut itself. In the scope
-of {kiwi} the following dracut modules are used:
+the ``create`` step. To create the :file:`initrd`, {kiwi} uses a tool called
+`dracut`. dracut-generated initrd archives can be extended with custom modules to
+add functionality which is not natively provided by dracut itself. In the scope
+of {kiwi}, the following dracut modules are used:
 
 ``kiwi-dump``
-  Serves as an image installer. It provides the
-  required implementation to install a {kiwi} image on a selectable target.
-  This module is required if one of the attributes `installiso`, `installstick`
-  or `installpxe` is set to `true` in the image type definition
+  Serves as an image installer. It provides the required implementation to
+  install a {kiwi} image on a selectable target. This module is required if one
+  of the attributes in the image type definition `installiso`, `installstick` or
+  `installpxe` is set to `true`.
 
 ``kiwi-dump-reboot``
   Serves to boot the system into the installed image after installation is
@@ -27,71 +27,71 @@ of {kiwi} the following dracut modules are used:
 
 ``kiwi-live``
   Boots up a {kiwi} live image. This module is required
-  if the `iso` image type is selected
+  if the `iso` image type is selected.
 
 ``kiwi-overlay``
-  Allows to boot disk images configured with the
-  attribute `overlayroot` set to `true`. Such a disk has its root partition
-  compressed and readonly and boots up using overlayfs for the root filesystem
-  using an extra partition on the same disk for persistent data.
+  Allows to boot disk images with the attribute `overlayroot` set to `true`. A
+  disk like that has its root partition compressed and readonly. The disk boots up
+  using overlayfs for the root filesystem with a separate partition on the same
+  disk for persistent data.
 
 ``kiwi-repart``
-  Resizes an OEM disk image after installation onto
-  the target disk to meet the size constraints configured in the `oemconfig`
-  section of the image description. The module takes over the tasks to
-  repartition the disk, resizing of RAID, LVM, LUKS and other layers and
-  resizing of the system filesystems.
+  Resizes an OEM disk image after installation on
+  the target disk to meet the size limits configured in the `oemconfig`
+  section of the image description. The module takes over the tasks of
+  repartitioning the disk, resizing RAID, LVM, LUKS and other layers as well as
+  resizing the system filesystems.
 
 ``kiwi-lib``
-  Provides functions of general use and serves
-  as a library usable by other dracut modules. As the name implies, its
-  main purpose is to function as library for the above mentioned kiwi
-  dracut modules.
+  Provides common functions used by dracut modules.
 
 .. note:: Using Custom Boot Image Support
 
-   Apart from the standard dracut based creation of the boot image, {kiwi}
+   In addition to the standard dracut-based creation of the boot image, {kiwi}
    supports the use of custom boot images for the image types ``oem``
-   and ``pxe``. The use of a custom boot image is activated by setting the
+   and ``pxe``. The use of a custom boot image is enabled by setting the
    following attribute in the image description:
 
    .. code:: none
 
       <type ... initrd_system="kiwi"/>
 
-   Along with this setting it is now mandatory to provide a reference to
-   a boot image description in the ``boot`` attribute like in the
-   following example:
+   Along with this setting, you must provide a reference to
+   a boot image description in the ``boot`` attribute as follows:
 
    .. code:: none
 
       <type ... boot="{exc_netboot}"/>
+    
+    While {kiwi} supports this approach, it is recommended using dracut instead.
+    Keep also in mind that although {kiwi} supports creation of custom boot
+    images, {kiwi} does not include any official boot image descriptions. You
+    can find an OEM boot description example at
+    https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-oem-boot-description
+    and an PXE boot description example at
+    https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-pxe-boot-description
 
-   Such boot descriptions for the OEM and PXE types are currently still
-   provided by the {kiwi} packages but will be moved into its own repository
-   and package soon.
-
-   The custom boot image descriptions allows a user to completely customize
-   what and how the initrd behaves by its own implementation. This concept
-   is mostly used in PXE environments which are usually highly customized
-   and requires a specific boot and deployment workflow.
+   The custom boot image descriptions makes it possible to completely customize
+   the behavior of the initrd. This concept is mostly used in PXE environments
+   that are usually heavily customized and require a specific boot and
+   deployment workflow.
 
 
 Boot Image Hook-Scripts
 .......................
 
 The dracut initrd system uses ``systemd`` to implement a predefined workflow
-of services which are documented in the bootup man page at:
+of services documented in the bootup man page:
 
 http://man7.org/linux/man-pages/man7/dracut.bootup.7.html
 
-To hook in a custom boot script into this workflow it's required to provide
-a dracut module which is picked up by dracut at the time {kiwi} calls it.
-The module files can be either provided as a package or as part of the
-overlay directory in your image description
+To hook in a custom boot script to this workflow, it is necessary to provide
+a dracut module that dracut picks when {kiwi} calls it.
+The module files can be provided either as a package or as part of the
+overlay directory in the image description.
 
-The following example demonstrates how to include a custom hook script
-right before the system rootfs gets mounted.
+The following example shows how to include a custom hook script
+before the system rootfs is mounted.
 
 1. Create a subdirectory for the dracut module:
 
@@ -99,7 +99,7 @@ right before the system rootfs gets mounted.
 
        $ mkdir -p root/usr/lib/dracut/modules.d/90my-module
 
-2. Register the dracut module in a configuration file:
+2. Register the dracut module in the configuration file:
 
    .. code:: bash
 
@@ -113,7 +113,8 @@ right before the system rootfs gets mounted.
 
        $ touch root/usr/lib/dracut/modules.d/90my-module/my-script.sh
 
-4. Create a module setup file in :file:`root/usr/lib/dracut/modules.d/90my-module/module-setup.sh` with the following content:
+4. Create a module setup file in
+   :file:`root/usr/lib/dracut/modules.d/90my-module/module-setup.sh` containing the following:
 
    .. code:: bash
 
@@ -146,30 +147,30 @@ right before the system rootfs gets mounted.
 
 .. note:: Declaring Extra Tools for Hook Scripts
 
-   The install() function called by dracut can define extra tools needed by
-   a defined hook script. The "inst_multiple" command and its parameters
-   inform dracut to include these extra tools/items in the initrd.
+   The `install()` function called by dracut can define extra tools required by
+   the specified hook script. The `inst_multiple` command and its parameters
+   instruct dracut to include these extra tools and items into the initrd.
 
-   The tools/items defined here can be any file, but are usually executables
-   and libraries needed by the hook script.
+   The specified tools and items can be files. Normally, they are executables
+   and libraries required by the hook script.
 
-   * Each file MUST be included in the Kiwi description either in a
-     package, archive, or in the "root" tree in the image description
+   * Each file must be included in the {kiwi} description either in a
+     package, archive, or in the root tree of the image description
      directory.
 
-   * The parameters of the inst_multiple command are space separated.
+   * The parameters of the `inst_multiple` command are space separated.
 
-   * Each parameter can be a single executable name if it exists in /bin,
-     /sbin, /usr/bin, or /usr/sbin directories.
+   * Each parameter can be a single executable name if it exists in `/bin`,
+     `/sbin`, `/usr/bin`, or `/usr/sbin`` directories.
 
-   * Otherwise, a full pathname to the file is required. This is usually
-     true for libraries and other special files.
+   * Otherwise, a full path to the file is required. This normally applies for
+     libraries and other special files.
 
-That's it! At the time {kiwi} calls dracut the :file:`90my-module` will be taken
-into account and is installed into the generated initrd. At boot time
-systemd calls the scripts as part of the :file:`dracut-pre-mount.service`.
+When {kiwi} calls dracut, the :file:`90my-module` is installed into the
+generated initrd. At boot time, systemd calls the scripts as part of the
+:file:`dracut-pre-mount.service`.
 
-The dracut system offers a lot more possibilities to customize the
+The dracut system offers many other possibilities to customize the
 initrd than shown in the example above. For more information, visit
 the `dracut project page <https://dracut.wiki.kernel.org/index.php/Main_Page>`_.
 
@@ -179,94 +180,86 @@ Boot Image Parameters
 
 A dracut generated initrd in a {kiwi} image build process includes one or
 more of the {kiwi} provided dracut modules. The following list documents
-the available kernel boot parameters for this modules:
+the available kernel boot parameters for these modules:
 
 ``rd.kiwi.term``
-  Exports the TERM variable into the initrd environment. In case
-  the default value for the terminal emulation is not appropriate
+  Exports the TERM variable into the initrd environment. If
+  the default value for the terminal emulation is not correct,
   `rd.kiwi.term` can be used to overwrite the default. The
-  environment is also passed to the systemd unit which calls
-  dialog based programs in {kiwi} dracut code, such that the
-  TERM setting will be effective there too.
+  environment is also passed to the systemd unit that calls
+  dialog based programs in {kiwi} dracut code, which means that the
+  TERM setting applies there too.
 
 ``rd.kiwi.debug``
   Activates the debug log file for the {kiwi} part of
-  the boot process at :file:`/run/initramfs/log/boot.kiwi`.
+  the boot process in :file:`/run/initramfs/log/boot.kiwi`.
 
 ``rd.kiwi.install.pxe``
-  Tells an OEM installation image to lookup the system
+  Instructs an OEM installation image to lookup the system
   image on a remote location specified in `rd.kiwi.install.image`.
 
 ``rd.kiwi.install.image=URI``
   Specifies the remote location of the system image in
-  a PXE based OEM installation
+  a PXE based OEM installation.
 
 ``rd.kiwi.install.pass.bootparam``
-  Tells an OEM installation image to pass an additional
+  Instructs an OEM installation image to pass an additional
   boot parameters to the kernel used to boot the installed image. This
-  can be used e.g. to pass on first boot configuration for a PXE image.
-  Note, that options starting with `rd.kiwi` are not passed on to avoid
+  can be used, for example, to pass on first boot configuration for a PXE image.
+  Note that options starting with `rd.kiwi` are not passed to avoid
   side effects.
 
 ``rd.kiwi.oem.maxdisk=size[KMGT]``
-  Configures the maximum disk size an unattended OEM
-  installation should consider for image deployment. Unattended OEM
-  deployments default to deploying on `/dev/sda` (more exactly, the first
-  device not filtered out by `oem-device-filter`). With RAID
-  controllers, it can happen that your buch of big JBOD disks is for
-  example `/dev/sda` to `/dev/sdi` and the 480G RAID1 configured for
-  OS deployment is `/dev/sdj`. With `rd.kiwi.oem.maxdisk=500G` the
-  deployment will land on that RAID disk.
+  Specifies the maximum disk size an unattended OEM installation uses for image
+  deployment. Unattended OEM deployments default to deploying on `/dev/sda` (or
+  more precisely, the first device that is not filtered out by
+  `oem-device-filter`). With RAID controllers, you may have big JBOD disks along
+  with a 480G RAID1 configured for OS deployment. With
+  `rd.kiwi.oem.maxdisk=500G`, the deployment is performed on the RAID disk.
 
 ``rd.kiwi.oem.installdevice``
-  Configures the disk device that should be used in an OEM
-  installation. This overwrites/resets any other oem device specific
-  settings, e.g oem-device-filter, oem-unattended-id or rd.kiwi.oem.maxdisk
-  from the cmdline and just continues the installation on the given
-  device. However, the device must exist and must be a block special.
+  Configures the disk device to use in an OEM installation. This overwrites or
+  resets any other OEM device-specific settings, such as `oem-device-filter`,
+  `oem-unattended-id` or `rd.kiwi.oem.maxdisk`, and continues the installation on
+  the given device. The device must exist and must be a block special.
 
 .. note:: Non interactive mode activated by rd.kiwi.oem.installdevice
 
-   When setting rd.kiwi.oem.installdevice explicitly on the
-   kernel commandline, {kiwi} will not ask for confirmation
-   of the device and just use it !
+   When setting `rd.kiwi.oem.installdevice` explicitly through the kernel command line,
+   {kiwi} uses the device without prompting for confirmation.
 
 ``rd.live.overlay.size``
-  Tells a live ISO image the size for the `tmpfs` filesystem that is used
-  for the `overlayfs` mount process. If the write area of the overlayfs
-  mount uses this tmpfs, any new data written during the runtime of
-  the system will fillup this space. The default value used is set
-  to `50%` which means one half of the available RAM space can be used
-  for writing new data.
+  Specifies the size for the `tmpfs` filesystem of a live ISO image that is used
+  for the `overlayfs` mount process. If the write area of the overlayfs mount
+  uses this tmpfs, any new data written during the runtime of the system is
+  written in this space. The default value is `50%`, meaning half of the
+  available RAM space can be used for writing new data.
 
 ``rd.live.overlay.persistent``
-  Tells a live ISO image to prepare a persistent
+  Instructs a live ISO image to prepare a persistent
   write partition.
 
 ``rd.live.overlay.cowfs``
-  Tells a live ISO image which filesystem should be
-  used to store data on the persistent write partition.
+  Specifies which filesystem of a live ISO image to use for storing data on the
+  persistent write partition.
 
 ``rd.live.cowfile.mbsize``
-  Tells a live ISO image the size of the COW file in MB.
-  When using tools like `live-grub-stick` the live ISO will be copied
-  as a file on the target device and a GRUB loopback setup is created
-  there to boot the live system from file. In such a case the
-  persistent write setup, which usually creates an extra write
-  partition on the target, will fail in almost all cases because
-  the target has no free and unpartitioned space available.
-  Because of that a cow file(live_system.cow) instead of a partition
-  is created. The cow file will be created in the same directory
-  the live iso image file was read from by grub and takes the
-  configured size or the default size of 500MB.
+  Specifies the size of the COW file in MB. When using tools like
+  `live-grub-stick`, the live ISO image is copied as a file on the target device,
+  and a GRUB loopback setup is created there to boot the live system from the
+  file. In this case, the persistent write setup that normally creates an extra
+  write partition on the target will fail in most situations, because the target
+  has no free and unpartitioned space available. To prevent this from happening,
+  a COW file (live_system.cow) of a partition is created alongside the live ISO
+  image file. The default size of the COW file is 500MB.
 
 ``rd.live.dir``
-  Tells a live ISO image the directory which contains
-  the live OS root directory. Defaults to `LiveOS`.
+  Specifies a directory that contains the live OS root directory. Default is
+  `LiveOS`.
 
 ``rd.live.squashimg``
-  Tells a live ISO image the name of the squashfs
-  image file which holds the OS root. Defaults to `squashfs.img`.
+  Specifies the name of the squashfs image file which contains the OS root.
+  Default is `squashfs.img`.
 
 ``rd.kiwi.allow_plymouth``
   By default kiwi stops plymouth if present and active in the
@@ -279,17 +272,16 @@ Boot Debugging
 
 If the boot process encounters a fatal error, the default behavior is to
 stop the boot process without any possibility to interact with the system.
-Prevent this behavior by activating dracut's builtin debug mode in combination
-with the kiwi debug mode as follows:
+To prevent this, activate dracut's builtin debug mode in combination
+with the {kiwi} debug mode as follows:
 
 .. code:: bash
 
     rd.debug rd.kiwi.debug
 
-This should be set at the Kernel command line. With those parameters activated,
-the system will enter a limited shell environment in case of a fatal error
-during boot. The shell contains a basic set of commands and allows for a closer
-look to:
+This must be set at the kernel command line. With these parameters activated,
+the system enters a limited shell environment when a fatal error occurs
+during boot. The shell provides a basic set of tools, and it can be used for inspection using the following command:
 
 .. code:: bash
 
