@@ -244,7 +244,7 @@ class Profile:
         # kiwi_language
         # kiwi_splash_theme
         # kiwi_loader_theme
-        for preferences in self.xml_state.get_preferences_sections():
+        for preferences in reversed(self.xml_state.get_preferences_sections()):
             if 'kiwi_iversion' not in self.dot_profile:
                 self.dot_profile['kiwi_iversion'] = \
                     self._text(preferences.get_version())
