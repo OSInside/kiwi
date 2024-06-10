@@ -108,6 +108,9 @@ function initGlobalOptions {
 
     cow_file_mbsize=$(getarg rd.live.cowfile.mbsize)
     [ -z "${cow_file_mbsize}" ] && cow_file_mbsize="500"
+
+    cow_file_path=$(getarg rd.live.cowfile.path)
+    [ -z "${cow_file_path}" ] && cow_file_path="live_system.cow"
 }
 
 function mountIso {
@@ -193,7 +196,7 @@ function preparePersistentOverlayLoopBoot {
     # or the default size of 500MB
     local overlay_mount_point=$1
     local isoscan_loop_mount=/run/initramfs/isoscan
-    local cow_file_name="${isoscan_loop_mount}/live_system.cow"
+    local cow_file_name="${isoscan_loop_mount}/${cow_file_path}"
     mkdir -m 0755 -p "${overlay_mount_point}"
     if ! mount -o "remount,rw" "${isoscan_loop_mount}"; then
         return 1
