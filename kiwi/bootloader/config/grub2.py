@@ -41,7 +41,8 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubModulesError,
     KiwiBootLoaderGrubSecureBootError,
     KiwiBootLoaderGrubFontError,
-    KiwiDiskGeometryError
+    KiwiDiskGeometryError,
+    KiwiCommandNotFound
 )
 
 import kiwi.defaults as defaults
@@ -572,12 +573,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # from the signed grub binary
             grub_image = Defaults.get_signed_grub_loader(self.root_dir, target_type)
             if grub_image and grub_image.filename:
+                strings_abspath = Path.which(
+                    'strings', access_mode=os.X_OK
+                )
+                if not strings_abspath:
+                    raise KiwiCommandNotFound(
+                        'strings command not found on buildhost'
+                    )
                 bash_command = [
-                    'strings', grub_image.filename, '|', 'grep', r'EFI\/'
+                    strings_abspath, grub_image.filename, '|', 'grep', r'EFI\/'
                 ]
                 efi_boot_path = Command.run(
                     ['bash', '-c', ' '.join(bash_command)],
-                    raise_on_error=False
+                    raise_on_error=False, raise_on_command_not_found=True
                 ).output
                 if efi_boot_path:
                     efi_boot_path = os.path.normpath(
