@@ -315,11 +315,11 @@ function check_image_integrity {
     then
         # verify with dialog based progress information
         setup_progress_fifo ${progress}
-        run_progress_dialog "${verify_text}" "${title_text}" &
         (
             pv --size $((blocks * blocksize)) --stop-at-size \
             -n "${image_target}" | md5sum - > ${verify_result}
-        ) 2>${progress}
+        ) 2>${progress} &
+        run_progress_dialog "${verify_text}" "${title_text}"
     else
         # verify with silently blocked console
         head --bytes=$((blocks * blocksize)) "${image_target}" |\
