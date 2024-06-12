@@ -68,6 +68,7 @@
         <package name="vim"/>
         <package name="lvm2"/>
         <package name="plymouth"/>
+        <package name="shadow"/>
         <package name="fontconfig"/>
         <package name="fonts-config"/>
         <package name="tar"/>
