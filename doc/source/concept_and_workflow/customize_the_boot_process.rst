@@ -253,6 +253,13 @@ the available kernel boot parameters for these modules:
   a COW file (live_system.cow) of a partition is created alongside the live ISO
   image file. The default size of the COW file is 500MB.
 
+``rd.live.cowfile.path``
+  Effectively used in isoscan loop mounted live systems. For details on this
+  type of live system refer to :ref:`iso_as_file_to_usb_stick`.
+  Specifies the path of the COW file below the `/run/initramfs/isoscan` loop
+  mount point. If not specified the cowfile is placed at
+  `/run/initramfs/isoscan/live_system.cow`.
+
 ``rd.live.dir``
   Specifies a directory that contains the live OS root directory. Default is
   `LiveOS`.
