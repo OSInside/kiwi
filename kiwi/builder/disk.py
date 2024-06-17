@@ -1753,8 +1753,8 @@ class DiskBuilder:
                 custom_install_arguments
             )
             bootloader = BootLoaderInstall.new(
-                self.bootloader, self.root_dir, disk.storage_provider,
-                custom_install_arguments
+                self.bootloader, self.xml_state, self.root_dir,
+                disk.storage_provider, custom_install_arguments
             )
             if bootloader.install_required():
                 bootloader.install()

@@ -25,7 +25,10 @@ class BootLoaderInstallBase:
     :param object device_provider: instance of :class:`DeviceProvider`
     :param dict custom_args: custom arguments dictionary
     """
-    def __init__(self, root_dir, device_provider, custom_args=None):
+    def __init__(
+        self, xml_state, root_dir, device_provider, custom_args=None
+    ):
+        self.xml_state = xml_state
         self.root_dir = root_dir
         self.device_provider = device_provider
 

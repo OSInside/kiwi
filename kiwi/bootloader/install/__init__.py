@@ -17,6 +17,7 @@
 #
 import importlib
 from typing import Dict
+from kiwi.xml_state import XMLState
 from abc import (
     ABCMeta,
     abstractmethod
@@ -42,7 +43,7 @@ class BootLoaderInstall(metaclass=ABCMeta):
 
     @staticmethod
     def new(
-        name: str, root_dir: str, device_provider: object,
+        name: str, xml_state: XMLState, root_dir: str, device_provider: object,
         custom_args: Dict = None
     ):
         name_map = {
@@ -58,7 +59,7 @@ class BootLoaderInstall(metaclass=ABCMeta):
                 'kiwi.bootloader.install.{}'.format(bootloader_namespace)
             )
             return bootloader_install.__dict__[bootloader_name](
-                root_dir, device_provider, custom_args
+                xml_state, root_dir, device_provider, custom_args
             )
         except Exception:
             raise KiwiBootLoaderInstallSetupError(
