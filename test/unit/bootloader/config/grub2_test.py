@@ -27,7 +27,8 @@ from kiwi.exceptions import (
     KiwiBootLoaderGrubDataError,
     KiwiBootLoaderGrubFontError,
     KiwiBootLoaderGrubModulesError,
-    KiwiDiskGeometryError
+    KiwiDiskGeometryError,
+    KiwiCommandNotFound
 )
 
 
@@ -351,14 +352,27 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.Path.create')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.Defaults.get_signed_grub_loader')
+    @patch('kiwi.bootloader.config.grub2.Path.which')
     def test_copy_grub_config_to_efi_path(
-        self, mock_get_signed_grub_loader, mock_Command,
+        self, mock_Path_which, mock_get_signed_grub_loader, mock_Command,
         mock_Path_create, mock_shutil_copy, mock_glob
     ):
         mock_get_signed_grub_loader.return_value = None
         mock_glob.return_value = []
 
-        # 1. run: check default handling
+        # 1. run: check strings command not found
+        mock_Path_which.return_value = ''
+        mock_get_signed_grub_loader.return_value = grub_loader_type(
+            'some-loader', None
+        )
+        with raises(KiwiCommandNotFound):
+            self.bootloader._copy_grub_config_to_efi_path(
+                'root_dir', 'config_file'
+            )
+
+        # 2. run: check default handling
+        mock_get_signed_grub_loader.return_value = None
+        mock_Path_which.return_value = '/usr/bin/strings'
         self.bootloader._copy_grub_config_to_efi_path(
             'root_dir', 'config_file'
         )
@@ -370,7 +384,7 @@ class TestBootLoaderConfigGrub2:
             'config_file', 'root_dir/EFI/BOOT/grub.cfg'
         )
 
-        # 2. run: check with vendor directory read from grub binary
+        # 3. run: check with vendor directory read from grub binary
         mock_shutil_copy.reset_mock()
         mock_Path_create.reset_mock()
         strings_out = Mock()
@@ -390,7 +404,7 @@ class TestBootLoaderConfigGrub2:
             'config_file', 'root_dir/EFI/ubuntu/grub.cfg'
         )
 
-        # 3. run: check with installed vendor directory
+        # 4. run: check with installed vendor directory
         mock_shutil_copy.reset_mock()
         mock_Path_create.reset_mock()
         mock_get_signed_grub_loader.return_value = None
