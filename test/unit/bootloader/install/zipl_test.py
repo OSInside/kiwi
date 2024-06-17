@@ -7,7 +7,7 @@ from kiwi.bootloader.install.zipl import BootLoaderInstallZipl
 class TestBootLoaderInstallZipl:
     def setup(self):
         self.bootloader = BootLoaderInstallZipl(
-            'root_dir', Mock()
+            Mock(), 'root_dir', Mock()
         )
 
     def setup_method(self, cls):

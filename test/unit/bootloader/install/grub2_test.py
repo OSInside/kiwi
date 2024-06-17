@@ -1,6 +1,6 @@
 import io
 from unittest.mock import (
-    patch, call, MagicMock
+    patch, call, MagicMock, Mock
 )
 from pytest import raises
 import unittest.mock as mock
@@ -86,7 +86,7 @@ class TestBootLoaderInstallGrub2:
         )
 
         self.bootloader = BootLoaderInstallGrub2(
-            'root_dir', device_provider, self.custom_args
+            Mock(), 'root_dir', device_provider, self.custom_args
         )
 
     def setup_method(self, cls):
@@ -155,10 +155,13 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.glob.glob')
+    @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install_with_extra_boot_partition(
-        self, mock_glob, mock_grub_path, mock_mount_manager,
-        mock_command, mock_which, mock_wipe
+        self, mock_SystemSetup, mock_glob, mock_grub_path,
+        mock_mount_manager, mock_command, mock_which, mock_wipe
     ):
+        setup = Mock()
+        mock_SystemSetup.return_value = setup
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
@@ -194,6 +197,7 @@ class TestBootLoaderInstallGrub2:
                 '/dev/some-device'
             ]
         )
+        setup.setup_selinux_file_contexts.assert_called_once_with()
 
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
     @patch('kiwi.bootloader.install.grub2.Path.which')
@@ -249,10 +253,13 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.glob.glob')
+    @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install_ppc_ieee1275(
-        self, mock_glob, mock_grub_path, mock_mount_manager,
+        self, mock_SystemSetup, mock_glob, mock_grub_path, mock_mount_manager,
         mock_command, mock_which, mock_wipe
     ):
+        setup = Mock()
+        mock_SystemSetup.return_value = setup
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2/powerpc-ieee1275'
@@ -283,6 +290,7 @@ class TestBootLoaderInstallGrub2:
                 self.custom_args['prep_device']
             ]
         )
+        setup.setup_selinux_file_contexts.assert_called_once_with()
 
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
     @patch('kiwi.bootloader.install.grub2.Path.which')
@@ -290,10 +298,13 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.glob.glob')
+    @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install_s390_emu(
-        self, mock_glob, mock_grub_path, mock_mount_manager,
+        self, mock_SystemSetup, mock_glob, mock_grub_path, mock_mount_manager,
         mock_command, mock_which, mock_wipe
     ):
+        setup = Mock()
+        mock_SystemSetup.return_value = setup
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
             self.root_mount.mountpoint + '/usr/lib/grub2/s390x-emu'
@@ -324,6 +335,7 @@ class TestBootLoaderInstallGrub2:
                 '/dev/some-device'
             ]
         )
+        setup.setup_selinux_file_contexts.assert_called_once_with()
 
     @patch('kiwi.bootloader.install.grub2.Path.wipe')
     @patch('kiwi.bootloader.install.grub2.Path.which')
@@ -331,10 +343,13 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
     @patch('kiwi.bootloader.install.grub2.glob.glob')
+    @patch('kiwi.bootloader.install.grub2.SystemSetup')
     def test_install(
-        self, mock_glob, mock_grub_path, mock_mount_manager,
+        self, mock_SystemSetup, mock_glob, mock_grub_path, mock_mount_manager,
         mock_command, mock_which, mock_wipe
     ):
+        setup = Mock()
+        mock_SystemSetup.return_value = setup
         mock_which.return_value = None
         mock_glob.return_value = ['tmp_root/boot/grub2/grubenv']
         mock_grub_path.return_value = \
@@ -368,7 +383,9 @@ class TestBootLoaderInstallGrub2:
                     Defaults.get_grub_bios_modules(multiboot=True)
                 ),
                 '/dev/some-device'
-            ])
+            ]
+        )
+        setup.setup_selinux_file_contexts.assert_called_once_with()
 
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')

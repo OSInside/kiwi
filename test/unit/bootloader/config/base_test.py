@@ -353,7 +353,10 @@ class TestBootLoaderConfigBase:
         ]
 
     @patch('kiwi.bootloader.config.base.MountManager')
-    def test_mount_system(self, mock_MountManager):
+    @patch('kiwi.bootloader.config.base.SystemSetup')
+    def test_mount_system(self, mock_SystemSetup, mock_MountManager):
+        setup = Mock()
+        mock_SystemSetup.return_value = setup
         tmp_mount = MagicMock()
         proc_mount = MagicMock()
         sys_mount = MagicMock()
@@ -408,6 +411,8 @@ class TestBootLoaderConfigBase:
             proc_mount.bind_mount.assert_called_once_with()
             sys_mount.bind_mount.assert_called_once_with()
             dev_mount.bind_mount.assert_called_once_with()
+
+        setup.setup_selinux_file_contexts.assert_called_once_with()
 
         volume_mount.umount.assert_called_once_with()
         tmp_mount.umount.assert_called_once_with()

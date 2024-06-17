@@ -27,6 +27,7 @@ from kiwi.storage.setup import DiskSetup
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.utils.block import BlockID
+from kiwi.system.setup import SystemSetup
 
 from kiwi.exceptions import (
     KiwiBootLoaderTargetError
@@ -583,6 +584,10 @@ class BootLoaderConfigBase(ABC):
 
     def _umount_system(self):
         if self.system_is_mounted:
+            # Rebuild security context
+            setup = SystemSetup(self.xml_state, self.root_mount.mountpoint)
+            setup.setup_selinux_file_contexts()
+            # Umount system
             for volume_mount in reversed(self.volumes_mount):
                 volume_mount.umount()
             if self.device_mount:

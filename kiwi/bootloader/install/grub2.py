@@ -26,6 +26,7 @@ from kiwi.bootloader.install.base import BootLoaderInstallBase
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 from kiwi.mount_manager import MountManager
+from kiwi.system.setup import SystemSetup
 from kiwi.path import Path
 
 from kiwi.exceptions import (
@@ -251,6 +252,10 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 Command.run(
                     ['mv', zipl_config_file, zipl_config_file + '.kiwi']
                 )
+
+            # Rebuild security context
+            setup = SystemSetup(self.xml_state, self.root_mount.mountpoint)
+            setup.setup_selinux_file_contexts()
 
     def secure_boot_install(self):
         if self.firmware and self.firmware.efi_mode() == 'uefi' and (

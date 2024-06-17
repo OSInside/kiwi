@@ -7,7 +7,7 @@ from kiwi.bootloader.install.systemd_boot import BootLoaderInstallSystemdBoot
 class TestBootLoaderInstallSystemdBoot:
     def setup(self):
         self.bootloader = BootLoaderInstallSystemdBoot(
-            'root_dir', Mock()
+            Mock(), 'root_dir', Mock()
         )
 
     def setup_method(self, cls):
