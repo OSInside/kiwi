@@ -20,6 +20,14 @@
 # If they aren't provided by a system installed macro, define them
 %{!?_defaultdocdir: %global _defaultdocdir %{_datadir}/doc}
 
+# Userland install of python modules such that new namespaces
+# gets added to this environment properly. I did not find another
+# way to install a python module as non root into this build environment
+# such that importlib.* methods would find them. With the former
+# pkg_resources this could be handled by setting the PYTHONPATH
+# variable but this doesn't work anymore with importlib.
+%global pip_install pip install --break-system-packages
+
 %if 0%{?suse_version} && 0%{?suse_version} < 1600
 %global __python3 /usr/bin/python3.11
 %global python3_pkgversion 311
@@ -69,6 +77,12 @@ Source1:        %{name}-rpmlintrc
 ## PATCH-FIX-OPENSUSE kiwi-revert-bls-default-for-suse.patch -- temporary until opensuse has bls
 Patch1001:      kiwi-revert-bls-default-for-suse.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  kiwi-systemdeps
+BuildRequires:  python%{python3_pkgversion}-pytest
+BuildRequires:  python%{python3_pkgversion}-pip
+BuildRequires:  python%{python3_pkgversion}-anymarkup-core
+BuildRequires:  python%{python3_pkgversion}-toml
+BuildRequires:  python%{python3_pkgversion}-xmltodict
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  fdupes
 %endif
@@ -754,6 +768,11 @@ if ! /usr/bin/getent passwd tftp >/dev/null; then
 fi
 %endif
 %endif
+
+%check
+# install kiwi to userland and run the tests
+%pip_install dist/kiwi-%{version}-py3-none-any.whl
+cd test/unit && pytest
 
 %files -n kiwi-systemdeps-core
 # Empty metapackage
