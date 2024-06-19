@@ -312,27 +312,6 @@ function relocate_gpt_at_end_of_disk {
     fi
 }
 
-function disk_has_unallocated_space {
-    local disk_device=$1
-    local pt_table_type
-    pt_table_type=$(get_partition_table_type "${disk_device}")
-    if [ "${pt_table_type}" = "gpt" ];then
-        # GPT disks store a backup table at the end of the disk
-        # if the disk geometry changes the backup table is no
-        # longer at the end and this condition can be easily
-        # checked and used to detect that there is space
-        # unallocated due to a geometry change of the underlying
-        # block device layer
-        sgdisk --verify "${disk_device}" 2>&1 | grep -q "end of the disk"
-    else
-        # There is currently no method we could come up with
-        # to detect a geometry change for non GPT based disks.
-        # Thus we assume it's not fully allocated and allow
-        # for resize
-        true
-    fi
-}
-
 function activate_boot_partition {
     local disk_device=$1
     local boot_partition_id=$2
@@ -416,14 +395,8 @@ function resize_wanted {
     else
         info "System resize is active on every reboot"
     fi
-    if disk_has_unallocated_space "${disk_device}";then
-        info "Activating resize operation"
-        return 0
-    else
-        info "Disk geometry did not change"
-        info "Skipping resize operation"
-        return 1
-    fi
+    info "Activating resize operation"
+    return 0
 }
 
 #======================================
