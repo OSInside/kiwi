@@ -110,9 +110,13 @@ class TestRepositoryDnf4:
     @patch('kiwi.repository.dnf4.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
     @patch('kiwi.command.Command.run')
+    @patch('os.path.isdir')
+    @patch('kiwi.repository.dnf4.Path')
     def test_add_repo(
-        self, mock_Command_run, mock_exists, mock_buildservice, mock_config
+        self, mock_Path, mock_os_path_isdir, mock_Command_run, mock_exists,
+        mock_buildservice, mock_config
     ):
+        mock_os_path_isdir.return_value = False
         repo_config = mock.Mock()
         mock_buildservice.return_value = False
         mock_config.return_value = repo_config
@@ -141,6 +145,7 @@ class TestRepositoryDnf4:
                     '/shared-dir/dnf/repos/foo.repo'
                 ]
             )
+            mock_Path.create.assert_called_once_with('/shared-dir/dnf/repos')
 
         repo_config.add_section.reset_mock()
         repo_config.set.reset_mock()

@@ -246,6 +246,8 @@ class RepositoryDnf4(RepositoryBase):
             repo_config.set(
                 name, 'module_hotfixes', '1'
             )
+        if not os.path.isdir(self.shared_dnf_dir['reposd-dir']):
+            Path.create(self.shared_dnf_dir['reposd-dir'])
         with open(repo_file, 'w') as repo:
             repo_config.write(repo)
         if customization_script:
