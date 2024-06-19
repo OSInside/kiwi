@@ -2079,3 +2079,14 @@ class Defaults:
             cur_profile = profile.dot_profile
             if key not in cur_profile or cur_profile[key] is None:
                 profile.add(key, self.get(key))
+
+    @staticmethod
+    def is_ostree(root_dir: str) -> bool:
+        """
+        Returns true if the system being installed appears to be ostree managed.
+        This is a heuristic that should ideally be replaced by a key in the config instead.
+
+        :return: if the system is ostree managed
+        :rtype: bool
+        """
+        return os.path.isdir(os.sep.join([root_dir, 'boot', 'ostree']))
