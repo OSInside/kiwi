@@ -23,7 +23,11 @@ from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.utils.command_capabilities import CommandCapabilities
 
-from kiwi.exceptions import KiwiLoopSetupError
+from kiwi.exceptions import (
+    KiwiLoopSetupError,
+    KiwiCommandNotFound,
+    KiwiCommandError
+)
 
 log = logging.getLogger('kiwi')
 
@@ -103,7 +107,11 @@ class LoopDevice(DeviceProvider):
         if self.node_name:
             try:
                 Command.run(['losetup', '-d', self.node_name])
-            except Exception as issue:
+                # loop detach is an async operation, re-use of the device
+                # should not be done before the kernel event queue has
+                # settled after detaching
+                Command.run(['udevadm', 'settle'])
+            except (KiwiCommandError, KiwiCommandNotFound) as issue:
                 log.error(
                     'loop cleanup on {0} failed with: {1}'.format(
                         self.node_name, issue
