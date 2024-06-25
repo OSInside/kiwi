@@ -55,6 +55,7 @@
         <package name="which"/>
         <package name="kernel-default"/>
         <package name="timezone"/>
+        <package name="procps"/>
         <package name="dracut-kiwi-overlay"/>
     </packages>
     <packages type="bootstrap">

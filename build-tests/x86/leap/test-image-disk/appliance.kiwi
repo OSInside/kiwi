@@ -59,6 +59,7 @@
         <package name="which"/>
         <package name="kernel-default"/>
         <package name="timezone"/>
+        <package name="procps"/>
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>

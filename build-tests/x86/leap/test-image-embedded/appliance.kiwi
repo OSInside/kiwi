@@ -93,6 +93,7 @@
         <package name="gzip"/>
         <package name="udev"/>
         <package name="xz"/>
+        <package name="procps"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
