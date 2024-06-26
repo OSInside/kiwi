@@ -61,6 +61,12 @@ Source1:        %{name}-rpmlintrc
 ## PATCH-FIX-OPENSUSE kiwi-revert-bls-default-for-suse.patch -- temporary until opensuse has bls
 Patch1001:      kiwi-revert-bls-default-for-suse.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  kiwi-systemdeps
+BuildRequires:  python%{python3_pkgversion}-pytest
+BuildRequires:  python%{python3_pkgversion}-pip
+BuildRequires:  python%{python3_pkgversion}-anymarkup-core
+BuildRequires:  python%{python3_pkgversion}-toml
+BuildRequires:  python%{python3_pkgversion}-xmltodict
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  fdupes
 %endif
@@ -663,6 +669,11 @@ make -C doc man
 
 # Build application wheel
 %{__python3} -m build --no-isolation --wheel
+
+# Run tests
+pip install --break-system-packages dist/kiwi-%{version}-py3-none-any.whl
+cd test/unit
+pytest
 
 %install
 # Install application
