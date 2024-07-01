@@ -404,6 +404,11 @@ function resize_wanted {
     local root_device=$1
     local disk_device=$2
     kiwi_oemresizeonce=$(bool "${kiwi_oemresizeonce}")
+    if getargbool 0 rd.kiwi.oem.force_resize; then
+        info "System resize forced via rd.kiwi.oem.force_resize"
+        info "Activating resize operation"
+        return 0
+    fi
     if [ "${kiwi_oemresizeonce}" = "true" ];then
         current_rootpart_uuid=$(get_partition_uuid "${root_device}")
         if [ "${current_rootpart_uuid}" == "${kiwi_rootpartuuid}" ];then

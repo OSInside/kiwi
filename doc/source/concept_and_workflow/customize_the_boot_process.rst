@@ -217,6 +217,20 @@ the available kernel boot parameters for these modules:
   with a 480G RAID1 configured for OS deployment. With
   `rd.kiwi.oem.maxdisk=500G`, the deployment is performed on the RAID disk.
 
+``rd.kiwi.oem.force_resize``
+  Forces the disk resize process on an OEM disk image. If set, no sanity
+  check for unpartitioned/free space is performed and also an eventually
+  configured `<oem-resize-once>` configuration from the image description
+  will not be taken into account. The disk resize will be started which
+  includes re-partition as well as all steps to resize the block layers
+  up to the filesystem holding the data. As `rd.kiwi.oem.force_resize`
+  bypasses all sanity checks to detect if such a resize process is
+  needed or not, it can happen that all program calls of the resize
+  process ends without any effect if the disk is already properly
+  resized. It's also important to understand that the partition UUIDs
+  will change on every resize which might be an unwanted side effect
+  of a forced resize.
+
 ``rd.kiwi.oem.installdevice``
   Configures the disk device to use in an OEM installation. This overwrites or
   resets any other OEM device-specific settings, such as `oem-device-filter`,
