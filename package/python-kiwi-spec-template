@@ -20,7 +20,7 @@
 # If they aren't provided by a system installed macro, define them
 %{!?_defaultdocdir: %global _defaultdocdir %{_datadir}/doc}
 
-%if 0%{?suse_version} && 0%{?suse_version} < 1600
+%if 0%{?suse_version} && 0%{?suse_version} >= 1500
 %global __python3 /usr/bin/python3.11
 %global python3_pkgversion 311
 %else
@@ -390,6 +390,7 @@ leverage all functionality in KIWI.
 %package -n python%{python3_pkgversion}-kiwi
 Summary:        KIWI - Appliance Builder Next Generation
 Group:          %{pygroup}
+Provides:       python3-kiwi
 Obsoletes:      python2-kiwi
 Conflicts:      python2-kiwi
 Conflicts:      kiwi-man-pages < %{version}
