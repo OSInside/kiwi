@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.8 (main, Feb 29 2024, 12:19:47) [GCC]
+# Python 3.11.9 (main, Apr 18 2024, 16:44:43) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -5018,7 +5018,7 @@ class volume(GeneratedsSuper):
     """Specify which parts of the filesystem should be on an extra volume."""
     subclass = None
     superclass = None
-    def __init__(self, copy_on_write=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, parent=None, size=None):
+    def __init__(self, copy_on_write=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, parent=None, size=None, arch=None):
         self.original_tagname_ = None
         self.copy_on_write = _cast(bool, copy_on_write)
         self.filesystem_check = _cast(bool, filesystem_check)
@@ -5028,6 +5028,7 @@ class volume(GeneratedsSuper):
         self.name = _cast(None, name)
         self.parent = _cast(None, parent)
         self.size = _cast(None, size)
+        self.arch = _cast(None, arch)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5055,6 +5056,8 @@ class volume(GeneratedsSuper):
     def set_parent(self, parent): self.parent = parent
     def get_size(self): return self.size
     def set_size(self, size): self.size = size
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
     def validate_volume_size_type(self, value):
         # Validate type volume-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -5062,6 +5065,13 @@ class volume(GeneratedsSuper):
                     self.validate_volume_size_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_volume_size_type_patterns_, ))
     validate_volume_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G|all)$']]
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
@@ -5114,6 +5124,9 @@ class volume(GeneratedsSuper):
         if self.size is not None and 'size' not in already_processed:
             already_processed.add('size')
             outfile.write(' size=%s' % (quote_attrib(self.size), ))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='volume', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -5170,6 +5183,12 @@ class volume(GeneratedsSuper):
             self.size = value
             self.size = ' '.join(self.size.split())
             self.validate_volume_size_type(self.size)    # validate type volume-size-type
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class volume

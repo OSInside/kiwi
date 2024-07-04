@@ -3917,6 +3917,9 @@ The latter is the default.</a:documentation>
         <a:documentation>filesystem label name of the volume.</a:documentation>
       </attribute>
     </define>
+    <define name="k.volume.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.volume.attlist">
       <interleave>
         <optional>
@@ -3940,6 +3943,9 @@ The latter is the default.</a:documentation>
         </optional>
         <optional>
           <ref name="k.volume.size.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.volume.arch.attribute"/>
         </optional>
       </interleave>
     </define>

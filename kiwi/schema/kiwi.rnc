@@ -2608,6 +2608,7 @@ div {
     k.volume.label.attribute =
         ## filesystem label name of the volume.
         attribute label { text }
+    k.volume.arch.attribute = k.arch.attribute
     k.volume.attlist =
         k.volume.copy_on_write.attribute? &
         k.volume.filesystem_check? &
@@ -2616,7 +2617,8 @@ div {
         k.volume.label.attribute? &
         k.volume.name.attribute &
         k.volume.parent.attribute? &
-        k.volume.size.attribute?
+        k.volume.size.attribute? &
+        k.volume.arch.attribute?
     k.volume =
         ## Specify which parts of the filesystem should be
         ## on an extra volume.
