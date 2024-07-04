@@ -81,10 +81,13 @@ attributes:
   filesystem check, which results in this filesystem to be never checked.
   The latter is the default.
 
+- `arch`: Optional attribute to create the volume only if it matches
+  the specified host architecture. Multiple architecture names can
+  be specified as comma separated list.
+
 .. warning::
    The size attributes for filesystem volumes, as for btrfs, are
    ignored and have no effect.
-
 
 The `systemdisk` element additionally supports the following optional
 attributes:

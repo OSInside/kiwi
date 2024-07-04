@@ -28,6 +28,19 @@ class TestXMLState:
         self._caplog = caplog
 
     def setup(self):
+        self.volume_type = namedtuple(
+            'volume_type', [
+                'name',
+                'parent',
+                'size',
+                'realpath',
+                'mountpoint',
+                'fullsize',
+                'label',
+                'attributes',
+                'is_root_volume'
+            ]
+        )
         Defaults.set_platform_name('x86_64')
         self.description = XMLDescription(
             '../data/example_config.xml'
@@ -389,19 +402,7 @@ class TestXMLState:
         )
         xml_data = description.load()
         state = XMLState(xml_data)
-        volume_type = namedtuple(
-            'volume_type', [
-                'name',
-                'parent',
-                'size',
-                'realpath',
-                'mountpoint',
-                'fullsize',
-                'label',
-                'attributes',
-                'is_root_volume'
-            ]
-        )
+        volume_type = self.volume_type
         assert state.get_volumes() == [
             volume_type(
                 name='myroot', parent='', size='freespace:500',
@@ -413,23 +414,56 @@ class TestXMLState:
             )
         ]
 
+    def test_get_volumes_for_arch(self):
+        description = XMLDescription('../data/example_lvm_arch_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        state.host_architecture = 'aarch64'
+        volume_type = self.volume_type
+        assert state.get_volumes() == [
+            volume_type(
+                name='usr_lib',
+                parent='',
+                size='freespace:30',
+                realpath='usr/lib',
+                mountpoint='usr/lib',
+                fullsize=False,
+                label=None,
+                attributes=[],
+                is_root_volume=False
+            ),
+            volume_type(
+                name='LVRoot',
+                parent='',
+                size=None,
+                realpath='/',
+                mountpoint=None,
+                fullsize=True,
+                label=None,
+                attributes=[],
+                is_root_volume=True
+            )
+        ]
+        state.host_architecture = 'x86_64'
+        assert state.get_volumes() == [
+            volume_type(
+                name='LVRoot',
+                parent='',
+                size=None,
+                realpath='/',
+                mountpoint=None,
+                fullsize=True,
+                label=None,
+                attributes=[],
+                is_root_volume=True
+            )
+        ]
+
     def test_get_volumes(self):
         description = XMLDescription('../data/example_lvm_default_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data)
-        volume_type = namedtuple(
-            'volume_type', [
-                'name',
-                'parent',
-                'size',
-                'realpath',
-                'mountpoint',
-                'fullsize',
-                'label',
-                'attributes',
-                'is_root_volume'
-            ]
-        )
+        volume_type = self.volume_type
         assert state.get_volumes() == [
             volume_type(
                 name='usr_lib', parent='', size='size:1024',
@@ -478,19 +512,7 @@ class TestXMLState:
         description = XMLDescription('../data/example_lvm_no_root_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data)
-        volume_type = namedtuple(
-            'volume_type', [
-                'name',
-                'parent',
-                'size',
-                'realpath',
-                'mountpoint',
-                'fullsize',
-                'label',
-                'attributes',
-                'is_root_volume'
-            ]
-        )
+        volume_type = self.volume_type
         assert state.get_volumes() == [
             volume_type(
                 name='LVRoot', parent='', size=None, realpath='/',
@@ -515,19 +537,7 @@ class TestXMLState:
         )
         xml_data = description.load()
         state = XMLState(xml_data)
-        volume_type = namedtuple(
-            'volume_type', [
-                'name',
-                'parent',
-                'size',
-                'realpath',
-                'mountpoint',
-                'fullsize',
-                'label',
-                'attributes',
-                'is_root_volume'
-            ]
-        )
+        volume_type = self.volume_type
         assert state.get_volumes() == [
             volume_type(
                 name='usr', parent='', size=None, realpath='usr',

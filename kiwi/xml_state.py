@@ -359,6 +359,22 @@ class XMLState:
                 result.append(packages)
         return result
 
+    def volume_matches_host_architecture(self, volume: Any) -> bool:
+        """
+        Tests if the given volume section is applicable for the current host
+        architecture. If no architecture is specified within the section
+        it is considered as a match returning True.
+
+        Note: The XML section pointer must provide an arch attribute
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return self._section_matches_host_architecture(volume)
+
     def package_matches_host_architecture(self, package: Any) -> bool:
         """
         Tests if the given package section is applicable for the current host
@@ -1675,6 +1691,8 @@ class XMLState:
         have_full_size_volume = False
         if volumes:
             for volume in volumes:
+                if not self.volume_matches_host_architecture(volume):
+                    continue
                 # volume setup for a full qualified volume with name and
                 # mountpoint information. See below for exceptions
                 name = volume.get_name()
