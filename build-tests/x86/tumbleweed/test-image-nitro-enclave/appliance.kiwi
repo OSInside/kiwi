@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-nitro-enclave">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>AWS Nitro Enclave test build</specification>
+    </description>
+    <profiles>
+        <profile name="default" description="CPIO: default profile" import="true"/>
+        <profile name="std" description="KERNEL: default kernel" import="true"/>
+    </profiles>
+    <preferences>
+        <version>1.1.1</version>
+        <packagemanager>zypper</packagemanager>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences>
+        <type image="enclave" enclave_format="aws-nitro" kernelcmdline="reboot=k panic=30 pci=off console=ttyS0 i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd random.trust_cpu=on rdinit=/sbin/init"/>
+    </preferences>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <!-- temporary repo to fetch nitro-enclave-alive -->
+    <repository type="rpm-md">
+        <source path="obs://home:agraf/openSUSE_Tumbleweed"/>
+    </repository>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <packages type="image" profiles="std">
+        <package name="kernel-default"/>
+    </packages>
+    <packages type="image">
+        <package name="systemd"/>
+        <package name="systemd-experimental"/>
+        <package name="iputils"/>
+        <package name="openssh"/>
+        <package name="iproute2"/>
+        <package name="less"/>
+        <package name="NetworkManager"/>
+        <package name="timezone"/>
+        <package name="nitro-enclave-alive"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
+        <package name="udev"/>
+        <package name="xz"/>
+        <package name="shadow"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="openSUSE-release"/>
+    </packages>
+</image>

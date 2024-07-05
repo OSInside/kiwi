@@ -3082,7 +3082,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3107,6 +3107,7 @@ class type_(GeneratedsSuper):
         self.editbootinstall = _cast(None, editbootinstall)
         self.filesystem = _cast(None, filesystem)
         self.flags = _cast(None, flags)
+        self.enclave_format = _cast(None, enclave_format)
         self.format = _cast(None, format)
         self.formatoptions = _cast(None, formatoptions)
         self.fsmountoptions = _cast(None, fsmountoptions)
@@ -3316,6 +3317,8 @@ class type_(GeneratedsSuper):
     def set_filesystem(self, filesystem): self.filesystem = filesystem
     def get_flags(self): return self.flags
     def set_flags(self, flags): self.flags = flags
+    def get_enclave_format(self): return self.enclave_format
+    def set_enclave_format(self, enclave_format): self.enclave_format = enclave_format
     def get_format(self): return self.format
     def set_format(self, format): self.format = format
     def get_formatoptions(self): return self.formatoptions
@@ -3596,6 +3599,9 @@ class type_(GeneratedsSuper):
         if self.flags is not None and 'flags' not in already_processed:
             already_processed.add('flags')
             outfile.write(' flags=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.flags), input_name='flags')), ))
+        if self.enclave_format is not None and 'enclave_format' not in already_processed:
+            already_processed.add('enclave_format')
+            outfile.write(' enclave_format=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.enclave_format), input_name='enclave_format')), ))
         if self.format is not None and 'format' not in already_processed:
             already_processed.add('format')
             outfile.write(' format=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.format), input_name='format')), ))
@@ -3973,6 +3979,11 @@ class type_(GeneratedsSuper):
             already_processed.add('flags')
             self.flags = value
             self.flags = ' '.join(self.flags.split())
+        value = find_attr_value_('enclave_format', node)
+        if value is not None and 'enclave_format' not in already_processed:
+            already_processed.add('enclave_format')
+            self.enclave_format = value
+            self.enclave_format = ' '.join(self.enclave_format.split())
         value = find_attr_value_('format', node)
         if value is not None and 'format' not in already_processed:
             already_processed.add('format')
