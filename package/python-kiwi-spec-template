@@ -658,7 +658,9 @@ Provides manual pages to describe the kiwi commands
 Summary:        Bash Completion for kiwi-ng
 Requires:       bash-completion
 Requires:       python%{python3_pkgversion}-kiwi = %{version}
+%if ! (0%{?debian} || 0%{?ubuntu})
 Supplements:    (%{name} and bash-completion)
+%endif
 BuildArch:      noarch
 
 %description -n kiwi-bash-completion
