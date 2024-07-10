@@ -1,31 +1,29 @@
 Plugin Architecture
 ===================
 
-Each command provided by {kiwi} is written as a task plugin under
-the **kiwi.tasks** namespace. As a developer you can extend {kiwi}
-with custom task plugins if the following conventions are taken
-into account:
+Each command provided by {kiwi} is written as a task plugin under the
+**kiwi.tasks** namespace. As a developer, you can extend {kiwi} with custom task
+plugins, following the conventions below.
 
-Naming Conventions
+Naming conventions
 ------------------
 
-Task Plugin File Name
+Task plugin file name
   The file name of a task plugin must follow the pattern
-  :file:`<service>_<command>.py`. This allows to invoke the task
+  :file:`<service>_<command>.py`. This allows you to invoke the task
   with :command:`kiwi-ng service command ...`
 
-Task Plugin Option Handling
+Task plugin option handling
   {kiwi} uses the docopt module to handle options. Each task plugin
   must use docopt to allow option handling.
 
-Task Plugin Class
-  The implementation of the plugin must be a class that matches
-  the naming convention: :class:`<Service><Command>Task`. The class
-  must inherit from the :class:`CliTask` base class. On startup of
-  the plugin, {kiwi} expects an implementation of the
-  :file:`process` method.
+Task plugin class
+  The implementation of the plugin must be a class that matches the naming
+  convention :class:`<Service><Command>Task`. The class must inherit from the
+  :class:`CliTask` base class. On the plugin startup, {kiwi} expects an
+  implementation of the :file:`process` method.
 
-Task Plugin Entry Point
+Task plugin entry point
   Registration of the plugin must be done in :file:`setup.py`
   using the ``entry_points`` concept from Python's setuptools.
 
@@ -38,7 +36,7 @@ Task Plugin Entry Point
           ]
       }
 
-Example Plugin
+Example plugin
 --------------
 
 .. note::
@@ -47,14 +45,13 @@ Example Plugin
    which was set up according to the Python project rules
    and standards.
 
-1. Assuming the project namespace is **kiwi_relax_plugin**.
-
-   Create the task plugin directory :file:`kiwi_relax_plugin/tasks`
+1. Assuming the project namespace is **kiwi_relax_plugin**, create the task
+   plugin directory :file:`kiwi_relax_plugin/tasks`
 
 2. Create the entry point in :command:`setup.py`.
 
-   Assuming we want to create the service named **relax** providing
-   the command **justdoit** this would be the following entry point
+   Assuming we want to create the service named **relax** that has
+   the command **justdoit**, this is the following entry point
    definition in :file:`setup.py`:
 
    .. code:: python
