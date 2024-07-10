@@ -3,13 +3,13 @@ Using {kiwi} in a Python Project
 
 .. note:: **Abstract**
 
-   {kiwi} is provided as python module under the **kiwi** namespace.
-   It is available for the python 3 version. The following
+   {kiwi} is provided as a Python module under the **kiwi** namespace.
+   It is available for the Python 3 version. The following
    description applies for {kiwi} version |version|.
 
 {kiwi} can also function as a module for other Python projects.
 The following example demonstrates how to read an existing image
-description, add a new repository definition and export the
+description, add a new repository definition, and export the
 modified description on stdout.
 
 .. code:: python
@@ -39,15 +39,15 @@ modified description on stdout.
         outfile=sys.stdout, level=0
     )
 
-All classes are written in a way to care for a single responsibility
-in order to allow for re-use on other use cases. Therefore it is possible
-to use {kiwi} outside of the main image building scope to manage e.g
-the setup of loop devices, filesystems, partitions, etc...
+Each class in the example is responsible for a single tasks, so they can be
+reused in other user cases. Therefore it is possible to use {kiwi} beyond the
+main image building scope, for example to manage setup of loop devices,
+filesystems, partitions, etc.
 
-This means {kiwi} provides you a way to describe a system but you are
-free to make use of the kiwi description format or not. The following
-example shows how to use kiwi to create a simple filesystem image
-which contains your host `tmp` directory.
+This means {kiwi} offers a way to describe a system, but you can choose whether
+you want to use the {kiwi} description format or not. The following example
+shows how to use {kiwi} to create a simple filesystem image which contains your
+host `tmp` directory.
 
 .. code:: python
 
