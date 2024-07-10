@@ -70,17 +70,56 @@ class TestLoopDevice:
 
     @patch('kiwi.storage.loop_device.Command.run')
     @patch('os.path.exists')
-    def test_context_manager_exit(self, mock_os_path_exists, mock_command_run):
+    @patch('pathlib.Path.is_block_device')
+    @patch('time.sleep')
+    def test_context_manager_exit_loop_released(
+        self, mock_time_sleep, mock_is_block_device,
+        mock_os_path_exists, mock_command_run
+    ):
+        is_block_device = [False, True]
         mock_os_path_exists.return_value = True
+        mock_command_run.side_effect = KiwiCommandError('error')
 
-        def side_effect(params):
+        def Command_run(params):
             # raise on first command which is 'losetup -f ...'
-            # and raise on last command which is 'udevadm settle' to trigger
-            # the logging error
-            if params[1] == '-f' or params[1] == 'settle':
+            if params[1] == '-f':
                 raise KiwiCommandError('issue')
 
-        mock_command_run.side_effect = side_effect
+        def Path_is_block_device():
+            return is_block_device.pop()
+
+        mock_is_block_device.side_effect = Path_is_block_device
+        mock_command_run.side_effect = Command_run
+
+        with self._caplog.at_level(logging.ERROR):
+            with LoopDevice('loop-file', 20) as loop_provider:
+                loop_provider.node_name = '/dev/loop0'
+                with raises(KiwiCommandError):
+                    loop_provider.create(overwrite=False)
+            assert len(mock_is_block_device.call_args_list) == 2
+            assert mock_command_run.call_args_list == [
+                call(['losetup', '-f', '--show', 'loop-file']),
+                call(['losetup', '-d', '/dev/loop0'])
+            ]
+
+    @patch('kiwi.storage.loop_device.Command.run')
+    @patch('os.path.exists')
+    @patch('pathlib.Path.is_block_device')
+    @patch('time.sleep')
+    def test_context_manager_exit_loop_not_released(
+        self, mock_time_sleep, mock_is_block_device,
+        mock_os_path_exists, mock_command_run
+    ):
+        mock_os_path_exists.return_value = True
+        mock_command_run.side_effect = KiwiCommandError('error')
+        mock_is_block_device.return_value = True
+
+        def Command_run(params):
+            # raise on first command which is 'losetup -f ...'
+            if params[1] == '-f':
+                raise KiwiCommandError('issue')
+
+        mock_command_run.side_effect = Command_run
 
         with self._caplog.at_level(logging.ERROR):
             with LoopDevice('loop-file', 20) as loop_provider:
@@ -89,6 +128,5 @@ class TestLoopDevice:
                     loop_provider.create(overwrite=False)
             assert mock_command_run.call_args_list == [
                 call(['losetup', '-f', '--show', 'loop-file']),
-                call(['losetup', '-d', '/dev/loop0']),
-                call(['udevadm', 'settle'])
+                call(['losetup', '-d', '/dev/loop0'])
             ]
