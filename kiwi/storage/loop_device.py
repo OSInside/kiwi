@@ -17,6 +17,8 @@
 #
 import os
 import logging
+import time
+import pathlib
 
 # project
 from kiwi.command import Command
@@ -108,9 +110,22 @@ class LoopDevice(DeviceProvider):
             try:
                 Command.run(['losetup', '-d', self.node_name])
                 # loop detach is an async operation, re-use of the device
-                # should not be done before the kernel event queue has
-                # settled after detaching
-                Command.run(['udevadm', 'settle'])
+                # should not be done before the block device has been released
+                loop_released = False
+                sys_block_loop = pathlib.Path(
+                    '/sys/devices/virtual/block/{0}/loop'.format(
+                        os.path.basename(self.node_name)
+                    )
+                )
+                for busy in range(0, 100):
+                    if not sys_block_loop.is_block_device():
+                        loop_released = True
+                        break
+                    time.sleep(0.1)
+                if not loop_released:
+                    raise KiwiCommandError(
+                        f'Loop device {self.node_name} still attached'
+                    )
             except (KiwiCommandError, KiwiCommandNotFound) as issue:
                 log.error(
                     'loop cleanup on {0} failed with: {1}'.format(
