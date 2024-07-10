@@ -19,7 +19,7 @@ import os
 import shutil
 import logging
 from typing import (
-    Dict, List
+    Dict, List, Union
 )
 
 # project
@@ -61,7 +61,7 @@ class IsoToolsBase:
         raise NotImplementedError
 
     def init_iso_creation_parameters(
-        self, custom_args: Dict[str, str] = None
+        self, custom_args: Dict[str, Union[str, bool]] = None
     ) -> None:
         """
         Create a set of standard parameters for the main loader

@@ -45,7 +45,8 @@ class TestIsoToolsXorrIso:
                     'publisher': 'org',
                     'preparer': 'preparer',
                     'volume_id': 'vol_id',
-                    'efi_mode': 'uefi'
+                    'efi_mode': 'uefi',
+                    'legacy_bios_mode': True
                 }
             )
             assert 'No hybrid MBR file found' in self._caplog.text
@@ -59,7 +60,8 @@ class TestIsoToolsXorrIso:
                 'publisher': 'org',
                 'preparer': 'preparer',
                 'volume_id': 'vol_id',
-                'efi_mode': 'uefi'
+                'efi_mode': 'uefi',
+                'legacy_bios_mode': True
             }
         )
         assert self.iso_tool.iso_parameters == [

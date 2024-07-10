@@ -1261,7 +1261,7 @@ class Defaults:
         :rtype: dict
         """
         return {
-            'x86_64': ['efi', 'uefi', 'bios', 'ec2hvm', 'ec2'],
+            'x86_64': ['efi', 'uefi', 'bios', 'ec2'],
             'i586': ['bios'],
             'i686': ['bios'],
             'ix86': ['bios'],

@@ -18,6 +18,9 @@ class TestLiveImageBuilder:
         Defaults.set_platform_name('x86_64')
 
         self.firmware = Mock()
+        self.firmware.legacy_bios_mode = Mock(
+            return_value=True
+        )
         self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
@@ -355,7 +358,8 @@ class TestLiveImageBuilder:
                     'volume_id': 'volid',
                     'efi_mode': 'uefi',
                     'efi_loader': 'kiwi-tmpfile',
-                    'udf': True
+                    'udf': True,
+                    'legacy_bios_mode': True
                 }
             },
             device_provider=mock_DeviceProvider.return_value,

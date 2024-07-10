@@ -141,6 +141,17 @@ class TestBootLoaderInstallGrub2:
         )
         assert self.bootloader.install_required() is False
 
+    def test_install_required_efi_no_csm(self):
+        self.bootloader.arch = 'x86_64'
+        self.bootloader.firmware = mock.Mock()
+        self.bootloader.firmware.efi_mode = mock.Mock(
+            return_value='efi'
+        )
+        self.bootloader.firmware.legacy_bios_mode = mock.Mock(
+            return_value=False
+        )
+        assert self.bootloader.install_required() is False
+
     def test_install_required_arm64(self):
         self.bootloader.arch = 'arm64'
         assert self.bootloader.install_required() is False

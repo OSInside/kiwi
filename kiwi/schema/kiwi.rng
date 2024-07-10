@@ -2293,6 +2293,18 @@ size is set to 20 MB</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.eficsm.attribute">
+      <attribute name="eficsm">
+        <a:documentation>For images with an EFI layout, specify if the legacy
+CSM (BIOS) mode should be supported or not. By default
+CSM mode is enabled</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="eficsm" is-a="image_type">
+        <sch:param name="attr" value="eficsm"/>
+        <sch:param name="types" value="oem iso"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.efifatimagesize.attribute">
       <attribute name="efifatimagesize">
         <a:documentation>For ISO images (live and install) the EFI boot requires
@@ -3191,6 +3203,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.efifatimagesize.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.eficsm.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.efiparttable.attribute"/>

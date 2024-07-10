@@ -18,7 +18,7 @@
 import os
 import logging
 from typing import (
-    Dict, List, Optional
+    Dict, List, Optional, Union
 )
 
 # project
@@ -66,36 +66,39 @@ class IsoToolsXorrIso(IsoToolsBase):
         raise KiwiIsoToolError('xorriso tool not found')
 
     def init_iso_creation_parameters(
-        self, custom_args: Optional[Dict[str, str]] = None
+        self, custom_args: Optional[Dict[str, Union[str, bool]]] = None
     ) -> None:
         """
         Create a set of standard parameters
 
         :param list custom_args: custom ISO meta data
         """
+        legacy_bios_mode = True
         if custom_args:
             if 'mbr_id' in custom_args:
                 self.iso_parameters += [
-                    '-application_id', custom_args['mbr_id']
+                    '-application_id', format(custom_args['mbr_id'])
                 ]
             if 'publisher' in custom_args:
                 self.iso_parameters += [
-                    '-publisher', custom_args['publisher']
+                    '-publisher', format(custom_args['publisher'])
                 ]
             if 'preparer' in custom_args:
                 self.iso_parameters += [
-                    '-preparer_id', custom_args['preparer']
+                    '-preparer_id', format(custom_args['preparer'])
                 ]
             if 'volume_id' in custom_args:
                 self.iso_parameters += [
-                    '-volid', custom_args['volume_id']
+                    '-volid', format(custom_args['volume_id'])
                 ]
+            if 'legacy_bios_mode' in custom_args:
+                legacy_bios_mode = bool(custom_args['legacy_bios_mode'])
         catalog_file = self.boot_path + '/boot.catalog'
         self.iso_parameters += [
             '-joliet', 'on', '-padding', '0'
         ]
 
-        if Defaults.is_x86_arch(self.arch):
+        if Defaults.is_x86_arch(self.arch) and legacy_bios_mode:
             mbr_file = os.sep.join(
                 [
                     self.source_dir, self.boot_path, 'loader',

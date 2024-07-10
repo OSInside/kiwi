@@ -42,6 +42,8 @@ class FirmWare:
         self.firmware = xml_state.build_type.get_firmware()
         self.efipart_mbytes = xml_state.build_type.get_efipartsize()
         self.efi_partition_table = xml_state.build_type.get_efiparttable()
+        self.efi_csm = True if xml_state.build_type.get_eficsm() is None \
+            else xml_state.build_type.get_eficsm()
 
         if not self.firmware:
             self.firmware = Defaults.get_default_firmware(self.arch)
@@ -75,7 +77,7 @@ class FirmWare:
         else:
             return 'msdos'
 
-    def legacy_bios_mode(self):
+    def legacy_bios_mode(self) -> bool:
         """
         Check if the legacy boot from BIOS systems should be activated
 
@@ -84,14 +86,16 @@ class FirmWare:
         :rtype: bool
         """
         if self.get_partition_table_type() == 'gpt':
-            if self.arch == 'x86_64' or re.match('i.86', self.arch):
+            if (self.arch == 'x86_64' or re.match('i.86', self.arch)) and \
+               (self.firmware == 'efi' or self.firmware == 'uefi') and \
+               self.efi_csm:
                 return True
             else:
                 return False
         else:
             return False
 
-    def efi_mode(self):
+    def efi_mode(self) -> str:
         """
         Check if EFI mode is requested
 
@@ -101,6 +105,7 @@ class FirmWare:
         """
         if self.firmware in Defaults.get_efi_capable_firmware_names():
             return self.firmware
+        return ''
 
     def ec2_mode(self):
         """
