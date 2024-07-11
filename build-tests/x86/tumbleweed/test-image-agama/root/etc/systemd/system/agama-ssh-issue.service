@@ -1,0 +1,11 @@
+[Unit]
+Description=Generate issue file for SSH host keys
+Before=systemd-user-sessions.service
+After=sshd.service
+
+[Service]
+Type=oneshot
+ExecStart=agama-issue-generator --ssh
+
+[Install]
+WantedBy=default.target

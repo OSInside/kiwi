@@ -1,0 +1,10 @@
+[Unit]
+Description=Watch the Agama SSL certificate for changes
+Before=systemd-user-sessions.service
+
+[Path]
+Unit=agama-certificate-issue.service
+PathChanged=/etc/agama.d/ssl/cert.pem
+
+[Install]
+WantedBy=default.target

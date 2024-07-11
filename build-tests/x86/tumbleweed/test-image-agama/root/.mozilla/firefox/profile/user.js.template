@@ -1,0 +1,10 @@
+// Mozilla User Preferences
+
+// do not remember or generate passwords
+user_pref("signon.management.page.breach-alerts.enabled", false);
+user_pref("signon.rememberSignons", false);
+user_pref("signon.generation.enabled", false);
+// start always in the custom homepage
+user_pref("browser.startup.page", 1);
+// custom homepage: the value is expected to be replaced with the login URL by the startup script
+user_pref("browser.startup.homepage", "__HOMEPAGE__");

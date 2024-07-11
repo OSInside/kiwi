@@ -1,0 +1,5 @@
+# udev rules for generating the Agama access URLs displayed at the console
+ACTION=="add", SUBSYSTEM=="net", RUN+="/usr/bin/agama-issue-generator --network add $env{INTERFACE}"
+ACTION=="remove", SUBSYSTEM=="net", RUN+="/usr/bin/agama-issue-generator --network rm $env{INTERFACE}"
+ACTION=="move", SUBSYSTEM=="net", RUN+="/usr/bin/agama-issue-generator --network add $env{INTERFACE}"
+ACTION=="move", SUBSYSTEM=="net", RUN+="/usr/bin/agama-issue-generator --network rm $env{DEVPATH_OLD}"

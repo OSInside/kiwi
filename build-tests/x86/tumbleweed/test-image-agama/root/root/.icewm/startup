@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# Start a browser to connect to Agama's web user interface skipping the authentication.
+
+TOKEN_FILE=/run/agama/token
+TOKEN=$(cat $TOKEN_FILE)
+PREFS=$HOME/.mozilla/firefox/profile/user.js
+
+sed -e "s/__HOMEPAGE__/http:\/\/localhost\/login?token=$TOKEN/" $PREFS.template > $PREFS
+firefox --kiosk --profile $HOME/.mozilla/firefox/profile

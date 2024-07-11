@@ -1,0 +1,27 @@
+[Unit]
+Description=Postpone login prompt after the SSL fingerprint issue is generated
+
+After=agama-web-server.service
+
+# copied from YaST2-Second-Stage.service
+Before=getty@tty1.service
+Before=getty@tty2.service
+Before=getty@tty3.service
+Before=getty@tty4.service
+Before=getty@tty5.service
+Before=getty@tty6.service
+Before=serial-getty@hvc0.service
+Before=serial-getty@sclp_line0.service
+Before=serial-getty@ttyAMA0.service
+Before=serial-getty@ttyS0.service
+Before=serial-getty@ttyS1.service
+Before=serial-getty@ttyS2.service
+Before=serial-getty@ttysclp0.service
+
+[Service]
+Type=oneshot
+# wait at most 15 seconds to not block
+ExecStart=agama-issue-generator --wait-for-ssl 15
+
+[Install]
+WantedBy=default.target
