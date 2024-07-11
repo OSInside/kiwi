@@ -1,0 +1,11 @@
+[Unit]
+Description=Generate issue file for Agama URL from Avahi
+
+After=avahi-daemon.service
+
+[Service]
+ExecStart=agama-issue-generator --watch-avahi
+Type=simple
+
+[Install]
+WantedBy=default.target

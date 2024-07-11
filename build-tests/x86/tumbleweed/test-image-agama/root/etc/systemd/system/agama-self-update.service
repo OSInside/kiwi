@@ -1,0 +1,31 @@
+[Unit]
+Description=Agama self-update
+
+After=network-online.target
+
+# before starting the Agama servers so they use the new packages
+Before=agama-web-server.service
+Before=agama.service
+Before=x11-autologin.service
+# before interactive password services
+Before=live-password-dialog.service
+Before=live-password-systemd.service
+
+# kernel command line option
+ConditionKernelCommandLine=|agama.self_update
+# linuxrc/YaST backward compatibility
+ConditionKernelCommandLine=|agama.selfupdate
+
+[Service]
+Type=oneshot
+Environment=TERM=linux
+ExecStartPre=dmesg --console-off
+ExecStart=agama-self-update
+ExecStartPost=dmesg --console-on
+TTYReset=yes
+TTYVHangup=yes
+StandardInput=tty
+TimeoutSec=0
+
+[Install]
+WantedBy=default.target

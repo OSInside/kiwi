@@ -1,0 +1,11 @@
+<?xml version="1.0" standalone='no'?>
+<!-- see "man avahi.service" for details -->
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">Agama Installer (https://%h.local)</name>
+  <service>
+    <type>_https._tcp</type>
+    <subtype>_agama._sub._https._tcp</subtype>
+    <port>433</port>
+  </service>
+</service-group>

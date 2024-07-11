@@ -1,0 +1,8 @@
+[repo-oss]
+name=openSUSE-Tumbleweed-Oss
+type=rpm-md
+enabled=1
+autorefresh=1
+gpgcheck=1
+baseurl=https://download.opensuse.org/tumbleweed/repo/oss
+

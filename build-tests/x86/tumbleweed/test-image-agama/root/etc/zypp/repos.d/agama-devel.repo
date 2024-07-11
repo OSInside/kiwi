@@ -1,0 +1,8 @@
+[agama-devel]
+name=Agama-Devel
+type=rpm-md
+enabled=1
+autorefresh=1
+gpgcheck=1
+baseurl=https://download.opensuse.org/repositories/systemsmanagement:/Agama:/Devel/openSUSE_Tumbleweed/
+gpgkey=https://download.opensuse.org/repositories/systemsmanagement:/Agama:/Devel/openSUSE_Tumbleweed/repodata/repomd.xml.key

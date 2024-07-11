@@ -1,0 +1,26 @@
+#! /bin/sh
+
+# Experimental Agama self-update script
+#
+# This script updates the Agama packages in the Live system from the
+# Agama Devel OBS project.
+
+
+# first try a quick and simple solution, refreshing the OSS repository takes a
+# lot of time so try using only the agama-devel for update
+zypper modifyrepo --disable repo-oss
+zypper refresh
+zypper --non-interactive dup --details --from agama-devel
+STATUS=$?
+
+# enable OSS back
+zypper modifyrepo --enable repo-oss
+
+# if it failed try it again with the OSS repo enabled, maybe there was some
+# dependency problem which hopefully will be OK now
+if [ "$?" != "0" ]; then
+  zypper --non-interactive dup --details --from agama-devel
+fi
+
+# clean all repository caches to save space in RAM disk
+zypper clean --all

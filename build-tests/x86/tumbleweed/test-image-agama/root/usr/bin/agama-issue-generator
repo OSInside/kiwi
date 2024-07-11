@@ -1,0 +1,179 @@
+#!/bin/bash
+
+# This is a helper script which generates issue file displayed at the console
+# before logging in. Partly inspired by the issue-generator package
+# (https://github.com/thkukuk/issue-generator).
+#
+# Generates several issue files:
+#  - Welcome message with Agama version number (--welcome option)
+#  - Agama SSL certificate fingerprints (--ssl option)
+#  - SSH host key fingerprints (--ssh option)
+#  - Agama access URL for all network devices (--network option), this is
+#    triggered via udev rules
+#  - Agama access URL using the mDNS (Avahi) URL (--watch-avahi option),
+#    NOTE: in this case the script does not finish, it watches the changes in
+#          the Avahi service and updates the URL if needed
+#
+
+# issue location for the Agama SSL certificate fingerprints, it is generated as
+# the last one and is used as a trigger to allow refreshing all other generated
+# issues
+CERT_ISSUE=/run/issue.d/50-agama-ssl-certificate.issue
+
+# a helper function which generates the Agama welcome message displayed at the
+# console
+generate_welcome() {
+  # get the latest version of any Agama package
+  AGAMA_VERSION=$(rpm -qa | grep agama | xargs rpm -q --queryformat \
+    "%{VERSION}\n" | sed -e "s/\\.devel/+/" -e 's/+0$//' | sort -V | tail -n 1)
+
+  ISSUE=/run/issue.d/10-agama-welcome.issue
+  printf "Welcome to \\\\e{lightgreen}Agama\\\\e{reset} installer version %s! (\\\\l)\n\n" "$AGAMA_VERSION" > "$ISSUE"
+}
+
+# a helper function which displays the SSH host key fingerprints at the console
+generate_ssh_fingerprints() {
+  FINGERPRINTS=$(find /etc/ssh -type f -name "ssh_host_*_key" -exec ssh-keygen -l -f \{\} \; | cut -d ' ' -f 2,4 | sed -e "s/^/    /")
+  ISSUE=/run/issue.d/30-live-ssh-fingerprints.issue
+
+  printf "SSH host key fingerprints:\n%s\n\n" "$FINGERPRINTS" > "$ISSUE"
+}
+
+# a helper function which generates the Agama SSL certificate fingerprints
+# displayed at the console
+generate_certificate_fingerprints() {
+  AGAMA_CERT=/etc/agama.d/ssl/cert.pem
+
+  # delete the previous file if it is there
+  rm -f "$CERT_ISSUE"
+
+  if [ -e "$AGAMA_CERT" ]; then
+    SHA256=$(openssl x509 -fingerprint -sha256 -noout -in "$AGAMA_CERT" | sed -e "s/^sha256 Fingerprint=//")
+    SHA1=$(openssl x509 -fingerprint -sha1 -noout -in "$AGAMA_CERT" | sed -e "s/^sha1 Fingerprint=//")
+
+    if [ -n "$SHA256" ] && [ -n "$SHA1" ]; then
+      printf "Agama installer SSL certificate fingerprints:\n    SHA256: %s\n    SHA1: %s\n\n" "$SHA256" "$SHA1" \
+        > "$CERT_ISSUE"
+    fi
+  fi
+
+  # tell agetty to use the issues from /run
+  touch /run/issue
+
+  # reload the issues to activate the changes
+  touch /run/agetty.reload
+}
+
+# a helper function which generates the mDNS URL for accessing the Agama server
+# displayed at the console
+generate_avahi_url() {
+  # issue file for the Agama mDNS URL
+  ISSUE=/run/issue.d/70-agama-connect-avahi.issue
+  # track the name, update the issue file only if the name is changed
+  OLDNAME=""
+
+  # watch for a systemd signal describing the status message change from the Avahi daemon
+  dbus-monitor --system "sender='org.freedesktop.systemd1',\
+  interface='org.freedesktop.DBus.Properties',\
+  path='/org/freedesktop/systemd1/unit/avahi_2ddaemon_2eservice',type=signal" \
+  2> /dev/null | while read -r line;
+    do
+      AVAHINAME=$(echo "$line" | grep "Server startup complete. Host name is" \
+      | sed -e "s/^.*Server startup complete. Host name is \(.*\)\. Local.*$/\\1/")
+
+      # mDNS host name found and it is different than the previous one (or the initial value)
+      if [ -n "$AVAHINAME" ] && [ "$AVAHINAME" != "$OLDNAME" ]; then
+        OLDNAME="$AVAHINAME"
+        echo "    https://$AVAHINAME" > "$ISSUE"
+
+        # reload if not in the initial state
+        if [ -e "$CERT_ISSUE" ]; then
+          touch /run/agetty.reload
+        fi
+      fi
+
+      # daemon stopped, remove the issue file
+      if echo "$line" | grep -q "avahi-daemon .* exiting"; then
+        OLDNAME=""
+        rm -f "$ISSUE"
+        touch /run/agetty.reload
+      fi
+    done
+}
+
+# a helper function which generates the URLs for accessing the Agama server
+# displayed at the console
+generate_network_url() {
+  # the interface might be a device path, use the base name
+  if [[ "$2" =~ ^/ ]]; then
+      IFACE="${2##*/}"
+  else
+      IFACE="${2}"
+  fi
+
+  ACTION="$1"
+  ISSUE="/run/issue.d/70-agama-connect-$IFACE.issue"
+  # generate a header and footer around the Agama URL issues
+  ISSUE_HEADER=/run/issue.d/69-agama-connect.issue
+  ISSUE_FOOTER=/run/issue.d/71-agama-connect.issue
+
+  # only handle interfaces starting with ^[bew]
+  # (bridges, ethernet and wifi devices), same as in the issue-generator
+  [[ "$IFACE" =~ ^[bew] ]] || exit 0
+
+  case "$ACTION" in
+    add)
+      # \4{} is a placeholder supported directly by the agetty issue reader
+      # see "man agetty"
+      echo "    https://\\4{$IFACE} " > "$ISSUE"
+      ;;
+    remove)
+      rm -f "$ISSUE"
+      ;;
+  esac
+
+  # check the number of URL messages
+  ISSUES=$(ls /run/issue.d/70-agama-connect-*.issue 2> /dev/null)
+  if [ -n "$ISSUES" ]; then
+    # at least one message present, display the header and footer
+    echo "Connect to the Agama installer using these URLs:" > "$ISSUE_HEADER"
+    echo > "$ISSUE_FOOTER"
+  else
+    # no messages, delete the header and footer
+    rm -f "$ISSUE_HEADER" "$ISSUE_FOOTER"
+  fi
+
+  # reload if not in the initial state
+  if [ -e "$CERT_ISSUE" ]; then
+    touch /run/agetty.reload
+  fi
+}
+
+# wait until the SSL fingreprint issue is create, but at most 10 seconds
+wait_for_ssl_issue() {
+  for i in $(seq 1 "$1"); do
+    [ -f "$CERT_ISSUE" ] && exit 0
+    sleep 1
+  done
+}
+
+# make sure the parent directory for the issues exists
+mkdir -p /run/issue.d
+
+# create the issue file for specified item
+if [ "$1" = "--welcome" ]; then
+  generate_welcome
+elif [ "$1" = "--ssh" ]; then
+  generate_ssh_fingerprints
+elif [ "$1" = "--ssl" ]; then
+  generate_certificate_fingerprints
+elif [ "$1" = "--wait-for-ssl" ]; then
+  wait_for_ssl_issue "$2"
+elif [ "$1" = "--network" ]; then
+  generate_network_url "$2" "$3"
+elif [ "$1" = "--watch-avahi" ]; then
+  generate_avahi_url
+else
+  echo "Missing argument"
+  exit 1
+fi

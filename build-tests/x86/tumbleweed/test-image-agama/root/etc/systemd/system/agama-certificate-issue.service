@@ -1,0 +1,9 @@
+[Unit]
+Description=Generate issue file for Agama SSL certificate
+
+[Service]
+Type=oneshot
+ExecStart=agama-issue-generator --ssl
+
+[Install]
+WantedBy=default.target
