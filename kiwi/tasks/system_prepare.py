@@ -32,6 +32,8 @@ usage: kiwi-ng system prepare -h | --help
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
            [--add-container-label=<label>...]
+           [--set-type-attr=<attribute=value>...]
+           [--set-release-version=<version>]
            [--signing-key=<key-file>...]
        kiwi-ng system prepare help
 
@@ -104,6 +106,12 @@ options:
         password connected to the set-repo specification. If the provided
         value describes a filename in the filesystem, the first line of that
         file is read and used as credentials information.
+     --set-type-attr=<attribute=value>
+        overwrite/set the attribute with the provided value in the selected
+        build type section
+    --set-release-version=<version>
+        overwrite/set the release-version element in the selected
+        build type preferences section
      --signing-key=<key-file>
         includes the key-file as a trusted key for package manager validations
 """
@@ -159,6 +167,32 @@ class SystemPrepareTask(CliTask):
             }
         )
         self.run_checks(prepare_checks)
+
+        if self.command_args['--set-type-attr']:
+            for set_type_attr in self.command_args['--set-type-attr']:
+                (attribute, value) = self.attr_token(set_type_attr)
+                log.info(f'--> Set <type ... {attribute}="{value}" .../>')
+                try:
+                    eval(
+                        f'self.xml_state.build_type.set_{attribute}("{value}")'
+                    )
+                except AttributeError as issue:
+                    log.error(f'Failed to set type attribute: {issue}')
+                    return
+
+        if self.command_args['--set-release-version']:
+            release_version = self.command_args['--set-release-version']
+            log.info(f'--> Set <release-version> = {release_version}')
+            section_overwrite = False
+            for preferences in self.xml_state.get_preferences_sections():
+                section = preferences.get_release_version()
+                if section:
+                    section[0] = release_version
+                    section_overwrite = True
+                    break
+            if not section_overwrite:
+                preferences = self.xml_state.get_preferences_sections()[0]
+                preferences.add_release_version(release_version)
 
         if self.command_args['--ignore-repos']:
             self.xml_state.delete_repository_sections()

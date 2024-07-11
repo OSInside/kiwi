@@ -26,6 +26,8 @@ SYNOPSIS
        [--set-container-derived-from=<uri>]
        [--set-container-tag=<name>]
        [--add-container-label=<label>...]
+       [--set-type-attr=<attribute=value>...]
+       [--set-release-version=<version>]
        [--signing-key=<key-file>...]
    kiwi-ng system prepare help
 
@@ -195,6 +197,16 @@ OPTIONS
   Overwrite the container tag in the container configuration.
   The setting applies only if the container configuration
   provides an initial tag value.
+
+--set-type-attr=<attribute=value>
+
+  Overwrite/set the attribute with the provided value in the selected
+  build type section. Example: `--set-type-attr volid=some`
+
+--set-release-version=<version>
+
+  Overwrite/set the release-version element in the selected
+  build type preferences section
 
 --signing-key=<key-file>
 

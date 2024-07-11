@@ -142,6 +142,9 @@ class TestCliTask:
             None, None, None
         ]
 
+    def test_attr_token(self):
+        assert self.task.attr_token('a=b') == ['a', 'b']
+
     @patch('kiwi.tasks.base.RuntimeChecker')
     def test_load_xml_description(self, mock_runtime_checker):
         self.task.load_xml_description('../data/description')

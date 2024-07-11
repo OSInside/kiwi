@@ -236,6 +236,21 @@ class CliTask:
         """
         return self._ntuple_token(option, 10)
 
+    def attr_token(
+        self, option: str
+    ) -> List[Union[bool, str, List[str], None]]:
+        """
+        Helper method for commandline options of the
+        form --option attribute=value
+
+        :param str option: attribute=value string
+
+        :return: common option value representation
+
+        :rtype: list
+        """
+        return self._ntuple_token(option, 2, '=')
+
     def run_checks(self, checks: Dict[str, List[str]]) -> None:
         """
         This method runs the given runtime checks excluding the ones disabled
@@ -264,7 +279,7 @@ class CliTask:
             return token
 
     def _ntuple_token(
-        self, option: str, tuple_count: int
+        self, option: str, tuple_count: int, separator: str = ','
     ) -> List[Union[bool, str, List[str], None]]:
         """
         Helper method for commandline options of the form --option a,b,c,d,e,f
@@ -279,7 +294,7 @@ class CliTask:
 
         :rtype: list
         """
-        tokens = option.split(',', tuple_count - 1) if option else []
+        tokens = option.split(separator, tuple_count - 1) if option else []
         return [
             self._pop_token(tokens) if len(tokens) else None for _ in range(
                 0, tuple_count

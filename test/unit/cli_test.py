@@ -48,6 +48,8 @@ class TestCli:
         self.command_args = {
             '--add-repo': [],
             '--add-repo-credentials': [],
+            '--set-type-attr': [],
+            '--set-release-version': None,
             '--allow-existing-root': False,
             '--description': 'description',
             '--help': False,

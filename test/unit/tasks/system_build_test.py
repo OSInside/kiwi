@@ -74,6 +74,8 @@ class TestSystemBuildTask:
         self.task.command_args = {}
         self.task.command_args['help'] = False
         self.task.command_args['build'] = False
+        self.task.command_args['--set-type-attr'] = ['volid=some']
+        self.task.command_args['--set-release-version'] = '99'
         self.task.command_args['--allow-existing-root'] = True
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--target-dir'] = 'some-target'
@@ -253,6 +255,35 @@ class TestSystemBuildTask:
         mock_set_container_tag.assert_called_once_with(
             'new_tag'
         )
+
+    @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
+    def test_process_system_build_invalid_type_attribute(
+        self, mock_SystemPrepare, mock_log
+    ):
+        self._init_command_args()
+        self.task.command_args['--set-type-attr'] = [
+            'bogus=value'
+        ]
+        with self._caplog.at_level(logging.ERROR):
+            self.task.process()
+        assert 'Failed to set type attribute' in self._caplog.text
+
+    @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
+    @patch('kiwi.xml_state.XMLState.get_preferences_sections')
+    @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
+    def test_process_system_build_release_version_no_overwrite(
+        self, mock_SystemPrepare, mock_logger,
+        mock_get_preferences_sections, mock_get_repositories_signing_keys
+    ):
+        preferences = MagicMock()
+        preferences.get_release_version.return_value = None
+        mock_get_preferences_sections.return_value = [preferences]
+        self._init_command_args()
+        self.task.command_args['--set-release-version'] = '42'
+        self.task.process()
+        preferences.add_release_version.assert_called_once_with('42')
 
     @patch('kiwi.xml_state.XMLState.add_container_config_label')
     @patch('kiwi.logger.Logger.set_logfile')
