@@ -71,6 +71,8 @@ class TestSystemPrepareTask:
         self.task.command_args['prepare'] = False
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--root'] = '../data/root-dir'
+        self.task.command_args['--set-type-attr'] = ['volid=some']
+        self.task.command_args['--set-release-version'] = '99'
         self.task.command_args['--allow-existing-root'] = False
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--set-repo-credentials'] = None
@@ -248,6 +250,35 @@ class TestSystemPrepareTask:
         system_prepare.delete_packages.assert_called_once_with(
             manager.__enter__.return_value, ['vim']
         )
+
+    @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_prepare.SystemPrepare')
+    def test_process_system_build_invalid_type_attribute(
+        self, mock_SystemPrepare, mock_log
+    ):
+        self._init_command_args()
+        self.task.command_args['--set-type-attr'] = [
+            'bogus=value'
+        ]
+        with self._caplog.at_level(logging.ERROR):
+            self.task.process()
+        assert 'Failed to set type attribute' in self._caplog.text
+
+    @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
+    @patch('kiwi.xml_state.XMLState.get_preferences_sections')
+    @patch('kiwi.logger.Logger.set_logfile')
+    @patch('kiwi.tasks.system_prepare.SystemPrepare')
+    def test_process_system_build_release_version_no_overwrite(
+        self, mock_SystemPrepare, mock_logger,
+        mock_get_preferences_sections, mock_get_repositories_signing_keys
+    ):
+        preferences = MagicMock()
+        preferences.get_release_version.return_value = None
+        mock_get_preferences_sections.return_value = [preferences]
+        self._init_command_args()
+        self.task.command_args['--set-release-version'] = '42'
+        self.task.process()
+        preferences.add_release_version.assert_called_once_with('42')
 
     @patch('kiwi.xml_state.XMLState.set_container_config_tag')
     @patch('kiwi.tasks.system_prepare.SystemPrepare')
