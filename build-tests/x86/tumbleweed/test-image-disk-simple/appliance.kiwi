@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" format="vmdk">
+        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" eficsm="false" format="vmdk">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>

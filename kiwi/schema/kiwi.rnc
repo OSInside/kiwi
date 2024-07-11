@@ -1583,6 +1583,15 @@ div {
             sch:param [ name = "attr" value = "efipartsize" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.eficsm.attribute =
+        ## For images with an EFI layout, specify if the legacy
+        ## CSM (BIOS) mode should be supported or not. By default
+        ## CSM mode is enabled
+        attribute eficsm { xsd:boolean }
+        >> sch:pattern [ id = "eficsm" is-a = "image_type"
+            sch:param [ name = "attr" value = "eficsm" ]
+            sch:param [ name = "types" value = "oem iso" ]
+        ]
     k.type.efifatimagesize.attribute =
         ## For ISO images (live and install) the EFI boot requires
         ## an embedded FAT image. This attribute specifies the size
@@ -2235,6 +2244,7 @@ div {
         k.type.bootpartsize.attribute? &
         k.type.efipartsize.attribute? &
         k.type.efifatimagesize.attribute? &
+        k.type.eficsm.attribute? &
         k.type.efiparttable.attribute? &
         k.type.dosparttable_extended_layout.attribute? &
         k.type.bootprofile.attribute? &

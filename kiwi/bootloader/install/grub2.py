@@ -131,6 +131,13 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 'No grub boot code installation on %s', self.arch
             )
             return False
+        elif self.firmware.efi_mode() and not self.firmware.legacy_bios_mode():
+            # In EFI mode without CSM, no install
+            # of grub2 boot code makes sense
+            log.info(
+                'No grub boot code installation in EFI only mode'
+            )
+            return False
         return True
 
     def install(self):

@@ -87,7 +87,7 @@ class TestFirmWare:
         assert self.firmware_bios.ec2_mode() is None
 
     def test_efi_mode(self):
-        assert self.firmware_bios.efi_mode() is None
+        assert self.firmware_bios.efi_mode() == ''
         assert self.firmware_efi.efi_mode() == 'efi'
 
     def test_bios_mode(self):

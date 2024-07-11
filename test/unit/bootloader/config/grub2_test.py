@@ -79,7 +79,7 @@ class TestBootLoaderConfigGrub2:
             return_value=None
         )
         self.firmware.efi_mode = Mock(
-            return_value=None
+            return_value=''
         )
         mock_firmware.return_value = self.firmware
 
@@ -1381,7 +1381,7 @@ class TestBootLoaderConfigGrub2:
         Defaults.set_platform_name('x86_64')
         mock_get_boot_path.return_value = '/boot'
         self.firmware.efi_mode = Mock(
-            return_value=None
+            return_value=''
         )
         self.bootloader.xen_guest = True
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
@@ -1417,7 +1417,7 @@ class TestBootLoaderConfigGrub2:
         mock_get_boot_path.return_value = '/boot'
         self.bootloader.arch = 'ppc64le'
         self.firmware.efi_mode = Mock(
-            return_value=None
+            return_value=''
         )
         self.bootloader.xen_guest = False
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
@@ -1448,7 +1448,7 @@ class TestBootLoaderConfigGrub2:
         mock_get_boot_path.return_value = '/boot'
         self.bootloader.arch = 's390x'
         self.firmware.efi_mode = Mock(
-            return_value=None
+            return_value=''
         )
         self.bootloader.xen_guest = False
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False

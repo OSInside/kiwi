@@ -384,6 +384,11 @@ bootpartsize="nonNegativeInteger":
   specifies the size in MB. If not set the boot partition
   size is set to 200 MB
 
+eficsm="true|false":
+  For images with an EFI layout, specify if the legacy
+  CSM (BIOS) mode should be supported or not. By default
+  CSM mode is enabled.
+
 efipartsize="nonNegativeInteger":
   For images with an EFI fat partition this attribute
   specifies the size in MB. If not set the EFI partition
@@ -483,13 +488,31 @@ editbootinstall="file_path":
 filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs":
   The root filesystem
 
-firmware="efi|uefi":
-  Specifies the boot firmware of the appliance, supported
-  options are: `bios`, `ec2`, `efi`, `uefi`, `ofw` and `opal`.
-  This attribute is used to differentiate the image according to the
-  firmware which boots up the system. It mostly impacts the disk
-  layout and the partition table type. By default `bios` is used on x86,
+firmware="efi|uefi|bios|ec2|ofw|opal":
+  Specifies the boot firmware of the appliance. This attribute is
+  used to differentiate the image according to the firmware which
+  boots up the system. It mostly impacts the disk layout and the
+  partition table type. By default `bios` is used on x86,
   `ofw` on PowerPC and `efi` on ARM.
+
+  * `efi`
+    Standard EFI layout
+
+  * `uefi`
+    Standard EFI layout for secure boot
+
+  * `bios`
+    Standard BIOS layout for x86
+
+  * `ec2`
+    Standard BIOS layout for x86 using Xen grub modules for old
+    style Xen boot in Amazon EC2
+
+  * `ofw`
+    Standard PPC layout
+
+  * `opal`
+    Standard openPOWER PPC64 layout. kexec based boot process
 
 force_mbr="true|false":
   Boolean parameter to force the usage of a MBR partition

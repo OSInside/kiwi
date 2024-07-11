@@ -37,7 +37,7 @@
         </type>
     </preferences>
     <preferences profiles="Secure">
-        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
+        <type image="iso" flags="overlay" firmware="uefi" eficsm="false" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
