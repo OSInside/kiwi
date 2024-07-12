@@ -140,6 +140,7 @@ class LiveImageBuilder:
                 'preparer': Defaults.get_preparer(),
                 'volume_id': self.volume_id,
                 'mbr_id': self.mbrid.get_id(),
+                'application_id': self.xml_state.build_type.get_application_id(),
                 'efi_mode': self.firmware.efi_mode(),
                 'legacy_bios_mode': self.firmware.legacy_bios_mode()
             }

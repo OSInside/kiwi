@@ -31,6 +31,11 @@
       <param name="pattern">[a-zA-Z0-9_\-\.]{1,32}</param>
     </data>
   </define>
+  <define name="safe-posix-long-name">
+    <data type="token">
+      <param name="pattern">[a-zA-Z0-9_\-\.]{1,128}</param>
+    </data>
+  </define>
   <define name="locale-name">
     <data type="token">
       <param name="pattern">(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*</param>
@@ -3064,6 +3069,18 @@ into the master block. There is space for 32 characters.</a:documentation>
         <sch:param name="types" value="iso oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.application_id.attribute">
+      <attribute name="application_id">
+        <a:documentation>for the iso/(oem install iso) type only:
+Specifies the Application ID to be written
+into the master block. There is space for 128 characters.</a:documentation>
+        <ref name="safe-posix-long-name"/>
+      </attribute>
+      <sch:pattern id="application_id" is-a="image_type">
+        <sch:param name="attr" value="application_id"/>
+        <sch:param name="types" value="iso oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.wwid_wait_timeout.attribute">
       <attribute name="wwid_wait_timeout">
         <a:documentation>Specifies the wait period in seconds after launching
@@ -3399,6 +3416,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.volid.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.application_id.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.wwid_wait_timeout.attribute"/>

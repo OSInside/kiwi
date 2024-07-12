@@ -80,6 +80,9 @@ class TestLiveImageBuilder:
         self.xml_state.get_fs_create_option_list = Mock(
             return_value=['-O', 'option']
         )
+        self.xml_state.build_type.get_application_id = Mock(
+            return_value='0xffffffff'
+        )
         self.xml_state.build_type.get_flags = Mock(
             return_value=None
         )
@@ -353,6 +356,7 @@ class TestLiveImageBuilder:
             custom_args={
                 'meta_data': {
                     'mbr_id': '0xffffffff',
+                    'application_id': '0xffffffff',
                     'preparer': 'KIWI - https://github.com/OSInside/kiwi',
                     'publisher': 'Custom publisher',
                     'volume_id': 'volid',
