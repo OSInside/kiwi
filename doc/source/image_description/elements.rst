@@ -943,6 +943,11 @@ volid="string":
   For the ISO type only, specifies the volume ID (volume name or label)
   to be written into the master block. There is space for 32 characters.
 
+application_id="string":
+  For the ISO/(oem install ISO) type only, specifies the Application
+  ID to be written into the master block. There is space for
+  128 characters.
+
 vhdfixedtag="GUID_string":
   For the VHD disk format, specifies the GUID
 

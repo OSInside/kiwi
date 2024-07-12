@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.8 (main, Feb 29 2024, 12:19:47) [GCC]
+# Python 3.11.9 (main, Apr 18 2024, 16:44:43) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -3067,7 +3067,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3143,6 +3143,7 @@ class type_(GeneratedsSuper):
         self.vga = _cast(None, vga)
         self.vhdfixedtag = _cast(None, vhdfixedtag)
         self.volid = _cast(None, volid)
+        self.application_id = _cast(None, application_id)
         self.wwid_wait_timeout = _cast(int, wwid_wait_timeout)
         self.derived_from = _cast(None, derived_from)
         self.delta_root = _cast(bool, delta_root)
@@ -3402,6 +3403,8 @@ class type_(GeneratedsSuper):
     def set_vhdfixedtag(self, vhdfixedtag): self.vhdfixedtag = vhdfixedtag
     def get_volid(self): return self.volid
     def set_volid(self, volid): self.volid = volid
+    def get_application_id(self): return self.application_id
+    def set_application_id(self, application_id): self.application_id = application_id
     def get_wwid_wait_timeout(self): return self.wwid_wait_timeout
     def set_wwid_wait_timeout(self, wwid_wait_timeout): self.wwid_wait_timeout = wwid_wait_timeout
     def get_derived_from(self): return self.derived_from
@@ -3457,6 +3460,13 @@ class type_(GeneratedsSuper):
                     self.validate_safe_posix_short_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_short_name_patterns_, ))
     validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
+    def validate_safe_posix_long_name(self, value):
+        # Validate type safe-posix-long-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_safe_posix_long_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_long_name_patterns_, ))
+    validate_safe_posix_long_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,128}$']]
     def validate_number_type(self, value):
         # Validate type number-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3724,6 +3734,9 @@ class type_(GeneratedsSuper):
         if self.volid is not None and 'volid' not in already_processed:
             already_processed.add('volid')
             outfile.write(' volid=%s' % (quote_attrib(self.volid), ))
+        if self.application_id is not None and 'application_id' not in already_processed:
+            already_processed.add('application_id')
+            outfile.write(' application_id=%s' % (quote_attrib(self.application_id), ))
         if self.wwid_wait_timeout is not None and 'wwid_wait_timeout' not in already_processed:
             already_processed.add('wwid_wait_timeout')
             outfile.write(' wwid_wait_timeout="%s"' % self.gds_format_integer(self.wwid_wait_timeout, input_name='wwid_wait_timeout'))
@@ -4281,6 +4294,12 @@ class type_(GeneratedsSuper):
             self.volid = value
             self.volid = ' '.join(self.volid.split())
             self.validate_safe_posix_short_name(self.volid)    # validate type safe-posix-short-name
+        value = find_attr_value_('application_id', node)
+        if value is not None and 'application_id' not in already_processed:
+            already_processed.add('application_id')
+            self.application_id = value
+            self.application_id = ' '.join(self.application_id.split())
+            self.validate_safe_posix_long_name(self.application_id)    # validate type safe-posix-long-name
         value = find_attr_value_('wwid_wait_timeout', node)
         if value is not None and 'wwid_wait_timeout' not in already_processed:
             already_processed.add('wwid_wait_timeout')

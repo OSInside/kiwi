@@ -26,6 +26,7 @@ namespace nul = ""
 
 safe-posix-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
 safe-posix-short-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]{1,32}"}
+safe-posix-long-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]{1,128}"}
 locale-name = xsd:token {pattern = "(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "(\d*|image)"}
@@ -2148,6 +2149,15 @@ div {
             sch:param [ name = "attr" value = "volid" ]
             sch:param [ name = "types" value = "iso oem" ]
         ]
+    k.type.application_id.attribute =
+        ## for the iso/(oem install iso) type only:
+        ## Specifies the Application ID to be written
+        ## into the master block. There is space for 128 characters.
+        attribute application_id { safe-posix-long-name }
+        >> sch:pattern [ id = "application_id" is-a = "image_type"
+            sch:param [ name = "attr" value = "application_id" ]
+            sch:param [ name = "types" value = "iso oem" ]
+        ]
     k.type.wwid_wait_timeout.attribute =
         ## Specifies the wait period in seconds after launching
         ## the multipath daemon to wait until all presented devices
@@ -2310,6 +2320,7 @@ div {
         k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &
         k.type.volid.attribute? &
+        k.type.application_id.attribute? &
         k.type.wwid_wait_timeout.attribute? &
         k.type.derived_from.attribute? &
         k.type.delta_root.attribute? &

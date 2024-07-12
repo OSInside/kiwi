@@ -75,9 +75,11 @@ class IsoToolsXorrIso(IsoToolsBase):
         """
         legacy_bios_mode = True
         if custom_args:
-            if 'mbr_id' in custom_args:
+            application_id = \
+                custom_args.get('application_id') or custom_args.get('mbr_id')
+            if application_id:
                 self.iso_parameters += [
-                    '-application_id', format(custom_args['mbr_id'])
+                    '-application_id', format(application_id)
                 ]
             if 'publisher' in custom_args:
                 self.iso_parameters += [

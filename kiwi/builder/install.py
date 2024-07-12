@@ -159,6 +159,7 @@ class InstallImageBuilder:
             'meta_data': {
                 'volume_id': self.iso_volume_id,
                 'mbr_id': self.mbrid.get_id(),
+                'application_id': self.xml_state.build_type.get_application_id(),
                 'efi_mode': self.firmware.efi_mode(),
                 'ofw_mode': self.firmware.ofw_mode(),
                 'legacy_bios_mode': self.firmware.legacy_bios_mode()
