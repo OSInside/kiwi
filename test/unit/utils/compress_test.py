@@ -105,14 +105,14 @@ class TestCompress:
 
     @patch('kiwi.command.Command.run')
     def test_get_format_invalid_format(self, mock_run):
-        mock_run.side_effect = ValueError("nothing")
+        result = Mock()
+        result.returncode = 1
+        mock_run.return_value = result
         invalid = Compress("../data/gz_data.gz")
         invalid.supported_zipper = ["mock_zip"]
 
         with self._caplog.at_level(logging.DEBUG):
             assert invalid.get_format() is None
             mock_run.assert_called_once_with(
-                ['mock_zip', '-l', '../data/gz_data.gz']
+                ['mock_zip', '-l', '../data/gz_data.gz'], raise_on_error=False
             )
-            assert 'Error running "mock_zip -l ../data/gz_data.gz", got a'
-            ' ValueError: nothing' in self._caplog.text
