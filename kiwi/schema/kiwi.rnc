@@ -273,8 +273,20 @@ div {
 div {
     k.file.name.attribute = k.name.attribute
     k.file.arch.attribute = k.arch.attribute
+    k.file.target.attribute =
+        # include file as target to the root(/) of the image.
+        attribute target { text }
+    k.file.owner.attribute =
+        # set ownership to the file. The value is passed to chown
+        attribute owner { text }
+    k.file.permissions.attribute =
+        # set file permissions. The value is passed to chmod
+        attribute permissions { text }
     k.file.attlist =
         k.file.name.attribute &
+        k.file.target.attribute? &
+        k.file.owner.attribute? &
+        k.file.permissions.attribute? &
         k.file.arch.attribute?
     k.file =
         ## A Pointer to a File
@@ -3560,6 +3572,7 @@ div {
         element packages {
             k.packages.attlist &
             k.archive* &
+            k.file* &
             k.ignore* &
             k.namedCollection* &
             k.collectionModule* &

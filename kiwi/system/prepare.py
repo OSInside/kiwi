@@ -576,9 +576,10 @@ class SystemPrepare:
                 )
             target_dir = self.root_bind.root_dir
             if archive_target_dir_dict.get(archive):
-                target_dir = os.path.join(
-                    target_dir,
-                    archive_target_dir_dict.get(archive)
+                target_dir = os.path.normpath(
+                    os.sep.join(
+                        [target_dir, archive_target_dir_dict.get(archive)]
+                    )
                 )
             log.info('--> target dir: %s', target_dir)
             tar = ArchiveTar(archive_file)

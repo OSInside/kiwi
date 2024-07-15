@@ -315,6 +315,7 @@ class SystemPrepareTask(CliTask):
                 setup.setup_plymouth_splash()
                 setup.setup_timezone()
                 setup.setup_permissions()
+                setup.import_files()
 
                 # setup permanent image repositories after cleanup
                 setup.import_repositories_marked_as_imageinclude()

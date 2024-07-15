@@ -79,6 +79,12 @@ volume_type = NamedTuple(
 )
 
 
+class FileT(NamedTuple):
+    target: str
+    owner: str
+    permissions: str
+
+
 class XMLState:
     """
     **Implements methods to get stateful information from the XML data**
@@ -573,6 +579,49 @@ class XMLState:
             for package in package_list:
                 result.append(package.package_section.get_name().strip())
         return sorted(list(set(result)))
+
+    def get_bootstrap_files(self) -> Dict[str, FileT]:
+        """
+        List of file names from the type="bootstrap" packages section(s)
+
+        :return: file names
+
+        :rtype: dict
+        """
+        result = {}
+        bootstrap_packages_sections = self.get_bootstrap_packages_sections()
+        if bootstrap_packages_sections:
+            for bootstrap_packages_section in bootstrap_packages_sections:
+                file_list = bootstrap_packages_section.get_file() or []
+                for file in file_list:
+                    result[file.get_name()] = FileT(
+                        target=file.get_target() or '',
+                        owner=file.get_owner() or '',
+                        permissions=file.get_permissions() or ''
+                    )
+        return result
+
+    def get_system_files(self) -> Dict[str, FileT]:
+        """
+        List of file names from the packages sections matching
+        type="image" and type=build_type
+
+        :return: file names
+
+        :rtype: dict
+        """
+        result = {}
+        image_packages_sections = self.get_packages_sections(
+            ['image', self.get_build_type_name()]
+        )
+        for packages in image_packages_sections:
+            for file in packages.get_file():
+                result[file.get_name()] = FileT(
+                    target=file.get_target() or '',
+                    owner=file.get_owner() or '',
+                    permissions=file.get_permissions() or ''
+                )
+        return result
 
     def get_bootstrap_archives(self) -> List:
         """

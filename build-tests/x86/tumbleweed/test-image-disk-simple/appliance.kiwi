@@ -25,6 +25,7 @@
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/home/bob" name="bob" groups="users"/>
     </users>
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
@@ -56,6 +57,7 @@
         <package name="kernel-default"/>
         <package name="shim"/>
         <package name="timezone"/>
+        <file name="a_custom_file" target="/home/bob/some_file" owner="bob:users" permissions="444"/>
     </packages>
     <packages type="bootstrap">
         <package name="gawk"/>

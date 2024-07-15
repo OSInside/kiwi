@@ -208,6 +208,8 @@
         <package name="openssh"/>
         <archive name="/absolute/path/to/image.tgz" bootinclude="true"/>
         <package name="foo" arch="s390,aarch64"/>
+        <file name="some"/>
+        <file name="/absolute/path/to/some" owner="bob:users" permissions="u+x"/>
     </packages>
     <packages type="iso">
         <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
@@ -239,6 +241,7 @@
         <namedCollection name="bootstrap-collection"/>
         <product name="kiwi"/>
         <archive name="bootstrap.tgz"/>
+        <file name="some" target="/some/target"/>
         <ignore name="some"/>
     </packages>
     <packages type="delete">

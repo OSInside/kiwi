@@ -23,7 +23,7 @@ import pathlib
 from collections import OrderedDict
 from collections import namedtuple
 from typing import (
-    Any, List, Optional
+    Any, List, Optional, Dict
 )
 
 # project
@@ -31,7 +31,9 @@ import kiwi.defaults as defaults
 
 from kiwi.xml_parse import repository
 from kiwi.utils.fstab import Fstab
-from kiwi.xml_state import XMLState
+from kiwi.xml_state import (
+    XMLState, FileT
+)
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.mount_manager import MountManager
 from kiwi.system.uri import Uri
@@ -106,6 +108,7 @@ class SystemSetup:
 
         self._import_custom_scripts()
         self._import_custom_archives()
+        self._import_custom_files()
         self._import_cdroot_archive()
 
     def script_exists(self, name: str) -> bool:
@@ -204,6 +207,14 @@ class SystemSetup:
             archive = ArchiveTar(cdroot_archive)
             archive.extract(target_dir)
             break
+
+    def import_files(self) -> None:
+        system_files = self.xml_state.get_system_files()
+        bootstrap_files = self.xml_state.get_bootstrap_files()
+        if system_files:
+            self._sync_files(system_files)
+        if bootstrap_files:
+            self._sync_files(bootstrap_files)
 
     def import_overlay_files(
         self, follow_links: bool = False, preserve_owner_group: bool = False
@@ -976,6 +987,50 @@ class SystemSetup:
             )
             break
 
+    def _import_custom_files(self):
+        """
+        Import custom file files
+        """
+        file_list = []
+        system_files = self.xml_state.get_system_files()
+        bootstrap_files = self.xml_state.get_bootstrap_files()
+        if system_files:
+            file_list += system_files.keys()
+        if bootstrap_files:
+            file_list += bootstrap_files.keys()
+
+        file_target_dir = os.path.join(
+            self.root_dir, defaults.IMAGE_METADATA_DIR
+        ) + os.sep
+
+        for file in file_list:
+            file_is_absolute = file.startswith(os.sep)
+            if file_is_absolute:
+                file_file = file
+            else:
+                file_file = os.path.join(self.description_dir, file)
+
+            file_exists = os.path.exists(file_file)
+
+            if not file_exists:
+                if self.derived_description_dir and not file_is_absolute:
+                    file_file = self.derived_description_dir + '/' + file
+                    file_exists = os.path.exists(file_file)
+
+            if file_exists:
+                log.info(
+                    '--> Importing {0} file to {1}'.format(
+                        file_file, file_target_dir
+                    )
+                )
+                Command.run(
+                    ['cp', file_file, file_target_dir]
+                )
+            else:
+                raise KiwiImportDescriptionError(
+                    f'Specified file {file_file} does not exist'
+                )
+
     def _import_custom_archives(self):
         """
         Import custom tar archive files
@@ -1357,6 +1412,45 @@ class SystemSetup:
         if shared_mount.is_mounted():
             shared_mount.umount_lazy()
         return dbpath
+
+    def _sync_files(self, file_list: Dict[str, FileT]) -> None:
+        log.info("Installing files")
+        ordered_files = OrderedDict(sorted(file_list.items()))
+        for filename, file_t in list(ordered_files.items()):
+            target = file_t.target
+            target_owner = file_t.owner
+            target_permissions = file_t.permissions
+            file_file = '/'.join(
+                [self.root_dir, 'image', filename]
+            )
+            target_name = self.root_dir
+            if target:
+                target_name = os.path.normpath(
+                    os.sep.join([target_name, target])
+                )
+            log.info(f'--> file: {file_file} -> {target_name}')
+            if target_owner:
+                Command.run(
+                    [
+                        'chroot', self.root_dir,
+                        'chown', target_owner,
+                        file_file.replace(self.root_dir, '')
+                    ]
+                )
+            if target_permissions:
+                Command.run(
+                    [
+                        'chroot', self.root_dir,
+                        'chmod', target_permissions,
+                        file_file.replace(self.root_dir, '')
+                    ]
+                )
+            if os.path.dirname(target_name):
+                Path.create(os.path.dirname(target_name))
+            data = DataSync(file_file, target_name)
+            data.sync_data(
+                options=Defaults.get_sync_options()
+            )
 
     def _sync_overlay_files(
         self, overlay_directory, follow_links=False,

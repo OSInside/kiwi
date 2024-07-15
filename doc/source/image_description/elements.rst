@@ -1536,6 +1536,37 @@ elements:
 * The `enable` attribute is mandatory because it should be an explicit
   setting if a module is effectively used or not.
 
+<packages><file>
+~~~~~~~~~~~~~~~~~~~
+.. code:: xml
+
+   <packages type="image"/>
+     <file name="name"/>
+   </packages>
+
+The file element takes the `name` attribute and looks up the
+given name as file on the system. If specified relative {kiwi}
+looks up the name in the image description directory. The file
+is installed using the `rsync` program. The file element has the
+following optional attributes:
+
+owner="user:group"
+  The `owner` attribute can be specified to make the file
+  belonging to the specified owner and group. The ownership of
+  the original file is meaningless in this case. The provided
+  value is passed along to the `chown` program.
+
+permissions="perms"
+  The `permissions` attribute can be specified to store the file
+  with the provided permission. The permission bits of the original
+  file are meaningless in this case. The provided value is passed
+  along to the `chmod` program.
+
+target="some/path"
+  The `target` attribute can be used to specify a target path to
+  install the file to the specified directory and name. Eventually
+  missing parent directories will be created.
+
 <packages><archive>
 ~~~~~~~~~~~~~~~~~~~
 .. code:: xml

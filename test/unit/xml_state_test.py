@@ -193,6 +193,16 @@ class TestXMLState:
             'openSUSE'
         ]
 
+    def test_get_system_files(self):
+        assert self.state.\
+            get_system_files()['some'].target == ''
+        assert self.state.\
+            get_system_files()['/absolute/path/to/some'].target == ''
+
+    def test_get_bootstrap_files(self):
+        assert self.state.\
+            get_bootstrap_files()['some'].target == '/some/target'
+
     def test_get_system_archives(self):
         assert self.state.get_system_archives() == [
             '/absolute/path/to/image.tgz'
