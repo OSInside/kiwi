@@ -1287,9 +1287,12 @@ class file(GeneratedsSuper):
     """A Pointer to a File"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, arch=None):
+    def __init__(self, name=None, target=None, owner=None, permissions=None, arch=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
+        self.target = _cast(None, target)
+        self.owner = _cast(None, owner)
+        self.permissions = _cast(None, permissions)
         self.arch = _cast(None, arch)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -1304,6 +1307,12 @@ class file(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
+    def get_target(self): return self.target
+    def set_target(self, target): self.target = target
+    def get_owner(self): return self.owner
+    def set_owner(self, owner): self.owner = owner
+    def get_permissions(self): return self.permissions
+    def set_permissions(self, permissions): self.permissions = permissions
     def get_arch(self): return self.arch
     def set_arch(self, arch): self.arch = arch
     def validate_arch_name(self, value):
@@ -1344,6 +1353,15 @@ class file(GeneratedsSuper):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.target is not None and 'target' not in already_processed:
+            already_processed.add('target')
+            outfile.write(' target=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.target), input_name='target')), ))
+        if self.owner is not None and 'owner' not in already_processed:
+            already_processed.add('owner')
+            outfile.write(' owner=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.owner), input_name='owner')), ))
+        if self.permissions is not None and 'permissions' not in already_processed:
+            already_processed.add('permissions')
+            outfile.write(' permissions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.permissions), input_name='permissions')), ))
         if self.arch is not None and 'arch' not in already_processed:
             already_processed.add('arch')
             outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
@@ -1361,6 +1379,18 @@ class file(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+        value = find_attr_value_('target', node)
+        if value is not None and 'target' not in already_processed:
+            already_processed.add('target')
+            self.target = value
+        value = find_attr_value_('owner', node)
+        if value is not None and 'owner' not in already_processed:
+            already_processed.add('owner')
+            self.owner = value
+        value = find_attr_value_('permissions', node)
+        if value is not None and 'permissions' not in already_processed:
+            already_processed.add('permissions')
+            self.permissions = value
         value = find_attr_value_('arch', node)
         if value is not None and 'arch' not in already_processed:
             already_processed.add('arch')
@@ -8668,7 +8698,7 @@ class packages(GeneratedsSuper):
     """Specifies Packages/Patterns Used in Different Stages"""
     subclass = None
     superclass = None
-    def __init__(self, type_=None, profiles=None, patternType=None, bootstrap_package=None, archive=None, ignore=None, namedCollection=None, collectionModule=None, product=None, package=None):
+    def __init__(self, type_=None, profiles=None, patternType=None, bootstrap_package=None, archive=None, file=None, ignore=None, namedCollection=None, collectionModule=None, product=None, package=None):
         self.original_tagname_ = None
         self.type_ = _cast(None, type_)
         self.profiles = _cast(None, profiles)
@@ -8678,6 +8708,10 @@ class packages(GeneratedsSuper):
             self.archive = []
         else:
             self.archive = archive
+        if file is None:
+            self.file = []
+        else:
+            self.file = file
         if ignore is None:
             self.ignore = []
         else:
@@ -8714,6 +8748,11 @@ class packages(GeneratedsSuper):
     def add_archive(self, value): self.archive.append(value)
     def insert_archive_at(self, index, value): self.archive.insert(index, value)
     def replace_archive_at(self, index, value): self.archive[index] = value
+    def get_file(self): return self.file
+    def set_file(self, file): self.file = file
+    def add_file(self, value): self.file.append(value)
+    def insert_file_at(self, index, value): self.file.insert(index, value)
+    def replace_file_at(self, index, value): self.file[index] = value
     def get_ignore(self): return self.ignore
     def set_ignore(self, ignore): self.ignore = ignore
     def add_ignore(self, value): self.ignore.append(value)
@@ -8750,6 +8789,7 @@ class packages(GeneratedsSuper):
     def hasContent_(self):
         if (
             self.archive or
+            self.file or
             self.ignore or
             self.namedCollection or
             self.collectionModule or
@@ -8800,6 +8840,8 @@ class packages(GeneratedsSuper):
             eol_ = ''
         for archive_ in self.archive:
             archive_.export(outfile, level, namespaceprefix_, name_='archive', pretty_print=pretty_print)
+        for file_ in self.file:
+            file_.export(outfile, level, namespaceprefix_, name_='file', pretty_print=pretty_print)
         for ignore_ in self.ignore:
             ignore_.export(outfile, level, namespaceprefix_, name_='ignore', pretty_print=pretty_print)
         for namedCollection_ in self.namedCollection:
@@ -8842,6 +8884,11 @@ class packages(GeneratedsSuper):
             obj_.build(child_)
             self.archive.append(obj_)
             obj_.original_tagname_ = 'archive'
+        elif nodeName_ == 'file':
+            obj_ = file.factory()
+            obj_.build(child_)
+            self.file.append(obj_)
+            obj_.original_tagname_ = 'file'
         elif nodeName_ == 'ignore':
             obj_ = ignore.factory()
             obj_.build(child_)

@@ -17,7 +17,6 @@ class TestChecksum:
         read_results = [bytes(b''), bytes(b'data'), bytes(b''), bytes(b'data')]
 
         def side_effect(arg):
-            print(read_results[0])
             return read_results.pop()
 
         self.m_open = mock_open()

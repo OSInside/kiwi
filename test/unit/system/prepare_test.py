@@ -191,7 +191,9 @@ class TestSystemPrepare:
 
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     @patch('kiwi.system.prepare.ArchiveTar')
-    def test_install_bootstrap_archives_raises(self, mock_tar, mock_poll):
+    def test_install_bootstrap_archives_raises(
+        self, mock_tar, mock_poll
+    ):
         mock_tar.side_effect = Exception
         with raises(KiwiBootStrapPhaseFailed):
             self.system.install_bootstrap(self.manager)
@@ -216,7 +218,9 @@ class TestSystemPrepare:
 
     @patch('kiwi.system.prepare.CommandProcess.poll_show_progress')
     @patch('kiwi.system.prepare.ArchiveTar')
-    def test_install_system_archives_raises(self, mock_tar, mock_poll):
+    def test_install_system_archives_raises(
+        self, mock_tar, mock_poll
+    ):
         mock_tar.side_effect = KiwiInstallPhaseFailed
         with raises(KiwiInstallPhaseFailed):
             self.system.install_system(self.manager)
@@ -409,7 +413,8 @@ class TestSystemPrepare:
     @patch('kiwi.system.prepare.ArchiveTar')
     @patch('os.path.exists')
     def test_install_bootstrap_archive_from_derived_description(
-        self, mock_exists, mock_tar, mock_poll, mock_collection_type
+        self, mock_exists, mock_tar, mock_poll,
+        mock_collection_type
     ):
         mock_exists.return_value = False
         self.system.install_bootstrap(self.manager)

@@ -126,7 +126,6 @@ class TestBootLoaderConfigBase:
             assert self.bootloader.get_boot_cmdline(
                 '/dev/myroot'
             ) == 'rd.root.overlay.write=/dev/myrw root=overlay:PARTUUID=mock'
-            print(self._caplog.text)
             assert 'Overlay write device explicitly set via kernelcmdline' \
                 in self._caplog.text
 

@@ -183,6 +183,24 @@ class TestSystemSetup:
                 ]
             ),
             call(
+                [
+                    'cp', '{0}/some'.format(self.description_dir),
+                    'root_dir/image/'
+                ]
+            ),
+            call(
+                [
+                    'cp', '/absolute/path/to/some',
+                    'root_dir/image/'
+                ]
+            ),
+            call(
+                [
+                    'cp', '{0}/some'.format(self.description_dir),
+                    'root_dir/image/'
+                ]
+            ),
+            call(
                 ['cp', 'config-cdroot.tar.xz', 'root_dir/image/']
             )
         ]
@@ -194,7 +212,8 @@ class TestSystemSetup:
         self, mock_path, mock_command, mock_create
     ):
         path_return_values = [
-            True, False, True, True, True, True, True, True, True, True, True, True
+            True, True, True, False, True, False, True, True,
+            True, True, True, True, True, True, True, True
         ]
 
         def side_effect(arg):
@@ -272,6 +291,24 @@ class TestSystemSetup:
             ),
             call(
                 ['cp', 'derived/description/bootstrap.tgz', 'root_dir/image/']
+            ),
+            call(
+                [
+                    'cp', 'derived/description/some',
+                    'root_dir/image/'
+                ]
+            ),
+            call(
+                [
+                    'cp', '/absolute/path/to/some',
+                    'root_dir/image/'
+                ]
+            ),
+            call(
+                [
+                    'cp', '{0}/some'.format(self.description_dir),
+                    'root_dir/image/'
+                ]
             )
         ]
         mock_create.assert_called_once_with('root_dir/image')
@@ -310,6 +347,26 @@ class TestSystemSetup:
             with raises(KiwiImportDescriptionError):
                 self.setup_with_real_xml.import_description()
 
+    @patch('kiwi.path.Path.create')
+    @patch('kiwi.command.Command.run')
+    @patch('os.path.exists')
+    def test_import_description_configured_files_not_found(
+        self, mock_path, mock_command, mock_create
+    ):
+        path_return_values = [
+            False, False, True, True, True, True, True,
+            True, True, True, True, True, True
+        ]
+
+        def side_effect(arg):
+            return path_return_values.pop()
+
+        mock_path.side_effect = side_effect
+
+        with patch('builtins.open'):
+            with raises(KiwiImportDescriptionError):
+                self.setup_with_real_xml.import_description()
+
     @patch('kiwi.command.Command.run')
     def test_cleanup(self, mock_command):
         self.setup.cleanup()
@@ -327,6 +384,32 @@ class TestSystemSetup:
         mock_iglob.assert_called_once_with('description_dir/config-cdroot.tar*')
         mock_ArchiveTar.assert_called_once_with('config-cdroot.tar.xz')
         archive.extract.assert_called_once_with('target_dir')
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.system.setup.DataSync')
+    @patch('kiwi.system.setup.Path.create')
+    def test_import_files(
+        self, mock_Path_create, mock_DataSync, mock_Command_run
+    ):
+        data = Mock()
+        mock_DataSync.return_value = data
+        self.setup_with_real_xml.import_files()
+        assert mock_Command_run.call_args_list == [
+            call(
+                [
+                    'chroot', 'root_dir',
+                    'chown', 'bob:users', '/image//absolute/path/to/some'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root_dir',
+                    'chmod', 'u+x', '/image//absolute/path/to/some'
+                ]
+            )
+        ]
+        mock_Path_create.assert_called_once_with('root_dir/some')
+        assert data.sync_data.called
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.system.setup.DataSync')

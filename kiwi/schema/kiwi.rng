@@ -505,9 +505,30 @@ file was fetched</a:documentation>
     <define name="k.file.arch.attribute">
       <ref name="k.arch.attribute"/>
     </define>
+    <define name="k.file.target.attribute">
+      <!-- include file as target to the root(/) of the image. -->
+      <attribute name="target"/>
+    </define>
+    <define name="k.file.owner.attribute">
+      <!-- set ownership to the file. The value is passed to chown -->
+      <attribute name="owner"/>
+    </define>
+    <define name="k.file.permissions.attribute">
+      <!-- set file permissions. The value is passed to chmod -->
+      <attribute name="permissions"/>
+    </define>
     <define name="k.file.attlist">
       <interleave>
         <ref name="k.file.name.attribute"/>
+        <optional>
+          <ref name="k.file.target.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.file.owner.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.file.permissions.attribute"/>
+        </optional>
         <optional>
           <ref name="k.file.arch.attribute"/>
         </optional>
@@ -5366,6 +5387,9 @@ alternative bootstrap method for debootstrap</a:documentation>
           <ref name="k.packages.attlist"/>
           <zeroOrMore>
             <ref name="k.archive"/>
+          </zeroOrMore>
+          <zeroOrMore>
+            <ref name="k.file"/>
           </zeroOrMore>
           <zeroOrMore>
             <ref name="k.ignore"/>

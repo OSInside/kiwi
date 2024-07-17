@@ -185,6 +185,7 @@ class TestSystemBuildTask:
         self.setup.setup_plymouth_splash.assert_called_once_with()
         self.setup.setup_timezone.assert_called_once_with()
         self.setup.setup_permissions.assert_called_once_with()
+        self.setup.import_files.assert_called_once_with()
         self.setup.setup_selinux_file_contexts.assert_called_once_with()
         system_prepare.pinch_system.assert_has_calls(
             [call(force=False), call(force=True)]
