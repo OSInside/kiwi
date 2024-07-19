@@ -3,20 +3,15 @@ Extending {kiwi} with Custom Operations
 
 .. note:: **Abstract**
 
-   Users building images with {kiwi} need to implement their
-   own infrastructure if the image description does not
-   provide a way to embed custom information which is
-   outside of the scope of the general schema as it is
-   provided by {kiwi} today.
+    Extension plugins in {kiwi} offer a mechanism for adding information outside the standard {kiwi} schema.
 
-   This document describes how to create an extension plugin
-   for the {kiwi} schema to add and validate additional information
-   in the {kiwi} image description.
+   This document describes how to create an extension plugin for the {kiwi}
+   schema as well as how to add and validate additional information in the
+   {kiwi} image description.
 
-   Such a schema extension can be used in an additional {kiwi}
-   task plugin to provide a new subcommand for {kiwi}.
-   As of today there is no other plugin interface except for
-   providing additional {kiwi} commands implemented.
+   The described schema extension can be used in an additional {kiwi} task
+   plugin to provide a new subcommand for {kiwi}. At the present moment, there
+   is no other plugin interface except for providing additional {kiwi} commands.
 
    Depending on the demand for custom plugins, the interface
    to hook in code into other parts of the {kiwi} processing
@@ -27,10 +22,10 @@ Extending {kiwi} with Custom Operations
 The <extension> Section
 -----------------------
 
-The main {kiwi} schema supports an extension section which allows
-to specify any XML structure and attributes as long as they are
-connected to a namespace. According to this any custom XML
-structure can be implemented like the following example shows:
+The main {kiwi} schema supports an extension section that allows you
+to specify any XML structure and attributes, as long as they are
+attached to a namespace. This means that any custom XML
+structure can be implemented similar to the the example below:
 
 .. code:: bash
 
@@ -43,20 +38,20 @@ structure can be implemented like the following example shows:
         </extension>
     </image>
 
-* Any toplevel namespace must exist only once
+* Any toplevel namespace must be unique
 * Multiple different toplevel namespaces are allowed,
-  e.g my_plugin_a, my_plugin_b
+  for example: my_plugin_a, my_plugin_b
 
 RELAX NG Schema for the Extension
 ---------------------------------
 
-If an extension section is found, {kiwi} looks up its namespace and asks
+If an extension section is found, {kiwi} looks up its namespace and uses
 the main XML catalog for the schema file to validate the extension data.
 The schema file must be a RELAX NG schema in the .rng format. We recommend
-to place the schema as :file:`/usr/share/xml/kiwi/my_plugin.rng`
+to save the schema as :file:`/usr/share/xml/kiwi/my_plugin.rng`
 
-For the above example the RELAX NG Schema in the compressed format
-:file:`my_plugin.rnc` would look like this:
+For the example above, the RELAX NG Schema in the compressed format
+:file:`my_plugin.rnc` looks as follows:
 
 .. there is no rnc syntax highlighting, try cpp
 .. code:: cpp
@@ -91,12 +86,12 @@ In order to convert this schema to the .rng format just call:
 
     $ trang -I rnc -O rng my_plugin.rnc /usr/share/xml/kiwi/my_plugin.rng
 
-Extension Schema in XML catalog
+Extension schema in XML catalog
 -------------------------------
 
-As mentioned above the mapping from the extension namespace to the
+As mentioned above, the mapping from the extension namespace to the
 correct RELAX NG schema file is handled by a XML catalog file. The
-XML catalog for the example use here looks like this:
+XML catalog for the example is as follows:
 
 .. code:: bash
 
@@ -107,30 +102,29 @@ XML catalog for the example use here looks like this:
             uri="file:////usr/share/xml/kiwi/my_plugin.rng"/>
     </catalog>
 
-For resolving the catalog {kiwi} uses the :command:`xmlcatalog` command
-and the main XML catalog from the system which is :file:`/etc/xml/catalog`.
+For resolving the catalog, {kiwi} uses the :command:`xmlcatalog` command
+and the main XML catalog from the system :file:`/etc/xml/catalog`.
 
 .. note::
 
-    It depends on the distribution and its version how the main catalog
-    gets informed about the existence of the {kiwi} extension catalog file.
-    Please consult the distribution manual about adding XML catalogs.
+    How the main catalog is informed about the existence of the {kiwi} extension
+    catalog file depends on the distribution and its version. Refer to the
+    distribution documentation for information on adding XML catalogs.
 
 If the following command provides the information to the correct
-RELAX NG schema file you are ready for a first test:
+RELAX NG schema file, you are ready for a first test:
 
 .. code:: bash
 
     $ xmlcatalog /etc/xml/catalog http://www.my_plugin.com
 
-Using the Extension
+Using the extension
 -------------------
 
-In order to test your extension place the example extension section
-from the beginning of this document into one of your image description's
-:file:`config.xml` file
+In order to test the extension, insert the example extension into one of your
+image description's :file:`config.xml` file.
 
-The following example will read the name attribute from the title
+The following example reads the name attribute from the title
 section of the my_feature root element and prints it:
 
 .. code:: python
