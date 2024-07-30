@@ -397,7 +397,7 @@ class Defaults:
         :rtype: list
         """
         exclude_list = [
-            'image', '.profile', '.kconfig'
+            'image', '.kconfig'
         ]
         if no_tmpdirs:
             exclude_list += ['run/*', 'tmp/*']
