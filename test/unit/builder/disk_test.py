@@ -390,7 +390,7 @@ class TestDiskBuilder:
         call = filesystem.sync_data.call_args_list[0]
         assert filesystem.sync_data.call_args_list[0] == \
             call([
-                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                'image', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi', 'boot/*', 'boot/.*',
                 'boot/efi/*', 'boot/efi/.*'
             ])
@@ -803,7 +803,7 @@ class TestDiskBuilder:
 
         assert filesystem.__enter__.return_value \
             .sync_data.call_args_list[2] == call([
-                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                'image', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi', 'boot/*', 'boot/.*',
                 'boot/efi/*', 'boot/efi/.*'
             ])
@@ -963,7 +963,7 @@ class TestDiskBuilder:
         assert squashfs.create_on_file.call_args_list == [
             call(exclude=['var/cache/kiwi'], filename='kiwi-tempname'),
             call(exclude=[
-                '.profile', '.kconfig', 'run/*', 'tmp/*',
+                '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*', 'image/*'
             ], filename='kiwi-tempname')
@@ -1453,7 +1453,7 @@ class TestDiskBuilder:
         ]
         volume_manager.sync_data.assert_called_once_with(
             [
-                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                'image', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ]
@@ -1609,7 +1609,7 @@ class TestDiskBuilder:
         )
         assert filesystem.sync_data.call_args_list.pop() == call(
             [
-                'image', '.profile', '.kconfig', 'run/*', 'tmp/*',
+                'image', '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi', 'var/*', 'var/.*',
                 'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*'
             ]

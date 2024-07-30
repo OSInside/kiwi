@@ -283,7 +283,7 @@ class TestLiveImageBuilder:
 
             filesystem.create_on_device.assert_called_once_with()
             filesystem.sync_data.assert_called_once_with([
-                'image', '.profile', '.kconfig',
+                'image', '.kconfig',
                 'run/*', 'tmp/*', '.buildenv', 'var/cache/kiwi'
             ])
 
