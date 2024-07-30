@@ -10,8 +10,6 @@ import kiwi
 
 from ..test_helper import argv_kiwi_tests
 
-from kiwi.exceptions import KiwiCommandError
-
 from kiwi.tasks.system_prepare import SystemPrepareTask
 
 
@@ -180,33 +178,6 @@ class TestSystemPrepareTask:
             [call(force=False), call(force=True)]
         )
         assert system_prepare.clean_package_manager_leftovers.called
-
-    @patch('kiwi.xml_state.XMLState.get_package_manager')
-    @patch('kiwi.tasks.system_prepare.SystemPrepare')
-    def test_process_system_prepare_run_debootstrap_only_once(
-        self, mock_SystemPrepare, mock_get_package_manager
-    ):
-        manager = MagicMock()
-        system_prepare = Mock()
-        system_prepare.setup_repositories = Mock(
-            return_value=manager
-        )
-        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
-        self._init_command_args()
-        mock_get_package_manager.return_value = 'apt'
-        self.task.command_args['--allow-existing-root'] = True
-
-        # debootstrap must be called if chroot with apt-get failed
-        self.command.run.side_effect = KiwiCommandError('error')
-        self.task.process()
-        assert system_prepare.install_bootstrap.called
-
-        # debootstrap must not be called if chroot looks good
-        self.command.run.side_effect = None
-        system_prepare.install_bootstrap.reset_mock()
-        with self._caplog.at_level(logging.WARNING):
-            self.task.process()
-        assert not system_prepare.install_bootstrap.called
 
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
     @patch('kiwi.tasks.system_prepare.SystemPrepare')

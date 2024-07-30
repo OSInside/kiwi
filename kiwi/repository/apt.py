@@ -72,7 +72,6 @@ class RepositoryApt(RepositoryBase):
 
         self.distribution: str = ''
         self.distribution_path: str = ''
-        self.debootstrap_repo_set = False
         self.repo_names: List = []
         self.components: List = []
 
@@ -139,8 +138,7 @@ class RepositoryApt(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = None, pkg_gpgcheck: bool = None,
-        sourcetype: str = None, use_for_bootstrap: bool = False,
-        customization_script: str = None
+        sourcetype: str = None, customization_script: str = None
     ) -> None:
         """
         Add apt_get repository
@@ -157,8 +155,6 @@ class RepositoryApt(RepositoryBase):
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: unused
         :param str sourcetype: unused
-        :param bool use_for_bootstrap: use this repository for the
-            debootstrap call
         :param str customization_script:
             custom script called after the repo file was created
         """
@@ -190,10 +186,8 @@ class RepositoryApt(RepositoryBase):
             else:
                 # create a debian distributon repository setup for the
                 # specified distributon name and components
-                if not self.debootstrap_repo_set:
-                    self.distribution = dist
-                    self.distribution_path = uri
-                    self.debootstrap_repo_set = use_for_bootstrap
+                self.distribution = dist
+                self.distribution_path = uri
                 repo_details += 'Suites: ' + dist + os.linesep
                 repo_details += 'Components: ' + components + os.linesep
             if repo_gpgcheck is False:

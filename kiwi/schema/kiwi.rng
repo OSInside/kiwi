@@ -150,7 +150,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>8.1</value>
+        <value>8.2</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -1728,24 +1728,6 @@ be a simple repository url</a:documentation>
         </choice>
       </attribute>
     </define>
-    <define name="k.repository.use_for_bootstrap.attribute">
-      <attribute name="use_for_bootstrap">
-        <a:documentation>Specify whether this repository should be the one used for
-bootstrapping or not. False by default. Only a single repository
-is allowed to be used for bootstrapping. If none is set the
-last one is picked.</a:documentation>
-        <data type="boolean"/>
-      </attribute>
-      <sch:pattern id="use_for_bootstrap" is-a="repo_type">
-        <sch:param name="attr" value="use_for_bootstrap"/>
-        <sch:param name="types" value="apt-deb"/>
-      </sch:pattern>
-      <sch:pattern id="single_deboostrap_repo">
-        <sch:rule context="image">
-          <sch:assert test="count(repository[@use_for_bootstrap='true'])&lt;=1">There can only be a single repository set for bootstrap ('use_for_bootstrap' attribute)</sch:assert>
-        </sch:rule>
-      </sch:pattern>
-    </define>
     <define name="k.repository.attlist">
       <interleave>
         <optional>
@@ -1792,9 +1774,6 @@ last one is picked.</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.username.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.repository.use_for_bootstrap.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -5354,7 +5333,7 @@ in /var/cache/kiwi/bootstrap/PACKAGE_NAME.ARCH.tar.xz
 The tarball will be unpacked and used as the bootstrap
 rootfs to begin with. The feature is currently only
 available with the apt package manager to allow an
-alternative bootstrap method for debootstrap</a:documentation>
+alternative bootstrap method</a:documentation>
       </attribute>
       <sch:pattern id="bootstrap_package" is-a="packages_type">
         <sch:param name="attr" value="bootstrap_package"/>

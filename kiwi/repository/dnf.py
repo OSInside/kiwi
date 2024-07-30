@@ -51,8 +51,7 @@ class RepositoryDnf(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, use_for_bootstrap: bool = False,
-        customization_script: str = None
+        sourcetype: str = None, customization_script: str = None
     ) -> None:
         pass  # pragma: no cover
 

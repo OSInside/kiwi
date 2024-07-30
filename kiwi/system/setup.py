@@ -161,7 +161,6 @@ class SystemSetup:
                     xml_repo
                 )
                 repo_sourcetype = xml_repo.get_sourcetype()
-                repo_use_for_bootstrap = False
                 uri = Uri(repo_source, repo_type)
                 repo_source_translated = uri.translate(
                     check_build_environment=False
@@ -185,8 +184,7 @@ class SystemSetup:
                     repo_type, repo_priority, repo_dist, repo_components,
                     repo_user, repo_secret, uri.credentials_file_name(),
                     repo_repository_gpgcheck, repo_package_gpgcheck,
-                    repo_sourcetype, repo_use_for_bootstrap,
-                    repo_customization_script
+                    repo_sourcetype, repo_customization_script
                 )
 
     def import_cdroot_files(self, target_dir: str) -> None:

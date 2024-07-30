@@ -77,7 +77,7 @@ class RepositoryBase:
         self, name: str, uri: str, repo_type: str, prio: int, dist: str,
         components: str, user: str, secret: str, credentials_file: str,
         repo_gpgcheck: bool, pkg_gpgcheck: bool, sourcetype: str,
-        use_for_bootstrap: bool = False, customization_script: str = None
+        customization_script: str = None
     ) -> None:
         """
         Add repository
@@ -96,7 +96,6 @@ class RepositoryBase:
         :param bool repo_gpgcheck: unused
         :param bool pkg_gpgcheck: unused
         :param str sourcetype: unused
-        :param bool use_for_bootstrap: unused
         :param str customization_script: unused
         """
         raise NotImplementedError

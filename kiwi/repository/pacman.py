@@ -115,8 +115,7 @@ class RepositoryPacman(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, use_for_bootstrap: bool = False,
-        customization_script: str = None
+        sourcetype: str = None, customization_script: str = None
     ) -> None:
         """
         Add pacman repository
@@ -133,7 +132,6 @@ class RepositoryPacman(RepositoryBase):
         :param bool repo_gpgcheck: enable database signature validation
         :param bool pkg_gpgcheck: enable package signature validation
         :param str sourcetype: unused
-        :param bool use_for_bootstrap: unused
         :param str customization_script:
             custom script called after the repo file was created
         """
