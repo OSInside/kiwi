@@ -280,7 +280,8 @@ function runMediaCheck {
 # Methods considered private
 #-----------------------------------------
 function _setup_interactive_service {
-    local service=/usr/lib/systemd/system/dracut-run-interactive.service
+    local service=/run/systemd/system/dracut-run-interactive.service
+    mkdir -p /run/systemd/system
     [ -e ${service} ] && return
     {
         echo "[Unit]"
@@ -294,7 +295,7 @@ function _setup_interactive_service {
         echo "Environment=DRACUT_SYSTEMD=1"
         echo "Environment=NEWROOT=/sysroot"
         echo "WorkingDirectory=/"
-        echo "ExecStart=/bin/bash /bin/dracut-interactive"
+        echo "ExecStart=/bin/bash /run/dracut-interactive"
         echo "Type=oneshot"
         echo "StandardInput=tty-force"
         echo "StandardOutput=inherit"
@@ -312,7 +313,7 @@ function _run_interactive {
 }
 
 function _run_dialog {
-    echo "dialog $*" >/bin/dracut-interactive
+    echo "dialog $*" >/run/dracut-interactive
     _run_interactive
 }
 

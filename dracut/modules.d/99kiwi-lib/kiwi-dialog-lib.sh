@@ -16,7 +16,7 @@ function run_dialog {
     {
         echo "dialog $* 2>$dialog_result"
         echo "echo -n \$? >$dialog_exit_code"
-    } >/bin/dracut-interactive
+    } >/run/dracut-interactive
     _run_interactive
     return "$(cat $dialog_exit_code)"
 }
@@ -48,7 +48,7 @@ function run_progress_dialog {
         echo -n "cat ${fifo} | dialog --backtitle \"${backtitle}\" "
         echo -n "--gauge \"${title}\"" 7 65 0
         echo
-    } >/bin/dracut-interactive
+    } >/run/dracut-interactive
     _run_interactive
 }
 
@@ -69,8 +69,9 @@ function stop_plymouth {
 # Methods considered private
 #-----------------------------------------
 function _setup_interactive_service {
-    local service=/usr/lib/systemd/system/dracut-run-interactive.service
-    local script=/bin/dracut-interactive
+    local service=/run/systemd/system/dracut-run-interactive.service
+    local script=/run/dracut-interactive
+    mkdir -p /run/systemd/system
     [ -e ${service} ] && return
     {
         echo "[Unit]"
