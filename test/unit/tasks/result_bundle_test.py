@@ -202,12 +202,13 @@ class TestResultBundleTask:
     ):
         abs_path = ['bundle-dir', 'target-dir']
 
-        def side_effect(path):
+        def abspath(path):
             return abs_path.pop()
 
         checksum = Mock()
         compress = Mock()
-        mock_os_path_abspath.side_effect = side_effect
+        mock_os_readlink.return_value = 'readlink'
+        mock_os_path_abspath.side_effect = abspath
         mock_path_which.return_value = 'zsyncmake'
         compress.xz.return_value = 'compressed_filename'
         mock_compress.return_value = compress
