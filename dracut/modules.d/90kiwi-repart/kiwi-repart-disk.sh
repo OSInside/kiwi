@@ -16,11 +16,12 @@ function initialize {
     local partition_ids=/config.partids
 
     test -f ${profile} || \
-        die "No profile setup found"
+        warn "No profile setup found"
+        warn "Settings from the kiwi description will be ignored"
     test -f ${partition_ids} || \
         die "No partition id setup found"
 
-    import_file ${profile}
+    test -f ${profile} && import_file ${profile}
     import_file ${partition_ids}
 
     disk=$(lookup_disk_device_from_root)
