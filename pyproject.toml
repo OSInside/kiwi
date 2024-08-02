@@ -90,7 +90,6 @@ pytest-xdist = "*"
 pytest-container = "*"
 # type checking
 mypy = ">=0.971"
-types-pkg_resources = "*"
 types-requests = "*"
 types-PyYAML = "*"
 types-mock = "*"
