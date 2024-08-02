@@ -33,6 +33,11 @@
         <source path="obs://Ubuntu:23.04/standard"/>
     </repository>
     <packages type="image">
+        <package name="libpam-runtime"/>
+        <package name="gawk"/>
+        <package name="util-linux"/>
+        <package name="systemd"/>
+        <package name="init"/>
         <package name="gnupg"/>
         <package name="iproute2"/>
         <package name="iptables"/>
@@ -43,11 +48,11 @@
         <package name="dbus"/>
         <package name="xz-utils"/>
         <package name="usrmerge"/>
-        <!--
-            mawk is included so OBS adds it as a build dependency,
-            however this is installed by debootstrap
-        -->
+        <package name="language-pack-en"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="apt-utils"/>
+        <package name="debconf"/>
         <package name="mawk"/>
     </packages>
-    <packages type="bootstrap"/>
 </image>

@@ -61,6 +61,7 @@
         <source path="obs://Debian:12/standard"/>
     </repository>
     <packages type="image">
+        <package name="libpam-runtime"/>
         <package name="grub-theme-starfield"/>
         <package name="plymouth-themes"/>
         <package name="vim"/>
