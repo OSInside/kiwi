@@ -50,6 +50,8 @@
         <package name="rpi-eeprom"/>
         <package name="libraspberrypi-bin"/>
         <!-- system packages -->
+        <package name="gawk"/>
+        <package name="libpam-runtime"/>
         <package name="bash-completion"/>
         <package name="git"/>
         <package name="sudo"/>
@@ -79,5 +81,9 @@
         <package name="fdisk"/>
         <package name="language-pack-en"/>
     </packages>
-    <packages type="bootstrap"/>
+    <packages type="bootstrap">
+        <package name="apt-utils"/>
+        <package name="debconf"/>
+        <package name="mawk"/>
+    </packages>
 </image>

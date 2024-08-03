@@ -200,10 +200,11 @@ class TestResultBundleTask:
         mock_path_wipe, mock_path_which, mock_path_create, mock_command,
         mock_load, mock_Privileges_check_for_root_permissions
     ):
-        abs_path = ['bundle-dir', 'target-dir']
-
         def abspath(path):
-            return abs_path.pop()
+            if path == 'target_dir':
+                return 'target-dir'
+            else:
+                return 'bundle-dir'
 
         checksum = Mock()
         compress = Mock()

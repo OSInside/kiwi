@@ -29,6 +29,7 @@ class PackageManagerTemplateAptGet:
             # kiwi generated apt-get config file
             Dir "/";
             Dir::State "${apt_shared_base}/";
+            Dir::State::status "/var/lib/dpkg/status.kiwi";
             Dir::Cache "${apt_shared_base}/";
             Dir::Etc   "${apt_shared_base}/";
         ''').strip() + os.linesep

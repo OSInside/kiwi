@@ -1,32 +1,28 @@
-.. _debootstrap_alternative:
+.. _debianbootstrap_alternative:
 
-Circumvent debootstrap
-======================
+Circumvent Debian Bootstrap
+===========================
 
 .. sidebar:: Abstract
 
    This page provides information how to build Debian based
-   images with `apt` but without using `debootstrap` to bootstrap
-   the image root tree
+   images without an extra bootstrap process.
 
-When building Debian based images {kiwi} uses two tools to
-create the image root tree. First it calls `debootstrap` to
-initialize a minimal root tree and next it chroot's into that
-tree to complete the installation via `apt`. The reason why it
-is done that way is because `apt` does not(yet) support to
-install packages into an empty root directory like it is done
-with all other packagemanager interfaces implemented in {kiwi}.
+When building Debian based images {kiwi} uses `apt` in the
+bootstrap and the system phase to create the image root tree.
+However, `apt` does not support a native way to bootstrap
+an empty root tree. Therefore the bootstrap phase uses
+apt only to resolve the given bootstrap packages and to
+download these packages from the given repositories.
+The list of packages is then manually extracted into the
+new root tree which is not exactly the same as if `apt`
+would have installed them natively. For the purpose of
+creating an initial tree to begin with, this procedure
+is acceptable though.
 
-The use of `debootstrap` comes along with some prerequisites
-and limitations:
-
-* It can only use one repository to bootstrap from
-* It can only use an official archive repo
-* It has its own dependency resolver different from apt
-
-If one ore more of this properties turns into an issue, {kiwi}
-allows for an alternative process which is based on a prebuilt
-bootstrap-root archive provided as a package.
+If, for some reasons, this bootstrap procedure is not
+applicable, {kiwi} allows for an alternative process which is
+based on a prebuilt bootstrap-root archive provided as a package.
 
 To make use of a `bootstrap_package`, the name of that package
 needs to be referenced in the {kiwi} description as follows:
@@ -54,10 +50,10 @@ How to Create a bootstrap_package
 ---------------------------------
 
 Changing the setup in {kiwi} to use a `bootstrap_package` rather
-then letting `debootstrap` do the job comes with the task to create
-that package providing the bootstrap root tree. There are more than
-one way to do this. The following procedure is just one example and
-requires some background knowledge about the Open Build Service
+then using {kiwi}'s debian bootstrap method to do the job, comes with
+the task to create that package providing the bootstrap root tree. There
+are more than one way to do this. The following procedure is just one
+example and requires some background knowledge about the Open Build Service
 `OBS <https://build.opensuse.org>`__ and its {kiwi} integration.
 
 1. Create an OBS project and repository setup that matches your image target
@@ -89,13 +85,28 @@ requires some background knowledge about the Open Build Service
           </repository>
 
           <packages type="image">
-              <!-- packages included so OBS adds it as a build dependency, however this is installed by debootstrap -->
+              <package name="gawk"/>
+              <package name="apt-utils"/>
+              <package name="debconf"/>
               <package name="mawk"/>
+              <package name="libpam-runtime"/>
+              <package name="util-linux"/>
+              <package name="systemd"/>
+              <package name="init"/>
+              <package name="gnupg"/>
+              <package name="iproute2"/>
+              <package name="iptables"/>
+              <package name="iputils-ping"/>
+              <package name="ifupdown"/>
+              <package name="isc-dhcp-client"/>
+              <package name="netbase"/>
+              <package name="dbus"/>
+              <package name="xz-utils"/>
+              <package name="usrmerge"/>
+              <package name="language-pack-en"/>
           </packages>
 
-          <packages type="bootstrap">
-              <!-- bootstrap done via debootstrap -->
-          </packages>
+          <packages type="bootstrap"/>
       </image>
 
    .. code:: bash

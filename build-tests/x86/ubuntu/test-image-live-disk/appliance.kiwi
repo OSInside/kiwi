@@ -61,13 +61,21 @@
         <source path="obs://Ubuntu:23.04/standard"/>
     </repository>
     <packages type="image">
+        <package name="libpam-runtime"/>
+        <package name="gawk"/>
+        <package name="apt-utils"/>
+        <package name="debconf"/>
+        <package name="mawk"/>
+        <package name="dialog"/>
         <package name="util-linux"/>
         <package name="grub2-themes-ubuntu-mate"/>
         <package name="plymouth-theme-sabily"/>
         <package name="plymouth"/>
-        <package name="grub-pc-bin"/>
+        <package name="grub-efi-amd64" arch="x86_64"/>
+        <package name="grub-efi-arm64" arch="aarch64"/>
+        <package name="grub-common"/>
         <package name="grub2-common"/>
-        <package name="grub-efi-amd64-bin"/>
+        <package name="grub-pc-bin" arch="x86_64"/>
         <package name="linux-generic"/>
         <package name="systemd"/>
         <package name="dracut"/>
@@ -84,11 +92,6 @@
         <package name="xz-utils"/>
         <package name="usrmerge"/>
         <package name="language-pack-en"/>
-        <!--
-            mawk is included so OBS adds it as a build dependency,
-            however this is installed by debootstrap
-        -->
-        <package name="mawk"/>
     </packages>
     <packages type="image" profiles="Virtual">
         <package name="shim"/>

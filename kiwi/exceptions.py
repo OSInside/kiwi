@@ -208,10 +208,10 @@ class KiwiDataStructureError(KiwiError):
     """
 
 
-class KiwiDebootstrapError(KiwiError):
+class KiwiDebianBootstrapError(KiwiError):
     """
-    Exception raised if not enough user data to call debootstrap
-    were provided or the debootstrap has failed.
+    Exception raised if the bootstrap installation for Debian
+    based systems has failed
     """
 
 
