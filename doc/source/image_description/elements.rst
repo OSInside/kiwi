@@ -467,8 +467,7 @@ bootstrap_package="package_name":
   in :file:`/var/lib/bootstrap/PACKAGE_NAME.ARCH.tar.xz`.
   The tarball will be unpacked and used as the bootstrap
   rootfs to begin with. This allows for an alternative bootstrap
-  method preventing the use of `debootstrap`. For further details
-  see :ref:`debootstrap_alternative`.
+  method. For further details see :ref:`debianbootstrap_alternative`.
 
 compressed="true|false":
   Specifies whether the image output file should be
@@ -1259,7 +1258,7 @@ components="name"
 
 distribution="name"
   Used for Debian (apt) based repositories only. Specifies the
-  distribution name to be used on call of `debootstrap`
+  distribution name used in the repository data structure.
 
 imageonly="true|false"
   Specifies whether or not this repository should be configured in
