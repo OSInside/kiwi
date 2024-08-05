@@ -19,6 +19,7 @@ import re
 import os
 import glob
 import logging
+from textwrap import dedent
 from typing import (
     List, Dict
 )
@@ -243,7 +244,8 @@ class PackageManagerApt(PackageManagerBase):
                 '-oDebug::pkgDPkgPm=1',
                 f'-oDPkg::Pre-Install-Pkgs::=cat >{package_names.name}',
                 '?essential',
-                '?exact-name(usr-is-merged)'
+                '?exact-name(usr-is-merged)',
+                'base-passwd'
             ] + self.package_requests
             result = Command.run(
                 download_bootstrap, self.command_env
@@ -251,14 +253,30 @@ class PackageManagerApt(PackageManagerBase):
             log.debug(
                 'Apt download: {0} {1}'.format(result.output, result.error)
             )
+            script = dedent('''\n
+                set -e
+                while read -r deb;do
+                    echo "Unpacking $deb"
+                    dpkg-deb --fsys-tarfile $deb | tar -C {0} -x
+                done < {1}
+                while read -r deb;do
+                    pushd "$(dirname "$deb")" >/dev/null || exit 1
+                    if [[ "$(basename "$deb")" == base-passwd* ]];then
+                        echo "Running pre/post package scripts for $(basename "$deb")"
+                        dpkg -e "$deb" "{0}/DEBIAN"
+                        test -e {0}/DEBIAN/preinst && chroot {0} bash -c "/DEBIAN/preinst install"
+                        test -e {0}/DEBIAN/postinst && chroot {0} bash -c "/DEBIAN/postinst"
+                        rm -rf {0}/DEBIAN
+                    fi
+                    popd >/dev/null || exit 1
+                done < {1}
+            ''')
+
+            script.format(self.root_dir, package_names.name)
+
             with open(package_extract.name, 'w') as install:
                 install.write(
-                    'while read -r deb;do echo "{0}";{1}|{2};done <{3}'.format(
-                        'Unpacking $deb',
-                        'dpkg-deb --fsys-tarfile $deb',
-                        f'tar -C {self.root_dir} -x',
-                        package_names.name
-                    )
+                    script.format(self.root_dir, package_names.name)
                 )
             result = Command.run(
                 ['bash', package_extract.name], self.command_env
