@@ -1,5 +1,6 @@
 import logging
 import io
+from textwrap import dedent
 from unittest.mock import (
     patch, call, Mock, MagicMock
 )
@@ -127,9 +128,26 @@ class TestPackageManagerApt:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.manager.process_install_requests_bootstrap()
+            script = dedent('''\n
+                set -e
+                while read -r deb;do
+                    echo "Unpacking $deb"
+                    dpkg-deb --fsys-tarfile $deb | tar -C {0} -x
+                done < {1}
+                while read -r deb;do
+                    pushd "$(dirname "$deb")" >/dev/null || exit 1
+                    if [[ "$(basename "$deb")" == base-passwd* ]];then
+                        echo "Running pre/post package scripts for $(basename "$deb")"
+                        dpkg -e "$deb" "{0}/DEBIAN"
+                        test -e {0}/DEBIAN/preinst && chroot {0} bash -c "/DEBIAN/preinst install"
+                        test -e {0}/DEBIAN/postinst && chroot {0} bash -c "/DEBIAN/postinst"
+                        rm -rf {0}/DEBIAN
+                    fi
+                    popd >/dev/null || exit 1
+                done < {1}
+            ''')
             file_handle.write.assert_called_once_with(
-                'while read -r deb;do echo "Unpacking $deb";dpkg-deb'
-                ' --fsys-tarfile $deb|tar -C root-dir -x;done <temporary'
+                script.format('root-dir', 'temporary')
             )
         assert mock_Command_run.call_args_list == [
             call(
@@ -142,6 +160,7 @@ class TestPackageManagerApt:
                     '-oDPkg::Pre-Install-Pkgs::=cat >temporary',
                     '?essential',
                     '?exact-name(usr-is-merged)',
+                    'base-passwd',
                     'vim',
                     'apt'
                 ], ['env']
