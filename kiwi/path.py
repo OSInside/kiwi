@@ -18,6 +18,7 @@
 import os
 import logging
 import collections
+import pathlib
 from typing import Dict, List, MutableMapping, Optional
 
 # project
@@ -105,10 +106,8 @@ class Path:
 
         :param string path: path name
         """
-        if not os.path.exists(path):
-            Command.run(
-                ['mkdir', '-p', path]
-            )
+        log.debug("Creating directory %s", path)
+        pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def wipe(path: str) -> None:

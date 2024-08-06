@@ -162,7 +162,6 @@ class TestVolumeManagerBtrfs:
             call(['btrfs', 'quota', 'enable', 'tmpdir']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots']),
-            call(['mkdir', '-p', 'tmpdir/@/.snapshots/1']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots/1/snapshot']),
             call(['btrfs', 'subvolume', 'list', 'tmpdir']),
             call(['btrfs', 'subvolume', 'set-default', '258', 'tmpdir'])

@@ -1,4 +1,5 @@
 import logging
+import pathlib
 from unittest.mock import patch, call
 from pytest import (
     raises, fixture
@@ -21,18 +22,10 @@ class TestPath:
         )
         assert ordered == ['usr', 'etc', 'usr/bin', 'usr/lib']
 
-    @patch('kiwi.command.os.path.exists')
-    @patch('kiwi.command.Command.run')
-    def test_create(self, mock_command, mock_exists):
-        mock_exists.return_value = False
-        Path.create('foo')
-        mock_command.assert_called_once_with(
-            ['mkdir', '-p', 'foo']
-        )
-        mock_exists.return_value = True
-        mock_command.reset_mock()
-        Path.create('foo')
-        assert not mock_command.called
+    def test_create(self, tmp_path: pathlib.Path):
+        dest = tmp_path / "foo" / "bar" / "baz"
+        Path.create(str(dest))
+        assert pathlib.Path(dest).exists()
 
     @patch('kiwi.command.os.path.exists')
     @patch('kiwi.command.Command.run')

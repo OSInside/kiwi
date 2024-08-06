@@ -56,7 +56,6 @@ class TestRpmDataBase:
         mock_exists.return_value = False
         self.rpmdb.link_database_to_host_path()
         assert mock_Command_run.call_args_list == [
-            call(['mkdir', '-p', 'root_dir/usr/lib/sysimage']),
             call(
                 [
                     'ln', '-s', '../../../var/lib/rpm',
