@@ -7,6 +7,8 @@ from pytest import (
 
 import os
 
+import pytest
+
 from kiwi.path import Path
 from kiwi.exceptions import KiwiFileAccessError
 
@@ -85,23 +87,23 @@ class TestPath:
         assert Path.which('some-file') == '/usr/local/bin/some-file'
         mock_exists.return_value = False
         assert Path.which('some-file') is None
-        mock_env.return_value = None
-        mock_exists.return_value = True
-        assert Path.which('some-file', alternative_lookup_paths=['alternative']) == \
-            'alternative/some-file'
         mock_access.return_value = False
         mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
         assert Path.which('some-file', access_mode=os.X_OK) is None
-        mock_access.return_value = True
-        assert Path.which('some-file', access_mode=os.X_OK) == \
-            '/usr/local/bin/some-file'
-        assert Path.which('some-file', custom_env={'PATH': 'custom_path'}) == \
-            'custom_path/some-file'
+
+    def test_which_with_real_data(self, pytestconfig: pytest.Config):
         assert Path.which(
-            'some-file',
-            custom_env={'PATH': 'custom_path'},
-            root_dir='/root_dir'
-        ) == '/root_dir/custom_path/some-file'
+            'tox.ini',
+            custom_env={'PATH': str(pytestconfig.rootpath)},
+            access_mode=os.F_OK
+        ) == str(pytestconfig.rootpath / "tox.ini")
+
+        assert Path.which(
+            '__init__.py',
+            custom_env={'PATH': "/kiwi/"},
+            access_mode=os.F_OK,
+            root_dir=str(pytestconfig.rootpath)
+        ) == str(pytestconfig.rootpath / "kiwi" / "__init__.py")
 
     @patch('os.access')
     @patch('os.environ.get')
@@ -109,30 +111,12 @@ class TestPath:
     def test_which_not_found_log(
         self, mock_exists, mock_env, mock_access
     ):
-        mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
+        PATH = '/usr/local/bin:/usr/bin:/bin'
+        mock_env.return_value = PATH
         mock_exists.return_value = False
         with self._caplog.at_level(logging.DEBUG):
             assert Path.which('file') is None
-            assert (
-                '"file": in paths "{0}" exists: "False" mode match: '
-                'not checked'
-            ).format(mock_env.return_value) in self._caplog.text
-
-    @patch('os.access')
-    @patch('os.environ.get')
-    @patch('os.path.exists')
-    def test_which_not_found_for_mode_log(
-        self, mock_exists, mock_env, mock_access
-    ):
-        mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
-        mock_exists.return_value = True
-        mock_access.return_value = False
-        with self._caplog.at_level(logging.DEBUG):
-            assert Path.which('file', access_mode=os.X_OK) is None
-            assert (
-                '"file": in paths "{0}" exists: "True" mode match: '
-                '"False"'
-            ).format(mock_env.return_value) in self._caplog.text
+            assert ('Looking for file in ' + PATH) in self._caplog.text
 
     def test_access_invalid_mode(self):
         with raises(ValueError) as issue:
