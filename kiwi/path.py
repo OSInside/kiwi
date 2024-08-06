@@ -122,29 +122,6 @@ class Path:
             )
 
     @staticmethod
-    def remove(path: str) -> None:
-        """
-        Delete empty path, causes an error if target is not empty
-
-        :param string path: path name
-        """
-        Command.run(
-            ['rmdir', path]
-        )
-
-    @staticmethod
-    def rename(cur: str, new: str) -> None:
-        """
-        Move path from cur name to new name
-
-        :param string cur: current path name
-        :param string new: new path name
-        """
-        Command.run(
-            ['mv', cur, new]
-        )
-
-    @staticmethod
     def remove_hierarchy(root: str, path: str) -> None:
         """
         Recursively remove an empty path and its sub directories

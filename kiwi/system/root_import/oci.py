@@ -17,6 +17,7 @@
 #
 import os
 import logging
+import pathlib
 
 # project
 from kiwi.system.root_import.base import RootImportBase
@@ -74,7 +75,8 @@ class RootImportOCI(RootImportBase):
             oci.import_container_image(image_uri)
             oci.unpack()
             oci.import_rootfs(self.root_dir)
-            Path.rename(self.root_dir, root_dir_ro)
+            log.debug("renaming %s -> %s", self.root_dir, root_dir_ro)
+            pathlib.Path(self.root_dir).replace(root_dir_ro)
             Path.create(self.root_dir)
 
             self.overlay = MountManager(device='', mountpoint=self.root_dir)

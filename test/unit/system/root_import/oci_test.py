@@ -66,15 +66,18 @@ class TestRootImportOCI:
 
     @patch('kiwi.system.root_import.oci.Compress')
     @patch('kiwi.system.root_import.oci.Path.create')
-    @patch('kiwi.system.root_import.oci.Path.rename')
+    @patch('kiwi.system.root_import.oci.pathlib.Path')
     @patch('kiwi.system.root_import.oci.MountManager')
     @patch('kiwi.system.root_import.oci.OCI')
     def test_overlay_data(
-        self, mock_OCI, mock_MountManager, mock_path_rename,
+        self, mock_OCI, mock_MountManager, mock_Path,
         mock_path_create, mock_compress
     ):
         oci = Mock()
         mock_OCI.new.return_value.__enter__.return_value = oci
+
+        mock_pth = Mock()
+        mock_Path.return_value = mock_pth
 
         self.oci_import.overlay_data()
 
@@ -87,9 +90,8 @@ class TestRootImportOCI:
         oci.import_rootfs.assert_called_once_with(
             'root_dir'
         )
-        mock_path_rename.assert_called_once_with(
-            'root_dir', 'root_dir_ro'
-        )
+        mock_Path.assert_called_once_with('root_dir')
+        mock_pth.replace.assert_called_once_with('root_dir_ro')
         mock_path_create.assert_called_once_with('root_dir')
         mock_MountManager.return_value.overlay_mount.assert_called_once_with(
             'root_dir_ro'

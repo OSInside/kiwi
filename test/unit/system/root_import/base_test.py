@@ -62,10 +62,12 @@ class TestRootImportBase:
     @patch('kiwi.system.uri.Defaults.is_buildservice_worker')
     @patch('kiwi.system.root_import.base.SystemSetup')
     @patch('kiwi.system.root_import.base.Path')
+    @patch('kiwi.system.root_import.base.pathlib')
     @patch('kiwi.system.root_import.base.Command.run')
+    @patch('kiwi.system.uri.RuntimeConfig')
     def test_overlay_finalize(
-        self, mock_Command_run, mock_Path, mock_SystemSetup,
-        mock_buildservice, mock_path_exists
+        self, mock_runtime_config, mock_Command_run, mock_pathlib, mock_Path,
+        mock_SystemSetup, mock_buildservice, mock_path_exists
     ):
         mock_path_exists.return_value = True
         mock_buildservice.return_value = False
@@ -77,6 +79,9 @@ class TestRootImportBase:
             with patch.dict('os.environ', {'HOME': '../data'}):
                 root = RootImportBase('root_dir', Uri('docker://opensuse:leap'))
                 root.overlay = Mock()
+                mock_pathlib.Path = Mock()
+                root_overlay_path_mock = Mock()
+                mock_pathlib.Path.return_value = root_overlay_path_mock
 
                 root.overlay_finalize(xml_state)
 
@@ -98,9 +103,9 @@ class TestRootImportBase:
                     call(root.overlay.lower),
                     call(root.overlay.work)
                 ]
-                mock_Path.rename.assert_called_once_with(
-                    root.overlay.upper, 'root_dir'
-                )
+
+                mock_pathlib.Path.assert_called_once_with(root.overlay.upper)
+                root_overlay_path_mock.replace.assert_called_once_with('root_dir')
 
                 # find files that got removed
                 assert mock_Command_run.call_args_list == [
