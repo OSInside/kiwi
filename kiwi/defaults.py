@@ -1156,7 +1156,7 @@ class Defaults:
 
         :rtype: int
         """
-        return 30
+        return 120
 
     @staticmethod
     def get_lvm_overhead_mbytes():

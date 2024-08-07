@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext4" kernelcmdline="splash" firmware="efi" mdraid="mirroring" installiso="true" installboot="install">
+        <type image="oem" filesystem="btrfs" kernelcmdline="splash" firmware="efi" mdraid="mirroring" installiso="true" installboot="install">
             <oemconfig>
                 <oem-device-filter>/dev/ram</oem-device-filter>
                 <oem-multipath-scan>false</oem-multipath-scan>
@@ -77,6 +77,7 @@
         <package name="gzip"/>
         <package name="udev"/>
         <package name="xz"/>
+        <package name="shadow"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>

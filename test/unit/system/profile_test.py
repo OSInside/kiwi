@@ -81,9 +81,9 @@ class TestProfile:
         os.remove(self.profile_file)
         assert self.profile.dot_profile == {
             'kiwi_Volume_1': 'usr_lib|size:1024|usr/lib',
-            'kiwi_Volume_2': 'etc_volume|freespace:30|etc',
+            'kiwi_Volume_2': 'etc_volume|freespace:120|etc',
             'kiwi_Volume_3': 'bin_volume|size:all|/usr/bin',
-            'kiwi_Volume_4': 'usr_bin|freespace:30|usr/bin',
+            'kiwi_Volume_4': 'usr_bin|freespace:120|usr/bin',
             'kiwi_Volume_5': 'LVSwap|size:128|',
             'kiwi_Volume_Root': 'LVRoot|freespace:500|',
             'kiwi_bootkernel': None,
