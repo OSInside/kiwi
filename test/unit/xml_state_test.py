@@ -434,7 +434,7 @@ class TestXMLState:
             volume_type(
                 name='usr_lib',
                 parent='',
-                size='freespace:30',
+                size='freespace:120',
                 realpath='usr/lib',
                 mountpoint='usr/lib',
                 fullsize=False,
@@ -493,7 +493,7 @@ class TestXMLState:
                 is_root_volume=True
             ),
             volume_type(
-                name='etc_volume', parent='', size='freespace:30',
+                name='etc_volume', parent='', size='freespace:120',
                 realpath='etc',
                 mountpoint='etc', fullsize=False,
                 label=None,
@@ -557,7 +557,7 @@ class TestXMLState:
                 is_root_volume=False
             ),
             volume_type(
-                name='LVRoot', parent='', size='freespace:30', realpath='/',
+                name='LVRoot', parent='', size='freespace:120', realpath='/',
                 mountpoint=None, fullsize=False,
                 label=None,
                 attributes=[],
