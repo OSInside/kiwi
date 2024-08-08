@@ -124,7 +124,7 @@ class TestVolumeManagerBase:
         assert self.volume_manager.get_volume_mbsize(
             self.volume_manager.volumes[0], self.volume_manager.volumes,
             'ext3'
-        ) == 362
+        ) == 272
 
     @patch('kiwi.volume_manager.base.SystemSize')
     @patch('os.path.exists')
@@ -140,7 +140,7 @@ class TestVolumeManagerBase:
         assert self.volume_manager.get_volume_mbsize(
             self.volume_manager.volumes[0], self.volume_manager.volumes,
             'ext3', True
-        ) == 162
+        ) == 72
 
     @patch('kiwi.volume_manager.base.SystemSize')
     @patch('os.path.exists')
@@ -168,7 +168,7 @@ class TestVolumeManagerBase:
         assert self.volume_manager.get_volume_mbsize(
             self.volume_manager.volumes[0], self.volume_manager.volumes,
             'ext3'
-        ) == 362
+        ) == 272
         size.accumulate_mbyte_file_sizes.assert_called_once_with(
             ['root_dir/usr/lib']
         )
@@ -204,7 +204,7 @@ class TestVolumeManagerBase:
         assert self.volume_manager.get_volume_mbsize(
             self.volume_manager.volumes[2], self.volume_manager.volumes,
             'ext3', True
-        ) == 162
+        ) == 72
         size.accumulate_mbyte_file_sizes.assert_called_once_with(
             ['root_dir/usr', 'root_dir/usr/lib']
         )

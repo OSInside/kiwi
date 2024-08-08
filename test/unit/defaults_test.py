@@ -217,3 +217,8 @@ class TestDefaults:
         mock_os_path_exists.return_value = True
         assert Defaults.get_snapper_config_template_file('root') == \
             'root/etc/snapper/config-templates/default'
+
+    def test_get_min_volume_mbytes(self):
+        assert Defaults.get_min_volume_mbytes('btrfs') == 120
+        assert Defaults.get_min_volume_mbytes('xfs') == 300
+        assert Defaults.get_min_volume_mbytes('some') == 30

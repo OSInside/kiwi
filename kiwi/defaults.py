@@ -1148,15 +1148,21 @@ class Defaults:
         return 10
 
     @staticmethod
-    def get_min_volume_mbytes():
+    def get_min_volume_mbytes(filesystem: str):
         """
         Provides default minimum LVM volume size in mbytes
+        per filesystem
 
         :return: mbsize value
 
         :rtype: int
         """
-        return 120
+        if filesystem == 'btrfs':
+            return 120
+        elif filesystem == 'xfs':
+            return 300
+        else:
+            return 30
 
     @staticmethod
     def get_lvm_overhead_mbytes():

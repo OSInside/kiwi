@@ -175,8 +175,8 @@ class TestVolumeManagerLVM:
         self.volume_manager.volume_group = 'volume_group'
         self.volume_manager.create_volumes('ext3')
         myvol_size = 500
-        etc_size = 200 + 42 + Defaults.get_min_volume_mbytes()
-        root_size = 100 + 42 + Defaults.get_min_volume_mbytes()
+        etc_size = 200 + 42 + Defaults.get_min_volume_mbytes('ext3')
+        root_size = 100 + 42 + Defaults.get_min_volume_mbytes('ext3')
 
         assert mock_attrs.call_args_list == [
             call(
