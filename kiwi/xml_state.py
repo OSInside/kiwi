@@ -1731,6 +1731,7 @@ class XMLState:
         """
         volume_type_list: List[volume_type] = []
         systemdisk_section = self.get_build_type_system_disk_section()
+        selected_filesystem = self.build_type.get_filesystem()
         swap_mbytes = self.get_oemconfig_swap_mbytes()
         swap_name = self.get_oemconfig_swap_name()
         if not systemdisk_section:
@@ -1802,7 +1803,7 @@ class XMLState:
                     )
                 else:
                     size = 'freespace:' + format(
-                        Defaults.get_min_volume_mbytes()
+                        Defaults.get_min_volume_mbytes(selected_filesystem)
                     )
 
                 if ':all' in size:
@@ -1832,7 +1833,7 @@ class XMLState:
                 defaults.ROOT_VOLUME_NAME if volume_management == 'lvm' else ''
             if have_full_size_volume:
                 size = 'freespace:' + format(
-                    Defaults.get_min_volume_mbytes()
+                    Defaults.get_min_volume_mbytes(selected_filesystem)
                 )
                 fullsize = False
             else:

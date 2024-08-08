@@ -361,7 +361,9 @@ class DiskSetup:
         # on first boot of the disk image in oemboot/repart
         if self.disk_resize_requested:
             for volume in self.volumes:
-                disk_volume_mbytes += Defaults.get_min_volume_mbytes()
+                disk_volume_mbytes += Defaults.get_min_volume_mbytes(
+                    self.filesystem
+                )
             return disk_volume_mbytes
 
         # For static disk(no resize requested) we need to add the
@@ -378,7 +380,7 @@ class DiskSetup:
                         data_volume_mbytes.volume[volume.realpath]
                 if disk_add_mbytes > 0:
                     disk_volume_mbytes += disk_add_mbytes + \
-                        Defaults.get_min_volume_mbytes()
+                        Defaults.get_min_volume_mbytes(self.filesystem)
                 else:
                     message = dedent('''\n
                         Requested volume size {0}MB for {1!r} is too small
@@ -402,7 +404,7 @@ class DiskSetup:
 
             if disk_add_mbytes > 0:
                 disk_volume_mbytes += disk_add_mbytes + \
-                    Defaults.get_min_volume_mbytes()
+                    Defaults.get_min_volume_mbytes(self.filesystem)
             else:
                 log.warning(
                     'root volume size of %s MB is too small, skipped',

@@ -317,7 +317,7 @@ class VolumeManagerBase(DeviceProvider):
             # Therefore the requested size is set to null and we add
             # the required minimum size for just storing the data
             size_type = 'freespace'
-            mbsize = Defaults.get_min_volume_mbytes()
+            mbsize = Defaults.get_min_volume_mbytes(filesystem_name)
 
         if size_type == 'freespace' and os.path.exists(lookup_abspath):
             exclude_paths = []
@@ -337,8 +337,8 @@ class VolumeManagerBase(DeviceProvider):
                     )
 
             volume_size = SystemSize(lookup_abspath)
-            if mbsize != Defaults.get_min_volume_mbytes():
-                mbsize += Defaults.get_min_volume_mbytes()
+            if mbsize != Defaults.get_min_volume_mbytes(filesystem_name):
+                mbsize += Defaults.get_min_volume_mbytes(filesystem_name)
             mbsize += volume_size.customize(
                 volume_size.accumulate_mbyte_file_sizes(exclude_paths),
                 filesystem_name

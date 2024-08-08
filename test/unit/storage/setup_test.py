@@ -212,7 +212,7 @@ class TestDiskSetup:
     @patch('os.path.exists')
     def test_get_disksize_mbytes_volumes(self, mock_exists):
         mock_exists.side_effect = lambda path: path != 'root_dir/newfolder'
-        assert self.setup_volumes.get_disksize_mbytes() == 2774
+        assert self.setup_volumes.get_disksize_mbytes() == 2144
 
     @patch('os.path.exists')
     def test_get_disksize_mbytes_partitions(self, mock_exists):
@@ -244,7 +244,7 @@ class TestDiskSetup:
             Defaults.get_default_efi_boot_mbytes() + \
             Defaults.get_default_boot_mbytes() + \
             root_size + \
-            5 * Defaults.get_min_volume_mbytes()
+            5 * Defaults.get_min_volume_mbytes('ext3')
 
     @patch('os.path.exists')
     def test_get_disksize_mbytes_root_volume(self, mock_exists):
