@@ -126,6 +126,18 @@ function _fbiterm_ok {
     return 0
 }
 
+function show_log_and_quit {
+    local text_message="$1"
+    local log_file="$2"
+    run_dialog --timeout 60 --backtitle "\"${text_message}\"" \
+        --textbox "${log_file}" 15 80
+    if getargbool 0 rd.debug; then
+        die "${text_message}"
+    else
+        reboot -f
+    fi
+}
+
 function report_and_quit {
     local text_message="$1"
     run_dialog --timeout 60 --msgbox "\"${text_message}\"" 5 80
