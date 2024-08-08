@@ -387,25 +387,25 @@ function get_remote_image_source_files {
             echo "--- ip a ---"; ip a
             echo "--- ip r ---"; ip r
         } >> /tmp/fetch.info 2>&1
-        report_and_quit \
-            "Failed to fetch ${image_md5_uri}, see /tmp/fetch.info"
+        show_log_and_quit \
+            "Failed to fetch ${image_md5_uri}" /tmp/fetch.info
     fi
 
     if ! fetch_file "${image_kernel_uri}" > "${metadata_dir}/linux";then
-        report_and_quit \
-            "Failed to fetch ${image_kernel_uri}, see /tmp/fetch.info"
+        show_log_and_quit \
+            "Failed to fetch ${image_kernel_uri}" /tmp/fetch.info
     fi
 
     if ! fetch_file "${image_initrd_uri}" > "${install_dir}/initrd.system_image"
     then
-        report_and_quit \
-            "Failed to fetch ${image_initrd_uri}, see /tmp/fetch.info"
+        show_log_and_quit \
+            "Failed to fetch ${image_initrd_uri}" /tmp/fetch.info
     fi
 
     if ! fetch_file "${image_config_uri}" > "/config.bootoptions"
     then
-        report_and_quit \
-            "Failed to fetch ${image_config_uri}, see /tmp/fetch.info"
+        show_log_and_quit \
+            "Failed to fetch ${image_config_uri}" /tmp/fetch.info
     fi
 
     echo "${image_uri}|${image_md5}"

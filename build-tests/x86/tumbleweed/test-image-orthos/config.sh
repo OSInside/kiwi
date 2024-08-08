@@ -43,6 +43,12 @@ suseInsertService sshd
 suseInsertService network
 
 #======================================
+# setup dracut for live system
+#--------------------------------------
+echo 'add_drivers+=" brd "' >> \
+    /etc/dracut.conf.d/10-liveroot-file.conf
+
+#======================================
 # Setup default target, multi-user
 #--------------------------------------
 baseSetRunlevel 3
