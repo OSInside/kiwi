@@ -25,6 +25,7 @@ from kiwi.boot.image.base import BootImageBase
 from kiwi.bootloader.template.zipl import BootLoaderTemplateZipl
 from kiwi.bootloader.config.bootloader_spec_base import BootLoaderSpecBase
 from kiwi.command import Command
+from kiwi.utils.temporary import Temporary
 
 from kiwi.exceptions import (
     KiwiTemplateError,
@@ -44,7 +45,9 @@ class BootLoaderZipl(BootLoaderSpecBase):
 
     def setup_loader(self, target: str) -> None:
         """
-        Setup main zipl.conf and install zipl for supported targets
+        Setup temporary zipl config and install zipl for supported targets.
+        Please note we are not touching the main zipl.conf file provided
+        by the distributors
 
         :param str target:
             target identifier, one of disk, live(iso) or install(iso)
@@ -72,15 +75,19 @@ class BootLoaderZipl(BootLoaderSpecBase):
         self.custom_args['initrd'] = \
             f'{boot_path}/{kernel_info.initrd_name}'
 
+        runtime_zipl_config_file = Temporary(
+            path=self.root_mount.mountpoint, prefix='kiwi_zipl.conf_'
+        ).new_file()
+
         BootLoaderZipl._write_config_file(
             BootLoaderTemplateZipl().get_loader_template(),
-            f'{self.root_mount.mountpoint}/etc/zipl.conf',
+            runtime_zipl_config_file.name,
             self._get_template_parameters()
         )
         self.set_loader_entry(
             self.root_mount.mountpoint, self.target.disk
         )
-        self._install_zipl(root_dir)
+        self._install_zipl(root_dir, runtime_zipl_config_file.name)
 
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
@@ -97,26 +104,18 @@ class BootLoaderZipl(BootLoaderSpecBase):
             self._get_template_parameters(entry_name)
         )
 
-    def _install_zipl(self, root_dir: str) -> None:
+    def _install_zipl(self, root_dir: str, zipl_config: str) -> None:
         """
         Install zipl on target
         """
         zipl = [
             'chroot', root_dir, 'zipl',
             '--noninteractive',
-            '--config', '/etc/zipl.conf',
+            '--config', zipl_config.replace(root_dir, ''),
             '--blsdir', self.entries_dir,
             '--verbose'
         ]
         Command.run(zipl)
-        # rewrite zipl.conf without loop device reference
-        template_parameters = self._get_template_parameters()
-        template_parameters['targetbase'] = ''
-        BootLoaderZipl._write_config_file(
-            BootLoaderTemplateZipl().get_loader_template(),
-            f'{self.root_mount.mountpoint}/etc/zipl.conf',
-            template_parameters
-        )
 
     def _get_template_parameters(
         self, default_entry: str = ''

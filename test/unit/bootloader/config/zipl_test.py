@@ -56,15 +56,20 @@ class TestBootLoaderZipl:
     @patch('kiwi.bootloader.config.zipl.Path.create')
     @patch('kiwi.bootloader.config.zipl.Command.run')
     @patch('kiwi.bootloader.config.zipl.BootLoaderTemplateZipl')
+    @patch('kiwi.bootloader.config.zipl.Temporary.new_file')
     @patch.object(BootLoaderZipl, '_write_config_file')
     @patch.object(BootLoaderZipl, '_get_template_parameters')
     @patch.object(BootLoaderSpecBase, 'get_entry_name')
     def test_setup_loader(
         self, mock_get_entry_name, mock_get_template_parameters,
-        mock_write_config_file, mock_BootLoaderTemplateZipl, mock_Command_run,
+        mock_write_config_file, mock_Temporary_new_file,
+        mock_BootLoaderTemplateZipl, mock_Command_run,
         mock_Path_create, mock_Path_wipe, mock_BootImageBase_get_boot_names,
         mock_os_path_exists
     ):
+        temporary = Mock()
+        temporary.name = 'system_root_mount/kiwi_zipl.conf_'
+        mock_Temporary_new_file.return_value = temporary
         mock_get_entry_name.return_value = \
             'opensuse-leap-5.3.18-59.10-default.conf'
 
@@ -82,7 +87,7 @@ class TestBootLoaderZipl:
             call(
                 mock_BootLoaderTemplateZipl.
                 return_value.get_loader_template.return_value,
-                'system_root_mount/etc/zipl.conf',
+                'system_root_mount/kiwi_zipl.conf_',
                 mock_get_template_parameters.return_value
             ),
             call(
@@ -91,12 +96,6 @@ class TestBootLoaderZipl:
                 'system_root_mount/boot/loader/entries/'
                 'opensuse-leap-5.3.18-59.10-default.conf',
                 mock_get_template_parameters.return_value
-            ),
-            call(
-                mock_BootLoaderTemplateZipl.
-                return_value.get_loader_template.return_value,
-                'system_root_mount/etc/zipl.conf',
-                {'targetbase': ''}
             )
         ]
         assert self.bootloader._mount_system.called
@@ -104,7 +103,7 @@ class TestBootLoaderZipl:
             [
                 'chroot', 'system_root_mount', 'zipl',
                 '--noninteractive',
-                '--config', '/etc/zipl.conf',
+                '--config', '/kiwi_zipl.conf_',
                 '--blsdir', '/boot/loader/entries',
                 '--verbose'
             ]
