@@ -43,6 +43,7 @@ from kiwi.system.identifier import SystemIdentifier
 from kiwi.boot.image import BootImage
 from kiwi.storage.setup import DiskSetup
 from kiwi.storage.loop_device import LoopDevice
+from kiwi.storage.target_device import TargetDevice
 from kiwi.storage.clone_device import CloneDevice
 from kiwi.firmware import FirmWare
 from kiwi.storage.disk import Disk
@@ -112,6 +113,7 @@ class DiskBuilder:
         self, xml_state: XMLState, target_dir: str,
         root_dir: str, custom_args: Dict = None
     ):
+        self.build_on_target = True
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -274,9 +276,11 @@ class DiskBuilder:
         :rtype: instance of :class:`Result`
         """
         result = self.create_disk()
-        result = self.create_install_media(result)
-        self.append_unpartitioned_space()
-        return self.create_disk_format(result)
+        if not self.build_on_target:
+            result = self.create_install_media(result)
+            self.append_unpartitioned_space()
+            result = self.create_disk_format(result)
+        return result
 
     def create_disk(self) -> Result:
         """
@@ -330,9 +334,12 @@ class DiskBuilder:
 
         # create the disk
         log.info('Creating raw disk image %s', self.diskname)
-        with LoopDevice(
-            self.diskname, disksize_mbytes, self.blocksize
-        ) as loop_provider:
+        # TODO
+        # with LoopDevice(
+        #     self.diskname, disksize_mbytes, self.blocksize
+        # ) as loop_provider:
+        # FIXME: BE VERY CAREFUL, the target device is hardcoded to /dev/sdb !!!!!!!!!!!!
+        with TargetDevice('/dev/sdb') as loop_provider:
             loop_provider.create()
 
             # create the disk partitioner, still unmapped
@@ -1496,6 +1503,9 @@ class DiskBuilder:
         integrity_root: Optional[IntegrityDevice]
     ) -> None:
         log.info('Syncing system to image')
+        if self.build_on_target:
+            # TODO: dracut does something before...
+            Command.run(['udevadm', 'settle'])
         if system_spare:
             log.info('--> Syncing spare partition data')
             stack.push(system_spare.sync_data())

@@ -82,6 +82,7 @@ class PartitionerGpt(PartitionerBase):
                 self.disk_device
             ]
         )
+        self.udev_pending()
         self.set_flag(self.partition_id, type_name)
         if flags:
             for flag_name in flags:

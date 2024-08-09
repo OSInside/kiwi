@@ -406,6 +406,12 @@ class KiwiLoopSetupError(KiwiError):
     """
 
 
+class KiwiTargetDeviceSetupError(KiwiError):
+    """
+    Exception raised if target device does not exist
+    """
+
+
 class KiwiMappedDeviceError(KiwiError):
     """
     Exception raised if the device to become mapped does not exist.

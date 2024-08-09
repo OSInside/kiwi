@@ -75,6 +75,7 @@ class PartitionerDasd(PartitionerBase):
             Command.run(
                 ['bash', '-c', bash_command]
             )
+            self.udev_pending()
         except Exception:
             # unfortunately fdasd reports that it can't read in the partition
             # table which I consider a bug in fdasd. However the table was

@@ -79,6 +79,7 @@ class PartitionerMsDos(PartitionerBase):
                 self._create_logical(name, mbsize, type_name, flags)
         else:
             self._create_primary(name, mbsize, type_name, flags)
+        self.udev_pending()
 
     def set_flag(self, partition_id: int, flag_name: str) -> None:
         """

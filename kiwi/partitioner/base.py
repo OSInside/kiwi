@@ -21,6 +21,7 @@ from typing import (
 
 # project
 from kiwi.storage.device_provider import DeviceProvider
+from kiwi.command import Command
 
 
 class PartitionerBase:
@@ -142,3 +143,16 @@ class PartitionerBase:
         :param int entries: unused
         """
         raise NotImplementedError
+
+    def udev_pending(self, timeout: int = 60):
+        """
+        Wait for udev to settle
+
+        :param int timeout: wait timeout for event queue
+        """
+        Command.run(
+            ['partx', '-u', self.disk_device]
+        )
+        Command.run(
+            ['udevadm', 'settle', f'--timeout={timeout}']
+        )
