@@ -199,6 +199,7 @@
     </repository>
     <packages type="image" patternType="plusRecommended">
         <namedCollection name="base"/>
+        <namedCollection name="base_for_arch" arch="s390,aarch64"/>
         <product name="openSUSE"/>
         <package name="plymouth-branding-openSUSE" bootinclude="true"/>
         <package name="grub2-branding-openSUSE" bootinclude="true"/>

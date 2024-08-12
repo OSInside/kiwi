@@ -187,6 +187,10 @@ class TestXMLState:
         assert self.state.get_system_collections() == [
             'base'
         ]
+        self.state.host_architecture = 'aarch64'
+        assert self.state.get_system_collections() == [
+            'base', 'base_for_arch'
+        ]
 
     def test_get_system_products(self):
         assert self.state.get_system_products() == [

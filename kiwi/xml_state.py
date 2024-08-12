@@ -397,6 +397,22 @@ class XMLState:
         """
         return self._section_matches_host_architecture(package)
 
+    def collection_matches_host_architecture(self, collection: Any) -> bool:
+        """
+        Tests if the given namedcollection section is applicable for
+        the current host architecture. If no architecture is specified
+        within the section it is considered as a match returning True.
+
+        Note: The XML section pointer must provide an arch attribute
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return self._section_matches_host_architecture(collection)
+
     def profile_matches_host_architecture(self, profile: Any) -> bool:
         """
         Tests if the given profile section is applicable for the current host
@@ -815,8 +831,9 @@ class XMLState:
         )
         for packages in typed_packages_sections:
             for collection in packages.get_namedCollection():
-                result.append(collection.get_name())
-        return list(set(result))
+                if self.collection_matches_host_architecture(collection):
+                    result.append(collection.get_name())
+        return sorted(list(set(result)))
 
     def get_bootstrap_collections(self) -> List:
         """
