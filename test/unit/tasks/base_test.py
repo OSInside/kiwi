@@ -61,12 +61,30 @@ class TestCliTask:
         mock_command_args.assert_called_once_with()
         mock_global_args.assert_called_once_with()
         assert mock_setLogLevel.call_args_list == [
-            call(logging.DEBUG), call(logging.CRITICAL, except_for=['file', 'socket'])
+            call(logging.DEBUG),
+            call(logging.CRITICAL, except_for=['file', 'socket'])
         ]
         mock_setLogFlag.assert_called_once_with('run-scripts-in-screen')
         mock_setlog.assert_called_once_with('stdout')
         mock_color.assert_called_once_with()
         mock_runtime_config.assert_called_once_with()
+
+        mock_setLogLevel.reset_mock()
+        mock_global_args.return_value = {
+            '--debug': True,
+            '--debug-run-scripts-in-screen': True,
+            '--logfile': 'some',
+            '--logsocket': 'log_socket',
+            '--loglevel': None,
+            '--color-output': True,
+            '--profile': ['vmxFlavour'],
+            '--type': None
+        }
+        self.task = CliTask()
+        assert mock_setLogLevel.call_args_list == [
+            call(logging.DEBUG),
+            call(logging.DEBUG, only_for=['file', 'socket'])
+        ]
 
     @patch('kiwi.logger.Logger.setLogLevel')
     @patch('kiwi.logger.Logger.setLogFlag')
