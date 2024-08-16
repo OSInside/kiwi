@@ -1,6 +1,6 @@
 import sys
 from unittest.mock import (
-    patch, call
+    patch, call, Mock
 )
 from pytest import raises
 
@@ -86,6 +86,35 @@ class TestLogger:
     def test_getLogLevel(self):
         self.log.setLogLevel(42)
         assert self.log.getLogLevel() == 42
+
+    def test_setLogLevel(self):
+        handler_one = Mock()
+        handler_two = Mock()
+        self.log.log_handlers = {
+            'handler_one': handler_one,
+            'handler_two': handler_two
+        }
+        self.log.setLogLevel(
+            10, except_for=['handler_one']
+        )
+        assert not handler_one.setLevel.called
+        handler_two.setLevel.assert_called_once_with(10)
+
+        handler_one.reset_mock()
+        handler_two.reset_mock()
+        self.log.setLogLevel(
+            10, only_for=['handler_one']
+        )
+        assert not handler_two.setLevel.called
+        handler_one.setLevel.assert_called_once_with(10)
+
+        handler_one.reset_mock()
+        handler_two.reset_mock()
+        self.log.setLogLevel(
+            10, except_for=['handler_one'], only_for=['handler_one']
+        )
+        assert not handler_two.setLevel.called
+        handler_one.setLevel.assert_called_once_with(10)
 
     def test_getLogFlags(self):
         assert self.log.getLogFlags().get('run-scripts-in-screen') is None

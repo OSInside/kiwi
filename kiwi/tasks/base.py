@@ -124,10 +124,14 @@ class CliTask:
                 log.setLogLevel(logging.DEBUG)
             else:
                 log.setLogLevel(logging.INFO)
+
             if self.global_args['--logfile'] == 'stdout':
                 # deactivate standard console logger by setting
                 # the highest possible log entry level
                 log.setLogLevel(logging.CRITICAL, except_for=['file', 'socket'])
+            elif self.global_args['--logfile']:
+                # set debug level for the file and socket logger
+                log.setLogLevel(logging.DEBUG, only_for=['file', 'socket'])
 
             # set log flags
             if self.global_args['--debug-run-scripts-in-screen']:

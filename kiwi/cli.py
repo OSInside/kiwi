@@ -64,7 +64,7 @@ global options:
         up at ~/.config/kiwi/config.yml or /etc/kiwi.yml
     --logfile=<filename>
         create a log file containing all log information including
-        debug information even if this is was not requested by the
+        debug information even if this was not requested by the
         debug switch. The special call: '--logfile stdout' sends all
         information to standard out instead of writing to a file
     --logsocket=<socketfile>

@@ -97,13 +97,27 @@ class Logger(logging.Logger):
         """
         return self.log_flags
 
-    def setLogLevel(self, level: int, except_for: List[str] = []) -> None:
+    def setLogLevel(
+        self, level: int, except_for: List[str] = [], only_for: List[str] = []
+    ) -> None:
         """
         Set custom log level for all console handlers
 
         :param int level: log level number
+        :param list except_for:
+            set log level to all handlers except for the given list
+        :param list only_for:
+            set log level to the given handlers only
+
+        if both except_for and only_for handlers are specified,
+        the except_for list will be ignored
         """
         self.log_level = level
+        if only_for:
+            for handler_type in self.log_handlers:
+                if handler_type in only_for:
+                    self.log_handlers[handler_type].setLevel(level)
+            return
         for handler_type in self.log_handlers:
             if handler_type not in except_for:
                 self.log_handlers[handler_type].setLevel(level)
