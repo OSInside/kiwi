@@ -35,8 +35,15 @@ class TestResult:
         assert self.result.print_results() is None
         assert not self._caplog.text
 
-    def test_print_results_data(self):
+    def test_print_results_data_number_version(self):
         self.xml_state.get_image_version.return_value = '1.1.1'
+        self.result.add('foo', 'bar')
+        self.result.add_bundle_format('%N')
+        with self._caplog.at_level(logging.INFO):
+            self.result.print_results()
+
+    def test_print_results_data_word_version(self):
+        self.xml_state.get_image_version.return_value = 'test'
         self.result.add('foo', 'bar')
         self.result.add_bundle_format('%N')
         with self._caplog.at_level(logging.INFO):
