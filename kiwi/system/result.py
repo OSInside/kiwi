@@ -47,9 +47,9 @@ result_name_tags = NamedTuple(
         ('A', str),  # architecture name
         ('I', str),  # custom ID setting
         ('T', str),  # image type name
-        ('M', int),  # Major version number
-        ('m', int),  # Minor version number
-        ('p', int),  # Patch version number
+        ('M', str),  # Major version number
+        ('m', str),  # Minor version number
+        ('p', str),  # Patch version number
         ('v', str)   # Version string
     ]
 )
@@ -76,7 +76,11 @@ class Result:
         self.xml_state = xml_state
 
     def add_bundle_format(self, pattern: str):
-        (major, minor, patch) = self.xml_state.get_image_version().split('.')
+        version_string = self.xml_state.get_image_version()
+        if '.' in version_string:
+            (major, minor, patch) = version_string.split(sep='.', maxsplit=2)
+        else:
+            (major, minor, patch) = (version_string, '', '')
         self.name_tags = result_name_tags(
             N=self.xml_state.xml_data.get_name(),
             P='_'.join(
@@ -85,10 +89,10 @@ class Result:
             A=self.xml_state.host_architecture,
             I='',
             T=self.xml_state.get_build_type_name(),
-            M=int(major),
-            m=int(minor),
-            p=int(patch),
-            v=self.xml_state.get_image_version()
+            M=major,
+            m=minor,
+            p=patch,
+            v=version_string
         )
         self.result_files['bundle_format'] = {
             'pattern': pattern,
