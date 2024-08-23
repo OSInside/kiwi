@@ -6,14 +6,14 @@ Image Description Elements
 .. note::
 
    This document provides a reference for the elements
-   and attributes of the {kiwi} XML document in version |version|
+   and attributes of the {kiwi} XML document version |version|.
 
 .. _sec.image:
 
 <image>
 -------
 
-The toplevel of any {kiwi} image description
+The top level of any {kiwi} image description is as follows:
 
 .. code:: xml
 
@@ -21,21 +21,17 @@ The toplevel of any {kiwi} image description
        <!-- descendants -->
    </image>
 
-The image definition starts with an image tag and requires the schema
-format at version {schema_version}. The attribute name specifies the name
-of the image which is also used for the filenames created by KIWI. Because
-we don’t want spaces in filenames the name attribute must not have any
-spaces in its name.
+The image definition starts with an image tag, and it requires the schema format
+version {schema_version}. The attribute name specifies the name of the image
+which is also used for the filenames created by {kiwi}. The name attribute must
+not have any spaces in its name.
 
 The following optional attributes can be inserted in the image tag:
 
 displayname
-   Allows setup of the boot menu title for the selected boot loader. So
+   Allows setup of the boot menu title for the selected bootloader. For example,
    you can have *suse-SLED-foo* as the image name but a different name
-   as the boot display name. Spaces are not allowed in the display name
-   because it causes problems for some boot loaders and kiwi did not
-   take the effort to separate the ones which can display them correctly
-   from the ones which can't
+   as the boot display name. Spaces are not allowed in the display name.
 
 id
    sets an identification number which appears as file ``/etc/ImageID``
@@ -66,28 +62,27 @@ with file :file:`description.xml` as follows:
        </description>
    </image>
 
-This will replace the `include` statement with the contents
-of :file:`description.xml`. The validation of the result happens
+This replaces the `include` statement with the contents
+of :file:`description.xml`. The validation of the result is done
 after the inclusion of all `include` references. The value for
-the `from` attribute is interpreted as an URI, as of now only
+the `from` attribute is interpreted as an URI. Currently, only
 local URI types are supported as well as the `this://` resource
-locator which translates into the path to the KIWI image
+locator that translates into the path to the {kiwi} image
 description.
 
 .. note::
 
-   The include information must be embedded into an `<image>`
-   root node. Only the inner elements of the root node will
-   be included. The processing of XML data via XSLT always
-   requires a root node which is the reason why this is
-   required to be specified for include files as well.
+   The include information must be embedded into an `<image>` root node. Only
+   the inner elements of the root node are included. The processing of XML data
+   via XSLT always requires a root node, which is the reason why this must be
+   specified for include files as well.
 
 .. note::
 
    Nesting of include statements in other include files is
-   not supported. This will lead to unresolved include
-   statements in the final document and will cause the
-   runtime checker to complain about it.
+   not supported. This leads to unresolved include
+   statements in the final document and causes the
+   runtime checker to display warnings.
 
 .. note::
 
@@ -111,14 +106,14 @@ Provide an image identity.
    </description>
 
 The mandatory description section contains information about the creator
-of this image description. The attribute type could be either of the
-value `system` which indicates this is a system image description or at
-value `boot` for custom kiwi boot image descriptions.
+of the image description. The attribute type could be either of the
+value `system` which indicates that this is a system image description, or at
+value `boot` for custom {kiwi} boot image descriptions.
 
 The following optional sub sections can be inserted below the description tag:
 
 license
-  Specifies the license name which applies to this image description.
+  Specifies the license name that applies to the image description.
 
 .. _sec.preferences:
 
@@ -136,27 +131,27 @@ Setup image type and layout.
    </preferences>
 
 The mandatory preferences section contains information about the
-supported image type(s), the used package manager, the version of this
-image, and further optional elements. The preferences section can
+supported image type or types, the used package manager, the version of the
+image, and other optional elements. The preferences section can
 be configured to apply only for a certain architecture. In this
-case specify the `arch` attribute with a value as it is reported
-by :command:`uname -m`
+case, specify the `arch` attribute with a value as it is reported
+by :command:`uname -m`.
 
 <preferences><version>
 ~~~~~~~~~~~~~~~~~~~~~~
-The mandatory image version must be a three-part version number of the
-format: **Major**.\ **Minor**.\ **Release**. In case of changes to
-the image description the following rules should apply:
+The mandatory image version must be a three-part version number in the
+format **Major**.\ **Minor**.\ **Release**. In case of changes to
+the image description, the following rules should apply:
 
-* For smaller image modifications that do not add or remove any new
+* For smaller image modifications that do not add or remove any
   packages, only the release number is incremented. The XML description
   file(``config.xml``) remains unchanged.
 
-* For image changes that involve the addition or removal of packages
+* For image changes that involve addition or removal of packages,
   the minor number is incremented and the release number is reset.
 
 * For image changes that changes the behavior or geometry of the
-  image file the major number is incremented.
+  image file, the major number is incremented.
 
 <preferences><packagemanager>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -177,19 +172,19 @@ table shows which package manager is connected to which distributor:
 | Arch Linux   | pacman          |
 +--------------+-----------------+
 
-In general the specification of one preferences section is sufficient.
-However, it’s possible to specify multiple preferences sections and
+In general, the specification of one preferences section is sufficient.
+But it's possible to specify multiple preferences sections and
 distinguish between the sections via the profiles attribute.
 
-In combination with the above the preferences element supports the
+In combination with the above, the preferences element supports the
 following optional elements:
 
 <preferences><rpm-locale-filtering>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-locale-filtering can be set to "true" or "false". If set to "true" it
-sets the install_lang macro for RPM based installations to the RPM
-configured locale list. This results in language specific files to
-become filtered out by `rpm` if they don't match the configured list.
+locale-filtering can be set to "true" or "false". If set to "true", it sets the
+install_lang macro for RPM based installations to the RPM configured locale
+list. This filters language-specific files by `rpm`, if they don't match the
+configured list.
 
 .. code:: xml
 
@@ -199,12 +194,12 @@ become filtered out by `rpm` if they don't match the configured list.
 
 .. note::
 
-   It depends on the individual package design if the install_lang
-   macro contents apply to the package or not.
+   The install_lang macro contents may or may not be applied, depending on the
+   individual package design.
 
 <preferences><rpm-check-signatures>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Specifies whether package signatures should be checked or not
+Specifies whether package signatures should be checked or not.
 
 .. code:: xml
 
@@ -215,7 +210,7 @@ Specifies whether package signatures should be checked or not
 <preferences><rpm-excludedocs>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Specifies whether files marked as documentation should be skipped
-during installation
+during installation.
 
 .. code:: xml
 
@@ -251,10 +246,10 @@ Europe/Berlin for ``/usr/share/zoneinfo/Europe/Berlin``.
 ~~~~~~~~~~~~~~~~~~~~~
 Specifies the name of the UTF-8 locale to use, which defines the
 contents of the RC_LANG system environment variable used in the
-image and to run the custom scripts specified as part of the
-{kiwi} image description. Please note only UTF-8 locales are
-supported here which also means that the encoding must *not* be part
-of the locale information. This means you need to specify the
+image to run the custom scripts specified as part of the
+{kiwi} image description. Only UTF-8 locales are
+supported here, so the encoding must *not* be part
+of the locale information. This also means that you need to specify the
 locale using the 4-digit name like the following example: en_US or
 en_US,de_DE
 
@@ -266,7 +261,7 @@ en_US,de_DE
 
 <preferences><bootsplash-theme>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Specifies the name of the plymouth bootsplash theme to use
+Specifies the name of the plymouth bootsplash theme to use.
 
 .. code:: xml
 
@@ -286,31 +281,29 @@ bootloader has theme support.
    </preferences>
 
 
-Along with the version and the packagemanager at least one image type
+Along with the version and the packagemanager, at least one image type
 element must be specified to indicate which image type should be build.
 
 <preferences><release-version>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Specifies the distribution global release version as consumed
-by package managers. Currently the release version is not set or
-set to `0` for package managers which requires a value to operate.
-With the optional `release-version` section, users have an
-opportunity to specify a custom value which is passed along the package
+Specifies the distribution global release version as consumed by package
+managers. Currently, the release version is not set or set to `0` for package
+managers that require a value to operate. With the optional `release-version`
+section, you can specify a custom value passed to the package
 manager to define the distribution release.
 
 .. note::
 
-   The release version information is currently
-   used in dnf/dnf5 and microdnf package managers only. It might
-   happen that it gets applied to the other package manager
-   backends as well. This will happen on demand though.
+   The release version information is currently used in dnf/dnf5 and microdnf
+   package managers only. It may be applied to the other package manager
+   backends as well. However, this is done on-demand.
 
 <preferences><type>
 ~~~~~~~~~~~~~~~~~~~
 At least one type element must be configured. It is possible to
 specify multiple type elements in a preferences block. To set a given
-type description as the default image use the boolean attribute primary
-and set its value to true:
+type description as the default image, use the boolean attribute primary
+and set its value to "true":
 
 .. code:: xml
 
@@ -328,111 +321,100 @@ image="tbz"
 
 image="btrfs|ext2|ext3|ext4|squashfs|xfs"
   A filesystem image. The image root tree data is packed into a
-  filesystem image of the given type. An image of that type can
-  be loop mounted and accessed according to the capabiities of
+  filesystem image of the given type. An image of this type can
+  be loop mounted and accessed according to the capabilities of
   the selected filesystem.
 
 image="iso"
-  An iso image which can be dumped on a CD/DVD or USB stick
-  and boots off from this media without interfering with other
-  system storage components. A useful pocket system for testing
-  and demo and debugging purposes.
+  An ISO image that can be used to create a bootable CD/DVD or USB stick.
 
 image="oem"
-  An image representing an expandable system disk. This means after
-  deployment the system can resize itself to the new disk geometry.
-  The resize operation is configurable as part of the image description
+  An image representing an expandable system disk. This means that after
+  deployment the system can resize itself to a new disk geometry.
+  The resize operation is configurable as part of the image description,
   and an installation image for CD/DVD, USB stick and Network deployment
   can be created in addition. For use in cloud frameworks like
-  Amazon EC2, Google Compute Engine or Microsoft Azure this disk
+  Amazon EC2, Google Compute Engine or Microsoft Azure, this disk
   type also supports the common virtual disk formats.
 
 image="docker"
-  An archive image suitable for the docker container engine.
+  An archive image suitable for the Docker container engine.
   The image can be loaded via the `docker load` command and
-  works within the scope of the container engine
+  works within the scope of the container engine.
 
 image="oci"
-  An archive image that builds a container matching the OCI
-  (Open Container Interface) standard. The container should be
-  able to run with any oci compliant container engine.
+  An archive image that builds a container that complies to the OCI (Open
+  Container Interface) standard. The container can be run using any
+  OCI-compliant container engine.
 
 image="appx"
-  An archive image suitable for the Windows Subsystem For Linux
-  container engine. The image can be loaded From a Windows System
-  that has support for WSL activated.
+  An archive image suitable for the Windows Subsystem For Linux (WSL)
+  container engine. The image can be loaded on a Windows System
+  with WSL enabled.
 
 image="kis"
   An optional root filesystem image associated with a kernel and initrd.
-  The use case for this component image type is highly customizable.
-  Many different deployment strategies are possible.
 
-For completion of a type description, there could be several other
-optional attributes and child elements. The `type` element supports a
-plethora of optional attributes, some of these are only relevant for
-certain build types and will be covered in extra chapters that describes
-the individual image types more detailed. Certain attributes are however
-useful for nearly all build types and will be covered next:
+The `type` element supports a wide range of optional attributes. Certain
+attributes are only relevant for specific build types and are covered in other
+chapters describe the individual image types in more detail. The following
+attributes are useful for nearly all build types:
 
 bootpartition="true|false":
-  Boolean parameter notifying {kiwi} whether an extra boot
+  Boolean parameter that notifies {kiwi} whether an extra boot
   partition should be used or not (the default depends on the current
-  layout). This will override {kiwi}'s default layout.
+  layout). This overrides {kiwi}'s default layout.
 
 bootpartsize="nonNegativeInteger":
-  For images with a separate boot partition this attribute
-  specifies the size in MB. If not set the boot partition
-  size is set to 200 MB
+  For images with a separate boot partition, the attribute
+  specifies the size in MB. If not set, the boot partition
+  size is set to 200 MB.
 
 eficsm="true|false":
-  For images with an EFI layout, specify if the legacy
-  CSM (BIOS) mode should be supported or not. By default
+  For images with an EFI layout, the attribute specifies if the legacy
+  CSM (BIOS) mode should be supported or not. By default,
   CSM mode is enabled.
 
 efipartsize="nonNegativeInteger":
-  For images with an EFI fat partition this attribute
+  For images with an EFI FAT partition, the attribute
   specifies the size in MB. If not set the EFI partition
-  size is set to 20 MB
+  size is set to 20 MB.
 
 efifatimagesize="nonNegativeInteger":
-  For ISO images (live and install) the EFI boot requires
+  For ISO images (live and install), the EFI boot requires
   an embedded FAT image. This attribute specifies the size
-  in MB. If not set the FAT image size is set to 20 MB
+  in MB. If not set, the FAT image size is set to 20 MB.
 
 efiparttable="msdos|gpt":
-  For images with an EFI firmware specifies the partition
-  table type to use. If not set defaults to the GPT partition
-  table type
+  For images with an EFI firmware, the attribute specifies the partition
+  table type to use. If not set, the GPT partition
+  table type is used.
 
 dosparttable_extended_layout="true|false":
-  For oem disk images, specifies to make use of logical partitions
-  inside of an extended one. If set to true and if the msdos table type
-  is active, this will cause the fourth partition to be an
-  extended partition and all following partitions will be
+  For OEM disk images, the attribute instructs to use logical partitions
+  inside of an extended one. If set to "true", and if the msdos table type
+  is active, this extends the fourth partition to be an
+  extended partition, and all following partitions are
   placed as logical partitions inside of that extended
-  partition. This setting is useful if more than 4 primary
-  partitions needs to be created in an msdos table
+  partition. This setting is useful if more than four primary
+  partitions are needed in an msdos table.
 
 btrfs_quota_groups="true|false":
   Boolean parameter to activate filesystem quotas if
-  the filesystem is `btrfs`. By default quotas are inactive.
+  the filesystem is `btrfs`. By default, quotas are inactive.
 
 btrfs_set_default_volume="true|false":
-  For oem disk images using the btrfs filesystem, requests to
-  set a default volume for the rootfs which is used when the
-  filesystem gets mounted. In case a `true` value is provided or
-  the attribute is not specified at all, kiwi will make a volume
-  the default volume. This can be either `/` or the configured
-  root subvolume or the configured root snapshot. Consequently the
-  entry created for the rootfs in the `/etc/fstab` file will not
-  contain any specific volume definition. In case a `false` value
-  is provided, kiwi will not set any default volume which also
-  means that the entry for the rootfs in the `/etc/fstab` file
-  requires a volume definition which is placed by kiwi as a
-  `subvol=` parameter in the respective fstab field entry. In
-  addition the parameter `rootflags=subvol=` is added to the
-  kernel commandline such that early initrd code has a chance
-  to know about the rootfs volume.
+  For OEM disk images using the Btrfs filesystem, the attribute sets a default
+  volume for the rootfs which is used when the filesystem is mounted. When set
+  to `true` or when the attribute is not specified, {kiwi} makes a volume the
+  default volume. This can be either `/`,  the configured root subvolume, or the
+  configured root snapshot. Consequently, the entry created for the rootfs in
+  the `/etc/fstab` file, will not contain any specific volume definition. In
+  case a `false` value is provided, kiwi does not set any default volume which
+  means that the entry for the rootfs in the `/etc/fstab` file requires a volume
+  definition that is placed by {kiwi} as a `subvol=` parameter in the respective
+  fstab field entry. In addition, the parameter `rootflags=subvol=` is added to
+  the kernel commandline so that early initrd code can detect the rootfs volume.
 
 btrfs_root_is_subvolume="true|false":
   Tell kiwi to create a root volume to host (/) inside.
