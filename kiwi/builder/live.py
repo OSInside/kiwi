@@ -190,6 +190,8 @@ class LiveImageBuilder:
                 config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
             )
             self.boot_image.create_initrd(self.mbrid)
+            # Clean up leftover dracut config file (which can break installs)
+            os.unlink(self.root_dir + '/etc/dracut.conf.d/02-livecd.conf')
             if self.bootloader == 'systemd_boot':
                 # make sure the initrd name follows the dracut
                 # naming conventions
