@@ -74,6 +74,8 @@ class LiveImageBuilder:
             Defaults.get_volume_id()
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
+        self.application_id = self.xml_state.build_type.get_application_id() or \
+            self.mbrid.get_id()
         self.publisher = xml_state.build_type.get_publisher() or \
             Defaults.get_publisher()
         self.custom_args = custom_args
@@ -131,7 +133,7 @@ class LiveImageBuilder:
 
         # custom iso metadata
         log.info('Using following live ISO metadata:')
-        log.info('--> Application id: {0}'.format(self.mbrid.get_id()))
+        log.info('--> Application id: {0}'.format(self.application_id))
         log.info('--> Publisher: {0}'.format(self.publisher))
         log.info('--> Volume id: {0}'.format(self.volume_id))
         custom_iso_args = {
@@ -140,7 +142,7 @@ class LiveImageBuilder:
                 'preparer': Defaults.get_preparer(),
                 'volume_id': self.volume_id,
                 'mbr_id': self.mbrid.get_id(),
-                'application_id': self.xml_state.build_type.get_application_id(),
+                'application_id': self.application_id,
                 'efi_mode': self.firmware.efi_mode(),
                 'legacy_bios_mode': self.firmware.legacy_bios_mode()
             }
