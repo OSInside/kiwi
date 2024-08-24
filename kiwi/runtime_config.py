@@ -17,6 +17,7 @@
 #
 import os
 import logging
+from typing import Literal
 import yaml
 
 # project
@@ -308,6 +309,37 @@ class RuntimeConfig:
                 )
             )
             return Defaults.get_iso_tool_category()
+
+    def get_iso_media_tag_tool(self) -> Literal['checkmedia', 'isomd5sum']:
+        """
+        Return media tag tool used to checksum iso images
+
+        iso:
+          - media_tag_tool: checkmedia
+
+        if no or invalid configuration exists the default media tagger
+        from the Defaults class is returned
+
+        :return: A name
+
+        :rtype: str
+        """
+        iso_media_tag_tool = self._get_attribute(
+            element='iso', attribute='media_tag_tool'
+        )
+        if not iso_media_tag_tool:
+            return Defaults.get_iso_media_tag_tool()
+        elif 'checkmedia' in iso_media_tag_tool:
+            return iso_media_tag_tool
+        elif 'isomd5sum' in iso_media_tag_tool:
+            return iso_media_tag_tool
+        else:
+            log.warning(
+                'Skipping invalid iso media tag tool: {0}'.format(
+                    iso_media_tag_tool
+                )
+            )
+            return Defaults.get_iso_media_tag_tool()
 
     def get_oci_archive_tool(self):
         """

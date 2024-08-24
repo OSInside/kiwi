@@ -18,6 +18,7 @@
 # project
 from kiwi.defaults import Defaults
 from kiwi.command import Command
+from kiwi.runtime_config import RuntimeConfig
 
 
 class Iso:
@@ -42,12 +43,22 @@ class Iso:
 
         :param str isofile: path to the ISO file
         """
-        Command.run(
-            [
-                'tagmedia',
-                '--digest', 'sha256',
-                '--check',
-                '--pad', '0',
-                isofile
-            ]
-        )
+        media_tagger = RuntimeConfig().get_iso_media_tag_tool()
+        if media_tagger == 'checkmedia':
+            Command.run(
+                [
+                    'tagmedia',
+                    '--digest', 'sha256',
+                    '--check',
+                    '--pad', '0',
+                    isofile
+                ]
+            )
+        elif media_tagger == 'isomd5sum':
+            Command.run(
+                [
+                    'implantisomd5',
+                    '--force',
+                    isofile
+                ]
+            )

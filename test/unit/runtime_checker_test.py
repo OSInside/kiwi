@@ -6,6 +6,7 @@ from unittest.mock import (
 from pytest import (
     raises, fixture
 )
+import pytest
 
 from .test_helper import argv_kiwi_tests
 
@@ -358,15 +359,25 @@ class TestRuntimeChecker:
             self.runtime_checker.\
                 check_efi_mode_for_disk_overlay_correctly_setup()
 
+    @pytest.mark.parametrize("tool_name, tool_binary", [("isomd5sum", "implantisomd5"), ("checkmedia", "tagmedia")])
     @patch('kiwi.runtime_checker.Path.which')
-    def test_check_mediacheck_installed_tagmedia_missing(self, mock_which):
+    @patch('kiwi.runtime_checker.RuntimeConfig')
+    def test_check_mediacheck_installed_implantisomd5_missing(
+        self, mock_RuntimeConfig, mock_which, tool_name, tool_binary
+    ):
+        runtime_config = Mock()
+        runtime_config.get_iso_media_tag_tool.return_value = tool_name
+        mock_RuntimeConfig.return_value = runtime_config
+
         mock_which.return_value = False
         xml_state = XMLState(
             self.description.load(), ['vmxFlavour'], 'iso'
         )
         runtime_checker = RuntimeChecker(xml_state)
-        with raises(KiwiRuntimeError):
+        with raises(KiwiRuntimeError) as rt_err_ctx:
             runtime_checker.check_mediacheck_installed()
+
+        assert f"Required tool {tool_binary} not found in caller environment" in str(rt_err_ctx.value)
 
     def test_check_dracut_module_for_live_iso_in_package_list(self):
         xml_state = XMLState(

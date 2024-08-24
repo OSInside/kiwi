@@ -919,6 +919,11 @@ class RuntimeChecker:
         ''')
         if self.xml_state.build_type.get_mediacheck() is True:
             tool = 'tagmedia'
+            media_tagger = RuntimeConfig().get_iso_media_tag_tool()
+            if media_tagger == 'checkmedia':
+                tool = 'tagmedia'
+            elif media_tagger == 'isomd5sum':
+                tool = 'implantisomd5'
             if not Path.which(filename=tool, access_mode=os.X_OK):
                 raise KiwiRuntimeError(
                     message_tool_not_found.format(name=tool)

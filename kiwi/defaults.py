@@ -1759,6 +1759,17 @@ class Defaults:
         return 'xorriso'
 
     @staticmethod
+    def get_iso_media_tag_tool():
+        """
+        Provides default iso media tag tool
+
+        :return: name
+
+        :rtype: str
+        """
+        return 'checkmedia'
+
+    @staticmethod
     def get_container_compression():
         """
         Provides default container compression

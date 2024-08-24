@@ -1,5 +1,6 @@
 iso:
   - tool_category: foo
+  - media_tag_tool: foo
 
 container:
   - compress: foo

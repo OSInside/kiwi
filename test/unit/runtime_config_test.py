@@ -66,6 +66,7 @@ class TestRuntimeConfig:
             'https://api.example.com'
         assert runtime_config.get_container_compression() is False
         assert runtime_config.get_iso_tool_category() == 'xorriso'
+        assert runtime_config.get_iso_media_tag_tool() == 'isomd5sum'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_mapper_tool() == 'partx'
         assert runtime_config.get_package_changes() is True
@@ -96,6 +97,7 @@ class TestRuntimeConfig:
             Defaults.get_obs_api_server_url()
         assert runtime_config.get_container_compression() is True
         assert runtime_config.get_iso_tool_category() == 'xorriso'
+        assert runtime_config.get_iso_media_tag_tool() == 'checkmedia'
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_mapper_tool() == 'kpartx'
         assert runtime_config.get_package_changes() is False
@@ -120,9 +122,15 @@ class TestRuntimeConfig:
             assert 'Skipping invalid iso tool category: foo' in \
                 self._caplog.text
 
+        with self._caplog.at_level(logging.WARNING):
+            assert runtime_config.get_iso_media_tag_tool() == "checkmedia"
+            assert 'Skipping invalid iso media tag tool: foo' in \
+                self._caplog.text
+
     def test_config_sections_other_settings(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/other'}):
             runtime_config = RuntimeConfig(reread=True)
 
         assert runtime_config.get_container_compression() is True
         assert runtime_config.get_package_changes() is True
+        assert runtime_config.get_iso_media_tag_tool() == "checkmedia"
