@@ -152,10 +152,11 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.FileSystem.new')
     @patch('kiwi.builder.live.SystemSize')
     @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
+    @patch('os.unlink')
     @patch('os.path.exists')
     @patch('os.chmod')
     def test_create_overlay_structure_boot_on_systemd_boot(
-        self, mock_chmod, mock_exists, mock_grub_dir, mock_size,
+        self, mock_chmod, mock_exists, mock_unlink, mock_grub_dir, mock_size,
         mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
         mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider,
         mock_Command_run, mock_LoopDevice, mock_create_boot_loader_config
@@ -190,10 +191,11 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.FileSystem.new')
     @patch('kiwi.builder.live.SystemSize')
     @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
+    @patch('os.unlink')
     @patch('os.path.exists')
     @patch('os.chmod')
     def test_create_overlay_structure_boot_on_grub(
-        self, mock_chmod, mock_exists, mock_grub_dir, mock_size,
+        self, mock_chmod, mock_exists, mock_unlink, mock_grub_dir, mock_size,
         mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
         mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider,
         mock_LoopDevice, mock_create_boot_loader_config, xml_filesystem
@@ -204,6 +206,7 @@ class TestLiveImageBuilder:
         loop_provider = Mock()
         mock_LoopDevice.return_value.__enter__.return_value = loop_provider
         mock_exists.return_value = True
+        mock_unlink.return_value = True
         mock_grub_dir.return_value = 'grub2'
 
         temp_squashfs = Mock()
@@ -413,9 +416,10 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.Temporary')
     @patch('kiwi.builder.live.shutil')
+    @patch('os.unlink')
     def test_create_no_kernel_found(
-        self, mock_shutil, mock_Temporary, mock_setup_media_loader_directory,
-        mock_create_boot_loader_config
+        self, mock_unlink, mock_shutil, mock_Temporary,
+        mock_setup_media_loader_directory, mock_create_boot_loader_config
     ):
         self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
@@ -427,9 +431,10 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.Temporary')
     @patch('kiwi.builder.live.shutil')
+    @patch('os.unlink')
     def test_create_no_hypervisor_found(
-        self, mock_shutil, mock_Temporary, mock_setup_media_loader_directory,
-        mock_create_boot_loader_config
+        self, mock_unlink, mock_shutil, mock_Temporary,
+        mock_setup_media_loader_directory, mock_create_boot_loader_config
     ):
         self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
@@ -441,14 +446,16 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
     @patch('kiwi.builder.live.Temporary')
     @patch('kiwi.builder.live.shutil')
+    @patch('os.unlink')
     @patch('os.path.exists')
     def test_create_no_initrd_found(
-        self, mock_exists, mock_shutil, mock_Temporary,
+        self, mock_exists, mock_unlink, mock_shutil, mock_Temporary,
         mock_setup_media_loader_directory,
         mock_create_boot_loader_config
     ):
         self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         mock_exists.return_value = False
+        mock_unlink.return_value = True
         with raises(KiwiLiveBootImageError):
             self.live_image.create()
