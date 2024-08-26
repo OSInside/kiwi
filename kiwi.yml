@@ -60,6 +60,9 @@
 #  # Specify tool category which should be used to build iso images
 #  # Possible values are: xorriso
 #  - tool_category: xorriso
+#  # Specify media tag tool used to implant iso checksums
+#  # Possible values are checkmedia and isomd5sum
+#  - media_tag_tool: checkmedia
 
 
 # Setup process parameters for OCI toolchain

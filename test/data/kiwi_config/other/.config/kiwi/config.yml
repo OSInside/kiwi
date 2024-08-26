@@ -3,3 +3,6 @@ bundle:
 
 container:
   - compress: true
+
+iso:
+  - media_tag_tool: checkmedia

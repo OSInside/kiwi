@@ -13,6 +13,7 @@ obs:
 
 iso:
   - tool_category: xorriso
+  - media_tag_tool: isomd5sum
 
 oci:
   - archive_tool: umoci
