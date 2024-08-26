@@ -17,6 +17,7 @@
 #
 import os
 import logging
+import pathlib
 
 # project
 from kiwi.xml_state import XMLState
@@ -109,7 +110,8 @@ class RootImportBase:
             # Umount and rename upper to be the new root
             self.overlay.umount()
             Path.wipe(self.root_dir)
-            Path.rename(self.overlay.upper, self.root_dir)
+            log.debug("renaming %s -> %s", self.overlay.upper, self.root_dir)
+            pathlib.Path(self.overlay.upper).replace(self.root_dir)
 
             # Create removed files metadata
             if not os.path.isdir(pinch_reference):

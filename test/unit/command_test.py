@@ -38,7 +38,7 @@ class TestCommand:
 
     def test_run_invalid_environment(self):
         with raises(KiwiCommandNotFound):
-            Command.run(['command', 'args'], {'HOME': '/root'})
+            Command.run(['command', 'args'], custom_env={'PATH': '/root'})
 
     @patch('kiwi.path.Path.which')
     @patch('subprocess.Popen')

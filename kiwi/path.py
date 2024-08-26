@@ -18,6 +18,8 @@
 import os
 import logging
 import collections
+import pathlib
+import shutil
 from typing import Dict, List, MutableMapping, Optional
 
 # project
@@ -105,10 +107,8 @@ class Path:
 
         :param string path: path name
         """
-        if not os.path.exists(path):
-            Command.run(
-                ['mkdir', '-p', path]
-            )
+        log.debug("Creating directory %s", path)
+        pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def wipe(path: str) -> None:
@@ -121,29 +121,6 @@ class Path:
             Command.run(
                 ['rm', '-r', '-f', path]
             )
-
-    @staticmethod
-    def remove(path: str) -> None:
-        """
-        Delete empty path, causes an error if target is not empty
-
-        :param string path: path name
-        """
-        Command.run(
-            ['rmdir', path]
-        )
-
-    @staticmethod
-    def rename(cur: str, new: str) -> None:
-        """
-        Move path from cur name to new name
-
-        :param string cur: current path name
-        :param string new: new path name
-        """
-        Command.run(
-            ['mv', cur, new]
-        )
 
     @staticmethod
     def remove_hierarchy(root: str, path: str) -> None:
@@ -223,9 +200,9 @@ class Path:
 
     @staticmethod
     def which(
-        filename: str, alternative_lookup_paths: Optional[List[str]] = None,
+        filename: str,
         custom_env: Optional[MutableMapping[str, str]] = None,
-        access_mode: Optional[int] = None,
+        access_mode: int = os.F_OK | os.X_OK,
         root_dir: Optional[str] = None
     ) -> Optional[str]:
         """
@@ -233,7 +210,7 @@ class Path:
 
         :param string filename: file base name
         :param list alternative_lookup_paths: list of additional lookup paths
-        :param list custom_env: a custom os.environ
+        :param list custom_env: a custom os.environ used to obtain ``$PATH``
         :param int access_mode: one of the os access modes or a combination of
          them (os.R_OK, os.W_OK and os.X_OK). If the provided access mode
          does not match the file is considered not existing
@@ -243,31 +220,10 @@ class Path:
 
         :rtype: str
         """
-        lookup_paths = []
-        multipart_message = [
-            '"%s": ' % filename, 'exists: unknown', 'mode match: not checked'
-        ]
-        system_path = os.environ.get('PATH')
-        if custom_env:
-            system_path = custom_env.get('PATH')
-        if system_path:
-            lookup_paths = system_path.split(os.pathsep)
-        if alternative_lookup_paths:
-            lookup_paths += alternative_lookup_paths
+        system_path = (custom_env.get("PATH") if custom_env else os.environ.get("PATH")) or os.defpath
+
+        lookup_paths = system_path.split(os.pathsep)
         if root_dir:
             lookup_paths = Path.rebase_to_root(root_dir, lookup_paths)
-        multipart_message[0] += 'in paths "%s"' % ':'.join(lookup_paths)
-        for path in lookup_paths:
-            location = os.path.join(path, filename)
-            file_exists = os.path.exists(location)
-            multipart_message[1] = 'exists: "%s"' % file_exists
-            if access_mode and file_exists:
-                mode_match = os.access(location, access_mode)
-                multipart_message[2] = 'mode match: "%s"' % mode_match
-                if mode_match:
-                    return location
-            elif file_exists:
-                return location
-
-        log.debug(' '.join(multipart_message))
-        return None
+        log.debug(f"Looking for {filename} in {os.pathsep.join(lookup_paths)}")
+        return shutil.which(filename, access_mode, path=os.pathsep.join(lookup_paths))

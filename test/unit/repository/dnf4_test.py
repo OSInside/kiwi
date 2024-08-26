@@ -169,8 +169,9 @@ class TestRepositoryDnf4:
     @patch('kiwi.repository.dnf4.ConfigParser')
     @patch('kiwi.repository.dnf4.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
+    @patch('kiwi.repository.dnf4.Path')
     def test_add_repo_inside_buildservice(
-        self, mock_exists, mock_buildservice, mock_config
+        self, mock_path, mock_exists, mock_buildservice, mock_config
     ):
         repo_config = mock.Mock()
         mock_buildservice.return_value = True
@@ -252,8 +253,9 @@ class TestRepositoryDnf4:
     @patch('kiwi.repository.dnf4.ConfigParser')
     @patch('kiwi.repository.dnf4.Defaults.is_buildservice_worker')
     @patch('os.path.exists')
+    @patch('kiwi.repository.dnf4.Path')
     def test_add_repo_with_gpgchecks(
-        self, mock_exists, mock_buildservice, mock_config
+        self, mock_path, mock_exists, mock_buildservice, mock_config
     ):
         repo_config = mock.Mock()
         mock_buildservice.return_value = False
