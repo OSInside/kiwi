@@ -70,7 +70,7 @@ class ImageSystem:
         Mount image system from current block layers
         """
         # mount root boot and efi devices as they are present
-        (root_device, boot_device, efi_device) = self._setup_device_names()
+        (root_device, boot_device, efi_device, other_devices) = self._setup_device_names()
         root_mount = MountManager(
             device=root_device
         )
@@ -92,6 +92,11 @@ class ImageSystem:
                     root_mount.mountpoint, 'boot', 'efi'
                 )
             )
+        other_mounts = [
+            MountManager(
+                device=d, mountpoint=os.path.join(
+                    root_mount.mountpoint, m)) for (m, d) in other_devices.items()
+        ]
 
         self.mount_list.append(root_mount)
         root_mount.mount()
@@ -103,6 +108,10 @@ class ImageSystem:
         if efi_device:
             self.mount_list.append(efi_mount)
             efi_mount.mount()
+
+        for mount in other_mounts:
+            self.mount_list.append(mount)
+            mount.mount()
 
         if self.volumes:
             self._mount_volumes(root_mount.mountpoint)
@@ -163,7 +172,12 @@ class ImageSystem:
             root_device = self.device_map['readonly'].get_device()
         if 'efi' in self.device_map:
             efi_device = self.device_map['efi'].get_device()
-        return (root_device, boot_device, efi_device)
+        other_devices = {
+            d: self.device_map[d].get_device() for d in self.device_map if d not in (
+                'root', 'origin_root', 'boot', 'readonly', 'efi', 'efi_csm', 'swap'
+            ) and self.device_map[d]
+        }
+        return (root_device, boot_device, efi_device, other_devices)
 
     def _mount_volumes(self, mountpoint) -> None:
         for volume_path in Path.sort_by_hierarchy(sorted(self.volumes.keys())):
