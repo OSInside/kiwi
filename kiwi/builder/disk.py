@@ -852,7 +852,8 @@ class DiskBuilder:
             ):
                 with ImageSystem(
                     device_map, self.root_dir,
-                    system.get_volumes() if self.volume_manager_name else {}
+                    system.get_volumes() if self.volume_manager_name else {},
+                    self.custom_partitions if self.custom_partitions else {}
                 ) as image_system:
                     image_system.mount()
                     disk_system = SystemSetup(
