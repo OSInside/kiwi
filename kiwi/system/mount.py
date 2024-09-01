@@ -25,6 +25,7 @@ from typing import (
 from kiwi.path import Path
 from kiwi.defaults import Defaults
 from kiwi.mount_manager import MountManager
+from kiwi.storage.disk import ptable_entry_type
 
 log = logging.getLogger('kiwi')
 
@@ -34,7 +35,8 @@ class ImageSystem:
     **Access the target image from the block layer**
     """
     def __init__(
-        self, device_map: Dict, root_dir: str, volumes: Dict = {}
+        self, device_map: Dict, root_dir: str,
+        volumes: Dict = {}, partitions: Dict[str, ptable_entry_type] = {}
     ) -> None:
         """
         Construct a new ImageSystem object
@@ -47,6 +49,7 @@ class ImageSystem:
         self.device_map = device_map
         self.root_dir = root_dir
         self.volumes = volumes
+        self.partitions = partitions
         self.mount_list: List[MountManager] = []
 
     def __enter__(self):
@@ -103,6 +106,19 @@ class ImageSystem:
         if efi_device:
             self.mount_list.append(efi_mount)
             efi_mount.mount()
+
+        if self.partitions:
+            for map_name in sorted(self.partitions.keys()):
+                if map_name in self.device_map:
+                    partition_mount = MountManager(
+                        device=self.device_map[map_name].get_device(),
+                        mountpoint=os.path.join(
+                            root_mount.mountpoint,
+                            self.partitions[map_name].mountpoint.lstrip(os.sep)
+                        )
+                    )
+                    self.mount_list.append(partition_mount)
+                    partition_mount.mount()
 
         if self.volumes:
             self._mount_volumes(root_mount.mountpoint)

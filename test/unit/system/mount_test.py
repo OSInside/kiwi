@@ -6,6 +6,7 @@ from pytest import fixture
 
 from kiwi.system.mount import ImageSystem
 from kiwi.storage.mapped_device import MappedDevice
+from kiwi.storage.disk import ptable_entry_type
 
 
 class TestImageSystem:
@@ -21,6 +22,7 @@ class TestImageSystem:
             'readonly': MappedDevice('/dev/readonly-root-device', Mock()),
             'boot': MappedDevice('/dev/boot-device', Mock()),
             'efi': MappedDevice('/dev/efi-device', Mock()),
+            'var': MappedDevice('/dev/var-device', Mock())
         }
         self.volumes = {
             'name': {
@@ -28,8 +30,18 @@ class TestImageSystem:
                 'volume_device': '/dev/vgroup/volume'
             }
         }
+        self.partitions = {
+            'var': ptable_entry_type(
+                mbsize=100,
+                clone=1,
+                partition_name='p.lxvar',
+                partition_type='t.linux',
+                mountpoint='/var',
+                filesystem='ext3'
+            )
+        }
         self.image_system = ImageSystem(
-            self.device_map, 'root_dir', self.volumes
+            self.device_map, 'root_dir', self.volumes, self.partitions
         )
 
     @patch('os.path.exists')
@@ -54,6 +66,10 @@ class TestImageSystem:
             call(
                 device='/dev/efi-device',
                 mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'efi')
+            ),
+            call(
+                device='/dev/var-device',
+                mountpoint=os.path.join(root_mount_mountpoint, 'var')
             ),
             call(
                 device='/dev/vgroup/volume',
