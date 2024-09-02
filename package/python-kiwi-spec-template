@@ -729,11 +729,6 @@ done
 %fdupes %{buildroot}/srv/tftpboot
 %endif
 
-%if 0%{?suse_version}
-# bsc#1212476
-%python3_fix_shebang
-%endif
-
 %if "%{_vendor}" != "debbuild" && 0%{?suse_version} < 1550
 %ifarch %{ix86} x86_64
 %pre -n kiwi-pxeboot
