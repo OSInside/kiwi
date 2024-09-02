@@ -292,11 +292,22 @@ function get_free_disk_bytes {
 
 function get_partition_table_type {
     local disk_device="$1"
+    local table_type
 
     # blkid doesn't work for dasd partitions, so on s390 parted is used
     # to detect the partition type (bsc#1209247)
     if [[ "$(uname -m)" =~ s390 ]];then
-        parted --script --machine "${disk_device}" print | grep "^${disk_device}" | cut -d":" -f6
+        table_type=$(
+            parted --script --machine "${disk_device}" print |\
+                grep "^${disk_device}" | cut -d":" -f6
+        )
+        if [ "${table_type}" = "msdos" ];then
+            # make sure to set a consistent table name for the
+            # DOS table type. In the initrd code we use 'dos'
+            # as identifier but parted reports msdos
+            table_type="dos"
+        fi
+        echo "${table_type}"
     else
         blkid -s PTTYPE -o value "$disk_device"
     fi
