@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; KIWI NG 10.1.2 documentation</title>
+  <title>Index &mdash; KIWI NG 10.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=d10cccce"></script>
+        <script src="_static/documentation_options.js?v=757448d7"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -132,6 +132,8 @@
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">KIWI Plugins</a><ul>
@@ -1514,6 +1516,8 @@
 </li>
       <li><a href="api/kiwi.storage.html#kiwi.storage.clone_device.CloneDevice">CloneDevice (class in kiwi.storage.clone_device)</a>
 </li>
+      <li><a href="api/kiwi.html#kiwi.xml_state.XMLState.collection_matches_host_architecture">collection_matches_host_architecture() (kiwi.xml_state.XMLState method)</a>
+</li>
       <li><a href="api/kiwi.html#kiwi.logger_color_formatter.ColorFormatter">ColorFormatter (class in kiwi.logger_color_formatter)</a>
 </li>
       <li><a href="api/kiwi.html#kiwi.logger_color_formatter.ColorMessage">ColorMessage (class in kiwi.logger_color_formatter)</a>
@@ -1578,10 +1582,10 @@
 </li>
       <li><a href="api/kiwi.html#kiwi.xml_state.XMLState.copy_strip_sections">copy_strip_sections() (kiwi.xml_state.XMLState method)</a>
 </li>
-      <li><a href="api/kiwi.html#kiwi.xml_state.XMLState.copy_systemdisk_section">copy_systemdisk_section() (kiwi.xml_state.XMLState method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/kiwi.html#kiwi.xml_state.XMLState.copy_systemdisk_section">copy_systemdisk_section() (kiwi.xml_state.XMLState method)</a>
+</li>
       <li><a href="api/kiwi.system.html#kiwi.system.kernel.Kernel.copy_xen_hypervisor">copy_xen_hypervisor() (kiwi.system.kernel.Kernel method)</a>
 </li>
       <li><a href="api/kiwi.archive.html#kiwi.archive.cpio.ArchiveCpio.create">create() (kiwi.archive.cpio.ArchiveCpio method)</a>
@@ -2362,10 +2366,10 @@
 </li>
       <li><a href="api/kiwi.html#kiwi.defaults.Defaults.get_grub_efi_font_directory">get_grub_efi_font_directory() (kiwi.defaults.Defaults static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/kiwi.html#kiwi.defaults.Defaults.get_grub_efi_modules">get_grub_efi_modules() (kiwi.defaults.Defaults static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/kiwi.html#kiwi.defaults.Defaults.get_grub_ofw_modules">get_grub_ofw_modules() (kiwi.defaults.Defaults static method)</a>
 </li>
       <li><a href="api/kiwi.html#kiwi.defaults.Defaults.get_grub_path">get_grub_path() (kiwi.defaults.Defaults static method)</a>
@@ -2408,6 +2412,12 @@
 </li>
       <li><a href="api/kiwi.html#kiwi.defaults.Defaults.get_iso_grub_mbr">get_iso_grub_mbr() (kiwi.defaults.Defaults static method)</a>
 </li>
+      <li><a href="api/kiwi.html#kiwi.defaults.Defaults.get_iso_media_tag_tool">get_iso_media_tag_tool() (kiwi.defaults.Defaults static method)</a>
+
+      <ul>
+        <li><a href="api/kiwi.html#kiwi.runtime_config.RuntimeConfig.get_iso_media_tag_tool">(kiwi.runtime_config.RuntimeConfig method)</a>
+</li>
+      </ul></li>
       <li><a href="api/kiwi.bootloader.template.html#kiwi.bootloader.template.grub2.BootLoaderTemplateGrub2.get_iso_template">get_iso_template() (kiwi.bootloader.template.grub2.BootLoaderTemplateGrub2 method)</a>
 </li>
       <li><a href="api/kiwi.html#kiwi.defaults.Defaults.get_iso_tool_category">get_iso_tool_category() (kiwi.defaults.Defaults static method)</a>
@@ -4953,11 +4963,7 @@
 </li>
       <li><a href="api/kiwi.html#kiwi.path.Path.rebase_to_root">rebase_to_root() (kiwi.path.Path static method)</a>
 </li>
-      <li><a href="api/kiwi.html#kiwi.path.Path.remove">remove() (kiwi.path.Path static method)</a>
-</li>
       <li><a href="api/kiwi.html#kiwi.path.Path.remove_hierarchy">remove_hierarchy() (kiwi.path.Path static method)</a>
-</li>
-      <li><a href="api/kiwi.html#kiwi.path.Path.rename">rename() (kiwi.path.Path static method)</a>
 </li>
       <li><a href="api/kiwi.repository.html#kiwi.repository.Repository">Repository (class in kiwi.repository)</a>
 </li>
@@ -5003,10 +5009,10 @@
         <li><a href="api/kiwi.package_manager.html#kiwi.package_manager.zypper.PackageManagerZypper.request_product">(kiwi.package_manager.zypper.PackageManagerZypper method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/kiwi.storage.subformat.html#kiwi.storage.subformat.base.DiskFormatBase.resize_raw_disk">resize_raw_disk() (kiwi.storage.subformat.base.DiskFormatBase method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/kiwi.partitioner.html#kiwi.partitioner.base.PartitionerBase.resize_table">resize_table() (kiwi.partitioner.base.PartitionerBase method)</a>
 
       <ul>

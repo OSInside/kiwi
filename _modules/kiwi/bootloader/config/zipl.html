@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config.zipl &mdash; KIWI NG 10.1.2 documentation</title>
+  <title>kiwi.bootloader.config.zipl &mdash; KIWI NG 10.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=d10cccce"></script>
+        <script src="../../../../_static/documentation_options.js?v=757448d7"></script>
         <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -132,6 +132,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../plugins.html">KIWI Plugins</a><ul>
@@ -1256,6 +1258,7 @@
 <span class="kn">from</span> <span class="nn">kiwi.bootloader.template.zipl</span> <span class="kn">import</span> <span class="n">BootLoaderTemplateZipl</span>
 <span class="kn">from</span> <span class="nn">kiwi.bootloader.config.bootloader_spec_base</span> <span class="kn">import</span> <span class="n">BootLoaderSpecBase</span>
 <span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="n">Temporary</span>
 
 <span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiTemplateError</span><span class="p">,</span>
@@ -1282,7 +1285,9 @@
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.zipl.BootLoaderZipl.setup_loader">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Setup main zipl.conf and install zipl for supported targets</span>
+<span class="sd">        Setup temporary zipl config and install zipl for supported targets.</span>
+<span class="sd">        Please note we are not touching the main zipl.conf file provided</span>
+<span class="sd">        by the distributors</span>
 
 <span class="sd">        :param str target:</span>
 <span class="sd">            target identifier, one of disk, live(iso) or install(iso)</span>
@@ -1310,15 +1315,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;initrd&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">boot_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">kernel_info</span><span class="o">.</span><span class="n">initrd_name</span><span class="si">}</span><span class="s1">&#39;</span>
 
+        <span class="n">runtime_zipl_config_file</span> <span class="o">=</span> <span class="n">Temporary</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;kiwi_zipl.conf_&#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">new_file</span><span class="p">()</span>
+
         <span class="n">BootLoaderZipl</span><span class="o">.</span><span class="n">_write_config_file</span><span class="p">(</span>
             <span class="n">BootLoaderTemplateZipl</span><span class="p">()</span><span class="o">.</span><span class="n">get_loader_template</span><span class="p">(),</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">mountpoint</span><span class="si">}</span><span class="s1">/etc/zipl.conf&#39;</span><span class="p">,</span>
+            <span class="n">runtime_zipl_config_file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_template_parameters</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_loader_entry</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">disk</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_install_zipl</span><span class="p">(</span><span class="n">root_dir</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_install_zipl</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">runtime_zipl_config_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BootLoaderZipl.set_loader_entry">
@@ -1339,26 +1348,18 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_install_zipl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_install_zipl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">zipl_config</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Install zipl on target</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">zipl</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;chroot&#39;</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;zipl&#39;</span><span class="p">,</span>
             <span class="s1">&#39;--noninteractive&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="s1">&#39;/etc/zipl.conf&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="n">zipl_config</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
             <span class="s1">&#39;--blsdir&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries_dir</span><span class="p">,</span>
             <span class="s1">&#39;--verbose&#39;</span>
         <span class="p">]</span>
         <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">zipl</span><span class="p">)</span>
-        <span class="c1"># rewrite zipl.conf without loop device reference</span>
-        <span class="n">template_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_template_parameters</span><span class="p">()</span>
-        <span class="n">template_parameters</span><span class="p">[</span><span class="s1">&#39;targetbase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">BootLoaderZipl</span><span class="o">.</span><span class="n">_write_config_file</span><span class="p">(</span>
-            <span class="n">BootLoaderTemplateZipl</span><span class="p">()</span><span class="o">.</span><span class="n">get_loader_template</span><span class="p">(),</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">mountpoint</span><span class="si">}</span><span class="s1">/etc/zipl.conf&#39;</span><span class="p">,</span>
-            <span class="n">template_parameters</span>
-        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_template_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">default_entry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>

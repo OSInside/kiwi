@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.builder.live &mdash; KIWI NG 10.1.2 documentation</title>
+  <title>kiwi.builder.live &mdash; KIWI NG 10.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=d10cccce"></script>
+        <script src="../../../_static/documentation_options.js?v=757448d7"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -132,6 +132,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">KIWI Plugins</a><ul>
@@ -1307,6 +1309,8 @@
             <span class="n">Defaults</span><span class="o">.</span><span class="n">get_volume_id</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mbrid</span> <span class="o">=</span> <span class="n">SystemIdentifier</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mbrid</span><span class="o">.</span><span class="n">calculate_id</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">application_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_application_id</span><span class="p">()</span> <span class="ow">or</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">mbrid</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span> <span class="o">=</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_publisher</span><span class="p">()</span> <span class="ow">or</span> \
             <span class="n">Defaults</span><span class="o">.</span><span class="n">get_publisher</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span> <span class="o">=</span> <span class="n">custom_args</span>
@@ -1366,7 +1370,7 @@
 
         <span class="c1"># custom iso metadata</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using following live ISO metadata:&#39;</span><span class="p">)</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;--&gt; Application id: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mbrid</span><span class="o">.</span><span class="n">get_id</span><span class="p">()))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;--&gt; Application id: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">application_id</span><span class="p">))</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;--&gt; Publisher: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">publisher</span><span class="p">))</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;--&gt; Volume id: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume_id</span><span class="p">))</span>
         <span class="n">custom_iso_args</span> <span class="o">=</span> <span class="p">{</span>
@@ -1375,7 +1379,7 @@
                 <span class="s1">&#39;preparer&#39;</span><span class="p">:</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_preparer</span><span class="p">(),</span>
                 <span class="s1">&#39;volume_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_id</span><span class="p">,</span>
                 <span class="s1">&#39;mbr_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mbrid</span><span class="o">.</span><span class="n">get_id</span><span class="p">(),</span>
-                <span class="s1">&#39;application_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_application_id</span><span class="p">(),</span>
+                <span class="s1">&#39;application_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">application_id</span><span class="p">,</span>
                 <span class="s1">&#39;efi_mode&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span><span class="o">.</span><span class="n">efi_mode</span><span class="p">(),</span>
                 <span class="s1">&#39;legacy_bios_mode&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span><span class="o">.</span><span class="n">legacy_bios_mode</span><span class="p">()</span>
             <span class="p">}</span>
@@ -1425,6 +1429,8 @@
                 <span class="n">config_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">+</span> <span class="s1">&#39;/etc/dracut.conf.d/02-livecd.conf&#39;</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">boot_image</span><span class="o">.</span><span class="n">create_initrd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mbrid</span><span class="p">)</span>
+            <span class="c1"># Clean up leftover dracut config file (which can break installs)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">+</span> <span class="s1">&#39;/etc/dracut.conf.d/02-livecd.conf&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bootloader</span> <span class="o">==</span> <span class="s1">&#39;systemd_boot&#39;</span><span class="p">:</span>
                 <span class="c1"># make sure the initrd name follows the dracut</span>
                 <span class="c1"># naming conventions</span>

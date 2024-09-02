@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.system.result &mdash; KIWI NG 10.1.2 documentation</title>
+  <title>kiwi.system.result &mdash; KIWI NG 10.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=d10cccce"></script>
+        <script src="../../../_static/documentation_options.js?v=757448d7"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -132,6 +132,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../plugins.html">KIWI Plugins</a><ul>
@@ -1277,9 +1279,9 @@
         <span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>  <span class="c1"># architecture name</span>
         <span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>  <span class="c1"># custom ID setting</span>
         <span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>  <span class="c1"># image type name</span>
-        <span class="p">(</span><span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>  <span class="c1"># Major version number</span>
-        <span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>  <span class="c1"># Minor version number</span>
-        <span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>  <span class="c1"># Patch version number</span>
+        <span class="p">(</span><span class="s1">&#39;M&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>  <span class="c1"># Major version number</span>
+        <span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>  <span class="c1"># Minor version number</span>
+        <span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>  <span class="c1"># Patch version number</span>
         <span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>   <span class="c1"># Version string</span>
     <span class="p">]</span>
 <span class="p">)</span>
@@ -1310,7 +1312,11 @@
 <div class="viewcode-block" id="Result.add_bundle_format">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.result.Result.add_bundle_format">[docs]</a>
     <span class="k">def</span> <span class="nf">add_bundle_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="p">(</span><span class="n">major</span><span class="p">,</span> <span class="n">minor</span><span class="p">,</span> <span class="n">patch</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_image_version</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">version_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_image_version</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">version_string</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">major</span><span class="p">,</span> <span class="n">minor</span><span class="p">,</span> <span class="n">patch</span><span class="p">)</span> <span class="o">=</span> <span class="n">version_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">major</span><span class="p">,</span> <span class="n">minor</span><span class="p">,</span> <span class="n">patch</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">version_string</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name_tags</span> <span class="o">=</span> <span class="n">result_name_tags</span><span class="p">(</span>
             <span class="n">N</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">xml_data</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span>
             <span class="n">P</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -1319,10 +1325,10 @@
             <span class="n">A</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">host_architecture</span><span class="p">,</span>
             <span class="n">I</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
             <span class="n">T</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_build_type_name</span><span class="p">(),</span>
-            <span class="n">M</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">major</span><span class="p">),</span>
-            <span class="n">m</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">minor</span><span class="p">),</span>
-            <span class="n">p</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">patch</span><span class="p">),</span>
-            <span class="n">v</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_image_version</span><span class="p">()</span>
+            <span class="n">M</span><span class="o">=</span><span class="n">major</span><span class="p">,</span>
+            <span class="n">m</span><span class="o">=</span><span class="n">minor</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">=</span><span class="n">patch</span><span class="p">,</span>
+            <span class="n">v</span><span class="o">=</span><span class="n">version_string</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result_files</span><span class="p">[</span><span class="s1">&#39;bundle_format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;pattern&#39;</span><span class="p">:</span> <span class="n">pattern</span><span class="p">,</span>

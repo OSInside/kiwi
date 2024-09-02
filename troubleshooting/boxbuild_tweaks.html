@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Profiles &mdash; KIWI NG 10.1.3 documentation</title>
+  <title>Boxbuild Tweaks &mdash; KIWI NG 10.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Adding Users" href="users.html" />
-    <link rel="prev" title="Adding and Removing Packages" href="packages.html" /> 
+    <link rel="next" title="KIWI Plugins" href="../plugins.html" />
+    <link rel="prev" title="Incompatible Filesystem Settings on Host vs. Image" href="filesystems.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -130,13 +130,13 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html">Build Host Constraints</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/architectures.html">Architectures</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="buildhost_constraints.html">Build Host Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architectures.html">Architectures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security.html">Host Security Settings Conflicts with KIWI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Boxbuild Tweaks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#increase-box-build-image-size">Increase Box Build Image Size</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../plugins.html">KIWI Plugins</a><ul>
@@ -156,39 +156,39 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../concept_and_workflow.html">Concept and Workflow</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="systemdeps.html">Host Requirements To Build Images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="repository_setup.html">Setting up Repositories</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="repository_setup.html#adding-repositories">Adding repositories</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="repository_setup.html#supported-repository-paths">Supported repository paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concept_and_workflow.html">Concept and Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow/systemdeps.html">Host Requirements To Build Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow/repository_setup.html">Setting up Repositories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/repository_setup.html#adding-repositories">Adding repositories</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../concept_and_workflow/repository_setup.html#supported-repository-paths">Supported repository paths</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="packages.html">Adding and Removing Packages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="packages.html#the-package-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">package</span></code> element</a></li>
-<li class="toctree-l3"><a class="reference internal" href="packages.html#the-archive-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">archive</span></code> element</a></li>
-<li class="toctree-l3"><a class="reference internal" href="packages.html#uninstall-system-packages">Uninstall System Packages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="packages.html#the-product-and-namedcollection-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">namedCollection</span></code> element</a></li>
-<li class="toctree-l3"><a class="reference internal" href="packages.html#the-ignore-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">ignore</span></code> element</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow/packages.html">Adding and Removing Packages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/packages.html#the-package-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">package</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/packages.html#the-archive-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">archive</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/packages.html#uninstall-system-packages">Uninstall System Packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/packages.html#the-product-and-namedcollection-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">namedCollection</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/packages.html#the-ignore-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">ignore</span></code> element</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Image Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="users.html">Adding Users</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shell_scripts.html">User-Defined Scripts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="shell_scripts.html#developing-debugging-scripts">Developing/Debugging Scripts</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="shell_scripts.html#script-template-for-config-sh-images-sh">Script Template for config.sh / images.sh</a></li>
-<li class="toctree-l4"><a class="reference internal" href="shell_scripts.html#functions-and-variables-provided-by-kiwi-ng">Functions and Variables Provided by KIWI NG</a></li>
-<li class="toctree-l4"><a class="reference internal" href="shell_scripts.html#configuration-tips">Configuration Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow/profiles.html">Image Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow/users.html">Adding Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow/shell_scripts.html">User-Defined Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/shell_scripts.html#developing-debugging-scripts">Developing/Debugging Scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../concept_and_workflow/shell_scripts.html#script-template-for-config-sh-images-sh">Script Template for config.sh / images.sh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../concept_and_workflow/shell_scripts.html#functions-and-variables-provided-by-kiwi-ng">Functions and Variables Provided by KIWI NG</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../concept_and_workflow/shell_scripts.html#configuration-tips">Configuration Tips</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_configuration.html">The Runtime Configuration File</a></li>
-<li class="toctree-l2"><a class="reference internal" href="customize_the_boot_process.html">Customizing the Boot Process</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="customize_the_boot_process.html#boot-image-hook-scripts">Boot Image Hook-Scripts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="customize_the_boot_process.html#boot-image-parameters">Boot Image Parameters</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="customize_the_boot_process.html#boot-debugging">Boot Debugging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow/runtime_configuration.html">The Runtime Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow/customize_the_boot_process.html">Customizing the Boot Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/customize_the_boot_process.html#boot-image-hook-scripts">Boot Image Hook-Scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow/customize_the_boot_process.html#boot-image-parameters">Boot Image Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../concept_and_workflow/customize_the_boot_process.html#boot-debugging">Boot Debugging</a></li>
 </ul>
 </li>
 </ul>
@@ -1222,10 +1222,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../concept_and_workflow.html">Concept and Workflow</a></li>
-      <li class="breadcrumb-item active">Image Profiles</li>
+          <li class="breadcrumb-item"><a href="../troubleshooting.html">Troubleshooting</a></li>
+      <li class="breadcrumb-item active">Boxbuild Tweaks</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/concept_and_workflow/profiles.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/troubleshooting/boxbuild_tweaks.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1233,66 +1233,86 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="image-profiles">
-<span id="id1"></span><h1>Image Profiles<a class="headerlink" href="#image-profiles" title="Link to this heading"></a></h1>
-<p>A <em>profile</em> is a namespace for additional settings that can be applied by
-KIWI NG in addition to the default settings (or other profiles), making it possible
-to build multiple appliances with the same build type but with different
-configurations.</p>
-<p>The use of profiles is advisable to distinguish image builds of the same
-type but with different settings. In the following example, two virtual
-machine images of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">oem</span></code> type are configured: one for QEMU (using the
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">qcow2</span></code> format) and one for VMWare (using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">vmdk</span></code> format).</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;image</span><span class="w"> </span><span class="na">schemaversion=</span><span class="s">&quot;8.0&quot;</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;{exc_image_base_name}&quot;</span><span class="nt">&gt;</span>
-<span class="w">    </span><span class="nt">&lt;profiles&gt;</span>
-<span class="w">        </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;QEMU&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;virtual machine for QEMU&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;VMWare&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;virtual machine for VMWare&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/profiles&gt;</span>
-<span class="w">    </span><span class="nt">&lt;preferences&gt;</span>
-<span class="w">        </span><span class="nt">&lt;version&gt;</span>15.0<span class="nt">&lt;/version&gt;</span>
-<span class="w">        </span><span class="nt">&lt;packagemanager&gt;</span>zypper<span class="nt">&lt;/packagemanager&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/preferences&gt;</span>
-<span class="w">    </span><span class="nt">&lt;preferences</span><span class="w"> </span><span class="na">profiles=</span><span class="s">&quot;QEMU&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;type</span><span class="w"> </span><span class="na">image=</span><span class="s">&quot;oem&quot;</span><span class="w"> </span><span class="na">format=</span><span class="s">&quot;qcow2&quot;</span><span class="w"> </span><span class="na">filesystem=</span><span class="s">&quot;ext4&quot;</span><span class="nt">&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/preferences&gt;</span>
-<span class="w">    </span><span class="nt">&lt;preferences</span><span class="w"> </span><span class="na">profiles=</span><span class="s">&quot;VMWare&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;type</span><span class="w"> </span><span class="na">image=</span><span class="s">&quot;oem&quot;</span><span class="w"> </span><span class="na">format=</span><span class="s">&quot;vmdk&quot;</span><span class="w"> </span><span class="na">filesystem=</span><span class="s">&quot;ext4&quot;</span><span class="nt">&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/preferences&gt;</span>
-<span class="nt">&lt;/image&gt;</span>
+  <section id="boxbuild-tweaks">
+<h1>Boxbuild Tweaks<a class="headerlink" href="#boxbuild-tweaks" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Abstract</p>
+<p>This document describes a few ways to modify
+box build VMs for testing/debugging.</p>
+</div>
+</section>
+<section id="increase-box-build-image-size">
+<h1>Increase Box Build Image Size<a class="headerlink" href="#increase-box-build-image-size" title="Link to this heading"></a></h1>
+<p>In particularly large builds, you may find that the
+upstream build boxes aren’t quite large enough, and
+fail to build during the final few steps. While it
+is a bit of a kludge, it is possible to increase the
+size of the build box.</p>
+<p>To do so, follow these steps:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For this example, we will assume the box increase
+question is an Ubuntu box, located in ~/.kiwi_boxes/ubuntu</p>
+</div>
+<ol class="arabic simple">
+<li><p>While the VM is offline, locate the VM you want to modify
+and resize with <code class="xref py py-obj docutils literal notranslate"><span class="pre">qemu-img</span></code>. Here we will increase the size
+by 20G. The VM will have to be told to utilize this space in
+the following steps.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>qemu-img<span class="w"> </span>resize<span class="w"> </span>Ubuntu-Box.x86_64-1.22.04-System-BuildBox.qcow2<span class="w"> </span>+20G
 </pre></div>
 </div>
-<p>Each profile is declared via the element <code class="xref py py-obj docutils literal notranslate"><span class="pre">profile</span></code> that must be a
-child of <code class="xref py py-obj docutils literal notranslate"><span class="pre">profiles</span></code>, and it must contain the <code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">description</span></code>
-attributes. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">description</span></code> is only present for documentation purposes,
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code>, on the other hand, is used to instruct KIWI NG which profile to build
-via the command line. Additionally, you can provide the boolean attribute
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">import</span></code>, which defines whether this profile should be used by default when
-KIWI NG is invoked via the command line.</p>
-<p>A profile inherits the default settings that do not belong to any
-profile. It applies only to elements that contain the profile in their
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">profiles</span></code> attribute. The attribute <code class="xref py py-obj docutils literal notranslate"><span class="pre">profiles</span></code> expects a comma-separated
-list of profiles for which the settings of this element apply.</p>
-<p>Profiles can furthermore inherit settings from another profile via the
-<code class="xref py py-obj docutils literal notranslate"><span class="pre">requires</span></code> sub-element:</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;profiles&gt;</span>
-<span class="w">    </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;VM&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;virtual machine&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;QEMU&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;virtual machine for QEMU&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;requires</span><span class="w"> </span><span class="na">profile=</span><span class="s">&quot;VM&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;/profile&gt;</span>
-<span class="nt">&lt;/profiles&gt;</span>
+<ol class="arabic simple" start="2">
+<li><p>When relaunching your <a class="reference internal" href="../api/kiwi.html#module-kiwi" title="kiwi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi</span></code></a> box build, make sure you use <code class="xref py py-obj docutils literal notranslate"><span class="pre">--no-snapshot</span></code>
+and <code class="xref py py-obj docutils literal notranslate"><span class="pre">--box-debug</span></code> options within your build command/script. Example:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kiwi<span class="w"> </span>--debug<span class="w"> </span>--profile<span class="o">=</span><span class="s2">&quot;Disk&quot;</span><span class="w"> </span>--type<span class="w"> </span>oem<span class="w"> </span>system<span class="w"> </span>boxbuild<span class="w"> </span>--no-snapshot<span class="w"> </span><span class="se">\</span>
+--box-memory<span class="o">=</span>32G<span class="w"> </span>--box-smp-cpus<span class="o">=</span><span class="m">16</span><span class="w"> </span>--box-debug<span class="w"> </span>--box<span class="w"> </span>ubuntu<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+--description<span class="w"> </span>./ubuntu-jammy<span class="w"> </span>--target-dir<span class="w"> </span>/build/kiwi/outputs/
 </pre></div>
 </div>
-<p>In the above example, the profile <code class="xref py py-obj docutils literal notranslate"><span class="pre">QEMU</span></code> inherit the settings from <code class="xref py py-obj docutils literal notranslate"><span class="pre">VM</span></code>.</p>
-<p>For further details on the usage of <em>profiles</em>, see
-<a class="reference internal" href="../working_with_images/build_with_profiles.html#building-build-with-profiles"><span class="std std-ref">Building Images with Profiles</span></a></p>
+<ol class="arabic simple" start="3">
+<li><p>When the build fails and drops you into the VM console, you will
+need to extend the partition of the VM rootfs, then resize with
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">resize2fs</span></code>. In this example, <code class="xref py py-obj docutils literal notranslate"><span class="pre">parted</span></code> was used and the partition
+in question was /dev/vda3.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>parted
+<span class="c1"># Can run parted print to check for relevant partitions if needed.</span>
+<span class="o">(</span>parted<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>print
+<span class="o">(</span>parted<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>resizepart<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">100</span>%
+<span class="c1"># Exit from parted</span>
+<span class="o">(</span>parted<span class="o">)</span><span class="w"> </span>$<span class="w"> </span>quit
+<span class="c1"># Run resize2fs to grow the filesystem to fill the space</span>
+$<span class="w"> </span>resize2fs<span class="w"> </span>/dev/vda3
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>From this point, depending on where your build failed, it may be
+possible to continue your build from inside the box, using the
+existing 9p mount points defined by your build command. Using the
+command above as an example, <code class="xref py py-obj docutils literal notranslate"><span class="pre">/result</span></code> within the box maps up to
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">/build/kiwi/outputs</span></code> on the host, and it’s possible to run</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>kiwi-ng<span class="w"> </span>--profile<span class="o">=</span><span class="s2">&quot;Disk&quot;</span><span class="w"> </span>--type<span class="w"> </span>oem<span class="w">  </span>system<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+--root<span class="o">=</span>/result/build/image-root/<span class="w"> </span>--target-dir<span class="o">=</span>/result
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>If the rebuild from within was successful, you can copy the files
+from <code class="xref py py-obj docutils literal notranslate"><span class="pre">/result</span></code> to <code class="xref py py-obj docutils literal notranslate"><span class="pre">/bundle</span></code>, from within the VM, where <code class="xref py py-obj docutils literal notranslate"><span class="pre">/bundle</span></code>
+maps to your <code class="xref py py-obj docutils literal notranslate"><span class="pre">target-dir</span></code> on the host.</p></li>
+</ol>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="packages.html" class="btn btn-neutral float-left" title="Adding and Removing Packages" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="users.html" class="btn btn-neutral float-right" title="Adding Users" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="filesystems.html" class="btn btn-neutral float-left" title="Incompatible Filesystem Settings on Host vs. Image" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../plugins.html" class="btn btn-neutral float-right" title="KIWI Plugins" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

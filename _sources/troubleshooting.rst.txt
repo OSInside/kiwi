@@ -17,3 +17,4 @@ Troubleshooting
    troubleshooting/architectures
    troubleshooting/security
    troubleshooting/filesystems
+   troubleshooting/boxbuild_tweaks

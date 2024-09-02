@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.runtime_checker &mdash; KIWI NG 10.1.2 documentation</title>
+  <title>kiwi.runtime_checker &mdash; KIWI NG 10.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=d10cccce"></script>
+        <script src="../../_static/documentation_options.js?v=757448d7"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -132,6 +132,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">KIWI Plugins</a><ul>
@@ -2222,6 +2224,11 @@
 <span class="s1">        &#39;&#39;&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_mediacheck</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">tool</span> <span class="o">=</span> <span class="s1">&#39;tagmedia&#39;</span>
+            <span class="n">media_tagger</span> <span class="o">=</span> <span class="n">RuntimeConfig</span><span class="p">()</span><span class="o">.</span><span class="n">get_iso_media_tag_tool</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">media_tagger</span> <span class="o">==</span> <span class="s1">&#39;checkmedia&#39;</span><span class="p">:</span>
+                <span class="n">tool</span> <span class="o">=</span> <span class="s1">&#39;tagmedia&#39;</span>
+            <span class="k">elif</span> <span class="n">media_tagger</span> <span class="o">==</span> <span class="s1">&#39;isomd5sum&#39;</span><span class="p">:</span>
+                <span class="n">tool</span> <span class="o">=</span> <span class="s1">&#39;implantisomd5&#39;</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">tool</span><span class="p">,</span> <span class="n">access_mode</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">KiwiRuntimeError</span><span class="p">(</span>
                     <span class="n">message_tool_not_found</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">tool</span><span class="p">)</span>
