@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build a Virtual Disk Image &mdash; KIWI NG 10.1.3 documentation</title>
+  <title>Build a Virtual Disk Image &mdash; KIWI NG 10.1.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=757448d7"></script>
+        <script src="../_static/documentation_options.js?v=befdd81a"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1377,7 +1377,11 @@ information on which value to choose.</p></li>
 Valid values are: <code class="xref py py-obj docutils literal notranslate"><span class="pre">hvmloader</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pygrub</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">pvgrub</span></code>.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">guestOS</span></code>: The virtual guest OS’ identification string for the VM (only
 applicable for <code class="xref py py-obj docutils literal notranslate"><span class="pre">vmdk</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">ova</span></code> formats. Note that the name designation
-is different for the two formats).</p></li>
+is different for the two formats).
+Note: For vmware ovftools, guestOS is a VMX GuestOS, but not VIM GuestOS.
+For instance, correct value for Ubuntu 64 bit is “ubuntu-64”, but not
+“ubuntu64Guest”. See GUEST_OS_KEY_MAP in guest_os_tables.h at
+<a class="reference external" href="https://github.com/vmware/open-vm-tools">https://github.com/vmware/open-vm-tools</a> for another guestOS values.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">min_memory</span></code>: The virtual machine’s minimum memory in MB (<code class="xref py py-obj docutils literal notranslate"><span class="pre">ova</span></code> format
 only).</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">max_memory</span></code>: The virtual machine’s maximum memory in MB (<code class="xref py py-obj docutils literal notranslate"><span class="pre">ova</span></code> format
