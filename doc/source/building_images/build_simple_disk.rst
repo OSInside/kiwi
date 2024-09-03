@@ -176,6 +176,10 @@ The following attributes are supported by the `machine` element:
 - `guestOS`: The virtual guest OS' identification string for the VM (only
   applicable for `vmdk` and `ova` formats. Note that the name designation
   is different for the two formats).
+  Note: For vmware ovftools, guestOS is a VMX GuestOS, but not VIM GuestOS.
+  For instance, correct value for Ubuntu 64 bit is "ubuntu-64", but not
+  "ubuntu64Guest". See GUEST_OS_KEY_MAP in guest_os_tables.h at
+  https://github.com/vmware/open-vm-tools for another guestOS values.
 
 - `min_memory`: The virtual machine's minimum memory in MB (`ova` format
   only).
