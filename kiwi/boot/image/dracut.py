@@ -235,6 +235,9 @@ class BootImageDracut(BootImageBase):
             self.initrd_filename = os.sep.join(
                 [self.target_dir, dracut_initrd_basename]
             )
+            Command.run(
+                ['chmod', '644', self.initrd_filename]
+            )
 
     def _get_modules(self) -> List[str]:
         cmd = Command.run(

@@ -152,6 +152,9 @@ class TestBootImageKiwi:
                     'LimeJeOS.x86_64-1.13.2.initrd',
                     'some-target-dir'
                 ]
+            ),
+            call(
+                ['chmod', '644', 'some-target-dir/LimeJeOS.x86_64-1.13.2.initrd']
             )
         ]
         mock_command.reset_mock()
@@ -172,6 +175,9 @@ class TestBootImageKiwi:
                     'system-directory/foo',
                     'some-target-dir'
                 ]
+            ),
+            call(
+                ['chmod', '644', 'some-target-dir/foo']
             )
         ]
 
