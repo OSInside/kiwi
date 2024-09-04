@@ -480,7 +480,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string lookup_path: custom module lookup path
         """
         log.info('Creating grub2 bootloader images')
-        self.efi_boot_path = self.create_efi_path(in_sub_dir='')
+        if self.firmware.efi_mode():
+            self.efi_boot_path = self.create_efi_path(in_sub_dir='')
 
         log.info('--> Creating identifier file %s', mbrid.get_id())
         grub_boot_path = self._get_grub2_boot_path()
