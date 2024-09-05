@@ -134,6 +134,7 @@ class TestPackageManagerApt:
                     echo "Unpacking $deb"
                     dpkg-deb --fsys-tarfile $deb | tar -C {0} -x
                 done < {1}
+                export PATH=/usr/bin:/bin:/usr/sbin:/sbin
                 while read -r deb;do
                     pushd "$(dirname "$deb")" >/dev/null || exit 1
                     if [[ "$(basename "$deb")" == base-passwd* ]];then
@@ -145,6 +146,7 @@ class TestPackageManagerApt:
                     fi
                     popd >/dev/null || exit 1
                 done < {1}
+                chroot {0} touch /var/lib/dpkg/status.kiwi
             ''')
             file_handle.write.assert_called_once_with(
                 script.format('root-dir', 'temporary')
@@ -176,8 +178,8 @@ class TestPackageManagerApt:
         self.manager.request_package('vim')
         self.manager.process_install_requests()
         mock_call.assert_called_once_with([
-            'chroot', 'root-dir', 'apt-get',
-            '-c', 'apt.conf', '-y', 'install', 'vim'],
+            'chroot', 'root-dir', '/bin/bash', '-c',
+            'apt-get -c apt.conf -y install vim && /bin/rm /var/lib/dpkg/status.kiwi'],
             ['env']
         )
 

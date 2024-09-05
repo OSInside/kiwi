@@ -259,6 +259,7 @@ class PackageManagerApt(PackageManagerBase):
                     echo "Unpacking $deb"
                     dpkg-deb --fsys-tarfile $deb | tar -C {0} -x
                 done < {1}
+                export PATH=/usr/bin:/bin:/usr/sbin:/sbin
                 while read -r deb;do
                     pushd "$(dirname "$deb")" >/dev/null || exit 1
                     if [[ "$(basename "$deb")" == base-passwd* ]];then
@@ -270,6 +271,7 @@ class PackageManagerApt(PackageManagerBase):
                     fi
                     popd >/dev/null || exit 1
                 done < {1}
+                chroot {0} touch /var/lib/dpkg/status.kiwi
             ''')
 
             script.format(self.root_dir, package_names.name)
@@ -309,7 +311,9 @@ class PackageManagerApt(PackageManagerBase):
         update_command.append('update')
         Command.run(update_command, self.command_env)
 
-        apt_get_command = ['chroot', self.root_dir, 'apt-get']
+        apt_install_command = ['chroot', self.root_dir, '/bin/bash', '-c']
+
+        apt_get_command = ['apt-get']
         apt_get_command.extend(
             Path.move_to_root(self.root_dir, self.apt_get_args)
         )
@@ -317,8 +321,12 @@ class PackageManagerApt(PackageManagerBase):
         apt_get_command.append('install')
         apt_get_command.extend(self._package_requests())
 
+        apt_install_command.append(
+            f'{" ".join(apt_get_command)} && /bin/rm /var/lib/dpkg/status.kiwi'
+        )
+
         return Command.call(
-            apt_get_command, self.command_env
+            apt_install_command, self.command_env
         )
 
     def process_delete_requests(self, force: bool = False) -> CommandCallT:
