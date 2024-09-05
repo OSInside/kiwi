@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from string import Template
+from textwrap import dedent
 import re
 import os
 import logging
@@ -479,7 +480,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         :param string lookup_path: custom module lookup path
         """
         log.info('Creating grub2 bootloader images')
-        self.efi_boot_path = self.create_efi_path(in_sub_dir='')
+        if self.firmware.efi_mode():
+            self.efi_boot_path = self.create_efi_path(in_sub_dir='')
 
         log.info('--> Creating identifier file %s', mbrid.get_id())
         grub_boot_path = self._get_grub2_boot_path()
@@ -610,7 +612,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
 
     def _supports_bios_modules(self):
-        if self.arch == 'ix86' or self.arch == 'x86_64':
+        if self.arch == 'ix86' or self.arch == 'x86_64' or Defaults.is_ppc64_arch(self.arch):
             return True
         return False
 
@@ -927,6 +929,30 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 uuid, mbrid, lookup_path
             )
 
+    def _setup_chrp_config(self, mbrid):
+        early_boot_script = os.path.normpath(
+            os.sep.join(
+                [self._get_grub2_boot_path(), 'powerpc-ieee1275', 'grub.cfg']
+            )
+        )
+        self._create_early_boot_script_for_mbrid_search(
+            early_boot_script, mbrid
+        )
+        chrp_dir = os.path.normpath(os.sep.join([self.boot_dir, 'ppc']))
+        Path.create(chrp_dir)
+        chrp_bootinfo_file = os.sep.join([chrp_dir, 'bootinfo.txt'])
+        chrp_config = dedent('''
+            <chrp-boot>
+            <description>{os_name}</description>
+            <os-name>{os_name}</os-name>
+            <boot-script>boot &device;:1,\boot\grub2\powerpc-ieee1275\grub.elf</boot-script>
+            </chrp-boot>
+        ''')
+        with open(chrp_bootinfo_file, 'w') as chrp_bootinfo:
+            chrp_bootinfo.write(
+                chrp_config.format(os_name=self.get_menu_entry_install_title())
+            )
+
     def _setup_bios_image(self, mbrid, lookup_path=None):
         """
         Provide bios grub image
@@ -941,6 +967,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._create_bios_image(
                 mbrid, lookup_path
             )
+        if Defaults.is_ppc64_arch(Defaults.get_platform_name()):
+            self._setup_chrp_config(mbrid)
+            return
         bash_command = ' '.join(
             [
                 'cat',
@@ -1212,7 +1241,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
     def _get_bios_modules_path(self, lookup_path=None):
-        return self._get_module_path('i386-pc', lookup_path)
+        return self._get_module_path(Defaults.get_bios_module_directory_name(), lookup_path)
 
     def _get_xen_modules_path(self, lookup_path=None):
         return self._get_module_path(

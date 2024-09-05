@@ -99,6 +99,10 @@ class IsoToolsXorrIso(IsoToolsBase):
         self.iso_parameters += [
             '-joliet', 'on', '-padding', '0'
         ]
+        if Defaults.is_ppc64_arch(self.arch):
+            self.iso_parameters += [
+                '-compliance', 'untranslated_names'
+            ]
 
         if Defaults.is_x86_arch(self.arch) and legacy_bios_mode:
             mbr_file = os.sep.join(
@@ -126,15 +130,20 @@ class IsoToolsXorrIso(IsoToolsBase):
                 '-boot_image', 'grub', 'grub2_boot_info=on'
             ]
 
-        self.iso_loaders += [
-            '-boot_image', 'any', 'partition_offset=16',
-            '-boot_image', 'any', 'cat_path={0}'.format(catalog_file),
-            '-boot_image', 'any', 'cat_hidden=on',
-            '-boot_image', 'any', 'boot_info_table=on',
-            '-boot_image', 'any', 'platform_id=0x00',
-            '-boot_image', 'any', 'emul_type=no_emulation',
-            '-boot_image', 'any', 'load_size=2048'
-        ]
+        if Defaults.is_ppc64_arch(self.arch):
+            self.iso_loaders += [
+                '-boot_image', 'any', 'chrp_boot_part=on'
+            ]
+        else:
+            self.iso_loaders += [
+                '-boot_image', 'any', 'partition_offset=16',
+                '-boot_image', 'any', 'cat_path={0}'.format(catalog_file),
+                '-boot_image', 'any', 'cat_hidden=on',
+                '-boot_image', 'any', 'boot_info_table=on',
+                '-boot_image', 'any', 'platform_id=0x00',
+                '-boot_image', 'any', 'emul_type=no_emulation',
+                '-boot_image', 'any', 'load_size=2048'
+            ]
 
     def add_efi_loader_parameters(self, loader_file: str) -> None:
         """

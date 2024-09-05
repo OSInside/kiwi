@@ -62,7 +62,8 @@ class TestBootLoaderConfigGrub2:
             'root_dir/usr/lib64/efi/shim.efi': True,
             'root_dir/usr/lib64/efi/grub.efi': True,
             'root_dir/usr/lib64/efi/does-not-exist': False,
-            'root_dir/boot/efi/': True
+            'root_dir/boot/efi/': True,
+            'root_dir/usr/share/grub2/powerpc-ieee1275': True
         }
         self.glob_iglob = [
             ['root_dir/usr/lib64/efi/MokManager.efi'],
@@ -1687,6 +1688,71 @@ class TestBootLoaderConfigGrub2:
                         ]
                     )
                 ]
+
+    @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
+    @patch('kiwi.bootloader.config.grub2.Defaults.get_unsigned_grub_loader')
+    @patch('kiwi.bootloader.config.grub2.Defaults.get_grub_bios_core_loader')
+    @patch('kiwi.bootloader.config.grub2.Command.run')
+    @patch('kiwi.bootloader.config.grub2.Path.which')
+    @patch('kiwi.bootloader.config.grub2.Path.create')
+    @patch('kiwi.bootloader.config.grub2.DataSync')
+    @patch('os.path.exists')
+    @patch('shutil.copy')
+    def test_setup_install_boot_images_ppc(
+        self, mock_shutil_copy, mock_exists, mock_sync,
+        mock_Path_create, mock_Path_which, mock_command,
+        mock_get_grub_bios_core_loader, mock_get_unsigned_grub_loader,
+        mock_get_boot_path
+    ):
+        Defaults.set_platform_name('ppc64le')
+        mock_Path_which.return_value = '/path/to/grub2-mkimage'
+        mock_get_boot_path.return_value = '/boot'
+        self.bootloader.arch = 'ppc64le'
+        data = Mock()
+        mock_sync.return_value = data
+        self.firmware.efi_mode = Mock(
+            return_value=''
+        )
+
+        # simulate alternative boot directory to reach all code paths
+        self.bootloader.boot_dir = 'boot_dir'
+
+        self.os_exists['lookup_dir/usr/share/grub2/powerpc-ieee1275'] = True
+        self.os_exists['lookup_dir/usr/share/grub2/unicode.pf2'] = True
+        self.os_exists['boot_dir/boot/grub2/fonts/unicode.pf2'] = False
+        self.os_exists['boot_dir/usr/share/grub2/unicode.pf2'] = True
+
+        def side_effect(arg):
+            return self.os_exists[arg]
+
+        mock_exists.side_effect = side_effect
+
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.bootloader.setup_install_boot_images(
+                mbrid=self.mbrid, lookup_path="lookup_dir"
+            )
+
+            assert mock_open.call_args_list == [
+                call('boot_dir/boot/grub2/powerpc-ieee1275/grub.cfg', 'w'),
+                call('boot_dir/ppc/bootinfo.txt', 'w'),
+                call('boot_dir/boot/grub2/loopback.cfg', 'w')
+            ]
+
+            assert file_handle.write.call_args_list == [
+                call('set btrfs_relative_path="yes"\n'),
+                call('search --file --set=root /boot/0xffffffff\n'),
+                call('set prefix=($root)/boot/grub2\n'),
+                call('source ($root)/boot/grub2/grub.cfg\n'),
+                call(
+                    '\n<chrp-boot>\n<description>Bob</description>\n'
+                    '<os-name>Bob</os-name>\n<boot-script>'
+                    'boot &device;:1,\boot\grub2\powerpc-ieee1275\grub.elf'
+                    '</boot-script>\n</chrp-boot>\n'
+                ),
+                call('source /boot/grub2/grub.cfg\n')
+            ]
 
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('kiwi.bootloader.config.grub2.Defaults.get_unsigned_grub_loader')
