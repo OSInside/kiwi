@@ -89,6 +89,15 @@ class DiskFormatOva(DiskFormatBase):
             ovftool, '--shaAlgorithm', raise_on_error=False
         ):
             ovftool_options.append('--shaAlgorithm=SHA1')
+        if CommandCapabilities.has_option_in_help(
+            ovftool, '--allowExtraConfig', raise_on_error=False
+        ):
+            ovftool_options.append('--allowExtraConfig')
+        if CommandCapabilities.has_option_in_help(
+            ovftool, '--exportFlags', raise_on_error=False
+        ):
+            ovftool_options.append('--exportFlags=extraconfig')
+
         Command.run(
             [ovftool] + ovftool_options + [vmx, ova]
         )
