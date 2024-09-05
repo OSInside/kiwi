@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.defaults &mdash; KIWI NG 10.1.4 documentation</title>
+  <title>kiwi.defaults &mdash; KIWI NG 10.1.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=befdd81a"></script>
+        <script src="../../_static/documentation_options.js?v=1a855c03"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -1459,6 +1459,27 @@
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
+<div class="viewcode-block" id="Defaults.is_ppc64_arch">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.is_ppc64_arch">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_ppc64_arch</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if machine architecture is ppc64 based</span>
+
+<span class="sd">        Any arch that matches little endian or big endian ppc64 architecture</span>
+<span class="sd">        causes the method to return True. Anything else will</span>
+<span class="sd">        cause the method to return False</span>
+
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ppc64_arch_names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;ppc64&#39;</span><span class="p">,</span> <span class="s1">&#39;ppc64le&#39;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">arch</span> <span class="ow">in</span> <span class="n">ppc64_arch_names</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
 <div class="viewcode-block" id="Defaults.is_buildservice_worker">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.is_buildservice_worker">[docs]</a>
     <span class="nd">@staticmethod</span>
@@ -2327,11 +2348,11 @@
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bios_grub_core_patterns</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;/usr/share/grub*/i386-pc/</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_image_name</span><span class="p">()</span>
+            <span class="s1">&#39;/usr/share/grub*/</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_module_directory_name</span><span class="p">(),</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_image_name</span><span class="p">()</span>
             <span class="p">),</span>
-            <span class="s1">&#39;/usr/lib/grub*/i386-pc/</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_image_name</span><span class="p">()</span>
+            <span class="s1">&#39;/usr/lib/grub*/</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_module_directory_name</span><span class="p">(),</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_image_name</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">bios_grub_core_pattern</span> <span class="ow">in</span> <span class="n">bios_grub_core_patterns</span><span class="p">:</span>
@@ -2822,13 +2843,13 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_bios_module_directory_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Provides x86 BIOS directory name which stores the pc binaries</span>
+<span class="sd">        Provides BIOS directory name which stores the pc binaries</span>
 
 <span class="sd">        :return: directory name</span>
 
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s1">&#39;i386-pc&#39;</span></div>
+        <span class="k">return</span> <span class="s1">&#39;powerpc-ieee1275&#39;</span> <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">())</span> <span class="k">else</span> <span class="s1">&#39;i386-pc&#39;</span></div>
 
 
 <div class="viewcode-block" id="Defaults.get_efi_image_name">
@@ -2870,7 +2891,7 @@
 
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s1">&#39;core.img&#39;</span></div>
+        <span class="k">return</span> <span class="s1">&#39;grub.elf&#39;</span> <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">())</span> <span class="k">else</span> <span class="s1">&#39;core.img&#39;</span></div>
 
 
 <div class="viewcode-block" id="Defaults.get_default_boot_timeout_seconds">

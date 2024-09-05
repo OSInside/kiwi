@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.iso_tools.xorriso &mdash; KIWI NG 10.1.4 documentation</title>
+  <title>kiwi.iso_tools.xorriso &mdash; KIWI NG 10.1.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=befdd81a"></script>
+        <script src="../../../_static/documentation_options.js?v=1a855c03"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1342,6 +1342,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">iso_parameters</span> <span class="o">+=</span> <span class="p">[</span>
             <span class="s1">&#39;-joliet&#39;</span><span class="p">,</span> <span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="s1">&#39;-padding&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span>
         <span class="p">]</span>
+        <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iso_parameters</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="s1">&#39;-compliance&#39;</span><span class="p">,</span> <span class="s1">&#39;untranslated_names&#39;</span>
+            <span class="p">]</span>
 
         <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_x86_arch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">)</span> <span class="ow">and</span> <span class="n">legacy_bios_mode</span><span class="p">:</span>
             <span class="n">mbr_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -1369,15 +1373,20 @@
                 <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;grub&#39;</span><span class="p">,</span> <span class="s1">&#39;grub2_boot_info=on&#39;</span>
             <span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">iso_loaders</span> <span class="o">+=</span> <span class="p">[</span>
-            <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;partition_offset=16&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;cat_path=</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">catalog_file</span><span class="p">),</span>
-            <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;cat_hidden=on&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;boot_info_table=on&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;platform_id=0x00&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;emul_type=no_emulation&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;load_size=2048&#39;</span>
-        <span class="p">]</span></div>
+        <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iso_loaders</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;chrp_boot_part=on&#39;</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iso_loaders</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;partition_offset=16&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;cat_path=</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">catalog_file</span><span class="p">),</span>
+                <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;cat_hidden=on&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;boot_info_table=on&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;platform_id=0x00&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;emul_type=no_emulation&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;load_size=2048&#39;</span>
+            <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="IsoToolsXorrIso.add_efi_loader_parameters">

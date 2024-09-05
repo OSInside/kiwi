@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.1.4 documentation</title>
+  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.1.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=befdd81a"></script>
+        <script src="../../../../_static/documentation_options.js?v=1a855c03"></script>
         <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1249,6 +1249,7 @@
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -1737,7 +1738,8 @@
 <span class="sd">        :param string lookup_path: custom module lookup path</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Creating grub2 bootloader images&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">efi_boot_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_efi_path</span><span class="p">(</span><span class="n">in_sub_dir</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span><span class="o">.</span><span class="n">efi_mode</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">efi_boot_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_efi_path</span><span class="p">(</span><span class="n">in_sub_dir</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;--&gt; Creating identifier file </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">mbrid</span><span class="o">.</span><span class="n">get_id</span><span class="p">())</span>
         <span class="n">grub_boot_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub2_boot_path</span><span class="p">()</span>
@@ -1875,7 +1877,7 @@
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_supports_bios_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">==</span> <span class="s1">&#39;ix86&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">==</span> <span class="s1">&#39;x86_64&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">==</span> <span class="s1">&#39;ix86&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">==</span> <span class="s1">&#39;x86_64&#39;</span> <span class="ow">or</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span>
 
@@ -2192,6 +2194,30 @@
                 <span class="n">uuid</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span>
             <span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_setup_chrp_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">):</span>
+        <span class="n">early_boot_script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_grub2_boot_path</span><span class="p">(),</span> <span class="s1">&#39;powerpc-ieee1275&#39;</span><span class="p">,</span> <span class="s1">&#39;grub.cfg&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_early_boot_script_for_mbrid_search</span><span class="p">(</span>
+            <span class="n">early_boot_script</span><span class="p">,</span> <span class="n">mbrid</span>
+        <span class="p">)</span>
+        <span class="n">chrp_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">boot_dir</span><span class="p">,</span> <span class="s1">&#39;ppc&#39;</span><span class="p">]))</span>
+        <span class="n">Path</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">chrp_dir</span><span class="p">)</span>
+        <span class="n">chrp_bootinfo_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">chrp_dir</span><span class="p">,</span> <span class="s1">&#39;bootinfo.txt&#39;</span><span class="p">])</span>
+        <span class="n">chrp_config</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">            &lt;chrp-boot&gt;</span>
+<span class="s1">            &lt;description&gt;</span><span class="si">{os_name}</span><span class="s1">&lt;/description&gt;</span>
+<span class="s1">            &lt;os-name&gt;</span><span class="si">{os_name}</span><span class="s1">&lt;/os-name&gt;</span>
+<span class="s1">            &lt;boot-script&gt;boot &amp;device;:1,</span><span class="se">\b</span><span class="s1">oot\grub2\powerpc-ieee1275\grub.elf&lt;/boot-script&gt;</span>
+<span class="s1">            &lt;/chrp-boot&gt;</span>
+<span class="s1">        &#39;&#39;&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">chrp_bootinfo_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">chrp_bootinfo</span><span class="p">:</span>
+            <span class="n">chrp_bootinfo</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="n">chrp_config</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_menu_entry_install_title</span><span class="p">())</span>
+            <span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_setup_bios_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provide bios grub image</span>
@@ -2206,6 +2232,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_create_bios_image</span><span class="p">(</span>
                 <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_setup_chrp_config</span><span class="p">(</span><span class="n">mbrid</span><span class="p">)</span>
+            <span class="k">return</span>
         <span class="n">bash_command</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="s1">&#39;cat&#39;</span><span class="p">,</span>
@@ -2477,7 +2506,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_bios_modules_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_module_path</span><span class="p">(</span><span class="s1">&#39;i386-pc&#39;</span><span class="p">,</span> <span class="n">lookup_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_module_path</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_module_directory_name</span><span class="p">(),</span> <span class="n">lookup_path</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_xen_modules_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_module_path</span><span class="p">(</span>
