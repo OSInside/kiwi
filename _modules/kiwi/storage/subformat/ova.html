@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.storage.subformat.ova &mdash; KIWI NG 10.1.5 documentation</title>
+  <title>kiwi.storage.subformat.ova &mdash; KIWI NG 10.1.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=1a855c03"></script>
+        <script src="../../../../_static/documentation_options.js?v=2d7dd669"></script>
         <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1329,6 +1329,15 @@
             <span class="n">ovftool</span><span class="p">,</span> <span class="s1">&#39;--shaAlgorithm&#39;</span><span class="p">,</span> <span class="n">raise_on_error</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">):</span>
             <span class="n">ovftool_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--shaAlgorithm=SHA1&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">CommandCapabilities</span><span class="o">.</span><span class="n">has_option_in_help</span><span class="p">(</span>
+            <span class="n">ovftool</span><span class="p">,</span> <span class="s1">&#39;--allowExtraConfig&#39;</span><span class="p">,</span> <span class="n">raise_on_error</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">):</span>
+            <span class="n">ovftool_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--allowExtraConfig&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">CommandCapabilities</span><span class="o">.</span><span class="n">has_option_in_help</span><span class="p">(</span>
+            <span class="n">ovftool</span><span class="p">,</span> <span class="s1">&#39;--exportFlags&#39;</span><span class="p">,</span> <span class="n">raise_on_error</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">):</span>
+            <span class="n">ovftool_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--exportFlags=extraconfig&#39;</span><span class="p">)</span>
+
         <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="p">[</span><span class="n">ovftool</span><span class="p">]</span> <span class="o">+</span> <span class="n">ovftool_options</span> <span class="o">+</span> <span class="p">[</span><span class="n">vmx</span><span class="p">,</span> <span class="n">ova</span><span class="p">]</span>
         <span class="p">)</span>
