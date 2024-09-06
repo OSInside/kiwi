@@ -409,18 +409,18 @@ btrfs_set_default_volume="true|false":
   to `true` or when the attribute is not specified, {kiwi} makes a volume the
   default volume. This can be either `/`,  the configured root subvolume, or the
   configured root snapshot. Consequently, the entry created for the rootfs in
-  the `/etc/fstab` file, will not contain any specific volume definition. In
-  case a `false` value is provided, kiwi does not set any default volume which
+  the `/etc/fstab` file will not contain any specific volume definition. If the
+  attribute is set to `false`, {kiwi} does not set any default volume, which
   means that the entry for the rootfs in the `/etc/fstab` file requires a volume
   definition that is placed by {kiwi} as a `subvol=` parameter in the respective
   fstab field entry. In addition, the parameter `rootflags=subvol=` is added to
   the kernel commandline so that early initrd code can detect the rootfs volume.
 
 btrfs_root_is_subvolume="true|false":
-  Tell kiwi to create a root volume to host (/) inside.
-  The name of this subvolume is by default set to: `@`.
+  Instructs {kiwi} to create a root volume to host (/) inside.
+  The name of the subvolume is by default set to: `@`.
   The name of the subvolume can be changed via a volume entry
-  of the form:
+  as follows:
 
   .. code:: xml
 
@@ -428,52 +428,50 @@ btrfs_root_is_subvolume="true|false":
        <volume name="@root=TOPLEVEL_NAME"/>
      </systemdisk>
 
-  By default the creation of a toplevel volume is set to: `true`
+  By default, the creation of a top-level volume is set to: `true`
 
 btrfs_root_is_snapshot="true|false":
-  Boolean parameter that tells {kiwi} to install
-  the system into a btrfs snapshot. The snapshot layout is compatible with
+  Boolean parameter that instructs {kiwi} to install
+  the system into a Btrfs snapshot. The snapshot layout is compatible with
   snapper. By default snapshots are turned off.
 
 btrfs_root_is_readonly_snapshot="true|false":
-  Boolean parameter notifying {kiwi} that
-  the btrfs root filesystem snapshot has to made read-only. if this option
-  is set to true, the root filesystem snapshot it will be turned into
-  read-only mode, once all data has been placed to it. The option is only
-  effective if `btrfs_root_is_snapshot` is also set to true. By default the
-  root filesystem snapshot is writable.
+  Boolean parameter notifying {kiwi} that the Btrfs root filesystem snapshot
+  must be read-only. When set to `true`, the root filesystem snapshot is
+  switched to read-only mode after all data has been placed to it. The option is
+  only effective if `btrfs_root_is_snapshot` is also set to `true`. By default,
+  the root filesystem snapshot is writable.
 
 bootstrap_package="package_name":
-  For use with the `apt` packagemanager only. Specifies the name
-  of a bootstrap package which provides a bootstrap tarball
-  in :file:`/var/lib/bootstrap/PACKAGE_NAME.ARCH.tar.xz`.
-  The tarball will be unpacked and used as the bootstrap
-  rootfs to begin with. This allows for an alternative bootstrap
-  method. For further details see :ref:`debianbootstrap_alternative`.
+  For use with the `apt` package manager only. Specifies the name of a bootstrap
+  package that provides a bootstrap tarball in
+  :file:`/var/lib/bootstrap/PACKAGE_NAME.ARCH.tar.xz`. The tarball is unpacked
+  and used as the inital bootstrap rootfs. This allows for an alternative
+  bootstrap method. For further details, see :ref:`debianbootstrap_alternative`.
 
 compressed="true|false":
   Specifies whether the image output file should be
-  compressed or not. This option is only used for filesystem only images or
+  compressed or not. This option is only used for filesystem-only images or
   for the `pxe` or `cpio` types.
 
 editbootconfig="file_path":
   Specifies the path to a script which is called right
   before the bootloader is installed. The script runs relative to the
-  directory which contains the image structure.
+  directory that contains the image structure.
 
 editbootinstall="file_path":
   Specifies the path to a script which is called right
   after the bootloader is installed. The script runs relative to the
-  directory which contains the image structure.
+  directory that contains the image structure.
 
 filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs":
   The root filesystem
 
 firmware="efi|uefi|bios|ec2|ofw|opal":
   Specifies the boot firmware of the appliance. This attribute is
-  used to differentiate the image according to the firmware which
-  boots up the system. It mostly impacts the disk layout and the
-  partition table type. By default `bios` is used on x86,
+  used to differentiate the image according to the firmware that
+  boots up the system. It mostly affects the disk layout and the
+  partition table type. By default, `bios` is used on x86,
   `ofw` on PowerPC and `efi` on ARM.
 
   * `efi`
@@ -496,33 +494,32 @@ firmware="efi|uefi|bios|ec2|ofw|opal":
     Standard openPOWER PPC64 layout. kexec based boot process
 
 force_mbr="true|false":
-  Boolean parameter to force the usage of a MBR partition
+  Boolean parameter to force the usage of an MBR partition
   table even if the system would default to GPT. This is occasionally
   required on ARM systems that use a EFI partition layout but which must
-  not be stored in a GPT. Note that forcing a MBR partition table incurs
+  not be stored in a GPT. Note that forcing an MBR partition table incurs
   limitations with respect to the number of available partitions and their
   sizes.
 
 fsmountoptions="option_string":
-  Specifies the filesystem mount options which are passed
+  Specifies the filesystem mount options that are passed
   via the `-o` flag to :command:`mount` and are included in
   :file:`/etc/fstab`.
 
 fscreateoptions="option_string":
   Specifies the filesystem options used to create the
-  filesystem. In {kiwi} the filesystem utility to create a filesystem is
+  filesystem. In {kiwi}, the filesystem utility to create a filesystem is
   called without any custom options. The default options are filesystem
-  specific and are provided along with the package that provides the
+  specific, and they are provided along with the package that includes the
   filesystem utility. For the Linux `ext[234]` filesystem, the default
-  options can be found in the :file:`/etc/mke2fs.conf` file. Other
-  filesystems provides this differently and documents information
-  about options and their defaults in the respective manual page, e.g
-  :command:`man mke2fs`. With the `fscreateoptions` attribute it's possible
-  to directly influence how the filesystem will be created. The options
+  options can be found in the :file:`/etc/mke2fs.conf` file. Options for other 
+  filesystems are normally documented in man pages, for example:
+  :command:`man mke2fs`. With the `fscreateoptions` attribute, it's possible
+  to directly control how the filesystem is created. The options
   provided as a string are passed to the command that creates the
   filesystem without any further validation by {kiwi}. For example, to turn
   off the journal on creation of an ext4 filesystem the following option
-  would be required:
+  are required:
 
   .. code:: xml
 
@@ -535,41 +532,37 @@ kernelcmdline="string":
   bootloader.
 
 root_clone="number"
-  For oem disk images, this attribute allows to create `number`
-  clone(s) of the root partition, with `number` >= 1. A clone partition
-  is content wise an exact byte for byte copy of the origin root partition.
-  However, to avoid conflicts at boot time the UUID of any
-  cloned partition will be made unique. In the sequence of partitions,
-  the clone(s) will always be created first followed by the
-  partition considered the origin. The origin partition is the
-  one that will be referenced and used by the system.
-  Also see :ref:`clone_partitions`
+  For oem disk images, this attribute allows you to create `number`
+  clone(s) of the root partition, with `number` >= 1. Content-wise, a clone partition
+  is an exact byte-for-byte copy of the original root partition.
+  However, to avoid conflicts at boot time, the UUID of any
+  cloned partition is unique. In the sequence of partitions,
+  clone or clones are always created first, followed by the original
+  partition (that is, the partition that is referenced and used by the system).
+  See also :ref:`clone_partitions`
 
 boot_clone="number"
   Same as `root_clone` but applied to the boot partition if present
 
 luks="passphrase|file:///path/to/keyfile":
-  Supplying a value will trigger the encryption of the partition
-  serving the root filesystem using the LUKS extension. The supplied
-  value represents either the passphrase string or the location of
-  a key file if specified as `file://...` resource. When using
-  a key file it is in the responsibility of the user how
-  this key file is actually being used. By default any
-  distribution will just open an interactive dialog asking
-  for the credentials at boot time !
+  Specifying a value encrypts the partition serving the root filesystem using
+  the LUKS extension. The supplied value represents either the passphrase string
+  or the location of a key file if specified as `file://...` resource. When
+  using a key file, the user is responsible for how the key file is used. By
+  default, any distribution opens an interactive dialog, prompting for the
+  credentials at boot time.
 
 luks_version="luks|luks1|luks2":
-  Specify which `LUKS` version should be used. If not set and by
-  default `luks` is used. The interpretation of the default depends
-  on the distribution and could result in either 'luks1' or 'luks2'.
-  The specification of the `LUKS` version allows using a different
-  set of `luksformat` options. To investigate the differences between
-  the two please consult the `cryptsetup` manual page.
+  Specifies which `LUKS` version should be used. If not set and by default,
+  `luks` is used. The default depends on the distribution and can result in
+  either 'luks1' or 'luks2'. Specifying a `LUKS` version enables a different set
+  of `luksformat` options. Refer to `cryptsetup` manual page for information on
+  differences between the two versions.
 
 target_blocksize="number":
   Specifies the image blocksize in bytes which has to
-  match the logical blocksize of the target storage device. By default 512
-  Bytes is used, which works on many disks. You can obtain the blocksize
+  match the logical blocksize of the target storage device. By default, 512
+  Bytes is used, which works with most disks. You can obtain the blocksize
   from the `SSZ` column in the output of the following command:
 
   .. code:: shell-session
