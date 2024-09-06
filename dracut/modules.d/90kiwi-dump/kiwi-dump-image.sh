@@ -50,6 +50,7 @@ function get_disk_list {
         local rd_size
         local modfile=/etc/modprobe.d/99-brd.conf
         rd_size=$(getarg ramdisk_size=)
+        mkdir -p /etc/modprobe.d
         if [ -n "${rd_size}" ];then
             echo "options brd rd_size=${rd_size}" > ${modfile}
         fi
