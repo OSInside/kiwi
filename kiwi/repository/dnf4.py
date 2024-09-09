@@ -192,7 +192,8 @@ class RepositoryDnf4(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, customization_script: str = None
+        sourcetype: str = None, customization_script: str = None,
+        architectures: str = None
     ) -> None:
         """
         Add dnf repository
@@ -212,6 +213,7 @@ class RepositoryDnf4(RepositoryBase):
             source type, one of 'baseurl', 'metalink' or 'mirrorlist'
         :param str customization_script:
             custom script called after the repo file was created
+        :param str architectures: unused
         """
         repo_file = self.shared_dnf_dir['reposd-dir'] + '/' + name + '.repo'
         self.repo_names.append(name + '.repo')

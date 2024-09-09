@@ -151,11 +151,13 @@ class TestRepositoryApt:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             self.repo.add_repo(
-                'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b'
+                'foo', 'kiwi_iso_mount/uri', 'deb', None, 'xenial', 'a b',
+                architectures='amd64,arm64'
             )
             file_handle.write.assert_called_once_with(
                 'Types: deb\n'
                 'URIs: file:/kiwi_iso_mount/uri\n'
+                'Architectures: amd64 arm64\n'
                 'Suites: xenial\n'
                 'Components: a b\n'
             )

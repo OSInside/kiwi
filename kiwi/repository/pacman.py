@@ -115,7 +115,8 @@ class RepositoryPacman(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, customization_script: str = None
+        sourcetype: str = None, customization_script: str = None,
+        architectures: str = None
     ) -> None:
         """
         Add pacman repository
@@ -134,6 +135,7 @@ class RepositoryPacman(RepositoryBase):
         :param str sourcetype: unused
         :param str customization_script:
             custom script called after the repo file was created
+        :param str architectures: unused
         """
         repo_file = '{0}/{1}.repo'.format(
             self.shared_pacman_dir['repos-dir'], name

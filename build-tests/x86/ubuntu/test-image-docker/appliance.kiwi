@@ -23,7 +23,7 @@
     <users>
         <user name="vagrant" password="vh4vw1N4alxKQ" home="/home/vagrant" groups="vagrant"/>
     </users>
-    <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
+    <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false" architectures="amd64">
         <source path="obs://Virtualization:Appliances:Staging/xUbuntu_23.04"/>
     </repository>
     <repository type="apt-deb" alias="Ubuntu-Lunar-Universe" distribution="lunar" components="main multiverse restricted universe" repository_gpgcheck="false">

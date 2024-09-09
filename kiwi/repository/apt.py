@@ -138,7 +138,8 @@ class RepositoryApt(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = None, pkg_gpgcheck: bool = None,
-        sourcetype: str = None, customization_script: str = None
+        sourcetype: str = None, customization_script: str = None,
+        architectures: str = None
     ) -> None:
         """
         Add apt_get repository
@@ -157,6 +158,8 @@ class RepositoryApt(RepositoryBase):
         :param str sourcetype: unused
         :param str customization_script:
             custom script called after the repo file was created
+        :param str architectures:
+            identifies which architectures are supported by this repository
         """
         sources_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.sources']
@@ -175,6 +178,10 @@ class RepositoryApt(RepositoryBase):
         with open(sources_file, 'w') as repo:
             repo_details = 'Types: deb' + os.linesep
             repo_details += 'URIs: ' + uri + os.linesep
+            if architectures:
+                repo_details += 'Architectures: {}{}'.format(
+                    architectures.replace(',', ' '), os.linesep
+                )
             if not dist:
                 # create a debian flat repository setup. We consider the
                 # repository metadata to exist on the toplevel of the

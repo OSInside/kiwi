@@ -30,7 +30,7 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/home/ubuntu" name="ubuntu" groups="users,kvm" shell="/bin/bash"/>
     </users>
 
-    <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false">
+    <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false" architectures="arm64">
         <source path="obs://Virtualization:Appliances:Staging/xUbuntu_23.04"/>
     </repository>
     <repository type="apt-deb" alias="Ubuntu-Lunar-Universe" distribution="lunar" components="main multiverse restricted universe" repository_gpgcheck="false">
