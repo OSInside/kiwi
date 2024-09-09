@@ -115,7 +115,6 @@ class Command:
         :rtype: CommandT
         """
         from .path import Path
-        log.debug('EXEC: [%s]', ' '.join(command))
         environment = custom_env or os.environ
         cmd_abspath: Optional[str]
         if command[0].startswith("/"):
@@ -134,6 +133,7 @@ class Command:
             log.debug('EXEC: %s', message)
             return None
         stderr = subprocess.STDOUT if stderr_to_stdout else subprocess.PIPE
+        log.debug('EXEC: [%s]', ' '.join(command))
         try:
             process = subprocess.Popen(
                 [cmd_abspath] + command[1:],
