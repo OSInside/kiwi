@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.system.prepare &mdash; KIWI NG 10.1.6 documentation</title>
+  <title>kiwi.system.prepare &mdash; KIWI NG 10.1.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=2d7dd669"></script>
+        <script src="../../../_static/documentation_options.js?v=89055270"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1394,6 +1394,7 @@
             <span class="k">for</span> <span class="n">xml_repo</span> <span class="ow">in</span> <span class="n">repository_sections</span><span class="p">:</span>
                 <span class="n">repo_type</span> <span class="o">=</span> <span class="n">xml_repo</span><span class="o">.</span><span class="n">get_type</span><span class="p">()</span>
                 <span class="n">repo_source</span> <span class="o">=</span> <span class="n">xml_repo</span><span class="o">.</span><span class="n">get_source</span><span class="p">()</span><span class="o">.</span><span class="n">get_path</span><span class="p">()</span>
+                <span class="n">repo_architectures</span> <span class="o">=</span> <span class="n">xml_repo</span><span class="o">.</span><span class="n">get_architectures</span><span class="p">()</span>
                 <span class="n">repo_user</span> <span class="o">=</span> <span class="n">xml_repo</span><span class="o">.</span><span class="n">get_username</span><span class="p">()</span>
                 <span class="n">repo_secret</span> <span class="o">=</span> <span class="n">xml_repo</span><span class="o">.</span><span class="n">get_password</span><span class="p">()</span>
                 <span class="n">repo_alias</span> <span class="o">=</span> <span class="n">xml_repo</span><span class="o">.</span><span class="n">get_alias</span><span class="p">()</span>
@@ -1445,7 +1446,8 @@
                     <span class="n">repo_type</span><span class="p">,</span> <span class="n">repo_priority</span><span class="p">,</span> <span class="n">repo_dist</span><span class="p">,</span> <span class="n">repo_components</span><span class="p">,</span>
                     <span class="n">repo_user</span><span class="p">,</span> <span class="n">repo_secret</span><span class="p">,</span> <span class="n">uri</span><span class="o">.</span><span class="n">credentials_file_name</span><span class="p">(),</span>
                     <span class="n">repo_repository_gpgcheck</span><span class="p">,</span> <span class="n">repo_package_gpgcheck</span><span class="p">,</span>
-                    <span class="n">repo_sourcetype</span><span class="p">,</span> <span class="n">repo_customization_script</span>
+                    <span class="n">repo_sourcetype</span><span class="p">,</span> <span class="n">repo_customization_script</span><span class="p">,</span>
+                    <span class="n">repo_architectures</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">clear_cache</span><span class="p">:</span>
                     <span class="n">repo</span><span class="o">.</span><span class="n">delete_repo_cache</span><span class="p">(</span><span class="n">repo_alias</span><span class="p">)</span>
