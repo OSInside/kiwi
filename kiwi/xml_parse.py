@@ -2442,7 +2442,7 @@ class repository(k_source):
     """The Name of the Repository"""
     subclass = None
     superclass = k_source
-    def __init__(self, source=None, type_=None, profiles=None, arch=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, customize=None, package_gpgcheck=None, priority=None, password=None, username=None):
+    def __init__(self, source=None, type_=None, profiles=None, arch=None, alias=None, sourcetype=None, components=None, distribution=None, imageinclude=None, imageonly=None, repository_gpgcheck=None, customize=None, package_gpgcheck=None, priority=None, password=None, username=None, architectures=None):
         self.original_tagname_ = None
         super(repository, self).__init__(source, )
         self.type_ = _cast(None, type_)
@@ -2460,6 +2460,7 @@ class repository(k_source):
         self.priority = _cast(int, priority)
         self.password = _cast(None, password)
         self.username = _cast(None, username)
+        self.architectures = _cast(None, architectures)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2501,6 +2502,8 @@ class repository(k_source):
     def set_password(self, password): self.password = password
     def get_username(self): return self.username
     def set_username(self, username): self.username = username
+    def get_architectures(self): return self.architectures
+    def set_architectures(self, architectures): self.architectures = architectures
     def validate_arch_name(self, value):
         # Validate type arch-name, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -2590,6 +2593,9 @@ class repository(k_source):
         if self.username is not None and 'username' not in already_processed:
             already_processed.add('username')
             outfile.write(' username=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.username), input_name='username')), ))
+        if self.architectures is not None and 'architectures' not in already_processed:
+            already_processed.add('architectures')
+            outfile.write(' architectures=%s' % (quote_attrib(self.architectures), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='repository', fromsubclass_=False, pretty_print=True):
         super(repository, self).exportChildren(outfile, level, namespaceprefix_, name_, True, pretty_print=pretty_print)
     def build(self, node):
@@ -2689,6 +2695,12 @@ class repository(k_source):
         if value is not None and 'username' not in already_processed:
             already_processed.add('username')
             self.username = value
+        value = find_attr_value_('architectures', node)
+        if value is not None and 'architectures' not in already_processed:
+            already_processed.add('architectures')
+            self.architectures = value
+            self.architectures = ' '.join(self.architectures.split())
+            self.validate_arch_name(self.architectures)    # validate type arch-name
         super(repository, self).buildAttributes(node, attrs, already_processed)
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         super(repository, self).buildChildren(child_, node, nodeName_, True)

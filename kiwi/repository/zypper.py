@@ -252,7 +252,8 @@ class RepositoryZypper(RepositoryBase):
         prio: int = None, dist: str = None, components: str = None,
         user: str = None, secret: str = None, credentials_file: str = None,
         repo_gpgcheck: bool = False, pkg_gpgcheck: bool = False,
-        sourcetype: str = None, customization_script: str = None
+        sourcetype: str = None, customization_script: str = None,
+        architectures: str = None
     ) -> None:
         """
         Add zypper repository
@@ -271,6 +272,7 @@ class RepositoryZypper(RepositoryBase):
         :param str sourcetype: unused
         :param str customization_script:
             custom script called after the repo file was created
+        :param str architectures: unused
         """
         if credentials_file:
             repo_secret = os.sep.join(

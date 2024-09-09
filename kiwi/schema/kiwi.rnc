@@ -36,7 +36,7 @@ volume-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G|all)"}
 partition-size-type = xsd:token {pattern = "(\d+|\d+M|\d+G)"}
 vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
 groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.:]+(,[a-zA-Z0-9_\-\.:]+)*"}
-arch-name = xsd:token {pattern = "(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64))*"}
+arch-name = xsd:token {pattern = "(x86_64|i586|i686|ix86|aarch64|arm64|amd64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64)(,(x86_64|i586|i686|ix86|aarch64|arm64|amd64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64))*"}
 portnum-type = xsd:token {pattern = "(\d+|\d+/(udp|tcp))"}
 grub_console = xsd:token {pattern = "(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (none|console|serial|at_keyboard|usb_keyboard))*"}
 fs_attributes = xsd:token {pattern = "(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*"}
@@ -1135,6 +1135,15 @@ div {
         attribute sourcetype {
             "baseurl" | "metalink" | "mirrorlist"
         }
+    k.repository.architectures.attribute =
+        ## Specifies for which architecture(s) this repository is
+        ## supposed to provide packages. Multiple architecture names
+        ## needs to be separated by a comma
+        attribute architectures { arch-name }
+        >> sch:pattern [ id = "architectures" is-a = "repo_type"
+            sch:param [ name = "attr" value = "architectures" ]
+            sch:param [ name = "types" value = "apt-deb" ]
+        ]
     k.repository.attlist =
         k.repository.type.attribute? &
         k.repository.profiles.attribute? &
@@ -1152,7 +1161,8 @@ div {
         k.repository.package_gpgcheck.attribute? &
         k.repository.priority.attribute? &
         k.repository.password.attribute? &
-        k.repository.username.attribute?
+        k.repository.username.attribute? &
+        k.repository.architectures.attribute?
     k.repository =
         ## The Name of the Repository
         element repository {

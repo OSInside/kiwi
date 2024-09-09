@@ -149,6 +149,7 @@ class SystemSetup:
             for xml_repo in repository_sections:
                 repo_type = xml_repo.get_type()
                 repo_source = xml_repo.get_source().get_path()
+                repo_architectures = xml_repo.get_architectures()
                 repo_user = xml_repo.get_username()
                 repo_secret = xml_repo.get_password()
                 repo_alias = xml_repo.get_alias()
@@ -184,7 +185,8 @@ class SystemSetup:
                     repo_type, repo_priority, repo_dist, repo_components,
                     repo_user, repo_secret, uri.credentials_file_name(),
                     repo_repository_gpgcheck, repo_package_gpgcheck,
-                    repo_sourcetype, repo_customization_script
+                    repo_sourcetype, repo_customization_script,
+                    repo_architectures
                 )
 
     def import_cdroot_files(self, target_dir: str) -> None:

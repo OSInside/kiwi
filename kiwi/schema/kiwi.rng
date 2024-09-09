@@ -83,7 +83,7 @@
   </define>
   <define name="arch-name">
     <data type="token">
-      <param name="pattern">(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64)(,(x86_64|i586|i686|ix86|aarch64|arm64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64))*</param>
+      <param name="pattern">(x86_64|i586|i686|ix86|aarch64|arm64|amd64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64)(,(x86_64|i586|i686|ix86|aarch64|arm64|amd64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64))*</param>
     </data>
   </define>
   <define name="portnum-type">
@@ -1728,6 +1728,18 @@ be a simple repository url</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.repository.architectures.attribute">
+      <attribute name="architectures">
+        <a:documentation>Specifies for which architecture(s) this repository is
+supposed to provide packages. Multiple architecture names
+needs to be separated by a comma</a:documentation>
+        <ref name="arch-name"/>
+      </attribute>
+      <sch:pattern id="architectures" is-a="repo_type">
+        <sch:param name="attr" value="architectures"/>
+        <sch:param name="types" value="apt-deb"/>
+      </sch:pattern>
+    </define>
     <define name="k.repository.attlist">
       <interleave>
         <optional>
@@ -1774,6 +1786,9 @@ be a simple repository url</a:documentation>
         </optional>
         <optional>
           <ref name="k.repository.username.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.repository.architectures.attribute"/>
         </optional>
       </interleave>
     </define>
