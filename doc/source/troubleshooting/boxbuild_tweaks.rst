@@ -6,9 +6,8 @@ Boxbuild Tweaks
    This document describes a few ways to modify
    box build VMs for testing/debugging.
 
-
 Increase Box Build Image Size
-=============================
+-----------------------------
 
 In particularly large builds, you may find that the 
 upstream build boxes aren't quite large enough, and
