@@ -29,31 +29,24 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <packages type="image" profiles="std">
-        <package name="kernel-default"/>
+        <package name="kernel"/>
     </packages>
     <packages type="image">
         <package name="systemd"/>
-        <package name="systemd-experimental"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
         <package name="iputils"/>
         <package name="openssh"/>
-        <package name="iproute2"/>
         <package name="less"/>
         <package name="NetworkManager"/>
-        <package name="timezone"/>
         <package name="nitro-enclave-alive"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
     </packages>
     <packages type="bootstrap">
-        <package name="gawk"/>
-        <package name="grep"/>
-        <package name="gzip"/>
-        <package name="udev"/>
-        <package name="xz"/>
-        <package name="shadow"/>
         <package name="filesystem"/>
-        <package name="glibc-locale"/>
-        <package name="cracklib-dict-full"/>
-        <package name="ca-certificates"/>
-        <package name="ca-certificates-mozilla"/>
-        <package name="openSUSE-release"/>
+        <package name="basesystem"/>
+        <package name="fedora-release"/>
     </packages>
 </image>
