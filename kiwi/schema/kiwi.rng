@@ -2705,6 +2705,16 @@ a different set of live features.</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.enclave_format.attribute">
+      <attribute name="enclave_format">
+        <a:documentation>Specifies the format of the virtual disk.</a:documentation>
+        <value>aws-nitro</value>
+      </attribute>
+      <sch:pattern id="enclave_format" is-a="image_type">
+        <sch:param name="attr" value="enclave_format"/>
+        <sch:param name="types" value="enclave"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.formatoptions.attribute">
       <attribute name="formatoptions">
         <a:documentation>Specifies additional format options passed on to qemu-img
@@ -2816,6 +2826,7 @@ initrd architecture.</a:documentation>
           <value>xfs</value>
           <value>oci</value>
           <value>appx</value>
+          <value>enclave</value>
         </choice>
       </attribute>
       <sch:pattern id="metadata_path_mandatory" is-a="image_type_requirement">
@@ -2923,7 +2934,7 @@ kernel command line options</a:documentation>
       </attribute>
       <sch:pattern id="kernelcmdline" is-a="image_type">
         <sch:param name="attr" value="kernelcmdline"/>
-        <sch:param name="types" value="oem iso pxe kis"/>
+        <sch:param name="types" value="oem iso pxe kis enclave"/>
       </sch:pattern>
     </define>
     <define name="k.type.luks_version.attribute">
@@ -3280,6 +3291,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.flags.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.enclave_format.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.format.attribute"/>

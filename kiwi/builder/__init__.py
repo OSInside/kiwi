@@ -49,6 +49,8 @@ class ImageBuilder(metaclass=ABCMeta):
             name_token = ('live', 'LiveImageBuilder')
         elif image_type in Defaults.get_kis_image_types():
             name_token = ('kis', 'KisBuilder')
+        elif image_type in Defaults.get_enclaves_image_types():
+            name_token = ('enclave', 'EnclaveBuilder')
         elif image_type in Defaults.get_archive_image_types():
             name_token = ('archive', 'ArchiveBuilder')
         elif image_type in Defaults.get_container_image_types():

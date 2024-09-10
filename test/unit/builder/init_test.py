@@ -61,6 +61,17 @@ class TestImageBuilder:
             xml_state, 'target_dir', 'root_dir', None
         )
 
+    @patch('kiwi.builder.enclave.EnclaveBuilder')
+    def test_enclave_builder(self, mock_builder):
+        xml_state = Mock()
+        xml_state.get_build_type_name = Mock(
+            return_value='enclave'
+        )
+        ImageBuilder.new(xml_state, 'target_dir', 'root_dir')
+        mock_builder.assert_called_once_with(
+            xml_state, 'target_dir', 'root_dir', None
+        )
+
     @patch('kiwi.builder.archive.ArchiveBuilder')
     def test_archive_builder(self, mock_builder):
         xml_state = Mock()

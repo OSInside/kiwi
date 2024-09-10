@@ -492,6 +492,13 @@ class KiwiKisBootImageError(KiwiError):
     """
 
 
+class KiwiEnclaveBootImageError(KiwiError):
+    """
+    Exception raised if no kernel image was found while
+    building an enclave image.
+    """
+
+
 class KiwiRaidSetupError(KiwiError):
     """
     Exception raised if invalid or not enough user data is provided
@@ -852,4 +859,11 @@ class KiwiOffsetError(KiwiError):
 class KiwiBootLoaderDiskPasswordError(KiwiError):
     """
     Exception raised if the disk password could not be set
+    """
+
+
+class KiwiEnclaveFormatError(KiwiError):
+    """
+    Exception raised if no enclave_format attribute specified
+    for the selected build type
     """

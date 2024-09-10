@@ -1879,6 +1879,13 @@ div {
             sch:param [ name = "attr" value = "format" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.enclave_format.attribute =
+        ## Specifies the format of the virtual disk.
+        attribute enclave_format { "aws-nitro" }
+        >> sch:pattern [ id = "enclave_format" is-a = "image_type"
+            sch:param [ name = "attr" value = "enclave_format" ]
+            sch:param [ name = "types" value = "enclave" ]
+        ]
     k.type.formatoptions.attribute =
         ## Specifies additional format options passed on to qemu-img
         ## formatoptions is a comma separated list of format specific
@@ -1952,7 +1959,7 @@ div {
         attribute image {
             "btrfs" | "cpio" | "docker" | "ext2" | "ext3" |
             "ext4" | "iso" | "oem" | "pxe" | "kis" | "squashfs" | "tbz" |
-            "xfs" | "oci" | "appx"
+            "xfs" | "oci" | "appx" | "enclave"
         }
         >> sch:pattern [
             id = "metadata_path_mandatory" is-a = "image_type_requirement"
@@ -2033,7 +2040,7 @@ div {
         attribute kernelcmdline { text }
         >> sch:pattern [ id = "kernelcmdline" is-a = "image_type"
             sch:param [ name = "attr" value = "kernelcmdline" ]
-            sch:param [ name = "types" value = "oem iso pxe kis" ]
+            sch:param [ name = "types" value = "oem iso pxe kis enclave" ]
         ]
     k.type.luks_version.attribute =
         ## Specify LUKS version. This can be either set to "luks", "luks1"
@@ -2271,6 +2278,7 @@ div {
         k.type.editbootinstall.attribute? &
         k.type.filesystem.attribute? &
         k.type.flags.attribute? &
+        k.type.enclave_format.attribute? &
         k.type.format.attribute? &
         k.type.formatoptions.attribute? &
         k.type.fsmountoptions.attribute? &
