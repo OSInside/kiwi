@@ -79,7 +79,7 @@ prolog_replacements = {
     '{exc_description_live}': 'x86/leap/test-image-live',
     '{exc_description_wsl}': 'x86/tumbleweed/test-image-wsl',
     '{exc_description_docker}': 'x86/leap/test-image-docker',
-    '{exc_description_enclave}': 'x86/tumbleweed/test-image-nitro-enclave',
+    '{exc_description_enclave}': 'x86/rawhide/test-image-nitro-enclave',
     '{exc_os_version}': '15.5',
     '{exc_image_version}': '1.15.3',
     '{exc_repo_leap}': 'obs://openSUSE:Leap:15.5/standard',
