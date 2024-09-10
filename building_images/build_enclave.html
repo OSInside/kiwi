@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Write Integration Tests for the Scripts &mdash; KIWI NG 10.1.8 documentation</title>
+  <title>Build an AWS Nitro Enclave &mdash; KIWI NG 10.1.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -21,8 +21,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Extending KIWI NG with Custom Operations" href="schema_extensions.html" />
-    <link rel="prev" title="Plugin Architecture" href="kiwi_plugin_architecture.html" /> 
+    <link rel="next" title="Working with Images" href="../working_with_images.html" />
+    <link rel="prev" title="Build KIS Image (Kernel, Initrd, System)" href="build_kis.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -267,40 +267,40 @@
 <li class="toctree-l2"><a class="reference internal" href="../image_types_and_results.html#image-bundle-format">Image Bundle Format</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../building_images.html">Building Images for Supported Types</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../building_images/build_live_iso.html">Build an ISO Hybrid Live Image</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_live_iso.html#overlay-or-dmsquash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">dmsquash</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../building_images.html">Building Images for Supported Types</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build_live_iso.html">Build an ISO Hybrid Live Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_live_iso.html#overlay-or-dmsquash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">dmsquash</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../building_images/build_simple_disk.html">Build a Virtual Disk Image</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_simple_disk.html#setting-up-the-bootloader-in-the-image">Setting up the Bootloader in the Image</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_simple_disk.html#modifying-the-size-of-the-image">Modifying the Size of the Image</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_simple_disk.html#customizing-the-virtual-machine">Customizing the Virtual Machine</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../building_images/build_simple_disk.html#modifying-the-vm-configuration-directly">Modifying the VM Configuration Directly</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../building_images/build_simple_disk.html#adding-network-interfaces-to-the-vm">Adding Network Interfaces to the VM</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../building_images/build_simple_disk.html#specifying-disks-and-disk-controllers">Specifying Disks and Disk Controllers</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../building_images/build_simple_disk.html#adding-cd-dvd-drives">Adding CD/DVD Drives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_simple_disk.html">Build a Virtual Disk Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_simple_disk.html#setting-up-the-bootloader-in-the-image">Setting up the Bootloader in the Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_simple_disk.html#modifying-the-size-of-the-image">Modifying the Size of the Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_simple_disk.html#customizing-the-virtual-machine">Customizing the Virtual Machine</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="build_simple_disk.html#modifying-the-vm-configuration-directly">Modifying the VM Configuration Directly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build_simple_disk.html#adding-network-interfaces-to-the-vm">Adding Network Interfaces to the VM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build_simple_disk.html#specifying-disks-and-disk-controllers">Specifying Disks and Disk Controllers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="build_simple_disk.html#adding-cd-dvd-drives">Adding CD/DVD Drives</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../building_images/build_expandable_disk.html">Build an Expandable Disk Image</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#deployment-methods">Deployment Methods</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#manual-deployment">Manual Deployment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#cd-dvd-deployment">CD/DVD Deployment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#network-deployment">Network Deployment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#oem-customization">OEM Customization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#installation-media-customization">Installation Media Customization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_expandable_disk.html">Build an Expandable Disk Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_expandable_disk.html#deployment-methods">Deployment Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_expandable_disk.html#manual-deployment">Manual Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_expandable_disk.html#cd-dvd-deployment">CD/DVD Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_expandable_disk.html#network-deployment">Network Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_expandable_disk.html#oem-customization">OEM Customization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_expandable_disk.html#installation-media-customization">Installation Media Customization</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../building_images/build_container_image.html">Build a Container Image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../building_images/build_wsl_container.html">Build a WSL Container Image</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_wsl_container.html#setup-of-the-wsl-distrolauncher">Setup of the WSL-DistroLauncher</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../building_images/build_wsl_container.html#testing-the-wsl-image">Testing the WSL image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_container_image.html">Build a Container Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_wsl_container.html">Build a WSL Container Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_wsl_container.html#setup-of-the-wsl-distrolauncher">Setup of the WSL-DistroLauncher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_wsl_container.html#testing-the-wsl-image">Testing the WSL image</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../building_images/build_kis.html">Build KIS Image (Kernel, Initrd, System)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../building_images/build_enclave.html">Build an AWS Nitro Enclave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_kis.html">Build KIS Image (Kernel, Initrd, System)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Build an AWS Nitro Enclave</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../working_with_images.html">Working with Images</a><ul>
@@ -369,22 +369,22 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../contributing.html">Contributing</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="kiwi_from_python.html">Using KIWI NG in a Python Project</a></li>
-<li class="toctree-l2"><a class="reference internal" href="kiwi_plugin_architecture.html">Plugin Architecture</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="kiwi_plugin_architecture.html#naming-conventions">Naming conventions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="kiwi_plugin_architecture.html#example-plugin">Example plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/kiwi_from_python.html">Using KIWI NG in a Python Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html">Plugin Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html#naming-conventions">Naming conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html#example-plugin">Example plugin</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Write Integration Tests for the Scripts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#test-setup">Test setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/scripts_testing.html">Write Integration Tests for the Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/scripts_testing.html#test-setup">Test setup</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="schema_extensions.html">Extending KIWI NG with Custom Operations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="schema_extensions.html#the-extension-section">The &lt;extension&gt; Section</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema_extensions.html#relax-ng-schema-for-the-extension">RELAX NG Schema for the Extension</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema_extensions.html#extension-schema-in-xml-catalog">Extension schema in XML catalog</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema_extensions.html#using-the-extension">Using the extension</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/schema_extensions.html">Extending KIWI NG with Custom Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#the-extension-section">The &lt;extension&gt; Section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#relax-ng-schema-for-the-extension">RELAX NG Schema for the Extension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#extension-schema-in-xml-catalog">Extension schema in XML catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#using-the-extension">Using the extension</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../contributing.html#the-basics">The Basics</a></li>
@@ -1227,10 +1227,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../contributing.html">Contributing</a></li>
-      <li class="breadcrumb-item active">Write Integration Tests for the Scripts</li>
+          <li class="breadcrumb-item"><a href="../building_images.html">Building Images for Supported Types</a></li>
+      <li class="breadcrumb-item active">Build an AWS Nitro Enclave</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/contributing/scripts_testing.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/building_images/build_enclave.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1238,65 +1238,102 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="write-integration-tests-for-the-scripts">
-<h1>Write Integration Tests for the Scripts<a class="headerlink" href="#write-integration-tests-for-the-scripts" title="Link to this heading"></a></h1>
-<p>KIWI NG comes with a set of helper functions that can be used in <code class="file docutils literal notranslate"><span class="pre">config.sh</span></code> (see
-also: <a class="reference internal" href="../concept_and_workflow/shell_scripts.html#working-with-kiwi-user-defined-scripts"><span class="std std-ref">User-Defined Scripts</span></a>). These functions utilize containers
-to run the individual tasks and verify the final result.</p>
-<p>Ensure that you have either <strong class="command">podman</strong> or <strong class="command">docker</strong> installed and
-configured on your system. With Podman, the integration tests use <strong class="command">podman</strong> in
-<strong>rootless mode</strong> by default. You can select
-<strong class="command">docker</strong> instead by setting the environment variable
-<code class="docutils literal notranslate"><span class="pre">CONTAINER_RUNTIME</span></code> to <code class="docutils literal notranslate"><span class="pre">docker</span></code>. Then you can run the integration tests via
-tox:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tox<span class="w"> </span>-e<span class="w"> </span>scripts<span class="w"> </span>--<span class="w"> </span>-n<span class="w"> </span>NUMBER_OF_THREADS
+  <section id="build-an-aws-nitro-enclave">
+<span id="eif"></span><h1>Build an AWS Nitro Enclave<a class="headerlink" href="#build-an-aws-nitro-enclave" title="Link to this heading"></a></h1>
+<aside class="sidebar">
+<p class="sidebar-title">Abstract</p>
+<p>This page explains how to build AWS Nitro Enclaves. It covers the following topics:</p>
+<ul class="simple">
+<li><p>how to build an AWS Nitro Enclave</p></li>
+<li><p>how to test the enclave via QEMU</p></li>
+</ul>
+</aside>
+<p>AWS Nitro Enclaves enables customers to create isolated compute environments
+to further protect and securely process highly sensitive data such as personally
+identifiable information (PII), healthcare, financial, and intellectual property
+data within their Amazon EC2 instances. Nitro Enclaves uses the same Nitro
+Hypervisor technology that provides CPU and memory isolation for EC2 instances.
+For further details please visit <a class="reference external" href="https://aws.amazon.com/ec2/nitro/nitro-enclaves">https://aws.amazon.com/ec2/nitro/nitro-enclaves</a></p>
+<p>To add an enclave build to your appliance, create a <code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code> element with
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">image</span></code> set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">enclave</span></code> in the <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code> file as shown below:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;image</span><span class="w"> </span><span class="na">schemaversion=</span><span class="s">&quot;8.0&quot;</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Tumbleweed_enclave&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="cm">&lt;!-- snip --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;profiles&gt;</span>
+<span class="w">    </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;default&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;CPIO: default profile&quot;</span><span class="w"> </span><span class="na">import=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;std&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;KERNEL: default kernel&quot;</span><span class="w"> </span><span class="na">import=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/profiles&gt;</span>
+<span class="w">  </span><span class="nt">&lt;preferences&gt;</span>
+<span class="w">    </span><span class="nt">&lt;type</span><span class="w"> </span><span class="na">image=</span><span class="s">&quot;enclave&quot;</span><span class="w"> </span><span class="na">enclave_format=</span><span class="s">&quot;aws-nitro&quot;</span><span class="w"> </span><span class="na">kernelcmdline=</span><span class="s">&quot;reboot=k panic=30 pci=off console=ttyS0 i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd random.trust_cpu=on rdinit=/sbin/init&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- additional preferences --&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/preferences&gt;</span>
+<span class="w">  </span><span class="nt">&lt;packages</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;image&quot;</span><span class="w"> </span><span class="na">profiles=</span><span class="s">&quot;std&quot;</span><span class="nt">&gt;</span>
+<span class="w">     </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;kernel-default&quot;</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/packages&gt;</span>
+<span class="w">  </span><span class="cm">&lt;!-- more packages --&gt;</span>
+<span class="w">  </span><span class="cm">&lt;!-- snip --&gt;</span>
+<span class="nt">&lt;/image&gt;</span>
 </pre></div>
 </div>
-<p>The tests are written using the <a class="reference external" href="https://github.com/dcermak/pytest_container">pytest-container</a> plugin. If applicable,
-use the utility functions and fixtures of the plugin. For example, the
-<code class="docutils literal notranslate"><span class="pre">auto_container</span></code> and <code class="docutils literal notranslate"><span class="pre">auto_container_per_test</span></code> fixtures in conjunction with
-<a class="reference external" href="https://testinfra.readthedocs.io/">testinfra</a>.</p>
-<section id="test-setup">
-<h2>Test setup<a class="headerlink" href="#test-setup" title="Link to this heading"></a></h2>
-<p>The script tests can be run inside different containers specified in
-<code class="file docutils literal notranslate"><span class="pre">test/scripts/conftest.py</span></code>. This file contains the <code class="docutils literal notranslate"><span class="pre">CONTAINERS</span></code> list
-with all currently present images. These images are pulled and built as needed,
-and the <code class="file docutils literal notranslate"><span class="pre">functions.sh</span></code> is copied into <code class="file docutils literal notranslate"><span class="pre">/bin/</span></code>, so it is
-available in <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
-<p>To use any of these containers, you can either define the global variable
-<code class="docutils literal notranslate"><span class="pre">CONTAINER_IMAGES</span></code> in a test module and use the <code class="docutils literal notranslate"><span class="pre">auto_container</span></code> fixture, or
-<a class="reference external" href="https://docs.pytest.org/en/stable/parametrize.html">parametrize</a> the
-<code class="docutils literal notranslate"><span class="pre">container</span></code> fixture indirectly:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;container_per_test&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">TUMBLEWEED</span><span class="p">,</span> <span class="n">LEAP_15_3</span><span class="p">),</span> <span class="n">indirect</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_RmWorks</span><span class="p">(</span><span class="n">container_per_test</span><span class="p">):</span>
-    <span class="c1"># create the file /root/foobar</span>
-    <span class="n">container_per_test</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">run_expect</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;touch /root/foobar&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">container_per_test</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">file</span><span class="p">(</span><span class="s2">&quot;/root/foobar&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span>
-
-    <span class="c1"># source the functions and execute our function under test</span>
-    <span class="n">container_per_test</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">run_expect</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;. /bin/functions.sh &amp;&amp; Rm /root/foobar&quot;</span><span class="p">)</span>
-
-    <span class="c1"># verify the result</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">container_per_test</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">file</span><span class="p">(</span><span class="s2">&quot;/root/foobar&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span>
+<p>The following attributes of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code> element are relevant:</p>
+<ul>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">enclave_format</span></code>: Specifies the enclave target</p>
+<p>As of today only the <code class="xref py py-obj docutils literal notranslate"><span class="pre">aws-nitro</span></code> enclave target is supported</p>
+</li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kernelcmdline</span></code>: Specifies the kernel commandline suitable for the enclave</p>
+<p>An enclave is a system that runs completely in RAM loaded from
+an enclave binary format which includes the kernel, initrd and
+the kernel commandline suitable for the target system.</p>
+</li>
+</ul>
+<p>With the appropriate settings specified in <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>, you can build an
+image using KIWI NG:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>kiwi-ng<span class="w"> </span>system<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--description<span class="w"> </span>kiwi/build-tests/x86/rawhide/test-image-nitro-enclave<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--set-repo<span class="w"> </span>http://download.opensuse.org/tumbleweed/repo/oss<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--target-dir<span class="w"> </span>/tmp/myimage
 </pre></div>
 </div>
-<p>The example above uses the <code class="docutils literal notranslate"><span class="pre">_per_test</span></code> variant of the <code class="docutils literal notranslate"><span class="pre">container</span></code> fixture.
-It ensures that the container is used only in a single test function. Use this
-variant for tests that mutate the system under test, because otherwise it may
-lead race conditions that are difficult to debug. For tests that only perform
-reads, you can omit the <code class="docutils literal notranslate"><span class="pre">_per_test</span></code> suffix, so that the container environment can
-shared with other tests. This improves execution speed, but comes at the
-expense of safety in case of mutation.</p>
-<p>For further information, refer to <a class="reference external" href="https://github.com/dcermak/pytest_container">pytest-container</a>.</p>
-</section>
+<p>The resulting image is saved in <code class="file docutils literal notranslate"><span class="pre">/tmp/myimage</span></code>, and the image can
+be tested with QEMU:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>qemu-system-x86_64<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-M<span class="w"> </span>nitro-enclave,vsock<span class="o">=</span>c<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-m<span class="w"> </span>4G<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-nographic<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-chardev<span class="w"> </span>socket,id<span class="o">=</span>c,path<span class="o">=</span>/tmp/vhost4.socket<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-kernel<span class="w"> </span>kiwi-test-image-nitro-enclave.eif
+</pre></div>
+</div>
+<p>The image is now complete and ready to use. Access to the system is
+possible via ssh through a vsock connection into the guest. To establish
+a vsock connection it’s required to forward the connection through the
+guest AF_VSOCK socket. This can be done via a ProxyCommand setup of the
+host ssh as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span>~/bin/vsock-ssh.sh
+
+<span class="c1">#!/bin/bash</span>
+<span class="nv">CID</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="w"> </span>.<span class="w"> </span>-f<span class="w"> </span><span class="m">1</span><span class="k">)</span>
+socat<span class="w"> </span>-<span class="w"> </span>VSOCK-CONNECT:<span class="nv">$CID</span>:22
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span>~/.ssh/config
+
+host<span class="w"> </span>*.vsock
+<span class="w">  </span>ProxyCommand<span class="w"> </span>~/bin/vsock-ssh.sh<span class="w"> </span>%h
+</pre></div>
+</div>
+<p>After the ssh proxy setup login to the enclave with a custom vsock port
+as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>ssh<span class="w"> </span>root@21.vsock
+</pre></div>
+</div>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="kiwi_plugin_architecture.html" class="btn btn-neutral float-left" title="Plugin Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="schema_extensions.html" class="btn btn-neutral float-right" title="Extending KIWI NG with Custom Operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="build_kis.html" class="btn btn-neutral float-left" title="Build KIS Image (Kernel, Initrd, System)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../working_with_images.html" class="btn btn-neutral float-right" title="Working with Images" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

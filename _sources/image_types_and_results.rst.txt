@@ -48,6 +48,11 @@ KIS Root File System Image
   Many different deployment strategies are possible.
   For further details refer to: :ref:`kis`
 
+AWS Nitro Enclave
+  An initrd based image using the `eif` binary format. The image is
+  expected to be used in the AWS Nitro Enclave system or for testing
+  in QEMU. For further details refer to: :ref:`eif`
+
 Image Results
 -------------
 

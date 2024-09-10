@@ -17,3 +17,4 @@ Building Images for Supported Types
    building_images/build_container_image
    building_images/build_wsl_container
    building_images/build_kis
+   building_images/build_enclave

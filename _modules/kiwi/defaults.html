@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.defaults &mdash; KIWI NG 10.1.7 documentation</title>
+  <title>kiwi.defaults &mdash; KIWI NG 10.1.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=89055270"></script>
+        <script src="../../_static/documentation_options.js?v=611ff1b2"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -132,8 +132,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../plugins.html">KIWI Plugins</a><ul>
@@ -295,6 +297,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../building_images/build_kis.html">Build KIS Image (Kernel, Initrd, System)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../building_images/build_enclave.html">Build an AWS Nitro Enclave</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../working_with_images.html">Working with Images</a><ul>
@@ -471,6 +474,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.exceptions.KiwiDiskFormatSetupError"><code class="docutils literal notranslate"><span class="pre">KiwiDiskFormatSetupError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.exceptions.KiwiDiskGeometryError"><code class="docutils literal notranslate"><span class="pre">KiwiDiskGeometryError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.exceptions.KiwiDistributionNameError"><code class="docutils literal notranslate"><span class="pre">KiwiDistributionNameError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveBootImageError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveBootImageError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveFormatError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveFormatError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.exceptions.KiwiError"><code class="docutils literal notranslate"><span class="pre">KiwiError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.exceptions.KiwiExtensionError"><code class="docutils literal notranslate"><span class="pre">KiwiExtensionError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.exceptions.KiwiFileAccessError"><code class="docutils literal notranslate"><span class="pre">KiwiFileAccessError</span></code></a></li>
@@ -3142,6 +3147,20 @@
 <span class="sd">        :rtype: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;kis&#39;</span><span class="p">,</span> <span class="s1">&#39;pxe&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Defaults.get_enclaves_image_types">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_enclaves_image_types">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_enclaves_image_types</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Provides supported enclave(initrd-only) image types</span>
+
+<span class="sd">        :return: enclave image type names</span>
+
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;enclave&#39;</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Defaults.get_boot_image_description_path">
