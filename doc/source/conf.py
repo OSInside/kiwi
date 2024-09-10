@@ -84,6 +84,7 @@ prolog_replacements = {
     '{exc_image_version}': '1.15.3',
     '{exc_repo_leap}': 'obs://openSUSE:Leap:15.5/standard',
     '{exc_repo_tumbleweed}': 'http://download.opensuse.org/tumbleweed/repo/oss',
+    '{exc_repo_rawhide}': 'https://mirrors.fedoraproject.org/metalink?repo=rawhide&arch=x86_64',
     '{exc_kiwi_repo}':
         'obs://Virtualization:Appliances:Builder/openSUSE_Leap_15.5',
     '{schema_version}': '8.0',

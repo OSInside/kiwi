@@ -22,7 +22,7 @@ To add an enclave build to your appliance, create a `type` element with
 
 .. code:: xml
 
-   <image schemaversion="{schema_version}" name="Tumbleweed_enclave">
+   <image schemaversion="{schema_version}" name="kiwi-test-image-nitro-enclave">
      <!-- snip -->
      <profiles>
        <profile name="default" description="CPIO: default profile" import="true"/>
@@ -33,7 +33,7 @@ To add an enclave build to your appliance, create a `type` element with
        <!-- additional preferences -->
      </preferences>
      <packages type="image" profiles="std">
-        <package name="kernel-default"/>
+        <package name="kernel"/>
      </packages>
      <!-- more packages -->
      <!-- snip -->
@@ -59,7 +59,7 @@ image using {kiwi}:
 
    $ sudo kiwi-ng system build \
          --description kiwi/build-tests/{exc_description_enclave} \
-         --set-repo {exc_repo_tumbleweed} \
+         --set-repo {exc_repo_rawhide} \
          --target-dir /tmp/myimage
 
 The resulting image is saved in :file:`/tmp/myimage`, and the image can
