@@ -1,0 +1,6 @@
+
+<chrp-boot>
+<description>Bob</description>
+<os-name>Bob</os-name>
+<boot-script>boot &device;:1,\boot\grub2\powerpc-ieee1275\grub.elf</boot-script>
+</chrp-boot>
