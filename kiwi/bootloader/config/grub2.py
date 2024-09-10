@@ -945,7 +945,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             <chrp-boot>
             <description>{os_name}</description>
             <os-name>{os_name}</os-name>
-            <boot-script>boot &device;:1,\boot\grub2\powerpc-ieee1275\grub.elf</boot-script>
+            <boot-script>boot &device;:1,\\boot\\grub2\\powerpc-ieee1275\\grub.elf</boot-script>
             </chrp-boot>
         ''')
         with open(chrp_bootinfo_file, 'w') as chrp_bootinfo:
