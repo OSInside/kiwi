@@ -27,6 +27,7 @@
         <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
+        <package name="libcap-progs"/>
         <package name="grub2"/>
         <package name="ncurses-utils"/>
         <package name="patterns-openSUSE-base"/>
@@ -39,7 +40,6 @@
         <package name="dracut"/>
         <package name="pigz"/>
         <package name="elfutils"/>
-        <package name="systemd-presets-branding-openSUSE"/>
         <package name="iputils"/>
         <package name="tar"/>
         <package name="psmisc"/>
@@ -57,7 +57,12 @@
         <package name="fipscheck"/>
     </packages>
     <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
         <package name="udev"/>
+        <package name="xz"/>
+        <package name="shadow"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
