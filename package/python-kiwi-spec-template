@@ -122,6 +122,10 @@ Obsoletes:      kiwi-image-tbz-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:tbz
 %endif
+%if 0%{?fedora}
+Provides:       kiwi-image:enclave
+Requires:       eif_build
+%endif
 # tools conditionally used by kiwi
 %if 0%{?fedora} || 0%{?rhel} >= 8
 Recommends:     gnupg2
