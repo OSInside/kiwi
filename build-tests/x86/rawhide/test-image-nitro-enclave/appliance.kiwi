@@ -32,6 +32,8 @@
         <package name="kernel"/>
     </packages>
     <packages type="image">
+        <package name="openssh"/>
+        <package name="openssh-server"/>
         <package name="systemd"/>
         <package name="selinux-policy-targeted"/>
         <package name="dhclient"/>
