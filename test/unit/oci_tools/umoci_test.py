@@ -60,9 +60,6 @@ class TestOCIUmoci:
             options=[
                 '--archive', '--hard-links', '--xattrs', '--acls',
                 '--one-file-system', '--inplace',
-                '--filter', '-x! user.*',
-                '--filter', '-x! security.ima*',
-                '--filter', '-x! security.capability*',
                 '--delete'
             ]
         )

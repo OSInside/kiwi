@@ -137,9 +137,6 @@ class OCIUmoci(OCIBase):
             os.sep.join([self.oci_root_dir, 'rootfs']),
             exclude_list=exclude_list,
             options=Defaults.get_sync_options() + [
-                '--filter', '-x! user.*',
-                '--filter', '-x! security.ima*',
-                '--filter', '-x! security.capability*',
                 '--delete'
             ]
         )
