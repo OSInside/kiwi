@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build an AWS Nitro Enclave &mdash; KIWI NG 10.1.8 documentation</title>
+  <title>Build an AWS Nitro Enclave &mdash; KIWI NG 10.1.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=611ff1b2"></script>
+        <script src="../_static/documentation_options.js?v=c56775ab"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1256,7 +1256,7 @@ Hypervisor technology that provides CPU and memory isolation for EC2 instances.
 For further details please visit <a class="reference external" href="https://aws.amazon.com/ec2/nitro/nitro-enclaves">https://aws.amazon.com/ec2/nitro/nitro-enclaves</a></p>
 <p>To add an enclave build to your appliance, create a <code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code> element with
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">image</span></code> set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">enclave</span></code> in the <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code> file as shown below:</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;image</span><span class="w"> </span><span class="na">schemaversion=</span><span class="s">&quot;8.0&quot;</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Tumbleweed_enclave&quot;</span><span class="nt">&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;image</span><span class="w"> </span><span class="na">schemaversion=</span><span class="s">&quot;8.0&quot;</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;kiwi-test-image-nitro-enclave&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="cm">&lt;!-- snip --&gt;</span>
 <span class="w">  </span><span class="nt">&lt;profiles&gt;</span>
 <span class="w">    </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;default&quot;</span><span class="w"> </span><span class="na">description=</span><span class="s">&quot;CPIO: default profile&quot;</span><span class="w"> </span><span class="na">import=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
@@ -1267,7 +1267,7 @@ For further details please visit <a class="reference external" href="https://aws
 <span class="w">    </span><span class="cm">&lt;!-- additional preferences --&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/preferences&gt;</span>
 <span class="w">  </span><span class="nt">&lt;packages</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;image&quot;</span><span class="w"> </span><span class="na">profiles=</span><span class="s">&quot;std&quot;</span><span class="nt">&gt;</span>
-<span class="w">     </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;kernel-default&quot;</span><span class="nt">/&gt;</span>
+<span class="w">     </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;kernel&quot;</span><span class="nt">/&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/packages&gt;</span>
 <span class="w">  </span><span class="cm">&lt;!-- more packages --&gt;</span>
 <span class="w">  </span><span class="cm">&lt;!-- snip --&gt;</span>
@@ -1289,7 +1289,7 @@ the kernel commandline suitable for the target system.</p>
 image using KIWI NG:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>kiwi-ng<span class="w"> </span>system<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
 <span class="w">      </span>--description<span class="w"> </span>kiwi/build-tests/x86/rawhide/test-image-nitro-enclave<span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>--set-repo<span class="w"> </span>http://download.opensuse.org/tumbleweed/repo/oss<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>--set-repo<span class="w"> </span>https://mirrors.fedoraproject.org/metalink?repo<span class="o">=</span>rawhide<span class="p">&amp;</span><span class="nv">arch</span><span class="o">=</span>x86_64<span class="w"> </span><span class="se">\</span>
 <span class="w">      </span>--target-dir<span class="w"> </span>/tmp/myimage
 </pre></div>
 </div>
