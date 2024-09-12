@@ -947,7 +947,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             <os-name>{os_name}</os-name>
             <boot-script>boot &device;:1,\\boot\\grub2\\powerpc-ieee1275\\grub.elf</boot-script>
             </chrp-boot>
-        ''')
+        ''').strip() + os.linesep
         with open(chrp_bootinfo_file, 'w') as chrp_bootinfo:
             chrp_bootinfo.write(
                 chrp_config.format(os_name=self.get_menu_entry_install_title())
