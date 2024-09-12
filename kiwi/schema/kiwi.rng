@@ -2435,6 +2435,7 @@ structure</a:documentation>
           <value>ext3</value>
           <value>ext4</value>
           <value>squashfs</value>
+          <value>erofs</value>
           <value>xfs</value>
         </choice>
       </attribute>
@@ -2445,6 +2446,15 @@ structure</a:documentation>
       <sch:pattern id="filesystem_mandatory" is-a="image_type_requirement">
         <sch:param name="attr" value="filesystem"/>
         <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.erofscompression.attribute">
+      <attribute name="erofscompression">
+        <a:documentation>Specifies the compression type for erofs</a:documentation>
+      </attribute>
+      <sch:pattern id="erofscompression" is-a="image_type">
+        <sch:param name="attr" value="erofscompression"/>
+        <sch:param name="types" value="oem pxe kis iso erofs"/>
       </sch:pattern>
     </define>
     <define name="k.type.squashfscompression.attribute">
@@ -2822,6 +2832,7 @@ initrd architecture.</a:documentation>
           <value>pxe</value>
           <value>kis</value>
           <value>squashfs</value>
+          <value>erofs</value>
           <value>tbz</value>
           <value>xfs</value>
           <value>oci</value>
@@ -3309,6 +3320,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.squashfscompression.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.erofscompression.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.gcelicense.attribute"/>

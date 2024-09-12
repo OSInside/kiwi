@@ -54,7 +54,8 @@ class FileSystem(metaclass=ABCMeta):
             'fat16': 'Fat16',
             'fat32': 'Fat32',
             'squashfs': 'SquashFs',
-            'swap': 'Swap'
+            'swap': 'Swap',
+            'erofs': 'EroFs'
         }
         try:
             filesystem = importlib.import_module(

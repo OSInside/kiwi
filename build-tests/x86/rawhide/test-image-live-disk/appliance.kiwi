@@ -11,6 +11,7 @@
     </description>
     <profiles>
         <profile name="Live" description="Live image of Fedora Rawhide"/>
+        <profile name="LiveEroFS" description="Live Root via EroFS"/>
         <profile name="Virtual" description="Virtual image of Fedora Rawhide"/>
         <profile name="Disk" description="OEM image of Fedora Rawhide"/>
     </profiles>
@@ -23,6 +24,11 @@
         <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="LiveEroFS">
+        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0" filesystem="erofs" erofscompression="zstd,level=12">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+        </type>
     </preferences>
     <preferences profiles="Live">
         <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0">
@@ -71,7 +77,7 @@
         <package name="tzdata"/>
         <package name="NetworkManager"/>
     </packages>
-    <packages type="image" profiles="Live">
+    <packages type="image" profiles="Live,LiveEroFS">
         <package name="dracut-kiwi-live"/>
     </packages>
     <packages type="image" profiles="Disk">

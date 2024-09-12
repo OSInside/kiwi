@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-erofs">
+    <description type="system">
+        <author>Marcus Schaefer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Fedora Appliance, Testing erofs filesystem image</specification>
+    </description>
+    <preferences>
+        <version>2.0.0</version>
+        <packagemanager>dnf5</packagemanager>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences>
+        <type image="erofs"/>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
+        <source path="obs://Virtualization:Appliances:Staging/Fedora_Rawhide"/>
+    </repository>
+    <repository type="rpm-md" alias="Fedora_Rawhide">
+        <source path="obs://Fedora:Rawhide/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="kernel"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+        <package name="NetworkManager"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="fedora-release"/>
+    </packages>
+</image>

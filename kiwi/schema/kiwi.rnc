@@ -1671,7 +1671,7 @@ div {
     k.type.filesystem.attribute =
         ## Specifies the root filesystem type
         attribute filesystem {
-            "btrfs" | "ext2" | "ext3" | "ext4" | "squashfs" | "xfs"
+            "btrfs" | "ext2" | "ext3" | "ext4" | "squashfs" | "erofs" | "xfs"
         }
         >> sch:pattern [ id = "filesystem" is-a = "image_type"
             sch:param [ name = "attr" value = "filesystem" ]
@@ -1681,6 +1681,13 @@ div {
             id = "filesystem_mandatory" is-a = "image_type_requirement"
             sch:param [ name = "attr" value = "filesystem" ]
             sch:param [ name = "types" value = "oem" ]
+        ]
+	k.type.erofscompression.attribute =
+        ## Specifies the compression type for erofs
+        attribute erofscompression { text }
+        >> sch:pattern [ id = "erofscompression" is-a = "image_type"
+            sch:param [ name = "attr" value = "erofscompression" ]
+            sch:param [ name = "types" value = "oem pxe kis iso erofs" ]
         ]
 	k.type.squashfscompression.attribute =
         ## Specifies the compression type for mksquashfs
@@ -1958,7 +1965,7 @@ div {
         ## Specifies the image type
         attribute image {
             "btrfs" | "cpio" | "docker" | "ext2" | "ext3" |
-            "ext4" | "iso" | "oem" | "pxe" | "kis" | "squashfs" | "tbz" |
+            "ext4" | "iso" | "oem" | "pxe" | "kis" | "squashfs" | "erofs" | "tbz" |
             "xfs" | "oci" | "appx" | "enclave"
         }
         >> sch:pattern [
@@ -2284,6 +2291,7 @@ div {
         k.type.fsmountoptions.attribute? &
         k.type.fscreateoptions.attribute? &
         k.type.squashfscompression.attribute? &
+        k.type.erofscompression.attribute? &
         k.type.gcelicense.attribute? &
         k.type.hybridpersistent.attribute? &
         k.type.hybridpersistent_filesystem.attribute? &

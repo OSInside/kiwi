@@ -246,7 +246,7 @@ class LiveImageBuilder:
         filesystem_setup = FileSystemSetup(
             self.xml_state, self.root_dir
         )
-        if root_filesystem != 'squashfs':
+        if root_filesystem not in ['squashfs', 'erofs']:
             # Create a filesystem image of the specified type
             # and put it into a SquashFS container
             root_image = Temporary().new_file()
@@ -302,12 +302,15 @@ class LiveImageBuilder:
         else:
             # Put the root filesystem into SquashFS directly
             with FileSystem.new(
-                name='squashfs',
+                name=root_filesystem,
                 device_provider=DeviceProvider(),
                 root_dir=self.root_dir + os.sep,
                 custom_args={
                     'compression':
                         self.xml_state.build_type.get_squashfscompression()
+                } if root_filesystem == 'squashfs' else {
+                    'compression':
+                        self.xml_state.build_type.get_erofscompression()
                 }
             ) as live_container_image:
                 container_image = Temporary().new_file()
@@ -316,6 +319,12 @@ class LiveImageBuilder:
                 )
                 Path.create(self.media_dir.name + '/LiveOS')
                 os.chmod(container_image.name, 0o644)
+                # Note: we keep the filename of the read-only image as it is
+                # even if another read-only filesystem not matching this
+                # filename is used. This is because the following filename
+                # is also used in the initrd code for the kiwi-live and
+                # dmsquash dracut modules. The name can be overwritten
+                # with the rd.live.squashimg boot option though.
                 shutil.copy(
                     container_image.name,
                     self.media_dir.name + '/LiveOS/squashfs.img'
