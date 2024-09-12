@@ -12,12 +12,12 @@
     </profiles>
     <preferences>
         <version>1.1.1</version>
-        <packagemanager>zypper</packagemanager>
+        <packagemanager>dnf5</packagemanager>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences>
-        <type image="enclave" enclave_format="aws-nitro" kernelcmdline="reboot=k panic=30 pci=off console=ttyS0 i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd random.trust_cpu=on rdinit=/sbin/init"/>
+        <type image="enclave" enclave_format="aws-nitro" kernelcmdline="reboot=k panic=30 pci=off console=ttyS0 i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd random.trust_cpu=on enforcing=0 rdinit=/sbin/init"/>
     </preferences>
     <repository type="rpm-md" alias="kiwi-next-generation" priority="1" arch="x86_64">
         <source path="obs://Virtualization:Appliances:Staging/Fedora_Rawhide"/>
