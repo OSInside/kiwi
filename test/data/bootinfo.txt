@@ -1,4 +1,3 @@
-
 <chrp-boot>
 <description>Bob</description>
 <os-name>Bob</os-name>
