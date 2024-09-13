@@ -3094,7 +3094,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3125,6 +3125,7 @@ class type_(GeneratedsSuper):
         self.fsmountoptions = _cast(None, fsmountoptions)
         self.fscreateoptions = _cast(None, fscreateoptions)
         self.squashfscompression = _cast(None, squashfscompression)
+        self.erofscompression = _cast(None, erofscompression)
         self.gcelicense = _cast(None, gcelicense)
         self.hybridpersistent = _cast(bool, hybridpersistent)
         self.hybridpersistent_filesystem = _cast(None, hybridpersistent_filesystem)
@@ -3341,6 +3342,8 @@ class type_(GeneratedsSuper):
     def set_fscreateoptions(self, fscreateoptions): self.fscreateoptions = fscreateoptions
     def get_squashfscompression(self): return self.squashfscompression
     def set_squashfscompression(self, squashfscompression): self.squashfscompression = squashfscompression
+    def get_erofscompression(self): return self.erofscompression
+    def set_erofscompression(self, erofscompression): self.erofscompression = erofscompression
     def get_gcelicense(self): return self.gcelicense
     def set_gcelicense(self, gcelicense): self.gcelicense = gcelicense
     def get_hybridpersistent(self): return self.hybridpersistent
@@ -3629,6 +3632,9 @@ class type_(GeneratedsSuper):
         if self.squashfscompression is not None and 'squashfscompression' not in already_processed:
             already_processed.add('squashfscompression')
             outfile.write(' squashfscompression=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.squashfscompression), input_name='squashfscompression')), ))
+        if self.erofscompression is not None and 'erofscompression' not in already_processed:
+            already_processed.add('erofscompression')
+            outfile.write(' erofscompression=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.erofscompression), input_name='erofscompression')), ))
         if self.gcelicense is not None and 'gcelicense' not in already_processed:
             already_processed.add('gcelicense')
             outfile.write(' gcelicense=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.gcelicense), input_name='gcelicense')), ))
@@ -4018,6 +4024,10 @@ class type_(GeneratedsSuper):
             already_processed.add('squashfscompression')
             self.squashfscompression = value
             self.squashfscompression = ' '.join(self.squashfscompression.split())
+        value = find_attr_value_('erofscompression', node)
+        if value is not None and 'erofscompression' not in already_processed:
+            already_processed.add('erofscompression')
+            self.erofscompression = value
         value = find_attr_value_('gcelicense', node)
         if value is not None and 'gcelicense' not in already_processed:
             already_processed.add('gcelicense')

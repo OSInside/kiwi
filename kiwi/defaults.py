@@ -1523,7 +1523,7 @@ class Defaults:
         """
         return [
             'ext2', 'ext3', 'ext4', 'btrfs', 'squashfs',
-            'xfs', 'fat16', 'fat32'
+            'xfs', 'fat16', 'fat32', 'erofs'
         ]
 
     @staticmethod

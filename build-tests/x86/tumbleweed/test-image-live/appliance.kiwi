@@ -14,6 +14,7 @@
         <profile name="Standard" description="Standard EFI/BIOS Live Boot"/>
         <profile name="Secure" description="SecureBoot/BIOS Live Boot"/>
         <profile name="SDBoot" description="EFI Boot via systemd-boot"/>
+        <profile name="EroFS" description="Live Root via EroFS"/>
     </profiles>
     <preferences>
         <version>1.42.3</version>
@@ -29,6 +30,11 @@
     <preferences profiles="SDBoot">
         <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="false">
             <bootloader name="systemd_boot"/>
+        </type>
+    </preferences>
+    <preferences profiles="EroFS">
+        <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true" filesystem="erofs">
+            <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
     <preferences profiles="Standard">
@@ -50,7 +56,7 @@
     <packages type="image" profiles="SDBoot">
         <package name="systemd-boot"/>
     </packages>
-    <packages type="image" profiles="Standard,Secure">
+    <packages type="image" profiles="Standard,Secure,EroFS">
         <package name="grub2-branding-openSUSE"/>
         <package name="grub2"/>
         <package name="grub2-x86_64-efi" arch="x86_64"/>
@@ -58,6 +64,7 @@
         <package name="shim"/>
     </packages>
     <packages type="image">
+        <package name="curl"/>
         <package name="bind-utils"/>
         <package name="patterns-openSUSE-base"/>
         <package name="procps"/>

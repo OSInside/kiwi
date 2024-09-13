@@ -1,22 +1,9 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Marcus Schaefer <ms@suse.de>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#----------------
-#======================================
-# Functions...
-#--------------------------------------
-test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
+
+set -ex
+
+declare kiwi_profiles=${kiwi_profiles}
+declare kiwi_iname=${kiwi_iname}
 
 #======================================
 # Greeting...
@@ -24,16 +11,16 @@ test -f /.profile && . /.profile
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
-
-#======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
+systemctl enable sshd
 
 #======================================
-# Setup default target, multi-user
+# Include erofs module
 #--------------------------------------
-baseSetRunlevel 3
+for profile in ${kiwi_profiles//,/ }; do
+    if [ "${profile}" = "EroFS" ]; then
+        # remove from blacklist
+        rm -f /usr/lib/modprobe.d/60-blacklist_fs-erofs.conf
+    fi
+done

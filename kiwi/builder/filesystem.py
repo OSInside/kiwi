@@ -89,7 +89,7 @@ class FileSystemBuilder:
         self.blocksize = xml_state.build_type.get_target_blocksize()
         self.filesystem_setup = FileSystemSetup(xml_state, root_dir)
         self.filesystems_no_device_node = [
-            'squashfs'
+            'squashfs', 'erofs'
         ]
         self.luks = xml_state.get_luks_credentials()
         self.result = Result(xml_state)
