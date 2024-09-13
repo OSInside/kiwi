@@ -652,6 +652,13 @@ devicepersistency="by-uuid|by-label":
 squashfscompression="uncompressed|gzip|lzo|lz4|xz|zstd":
   Specifies the compression type for mksquashfs
 
+erofscompression="text"
+  Specifies the compression type and level for erofs.
+  The attribute is a free form text because erofs allows paramters
+  for the different compression types. Please consult the erofs
+  man page for details how to specify a value for the `-z` option
+  on `mkfs.erofs` and pass a proper value as erofscompression
+
 standalone_integrity="true|false":
   For the `oem` type only, specifies to create a standalone
   `dm_integrity` layer on top of the root filesystem

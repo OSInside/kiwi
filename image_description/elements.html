@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Description Elements &mdash; KIWI NG 10.1.10 documentation</title>
+  <title>Image Description Elements &mdash; KIWI NG 10.1.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=aa63dbea"></script>
+        <script src="../_static/documentation_options.js?v=0e1b5ff3"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1243,7 +1243,7 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This document provides a reference for the elements
-and attributes of the KIWI NG XML document in version 10.1.10</p>
+and attributes of the KIWI NG XML document in version 10.1.11</p>
 </div>
 <section id="image">
 <span id="sec-image"></span><h2>&lt;image&gt;<a class="headerlink" href="#image" title="Link to this heading"></a></h2>
@@ -1807,6 +1807,12 @@ parameter in the kernel commandline. By default by-uuid
 is used</p>
 </dd>
 <dt>squashfscompression=”uncompressed|gzip|lzo|lz4|xz|zstd”:</dt><dd><p>Specifies the compression type for mksquashfs</p>
+</dd>
+<dt>erofscompression=”text”</dt><dd><p>Specifies the compression type and level for erofs.
+The attribute is a free form text because erofs allows paramters
+for the different compression types. Please consult the erofs
+man page for details how to specify a value for the <code class="xref py py-obj docutils literal notranslate"><span class="pre">-z</span></code> option
+on <code class="xref py py-obj docutils literal notranslate"><span class="pre">mkfs.erofs</span></code> and pass a proper value as erofscompression</p>
 </dd>
 <dt>standalone_integrity=”true|false”:</dt><dd><p>For the <code class="xref py py-obj docutils literal notranslate"><span class="pre">oem</span></code> type only, specifies to create a standalone
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">dm_integrity</span></code> layer on top of the root filesystem</p>

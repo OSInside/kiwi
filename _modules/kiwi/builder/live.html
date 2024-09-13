@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.builder.live &mdash; KIWI NG 10.1.10 documentation</title>
+  <title>kiwi.builder.live &mdash; KIWI NG 10.1.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=aa63dbea"></script>
+        <script src="../../../_static/documentation_options.js?v=0e1b5ff3"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1488,7 +1488,7 @@
         <span class="n">filesystem_setup</span> <span class="o">=</span> <span class="n">FileSystemSetup</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">root_filesystem</span> <span class="o">!=</span> <span class="s1">&#39;squashfs&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">root_filesystem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;squashfs&#39;</span><span class="p">,</span> <span class="s1">&#39;erofs&#39;</span><span class="p">]:</span>
             <span class="c1"># Create a filesystem image of the specified type</span>
             <span class="c1"># and put it into a SquashFS container</span>
             <span class="n">root_image</span> <span class="o">=</span> <span class="n">Temporary</span><span class="p">()</span><span class="o">.</span><span class="n">new_file</span><span class="p">()</span>
@@ -1544,12 +1544,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Put the root filesystem into SquashFS directly</span>
             <span class="k">with</span> <span class="n">FileSystem</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;squashfs&#39;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">root_filesystem</span><span class="p">,</span>
                 <span class="n">device_provider</span><span class="o">=</span><span class="n">DeviceProvider</span><span class="p">(),</span>
                 <span class="n">root_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span>
                 <span class="n">custom_args</span><span class="o">=</span><span class="p">{</span>
                     <span class="s1">&#39;compression&#39;</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_squashfscompression</span><span class="p">()</span>
+                <span class="p">}</span> <span class="k">if</span> <span class="n">root_filesystem</span> <span class="o">==</span> <span class="s1">&#39;squashfs&#39;</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="s1">&#39;compression&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_erofscompression</span><span class="p">()</span>
                 <span class="p">}</span>
             <span class="p">)</span> <span class="k">as</span> <span class="n">live_container_image</span><span class="p">:</span>
                 <span class="n">container_image</span> <span class="o">=</span> <span class="n">Temporary</span><span class="p">()</span><span class="o">.</span><span class="n">new_file</span><span class="p">()</span>
@@ -1558,6 +1561,12 @@
                 <span class="p">)</span>
                 <span class="n">Path</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">media_dir</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/LiveOS&#39;</span><span class="p">)</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">container_image</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="mo">0o644</span><span class="p">)</span>
+                <span class="c1"># Note: we keep the filename of the read-only image as it is</span>
+                <span class="c1"># even if another read-only filesystem not matching this</span>
+                <span class="c1"># filename is used. This is because the following filename</span>
+                <span class="c1"># is also used in the initrd code for the kiwi-live and</span>
+                <span class="c1"># dmsquash dracut modules. The name can be overwritten</span>
+                <span class="c1"># with the rd.live.squashimg boot option though.</span>
                 <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
                     <span class="n">container_image</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">media_dir</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/LiveOS/squashfs.img&#39;</span>
