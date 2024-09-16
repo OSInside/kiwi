@@ -22,7 +22,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 5.2 -->
         <xsl:when test="@schemaversion > 5.1">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -32,6 +32,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv51to52">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv51to52"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- remove obsolete usb image type -->

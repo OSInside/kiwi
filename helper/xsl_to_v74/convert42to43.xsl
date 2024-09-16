@@ -25,7 +25,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 4.3 -->
         <xsl:when test="@schemaversion > 4.2">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -35,6 +35,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv42to43">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv42to43"/>
+    </xsl:copy>
 </xsl:template>
 
 <xsl:template match="preferences" mode="conv42to43">

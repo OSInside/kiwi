@@ -10,7 +10,7 @@
     <xsl:copy>
         <xsl:copy-of select="@*"/>
         <xsl:apply-templates mode="conv14to20"/>
-    </xsl:copy>  
+    </xsl:copy>
 </xsl:template>
 
 <!-- version update -->
@@ -22,7 +22,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 2.0 -->
         <xsl:when test="@schemeversion > 1.4 or @schemaversion > 1.4">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -32,6 +32,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv14to20">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv14to20"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- split section update -->

@@ -23,7 +23,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 3.9 -->
         <xsl:when test="@schemaversion > 3.8">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -33,6 +33,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv38to39">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv38to39"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- create new element oemconfig -->

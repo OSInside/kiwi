@@ -21,7 +21,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 8.1 -->
         <xsl:when test="@schemaversion > 8.0">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -31,6 +31,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv80to81">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv80to81"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- delete type from repository if rpm-dir type spec is used -->
