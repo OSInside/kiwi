@@ -48,7 +48,7 @@
 <xsl:import href="convert73to74.xsl"/>
 <xsl:import href="pretty.xsl"/>
 
-<xsl:output encoding="utf-8"/>
+<xsl:output encoding="utf-8" indent="yes"/>
 
 <xsl:template match="/">
     <xsl:variable name="preprocess">

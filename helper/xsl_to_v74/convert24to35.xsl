@@ -23,7 +23,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 3.5 -->
         <xsl:when test="@schemaversion > 2.4 or @schemeversion > 2.4">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -33,6 +33,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv24to35">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv24to35"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- remove compressed element -->

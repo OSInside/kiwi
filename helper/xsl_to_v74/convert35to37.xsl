@@ -27,7 +27,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 3.7 -->
         <xsl:when test="@schemaversion > 3.5">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -37,6 +37,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv35to37">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv35to37"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- update bool types -->

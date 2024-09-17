@@ -21,7 +21,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 6.9 -->
         <xsl:when test="@schemaversion > 6.8">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -31,6 +31,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv68to69">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv68to69"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- delete hybrid attribute from type -->

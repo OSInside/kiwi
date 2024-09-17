@@ -21,7 +21,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 5.5 -->
         <xsl:when test="@schemaversion > 5.4">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -31,6 +31,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv54to55">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv54to55"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- transform boot-theme to bootloader-theme and bootsplash-theme -->

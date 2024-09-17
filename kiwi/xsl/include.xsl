@@ -14,6 +14,14 @@
     </xsl:copy>
 </xsl:template>
 
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="include">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="include"/>
+    </xsl:copy>
+</xsl:template>
+
 <!-- incorporate optional include file(s) -->
 <xsl:template match="image/include" mode="include">
     <xsl:param name="include_file_name" select="@from"/>

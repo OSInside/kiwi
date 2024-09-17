@@ -22,7 +22,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 2.4 -->
         <xsl:when test="@schemeversion > 2.0 or @schemaversion > 2.0">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -32,6 +32,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv20to24">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv20to24"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- remove attributes and add info -->

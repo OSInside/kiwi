@@ -23,7 +23,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 4.7 -->
         <xsl:when test="@schemaversion > 4.6">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -33,6 +33,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv46to47">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv46to47"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- turn vmwareconfig into machine, ignore usb attribute -->

@@ -21,7 +21,7 @@
     <xsl:choose>
         <!-- nothing to do if already at 8.2 -->
         <xsl:when test="@schemaversion > 8.1">
-            <xsl:copy-of select="/"/>
+            <xsl:copy-of select="."/>
         </xsl:when>
         <!-- otherwise apply templates -->
         <xsl:otherwise>
@@ -31,6 +31,14 @@
             </image>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<!-- toplevel processing instructions and comments -->
+<xsl:template match="processing-instruction()|comment()" mode="conv81to82">
+    <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates mode="conv81to82"/>
+    </xsl:copy>
 </xsl:template>
 
 <!-- delete use_for_bootstrap attribute from repository -->
