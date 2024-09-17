@@ -51,6 +51,10 @@ class TestFileSystemBuilder:
             return_value='gzip'
         )
 
+        self.xml_state.build_type.get_erofscompression = Mock(
+            return_value='zstd,level=12'
+        )
+
         self.fs_setup = Mock()
         self.fs_setup.get_size_mbytes = Mock(
             return_value=42
@@ -129,7 +133,44 @@ class TestFileSystemBuilder:
 
     @patch('kiwi.builder.filesystem.FileSystem.new')
     @patch('kiwi.builder.filesystem.DeviceProvider')
-    def test_create_on_file(
+    def test_create_on_file_erofs(
+        self, mock_provider, mock_fs
+    ):
+        Defaults.set_platform_name('x86_64')
+        provider = Mock()
+        mock_provider.return_value = provider
+        mock_fs.return_value.__enter__.return_value = self.filesystem
+        self.xml_state.get_build_type_name = Mock(
+            return_value='erofs'
+        )
+        fs = FileSystemBuilder(
+            self.xml_state, 'target_dir', 'root_dir'
+        )
+        fs.create()
+        mock_fs.assert_called_once_with(
+            'erofs', provider, 'root_dir', {
+                'mount_options': ['async'],
+                'create_options': ['-O', 'option'],
+                'compression': 'zstd,level=12'
+            }
+        )
+        self.filesystem.create_on_file.assert_called_once_with(
+            'target_dir/myimage.x86_64-1.2.3.erofs', None,
+            [
+                'image', '.kconfig', 'run/*', 'tmp/*',
+                '.buildenv', 'var/cache/kiwi'
+            ]
+        )
+        self.setup.export_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_package_list.assert_called_once_with(
+            'target_dir'
+        )
+
+    @patch('kiwi.builder.filesystem.FileSystem.new')
+    @patch('kiwi.builder.filesystem.DeviceProvider')
+    def test_create_on_file_squashfs(
         self, mock_provider, mock_fs
     ):
         Defaults.set_platform_name('x86_64')
