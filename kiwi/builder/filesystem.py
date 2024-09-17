@@ -73,6 +73,9 @@ class FileSystemBuilder:
         if self.requested_filesystem == 'squashfs':
             self.filesystem_custom_parameters['compression'] = \
                 xml_state.build_type.get_squashfscompression()
+        elif self.requested_filesystem == 'erofs':
+            self.filesystem_custom_parameters['compression'] = \
+                xml_state.build_type.get_erofscompression()
 
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
