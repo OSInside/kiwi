@@ -56,7 +56,8 @@ class CloneDevice(DeviceProvider):
                 [
                     'dd',
                     'if={0}'.format(self.source_provider.get_device()),
-                    'of={0}'.format(target_device.get_device())
+                    'of={0}'.format(target_device.get_device()),
+                    'bs=1M'
                 ]
             )
             clone_id = BlockID(target_device.get_device())
