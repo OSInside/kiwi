@@ -39,7 +39,7 @@ class TestCloneDevice:
         self.clone_device.clone([self.target_device])
 
         mock_Command_run.assert_called_once_with(
-            ['dd', 'if=/dev/source-device', 'of=/dev/target-device']
+            ['dd', 'if=/dev/source-device', 'of=/dev/target-device', 'bs=1M']
         )
         mock_FileSystem_new.assert_called_once_with(
             'ext3', self.target_device
@@ -57,7 +57,10 @@ class TestCloneDevice:
 
         assert mock_Command_run.call_args_list == [
             call(
-                ['dd', 'if=/dev/source-device', 'of=/dev/target-device']
+                [
+                    'dd', 'if=/dev/source-device', 'of=/dev/target-device',
+                    'bs=1M'
+                ]
             ),
             call(
                 ['vgimportclone', '/dev/target-device']
@@ -76,7 +79,10 @@ class TestCloneDevice:
 
         assert mock_Command_run.call_args_list == [
             call(
-                ['dd', 'if=/dev/source-device', 'of=/dev/target-device']
+                [
+                    'dd', 'if=/dev/source-device', 'of=/dev/target-device',
+                    'bs=1M'
+                ]
             ),
             call(
                 [
@@ -114,7 +120,10 @@ class TestCloneDevice:
             .return_value.set_uuid.assert_called_once_with()
         assert mock_Command_run.call_args_list == [
             call(
-                ['dd', 'if=/dev/source-device', 'of=/dev/target-device']
+                [
+                    'dd', 'if=/dev/source-device', 'of=/dev/target-device',
+                    'bs=1M'
+                ]
             ),
             call(
                 ['mdadm', '--stop', '/dev/md0']
