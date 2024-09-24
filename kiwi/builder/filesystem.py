@@ -205,5 +205,6 @@ class FileSystemBuilder:
         ) as filesystem:
             filesystem.create_on_file(
                 self.filename, self.label,
-                Defaults.get_exclude_list_for_root_data_sync()
+                Defaults.get_exclude_list_for_root_data_sync() + Defaults.
+                get_exclude_list_from_custom_exclude_files(self.root_dir)
             )
