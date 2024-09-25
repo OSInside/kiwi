@@ -5100,9 +5100,10 @@ class volume(GeneratedsSuper):
     """Specify which parts of the filesystem should be on an extra volume."""
     subclass = None
     superclass = None
-    def __init__(self, copy_on_write=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, parent=None, size=None, arch=None):
+    def __init__(self, copy_on_write=None, quota=None, filesystem_check=None, freespace=None, mountpoint=None, label=None, name=None, parent=None, size=None, arch=None):
         self.original_tagname_ = None
         self.copy_on_write = _cast(bool, copy_on_write)
+        self.quota = _cast(None, quota)
         self.filesystem_check = _cast(bool, filesystem_check)
         self.freespace = _cast(None, freespace)
         self.mountpoint = _cast(None, mountpoint)
@@ -5124,6 +5125,8 @@ class volume(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_copy_on_write(self): return self.copy_on_write
     def set_copy_on_write(self, copy_on_write): self.copy_on_write = copy_on_write
+    def get_quota(self): return self.quota
+    def set_quota(self, quota): self.quota = quota
     def get_filesystem_check(self): return self.filesystem_check
     def set_filesystem_check(self, filesystem_check): self.filesystem_check = filesystem_check
     def get_freespace(self): return self.freespace
@@ -5140,6 +5143,13 @@ class volume(GeneratedsSuper):
     def set_size(self, size): self.size = size
     def get_arch(self): return self.arch
     def set_arch(self, arch): self.arch = arch
+    def validate_partition_size_type(self, value):
+        # Validate type partition-size-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_partition_size_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_partition_size_type_patterns_, ))
+    validate_partition_size_type_patterns_ = [['^(\\d+|\\d+M|\\d+G)$']]
     def validate_volume_size_type(self, value):
         # Validate type volume-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -5185,6 +5195,9 @@ class volume(GeneratedsSuper):
         if self.copy_on_write is not None and 'copy_on_write' not in already_processed:
             already_processed.add('copy_on_write')
             outfile.write(' copy_on_write="%s"' % self.gds_format_boolean(self.copy_on_write, input_name='copy_on_write'))
+        if self.quota is not None and 'quota' not in already_processed:
+            already_processed.add('quota')
+            outfile.write(' quota=%s' % (quote_attrib(self.quota), ))
         if self.filesystem_check is not None and 'filesystem_check' not in already_processed:
             already_processed.add('filesystem_check')
             outfile.write(' filesystem_check="%s"' % self.gds_format_boolean(self.filesystem_check, input_name='filesystem_check'))
@@ -5228,6 +5241,12 @@ class volume(GeneratedsSuper):
                 self.copy_on_write = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('quota', node)
+        if value is not None and 'quota' not in already_processed:
+            already_processed.add('quota')
+            self.quota = value
+            self.quota = ' '.join(self.quota.split())
+            self.validate_partition_size_type(self.quota)    # validate type partition-size-type
         value = find_attr_value_('filesystem_check', node)
         if value is not None and 'filesystem_check' not in already_processed:
             already_processed.add('filesystem_check')

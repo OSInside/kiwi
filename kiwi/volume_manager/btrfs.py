@@ -224,6 +224,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                         os.path.normpath(toplevel + os.sep + volume.realpath)
                     ]
                 )
+                self._apply_quota(
+                    os.path.normpath(toplevel + os.sep + volume.realpath),
+                    volume.attributes
+                )
                 self.apply_attributes_on_volume(
                     toplevel, volume
                 )
@@ -438,6 +442,17 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             Command.run(
                 ['btrfs', 'property', 'set', sync_target, 'ro', 'true']
             )
+
+    def _apply_quota(self, volume_path: str, attributes: List[str]):
+        for attribute in attributes:
+            if attribute.startswith('quota='):
+                quota = attribute.split('=')[1]
+                Command.run(
+                    ['btrfs', 'quota', 'enable', volume_path]
+                )
+                Command.run(
+                    ['btrfs', 'qgroup', 'limit', quota, volume_path]
+                )
 
     def _has_root_volume(self) -> bool:
         has_root_volume = bool(self.custom_args['root_is_subvolume'])

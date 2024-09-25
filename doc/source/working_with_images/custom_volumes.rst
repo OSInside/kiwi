@@ -25,7 +25,7 @@ elements of the `systemdisk` element:
          <volume name="usr/lib" size="1G" label="library"/>
          <volume name="@root" freespace="500M"/>
          <volume name="etc_volume" mountpoint="etc" copy_on_write="false"/>
-         <volume name="bin_volume" size="all" mountpoint="/usr/bin"/>
+         <volume name="bin_volume" size="all" mountpoint="/usr/bin" quota="2G"/>
        </systemdisk>
      </type>
    </image>
@@ -72,6 +72,9 @@ attributes:
 
 - `copy_on_write`: Optional attribute to set the filesystem copy-on-write
   attribute for this volume.
+
+- `quota`: Optional attribute for the `btrfs` filesystem only. Allows
+  to specify a quota size for the generated volume.
 
 - `filesystem_check`: Optional attribute to indicate that this
   filesystem should perform the validation to become filesystem checked.

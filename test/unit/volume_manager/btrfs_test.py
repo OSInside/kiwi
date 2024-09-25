@@ -35,7 +35,7 @@ class TestVolumeManagerBtrfs:
             volume_type(
                 name='etc', parent='', size='freespace:200', realpath='/etc',
                 mountpoint='/etc', fullsize=False, label=None,
-                attributes=[], is_root_volume=False
+                attributes=['quota=2G'], is_root_volume=False
             ),
             volume_type(
                 name='myvol', parent='', size='size:500', realpath='/data',
@@ -262,7 +262,7 @@ class TestVolumeManagerBtrfs:
                 'tmpdir/@', volume_type(
                     name='etc', parent='', size='freespace:200', realpath='/etc',
                     mountpoint='/etc', fullsize=False, label=None,
-                    attributes=[],
+                    attributes=['quota=2G'],
                     is_root_volume=False
                 )
             ),
@@ -286,6 +286,8 @@ class TestVolumeManagerBtrfs:
         assert mock_command.call_args_list == [
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/data']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/etc']),
+            call(['btrfs', 'quota', 'enable', 'tmpdir/@/etc']),
+            call(['btrfs', 'qgroup', 'limit', '2G', 'tmpdir/@/etc']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/home'])
         ]
         assert mock_mount.call_args_list == [

@@ -3933,6 +3933,11 @@ Allowed values are: t.linux</a:documentation>
     
   -->
   <div>
+    <sch:pattern abstract="true" id="btrfs_quota">
+      <sch:rule context="volume">
+        <sch:assert test="not(@quota) or ../../@filesystem='btrfs'">quota attribute is only available for the following image filesystem: btrfs</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.volume.freespace.attribute">
       <attribute name="freespace">
         <a:documentation>free space to be added to this volume. The value is
@@ -3978,6 +3983,13 @@ add "M" and/or "G" as postfix</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
+    <define name="k.volume.quota.attribute">
+      <attribute name="quota">
+        <a:documentation>Apply quota value to filesystem volume if supported</a:documentation>
+        <ref name="partition-size-type"/>
+      </attribute>
+      <sch:pattern id="quota" is-a="btrfs_quota"/>
+    </define>
     <define name="k.volume.filesystem_check">
       <attribute name="filesystem_check">
         <a:documentation>Indicate that this filesystem should perform the validation
@@ -4002,6 +4014,9 @@ The latter is the default.</a:documentation>
       <interleave>
         <optional>
           <ref name="k.volume.copy_on_write.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.volume.quota.attribute"/>
         </optional>
         <optional>
           <ref name="k.volume.filesystem_check"/>

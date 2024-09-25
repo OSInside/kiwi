@@ -2605,6 +2605,18 @@ div {
 # common element <volume>
 #
 div {
+    sch:pattern [
+        abstract = "true"
+        id = "btrfs_quota"
+        sch:rule [
+            context = "volume"
+            sch:assert [
+                test = "not(@quota) or ../../@filesystem='btrfs'"
+                "quota attribute is only available for the following "
+                "image filesystem: btrfs"
+            ]
+        ]
+    ]
     k.volume.freespace.attribute =
         ## free space to be added to this volume. The value is
         ## used as MB by default but you can add "M" and/or "G" as
@@ -2635,6 +2647,10 @@ div {
     k.volume.copy_on_write.attribute =
         ## Apply the filesystem copy-on-write attribute for this volume
         attribute copy_on_write { xsd:boolean }
+    k.volume.quota.attribute =
+        ## Apply quota value to filesystem volume if supported
+        attribute quota { partition-size-type }
+        >> sch:pattern [ id = "quota" is-a = "btrfs_quota" ]
     k.volume.filesystem_check =
         ## Indicate that this filesystem should perform the validation
         ## to become filesystem checked. The actual constraints if the
@@ -2650,6 +2666,7 @@ div {
     k.volume.arch.attribute = k.arch.attribute
     k.volume.attlist =
         k.volume.copy_on_write.attribute? &
+        k.volume.quota.attribute? &
         k.volume.filesystem_check? &
         k.volume.freespace.attribute? &
         k.volume.mountpoint.attribute? &
