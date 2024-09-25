@@ -37,7 +37,7 @@ class TestFileSystemEroFs:
         mock_command.assert_called_once_with(
             [
                 'mkfs.erofs', '-z', 'zstd,level=21',
-                '-L', 'label', '--exclude-regex=foo',
+                '-L', 'label', '--exclude-regex=^foo$',
                 'myimage', 'root_dir'
             ]
         )

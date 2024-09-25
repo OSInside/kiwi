@@ -45,7 +45,12 @@ class FileSystemEroFs(FileSystemBase):
 
         if exclude:
             for item in exclude:
-                exclude_options.append(f'--exclude-regex={item}')
+                # item is a glob, but erofs requires a POSIX extended regex.
+                # Translate the glob to a regex for correct behaviour.
+                #
+                # We can't use fnmatch.translate, as that produces a Python regex.
+                as_regex = '^' + item.replace('*', '.*') + '$'
+                exclude_options.append(f'--exclude-regex={as_regex}')
 
         if label:
             self.custom_args['create_options'].append('-L')
