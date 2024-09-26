@@ -136,7 +136,7 @@ class TestPackageManagerApt:
                 done < {1}
                 while read -r deb;do
                     pushd "$(dirname "$deb")" >/dev/null || exit 1
-                    if [[ "$(basename "$deb")" == base-passwd* ]];then
+                    if [[ "$(basename "$deb")" == base-passwd* ]] || [[ "$(basename "$deb")" == ca-certificates* ]]; then
                         echo "Running pre/post package scripts for $(basename "$deb")"
                         dpkg -e "$deb" "{0}/DEBIAN"
                         test -e {0}/DEBIAN/preinst && chroot {0} bash -c "/DEBIAN/preinst install"
