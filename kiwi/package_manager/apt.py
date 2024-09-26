@@ -265,7 +265,7 @@ class PackageManagerApt(PackageManagerBase):
                         echo "Running pre/post package scripts for $(basename "$deb")"
                         dpkg -e "$deb" "{0}/DEBIAN"
                         test -e {0}/DEBIAN/preinst && chroot {0} bash -c "/DEBIAN/preinst install"
-                        test -e {0}/DEBIAN/postinst && chroot {0} bash -c "/DEBIAN/postinst"
+                        test -e {0}/DEBIAN/postinst && chroot {0} bash -c "/DEBIAN/postinst configure"
                         rm -rf {0}/DEBIAN
                     fi
                     popd >/dev/null || exit 1
