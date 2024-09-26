@@ -448,7 +448,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             if attribute.startswith('quota='):
                 quota = attribute.split('=')[1]
                 Command.run(
-                    ['btrfs', 'quota', 'enable', volume_path]
+                    ['btrfs', 'quota', 'enable', '--simple', volume_path]
                 )
                 Command.run(
                     ['btrfs', 'qgroup', 'limit', quota, volume_path]

@@ -286,7 +286,7 @@ class TestVolumeManagerBtrfs:
         assert mock_command.call_args_list == [
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/data']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/etc']),
-            call(['btrfs', 'quota', 'enable', 'tmpdir/@/etc']),
+            call(['btrfs', 'quota', 'enable', '--simple', 'tmpdir/@/etc']),
             call(['btrfs', 'qgroup', 'limit', '2G', 'tmpdir/@/etc']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/home'])
         ]
