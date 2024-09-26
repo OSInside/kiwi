@@ -428,6 +428,32 @@ class TestXMLState:
             )
         ]
 
+    def test_get_volumes_btrfs_quota(self):
+        description = XMLDescription(
+            '../data/example_btrfs_vol_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        volume_type = self.volume_type
+        assert state.get_volumes() == [
+            volume_type(
+                name='some', parent='', size='freespace:120',
+                realpath='some',
+                mountpoint='some', fullsize=False,
+                label=None,
+                attributes=['quota=500M'],
+                is_root_volume=False
+            ),
+            volume_type(
+                name='', parent='', size=None,
+                realpath='/',
+                mountpoint=None, fullsize=True,
+                label=None,
+                attributes=[],
+                is_root_volume=True
+            )
+        ]
+
     def test_get_volumes_for_arch(self):
         description = XMLDescription('../data/example_lvm_arch_config.xml')
         xml_data = description.load()

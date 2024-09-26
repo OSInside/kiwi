@@ -1773,6 +1773,9 @@ class XMLState:
                 attributes = []
                 is_root_volume = False
 
+                if volume.get_quota():
+                    attributes.append(f'quota={volume.get_quota()}')
+
                 if volume.get_copy_on_write() is False:
                     # by default copy-on-write is switched on for any
                     # filesystem. Thus only if no copy on write is requested

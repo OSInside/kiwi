@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="8.2" name="custom-btrfs-volume-setup">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Some</specification>
+    </description>
+    <preferences>
+        <version>1.15.5</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="oem" filesystem="btrfs">
+            <systemdisk>
+                <volume name="some" quota="500M"/>
+            </systemdisk>
+        </type>
+    </preferences>
+    <repository>
+        <source path="obs://some/repo/oss"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+    </packages>
+</image>
