@@ -288,6 +288,8 @@ class ResultBundleTask(CliTask):
         image_name = result.xml_state.xml_data.get_name()
         if '.tar.' in result_file.filename:
             extension = f'tar.{result_file.filename.split(".").pop()}'
+        elif '.vagrant.' in result_file.filename:
+            extension = f'vagrant.{".".join(result_file.filename.split(".")[-2:])}'
         else:
             extension = result_file.filename.split('.').pop()
         if bundle_file_format_name:

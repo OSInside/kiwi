@@ -17,7 +17,7 @@
         <profile name="virtualbox" description="Vagrant Box for VirtualBox"/>
     </profiles>
     <preferences>
-        <version>1.0</version>
+        <version>1.0.1</version>
         <packagemanager>zypper</packagemanager>
         <locale>en_US</locale>
         <keytable>us</keytable>
@@ -28,7 +28,7 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="libvirt">
-        <type image="oem" filesystem="ext4" format="vagrant" firmware="efi" kernelcmdline="net.ifnames=0 console=ttyS0">
+        <type image="oem" filesystem="ext4" format="vagrant" firmware="efi" kernelcmdline="net.ifnames=0 console=ttyS0" bundle_format="%N-%v-%I.%A">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -38,7 +38,7 @@
         </type>
     </preferences>
     <preferences profiles="virtualbox">
-        <type image="oem" filesystem="ext4" format="vagrant" kernelcmdline="net.ifnames=0 console=ttyS0">
+        <type image="oem" filesystem="ext4" format="vagrant" kernelcmdline="net.ifnames=0 console=ttyS0" bundle_format="%N-%v-%I.%A">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -86,11 +86,17 @@
         <package name="virtualbox-kmp-default"/>
     </packages>
     <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
         <package name="udev"/>
+        <package name="xz"/>
+        <package name="shadow"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
         <package name="openSUSE-release"/>
         <package name="openSUSE-release-appliance-vagrant"/>
     </packages>
