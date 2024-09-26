@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.xml_state &mdash; KIWI NG 10.1.12 documentation</title>
+  <title>kiwi.xml_state &mdash; KIWI NG 10.1.13 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=39e3d599"></script>
+        <script src="../../_static/documentation_options.js?v=9d9b5180"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -3292,6 +3292,9 @@
                 <span class="n">label</span> <span class="o">=</span> <span class="n">volume</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
                 <span class="n">attributes</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">is_root_volume</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">if</span> <span class="n">volume</span><span class="o">.</span><span class="n">get_quota</span><span class="p">():</span>
+                    <span class="n">attributes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;quota=</span><span class="si">{</span><span class="n">volume</span><span class="o">.</span><span class="n">get_quota</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">volume</span><span class="o">.</span><span class="n">get_copy_on_write</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
                     <span class="c1"># by default copy-on-write is switched on for any</span>

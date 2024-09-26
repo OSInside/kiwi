@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.tasks.result_bundle &mdash; KIWI NG 10.1.12 documentation</title>
+  <title>kiwi.tasks.result_bundle &mdash; KIWI NG 10.1.13 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=39e3d599"></script>
+        <script src="../../../_static/documentation_options.js?v=9d9b5180"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1530,6 +1530,8 @@
         <span class="n">image_name</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">xml_data</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
         <span class="k">if</span> <span class="s1">&#39;.tar.&#39;</span> <span class="ow">in</span> <span class="n">result_file</span><span class="o">.</span><span class="n">filename</span><span class="p">:</span>
             <span class="n">extension</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;tar.</span><span class="si">{</span><span class="n">result_file</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">elif</span> <span class="s1">&#39;.vagrant.&#39;</span> <span class="ow">in</span> <span class="n">result_file</span><span class="o">.</span><span class="n">filename</span><span class="p">:</span>
+            <span class="n">extension</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;vagrant.</span><span class="si">{</span><span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result_file</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">extension</span> <span class="o">=</span> <span class="n">result_file</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">bundle_file_format_name</span><span class="p">:</span>

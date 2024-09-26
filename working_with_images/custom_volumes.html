@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Custom Disk Volumes &mdash; KIWI NG 10.1.12 documentation</title>
+  <title>Custom Disk Volumes &mdash; KIWI NG 10.1.13 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=39e3d599"></script>
+        <script src="../_static/documentation_options.js?v=9d9b5180"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1258,7 +1258,7 @@ elements of the <code class="xref py py-obj docutils literal notranslate"><span 
 <span class="w">      </span><span class="nt">&lt;volume</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;usr/lib&quot;</span><span class="w"> </span><span class="na">size=</span><span class="s">&quot;1G&quot;</span><span class="w"> </span><span class="na">label=</span><span class="s">&quot;library&quot;</span><span class="nt">/&gt;</span>
 <span class="w">      </span><span class="nt">&lt;volume</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;@root&quot;</span><span class="w"> </span><span class="na">freespace=</span><span class="s">&quot;500M&quot;</span><span class="nt">/&gt;</span>
 <span class="w">      </span><span class="nt">&lt;volume</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;etc_volume&quot;</span><span class="w"> </span><span class="na">mountpoint=</span><span class="s">&quot;etc&quot;</span><span class="w"> </span><span class="na">copy_on_write=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
-<span class="w">      </span><span class="nt">&lt;volume</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;bin_volume&quot;</span><span class="w"> </span><span class="na">size=</span><span class="s">&quot;all&quot;</span><span class="w"> </span><span class="na">mountpoint=</span><span class="s">&quot;/usr/bin&quot;</span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;volume</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;bin_volume&quot;</span><span class="w"> </span><span class="na">size=</span><span class="s">&quot;all&quot;</span><span class="w"> </span><span class="na">mountpoint=</span><span class="s">&quot;/usr/bin&quot;</span><span class="w"> </span><span class="na">quota=</span><span class="s">&quot;2G&quot;</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/systemdisk&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/type&gt;</span>
 <span class="nt">&lt;/image&gt;</span>
@@ -1299,6 +1299,8 @@ to be in megabytes.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">label</span></code>: Optional attribute to set filesystem label of the volume.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_on_write</span></code>: Optional attribute to set the filesystem copy-on-write
 attribute for this volume.</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">quota</span></code>: Optional attribute for the <code class="xref py py-obj docutils literal notranslate"><span class="pre">btrfs</span></code> filesystem only. Allows
+to specify a quota size for the generated volume.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">filesystem_check</span></code>: Optional attribute to indicate that this
 filesystem should perform the validation to become filesystem checked.
 The actual constraints if the check is performed or not depends on
