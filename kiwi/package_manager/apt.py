@@ -19,6 +19,7 @@ import re
 import os
 import glob
 import logging
+import pathlib
 from typing import (
     List, Dict
 )
@@ -221,6 +222,13 @@ class PackageManagerApt(PackageManagerBase):
         # the essential debs and tell us their full in the apt cache without
         # actually installing them.
         try:
+            # TODO: Drop once apt 2.5.4 is widely available.
+            pathlib.Path(f'{self.root_dir}/var/lib/dpkg').mkdir(
+                parents=True, exist_ok=True
+            )
+            pathlib.Path(f'{self.root_dir}/var/lib/dpkg/status.kiwi').touch()
+            pathlib.Path(f'{self.root_dir}/var/lib/dpkg/available').touch()
+
             if 'apt' not in self.package_requests:
                 self.package_requests.append('apt')
             update_cache = [
@@ -253,6 +261,7 @@ class PackageManagerApt(PackageManagerBase):
             # Extract bootstrap packages
             with open(package_names.name) as packages:
                 solved_debootstrap_packages = [p.rstrip() for p in packages]
+            self.command_env['PATH'] = '$PATH:/usr/bin:/bin:/usr/sbin:/sbin'
             for package in solved_debootstrap_packages:
                 Command.run(
                     [
@@ -260,7 +269,7 @@ class PackageManagerApt(PackageManagerBase):
                         'dpkg-deb --fsys-tarfile {0} | tar -C {1} -x'.format(
                             package, self.root_dir
                         )
-                    ]
+                    ], self.command_env
                 )
             # Run package scripts. Unfortuantely Debian based systems
             # requires special sauce for bootstrap. See the exceptions

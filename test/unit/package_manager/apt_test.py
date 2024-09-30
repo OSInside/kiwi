@@ -67,12 +67,13 @@ class TestPackageManagerApt:
     def test_setup_repository_modules(self):
         self.manager.setup_repository_modules({})
 
+    @patch('pathlib.Path')
     @patch('kiwi.command.Command.run')
     @patch.object(PackageManagerApt, 'process_install_requests')
     @patch('os.path.isfile')
     def test_process_install_requests_bootstrap_prebuild_root(
         self, mock_os_path_isfile, mock_process_install_requests,
-        mock_Command_run
+        mock_Command_run, mock_pathlib_Path
     ):
         mock_os_path_isfile.return_value = True
         self.manager.process_install_requests_bootstrap(
@@ -102,10 +103,11 @@ class TestPackageManagerApt:
                 bootstrap_package='bootstrap-package'
             )
 
+    @patch('pathlib.Path')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
     def test_process_install_requests_bootstrap_failed(
-        self, mock_Command_run, mock_Command_call
+        self, mock_Command_run, mock_Command_call, mock_pathlib_Path
     ):
         self.manager.request_package('apt')
         mock_Command_call.side_effect = Exception
@@ -113,6 +115,7 @@ class TestPackageManagerApt:
             with raises(KiwiDebianBootstrapError):
                 self.manager.process_install_requests_bootstrap()
 
+    @patch('pathlib.Path')
     @patch('kiwi.command.Command.run')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.package_manager.apt.Temporary.new_file')
@@ -120,7 +123,8 @@ class TestPackageManagerApt:
     @patch('os.path.exists')
     def test_process_install_requests_bootstrap(
         self, mock_os_path_exists, mock_Temporary_new_dir,
-        mock_Temporary_new_file, mock_Command_call, mock_Command_run
+        mock_Temporary_new_file, mock_Command_call, mock_Command_run,
+        mock_pathlib_Path
     ):
         mock_os_path_exists.return_value = True
         mock_Temporary_new_dir.return_value.name = 'tempdir'
@@ -135,6 +139,7 @@ class TestPackageManagerApt:
             file_handle.__iter__.return_value = ['base-passwd\n', 'usrmerge', 'vim\n']
             self.manager.process_install_requests_bootstrap()
         new_env = self.env | {
+            'PATH': '$PATH:/usr/bin:/bin:/usr/sbin:/sbin',
             'DPKG_MAINTSCRIPT_NAME': 'true',
             'DPKG_MAINTSCRIPT_PACKAGE': 'libc6'
         }
@@ -156,7 +161,7 @@ class TestPackageManagerApt:
                 [
                     'bash', '-c',
                     'dpkg-deb --fsys-tarfile base-passwd | tar -C root-dir -x'
-                ]
+                ], self.env
             ),
             call(
                 [
@@ -168,7 +173,7 @@ class TestPackageManagerApt:
                 [
                     'bash', '-c',
                     'dpkg-deb --fsys-tarfile vim | tar -C root-dir -x'
-                ]
+                ], self.env
             ),
             call(
                 [
