@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-docker-app">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>docker test build for simple app</specification>
+    </description>
+    <preferences>
+        <version>2.1.0</version>
+        <packagemanager>zypper</packagemanager>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <type image="docker">
+            <containerconfig name="flake" tag="latest"/>
+        </type>
+    </preferences>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="flake-pilot"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="sudo"/>
+        <package name="zypper"/>
+    </packages>
+<!-- if you can afford that the rpm database persists in the container, uncomment the delete section here. If not stick with the config.sh script
+    <packages type="delete">
+        <package name="crypto-policies"/>
+        <package name="pam"/>
+        <package name="permissions-config"/>
+        <package name="coreutils"/>
+        <package name="bash-sh"/>
+        <package name="libreadline8"/>
+        <package name="terminfo-base"/>
+        <package name="sed"/>
+        <package name="permctl"/>
+        <package name="fillup"/>
+        <package name="system-user-root"/>
+        <package name="compat-usrmerge-tools"/>
+        <package name="permissions"/>
+        <package name="grep"/>
+        <package name="bash"/>
+
+        <package name="boost-license1"/>
+        <package name="findutils"/>
+        <package name="gpg2"/>
+        <package name="krb5"/>
+        <package name="libassuan9"/>
+        <package name="libaugeas0"/>
+        <package name="libboost_thread1"/>
+        <package name="libbrotlicommon1"/>
+        <package name="libbrotlidec1"/>
+        <package name="libbz2"/>
+        <package name="libcom_err2"/>
+        <package name="libcurl4"/>
+        <package name="libfa1"/>
+        <package name="libgcrypt20"/>
+        <package name="libglib"/>
+        <package name="libgpg-error0"/>
+        <package name="libgpgme11"/>
+        <package name="libidn2"/>
+        <package name="libkeyutils1"/>
+        <package name="libksba8"/>
+        <package name="liblua5"/>
+        <package name="liblzma5"/>
+        <package name="libnghttp2"/>
+        <package name="libnpth0"/>
+        <package name="libpsl5"/>
+        <package name="libsigc"/>
+        <package name="libsolv-tools-base"/>
+        <package name="libsqlite3"/>
+        <package name="libssh4"/>
+        <package name="libssh-config"/>
+        <package name="libudev1"/>
+        <package name="libunistring5"/>
+        <package name="libusb"/>
+        <package name="libverto1"/>
+        <package name="libxml2"/>
+        <package name="libyaml-cpp0"/>
+        <package name="libzck1"/>
+        <package name="libzypp"/>
+        <package name="pinentry"/>
+        <package name="rpm"/>
+        <package name="rpm-config-SUSE"/>
+        <package name="zypper"/>
+    </packages>
+-->
+</image>
