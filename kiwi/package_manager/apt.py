@@ -19,7 +19,7 @@ import re
 import os
 import glob
 import logging
-from textwrap import dedent
+import pathlib
 from typing import (
     List, Dict
 )
@@ -222,6 +222,13 @@ class PackageManagerApt(PackageManagerBase):
         # the essential debs and tell us their full in the apt cache without
         # actually installing them.
         try:
+            # TODO: Drop once apt 2.5.4 is widely available.
+            pathlib.Path(f'{self.root_dir}/var/lib/dpkg').mkdir(
+                parents=True, exist_ok=True
+            )
+            pathlib.Path(f'{self.root_dir}/var/lib/dpkg/status.kiwi').touch()
+            pathlib.Path(f'{self.root_dir}/var/lib/dpkg/available').touch()
+
             if 'apt' not in self.package_requests:
                 self.package_requests.append('apt')
             update_cache = [
@@ -236,53 +243,50 @@ class PackageManagerApt(PackageManagerBase):
                 'Apt update: {0} {1}'.format(result.output, result.error)
             )
             package_names = Temporary(prefix='kiwi_debs_').new_file()
-            package_extract = Temporary(prefix='kiwi_bootstrap_').new_file()
             download_bootstrap = [
                 'apt-get'
             ] + self.apt_get_args + self.custom_args + [
                 'install',
                 '-oDebug::pkgDPkgPm=1',
                 f'-oDPkg::Pre-Install-Pkgs::=cat >{package_names.name}',
-                '?essential',
-                '?exact-name(usr-is-merged)',
-                'base-passwd'
+                '?essential'
             ] + self.package_requests
+            # Download solved bootstrap packages
             result = Command.run(
                 download_bootstrap, self.command_env
             )
             log.debug(
                 'Apt download: {0} {1}'.format(result.output, result.error)
             )
-            script = dedent('''\n
-                set -e
-                while read -r deb;do
-                    echo "Unpacking $deb"
-                    dpkg-deb --fsys-tarfile $deb | tar -C {0} -x
-                done < {1}
-                while read -r deb;do
-                    pushd "$(dirname "$deb")" >/dev/null || exit 1
-                    if [[ "$(basename "$deb")" == base-passwd* ]];then
-                        echo "Running pre/post package scripts for $(basename "$deb")"
-                        dpkg -e "$deb" "{0}/DEBIAN"
-                        test -e {0}/DEBIAN/preinst && chroot {0} bash -c "/DEBIAN/preinst install"
-                        test -e {0}/DEBIAN/postinst && chroot {0} bash -c "/DEBIAN/postinst"
-                        rm -rf {0}/DEBIAN
-                    fi
-                    popd >/dev/null || exit 1
-                done < {1}
-            ''')
-
-            script.format(self.root_dir, package_names.name)
-
-            with open(package_extract.name, 'w') as install:
-                install.write(
-                    script.format(self.root_dir, package_names.name)
+            # Extract bootstrap packages
+            with open(package_names.name) as packages:
+                solved_debootstrap_packages = [p.rstrip() for p in packages]
+            self.command_env['PATH'] = '$PATH:/usr/bin:/bin:/usr/sbin:/sbin'
+            for package in solved_debootstrap_packages:
+                Command.run(
+                    [
+                        'bash', '-c',
+                        'dpkg-deb --fsys-tarfile {0} | tar -C {1} -x'.format(
+                            package, self.root_dir
+                        )
+                    ], self.command_env
                 )
-            result = Command.run(
-                ['bash', package_extract.name], self.command_env
+            # Run package scripts. Unfortuantely Debian based systems
+            # requires special sauce for bootstrap. See the exceptions
+            # we have to apply below:
+            #
+            # * manual order is required to make sure users(root) exists
+            # * the usr-merge strategy only works after bootstrap
+            #
+            # 1. Pass: Run package scripts, manual order
+            self._run_bootstrap_scripts(
+                solved_debootstrap_packages,
+                only_for=['base-passwd'], skip=['usrmerge']
             )
-            log.debug(
-                'Apt extract: {0} {1}'.format(result.output, result.error)
+            # 2. Pass: Run package scripts in apt order
+            self._run_bootstrap_scripts(
+                solved_debootstrap_packages,
+                skip=['usrmerge']
             )
             self.cleanup_requests()
             return Command.call(
@@ -513,3 +517,57 @@ class PackageManagerApt(PackageManagerBase):
         items = self.package_requests[:]
         self.cleanup_requests()
         return items
+
+    def _run_bootstrap_scripts(
+        self, solved_debootstrap_packages: List[str],
+        only_for: List[str] = [], skip: List[str] = []
+    ):
+        # TODO: this should not be needed but without setting
+        # the following environment variables no package pre/post
+        # script completes its task. I leave it up to the Debian
+        # experts to provide a fix if needed.
+        self.command_env['DPKG_MAINTSCRIPT_NAME'] = 'true'
+        self.command_env['DPKG_MAINTSCRIPT_PACKAGE'] = 'libc6'
+
+        post_script_dir = Temporary(
+            prefix='kiwi_debpost.', path=self.root_dir
+        ).new_dir()
+        for package in solved_debootstrap_packages:
+            package_base_name = os.path.basename(package)
+            go_ahead = False if only_for else True
+            for name in only_for:
+                if name in package_base_name:
+                    go_ahead = True
+                    break
+            for name in skip:
+                if name in package_base_name:
+                    go_ahead = False
+                    break
+            if not go_ahead:
+                continue
+            log.debug(
+                f'Running pre/post scripts for: {package_base_name}'
+            )
+            package_metadata_dir = \
+                f'{post_script_dir.name}/{os.path.basename(package)}'
+            Command.run(
+                ['dpkg', '-e', package, package_metadata_dir]
+            )
+            script_pre = f'{package_metadata_dir}/preinst'
+            script_post = f'{package_metadata_dir}/postinst'
+            # 1. preinst
+            if os.path.exists(script_pre):
+                Command.run(
+                    [
+                        'chroot', self.root_dir, 'bash',
+                        f'{script_pre.replace(self.root_dir, "")}', 'install'
+                    ], self.command_env
+                )
+            # 2. postinst
+            if os.path.exists(script_post):
+                Command.run(
+                    [
+                        'chroot', self.root_dir, 'bash',
+                        f'{script_post.replace(self.root_dir, "")}', 'configure'
+                    ], self.command_env
+                )
