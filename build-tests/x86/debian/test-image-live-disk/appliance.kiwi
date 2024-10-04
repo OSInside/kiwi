@@ -82,6 +82,8 @@
         <package name="isc-dhcp-client"/>
         <package name="netbase"/>
         <package name="bsdmainutils"/>
+        <package name="usrmerge"/>
+        <package name="usr-is-merged"/>
         <package name="netplan.io"/>
         <package name="networkd-dispatcher"/>
         <package name="net-tools"/>
@@ -89,7 +91,6 @@
         <package name="netbase"/>
         <package name="locales-all"/>
         <package name="tzdata"/>
-        <package name="usr-is-merged"/>
     </packages>
     <packages type="image" profiles="Virtual">
         <package name="shim-signed"/>
@@ -102,7 +103,5 @@
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
-    <packages type="bootstrap">
-        <package name="usrmerge"/>
-    </packages>
+    <packages type="bootstrap"/>
 </image>
