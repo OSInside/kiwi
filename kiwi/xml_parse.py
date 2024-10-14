@@ -812,7 +812,7 @@ class image(GeneratedsSuper):
     """The root element of the configuration file"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, packages=None, extension=None):
+    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, containers=None, packages=None, extension=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.displayname = _cast(None, displayname)
@@ -852,6 +852,10 @@ class image(GeneratedsSuper):
             self.repository = []
         else:
             self.repository = repository
+        if containers is None:
+            self.containers = []
+        else:
+            self.containers = containers
         if packages is None:
             self.packages = []
         else:
@@ -911,6 +915,11 @@ class image(GeneratedsSuper):
     def add_repository(self, value): self.repository.append(value)
     def insert_repository_at(self, index, value): self.repository.insert(index, value)
     def replace_repository_at(self, index, value): self.repository[index] = value
+    def get_containers(self): return self.containers
+    def set_containers(self, containers): self.containers = containers
+    def add_containers(self, value): self.containers.append(value)
+    def insert_containers_at(self, index, value): self.containers.insert(index, value)
+    def replace_containers_at(self, index, value): self.containers[index] = value
     def get_packages(self): return self.packages
     def set_packages(self, packages): self.packages = packages
     def add_packages(self, value): self.packages.append(value)
@@ -950,6 +959,7 @@ class image(GeneratedsSuper):
             self.drivers or
             self.strip or
             self.repository or
+            self.containers or
             self.packages or
             self.extension
         ):
@@ -1017,6 +1027,8 @@ class image(GeneratedsSuper):
             strip_.export(outfile, level, namespaceprefix_, name_='strip', pretty_print=pretty_print)
         for repository_ in self.repository:
             repository_.export(outfile, level, namespaceprefix_, name_='repository', pretty_print=pretty_print)
+        for containers_ in self.containers:
+            containers_.export(outfile, level, namespaceprefix_, name_='containers', pretty_print=pretty_print)
         for packages_ in self.packages:
             packages_.export(outfile, level, namespaceprefix_, name_='packages', pretty_print=pretty_print)
         for extension_ in self.extension:
@@ -1097,6 +1109,11 @@ class image(GeneratedsSuper):
             obj_.build(child_)
             self.repository.append(obj_)
             obj_.original_tagname_ = 'repository'
+        elif nodeName_ == 'containers':
+            obj_ = containers.factory()
+            obj_.build(child_)
+            self.containers.append(obj_)
+            obj_.original_tagname_ = 'containers'
         elif nodeName_ == 'packages':
             obj_ = packages.factory()
             obj_.build(child_)
@@ -2436,6 +2453,257 @@ class requires(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class requires
+
+
+class containers(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, profiles=None, arch=None, source=None, backend=None, container=None):
+        self.original_tagname_ = None
+        self.profiles = _cast(None, profiles)
+        self.arch = _cast(None, arch)
+        self.source = _cast(None, source)
+        self.backend = _cast(None, backend)
+        if container is None:
+            self.container = []
+        else:
+            self.container = container
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, containers)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if containers.subclass:
+            return containers.subclass(*args_, **kwargs_)
+        else:
+            return containers(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_container(self): return self.container
+    def set_container(self, container): self.container = container
+    def add_container(self, value): self.container.append(value)
+    def insert_container_at(self, index, value): self.container.insert(index, value)
+    def replace_container_at(self, index, value): self.container[index] = value
+    def get_profiles(self): return self.profiles
+    def set_profiles(self, profiles): self.profiles = profiles
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
+    def get_source(self): return self.source
+    def set_source(self, source): self.source = source
+    def get_backend(self): return self.backend
+    def set_backend(self, backend): self.backend = backend
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
+    def hasContent_(self):
+        if (
+            self.container
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='containers', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('containers')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='containers')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='containers', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='containers'):
+        if self.profiles is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
+        if self.source is not None and 'source' not in already_processed:
+            already_processed.add('source')
+            outfile.write(' source=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.source), input_name='source')), ))
+        if self.backend is not None and 'backend' not in already_processed:
+            already_processed.add('backend')
+            outfile.write(' backend=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.backend), input_name='backend')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='containers', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for container_ in self.container:
+            container_.export(outfile, level, namespaceprefix_, name_='container', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('profiles', node)
+        if value is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            self.profiles = value
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
+        value = find_attr_value_('source', node)
+        if value is not None and 'source' not in already_processed:
+            already_processed.add('source')
+            self.source = value
+        value = find_attr_value_('backend', node)
+        if value is not None and 'backend' not in already_processed:
+            already_processed.add('backend')
+            self.backend = value
+            self.backend = ' '.join(self.backend.split())
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'container':
+            obj_ = container.factory()
+            obj_.build(child_)
+            self.container.append(obj_)
+            obj_.original_tagname_ = 'container'
+# end class containers
+
+
+class container(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, arch=None, path=None, tag=None, fetch_only=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.arch = _cast(None, arch)
+        self.path = _cast(None, path)
+        self.tag = _cast(None, tag)
+        self.fetch_only = _cast(bool, fetch_only)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, container)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if container.subclass:
+            return container.subclass(*args_, **kwargs_)
+        else:
+            return container(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
+    def get_path(self): return self.path
+    def set_path(self, path): self.path = path
+    def get_tag(self): return self.tag
+    def set_tag(self, tag): self.tag = tag
+    def get_fetch_only(self): return self.fetch_only
+    def set_fetch_only(self, fetch_only): self.fetch_only = fetch_only
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='container', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('container')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='container')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='container', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='container'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
+        if self.path is not None and 'path' not in already_processed:
+            already_processed.add('path')
+            outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
+        if self.tag is not None and 'tag' not in already_processed:
+            already_processed.add('tag')
+            outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
+        if self.fetch_only is not None and 'fetch_only' not in already_processed:
+            already_processed.add('fetch_only')
+            outfile.write(' fetch_only="%s"' % self.gds_format_boolean(self.fetch_only, input_name='fetch_only'))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='container', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
+        value = find_attr_value_('path', node)
+        if value is not None and 'path' not in already_processed:
+            already_processed.add('path')
+            self.path = value
+        value = find_attr_value_('tag', node)
+        if value is not None and 'tag' not in already_processed:
+            already_processed.add('tag')
+            self.tag = value
+        value = find_attr_value_('fetch_only', node)
+        if value is not None and 'fetch_only' not in already_processed:
+            already_processed.add('fetch_only')
+            if value in ('true', '1'):
+                self.fetch_only = True
+            elif value in ('false', '0'):
+                self.fetch_only = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class container
 
 
 class repository(k_source):
@@ -9599,7 +9867,9 @@ __all__ = [
     "bootloadersettings",
     "collectionModule",
     "configoption",
+    "container",
     "containerconfig",
+    "containers",
     "description",
     "dracut",
     "drivers",
