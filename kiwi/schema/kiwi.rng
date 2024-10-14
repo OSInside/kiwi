@@ -209,6 +209,9 @@ named /etc/ImageID</a:documentation>
             <ref name="k.repository"/>
           </zeroOrMore>
           <zeroOrMore>
+            <ref name="k.registry"/>
+          </zeroOrMore>
+          <zeroOrMore>
             <ref name="k.packages"/>
           </zeroOrMore>
           <optional>
@@ -1598,6 +1601,101 @@ definition.</a:documentation>
 definition can be composed by other existing profiles.</a:documentation>
         <ref name="k.requires.attlist"/>
         <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <registry>
+    
+  -->
+  <div>
+    <define name="k.registry.profiles.attribute">
+      <ref name="k.profiles.attribute"/>
+    </define>
+    <define name="k.registry.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
+    <define name="k.registry.source.attribute">
+      <attribute name="source">
+        <a:documentation>Name of registry source server</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.registry.attlist">
+      <interleave>
+        <optional>
+          <ref name="k.registry.profiles.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.registry.arch.attribute"/>
+        </optional>
+        <ref name="k.registry.source.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.registry">
+      <element name="registry">
+        <ref name="k.registry.attlist"/>
+        <oneOrMore>
+          <ref name="k.container"/>
+        </oneOrMore>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <container>
+    
+  -->
+  <div>
+    <define name="k.container.name.attribute">
+      <attribute name="name">
+        <a:documentation>Container name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.container.tag.attribute">
+      <attribute name="tag">
+        <a:documentation>Container tag, defaults to 'latest' if not specified</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.container.path.attribute">
+      <attribute name="path">
+        <a:documentation>Container path, default to '/' if not specified</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.container.fetch_only.attribute">
+      <attribute name="fetch_only">
+        <a:documentation>Only fetch the container but do not activate the
+loading of the container at first boot</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
+    <define name="k.container.use_with.attribute">
+      <attribute name="use_with">
+        <a:documentation>Use container with specified container backend</a:documentation>
+        <choice>
+          <value>podman</value>
+          <value>docker</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.container.attlist">
+      <interleave>
+        <ref name="k.container.name.attribute"/>
+        <ref name="k.container.use_with.attribute"/>
+        <optional>
+          <ref name="k.container.tag.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.container.path.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.container.fetch_only.attribute"/>
+        </optional>
+      </interleave>
+    </define>
+    <define name="k.container">
+      <element name="container">
+        <ref name="k.container.attlist"/>
       </element>
     </define>
   </div>

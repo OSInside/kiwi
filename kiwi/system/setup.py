@@ -51,6 +51,7 @@ from kiwi.archive.tar import ArchiveTar
 from kiwi.utils.compress import Compress
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.utils.rpm_database import RpmDataBase
+from kiwi.builder.template.container_import import BuilderTemplateSystemdUnit
 from kiwi.system.profile import Profile
 
 from kiwi.exceptions import (
@@ -86,6 +87,42 @@ class SystemSetup:
         self.root_dir = root_dir
         self._preferences_lookup()
         self._oemconfig_lookup()
+
+    def setup_registry_import(self) -> None:
+        """
+        Fetch container(s) and activate systemd unit to load
+        fetched containers during boot
+        """
+        for container in self.xml_state.get_containers():
+            log.info(f'Fetching container: {container.name}')
+            pathlib.Path(f'{self.root_dir}/{defaults.LOCAL_CONTAINERS}').mkdir(
+                parents=True, exist_ok=True
+            )
+            Command.run(
+                ['chroot', self.root_dir] + container.fetch_command
+            )
+            if container.load_command:
+                log.info('--> Setup import unit')
+                service = BuilderTemplateSystemdUnit()
+                unit_template = service.get_container_import_template()
+                unit = unit_template.substitute(
+                    {
+                        'container_name': container.name,
+                        'container_file': container.container_file,
+                        'load_command': ' '.join(container.load_command)
+                    }
+                )
+                unit_file = '{0}/usr/lib/systemd/system/{1}.service'.format(
+                    self.root_dir, container.name
+                )
+                with open(unit_file, 'w') as systemd:
+                    systemd.write(unit)
+                Command.run(
+                    [
+                        'chroot', self.root_dir,
+                        'systemctl', 'enable', container.name
+                    ]
+                )
 
     def import_description(self) -> None:
         """

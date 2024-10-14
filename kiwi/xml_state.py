@@ -85,6 +85,14 @@ class FileT(NamedTuple):
     permissions: str
 
 
+class ContainerT(NamedTuple):
+    name: str
+    container_file: str
+    fetch_only: bool
+    fetch_command: List[str]
+    load_command: List[str]
+
+
 class XMLState:
     """
     **Implements methods to get stateful information from the XML data**
@@ -460,6 +468,20 @@ class XMLState:
         :rtype: bool
         """
         return self._section_matches_host_architecture(repository)
+
+    def registry_matches_host_architecture(self, registry: Any) -> bool:
+        """
+        Tests if the given registry section is applicable for the
+        current host architecture. If no arch attribute is provided in
+        the section it is considered as a match and returns: True.
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return self._section_matches_host_architecture(registry)
 
     def get_package_sections(
         self, packages_sections: List
@@ -1711,6 +1733,46 @@ class XMLState:
             )
         return partitions
 
+    def get_containers(self) -> List[ContainerT]:
+        containers = []
+        for registry_section in self.get_registry_sections():
+            for container in registry_section.get_container():
+                fetch_command = []
+                load_command = []
+                container_tag = container.get_tag() or 'latest'
+                container_path = container.get_path() or ''
+                container_endpoint = os.path.normpath(
+                    '{0}/{1}/{2}:{3}'.format(
+                        registry_section.get_source(), container_path,
+                        container.name, container_tag
+                    )
+                )
+                container_file_name = '{0}/{1}_{2}'.format(
+                    defaults.LOCAL_CONTAINERS, container.name, container_tag
+                )
+                container_backend = container.get_use_with() or ''
+                if container_backend in ['podman', 'docker']:
+                    fetch_command = [
+                        '/usr/bin/skopeo', 'copy',
+                        f'docker://{container_endpoint}',
+                        f'oci-archive:{container_file_name}:{container.name}'
+                    ]
+                    if not container.get_fetch_only():
+                        load_command = [
+                            f'/usr/bin/{container_backend}',
+                            'load', '-i', container_file_name
+                        ]
+                containers.append(
+                    ContainerT(
+                        name=f'{container.name}_{container_tag}',
+                        container_file=container_file_name,
+                        fetch_only=bool(container.get_fetch_only()),
+                        fetch_command=fetch_command,
+                        load_command=load_command
+                    )
+                )
+        return containers
+
     def get_volumes(self) -> List[volume_type]:
         """
         List of configured systemdisk volumes.
@@ -2013,6 +2075,21 @@ class XMLState:
             if self.repository_matches_host_architecture(repository):
                 repository_list.append(repository)
         return repository_list
+
+    def get_registry_sections(self) -> List:
+        """
+        List of all registry sections for the selected profiles that
+        matches the host architecture
+
+        :return: <registry> section reference(s)
+
+        :rtype: list
+        """
+        registry_list = []
+        for registry in self._profiled(self.xml_data.get_registry()):
+            if self.registry_matches_host_architecture(registry):
+                registry_list.append(registry)
+        return registry_list
 
     def get_repository_sections_used_for_build(self) -> List:
         """

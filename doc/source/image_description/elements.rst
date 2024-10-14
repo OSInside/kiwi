@@ -1233,6 +1233,58 @@ Used to customize the installation media images created for oem images
 deployment.
 For details see: :ref:`installmedia_customize`
 
+.. _sec.registry:
+
+<registry>
+----------
+
+Setup containers to fetch from one ore more registry elements
+
+.. code:: xml
+
+   <registry source="registry.opensuse.org">
+       <container name="some" use_with="podman"/>
+   </registry>
+
+The optional registry element specifies the location of one ore
+more containers on a registry `source` server. {kiwi} will take
+this information and fetch the containers as OCI archives to
+the image. On first boot those container archives will be loaded
+into the local container backend store for the selected
+backend and the archive files gets deleted.
+
+<registry><container>
+---------------------
+
+Details about a container to fetch from a given source registry
+
+.. code:: xml
+
+   <registry source="registry.opensuse.org">
+       <container name="some" use_with="podman"/>
+   </registry>
+
+The `name` and `use_with` attributes are mandatory and specifies
+the name of the container and for which backend it should be used.
+So far `docker` and `podman` are supported backend values for
+the `use_with` attribute. The `container` element has the following
+optional attributes
+
+path="some/path"
+  The path to the container in the registry. If not specified
+  the value defaults to `/`
+
+fetch_only="true|false"
+  If set to `true` kiwi will only fetch the container but does not
+  setup the systemd unit for actually loading the container into
+  the local registry. In this mode the container archive file stays
+  in the system and can be handled in a custom way. By default
+  `fetch_only` is set to `false`.
+
+tag="tagname"
+  Specifies the container tag to fetch. If not set the tag name
+  defaults to `latest`
+
 .. _sec.repository:
 
 <repository>

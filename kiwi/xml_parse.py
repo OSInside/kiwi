@@ -812,7 +812,7 @@ class image(GeneratedsSuper):
     """The root element of the configuration file"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, packages=None, extension=None):
+    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, registry=None, packages=None, extension=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.displayname = _cast(None, displayname)
@@ -852,6 +852,10 @@ class image(GeneratedsSuper):
             self.repository = []
         else:
             self.repository = repository
+        if registry is None:
+            self.registry = []
+        else:
+            self.registry = registry
         if packages is None:
             self.packages = []
         else:
@@ -911,6 +915,11 @@ class image(GeneratedsSuper):
     def add_repository(self, value): self.repository.append(value)
     def insert_repository_at(self, index, value): self.repository.insert(index, value)
     def replace_repository_at(self, index, value): self.repository[index] = value
+    def get_registry(self): return self.registry
+    def set_registry(self, registry): self.registry = registry
+    def add_registry(self, value): self.registry.append(value)
+    def insert_registry_at(self, index, value): self.registry.insert(index, value)
+    def replace_registry_at(self, index, value): self.registry[index] = value
     def get_packages(self): return self.packages
     def set_packages(self, packages): self.packages = packages
     def add_packages(self, value): self.packages.append(value)
@@ -950,6 +959,7 @@ class image(GeneratedsSuper):
             self.drivers or
             self.strip or
             self.repository or
+            self.registry or
             self.packages or
             self.extension
         ):
@@ -1017,6 +1027,8 @@ class image(GeneratedsSuper):
             strip_.export(outfile, level, namespaceprefix_, name_='strip', pretty_print=pretty_print)
         for repository_ in self.repository:
             repository_.export(outfile, level, namespaceprefix_, name_='repository', pretty_print=pretty_print)
+        for registry_ in self.registry:
+            registry_.export(outfile, level, namespaceprefix_, name_='registry', pretty_print=pretty_print)
         for packages_ in self.packages:
             packages_.export(outfile, level, namespaceprefix_, name_='packages', pretty_print=pretty_print)
         for extension_ in self.extension:
@@ -1097,6 +1109,11 @@ class image(GeneratedsSuper):
             obj_.build(child_)
             self.repository.append(obj_)
             obj_.original_tagname_ = 'repository'
+        elif nodeName_ == 'registry':
+            obj_ = registry.factory()
+            obj_.build(child_)
+            self.registry.append(obj_)
+            obj_.original_tagname_ = 'registry'
         elif nodeName_ == 'packages':
             obj_ = packages.factory()
             obj_.build(child_)
@@ -2436,6 +2453,238 @@ class requires(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class requires
+
+
+class registry(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, profiles=None, arch=None, source=None, container=None):
+        self.original_tagname_ = None
+        self.profiles = _cast(None, profiles)
+        self.arch = _cast(None, arch)
+        self.source = _cast(None, source)
+        if container is None:
+            self.container = []
+        else:
+            self.container = container
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, registry)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if registry.subclass:
+            return registry.subclass(*args_, **kwargs_)
+        else:
+            return registry(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_container(self): return self.container
+    def set_container(self, container): self.container = container
+    def add_container(self, value): self.container.append(value)
+    def insert_container_at(self, index, value): self.container.insert(index, value)
+    def replace_container_at(self, index, value): self.container[index] = value
+    def get_profiles(self): return self.profiles
+    def set_profiles(self, profiles): self.profiles = profiles
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
+    def get_source(self): return self.source
+    def set_source(self, source): self.source = source
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
+    def hasContent_(self):
+        if (
+            self.container
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='registry', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('registry')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='registry')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='registry', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='registry'):
+        if self.profiles is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
+        if self.source is not None and 'source' not in already_processed:
+            already_processed.add('source')
+            outfile.write(' source=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.source), input_name='source')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='registry', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for container_ in self.container:
+            container_.export(outfile, level, namespaceprefix_, name_='container', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('profiles', node)
+        if value is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            self.profiles = value
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
+        value = find_attr_value_('source', node)
+        if value is not None and 'source' not in already_processed:
+            already_processed.add('source')
+            self.source = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'container':
+            obj_ = container.factory()
+            obj_.build(child_)
+            self.container.append(obj_)
+            obj_.original_tagname_ = 'container'
+# end class registry
+
+
+class container(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, use_with=None, tag=None, path=None, fetch_only=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.use_with = _cast(None, use_with)
+        self.tag = _cast(None, tag)
+        self.path = _cast(None, path)
+        self.fetch_only = _cast(bool, fetch_only)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, container)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if container.subclass:
+            return container.subclass(*args_, **kwargs_)
+        else:
+            return container(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_use_with(self): return self.use_with
+    def set_use_with(self, use_with): self.use_with = use_with
+    def get_tag(self): return self.tag
+    def set_tag(self, tag): self.tag = tag
+    def get_path(self): return self.path
+    def set_path(self, path): self.path = path
+    def get_fetch_only(self): return self.fetch_only
+    def set_fetch_only(self, fetch_only): self.fetch_only = fetch_only
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='container', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('container')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='container')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='container', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='container'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.use_with is not None and 'use_with' not in already_processed:
+            already_processed.add('use_with')
+            outfile.write(' use_with=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.use_with), input_name='use_with')), ))
+        if self.tag is not None and 'tag' not in already_processed:
+            already_processed.add('tag')
+            outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
+        if self.path is not None and 'path' not in already_processed:
+            already_processed.add('path')
+            outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
+        if self.fetch_only is not None and 'fetch_only' not in already_processed:
+            already_processed.add('fetch_only')
+            outfile.write(' fetch_only="%s"' % self.gds_format_boolean(self.fetch_only, input_name='fetch_only'))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='container', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('use_with', node)
+        if value is not None and 'use_with' not in already_processed:
+            already_processed.add('use_with')
+            self.use_with = value
+            self.use_with = ' '.join(self.use_with.split())
+        value = find_attr_value_('tag', node)
+        if value is not None and 'tag' not in already_processed:
+            already_processed.add('tag')
+            self.tag = value
+        value = find_attr_value_('path', node)
+        if value is not None and 'path' not in already_processed:
+            already_processed.add('path')
+            self.path = value
+        value = find_attr_value_('fetch_only', node)
+        if value is not None and 'fetch_only' not in already_processed:
+            already_processed.add('fetch_only')
+            if value in ('true', '1'):
+                self.fetch_only = True
+            elif value in ('false', '0'):
+                self.fetch_only = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class container
 
 
 class repository(k_source):
@@ -9599,6 +9848,7 @@ __all__ = [
     "bootloadersettings",
     "collectionModule",
     "configoption",
+    "container",
     "containerconfig",
     "description",
     "dracut",
@@ -9633,6 +9883,7 @@ __all__ = [
     "product",
     "profile",
     "profiles",
+    "registry",
     "repository",
     "requires",
     "shimoption",
