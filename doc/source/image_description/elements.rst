@@ -1238,12 +1238,14 @@ For details see: :ref:`installmedia_customize`
 <registry>
 ----------
 
-Setup containers to fetch from one ore more registry elements
+Setup containers to fetch from one or more registry elements
 
 .. code:: xml
 
    <registry source="registry.opensuse.org">
-       <container name="some" use_with="podman"/>
+       <containers backend="podman">
+           <container name="some"/>
+       </containers>
    </registry>
 
 The optional registry element specifies the location of one ore
@@ -1253,22 +1255,39 @@ the image. On first boot those container archives will be loaded
 into the local container backend store for the selected
 backend and the archive files gets deleted.
 
-<registry><container>
----------------------
+<registry><containers>
+----------------------
 
-Details about a container to fetch from a given source registry
+Details about the container backend
 
 .. code:: xml
 
    <registry source="registry.opensuse.org">
-       <container name="some" use_with="podman"/>
+       <containers backend="podman">
+           <container name="some"/>
+       </containers>
    </registry>
 
-The `name` and `use_with` attributes are mandatory and specifies
-the name of the container and for which backend it should be used.
-So far `docker` and `podman` are supported backend values for
-the `use_with` attribute. The `container` element has the following
-optional attributes
+Supported `backend` values as of today are `docker` and `podman`.
+The `backend` attribute is mandatory and specifies for which
+container backend the image should be available in the system.
+
+<registry><containers><container>
+---------------------------------
+
+Details about the container to fetch from a given source registry
+
+.. code:: xml
+
+   <registry source="registry.opensuse.org">
+       <containers backend="podman">
+           <container name="some"/>
+       </containers>
+   </registry>
+
+The `name` attributes is mandatory and specifies
+the name of the container as it exists in the registry.
+The `container` element has the following optional attributes
 
 path="some/path"
   The path to the container in the registry. If not specified
