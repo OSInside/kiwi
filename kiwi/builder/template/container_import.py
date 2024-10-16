@@ -1,4 +1,4 @@
-# Copyright (c) 2024 SUSE Software Solutions Germany GmbH.  All rights reserved.
+# Copyright (c) 2024 SUSE LLC.  All rights reserved.
 #
 # This file is part of kiwi.
 #

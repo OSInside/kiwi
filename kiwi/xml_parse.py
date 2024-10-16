@@ -2458,15 +2458,15 @@ class requires(GeneratedsSuper):
 class registry(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, arch=None, source=None, container=None):
+    def __init__(self, profiles=None, arch=None, source=None, containers=None):
         self.original_tagname_ = None
         self.profiles = _cast(None, profiles)
         self.arch = _cast(None, arch)
         self.source = _cast(None, source)
-        if container is None:
-            self.container = []
+        if containers is None:
+            self.containers = []
         else:
-            self.container = container
+            self.containers = containers
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2478,11 +2478,11 @@ class registry(GeneratedsSuper):
         else:
             return registry(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_container(self): return self.container
-    def set_container(self, container): self.container = container
-    def add_container(self, value): self.container.append(value)
-    def insert_container_at(self, index, value): self.container.insert(index, value)
-    def replace_container_at(self, index, value): self.container[index] = value
+    def get_containers(self): return self.containers
+    def set_containers(self, containers): self.containers = containers
+    def add_containers(self, value): self.containers.append(value)
+    def insert_containers_at(self, index, value): self.containers.insert(index, value)
+    def replace_containers_at(self, index, value): self.containers[index] = value
     def get_profiles(self): return self.profiles
     def set_profiles(self, profiles): self.profiles = profiles
     def get_arch(self): return self.arch
@@ -2498,7 +2498,7 @@ class registry(GeneratedsSuper):
     validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
-            self.container
+            self.containers
         ):
             return True
         else:
@@ -2539,8 +2539,8 @@ class registry(GeneratedsSuper):
             eol_ = '\n'
         else:
             eol_ = ''
-        for container_ in self.container:
-            container_.export(outfile, level, namespaceprefix_, name_='container', pretty_print=pretty_print)
+        for containers_ in self.containers:
+            containers_.export(outfile, level, namespaceprefix_, name_='containers', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2564,21 +2564,109 @@ class registry(GeneratedsSuper):
             already_processed.add('source')
             self.source = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'containers':
+            obj_ = containers.factory()
+            obj_.build(child_)
+            self.containers.append(obj_)
+            obj_.original_tagname_ = 'containers'
+# end class registry
+
+
+class containers(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, backend=None, container=None):
+        self.original_tagname_ = None
+        self.backend = _cast(None, backend)
+        if container is None:
+            self.container = []
+        else:
+            self.container = container
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, containers)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if containers.subclass:
+            return containers.subclass(*args_, **kwargs_)
+        else:
+            return containers(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_container(self): return self.container
+    def set_container(self, container): self.container = container
+    def add_container(self, value): self.container.append(value)
+    def insert_container_at(self, index, value): self.container.insert(index, value)
+    def replace_container_at(self, index, value): self.container[index] = value
+    def get_backend(self): return self.backend
+    def set_backend(self, backend): self.backend = backend
+    def hasContent_(self):
+        if (
+            self.container
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='containers', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('containers')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='containers')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='containers', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='containers'):
+        if self.backend is not None and 'backend' not in already_processed:
+            already_processed.add('backend')
+            outfile.write(' backend=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.backend), input_name='backend')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='containers', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for container_ in self.container:
+            container_.export(outfile, level, namespaceprefix_, name_='container', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('backend', node)
+        if value is not None and 'backend' not in already_processed:
+            already_processed.add('backend')
+            self.backend = value
+            self.backend = ' '.join(self.backend.split())
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'container':
             obj_ = container.factory()
             obj_.build(child_)
             self.container.append(obj_)
             obj_.original_tagname_ = 'container'
-# end class registry
+# end class containers
 
 
 class container(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, name=None, use_with=None, tag=None, path=None, fetch_only=None):
+    def __init__(self, name=None, tag=None, path=None, fetch_only=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
-        self.use_with = _cast(None, use_with)
         self.tag = _cast(None, tag)
         self.path = _cast(None, path)
         self.fetch_only = _cast(bool, fetch_only)
@@ -2595,8 +2683,6 @@ class container(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
-    def get_use_with(self): return self.use_with
-    def set_use_with(self, use_with): self.use_with = use_with
     def get_tag(self): return self.tag
     def set_tag(self, tag): self.tag = tag
     def get_path(self): return self.path
@@ -2634,9 +2720,6 @@ class container(GeneratedsSuper):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-        if self.use_with is not None and 'use_with' not in already_processed:
-            already_processed.add('use_with')
-            outfile.write(' use_with=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.use_with), input_name='use_with')), ))
         if self.tag is not None and 'tag' not in already_processed:
             already_processed.add('tag')
             outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
@@ -2660,11 +2743,6 @@ class container(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
-        value = find_attr_value_('use_with', node)
-        if value is not None and 'use_with' not in already_processed:
-            already_processed.add('use_with')
-            self.use_with = value
-            self.use_with = ' '.join(self.use_with.split())
         value = find_attr_value_('tag', node)
         if value is not None and 'tag' not in already_processed:
             already_processed.add('tag')
@@ -9850,6 +9928,7 @@ __all__ = [
     "configoption",
     "container",
     "containerconfig",
+    "containers",
     "description",
     "dracut",
     "drivers",

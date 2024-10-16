@@ -1064,7 +1064,23 @@ div {
     k.registry =
         element registry {
             k.registry.attlist,
-            k.container+
+            k.containers+
+        }
+}
+
+#==========================================
+# common element <containers>
+#
+div {
+    k.containers.backend.attribute =
+        ## Use container with specified container backend
+        attribute backend { "podman" | "docker" }
+    k.containers.attlist =
+        k.containers.backend.attribute
+    k.containers =
+        element containers {
+            k.containers.attlist,
+            k.container*
         }
 }
 
@@ -1085,18 +1101,15 @@ div {
         ## Only fetch the container but do not activate the
         ## loading of the container at first boot
         attribute fetch_only { xsd:boolean }
-    k.container.use_with.attribute =
-        ## Use container with specified container backend
-        attribute use_with { "podman" | "docker" }
     k.container.attlist =
         k.container.name.attribute &
-        k.container.use_with.attribute &
         k.container.tag.attribute? &
         k.container.path.attribute? &
         k.container.fetch_only.attribute?
     k.container =
         element container {
-            k.container.attlist
+            k.container.attlist,
+            empty
         }
 }
 

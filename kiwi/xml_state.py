@@ -1736,41 +1736,42 @@ class XMLState:
     def get_containers(self) -> List[ContainerT]:
         containers = []
         for registry_section in self.get_registry_sections():
-            for container in registry_section.get_container():
-                fetch_command = []
-                load_command = []
-                container_tag = container.get_tag() or 'latest'
-                container_path = container.get_path() or ''
-                container_endpoint = os.path.normpath(
-                    '{0}/{1}/{2}:{3}'.format(
-                        registry_section.get_source(), container_path,
-                        container.name, container_tag
+            for containers_section in registry_section.get_containers():
+                for container in containers_section.get_container():
+                    fetch_command = []
+                    load_command = []
+                    container_tag = container.get_tag() or 'latest'
+                    container_path = container.get_path() or ''
+                    container_endpoint = os.path.normpath(
+                        '{0}/{1}/{2}:{3}'.format(
+                            registry_section.get_source(), container_path,
+                            container.name, container_tag
+                        )
                     )
-                )
-                container_file_name = '{0}/{1}_{2}'.format(
-                    defaults.LOCAL_CONTAINERS, container.name, container_tag
-                )
-                container_backend = container.get_use_with() or ''
-                if container_backend in ['podman', 'docker']:
-                    fetch_command = [
-                        '/usr/bin/skopeo', 'copy',
-                        f'docker://{container_endpoint}',
-                        f'oci-archive:{container_file_name}:{container.name}'
-                    ]
-                    if not container.get_fetch_only():
-                        load_command = [
-                            f'/usr/bin/{container_backend}',
-                            'load', '-i', container_file_name
+                    container_file_name = '{0}/{1}_{2}'.format(
+                        defaults.LOCAL_CONTAINERS, container.name, container_tag
+                    )
+                    container_backend = containers_section.get_backend() or ''
+                    if container_backend in ['podman', 'docker']:
+                        fetch_command = [
+                            '/usr/bin/skopeo', 'copy',
+                            f'docker://{container_endpoint}',
+                            f'oci-archive:{container_file_name}:{container.name}'
                         ]
-                containers.append(
-                    ContainerT(
-                        name=f'{container.name}_{container_tag}',
-                        container_file=container_file_name,
-                        fetch_only=bool(container.get_fetch_only()),
-                        fetch_command=fetch_command,
-                        load_command=load_command
+                        if not container.get_fetch_only():
+                            load_command = [
+                                f'/usr/bin/{container_backend}',
+                                'load', '-i', container_file_name
+                            ]
+                    containers.append(
+                        ContainerT(
+                            name=f'{container.name}_{container_tag}',
+                            container_file=container_file_name,
+                            fetch_only=bool(container.get_fetch_only()),
+                            fetch_command=fetch_command,
+                            load_command=load_command
+                        )
                     )
-                )
         return containers
 
     def get_volumes(self) -> List[volume_type]:

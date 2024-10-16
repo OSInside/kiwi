@@ -183,11 +183,17 @@
         <user groups="kiwi,admin:42,users" pwdformat="plain" password="mypwd" name="kiwi"/>
     </users>
     <registry source="registry.suse.com">
-        <container name="rmtserver" tag="latest" path="home/mschaefer/images_pubcloud/pct" use_with="podman"/>
-        <container name="some" use_with="docker"/>
+        <containers backend="podman">
+            <container name="rmtserver" tag="latest" path="home/mschaefer/images_pubcloud/pct"/>
+        </containers>
+        <containers backend="docker">
+            <container name="some"/>
+        </containers>
     </registry>
     <registry source="docker.io">
-        <container name="foo" fetch_only="true" use_with="podman"/>
+        <containers backend="podman">
+            <container name="foo" fetch_only="true"/>
+        </containers>
     </registry>
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso">
