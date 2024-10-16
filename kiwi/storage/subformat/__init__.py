@@ -16,17 +16,15 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from abc import (
-    ABCMeta,
-    abstractmethod
-)
+from typing import Dict, Optional, Tuple
 
 # project
+from kiwi.storage.subformat.base import DiskFormatBase
 from kiwi.xml_state import XMLState
 from kiwi.exceptions import KiwiDiskFormatSetupError
 
 
-class DiskFormat(metaclass=ABCMeta):
+class DiskFormat:
     """
     **DiskFormat factory**
 
@@ -35,15 +33,11 @@ class DiskFormat(metaclass=ABCMeta):
     :param string root_dir: root directory path name
     :param string target_dir: target directory path name
     """
-    @abstractmethod
-    def __init__(self) -> None:
-        return None  # pragma: no cover
 
     @staticmethod
-    @abstractmethod
     def new(
         name: str, xml_state: XMLState, root_dir: str, target_dir: str
-    ):  # noqa: E252
+    ) -> DiskFormatBase:
         name_map = {
             'qcow2': 'Qcow2',
             'vdi': 'Vdi',
@@ -57,25 +51,24 @@ class DiskFormat(metaclass=ABCMeta):
             'vagrant_virtualbox': 'VagrantVirtualBox',
             'base': 'Base'
         }
+        module_namespace: Optional[str] = None
         try:
-            (custom_args, module_namespace) = DiskFormat.\
+            custom_args, module_namespace = DiskFormat.\
                 _custom_args_for_format(name, xml_state)
             diskformat = importlib.import_module(
-                'kiwi.storage.subformat.{0}'.format(module_namespace)
+                f'kiwi.storage.subformat.{module_namespace}'
             )
-            module_name = 'DiskFormat{0}'.format(name_map[module_namespace])
+            module_name = f'DiskFormat{name_map[module_namespace]}'
             return diskformat.__dict__[module_name](
                 xml_state, root_dir, target_dir, custom_args
             )
         except Exception as issue:
             raise KiwiDiskFormatSetupError(
-                'No support for {0} disk format: {1}'.format(
-                    module_namespace, issue
-                )
+                f'No support for {module_namespace} disk format: {issue}'
             )
 
     @staticmethod
-    def _custom_args_for_format(name: str, xml_state: XMLState):
+    def _custom_args_for_format(name: str, xml_state: XMLState) -> Tuple[Dict, str]:
         custom_args = xml_state.get_build_type_format_options()
         module_namespace = name
         if name == 'vhd-fixed':
@@ -115,4 +108,4 @@ class DiskFormat(metaclass=ABCMeta):
                 )
         elif name == 'raw':
             module_namespace = 'base'
-        return [custom_args, module_namespace]
+        return custom_args, module_namespace
