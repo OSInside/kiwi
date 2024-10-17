@@ -66,6 +66,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
                 {'grub_directory_name': 'grub|grub2'}
         """
+        self.efi_csm = True if self.xml_state.build_type.get_eficsm() is None \
+            else self.xml_state.build_type.get_eficsm()
         self.custom_args = custom_args
         self.config_options = []
         arch = Defaults.get_platform_name()
@@ -612,7 +614,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
 
     def _supports_bios_modules(self):
-        if self.arch == 'ix86' or self.arch == 'x86_64' or Defaults.is_ppc64_arch(self.arch):
+        if self.efi_csm and (
+            self.arch == 'ix86' or self.arch == 'x86_64' or Defaults.is_ppc64_arch(self.arch)
+        ):
             return True
         return False
 
