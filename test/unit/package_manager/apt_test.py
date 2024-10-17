@@ -182,13 +182,23 @@ class TestPackageManagerApt:
             ),
             call(
                 [
-                    'chroot', 'root-dir', 'bash',
+                    'chmod', '755', 'tempdir/base-passwd/preinst'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root-dir',
                     'tempdir/base-passwd/preinst', 'install'
                 ], new_env
             ),
             call(
                 [
-                    'chroot', 'root-dir', 'bash',
+                    'chmod', '755', 'tempdir/base-passwd/postinst'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root-dir',
                     'tempdir/base-passwd/postinst', 'configure'
                 ], new_env
             ),
@@ -197,13 +207,23 @@ class TestPackageManagerApt:
             ),
             call(
                 [
-                    'chroot', 'root-dir', 'bash',
+                    'chmod', '755', 'tempdir/base-passwd/preinst'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root-dir',
                     'tempdir/base-passwd/preinst', 'install'
                 ], new_env
             ),
             call(
                 [
-                    'chroot', 'root-dir', 'bash',
+                    'chmod', '755', 'tempdir/base-passwd/postinst'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root-dir',
                     'tempdir/base-passwd/postinst', 'configure'
                 ], new_env
             ),
@@ -212,13 +232,23 @@ class TestPackageManagerApt:
             ),
             call(
                 [
-                    'chroot', 'root-dir', 'bash',
+                    'chmod', '755', 'tempdir/vim/preinst'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root-dir',
                     'tempdir/vim/preinst', 'install'
                 ], new_env
             ),
             call(
                 [
-                    'chroot', 'root-dir', 'bash',
+                    'chmod', '755', 'tempdir/vim/postinst'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root-dir',
                     'tempdir/vim/postinst', 'configure'
                 ], new_env
             )

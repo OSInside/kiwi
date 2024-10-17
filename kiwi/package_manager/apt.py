@@ -557,17 +557,19 @@ class PackageManagerApt(PackageManagerBase):
             script_post = f'{package_metadata_dir}/postinst'
             # 1. preinst
             if os.path.exists(script_pre):
+                Command.run(['chmod', '755', script_pre])
                 Command.run(
                     [
-                        'chroot', self.root_dir, 'bash',
+                        'chroot', self.root_dir,
                         f'{script_pre.replace(self.root_dir, "")}', 'install'
                     ], self.command_env
                 )
             # 2. postinst
             if os.path.exists(script_post):
+                Command.run(['chmod', '755', script_post])
                 Command.run(
                     [
-                        'chroot', self.root_dir, 'bash',
+                        'chroot', self.root_dir,
                         f'{script_post.replace(self.root_dir, "")}', 'configure'
                     ], self.command_env
                 )
