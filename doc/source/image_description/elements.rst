@@ -1271,7 +1271,7 @@ Details about the container backend
 Supported `backend` values as of today are `docker` and `podman`.
 The `backend` attribute is mandatory and specifies for which
 container backend the image should be available in the system.
-The `containera` element has the following optional attributes:
+The `container` element has the following optional attribute:
 
 path="some/path"
   The path to the container in the registry. If not specified
@@ -1296,7 +1296,7 @@ The `container` element has the following optional attributes
 
 fetch_only="true|false"
   If set to `true` kiwi will only fetch the container but does not
-  setup the systemd unit for actually loading the container into
+  setup the systemd unit for loading the container into
   the local registry. In this mode the container archive file stays
   in the system and can be handled in a custom way. By default
   `fetch_only` is set to `false`.
