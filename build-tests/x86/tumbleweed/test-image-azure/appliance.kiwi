@@ -101,7 +101,6 @@
         <package name="telnet"/>
         <package name="terminfo"/>
         <package name="wget"/>
-        <package name="x86info"/>
         <package name="xfsprogs"/>
         <package name="xinetd"/>
         <package name="yp-tools"/>
