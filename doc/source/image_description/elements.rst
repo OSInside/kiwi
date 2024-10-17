@@ -1271,6 +1271,11 @@ Details about the container backend
 Supported `backend` values as of today are `docker` and `podman`.
 The `backend` attribute is mandatory and specifies for which
 container backend the image should be available in the system.
+The `containera` element has the following optional attributes:
+
+path="some/path"
+  The path to the container in the registry. If not specified
+  the value defaults to `/`
 
 <registry><containers><container>
 ---------------------------------
@@ -1288,10 +1293,6 @@ Details about the container to fetch from a given source registry
 The `name` attributes is mandatory and specifies
 the name of the container as it exists in the registry.
 The `container` element has the following optional attributes
-
-path="some/path"
-  The path to the container in the registry. If not specified
-  the value defaults to `/`
 
 fetch_only="true|false"
   If set to `true` kiwi will only fetch the container but does not

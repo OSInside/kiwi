@@ -2575,9 +2575,10 @@ class registry(GeneratedsSuper):
 class containers(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, backend=None, container=None):
+    def __init__(self, backend=None, path=None, container=None):
         self.original_tagname_ = None
         self.backend = _cast(None, backend)
+        self.path = _cast(None, path)
         if container is None:
             self.container = []
         else:
@@ -2600,6 +2601,8 @@ class containers(GeneratedsSuper):
     def replace_container_at(self, index, value): self.container[index] = value
     def get_backend(self): return self.backend
     def set_backend(self, backend): self.backend = backend
+    def get_path(self): return self.path
+    def set_path(self, path): self.path = path
     def hasContent_(self):
         if (
             self.container
@@ -2632,6 +2635,9 @@ class containers(GeneratedsSuper):
         if self.backend is not None and 'backend' not in already_processed:
             already_processed.add('backend')
             outfile.write(' backend=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.backend), input_name='backend')), ))
+        if self.path is not None and 'path' not in already_processed:
+            already_processed.add('path')
+            outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='containers', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2652,6 +2658,10 @@ class containers(GeneratedsSuper):
             already_processed.add('backend')
             self.backend = value
             self.backend = ' '.join(self.backend.split())
+        value = find_attr_value_('path', node)
+        if value is not None and 'path' not in already_processed:
+            already_processed.add('path')
+            self.path = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'container':
             obj_ = container.factory()
@@ -2664,11 +2674,10 @@ class containers(GeneratedsSuper):
 class container(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, name=None, tag=None, path=None, fetch_only=None):
+    def __init__(self, name=None, tag=None, fetch_only=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.tag = _cast(None, tag)
-        self.path = _cast(None, path)
         self.fetch_only = _cast(bool, fetch_only)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -2685,8 +2694,6 @@ class container(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_tag(self): return self.tag
     def set_tag(self, tag): self.tag = tag
-    def get_path(self): return self.path
-    def set_path(self, path): self.path = path
     def get_fetch_only(self): return self.fetch_only
     def set_fetch_only(self, fetch_only): self.fetch_only = fetch_only
     def hasContent_(self):
@@ -2723,9 +2730,6 @@ class container(GeneratedsSuper):
         if self.tag is not None and 'tag' not in already_processed:
             already_processed.add('tag')
             outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
-        if self.path is not None and 'path' not in already_processed:
-            already_processed.add('path')
-            outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
         if self.fetch_only is not None and 'fetch_only' not in already_processed:
             already_processed.add('fetch_only')
             outfile.write(' fetch_only="%s"' % self.gds_format_boolean(self.fetch_only, input_name='fetch_only'))
@@ -2747,10 +2751,6 @@ class container(GeneratedsSuper):
         if value is not None and 'tag' not in already_processed:
             already_processed.add('tag')
             self.tag = value
-        value = find_attr_value_('path', node)
-        if value is not None and 'path' not in already_processed:
-            already_processed.add('path')
-            self.path = value
         value = find_attr_value_('fetch_only', node)
         if value is not None and 'fetch_only' not in already_processed:
             already_processed.add('fetch_only')

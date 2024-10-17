@@ -183,8 +183,8 @@
         <user groups="kiwi,admin:42,users" pwdformat="plain" password="mypwd" name="kiwi"/>
     </users>
     <registry source="registry.suse.com">
-        <containers backend="podman">
-            <container name="rmtserver" tag="latest" path="home/mschaefer/images_pubcloud/pct"/>
+        <containers backend="podman" path="home/mschaefer/images_pubcloud/pct">
+            <container name="rmtserver" tag="latest"/>
         </containers>
         <containers backend="docker">
             <container name="some"/>

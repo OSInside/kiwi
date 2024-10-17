@@ -1742,7 +1742,7 @@ class XMLState:
                     fetch_command = []
                     load_command = []
                     container_tag = container.get_tag() or 'latest'
-                    container_path = container.get_path() or ''
+                    container_path = containers_section.get_path() or ''
                     container_endpoint = os.path.normpath(
                         '{0}/{1}/{2}:{3}'.format(
                             registry_section.get_source(), container_path,

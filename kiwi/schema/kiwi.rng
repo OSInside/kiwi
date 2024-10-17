@@ -1656,8 +1656,18 @@ definition can be composed by other existing profiles.</a:documentation>
         </choice>
       </attribute>
     </define>
+    <define name="k.containers.path.attribute">
+      <attribute name="path">
+        <a:documentation>Container path, default to '/' if not specified</a:documentation>
+      </attribute>
+    </define>
     <define name="k.containers.attlist">
-      <ref name="k.containers.backend.attribute"/>
+      <interleave>
+        <ref name="k.containers.backend.attribute"/>
+        <optional>
+          <ref name="k.containers.path.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.containers">
       <element name="containers">
@@ -1684,11 +1694,6 @@ definition can be composed by other existing profiles.</a:documentation>
         <a:documentation>Container tag, defaults to 'latest' if not specified</a:documentation>
       </attribute>
     </define>
-    <define name="k.container.path.attribute">
-      <attribute name="path">
-        <a:documentation>Container path, default to '/' if not specified</a:documentation>
-      </attribute>
-    </define>
     <define name="k.container.fetch_only.attribute">
       <attribute name="fetch_only">
         <a:documentation>Only fetch the container but do not activate the
@@ -1701,9 +1706,6 @@ loading of the container at first boot</a:documentation>
         <ref name="k.container.name.attribute"/>
         <optional>
           <ref name="k.container.tag.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.container.path.attribute"/>
         </optional>
         <optional>
           <ref name="k.container.fetch_only.attribute"/>
