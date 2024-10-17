@@ -416,6 +416,7 @@ class TestXMLState:
         assert self.state.get_containers() == [
             ContainerT(
                 name='rmtserver_latest',
+                backend='podman',
                 container_file='/var/tmp/kiwi_containers/rmtserver_latest',
                 fetch_only=False,
                 fetch_command=[
@@ -423,7 +424,8 @@ class TestXMLState:
                     'docker://registry.suse.com/home/mschaefer/'
                     'images_pubcloud/pct/rmtserver:latest',
                     'oci-archive:/var/tmp/kiwi_containers/'
-                    'rmtserver_latest:rmtserver'
+                    'rmtserver_latest:registry.suse.com/home/mschaefer/'
+                    'images_pubcloud/pct/rmtserver:latest'
                 ],
                 load_command=[
                     '/usr/bin/podman', 'load', '-i',
@@ -432,12 +434,14 @@ class TestXMLState:
             ),
             ContainerT(
                 name='some_latest',
+                backend='docker',
                 container_file='/var/tmp/kiwi_containers/some_latest',
                 fetch_only=False,
                 fetch_command=[
                     '/usr/bin/skopeo', 'copy',
                     'docker://registry.suse.com/some:latest',
-                    'oci-archive:/var/tmp/kiwi_containers/some_latest:some'
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'some_latest:registry.suse.com/some:latest'
                 ],
                 load_command=[
                     '/usr/bin/docker', 'load', '-i',
@@ -446,11 +450,13 @@ class TestXMLState:
             ),
             ContainerT(
                 name='foo_latest',
+                backend='podman',
                 container_file='/var/tmp/kiwi_containers/foo_latest',
                 fetch_only=True,
                 fetch_command=[
                     '/usr/bin/skopeo', 'copy', 'docker://docker.io/foo:latest',
-                    'oci-archive:/var/tmp/kiwi_containers/foo_latest:foo'
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'foo_latest:docker.io/foo:latest'
                 ],
                 load_command=[]
             )

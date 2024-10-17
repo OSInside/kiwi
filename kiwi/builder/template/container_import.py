@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from typing import List
 from string import Template
 from textwrap import dedent
 
@@ -24,19 +25,41 @@ class BuilderTemplateSystemdUnit:
     """
     **systemd unit file templates**
     """
-    def get_container_import_template(self) -> Template:
-        template_data = dedent('''
+    def __init__(self):
+        self.unit = dedent('''
             # kiwi generated unit file
             [Unit]
-            Description=Import Local Container: ${container_name}
-            ConditionPathExists=${container_file}
+            Description=Import Local Container(s)
+        ''').strip() + os.linesep
 
+        self.service = dedent('''
             [Service]
             Type=oneshot
-            ExecStart=${load_command}
-            ExecStartPost=/bin/rm ${container_file}
+            ExecStartPost=/bin/rm -r ${container_dir}
+        ''').strip() + os.linesep
 
+        self.install = dedent('''
             [Install]
             WantedBy=multi-user.target
         ''').strip() + os.linesep
+
+    def get_container_import_template(
+        self, container_files: List[str], load_commands: List[List[str]],
+        after: List[str]
+    ):
+        template_data = self.unit
+        for container_file in container_files:
+            template_data += 'ConditionPathExists={0}{1}'.format(
+                container_file, os.linesep
+            )
+        if after:
+            template_data += 'After={0}{1}'.format(
+                ' '.join(after), os.linesep
+            )
+        template_data += self.service
+        for load_command in load_commands:
+            template_data += 'ExecStart={0}{1}'.format(
+                ' '.join(load_command), os.linesep
+            )
+        template_data += self.install
         return Template(template_data)

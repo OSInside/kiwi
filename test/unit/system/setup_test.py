@@ -1698,32 +1698,30 @@ class TestSystemSetup:
                     'docker://registry.suse.com/home/mschaefer/images_pubcloud'
                     '/pct/rmtserver:latest',
                     'oci-archive:/var/tmp/kiwi_containers/'
-                    'rmtserver_latest:rmtserver'
-                ]
-            ),
-            call(
-                [
-                    'chroot', 'root_dir', 'systemctl', 'enable',
-                    'rmtserver_latest'
+                    'rmtserver_latest:registry.suse.com/home/mschaefer/'
+                    'images_pubcloud/pct/rmtserver:latest'
                 ]
             ),
             call(
                 [
                     'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
                     'docker://registry.suse.com/some:latest',
-                    'oci-archive:/var/tmp/kiwi_containers/some_latest:some'
-                ]
-            ),
-            call(
-                [
-                    'chroot', 'root_dir', 'systemctl', 'enable', 'some_latest'
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'some_latest:registry.suse.com/some:latest'
                 ]
             ),
             call(
                 [
                     'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
                     'docker://docker.io/foo:latest',
-                    'oci-archive:/var/tmp/kiwi_containers/foo_latest:foo'
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'foo_latest:docker.io/foo:latest'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root_dir', 'systemctl',
+                    'enable', 'kiwi_containers'
                 ]
             )
         ]

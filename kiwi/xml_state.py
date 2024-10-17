@@ -87,6 +87,7 @@ class FileT(NamedTuple):
 
 class ContainerT(NamedTuple):
     name: str
+    backend: str
     container_file: str
     fetch_only: bool
     fetch_command: List[str]
@@ -1756,7 +1757,7 @@ class XMLState:
                         fetch_command = [
                             '/usr/bin/skopeo', 'copy',
                             f'docker://{container_endpoint}',
-                            f'oci-archive:{container_file_name}:{container.name}'
+                            f'oci-archive:{container_file_name}:{container_endpoint}'
                         ]
                         if not container.get_fetch_only():
                             load_command = [
@@ -1766,6 +1767,7 @@ class XMLState:
                     containers.append(
                         ContainerT(
                             name=f'{container.name}_{container_tag}',
+                            backend=container_backend,
                             container_file=container_file_name,
                             fetch_only=bool(container.get_fetch_only()),
                             fetch_command=fetch_command,

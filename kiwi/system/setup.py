@@ -93,6 +93,9 @@ class SystemSetup:
         Fetch container(s) and activate systemd unit to load
         fetched containers during boot
         """
+        container_files_to_load = []
+        container_execs_to_load = []
+        after_services = set()
         for container in self.xml_state.get_containers():
             log.info(f'Fetching container: {container.name}')
             pathlib.Path(f'{self.root_dir}/{defaults.LOCAL_CONTAINERS}').mkdir(
@@ -102,27 +105,32 @@ class SystemSetup:
                 ['chroot', self.root_dir] + container.fetch_command
             )
             if container.load_command:
-                log.info('--> Setup import unit')
-                service = BuilderTemplateSystemdUnit()
-                unit_template = service.get_container_import_template()
-                unit = unit_template.substitute(
-                    {
-                        'container_name': container.name,
-                        'container_file': container.container_file,
-                        'load_command': ' '.join(container.load_command)
-                    }
-                )
-                unit_file = '{0}/usr/lib/systemd/system/{1}.service'.format(
-                    self.root_dir, container.name
-                )
-                with open(unit_file, 'w') as systemd:
-                    systemd.write(unit)
-                Command.run(
-                    [
-                        'chroot', self.root_dir,
-                        'systemctl', 'enable', container.name
-                    ]
-                )
+                container_files_to_load.append(container.container_file)
+                container_execs_to_load.append(container.load_command)
+                if container.backend == 'docker':
+                    after_services.add('docker.service')
+
+        if container_files_to_load:
+            log.info('--> Setup kiwi_containers.service import unit')
+            service = BuilderTemplateSystemdUnit()
+            unit_template = service.get_container_import_template(
+                container_files_to_load, container_execs_to_load,
+                list(after_services)
+            )
+            unit = unit_template.substitute(
+                {'container_dir': defaults.LOCAL_CONTAINERS}
+            )
+            unit_file = '{0}/usr/lib/systemd/system/{1}.service'.format(
+                self.root_dir, 'kiwi_containers'
+            )
+            with open(unit_file, 'w') as systemd:
+                systemd.write(unit)
+            Command.run(
+                [
+                    'chroot', self.root_dir,
+                    'systemctl', 'enable', 'kiwi_containers'
+                ]
+            )
 
     def import_description(self) -> None:
         """
