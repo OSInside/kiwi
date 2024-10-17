@@ -35,7 +35,6 @@ class BuilderTemplateSystemdUnit:
         self.service = dedent('''
             [Service]
             Type=oneshot
-            ExecStartPost=/bin/rm -r ${container_dir}
         ''').strip() + os.linesep
 
         self.install = dedent('''
@@ -60,6 +59,10 @@ class BuilderTemplateSystemdUnit:
         for load_command in load_commands:
             template_data += 'ExecStart={0}{1}'.format(
                 ' '.join(load_command), os.linesep
+            )
+        for container_file in container_files:
+            template_data += 'ExecStartPost=/bin/rm -f {0}{1}'.format(
+                container_file, os.linesep
             )
         template_data += self.install
         return Template(template_data)

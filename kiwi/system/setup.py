@@ -117,9 +117,7 @@ class SystemSetup:
                 container_files_to_load, container_execs_to_load,
                 list(after_services)
             )
-            unit = unit_template.substitute(
-                {'container_dir': defaults.LOCAL_CONTAINERS}
-            )
+            unit = unit_template.substitute()
             unit_file = '{0}/usr/lib/systemd/system/{1}.service'.format(
                 self.root_dir, 'kiwi_containers'
             )
