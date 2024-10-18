@@ -1685,3 +1685,43 @@ class TestSystemSetup:
     def test_script_exists(self, mock_path_exists):
         assert self.setup.script_exists('some-script') == \
             mock_path_exists.return_value
+
+    @patch('pathlib.Path')
+    @patch('kiwi.system.setup.Command.run')
+    def test_setup_registry_import(self, mock_Command_run, mock_Path):
+        with patch('builtins.open'):
+            self.setup_with_real_xml.setup_registry_import()
+        assert mock_Command_run.call_args_list == [
+            call(
+                [
+                    'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
+                    'docker://registry.suse.com/home/mschaefer/images_pubcloud'
+                    '/pct/rmtserver:latest',
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'rmtserver_latest:registry.suse.com/home/mschaefer/'
+                    'images_pubcloud/pct/rmtserver:latest'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
+                    'docker://registry.suse.com/some:latest',
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'some_latest:registry.suse.com/some:latest'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
+                    'docker://docker.io/foo:latest',
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'foo_latest:docker.io/foo:latest'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'root_dir', 'systemctl',
+                    'enable', 'kiwi_containers'
+                ]
+            )
+        ]

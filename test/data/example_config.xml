@@ -182,6 +182,15 @@
         <user groups="users" pwdformat="plain" password="mypwd" home="/home/tux" name="tux"/>
         <user groups="kiwi,admin:42,users" pwdformat="plain" password="mypwd" name="kiwi"/>
     </users>
+    <containers source="registry.suse.com" backend="podman">
+        <container name="rmtserver" tag="latest" path="home/mschaefer/images_pubcloud/pct"/>
+    </containers>
+    <containers source="registry.suse.com" backend="docker">
+        <container name="some"/>
+    </containers>
+    <containers source="docker.io" backend="podman">
+        <container name="foo" fetch_only="true"/>
+    </containers>
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso">
             <signing key="file:key_a"/>

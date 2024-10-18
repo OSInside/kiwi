@@ -1233,6 +1233,76 @@ Used to customize the installation media images created for oem images
 deployment.
 For details see: :ref:`installmedia_customize`
 
+.. _sec.registry:
+
+<containers>
+------------
+
+Setup containers to fetch from a registry assigned to one
+of the supported container backends
+
+.. code:: xml
+
+   <containers source="registry.opensuse.org" backend="podman">
+       <container name="some"/>
+   </containers>
+
+The optional containers element specifies the location of one ore
+more containers on a registry `source` server. {kiwi} will take
+this information and fetch the containers as OCI archives to
+the image. On first boot those container archives will be loaded
+into the local container backend store for the selected
+backend and the archive files get deleted.
+
+Supported `backend` values are `docker` and `podman`.
+The `backend` attribute is mandatory and specifies for which
+container backend the image should be available in the system.
+The `containers` element has the following optional attributes:
+
+arch="arch"
+  The containers section can be configured to apply only for a certain
+  architecture. In this case specify the `arch` attribute with a
+  value as it is reported by :command:`uname -m`.
+
+profiles="name[,name]"
+  A list of profiles to which this containers selection applies
+  (see :ref:`image-profiles`).
+
+<containers><container>
+-----------------------
+
+Details about the container
+
+.. code:: xml
+
+   <containers source="registry.opensuse.org" backend="podman">
+       <container name="some"/>
+   </containers>
+
+The `name` attributes is mandatory and specifies
+the name of the container as it exists in the registry.
+The `container` element has the following optional attributes:
+
+path="some/path"
+  The path to the container in the registry. If not specified
+  the value defaults to `/`
+
+fetch_only="true|false"
+  If set to `true` kiwi will only fetch the container but does not
+  setup the systemd unit for loading the container into
+  the local registry. In this mode the container archive file stays
+  in the system and can be handled in a custom way. By default
+  `fetch_only` is set to `false`.
+
+tag="tagname"
+  Specifies the container tag to fetch. If not set the tag name
+  defaults to `latest`
+
+arch="arch"
+  The container section can be configured to apply only for a certain
+  architecture. In this case specify the `arch` attribute with a
+  value as it is reported by :command:`uname -m`.
+
 .. _sec.repository:
 
 <repository>

@@ -10,7 +10,9 @@ from pytest import (
 )
 
 from kiwi.defaults import Defaults
-from kiwi.xml_state import XMLState
+from kiwi.xml_state import (
+    XMLState, ContainerT
+)
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.xml_description import XMLDescription
 
@@ -409,6 +411,56 @@ class TestXMLState:
                 filesystem='ext3'
             )
         }
+
+    def test_get_containers(self):
+        assert self.state.get_containers() == [
+            ContainerT(
+                name='rmtserver_latest',
+                backend='podman',
+                container_file='/var/tmp/kiwi_containers/rmtserver_latest',
+                fetch_only=False,
+                fetch_command=[
+                    '/usr/bin/skopeo', 'copy',
+                    'docker://registry.suse.com/home/mschaefer/'
+                    'images_pubcloud/pct/rmtserver:latest',
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'rmtserver_latest:registry.suse.com/home/mschaefer/'
+                    'images_pubcloud/pct/rmtserver:latest'
+                ],
+                load_command=[
+                    '/usr/bin/podman', 'load', '-i',
+                    '/var/tmp/kiwi_containers/rmtserver_latest'
+                ]
+            ),
+            ContainerT(
+                name='some_latest',
+                backend='docker',
+                container_file='/var/tmp/kiwi_containers/some_latest',
+                fetch_only=False,
+                fetch_command=[
+                    '/usr/bin/skopeo', 'copy',
+                    'docker://registry.suse.com/some:latest',
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'some_latest:registry.suse.com/some:latest'
+                ],
+                load_command=[
+                    '/usr/bin/docker', 'load', '-i',
+                    '/var/tmp/kiwi_containers/some_latest'
+                ]
+            ),
+            ContainerT(
+                name='foo_latest',
+                backend='podman',
+                container_file='/var/tmp/kiwi_containers/foo_latest',
+                fetch_only=True,
+                fetch_command=[
+                    '/usr/bin/skopeo', 'copy', 'docker://docker.io/foo:latest',
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'foo_latest:docker.io/foo:latest'
+                ],
+                load_command=[]
+            )
+        ]
 
     def test_get_volumes_custom_root_volume_name(self):
         description = XMLDescription(
