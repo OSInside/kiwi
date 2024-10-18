@@ -118,7 +118,7 @@ class SystemSetup:
                 list(after_services)
             )
             unit = unit_template.substitute()
-            unit_file = '{0}/usr/lib/systemd/system/{1}.service'.format(
+            unit_file = '{0}/etc/systemd/system/{1}.service'.format(
                 self.root_dir, 'kiwi_containers'
             )
             with open(unit_file, 'w') as systemd:
