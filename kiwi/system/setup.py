@@ -91,7 +91,7 @@ class SystemSetup:
     def setup_registry_import(self) -> None:
         """
         Fetch container(s) and activate systemd unit to load
-        fetched containers during boot
+        containers from local oci-archive file during boot
         """
         container_files_to_load = []
         container_execs_to_load = []
