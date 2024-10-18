@@ -470,9 +470,9 @@ class XMLState:
         """
         return self._section_matches_host_architecture(repository)
 
-    def registry_matches_host_architecture(self, registry: Any) -> bool:
+    def containers_matches_host_architecture(self, containers: Any) -> bool:
         """
-        Tests if the given registry section is applicable for the
+        Tests if the given containers section is applicable for the
         current host architecture. If no arch attribute is provided in
         the section it is considered as a match and returns: True.
 
@@ -482,7 +482,21 @@ class XMLState:
 
         :rtype: bool
         """
-        return self._section_matches_host_architecture(registry)
+        return self._section_matches_host_architecture(containers)
+
+    def container_matches_host_architecture(self, container: Any) -> bool:
+        """
+        Tests if the given container section is applicable for the
+        current host architecture. If no arch attribute is provided in
+        the section it is considered as a match and returns: True.
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return self._section_matches_host_architecture(container)
 
     def get_package_sections(
         self, packages_sections: List
@@ -1736,16 +1750,16 @@ class XMLState:
 
     def get_containers(self) -> List[ContainerT]:
         containers = []
-        for registry_section in self.get_registry_sections():
-            for containers_section in registry_section.get_containers():
-                for container in containers_section.get_container():
+        for containers_section in self.get_containers_sections():
+            for container in containers_section.get_container():
+                if self.container_matches_host_architecture(container):
                     fetch_command = []
                     load_command = []
                     container_tag = container.get_tag() or 'latest'
-                    container_path = containers_section.get_path() or ''
+                    container_path = container.get_path() or ''
                     container_endpoint = os.path.normpath(
                         '{0}/{1}/{2}:{3}'.format(
-                            registry_section.get_source(), container_path,
+                            containers_section.get_source(), container_path,
                             container.name, container_tag
                         )
                     )
@@ -1756,8 +1770,10 @@ class XMLState:
                     if container_backend in ['podman', 'docker']:
                         fetch_command = [
                             '/usr/bin/skopeo', 'copy',
-                            f'docker://{container_endpoint}',
-                            f'oci-archive:{container_file_name}:{container_endpoint}'
+                            'docker://{0}'.format(container_endpoint),
+                            'oci-archive:{0}:{1}'.format(
+                                container_file_name, container_endpoint
+                            )
                         ]
                         if not container.get_fetch_only():
                             load_command = [
@@ -2079,20 +2095,20 @@ class XMLState:
                 repository_list.append(repository)
         return repository_list
 
-    def get_registry_sections(self) -> List:
+    def get_containers_sections(self) -> List:
         """
-        List of all registry sections for the selected profiles that
+        List of all containers sections for the selected profiles that
         matches the host architecture
 
-        :return: <registry> section reference(s)
+        :return: <containers> section reference(s)
 
         :rtype: list
         """
-        registry_list = []
-        for registry in self._profiled(self.xml_data.get_registry()):
-            if self.registry_matches_host_architecture(registry):
-                registry_list.append(registry)
-        return registry_list
+        containers_list = []
+        for containers in self._profiled(self.xml_data.get_containers()):
+            if self.containers_matches_host_architecture(containers):
+                containers_list.append(containers)
+        return containers_list
 
     def get_repository_sections_used_for_build(self) -> List:
         """

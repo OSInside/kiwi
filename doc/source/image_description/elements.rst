@@ -1235,64 +1235,47 @@ For details see: :ref:`installmedia_customize`
 
 .. _sec.registry:
 
-<registry>
-----------
+<containers>
+------------
 
-Setup containers to fetch from one or more registry elements
+Setup containers to fetch from a registry assigned to one
+of the supported container backends
 
 .. code:: xml
 
-   <registry source="registry.opensuse.org">
-       <containers backend="podman">
-           <container name="some"/>
-       </containers>
-   </registry>
+   <containers source="registry.opensuse.org" backend="podman">
+       <container name="some"/>
+   </containers>
 
-The optional registry element specifies the location of one ore
+The optional containers element specifies the location of one ore
 more containers on a registry `source` server. {kiwi} will take
 this information and fetch the containers as OCI archives to
 the image. On first boot those container archives will be loaded
 into the local container backend store for the selected
 backend and the archive files gets deleted.
 
-<registry><containers>
-----------------------
-
-Details about the container backend
-
-.. code:: xml
-
-   <registry source="registry.opensuse.org">
-       <containers backend="podman">
-           <container name="some"/>
-       </containers>
-   </registry>
-
 Supported `backend` values as of today are `docker` and `podman`.
 The `backend` attribute is mandatory and specifies for which
 container backend the image should be available in the system.
-The `container` element has the following optional attribute:
+
+<containers><container>
+-----------------------
+
+Details about the container
+
+.. code:: xml
+
+   <containers source="registry.opensuse.org" backend="podman">
+       <container name="some"/>
+   </containers>
+
+The `name` attributes is mandatory and specifies
+the name of the container as it exists in the registry.
+The `container` element has the following optional attributes:
 
 path="some/path"
   The path to the container in the registry. If not specified
   the value defaults to `/`
-
-<registry><containers><container>
----------------------------------
-
-Details about the container to fetch from a given source registry
-
-.. code:: xml
-
-   <registry source="registry.opensuse.org">
-       <containers backend="podman">
-           <container name="some"/>
-       </containers>
-   </registry>
-
-The `name` attributes is mandatory and specifies
-the name of the container as it exists in the registry.
-The `container` element has the following optional attributes
 
 fetch_only="true|false"
   If set to `true` kiwi will only fetch the container but does not

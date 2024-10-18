@@ -209,7 +209,7 @@ named /etc/ImageID</a:documentation>
             <ref name="k.repository"/>
           </zeroOrMore>
           <zeroOrMore>
-            <ref name="k.registry"/>
+            <ref name="k.containers"/>
           </zeroOrMore>
           <zeroOrMore>
             <ref name="k.packages"/>
@@ -1606,47 +1606,21 @@ definition can be composed by other existing profiles.</a:documentation>
   </div>
   <!--
     ==========================================
-    common element <registry>
-    
-  -->
-  <div>
-    <define name="k.registry.profiles.attribute">
-      <ref name="k.profiles.attribute"/>
-    </define>
-    <define name="k.registry.arch.attribute">
-      <ref name="k.arch.attribute"/>
-    </define>
-    <define name="k.registry.source.attribute">
-      <attribute name="source">
-        <a:documentation>Name of registry source server</a:documentation>
-      </attribute>
-    </define>
-    <define name="k.registry.attlist">
-      <interleave>
-        <optional>
-          <ref name="k.registry.profiles.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.registry.arch.attribute"/>
-        </optional>
-        <ref name="k.registry.source.attribute"/>
-      </interleave>
-    </define>
-    <define name="k.registry">
-      <element name="registry">
-        <ref name="k.registry.attlist"/>
-        <oneOrMore>
-          <ref name="k.containers"/>
-        </oneOrMore>
-      </element>
-    </define>
-  </div>
-  <!--
-    ==========================================
     common element <containers>
     
   -->
   <div>
+    <define name="k.containers.profiles.attribute">
+      <ref name="k.profiles.attribute"/>
+    </define>
+    <define name="k.containers.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
+    <define name="k.containers.source.attribute">
+      <attribute name="source">
+        <a:documentation>Name of registry source server</a:documentation>
+      </attribute>
+    </define>
     <define name="k.containers.backend.attribute">
       <attribute name="backend">
         <a:documentation>Use container with specified container backend</a:documentation>
@@ -1656,25 +1630,24 @@ definition can be composed by other existing profiles.</a:documentation>
         </choice>
       </attribute>
     </define>
-    <define name="k.containers.path.attribute">
-      <attribute name="path">
-        <a:documentation>Container path, default to '/' if not specified</a:documentation>
-      </attribute>
-    </define>
     <define name="k.containers.attlist">
       <interleave>
-        <ref name="k.containers.backend.attribute"/>
         <optional>
-          <ref name="k.containers.path.attribute"/>
+          <ref name="k.containers.profiles.attribute"/>
         </optional>
+        <optional>
+          <ref name="k.containers.arch.attribute"/>
+        </optional>
+        <ref name="k.containers.source.attribute"/>
+        <ref name="k.containers.backend.attribute"/>
       </interleave>
     </define>
     <define name="k.containers">
       <element name="containers">
         <ref name="k.containers.attlist"/>
-        <zeroOrMore>
+        <oneOrMore>
           <ref name="k.container"/>
-        </zeroOrMore>
+        </oneOrMore>
       </element>
     </define>
   </div>
@@ -1684,9 +1657,17 @@ definition can be composed by other existing profiles.</a:documentation>
     
   -->
   <div>
+    <define name="k.container.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.container.name.attribute">
       <attribute name="name">
         <a:documentation>Container name</a:documentation>
+      </attribute>
+    </define>
+    <define name="k.container.path.attribute">
+      <attribute name="path">
+        <a:documentation>Container path, default to '/' if not specified</a:documentation>
       </attribute>
     </define>
     <define name="k.container.tag.attribute">
@@ -1704,6 +1685,12 @@ loading of the container at first boot</a:documentation>
     <define name="k.container.attlist">
       <interleave>
         <ref name="k.container.name.attribute"/>
+        <optional>
+          <ref name="k.container.arch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.container.path.attribute"/>
+        </optional>
         <optional>
           <ref name="k.container.tag.attribute"/>
         </optional>
