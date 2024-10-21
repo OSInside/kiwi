@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.xml_state &mdash; KIWI NG 10.1.14 documentation</title>
+  <title>kiwi.xml_state &mdash; KIWI NG 10.1.15 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=5612c14d"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f26a4554"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -231,6 +229,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-installmedia">&lt;preferences&gt;&lt;type&gt;&lt;installmedia&gt;</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../image_description/elements.html#containers">&lt;containers&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../image_description/elements.html#containers-container">&lt;containers&gt;&lt;container&gt;</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../image_description/elements.html#repository">&lt;repository&gt;</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#repository-source">&lt;repository&gt;&lt;source&gt;</a></li>
 </ul>
@@ -615,6 +615,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/kiwi.html#module-kiwi.xml_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi.xml_state</span></code> Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.xml_state.ContainerT"><code class="docutils literal notranslate"><span class="pre">ContainerT</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.xml_state.FileT"><code class="docutils literal notranslate"><span class="pre">FileT</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.xml_state.XMLState"><code class="docutils literal notranslate"><span class="pre">XMLState</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/kiwi.html#kiwi.xml_state.description_type"><code class="docutils literal notranslate"><span class="pre">description_type</span></code></a></li>
@@ -1325,6 +1326,18 @@
 
 
 
+<div class="viewcode-block" id="ContainerT">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.ContainerT">[docs]</a>
+<span class="k">class</span> <span class="nc">ContainerT</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">container_file</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">fetch_only</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">fetch_command</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">load_command</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
+
+
+
 <div class="viewcode-block" id="XMLState">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState">[docs]</a>
 <span class="k">class</span> <span class="nc">XMLState</span><span class="p">:</span>
@@ -1767,6 +1780,40 @@
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_matches_host_architecture</span><span class="p">(</span><span class="n">repository</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="XMLState.containers_matches_host_architecture">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState.containers_matches_host_architecture">[docs]</a>
+    <span class="k">def</span> <span class="nf">containers_matches_host_architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">containers</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests if the given containers section is applicable for the</span>
+<span class="sd">        current host architecture. If no arch attribute is provided in</span>
+<span class="sd">        the section it is considered as a match and returns: True.</span>
+
+<span class="sd">        :param section: XML section object</span>
+
+<span class="sd">        :return: True or False</span>
+
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_matches_host_architecture</span><span class="p">(</span><span class="n">containers</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="XMLState.container_matches_host_architecture">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState.container_matches_host_architecture">[docs]</a>
+    <span class="k">def</span> <span class="nf">container_matches_host_architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests if the given container section is applicable for the</span>
+<span class="sd">        current host architecture. If no arch attribute is provided in</span>
+<span class="sd">        the section it is considered as a match and returns: True.</span>
+
+<span class="sd">        :param section: XML section object</span>
+
+<span class="sd">        :return: True or False</span>
+
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section_matches_host_architecture</span><span class="p">(</span><span class="n">container</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="XMLState.get_package_sections">
@@ -3229,6 +3276,53 @@
         <span class="k">return</span> <span class="n">partitions</span></div>
 
 
+<div class="viewcode-block" id="XMLState.get_containers">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState.get_containers">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_containers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ContainerT</span><span class="p">]:</span>
+        <span class="n">containers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">containers_section</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_containers_sections</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="n">containers_section</span><span class="o">.</span><span class="n">get_container</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">container_matches_host_architecture</span><span class="p">(</span><span class="n">container</span><span class="p">):</span>
+                    <span class="n">fetch_command</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">load_command</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">container_tag</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">get_tag</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;latest&#39;</span>
+                    <span class="n">container_path</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">get_path</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+                    <span class="n">container_endpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span>
+                        <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">/</span><span class="si">{2}</span><span class="s1">:</span><span class="si">{3}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">containers_section</span><span class="o">.</span><span class="n">get_source</span><span class="p">(),</span> <span class="n">container_path</span><span class="p">,</span>
+                            <span class="n">container</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">container_tag</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">container_file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">_</span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">defaults</span><span class="o">.</span><span class="n">LOCAL_CONTAINERS</span><span class="p">,</span> <span class="n">container</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">container_tag</span>
+                    <span class="p">)</span>
+                    <span class="n">container_backend</span> <span class="o">=</span> <span class="n">containers_section</span><span class="o">.</span><span class="n">get_backend</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+                    <span class="k">if</span> <span class="n">container_backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;podman&#39;</span><span class="p">,</span> <span class="s1">&#39;docker&#39;</span><span class="p">]:</span>
+                        <span class="n">fetch_command</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="s1">&#39;/usr/bin/skopeo&#39;</span><span class="p">,</span> <span class="s1">&#39;copy&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;docker://</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">container_endpoint</span><span class="p">),</span>
+                            <span class="s1">&#39;oci-archive:</span><span class="si">{0}</span><span class="s1">:</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">container_file_name</span><span class="p">,</span> <span class="n">container_endpoint</span>
+                            <span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">container</span><span class="o">.</span><span class="n">get_fetch_only</span><span class="p">():</span>
+                            <span class="n">load_command</span> <span class="o">=</span> <span class="p">[</span>
+                                <span class="sa">f</span><span class="s1">&#39;/usr/bin/</span><span class="si">{</span><span class="n">container_backend</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;load&#39;</span><span class="p">,</span> <span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">container_file_name</span>
+                            <span class="p">]</span>
+                    <span class="n">containers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">ContainerT</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">container</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">container_tag</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                            <span class="n">backend</span><span class="o">=</span><span class="n">container_backend</span><span class="p">,</span>
+                            <span class="n">container_file</span><span class="o">=</span><span class="n">container_file_name</span><span class="p">,</span>
+                            <span class="n">fetch_only</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">get_fetch_only</span><span class="p">()),</span>
+                            <span class="n">fetch_command</span><span class="o">=</span><span class="n">fetch_command</span><span class="p">,</span>
+                            <span class="n">load_command</span><span class="o">=</span><span class="n">load_command</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">return</span> <span class="n">containers</span></div>
+
+
 <div class="viewcode-block" id="XMLState.get_volumes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState.get_volumes">[docs]</a>
     <span class="k">def</span> <span class="nf">get_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">volume_type</span><span class="p">]:</span>
@@ -3557,6 +3651,24 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">repository_matches_host_architecture</span><span class="p">(</span><span class="n">repository</span><span class="p">):</span>
                 <span class="n">repository_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">repository</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">repository_list</span></div>
+
+
+<div class="viewcode-block" id="XMLState.get_containers_sections">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState.get_containers_sections">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_containers_sections</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List of all containers sections for the selected profiles that</span>
+<span class="sd">        matches the host architecture</span>
+
+<span class="sd">        :return: &lt;containers&gt; section reference(s)</span>
+
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">containers_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">containers</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_profiled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_data</span><span class="o">.</span><span class="n">get_containers</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">containers_matches_host_architecture</span><span class="p">(</span><span class="n">containers</span><span class="p">):</span>
+                <span class="n">containers_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">containers</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">containers_list</span></div>
 
 
 <div class="viewcode-block" id="XMLState.get_repository_sections_used_for_build">

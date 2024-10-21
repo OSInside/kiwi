@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Description Elements &mdash; KIWI NG 10.1.14 documentation</title>
+  <title>Image Description Elements &mdash; KIWI NG 10.1.15 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=5612c14d"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f26a4554"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -234,6 +232,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-installmedia">&lt;preferences&gt;&lt;type&gt;&lt;installmedia&gt;</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#containers">&lt;containers&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#containers-container">&lt;containers&gt;&lt;container&gt;</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#repository">&lt;repository&gt;</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#repository-source">&lt;repository&gt;&lt;source&gt;</a></li>
 </ul>
@@ -618,6 +618,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/kiwi.html#module-kiwi.xml_state"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kiwi.xml_state</span></code> Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.xml_state.ContainerT"><code class="docutils literal notranslate"><span class="pre">ContainerT</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.xml_state.FileT"><code class="docutils literal notranslate"><span class="pre">FileT</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.xml_state.XMLState"><code class="docutils literal notranslate"><span class="pre">XMLState</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.xml_state.description_type"><code class="docutils literal notranslate"><span class="pre">description_type</span></code></a></li>
@@ -1243,7 +1244,7 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This document provides a reference for the elements
-and attributes of the KIWI NG XML document in version 10.1.14</p>
+and attributes of the KIWI NG XML document in version 10.1.15</p>
 </div>
 <section id="image">
 <span id="sec-image"></span><h2>&lt;image&gt;<a class="headerlink" href="#image" title="Link to this heading"></a></h2>
@@ -2361,6 +2362,65 @@ For details see: <a class="reference internal" href="../building_images/build_si
 deployment.
 For details see: <a class="reference internal" href="../building_images/build_expandable_disk.html#installmedia-customize"><span class="std std-ref">Installation Media Customization</span></a></p>
 </section>
+</section>
+<section id="containers">
+<span id="sec-registry"></span><h2>&lt;containers&gt;<a class="headerlink" href="#containers" title="Link to this heading"></a></h2>
+<p>Setup containers to fetch from a registry assigned to one
+of the supported container backends</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;containers</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;registry.opensuse.org&quot;</span><span class="w"> </span><span class="na">backend=</span><span class="s">&quot;podman&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;container</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/containers&gt;</span>
+</pre></div>
+</div>
+<p>The optional containers element specifies the location of one ore
+more containers on a registry <code class="xref py py-obj docutils literal notranslate"><span class="pre">source</span></code> server. KIWI NG will take
+this information and fetch the containers as OCI archives to
+the image. On first boot those container archives will be loaded
+into the local container backend store for the selected
+backend and the archive files get deleted.</p>
+<p>Supported <code class="xref py py-obj docutils literal notranslate"><span class="pre">backend</span></code> values are <code class="xref py py-obj docutils literal notranslate"><span class="pre">docker</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">podman</span></code>.
+The <code class="xref py py-obj docutils literal notranslate"><span class="pre">backend</span></code> attribute is mandatory and specifies for which
+container backend the image should be available in the system.
+The <code class="xref py py-obj docutils literal notranslate"><span class="pre">containers</span></code> element has the following optional attributes:</p>
+<dl class="simple">
+<dt>arch=”arch”</dt><dd><p>The containers section can be configured to apply only for a certain
+architecture. In this case specify the <code class="xref py py-obj docutils literal notranslate"><span class="pre">arch</span></code> attribute with a
+value as it is reported by <strong class="command">uname -m</strong>.</p>
+</dd>
+<dt>profiles=”name[,name]”</dt><dd><p>A list of profiles to which this containers selection applies
+(see <a class="reference internal" href="../concept_and_workflow/profiles.html#image-profiles"><span class="std std-ref">Image Profiles</span></a>).</p>
+</dd>
+</dl>
+</section>
+<section id="containers-container">
+<h2>&lt;containers&gt;&lt;container&gt;<a class="headerlink" href="#containers-container" title="Link to this heading"></a></h2>
+<p>Details about the container</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;containers</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;registry.opensuse.org&quot;</span><span class="w"> </span><span class="na">backend=</span><span class="s">&quot;podman&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;container</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/containers&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code> attributes is mandatory and specifies
+the name of the container as it exists in the registry.
+The <code class="xref py py-obj docutils literal notranslate"><span class="pre">container</span></code> element has the following optional attributes:</p>
+<dl class="simple">
+<dt>path=”some/path”</dt><dd><p>The path to the container in the registry. If not specified
+the value defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">/</span></code></p>
+</dd>
+<dt>fetch_only=”true|false”</dt><dd><p>If set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">true</span></code> kiwi will only fetch the container but does not
+setup the systemd unit for loading the container into
+the local registry. In this mode the container archive file stays
+in the system and can be handled in a custom way. By default
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_only</span></code> is set to <code class="xref py py-obj docutils literal notranslate"><span class="pre">false</span></code>.</p>
+</dd>
+<dt>tag=”tagname”</dt><dd><p>Specifies the container tag to fetch. If not set the tag name
+defaults to <code class="xref py py-obj docutils literal notranslate"><span class="pre">latest</span></code></p>
+</dd>
+<dt>arch=”arch”</dt><dd><p>The container section can be configured to apply only for a certain
+architecture. In this case specify the <code class="xref py py-obj docutils literal notranslate"><span class="pre">arch</span></code> attribute with a
+value as it is reported by <strong class="command">uname -m</strong>.</p>
+</dd>
+</dl>
 </section>
 <section id="repository">
 <span id="sec-repository"></span><h2>&lt;repository&gt;<a class="headerlink" href="#repository" title="Link to this heading"></a></h2>
