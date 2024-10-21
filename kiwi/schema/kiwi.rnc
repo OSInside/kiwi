@@ -90,6 +90,7 @@ div {
             k.drivers* &
             k.strip* &
             k.repository* &
+            k.containers* &
             k.packages* &
             k.extension?
         }
@@ -1043,6 +1044,61 @@ div {
         ## definition can be composed by other existing profiles.
         element requires {
             k.requires.attlist,
+            empty
+        }
+}
+
+#==========================================
+# common element <containers>
+#
+div {
+    k.containers.profiles.attribute = k.profiles.attribute
+    k.containers.arch.attribute = k.arch.attribute
+    k.containers.source.attribute =
+        ## Name of registry source server
+        attribute source { text }
+    k.containers.backend.attribute =
+        ## Use container with specified container backend
+        attribute backend { "podman" | "docker" }
+    k.containers.attlist =
+        k.containers.profiles.attribute? &
+        k.containers.arch.attribute? &
+        k.containers.source.attribute &
+        k.containers.backend.attribute
+    k.containers =
+        element containers {
+            k.containers.attlist,
+            k.container+
+        }
+}
+
+#==========================================
+# common element <container>
+#
+div {
+    k.container.arch.attribute = k.arch.attribute
+    k.container.name.attribute =
+        ## Container name
+        attribute name { text }
+    k.container.path.attribute =
+        ## Container path, default to '/' if not specified
+        attribute path { text }
+    k.container.tag.attribute =
+        ## Container tag, defaults to 'latest' if not specified
+        attribute tag { text }
+    k.container.fetch_only.attribute =
+        ## Only fetch the container but do not activate the
+        ## loading of the container at first boot
+        attribute fetch_only { xsd:boolean }
+    k.container.attlist =
+        k.container.name.attribute &
+        k.container.arch.attribute? &
+        k.container.path.attribute? &
+        k.container.tag.attribute? &
+        k.container.fetch_only.attribute?
+    k.container =
+        element container {
+            k.container.attlist,
             empty
         }
 }

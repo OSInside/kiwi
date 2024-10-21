@@ -51,6 +51,7 @@ from kiwi.archive.tar import ArchiveTar
 from kiwi.utils.compress import Compress
 from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.utils.rpm_database import RpmDataBase
+from kiwi.builder.template.container_import import BuilderTemplateSystemdUnit
 from kiwi.system.profile import Profile
 
 from kiwi.exceptions import (
@@ -86,6 +87,48 @@ class SystemSetup:
         self.root_dir = root_dir
         self._preferences_lookup()
         self._oemconfig_lookup()
+
+    def setup_registry_import(self) -> None:
+        """
+        Fetch container(s) and activate systemd unit to load
+        containers from local oci-archive file during boot
+        """
+        container_files_to_load = []
+        container_execs_to_load = []
+        after_services = set()
+        for container in self.xml_state.get_containers():
+            log.info(f'Fetching container: {container.name}')
+            pathlib.Path(f'{self.root_dir}/{defaults.LOCAL_CONTAINERS}').mkdir(
+                parents=True, exist_ok=True
+            )
+            Command.run(
+                ['chroot', self.root_dir] + container.fetch_command
+            )
+            if container.load_command:
+                container_files_to_load.append(container.container_file)
+                container_execs_to_load.append(container.load_command)
+                if container.backend == 'docker':
+                    after_services.add('docker.service')
+
+        if container_files_to_load:
+            log.info('--> Setup kiwi_containers.service import unit')
+            service = BuilderTemplateSystemdUnit()
+            unit_template = service.get_container_import_template(
+                container_files_to_load, container_execs_to_load,
+                list(after_services)
+            )
+            unit = unit_template.substitute()
+            unit_file = '{0}/etc/systemd/system/{1}.service'.format(
+                self.root_dir, 'kiwi_containers'
+            )
+            with open(unit_file, 'w') as systemd:
+                systemd.write(unit)
+            Command.run(
+                [
+                    'chroot', self.root_dir,
+                    'systemctl', 'enable', 'kiwi_containers'
+                ]
+            )
 
     def import_description(self) -> None:
         """

@@ -91,6 +91,7 @@ RUNTIME_CHECKER_METADATA = '{}/runtime_checker_metadata.yml'.format(
 ) if MODULE_SPEC else 'unknown'
 
 TEMP_DIR = '/var/tmp'
+LOCAL_CONTAINERS = '/var/tmp/kiwi_containers'
 CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
 EFI_FAT_IMAGE_SIZE = 20
