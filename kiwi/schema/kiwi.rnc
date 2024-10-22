@@ -1426,6 +1426,13 @@ div {
                 "image types: $types"
             ]
         ]
+        sch:rule [
+            context = "type[@format='vagrant']"
+            sch:assert [
+                test = "vagrantconfig[@provider]"
+                "<vagrantconfig> section is required for the vagrant format"
+            ]
+        ]
     ]
     sch:pattern [
         abstract = "true"

@@ -2165,6 +2165,9 @@ volume management system</a:documentation>
       <sch:rule context="type[contains('$types', @image)]">
         <sch:assert test="@$attr">$attr attribute must be set for the following image types: $types</sch:assert>
       </sch:rule>
+      <sch:rule context="type[@format='vagrant']">
+        <sch:assert test="vagrantconfig[@provider]">&lt;vagrantconfig&gt; section is required for the vagrant format</sch:assert>
+      </sch:rule>
     </sch:pattern>
     <sch:pattern abstract="true" id="image_expandable">
       <sch:rule context="type[@$attr='true']">
