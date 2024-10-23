@@ -80,7 +80,9 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  kiwi-systemdeps
 BuildRequires:  python%{python3_pkgversion}-pytest
 BuildRequires:  python%{python3_pkgversion}-pip
+%if 0%{?suse_version} > 1600
 BuildRequires:  python%{python3_pkgversion}-anymarkup-core
+%endif
 BuildRequires:  python%{python3_pkgversion}-toml
 BuildRequires:  python%{python3_pkgversion}-xmltodict
 %if 0%{?fedora} || 0%{?suse_version}
@@ -771,8 +773,10 @@ fi
 
 %check
 # install kiwi to userland and run the tests
+%if 0%{?suse_version} > 1600
 %pip_install dist/kiwi-%{version}-py3-none-any.whl
 cd test/unit && pytest
+%endif
 
 %files -n kiwi-systemdeps-core
 # Empty metapackage
