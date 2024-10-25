@@ -33,7 +33,7 @@
         </type>
     </preferences>
     <preferences profiles="EroFS">
-        <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true" filesystem="erofs">
+        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="xfs" hybridpersistent="true" mediacheck="true" filesystem="erofs">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
@@ -67,6 +67,8 @@
         <package name="curl"/>
         <package name="bind-utils"/>
         <package name="patterns-openSUSE-base"/>
+        <package name="openSUSE-repos-Tumbleweed"/>
+        <package name="systemd-network"/>
         <package name="procps"/>
         <package name="systemd"/>
         <package name="plymouth-theme-breeze"/>
@@ -87,6 +89,7 @@
         <package name="dhcp-client"/>
         <package name="which"/>
         <package name="kernel-default"/>
+        <package name="kernel-firmware-all"/>
         <package name="timezone"/>
         <package name="dracut-kiwi-live"/>
     </packages>

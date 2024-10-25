@@ -11,9 +11,15 @@ declare kiwi_iname=${kiwi_iname}
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Activate services
+# Setup services
 #--------------------------------------
-systemctl enable sshd
+for service in \
+    sshd \
+    systemd-networkd \
+    systemd-resolved
+do
+    systemctl enable "${service}"
+done
 
 #======================================
 # Include erofs module
