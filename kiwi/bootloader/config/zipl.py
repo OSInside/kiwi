@@ -115,6 +115,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
             '--blsdir', self.entries_dir,
             '--verbose'
         ]
+        self.sys_mount.umount()
         Command.run(zipl)
 
     def _get_template_parameters(

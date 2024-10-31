@@ -69,6 +69,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.shim_install_arguments = []
         self.firmware = None
         self.root_mount = None
+        self.sysfs_mount = None
         self.volumes = None
         self.root_volume_name = None
         self.target_removable = None
@@ -213,6 +214,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 # grub2-zipl-setup and has no other job to do we can
                 # circumvent this problem by directly calling grub2-zipl-setup
                 # instead.
+                self.sysfs_mount.umount()
                 Command.run(
                     [
                         'chroot', self.root_mount.mountpoint,
@@ -379,12 +381,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         stack.push(proc_mount)
         proc_mount.bind_mount()
 
-        sysfs_mount = MountManager(
+        self.sysfs_mount = MountManager(
             device='/sys',
             mountpoint=self.root_mount.mountpoint + '/sys'
         )
-        stack.push(sysfs_mount)
-        sysfs_mount.bind_mount()
+        stack.push(self.sysfs_mount)
+        self.sysfs_mount.bind_mount()
 
     def _disable_grub2_install(self, root_path):
         if os.access(root_path, os.W_OK):

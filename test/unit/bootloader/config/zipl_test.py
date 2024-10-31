@@ -30,6 +30,9 @@ class TestBootLoaderZipl:
         self.bootloader.custom_args['initrd'] = None
         self.bootloader.custom_args['boot_options'] = {}
         self.bootloader.custom_args['targetbase'] = '/dev/disk'
+        self.bootloader.sys_mount = Mock(
+            mountpoint='sys_mount'
+        )
         self.bootloader.root_mount = Mock(
             mountpoint='system_root_mount'
         )
@@ -99,6 +102,7 @@ class TestBootLoaderZipl:
             )
         ]
         assert self.bootloader._mount_system.called
+        assert self.bootloader.sys_mount.umount.called
         mock_Command_run.assert_called_once_with(
             [
                 'chroot', 'system_root_mount', 'zipl',

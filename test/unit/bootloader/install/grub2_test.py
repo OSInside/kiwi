@@ -236,6 +236,7 @@ class TestBootLoaderInstallGrub2:
             options=['subvol=root']
         )
         self.boot_mount.mount.assert_called_once_with()
+        self.bootloader.sysfs_mount.umount.assert_called_once_with()
         assert mock_command.call_args_list == [
             call(
                 [
