@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.install.grub2 &mdash; KIWI NG 10.1.17 documentation</title>
+  <title>kiwi.bootloader.install.grub2 &mdash; KIWI NG 10.1.18 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=61ea4b27"></script>
+      <script src="../../../../_static/documentation_options.js?v=89f0e8e5"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1312,6 +1312,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">shim_install_arguments</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sysfs_mount</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target_removable</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1462,6 +1463,7 @@
                 <span class="c1"># grub2-zipl-setup and has no other job to do we can</span>
                 <span class="c1"># circumvent this problem by directly calling grub2-zipl-setup</span>
                 <span class="c1"># instead.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sysfs_mount</span><span class="o">.</span><span class="n">umount</span><span class="p">()</span>
                 <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                     <span class="p">[</span>
                         <span class="s1">&#39;chroot&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">,</span>
@@ -1635,12 +1637,12 @@
         <span class="n">stack</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">proc_mount</span><span class="p">)</span>
         <span class="n">proc_mount</span><span class="o">.</span><span class="n">bind_mount</span><span class="p">()</span>
 
-        <span class="n">sysfs_mount</span> <span class="o">=</span> <span class="n">MountManager</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sysfs_mount</span> <span class="o">=</span> <span class="n">MountManager</span><span class="p">(</span>
             <span class="n">device</span><span class="o">=</span><span class="s1">&#39;/sys&#39;</span><span class="p">,</span>
             <span class="n">mountpoint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">mountpoint</span> <span class="o">+</span> <span class="s1">&#39;/sys&#39;</span>
         <span class="p">)</span>
-        <span class="n">stack</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">sysfs_mount</span><span class="p">)</span>
-        <span class="n">sysfs_mount</span><span class="o">.</span><span class="n">bind_mount</span><span class="p">()</span>
+        <span class="n">stack</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sysfs_mount</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sysfs_mount</span><span class="o">.</span><span class="n">bind_mount</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_disable_grub2_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
