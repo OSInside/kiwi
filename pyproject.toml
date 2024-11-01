@@ -63,9 +63,10 @@ simplejson = ">=3.17.0"
 # Optional dependencies for markup extra
 anymarkup-core = { version = ">=0.8.0", optional = true }
 xmltodict = { version = ">=0.12.0", optional = true }
+toml = { version = "*", optional = true }
 
 [tool.poetry.extras]
-markup = [ "anymarkup-core", "xmltodict" ]
+markup = [ "anymarkup-core", "xmltodict" , "toml" ]
 integration_tests = ["pytest-container"]
 
 [tool.poetry.plugins]

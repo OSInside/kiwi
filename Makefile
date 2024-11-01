@@ -92,7 +92,16 @@ clean_git_attributes:
 	# for details on when this target is called see setup.py
 	git checkout kiwi/version.py
 
-build: clean tox
+build: clean
+	poetry install --all-extras
+	bash -c 'shellcheck -e SC1091,SC1090,SC2001,SC2174,SC1117,SC2048,SC2004 dracut/modules.d/*/*.sh -s bash'
+	bash -c 'shellcheck -e SC1091,SC1090,SC2001,SC2174,SC1117,SC2048,SC2004 kiwi/config/functions.sh -s bash'
+	poetry run make -C doc man
+	poetry run flake8 --statistics -j auto --count kiwi
+	poetry run flake8 --statistics -j auto --count test/unit
+	poetry run flake8 --statistics -j auto --count test/scripts
+	poetry run mypy kiwi
+	poetry run bash -c 'pushd test/unit && pytest -n 5 --doctest-modules --no-cov-on-fail --cov=kiwi --cov-report=term-missing --cov-fail-under=100 --cov-config .coveragerc'
 	# build the sdist source tarball
 	poetry build --format=sdist
 	# provide rpm source tarball
@@ -118,7 +127,6 @@ build: clean tox
 pypi: clean tox
 	poetry build --format=sdist
 	poetry publish --repository=pypi
-
 
 clean: clean_git_attributes
 	rm -rf dist
