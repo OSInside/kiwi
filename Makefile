@@ -3,6 +3,7 @@ docdir = /usr/share/doc/packages
 python_version = 3
 python_lookup_name = python$(python_version)
 python = $(shell which $(python_lookup_name))
+sc_disable = SC1091,SC1090,SC2001,SC2174,SC1117,SC2048,SC2004
 
 LC = LC_MESSAGES
 
@@ -42,9 +43,6 @@ install:
 	# kiwi old XSL stylesheets for upgrade
 	install -d -m 755 ${buildroot}usr/share/kiwi
 	cp -a helper/xsl_to_v74 ${buildroot}usr/share/kiwi/
-
-tox:
-	tox -- "-n 5"
 
 kiwi/schema/kiwi.rng: kiwi/schema/kiwi.rnc
 	# whenever the schema is changed this target will convert
@@ -92,16 +90,48 @@ clean_git_attributes:
 	# for details on when this target is called see setup.py
 	git checkout kiwi/version.py
 
-build: clean
+setup:
 	poetry install --all-extras
-	bash -c 'shellcheck -e SC1091,SC1090,SC2001,SC2174,SC1117,SC2048,SC2004 dracut/modules.d/*/*.sh -s bash'
-	bash -c 'shellcheck -e SC1091,SC1090,SC2001,SC2174,SC1117,SC2048,SC2004 kiwi/config/functions.sh -s bash'
-	poetry run make -C doc man
+
+docs: setup
+	poetry run make -C doc man html
+
+docs_suse: setup
+	poetry run make -C doc xml
+	rm -rf doc/build/restxml
+	mv doc/build/xml doc/build/restxml
+	poetry run pip install \
+		git+https://github.com/openSUSE/rstxml2docbook.git@feature/kiwi
+	poetry run bash -c 'pushd doc && rstxml2docbook \
+		-v --no-split -o build/xml/book.xml build/restxml/index.xml'
+	bash -c 'mkdir -p doc/build/images/src/png && \
+		cp -a doc/source/.images/* doc/build/images/src/png'
+	cp doc/DC-kiwi doc/build/
+	bash -c 'pushd doc/build && daps -d DC-kiwi html'
+
+test_scripts: setup
+	poetry run bash -c \
+		'pip install pytest-container && pushd test/scripts && pytest -s -vv'
+
+check: setup
+	# shell code checks
+	bash -c 'shellcheck -e ${sc_disable} dracut/modules.d/*/*.sh -s bash'
+	bash -c 'shellcheck -e ${sc_disable} kiwi/config/functions.sh -s bash'
+	# python flake tests
 	poetry run flake8 --statistics -j auto --count kiwi
 	poetry run flake8 --statistics -j auto --count test/unit
 	poetry run flake8 --statistics -j auto --count test/scripts
+
+test: setup
+	# python static code checks
 	poetry run mypy kiwi
-	poetry run bash -c 'pushd test/unit && pytest -n 5 --doctest-modules --no-cov-on-fail --cov=kiwi --cov-report=term-missing --cov-fail-under=100 --cov-config .coveragerc'
+	# unit tests
+	poetry run bash -c 'pushd test/unit && pytest -n 5 \
+		--doctest-modules --no-cov-on-fail --cov=kiwi \
+		--cov-report=term-missing --cov-fail-under=100 \
+		--cov-config .coveragerc'
+
+build: clean check test
 	# build the sdist source tarball
 	poetry build --format=sdist
 	# provide rpm source tarball
@@ -124,9 +154,21 @@ build: clean
 	# provide patches
 	cp package/*.patch dist
 
-pypi: clean tox
+prepare_for_pypi: clean setup
+	# documentation render and tests
+	poetry run make -C doc man
+	# sdist tarball, the actual publishing happens via the
+	# ci-publish-to-pypi.yml github action
 	poetry build --format=sdist
-	poetry publish --repository=pypi
+
+prepare_for_docs: clean setup
+	# documentation man pages
+	poetry run make -C doc man
+	# documentation github pages, the actual publishing via
+	# the ci-publish-pages.yml github action
+	poetry run bash -c 'pushd doc && \
+		travis-sphinx --outdir build_gh_pages build --nowarn --source ./source'
+	bash -c 'touch ./doc/build_gh_pages/.nojekyll'
 
 clean: clean_git_attributes
 	rm -rf dist

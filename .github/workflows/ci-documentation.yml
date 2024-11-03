@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: [3.11]
 
     steps:
       - uses: actions/checkout@v3
@@ -20,9 +20,10 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Tox
+      - name: Install Poetry
         run: |
-          sudo apt update && sudo apt install tox
+          python -m pip install --upgrade pip
+          python -m pip install poetry
       - name: Run sphinx build
         run: |
-          tox -e doc
+          make docs

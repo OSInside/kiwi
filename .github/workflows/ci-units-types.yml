@@ -20,11 +20,11 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Tox
+      - name: Install Poetry
         run: |
           python -m pip install --upgrade pip
-          python -m pip install tox
+          python -m pip install poetry
       - name: Run unit and type tests
-        run: tox -e "unit_py${PY_VER/./_}" -- -n auto
+        run: make test
         env:
           PY_VER: ${{ matrix.python-version }}
