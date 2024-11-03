@@ -29,7 +29,7 @@ To do so, follow these steps:
   
   $ qemu-img resize Ubuntu-Box.x86_64-1.22.04-System-BuildBox.qcow2 +20G
 
-2. When relaunching your `kiwi` box build, make sure you use `--no-snapshot`
+2. When relaunching your `kiwi-ng` box build, make sure you use `--no-snapshot`
    and `--box-debug` options within your build command/script. Example:
    
 .. code:: bash
