@@ -93,10 +93,10 @@ class TestPath:
 
     def test_which_with_real_data(self, pytestconfig: pytest.Config):
         assert Path.which(
-            'tox.ini',
+            'pyproject.toml',
             custom_env={'PATH': str(pytestconfig.rootpath)},
             access_mode=os.F_OK
-        ) == str(pytestconfig.rootpath / "tox.ini")
+        ) == str(pytestconfig.rootpath / "pyproject.toml")
 
         assert Path.which(
             '__init__.py',

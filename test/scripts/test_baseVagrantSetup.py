@@ -1,7 +1,7 @@
 from pytest_container.container import DerivedContainer
 from .conftest import (
-    CONTAINERS_WITH_YUM,
     CONTAINERS_WITH_ZYPPER,
+    CONTAINERS_WITH_DNF
 )
 import pytest
 
@@ -19,18 +19,20 @@ ZYPPER_IN_CMD_CONTAINERFILE = (
 )
 
 
+DNF_IN_CMD_CONTAINERFILE = (
+    """RUN dnf -y install openssh-server && /usr/libexec/openssh/sshd-keygen ed25519
+""" + VAGRANT_SETUP_CONTAINERFILE
+)
+
+
 @pytest.mark.parametrize(
     "container_per_test",
     [
         DerivedContainer(base=cont, containerfile=ZYPPER_IN_CMD_CONTAINERFILE)
         for cont in CONTAINERS_WITH_ZYPPER
     ] + [
-        DerivedContainer(
-            base=cont,
-            containerfile="""RUN yum -y install openssh-server sudo && /usr/libexec/openssh/sshd-keygen ed25519
-""" + VAGRANT_SETUP_CONTAINERFILE,
-        )
-        for cont in CONTAINERS_WITH_YUM
+        DerivedContainer(base=cont, containerfile=DNF_IN_CMD_CONTAINERFILE)
+        for cont in CONTAINERS_WITH_DNF
     ],
     indirect=["container_per_test"],
 )

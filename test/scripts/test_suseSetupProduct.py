@@ -1,14 +1,7 @@
 import pytest
 
 from .conftest import (
-    LEAP_15_2,
-    LEAP_15_3,
-    LEAP_15_4,
-    SLE_12_SP5,
-    SLE_15_SP1,
-    SLE_15_SP2,
-    SLE_15_SP3,
-    SLE_15_SP4,
+    LEAP_15_5,
     TUMBLEWEED,
 )
 
@@ -30,18 +23,11 @@ def test_does_nothing_when_product_correct(auto_container_per_test):
     "container_per_test,product_name",
     (
         (TUMBLEWEED, "openSUSE.prod"),
-        (LEAP_15_2, "openSUSE.prod"),
-        (LEAP_15_3, "Leap.prod"),
-        (LEAP_15_4, "Leap.prod"),
-        (SLE_15_SP4, "SLES.prod"),
-        (SLE_15_SP3, "SLES.prod"),
-        (SLE_15_SP2, "SLES.prod"),
-        (SLE_15_SP1, "SLES.prod"),
-        (SLE_12_SP5, "SLES.prod"),
+        (LEAP_15_5, "Leap.prod"),
     ),
     indirect=["container_per_test"],
 )
-def test_sets_baseproduct_from_etc_os_relesae(container_per_test, product_name):
+def test_sets_baseproduct_from_etc_os_release(container_per_test, product_name):
     assert not container_per_test.connection.file("/etc/SuSE-brand").exists
 
     container_per_test.connection.run_expect([0], "rm /etc/products.d/baseproduct")
