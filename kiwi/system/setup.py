@@ -101,9 +101,7 @@ class SystemSetup:
             pathlib.Path(f'{self.root_dir}/{defaults.LOCAL_CONTAINERS}').mkdir(
                 parents=True, exist_ok=True
             )
-            Command.run(
-                ['chroot', self.root_dir] + container.fetch_command
-            )
+            container.fetch_command(self.root_dir)
             if container.load_command:
                 container_files_to_load.append(container.container_file)
                 container_execs_to_load.append(container.load_command)

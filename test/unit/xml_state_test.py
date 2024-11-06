@@ -10,9 +10,7 @@ from pytest import (
 )
 
 from kiwi.defaults import Defaults
-from kiwi.xml_state import (
-    XMLState, ContainerT
-)
+from kiwi.xml_state import XMLState
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.xml_description import XMLDescription
 
@@ -412,55 +410,104 @@ class TestXMLState:
             )
         }
 
-    def test_get_containers(self):
-        assert self.state.get_containers() == [
-            ContainerT(
-                name='rmtserver_latest',
-                backend='podman',
-                container_file='/var/tmp/kiwi_containers/rmtserver_latest',
-                fetch_only=False,
-                fetch_command=[
-                    '/usr/bin/skopeo', 'copy',
-                    'docker://registry.suse.com/home/mschaefer/'
-                    'images_pubcloud/pct/rmtserver:latest',
-                    'oci-archive:/var/tmp/kiwi_containers/'
-                    'rmtserver_latest:registry.suse.com/home/mschaefer/'
-                    'images_pubcloud/pct/rmtserver:latest'
-                ],
-                load_command=[
-                    '/usr/bin/podman', 'load', '-i',
-                    '/var/tmp/kiwi_containers/rmtserver_latest'
-                ]
-            ),
-            ContainerT(
-                name='some_latest',
-                backend='docker',
-                container_file='/var/tmp/kiwi_containers/some_latest',
-                fetch_only=False,
-                fetch_command=[
-                    '/usr/bin/skopeo', 'copy',
-                    'docker://registry.suse.com/some:latest',
-                    'oci-archive:/var/tmp/kiwi_containers/'
-                    'some_latest:registry.suse.com/some:latest'
-                ],
-                load_command=[
-                    '/usr/bin/docker', 'load', '-i',
-                    '/var/tmp/kiwi_containers/some_latest'
-                ]
-            ),
-            ContainerT(
-                name='foo_latest',
-                backend='podman',
-                container_file='/var/tmp/kiwi_containers/foo_latest',
-                fetch_only=True,
-                fetch_command=[
-                    '/usr/bin/skopeo', 'copy', 'docker://docker.io/foo:latest',
-                    'oci-archive:/var/tmp/kiwi_containers/'
-                    'foo_latest:docker.io/foo:latest'
-                ],
-                load_command=[]
-            )
+    @patch('kiwi.xml_state.Defaults.is_buildservice_worker')
+    @patch('kiwi.xml_state.Command.run')
+    def test_get_containers_in_buildservice(
+        self, mock_Command_run, mock_Defaults_is_buildservice_worker
+    ):
+        mock_Defaults_is_buildservice_worker.return_value = True
+        description = XMLDescription(
+            '../data/example_containers_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        containers = state.get_containers()[0]
+        containers.fetch_command('root_dir')
+        assert containers.name == 'tumbleweed_latest'
+        assert containers.backend == 'podman'
+        assert containers.container_file == \
+            '/var/tmp/kiwi_containers/tumbleweed_latest'
+        assert containers.fetch_only is False
+        assert containers.load_command == [
+            '/usr/bin/podman', 'load', '-i',
+            '/var/tmp/kiwi_containers/tumbleweed_latest'
         ]
+        mock_Command_run.assert_called_once_with(
+            [
+                'cp',
+                '/usr/src/packages/SOURCES/containers/'
+                '_obsrepositories/registry.opensuse.org/opensuse/'
+                'tumbleweed:latest.ociarchive',
+                'root_dir/var/tmp/kiwi_containers/tumbleweed_latest'
+            ]
+        )
+
+    @patch('kiwi.xml_state.Command.run')
+    def test_get_containers(self, mock_Command_run):
+        containers = self.state.get_containers()
+        c1 = containers[0]
+        c2 = containers[1]
+        c3 = containers[2]
+
+        c1.fetch_command('root_dir')
+        assert c1.name == 'rmtserver_latest'
+        assert c1.backend == 'podman'
+        assert c1.container_file == \
+            '/var/tmp/kiwi_containers/rmtserver_latest'
+        assert c1.fetch_only is False
+        assert c1.load_command == [
+            '/usr/bin/podman', 'load', '-i',
+            '/var/tmp/kiwi_containers/rmtserver_latest'
+        ]
+        mock_Command_run.assert_called_once_with(
+            [
+                'chroot', 'root_dir',
+                '/usr/bin/skopeo', 'copy',
+                'docker://registry.suse.com/home/mschaefer/'
+                'images_pubcloud/pct/rmtserver:latest',
+                'oci-archive:/var/tmp/kiwi_containers/'
+                'rmtserver_latest:registry.suse.com/home/mschaefer/'
+                'images_pubcloud/pct/rmtserver:latest'
+            ]
+        )
+        mock_Command_run.reset_mock()
+
+        c2.fetch_command('root_dir')
+        assert c2.name == 'some_latest'
+        assert c2.backend == 'docker'
+        assert c2.container_file == \
+            '/var/tmp/kiwi_containers/some_latest'
+        assert c2.fetch_only is False
+        assert c2.load_command == [
+            '/usr/bin/docker', 'load', '-i',
+            '/var/tmp/kiwi_containers/some_latest'
+        ]
+        mock_Command_run.assert_called_once_with(
+            [
+                'chroot', 'root_dir',
+                '/usr/bin/skopeo', 'copy',
+                'docker://registry.suse.com/some:latest',
+                'oci-archive:/var/tmp/kiwi_containers/'
+                'some_latest:registry.suse.com/some:latest'
+            ]
+        )
+        mock_Command_run.reset_mock()
+
+        c3.fetch_command('root_dir')
+        assert c3.name == 'foo_latest'
+        assert c3.backend == 'podman'
+        assert c3.container_file == \
+            '/var/tmp/kiwi_containers/foo_latest'
+        assert c3.fetch_only is True
+        assert c3.load_command == []
+        mock_Command_run.assert_called_once_with(
+            [
+                'chroot', 'root_dir',
+                '/usr/bin/skopeo', 'copy', 'docker://docker.io/foo:latest',
+                'oci-archive:/var/tmp/kiwi_containers/'
+                'foo_latest:docker.io/foo:latest'
+            ]
+        )
 
     def test_get_volumes_custom_root_volume_name(self):
         description = XMLDescription(

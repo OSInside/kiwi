@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-disk-containers">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Disk test build with container import</specification>
+    </description>
+    <preferences>
+        <version>1.42.1</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <bootsplash-theme>breeze</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+                <oem-swapsize>1024</oem-swapsize>
+                <oem-multipath-scan>false</oem-multipath-scan>
+            </oemconfig>
+            <systemdisk>
+                <volume name="home" quota="5G"/>
+            </systemdisk>
+        </type>
+    </preferences>
+    <containers source="registry.opensuse.org" backend="podman">
+        <container name="tumbleweed" tag="latest" path="opensuse"/>
+    </containers>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+        <package name="skopeo"/>
+        <package name="podman"/>
+        <package name="procps"/>
+        <package name="systemd"/>
+        <package name="plymouth-theme-breeze"/>
+        <package name="plymouth-plugin-script"/>
+        <package name="grub2-branding-openSUSE"/>
+        <package name="iputils"/>
+        <package name="vim"/>
+        <package name="grub2"/>
+        <package name="grub2-x86_64-efi" arch="x86_64"/>
+        <package name="grub2-i386-pc"/>
+        <package name="lvm2"/>
+        <package name="plymouth"/>
+        <package name="fontconfig"/>
+        <package name="fonts-config"/>
+        <package name="tar"/>
+        <package name="parted"/>
+        <package name="openssh"/>
+        <package name="iproute2"/>
+        <package name="less"/>
+        <package name="bash-completion"/>
+        <package name="bind-utils"/>
+        <package name="dhcp-client"/>
+        <package name="which"/>
+        <package name="kernel-default"/>
+        <package name="timezone"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
+        <package name="udev"/>
+        <package name="xz"/>
+        <package name="shadow"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="openSUSE-release"/>
+    </packages>
+</image>
