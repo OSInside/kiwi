@@ -108,6 +108,13 @@ class LuksDevice(DeviceProvider):
         if not passphrase:
             log.warning('Using an empty passphrase for the key setup')
 
+        if keyfile:
+            self.luks_keyfile = keyfile
+            keyfile_path = os.path.normpath(
+                os.sep.join([root_dir, self.luks_keyfile])
+            )
+            LuksDevice.create_random_keyfile(keyfile_path)
+
         if randomize:
             log.info('--> Randomizing...')
             storage_size_mbytes = self.storage_provider.get_byte_size(
@@ -123,12 +130,26 @@ class LuksDevice(DeviceProvider):
 
         log.info('--> Creating LUKS map')
 
-        if passphrase:
+        if passphrase and passphrase == 'random':
+            # In random mode use the generated keyfile as the only
+            # key to decrypt. This is only secure if the generated
+            # initrd also gets protected, e.g through encryption
+            # like it is done with the secure linux execution on
+            # zSystems
+            passphrase_file = keyfile_path
+            # Do not add an additional keyfile
+            keyfile = ''
+        elif passphrase:
+            # Setup a passphrase file for which the system will
+            # ask for in an interactive dialog
             passphrase_file_tmp = Temporary().new_file()
             with open(passphrase_file_tmp.name, 'w') as credentials:
                 credentials.write(passphrase)
             passphrase_file = passphrase_file_tmp.name
         else:
+            # Setup an empty passphrase, insecure and only useful
+            # for initial deployment which then applies a process
+            # to secure the image e.g reencrypt
             passphrase_file_zero = '/dev/zero'
             extra_options = [
                 '--keyfile-size', '32'
@@ -142,12 +163,8 @@ class LuksDevice(DeviceProvider):
                 'luksFormat', storage_device
             ]
         )
+
         if keyfile:
-            self.luks_keyfile = keyfile
-            keyfile_path = os.path.normpath(
-                os.sep.join([root_dir, self.luks_keyfile])
-            )
-            LuksDevice.create_random_keyfile(keyfile_path)
             Command.run(
                 [
                     'cryptsetup', '--key-file', passphrase_file

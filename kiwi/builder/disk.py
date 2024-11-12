@@ -667,7 +667,7 @@ class DiskBuilder:
         #    LUKS pool without asking
         #
         luks_need_keyfile = \
-            True if self.boot_is_crypto or self.luks == '' else False
+            True if self.boot_is_crypto or self.luks == '' or self.luks == 'random' else False
         luks_root.create_crypto_luks(
             passphrase=self.luks or '',
             osname=self.luks_os,

@@ -566,15 +566,34 @@ root_clone="number"
 boot_clone="number"
   Same as `root_clone` but applied to the boot partition if present
 
-luks="passphrase|file:///path/to/keyfile":
+luks="passphrase|file:///path/to/keyfile|random":
   Supplying a value will trigger the encryption of the partition
   serving the root filesystem using the LUKS extension. The supplied
   value represents either the passphrase string or the location of
-  a key file if specified as `file://...` resource. When using
-  a key file it is in the responsibility of the user how
-  this key file is actually being used. By default any
-  distribution will just open an interactive dialog asking
-  for the credentials at boot time !
+  a key file if specified as `file://...` resource or the reserved
+  name `random`. When using a passphrase the system will interactively
+  ask for that passphrase on first boot unless it is set empty.
+  In case of an empty passphrase the system cannot be considered secure.
+  When using a key file the information from the file is read and
+  used as a passphrase. The given key file is **not automatically**
+  placed into the system or added to the `etc/crypttab` which means
+  the passphrase in the key file is by default requested from an
+  interactive dialog at boot time. When using the reserved word
+  `random`, kiwi will create a key file with a random passphrase
+  and place this information into `etc/crypttab`. This allows
+  the system to boot without user interaction but also requires
+  the initrd to be protected in some way because it will contain
+  the keyfile. The use of `random` is therefore only secure if
+  the image adds additional security that encrypts the initrd
+  like it is e.g. done in the IBM secure execution process.
+  If the encryption of the system is combined with the attribute
+  `bootpartition="false"` it's important to understand that this
+  will place `/boot` into the encrypted area of the system and
+  leaves reading boot data from it as a responsibility to the
+  bootloader. Not every bootloader can cope with that and those
+  that can e.g. grub will then open an interactive dialog at
+  the bootloader level asking for the credentials to decrypt the
+  root filesystem.
 
 luks_version="luks|luks1|luks2":
   Specify which `LUKS` version should be used. If not set and by
