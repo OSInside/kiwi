@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="8.2" name="test-containers">
+    <description type="system">
+        <author>Some</author>
+        <contact>some@example.com</contact>
+        <specification>
+            Test containers section used in the buildservice
+        </specification>
+    </description>
+    <containers source="registry.opensuse.org" backend="podman">
+        <container name="tumbleweed" tag="latest" path="opensuse"/>
+    </containers>
+    <preferences>
+        <version>1.1.1</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="xfs"/>
+    </preferences>
+    <repository>
+        <source path="obs://some/repo/oss"/>
+    </repository>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+    </packages>
+</image>

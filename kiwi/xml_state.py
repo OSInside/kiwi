@@ -17,7 +17,7 @@
 #
 import os
 from typing import (
-    List, Optional, Any, Dict, NamedTuple
+    List, Optional, Any, Dict, NamedTuple, Callable
 )
 import re
 import logging
@@ -32,6 +32,7 @@ from kiwi.storage.disk import ptable_entry_type
 from kiwi.system.uri import Uri
 from kiwi.defaults import Defaults
 from kiwi.utils.size import StringToSize
+from kiwi.command import Command
 
 from kiwi.exceptions import (
     KiwiProfileNotFound,
@@ -90,7 +91,7 @@ class ContainerT(NamedTuple):
     backend: str
     container_file: str
     fetch_only: bool
-    fetch_command: List[str]
+    fetch_command: Callable
     load_command: List[str]
 
 
@@ -1750,10 +1751,18 @@ class XMLState:
 
     def get_containers(self) -> List[ContainerT]:
         containers = []
+
+        def build_fetch_command(
+            root_dir: str,
+            container_uri: str = '',
+            container_file_name: str = '',
+            container_endpoint: str = ''
+        ):
+            pass  # pragma: nocover
         for containers_section in self.get_containers_sections():
             for container in containers_section.get_container():
                 if self.container_matches_host_architecture(container):
-                    fetch_command = []
+                    fetch_command = build_fetch_command
                     load_command = []
                     container_tag = container.get_tag() or 'latest'
                     container_path = container.get_path() or ''
@@ -1768,13 +1777,58 @@ class XMLState:
                     )
                     container_backend = containers_section.get_backend() or ''
                     if container_backend in ['podman', 'docker']:
-                        fetch_command = [
-                            '/usr/bin/skopeo', 'copy',
-                            'docker://{0}'.format(container_endpoint),
-                            'oci-archive:{0}:{1}'.format(
-                                container_file_name, container_endpoint
-                            )
-                        ]
+                        if Defaults.is_buildservice_worker():
+                            container_uri = Uri(
+                                'obsrepositories:/{0}'.format(
+                                    container_endpoint
+                                ), 'container'
+                            ).translate()
+
+                            def build_fetch_command(
+                                root_dir: str,
+                                container_uri: str = container_uri,
+                                container_file_name: str = container_file_name,
+                                container_endpoint: str = container_endpoint
+                            ):
+                                def perform():
+                                    Command.run(
+                                        [
+                                            'cp', '{0}.ociarchive'.format(
+                                                container_uri
+                                            ), os.path.normpath(
+                                                '{0}/{1}'.format(
+                                                    root_dir,
+                                                    container_file_name
+                                                )
+                                            )
+                                        ]
+                                    )
+                                perform()
+                            fetch_command = build_fetch_command
+                        else:
+
+                            def build_fetch_command(
+                                root_dir: str,
+                                container_uri: str = '',
+                                container_file_name: str = container_file_name,
+                                container_endpoint: str = container_endpoint
+                            ):
+                                def perform():
+                                    Command.run(
+                                        [
+                                            'chroot', root_dir,
+                                            '/usr/bin/skopeo', 'copy',
+                                            'docker://{0}'.format(
+                                                container_endpoint
+                                            ),
+                                            'oci-archive:{0}:{1}'.format(
+                                                container_file_name,
+                                                container_endpoint
+                                            )
+                                        ]
+                                    )
+                                perform()
+                            fetch_command = build_fetch_command
                         if not container.get_fetch_only():
                             load_command = [
                                 f'/usr/bin/{container_backend}',
