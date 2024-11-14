@@ -92,7 +92,8 @@ class Kernel:
                             version=version
                         )
 
-        if Defaults.is_ostree(self.root_dir):
+        if Defaults.is_ostree(self.root_dir):  # pragma: nocover
+            # TODO: ostree: This code looks similar to the one in builder/live and should imho exist only once in a OSTree class
             boot_ostree_dir = os.sep.join([self.root_dir, 'boot/ostree'])
             kernel_ostree_pattern = '.*/boot/ostree/.*/vmlinuz-(.*)'
             if os.path.isdir(boot_ostree_dir):

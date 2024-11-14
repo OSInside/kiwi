@@ -319,13 +319,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         # be deleted...
         if self.xml_state.build_type.get_overlayroot_write_partition() is not False:
             self._fix_grub_root_device_reference(config_file, boot_options)
-            if not Defaults.is_ostree(self.root_dir):
-                self._fix_grub_loader_entries_boot_cmdline()
-                self._fix_grub_loader_entries_linux_and_initrd_paths()
-            else:
-                # In the ostree case, the BLS entries are correct, but we still
-                # need to append the additionnal kernel command line arguments
-                self.grub_loader_entries_boot_cmdline_append()
+            self._fix_grub_loader_entries_boot_cmdline(
+                keep_existing_options=True if Defaults.is_ostree(self.root_dir) else False
+            )
+            self._fix_grub_loader_entries_linux_and_initrd_paths()
 
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
@@ -425,7 +422,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             has_serial = True
 
         # Find the ostree=... parameter from the BLS config and add it to the boot options
-        if not Defaults.is_ostree(self.root_dir):
+        # TODO: ostree: This code looks like it is required for any ostree based boot process and should live in its own scope e.g. an OSTree class
+        if Defaults.is_ostree(self.root_dir):  # pragma: nocover
             loader_entries_pattern = os.sep.join(
                 [
                     self.root_mount.mountpoint,
@@ -1482,7 +1480,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     with open(vendor_grubenv_file, 'w') as vendor_grubenv:
                         vendor_grubenv.write(grubenv)
 
-    def _fix_grub_loader_entries_boot_cmdline(self):
+    def _fix_grub_loader_entries_boot_cmdline(
+        self, keep_existing_options=False
+    ):
         if self.cmdline:
             # For distributions that follows the bootloader spec here:
             # https://www.freedesktop.org/wiki/Specifications/BootLoaderSpec
@@ -1506,30 +1506,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             for menu_entry_file in glob.iglob(loader_entries_pattern):
                 with open(menu_entry_file) as grub_menu_entry_file:
                     menu_entry = grub_menu_entry_file.read()
-                    menu_entry = re.sub(
-                        r'options (.*)',
-                        r'options {0}'.format(self.cmdline),
-                        menu_entry
-                    )
-                with open(menu_entry_file, 'w') as grub_menu_entry_file:
-                    grub_menu_entry_file.write(menu_entry)
-
-    def grub_loader_entries_boot_cmdline_append(self):
-        if self.cmdline:
-            loader_entries_pattern = os.sep.join(
-                [
-                    self.root_mount.mountpoint,
-                    'boot', 'loader', 'entries', '*.conf'
-                ]
-            )
-            for menu_entry_file in glob.iglob(loader_entries_pattern):
-                with open(menu_entry_file) as grub_menu_entry_file:
-                    menu_entry = grub_menu_entry_file.read()
-                    menu_entry = re.sub(
-                        r'options (.*)',
-                        r'options \1 {0}'.format(self.cmdline),
-                        menu_entry
-                    )
+                    if keep_existing_options:
+                        menu_entry = re.sub(
+                            r'options (.*)',
+                            r'options \1 {0}'.format(self.cmdline),
+                            menu_entry
+                        )
+                    else:
+                        menu_entry = re.sub(
+                            r'options (.*)',
+                            r'options {0}'.format(self.cmdline),
+                            menu_entry
+                        )
                 with open(menu_entry_file, 'w') as grub_menu_entry_file:
                     grub_menu_entry_file.write(menu_entry)
 

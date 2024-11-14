@@ -209,8 +209,8 @@ class LiveImageBuilder:
                                 )
                             ]
                         )
-            else:
-                # find the existing initrd in the ostree case
+            else:  # pragma: nocover
+                # TODO: ostree: this code should be part of an OSTree class find the existing initrd in the ostree case
                 boot_ostree_dir = os.sep.join([self.root_dir, 'boot/ostree'])
                 initramfs_ostree_pattern = '.*/boot/ostree/.*/initramfs-(.*)'
                 if os.path.isdir(boot_ostree_dir):

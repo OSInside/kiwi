@@ -885,7 +885,11 @@ class TestBootLoaderConfigGrub2:
         ]
 
     @patch('os.path.exists')
-    def test_setup_live_image_config_custom_template(self, mock_exists):
+    @patch('kiwi.defaults.Defaults.is_ostree')
+    def test_setup_live_image_config_custom_template(
+        self, mock_is_ostree, mock_exists
+    ):
+        mock_is_ostree.return_value = False
         bootloader = Mock()
         bootloader.get_grub_template.return_value = "example.template"
         self.bootloader.xml_state.build_type.bootloader.append(bootloader)
@@ -989,11 +993,13 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('kiwi.defaults.Defaults.get_vendor_grubenv')
     @patch('glob.iglob')
+    @patch('kiwi.defaults.Defaults.is_ostree')
     def test_setup_disk_image_config(
-        self, mock_iglob, mock_get_vendor_grubenv, mock_Path_which,
-        mock_Command_run, mock_copy_grub_config_to_efi_path,
+        self, mock_is_ostree, mock_iglob, mock_get_vendor_grubenv,
+        mock_Path_which, mock_Command_run, mock_copy_grub_config_to_efi_path,
         mock_mount_system
     ):
+        mock_is_ostree.return_value = False
         mock_iglob.return_value = ['some_entry.conf']
         mock_get_vendor_grubenv.return_value = 'grubenv'
         mock_Path_which.return_value = '/path/to/grub2-mkconfig'
@@ -1085,10 +1091,24 @@ class TestBootLoaderConfigGrub2:
                 }
             )
 
+            assert 'options some-cmdline root=UUID=foo' in \
+                file_handle_menu.write.call_args_list[0][0][0].split(os.linesep)
             assert 'linux /vmlinuz' in \
                 file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
             assert 'initrd /initrd' in \
                 file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
+
+            mock_is_ostree.return_value = True
+            file_handle_menu.reset_mock()
+
+            self.bootloader.setup_disk_image_config(
+                boot_options={
+                    'root_device': 'rootdev', 'boot_device': 'bootdev'
+                }
+            )
+
+            assert 'options foo some-cmdline root=UUID=foo' in \
+                file_handle_menu.write.call_args_list[0][0][0].split(os.linesep)
 
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     def test_setup_install_image_config_standard(
