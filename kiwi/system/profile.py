@@ -245,25 +245,25 @@ class Profile:
         # kiwi_splash_theme
         # kiwi_loader_theme
         for preferences in reversed(self.xml_state.get_preferences_sections()):
-            if 'kiwi_iversion' not in self.dot_profile:
+            if 'kiwi_iversion' not in self.dot_profile and preferences.get_version():
                 self.dot_profile['kiwi_iversion'] = \
                     self._text(preferences.get_version())
             if 'kiwi_showlicense' not in self.dot_profile:
                 self.dot_profile['kiwi_showlicense'] = \
                     self._text(preferences.get_showlicense())
-            if 'kiwi_keytable' not in self.dot_profile:
+            if 'kiwi_keytable' not in self.dot_profile and preferences.get_keytable():
                 self.dot_profile['kiwi_keytable'] = \
                     self._text(preferences.get_keytable())
-            if 'kiwi_timezone' not in self.dot_profile:
+            if 'kiwi_timezone' not in self.dot_profile and preferences.get_timezone():
                 self.dot_profile['kiwi_timezone'] = \
                     self._text(preferences.get_timezone())
-            if 'kiwi_language' not in self.dot_profile:
+            if 'kiwi_language' not in self.dot_profile and preferences.get_locale():
                 self.dot_profile['kiwi_language'] = \
                     self._text(preferences.get_locale())
-            if 'kiwi_splash_theme' not in self.dot_profile:
+            if 'kiwi_splash_theme' not in self.dot_profile and preferences.get_bootsplash_theme():
                 self.dot_profile['kiwi_splash_theme'] = \
                     self._text(preferences.get_bootsplash_theme())
-            if 'kiwi_loader_theme' not in self.dot_profile:
+            if 'kiwi_loader_theme' not in self.dot_profile and preferences.get_bootloader_theme():
                 self.dot_profile['kiwi_loader_theme'] = \
                     self._text(preferences.get_bootloader_theme())
 

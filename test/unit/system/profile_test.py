@@ -65,8 +65,6 @@ class TestProfile:
             'kiwi_keytable': 'us.map.gz',
             'kiwi_timezone': 'Europe/Berlin',
             'kiwi_language': 'en_US',
-            'kiwi_splash_theme': None,
-            'kiwi_loader_theme': None,
             'kiwi_strip_delete': '',
             'kiwi_strip_tools': '',
             'kiwi_strip_libs': '',

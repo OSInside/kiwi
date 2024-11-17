@@ -20,6 +20,7 @@ usage: kiwi-ng image info -h | --help
        kiwi-ng image info --description=<directory>
            [--resolve-package-list]
            [--list-profiles]
+           [--print-kiwi-env]
            [--ignore-repos]
            [--add-repo=<source,type,alias,priority>...]
            [--print-xml|--print-yaml|--print-toml]
@@ -43,6 +44,8 @@ options:
         shasum, etc...
     --list-profiles
         list profiles available for the selected/default type
+    --print-kiwi-env
+        print kiwi profile environment variables
     --print-xml|--print-yaml|--print-toml
         print image description in specified format
 """
@@ -56,6 +59,8 @@ from kiwi.solver.sat import Sat
 from kiwi.solver.repository import SolverRepository
 from kiwi.solver.repository.base import SolverRepositoryBase
 from kiwi.system.uri import Uri
+from kiwi.system.profile import Profile
+from kiwi.defaults import Defaults
 
 
 class ImageInfoTask(CliTask):
@@ -95,6 +100,12 @@ class ImageInfoTask(CliTask):
         result = {
             'image': self.xml_state.xml_data.get_name()
         }
+
+        if self.command_args['--print-kiwi-env']:
+            profile = Profile(self.xml_state)
+            defaults = Defaults()
+            defaults.to_profile(profile)
+            result['kiwi_env'] = profile.get_settings()
 
         if self.command_args['--list-profiles']:
             result['profile_names'] = []
