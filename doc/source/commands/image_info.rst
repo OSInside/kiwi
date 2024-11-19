@@ -14,6 +14,7 @@ SYNOPSIS
    kiwi-ng image info --description=<directory>
        [--resolve-package-list]
        [--list-profiles]
+       [--print-kiwi-env]
        [--ignore-repos]
        [--add-repo=<source,type,alias,priority>...]
        [--print-xml|--print-yaml]
@@ -63,6 +64,19 @@ OPTIONS
   type is also profiled, it's required to provide this
   information to kiwi to list further profiles for this type.
   For example: kiwi-ng --profile top_level_entry_profile image info ...
+
+--print-kiwi-env
+
+  print kiwi profile environment variables. The listed variables
+  are available in the shell environment of the kiwi hook scripts.
+
+  NOTE:
+  The kiwi profile environment grows during the build process.
+  When used in early stages e.g. in a post_bootstrap.sh script
+  it can happen that not all variables have a value. The setup
+  of the kiwi profile environment in the image info output can
+  therefore also only list the static configuration values
+  which are known at the beginning of a build process.
 
 --resolve-package-list
 

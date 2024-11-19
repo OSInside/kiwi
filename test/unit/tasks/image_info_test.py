@@ -10,7 +10,9 @@ from ..test_helper import argv_kiwi_tests
 
 from kiwi.tasks.image_info import ImageInfoTask
 
-from collections import namedtuple
+from collections import (
+    namedtuple, OrderedDict
+)
 
 
 class TestImageInfoTask:
@@ -93,6 +95,7 @@ class TestImageInfoTask:
         self.task.command_args['--ignore-repos'] = False
         self.task.command_args['--resolve-package-list'] = False
         self.task.command_args['--list-profiles'] = False
+        self.task.command_args['--print-kiwi-env'] = False
         self.task.command_args['--print-xml'] = False
         self.task.command_args['--print-yaml'] = False
         self.task.command_args['--print-toml'] = False
@@ -126,6 +129,68 @@ class TestImageInfoTask:
         self.runtime_checker.check_repositories_configured.assert_called_once_with()
         mock_out.assert_called_once_with(
             {'image': 'LimeJeOS', 'profile_names': ['some']}
+        )
+
+    @patch('kiwi.tasks.image_info.DataOutput')
+    def test_process_image_info_print_kiwi_env(self, mock_out):
+        self._init_command_args()
+        self.task.command_args['info'] = True
+        self.task.command_args['--print-kiwi-env'] = True
+        self.task.process()
+        self.runtime_checker.check_repositories_configured.assert_called_once_with()
+
+        mock_out.assert_called_once_with(
+            {
+                'image': 'LimeJeOS',
+                'kiwi_env': OrderedDict(
+                    [
+                        ('kiwi_align', '1048576'),
+                        ('kiwi_boot_timeout', ''),
+                        ('kiwi_bootkernel', ''),
+                        ('kiwi_bootloader', 'grub2'),
+                        ('kiwi_bootloader_console', 'default:default'),
+                        ('kiwi_bootprofile', ''),
+                        ('kiwi_btrfs_root_is_snapshot', ''),
+                        ('kiwi_cmdline', ''),
+                        ('kiwi_compressed', ''),
+                        ('kiwi_delete', ''),
+                        ('kiwi_devicepersistency', ''),
+                        ('kiwi_displayname', 'Bob'),
+                        ('kiwi_drivers', ''),
+                        ('kiwi_firmware', ''),
+                        ('kiwi_fsmountoptions', ''),
+                        ('kiwi_gpt_hybrid_mbr', ''),
+                        ('kiwi_hybridpersistent', ''),
+                        ('kiwi_hybridpersistent_filesystem', ''),
+                        ('kiwi_iname', 'LimeJeOS'),
+                        ('kiwi_initrd_system', 'dracut'),
+                        ('kiwi_installboot', ''),
+                        ('kiwi_iversion', '1.13.2'),
+                        ('kiwi_keytable', 'us.map.gz'),
+                        ('kiwi_language', 'en_US'),
+                        ('kiwi_live_volid', 'CDROM'),
+                        ('kiwi_loader_theme', 'openSUSE'),
+                        ('kiwi_luks_empty_passphrase', 'false'),
+                        ('kiwi_profiles', ''),
+                        ('kiwi_ramonly', ''),
+                        ('kiwi_revision', '$Format:%H$'),
+                        ('kiwi_rootpartuuid', ''),
+                        ('kiwi_sectorsize', '512'),
+                        ('kiwi_showlicense', ''),
+                        ('kiwi_splash_theme', 'openSUSE'),
+                        ('kiwi_startsector', '2048'),
+                        ('kiwi_strip_delete', ''),
+                        ('kiwi_strip_libs', ''),
+                        ('kiwi_strip_tools', ''),
+                        ('kiwi_target_blocksize', ''),
+                        ('kiwi_target_removable', ''),
+                        ('kiwi_timezone', 'Europe/Berlin'),
+                        ('kiwi_type', 'iso'),
+                        ('kiwi_vga', ''),
+                        ('kiwi_wwid_wait_timeout', '')
+                    ]
+                )
+            }
         )
 
     @patch('kiwi.tasks.image_info.DataOutput')
