@@ -31,9 +31,9 @@
       <param name="pattern">[a-zA-Z0-9_\-\.]{1,32}</param>
     </data>
   </define>
-  <define name="safe-posix-long-name">
+  <define name="ecma-119-achar-128-text">
     <data type="token">
-      <param name="pattern">[a-zA-Z0-9_\-\.]{1,128}</param>
+      <param name="pattern">[a-zA-Z0-9!-/:-?_ ]{1,128}</param>
     </data>
   </define>
   <define name="locale-name">
@@ -3074,7 +3074,7 @@ into the master block. There is space for 32 characters.</a:documentation>
         <a:documentation>for the iso/(oem install iso) type only:
 Specifies the Application ID to be written
 into the master block. There is space for 128 characters.</a:documentation>
-        <ref name="safe-posix-long-name"/>
+        <ref name="ecma-119-achar-128-text"/>
       </attribute>
       <sch:pattern id="application_id" is-a="image_type">
         <sch:param name="attr" value="application_id"/>
@@ -3128,6 +3128,7 @@ container image created by Kiwi.  Default is true.</a:documentation>
     <define name="k.type.publisher.attribute">
       <attribute name="publisher">
         <a:documentation>Specifies the publisher name of the ISO.</a:documentation>
+        <ref name="ecma-119-achar-128-text"/>
       </attribute>
       <sch:pattern id="publisher" is-a="image_type">
         <sch:param name="attr" value="publisher"/>
