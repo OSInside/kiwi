@@ -7,10 +7,10 @@
         <specification>SUSE derived docker container</specification>
     </description>
     <preferences>
-        <type image="docker" derived_from="obs://openSUSE:Containers:Leap:15.3/containers/opensuse/leap#15.3">
+        <type image="docker" derived_from="obs://openSUSE:Containers:Leap:15.6/containers/opensuse/leap#15.6">
             <containerconfig name="builder" tag="1.0" additionalnames=":latest"/>
         </type>
-        <version>1.15.3</version>
+        <version>1.15.6</version>
         <packagemanager>zypper</packagemanager>
         <rpm-excludedocs>true</rpm-excludedocs>
     </preferences>
