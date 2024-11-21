@@ -5,15 +5,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.xml_state &mdash; KIWI NG 10.1.18 documentation</title>
+  <title>kiwi.xml_state &mdash; KIWI NG 10.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=89f0e8e5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/documentation_options.js?v=d0f31c56"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -218,10 +218,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type">&lt;preferences&gt;&lt;type&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-luksformat">&lt;preferences&gt;&lt;type&gt;&lt;luksformat&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-bootloader">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-bootloader-securelinux">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;securelinux&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-bootloader-bootloadersettings">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;bootloadersettings&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-containerconfig">&lt;preferences&gt;&lt;type&gt;&lt;containerconfig&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-vagrantconfig">&lt;preferences&gt;&lt;type&gt;&lt;vagrantconfig&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-systemdisk">&lt;preferences&gt;&lt;type&gt;&lt;systemdisk&gt;</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-bootloader-bootloadersettings">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;bootloadersettings&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-partitions">&lt;preferences&gt;&lt;type&gt;&lt;partitions&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-oemconfig">&lt;preferences&gt;&lt;type&gt;&lt;oemconfig&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../image_description/elements.html#preferences-type-size">&lt;preferences&gt;&lt;type&gt;&lt;size&gt;</a></li>
@@ -1255,7 +1256,7 @@
 <span class="c1">#</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">NamedTuple</span>
+    <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
 <span class="p">)</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -1270,6 +1271,7 @@
 <span class="kn">from</span> <span class="nn">kiwi.system.uri</span> <span class="kn">import</span> <span class="n">Uri</span>
 <span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
 <span class="kn">from</span> <span class="nn">kiwi.utils.size</span> <span class="kn">import</span> <span class="n">StringToSize</span>
+<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
 
 <span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiProfileNotFound</span><span class="p">,</span>
@@ -1333,7 +1335,7 @@
     <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">container_file</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">fetch_only</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">fetch_command</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">fetch_command</span><span class="p">:</span> <span class="n">Callable</span>
     <span class="n">load_command</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
 
 
@@ -2684,10 +2686,29 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bootloader_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_build_type_bootloader_section</span><span class="p">()</span>
         <span class="n">bootloader_settings_section</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">bootloader_section</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bootloader_section</span> <span class="ow">and</span> <span class="n">bootloader_section</span><span class="o">.</span><span class="n">get_bootloadersettings</span><span class="p">():</span>
             <span class="n">bootloader_settings_section</span> <span class="o">=</span> \
-                <span class="n">bootloader_section</span><span class="o">.</span><span class="n">get_bootloadersettings</span><span class="p">()</span>
+                <span class="n">bootloader_section</span><span class="o">.</span><span class="n">get_bootloadersettings</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">bootloader_settings_section</span></div>
+
+
+<div class="viewcode-block" id="XMLState.get_build_type_bootloader_securelinux_section">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState.get_build_type_bootloader_securelinux_section">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_build_type_bootloader_securelinux_section</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        First securelinux section from the build</span>
+<span class="sd">        type bootloader section</span>
+
+<span class="sd">        :return: &lt;securelinux&gt; section reference</span>
+
+<span class="sd">        :rtype: xml_parse::securelinux</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bootloader_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_build_type_bootloader_section</span><span class="p">()</span>
+        <span class="n">bootloader_securelinux_section</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">bootloader_section</span> <span class="ow">and</span> <span class="n">bootloader_section</span><span class="o">.</span><span class="n">get_securelinux</span><span class="p">():</span>
+            <span class="n">bootloader_securelinux_section</span> <span class="o">=</span> \
+                <span class="n">bootloader_section</span><span class="o">.</span><span class="n">get_securelinux</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">bootloader_securelinux_section</span></div>
 
 
 <div class="viewcode-block" id="XMLState.get_bootloader_options">
@@ -3276,14 +3297,48 @@
         <span class="k">return</span> <span class="n">partitions</span></div>
 
 
+<div class="viewcode-block" id="XMLState.get_host_key_certificates">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState.get_host_key_certificates">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_host_key_certificates</span><span class="p">(</span>
+        <span class="bp">self</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]],</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+        <span class="n">cc_result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cc_certificates</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">securelinux_list</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_build_type_bootloader_securelinux_section</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">securelinux</span> <span class="ow">in</span> <span class="n">securelinux_list</span><span class="p">:</span>
+            <span class="n">cc_certificates</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;hkd_cert&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s1">&#39;hkd_revocation_list&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s1">&#39;hkd_ca_cert&#39;</span><span class="p">:</span> <span class="n">securelinux</span><span class="o">.</span><span class="n">get_hkd_ca_cert</span><span class="p">(),</span>
+                <span class="s1">&#39;hkd_sign_cert&#39;</span><span class="p">:</span> <span class="n">securelinux</span><span class="o">.</span><span class="n">get_hkd_sign_cert</span><span class="p">()</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">hkd_cert</span> <span class="ow">in</span> <span class="n">securelinux</span><span class="o">.</span><span class="n">get_hkd_cert</span><span class="p">():</span>
+                <span class="n">cc_certificates</span><span class="p">[</span><span class="s1">&#39;hkd_cert&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hkd_cert</span><span class="o">.</span><span class="n">get_name</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">hkd_revocation_list</span> <span class="ow">in</span> <span class="n">securelinux</span><span class="o">.</span><span class="n">get_hkd_revocation_list</span><span class="p">():</span>
+                <span class="n">cc_certificates</span><span class="p">[</span><span class="s1">&#39;hkd_revocation_list&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">hkd_revocation_list</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="n">cc_result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cc_certificates</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cc_result</span></div>
+
+
 <div class="viewcode-block" id="XMLState.get_containers">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.xml_state.XMLState.get_containers">[docs]</a>
     <span class="k">def</span> <span class="nf">get_containers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ContainerT</span><span class="p">]:</span>
         <span class="n">containers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span> <span class="nf">build_fetch_command</span><span class="p">(</span>
+            <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">container_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">container_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">container_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="p">):</span>
+            <span class="k">pass</span>  <span class="c1"># pragma: nocover</span>
         <span class="k">for</span> <span class="n">containers_section</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_containers_sections</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">container</span> <span class="ow">in</span> <span class="n">containers_section</span><span class="o">.</span><span class="n">get_container</span><span class="p">():</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">container_matches_host_architecture</span><span class="p">(</span><span class="n">container</span><span class="p">):</span>
-                    <span class="n">fetch_command</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">fetch_command</span> <span class="o">=</span> <span class="n">build_fetch_command</span>
                     <span class="n">load_command</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">container_tag</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">get_tag</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;latest&#39;</span>
                     <span class="n">container_path</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">get_path</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
@@ -3298,13 +3353,58 @@
                     <span class="p">)</span>
                     <span class="n">container_backend</span> <span class="o">=</span> <span class="n">containers_section</span><span class="o">.</span><span class="n">get_backend</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
                     <span class="k">if</span> <span class="n">container_backend</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;podman&#39;</span><span class="p">,</span> <span class="s1">&#39;docker&#39;</span><span class="p">]:</span>
-                        <span class="n">fetch_command</span> <span class="o">=</span> <span class="p">[</span>
-                            <span class="s1">&#39;/usr/bin/skopeo&#39;</span><span class="p">,</span> <span class="s1">&#39;copy&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;docker://</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">container_endpoint</span><span class="p">),</span>
-                            <span class="s1">&#39;oci-archive:</span><span class="si">{0}</span><span class="s1">:</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                <span class="n">container_file_name</span><span class="p">,</span> <span class="n">container_endpoint</span>
-                            <span class="p">)</span>
-                        <span class="p">]</span>
+                        <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_buildservice_worker</span><span class="p">():</span>
+                            <span class="n">container_uri</span> <span class="o">=</span> <span class="n">Uri</span><span class="p">(</span>
+                                <span class="s1">&#39;obsrepositories:/</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                    <span class="n">container_endpoint</span>
+                                <span class="p">),</span> <span class="s1">&#39;container&#39;</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">()</span>
+
+                            <span class="k">def</span> <span class="nf">build_fetch_command</span><span class="p">(</span>
+                                <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                                <span class="n">container_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">container_uri</span><span class="p">,</span>
+                                <span class="n">container_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">container_file_name</span><span class="p">,</span>
+                                <span class="n">container_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">container_endpoint</span>
+                            <span class="p">):</span>
+                                <span class="k">def</span> <span class="nf">perform</span><span class="p">():</span>
+                                    <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                                        <span class="p">[</span>
+                                            <span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">.ociarchive&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                                <span class="n">container_uri</span>
+                                            <span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span>
+                                                <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                                    <span class="n">root_dir</span><span class="p">,</span>
+                                                    <span class="n">container_file_name</span>
+                                                <span class="p">)</span>
+                                            <span class="p">)</span>
+                                        <span class="p">]</span>
+                                    <span class="p">)</span>
+                                <span class="n">perform</span><span class="p">()</span>
+                            <span class="n">fetch_command</span> <span class="o">=</span> <span class="n">build_fetch_command</span>
+                        <span class="k">else</span><span class="p">:</span>
+
+                            <span class="k">def</span> <span class="nf">build_fetch_command</span><span class="p">(</span>
+                                <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                                <span class="n">container_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                <span class="n">container_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">container_file_name</span><span class="p">,</span>
+                                <span class="n">container_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">container_endpoint</span>
+                            <span class="p">):</span>
+                                <span class="k">def</span> <span class="nf">perform</span><span class="p">():</span>
+                                    <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                                        <span class="p">[</span>
+                                            <span class="s1">&#39;chroot&#39;</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span>
+                                            <span class="s1">&#39;/usr/bin/skopeo&#39;</span><span class="p">,</span> <span class="s1">&#39;copy&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;docker://</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                                <span class="n">container_endpoint</span>
+                                            <span class="p">),</span>
+                                            <span class="s1">&#39;oci-archive:</span><span class="si">{0}</span><span class="s1">:</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                                <span class="n">container_file_name</span><span class="p">,</span>
+                                                <span class="n">container_endpoint</span>
+                                            <span class="p">)</span>
+                                        <span class="p">]</span>
+                                    <span class="p">)</span>
+                                <span class="n">perform</span><span class="p">()</span>
+                            <span class="n">fetch_command</span> <span class="o">=</span> <span class="n">build_fetch_command</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">container</span><span class="o">.</span><span class="n">get_fetch_only</span><span class="p">():</span>
                             <span class="n">load_command</span> <span class="o">=</span> <span class="p">[</span>
                                 <span class="sa">f</span><span class="s1">&#39;/usr/bin/</span><span class="si">{</span><span class="n">container_backend</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>

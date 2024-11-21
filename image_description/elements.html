@@ -6,15 +6,15 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Description Elements &mdash; KIWI NG 10.1.18 documentation</title>
+  <title>Image Description Elements &mdash; KIWI NG 10.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=89f0e8e5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/documentation_options.js?v=d0f31c56"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -221,10 +221,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type">&lt;preferences&gt;&lt;type&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-luksformat">&lt;preferences&gt;&lt;type&gt;&lt;luksformat&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-bootloader">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#preferences-type-bootloader-securelinux">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;securelinux&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#preferences-type-bootloader-bootloadersettings">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;bootloadersettings&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-containerconfig">&lt;preferences&gt;&lt;type&gt;&lt;containerconfig&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-vagrantconfig">&lt;preferences&gt;&lt;type&gt;&lt;vagrantconfig&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-systemdisk">&lt;preferences&gt;&lt;type&gt;&lt;systemdisk&gt;</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#preferences-type-bootloader-bootloadersettings">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;bootloadersettings&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-partitions">&lt;preferences&gt;&lt;type&gt;&lt;partitions&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-oemconfig">&lt;preferences&gt;&lt;type&gt;&lt;oemconfig&gt;</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferences-type-size">&lt;preferences&gt;&lt;type&gt;&lt;size&gt;</a></li>
@@ -1244,7 +1245,7 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This document provides a reference for the elements
-and attributes of the KIWI NG XML document in version 10.1.18</p>
+and attributes of the KIWI NG XML document in version 10.2.0</p>
 </div>
 <section id="image">
 <span id="sec-image"></span><h2>&lt;image&gt;<a class="headerlink" href="#image" title="Link to this heading"></a></h2>
@@ -1736,14 +1737,33 @@ Also see <a class="reference internal" href="../working_with_images/clone_partit
 </dd>
 <dt>boot_clone=”number”</dt><dd><p>Same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">root_clone</span></code> but applied to the boot partition if present</p>
 </dd>
-<dt>luks=”passphrase|file:///path/to/keyfile”:</dt><dd><p>Supplying a value will trigger the encryption of the partition
+<dt>luks=”passphrase|file:///path/to/keyfile|random”:</dt><dd><p>Supplying a value will trigger the encryption of the partition
 serving the root filesystem using the LUKS extension. The supplied
 value represents either the passphrase string or the location of
-a key file if specified as <code class="xref py py-obj docutils literal notranslate"><span class="pre">file://...</span></code> resource. When using
-a key file it is in the responsibility of the user how
-this key file is actually being used. By default any
-distribution will just open an interactive dialog asking
-for the credentials at boot time !</p>
+a key file if specified as <code class="xref py py-obj docutils literal notranslate"><span class="pre">file://...</span></code> resource or the reserved
+name <code class="xref py py-obj docutils literal notranslate"><span class="pre">random</span></code>. When using a passphrase the system will interactively
+ask for that passphrase on first boot unless it is set empty.
+In case of an empty passphrase the system cannot be considered secure.
+When using a key file the information from the file is read and
+used as a passphrase. The given key file is <strong>not automatically</strong>
+placed into the system or added to the <code class="xref py py-obj docutils literal notranslate"><span class="pre">etc/crypttab</span></code> which means
+the passphrase in the key file is by default requested from an
+interactive dialog at boot time. When using the reserved word
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">random</span></code>, kiwi will create a key file with a random passphrase
+and place this information into <code class="xref py py-obj docutils literal notranslate"><span class="pre">etc/crypttab</span></code>. This allows
+the system to boot without user interaction but also requires
+the initrd to be protected in some way because it will contain
+the keyfile. The use of <code class="xref py py-obj docutils literal notranslate"><span class="pre">random</span></code> is therefore only secure if
+the image adds additional security that encrypts the initrd
+like it is e.g. done in the IBM secure execution process.
+If the encryption of the system is combined with the attribute
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">bootpartition=&quot;false&quot;</span></code> it’s important to understand that this
+will place <code class="xref py py-obj docutils literal notranslate"><span class="pre">/boot</span></code> into the encrypted area of the system and
+leaves reading boot data from it as a responsibility to the
+bootloader. Not every bootloader can cope with that and those
+that can e.g. grub will then open an interactive dialog at
+the bootloader level asking for the credentials to decrypt the
+root filesystem.</p>
 </dd>
 <dt>luks_version=”luks|luks1|luks2”:</dt><dd><p>Specify which <code class="xref py py-obj docutils literal notranslate"><span class="pre">LUKS</span></code> version should be used. If not set and by
 default <code class="xref py py-obj docutils literal notranslate"><span class="pre">luks</span></code> is used. The interpretation of the default depends
@@ -2141,7 +2161,7 @@ selected bootloader the image build process will fail with
 an exception message.</p>
 </div>
 <dl>
-<dt>name=”grub2|systemd_boot|grub2_s390x_emu”:</dt><dd><p>Specifies the bootloader to use for this image.</p>
+<dt>name=”grub2|systemd_boot|grub2_s390x_emu|zipl”:</dt><dd><p>Specifies the bootloader to use for this image.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>systemd_boot ESP size</p>
@@ -2288,6 +2308,66 @@ zipl loader only.</p>
 </dd>
 </dl>
 </section>
+<section id="preferences-type-bootloader-securelinux">
+<h3>&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;securelinux&gt;<a class="headerlink" href="#preferences-type-bootloader-securelinux" title="Link to this heading"></a></h3>
+<p>Used to specify data required to setup secure linux execution. Secure
+linux execution reads the kernel, initrd and boot parameters from an
+encrypted data blob and couples the image to the machine it gets
+executed on. Typically the private key is protected in hardware on
+the machine itself. KIWI NG supports secure execution for the IBM secure
+linux target on the s390 platform along with the bootloaders
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">zipl</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">grub2-s390x-emu</span></code></p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;securelinux&gt;</span>
+<span class="w">    </span><span class="nt">&lt;hkd_cert</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some1-host.crt&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;hkd_cert</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some2-host.crt&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;hkd_ca_cert</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some-ca.crt&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;hkd_sign_cert</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some1-signing.crt&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;hkd_sign_cert</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some2-signing.crt&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;hkd_revocation_list</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some1-revocation.crl&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;hkd_revocation_list</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;some2-revocation.crl&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/securelinux&gt;</span>
+</pre></div>
+</div>
+<p>Except for the <code class="xref py py-obj docutils literal notranslate"><span class="pre">hkd_ca_cert</span></code> all other certificates can be specified
+multiple times.</p>
+<dl class="simple">
+<dt>hkd_cert:</dt><dd><p>The file specified in hkd_cert defines the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Host</span> <span class="pre">Key</span> <span class="pre">Document</span></code>
+and tightly couples the image to the host matching the document</p>
+</dd>
+<dt>hkd_ca_cert:</dt><dd><p>Required in combination with <code class="xref py py-obj docutils literal notranslate"><span class="pre">hkd_cert</span></code>, providing the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Common</span> <span class="pre">Authority</span></code>
+certificate (signed by the root CA) that is used to establish a chain
+of trust for the verification of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Host</span> <span class="pre">Key</span> <span class="pre">Document</span></code>.</p>
+</dd>
+<dt>hkd_sign_cert:</dt><dd><p>Required in combination with <code class="xref py py-obj docutils literal notranslate"><span class="pre">hkd_cert</span></code>, providing the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Signing</span></code>
+certificate that is used to establish a chain of trust for the
+verification of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">Host</span> <span class="pre">Key</span> <span class="pre">Document</span></code>.</p>
+</dd>
+<dt>hkd_revocation_list:</dt><dd><p>Optional in combination with <code class="xref py py-obj docutils literal notranslate"><span class="pre">hkd_cert</span></code>, providing the the
+revocation list to check on use of expired certificates in
+the chain of trust.</p>
+</dd>
+</dl>
+</section>
+<section id="preferences-type-bootloader-bootloadersettings">
+<h3>&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;bootloadersettings&gt;<a class="headerlink" href="#preferences-type-bootloader-bootloadersettings" title="Link to this heading"></a></h3>
+<p>Used to specify custom arguments for the tools called to setup
+secure boot e.g <code class="xref py py-obj docutils literal notranslate"><span class="pre">shiminstall</span></code>, installation of the bootloader
+e.g <code class="xref py py-obj docutils literal notranslate"><span class="pre">grub-install</span></code> or configuration of the bootloader e.g <code class="xref py py-obj docutils literal notranslate"><span class="pre">grub-mkconfig</span></code>.</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;bootloadersettings&gt;</span>
+<span class="w">    </span><span class="nt">&lt;shimoption</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;--suse-enable-tpm&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;shimoption</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;--bootloader-id&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;some-id&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;installoption</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;--suse-enable-tpm&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;configoption</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;--debug&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/bootloadersettings&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>{kiwi-ng} does not judge on the given parameters and if the provided
+data is effectively used depends on the individual bootloader
+implementation.</p>
+</div>
+</section>
 <section id="preferences-type-containerconfig">
 <h3>&lt;preferences&gt;&lt;type&gt;&lt;containerconfig&gt;<a class="headerlink" href="#preferences-type-containerconfig" title="Link to this heading"></a></h3>
 <p>Used to describe the container configuration metadata in docker or wsl
@@ -2313,26 +2393,6 @@ be redefined as <code class="xref py py-obj docutils literal notranslate"><span 
 complete disk setup, so there cannot be any overlapping volumes
 or mount points. As a result, whatever is written in <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;partitions&gt;</span></code>
 cannot be expressed in the same way in <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;volumes&gt;</span></code>.</p>
-</div>
-</section>
-<section id="preferences-type-bootloader-bootloadersettings">
-<h3>&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;bootloadersettings&gt;<a class="headerlink" href="#preferences-type-bootloader-bootloadersettings" title="Link to this heading"></a></h3>
-<p>Used to specify custom arguments for the tools called to setup
-secure boot e.g <code class="xref py py-obj docutils literal notranslate"><span class="pre">shiminstall</span></code>, installation of the bootloader
-e.g <code class="xref py py-obj docutils literal notranslate"><span class="pre">grub-install</span></code> or configuration of the bootloader e.g <code class="xref py py-obj docutils literal notranslate"><span class="pre">grub-mkconfig</span></code>.</p>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;bootloadersettings&gt;</span>
-<span class="w">    </span><span class="nt">&lt;shimoption</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;--suse-enable-tpm&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;shimoption</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;--bootloader-id&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;some-id&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;installoption</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;--suse-enable-tpm&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;configoption</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;--debug&quot;</span><span class="nt">/&gt;</span>
-<span class="nt">&lt;/bootloadersettings&gt;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>{kiwi-ng} does not judge on the given parameters and if the provided
-data is effectively used depends on the individual bootloader
-implementation.</p>
 </div>
 </section>
 <section id="preferences-type-partitions">
