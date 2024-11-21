@@ -20,12 +20,21 @@ class TestBootLoaderZipl:
         self.firmware = Mock()
         mock_FirmWare.return_value = self.firmware
         self.state = Mock()
+        self.state.get_host_key_certificates.return_value = [
+            {
+                'hkd_cert': ['/path/to/host.crt'],
+                'hkd_revocation_list': ['/path/to/revocation-list.crl'],
+                'hkd_ca_cert': '/path/to/DigiCertCA.crt',
+                'hkd_sign_cert': '/path/to/ibm-z-host-key-signing.crt'
+            }
+        ]
         self.state.get_build_type_bootloader_targettype.return_value = 'CDL'
         self.state.build_type.get_target_blocksize.return_value = 4096
         self.state.xml_data.get_name.return_value = 'image-name'
         self.state.get_image_version.return_value = 'image-version'
         self.state.build_type.get_efifatimagesize.return_value = None
         self.bootloader = BootLoaderZipl(self.state, 'root_dir')
+        self.bootloader.cmdline = 'options'
         self.bootloader.custom_args['kernel'] = None
         self.bootloader.custom_args['initrd'] = None
         self.bootloader.custom_args['boot_options'] = {}
@@ -49,10 +58,12 @@ class TestBootLoaderZipl:
     def setup_method(self, cls, mock_FirmWare):
         self.setup()
 
-    def test_setup_loader_raises_invalid_target(self):
+    @patch('os.unlink')
+    def test_setup_loader_raises_invalid_target(self, mock_os_unlink):
         with raises(KiwiBootLoaderTargetError):
             self.bootloader.setup_loader('iso')
 
+    @patch('os.unlink')
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.zipl.BootImageBase.get_boot_names')
     @patch('kiwi.bootloader.config.zipl.Path.wipe')
@@ -68,11 +79,11 @@ class TestBootLoaderZipl:
         mock_write_config_file, mock_Temporary_new_file,
         mock_BootLoaderTemplateZipl, mock_Command_run,
         mock_Path_create, mock_Path_wipe, mock_BootImageBase_get_boot_names,
-        mock_os_path_exists
+        mock_os_path_exists, mock_os_unlink
     ):
         temporary = Mock()
         temporary.name = 'system_root_mount/kiwi_zipl.conf_'
-        mock_Temporary_new_file.return_value = temporary
+        mock_Temporary_new_file.return_value.__enter__.return_value = temporary
         mock_get_entry_name.return_value = \
             'opensuse-leap-5.3.18-59.10-default.conf'
 
@@ -85,7 +96,11 @@ class TestBootLoaderZipl:
         kernel_info.initrd_name = 'initrd-name'
         mock_os_path_exists.return_value = True
         mock_BootImageBase_get_boot_names.return_value = kernel_info
-        self.bootloader.setup_loader('disk')
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.bootloader.setup_loader('disk')
+        file_handle.write.assert_called_once_with('options\n')
         assert mock_write_config_file.call_args_list == [
             call(
                 mock_BootLoaderTemplateZipl.
@@ -103,15 +118,50 @@ class TestBootLoaderZipl:
         ]
         assert self.bootloader._mount_system.called
         assert self.bootloader.sys_mount.umount.called
-        mock_Command_run.assert_called_once_with(
-            [
-                'chroot', 'system_root_mount', 'zipl',
-                '--noninteractive',
-                '--config', '/kiwi_zipl.conf_',
-                '--blsdir', '/boot/loader/entries',
-                '--verbose'
-            ]
-        )
+        assert mock_Command_run.call_args_list == [
+            call(
+                [
+                    'chroot', 'system_root_mount', 'genprotimg',
+                    '--offline', '--verbose',
+                    '-o', 'bootpath/kernel-filename.cc',
+                    '-i', 'bootpath/kernel-filename',
+                    '-r', 'bootpath/initrd-name',
+                    '-p', temporary.name.replace('system_root_mount', ''),
+                    '--cert', '/path/to/DigiCertCA.crt',
+                    '--cert', '/path/to/ibm-z-host-key-signing.crt',
+                    '-k', '/path/to/host.crt',
+                    '--crl', '/path/to/revocation-list.crl'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'system_root_mount', 'genprotimg',
+                    '--offline', '--verbose',
+                    '-o', 'bootpath/kernel-filename.cc',
+                    '-i', 'bootpath/kernel-filename',
+                    '-r', 'bootpath/initrd-name',
+                    '-p', temporary.name.replace('system_root_mount', ''),
+                    '--cert', '/path/to/DigiCertCA.crt',
+                    '--no-verify',
+                    '--cert', '/path/to/ibm-z-host-key-signing.crt',
+                    '-k', '/path/to/host.crt',
+                    '--crl', '/path/to/revocation-list.crl',
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'system_root_mount', 'zipl',
+                    '--noninteractive',
+                    '--config', '/kiwi_zipl.conf_',
+                    '--blsdir', '/boot/loader/entries',
+                    '--verbose'
+                ]
+            )
+        ]
+        assert mock_os_unlink.call_args_list == [
+            call('system_root_mount/bootpath/kernel-filename'),
+            call('system_root_mount/bootpath/initrd-name')
+        ]
 
     @patch.object(BootLoaderZipl, '_get_disk_geometry')
     @patch.object(BootLoaderZipl, '_get_partition_start')
@@ -124,9 +174,10 @@ class TestBootLoaderZipl:
         self.bootloader.disk_type = 'CDL'
         self.bootloader.disk_blocksize = 4096
         assert self.bootloader._get_template_parameters() == {
+            'secure_image_file': 'bootpath/kernel-filename.cc',
             'kernel_file': 'vmlinuz',
             'initrd_file': 'initrd',
-            'boot_options': '',
+            'boot_options': 'options',
             'boot_timeout': 0,
             'bootpath': 'bootpath',
             'targetbase': 'targetbase=/dev/disk',

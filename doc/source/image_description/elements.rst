@@ -566,15 +566,34 @@ root_clone="number"
 boot_clone="number"
   Same as `root_clone` but applied to the boot partition if present
 
-luks="passphrase|file:///path/to/keyfile":
+luks="passphrase|file:///path/to/keyfile|random":
   Supplying a value will trigger the encryption of the partition
   serving the root filesystem using the LUKS extension. The supplied
   value represents either the passphrase string or the location of
-  a key file if specified as `file://...` resource. When using
-  a key file it is in the responsibility of the user how
-  this key file is actually being used. By default any
-  distribution will just open an interactive dialog asking
-  for the credentials at boot time !
+  a key file if specified as `file://...` resource or the reserved
+  name `random`. When using a passphrase the system will interactively
+  ask for that passphrase on first boot unless it is set empty.
+  In case of an empty passphrase the system cannot be considered secure.
+  When using a key file the information from the file is read and
+  used as a passphrase. The given key file is **not automatically**
+  placed into the system or added to the `etc/crypttab` which means
+  the passphrase in the key file is by default requested from an
+  interactive dialog at boot time. When using the reserved word
+  `random`, kiwi will create a key file with a random passphrase
+  and place this information into `etc/crypttab`. This allows
+  the system to boot without user interaction but also requires
+  the initrd to be protected in some way because it will contain
+  the keyfile. The use of `random` is therefore only secure if
+  the image adds additional security that encrypts the initrd
+  like it is e.g. done in the IBM secure execution process.
+  If the encryption of the system is combined with the attribute
+  `bootpartition="false"` it's important to understand that this
+  will place `/boot` into the encrypted area of the system and
+  leaves reading boot data from it as a responsibility to the
+  bootloader. Not every bootloader can cope with that and those
+  that can e.g. grub will then open an interactive dialog at
+  the bootloader level asking for the credentials to decrypt the
+  root filesystem.
 
 luks_version="luks|luks1|luks2":
   Specify which `LUKS` version should be used. If not set and by
@@ -1026,7 +1045,7 @@ the `editbootinstall` and `editbootconfig` custom scripts.
    selected bootloader the image build process will fail with
    an exception message.
 
-name="grub2|systemd_boot|grub2_s390x_emu":
+name="grub2|systemd_boot|grub2_s390x_emu|zipl":
   Specifies the bootloader to use for this image.
 
   .. note:: systemd_boot ESP size
@@ -1158,6 +1177,71 @@ targettype="CDL|LDL|FBA|SCSI":
   emulated DASD devices, use `FBA`. The attribute is available for the
   zipl loader only.
 
+<preferences><type><bootloader><securelinux>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used to specify data required to setup secure linux execution. Secure
+linux execution reads the kernel, initrd and boot parameters from an
+encrypted data blob and couples the image to the machine it gets
+executed on. Typically the private key is protected in hardware on
+the machine itself. {kiwi} supports secure execution for the IBM secure
+linux target on the s390 platform along with the bootloaders
+`zipl` and `grub2-s390x-emu`
+
+.. code:: xml
+
+   <securelinux>
+       <hkd_cert name="some1-host.crt"/>
+       <hkd_cert name="some2-host.crt"/>
+       <hkd_ca_cert name="some-ca.crt"/>
+       <hkd_sign_cert name="some1-signing.crt"/>
+       <hkd_sign_cert name="some2-signing.crt"/>
+       <hkd_revocation_list name="some1-revocation.crl"/>
+       <hkd_revocation_list name="some2-revocation.crl"/>
+   </securelinux>
+
+Except for the `hkd_ca_cert` all other certificates can be specified
+multiple times.
+
+hkd_cert:
+  The file specified in hkd_cert defines the `Host Key Document`
+  and tightly couples the image to the host matching the document
+
+hkd_ca_cert:
+  Required in combination with `hkd_cert`, providing the `Common Authority`
+  certificate (signed by the root CA) that is used to establish a chain
+  of trust for the verification of the `Host Key Document`.
+
+hkd_sign_cert:
+  Required in combination with `hkd_cert`, providing the `Signing`
+  certificate that is used to establish a chain of trust for the
+  verification of the `Host Key Document`.
+
+hkd_revocation_list:
+  Optional in combination with `hkd_cert`, providing the the
+  revocation list to check on use of expired certificates in
+  the chain of trust.
+
+<preferences><type><bootloader><bootloadersettings>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used to specify custom arguments for the tools called to setup
+secure boot e.g `shiminstall`, installation of the bootloader
+e.g `grub-install` or configuration of the bootloader e.g `grub-mkconfig`.
+
+.. code:: xml
+
+   <bootloadersettings>
+       <shimoption name="--suse-enable-tpm"/>
+       <shimoption name="--bootloader-id" value="some-id"/>
+       <installoption name="--suse-enable-tpm"/>
+       <configoption name="--debug"/>
+   </bootloadersettings>
+
+.. note::
+
+   {kiwi-ng} does not judge on the given parameters and if the provided
+   data is effectively used depends on the individual bootloader
+   implementation.
+
 <preferences><type><containerconfig>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to describe the container configuration metadata in docker or wsl
@@ -1184,27 +1268,6 @@ For details see: :ref:`custom_volumes`
    complete disk setup, so there cannot be any overlapping volumes
    or mount points. As a result, whatever is written in `<partitions>`
    cannot be expressed in the same way in `<volumes>`.
-
-<preferences><type><bootloader><bootloadersettings>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Used to specify custom arguments for the tools called to setup
-secure boot e.g `shiminstall`, installation of the bootloader
-e.g `grub-install` or configuration of the bootloader e.g `grub-mkconfig`.
-
-.. code:: xml
-
-   <bootloadersettings>
-       <shimoption name="--suse-enable-tpm"/>
-       <shimoption name="--bootloader-id" value="some-id"/>
-       <installoption name="--suse-enable-tpm"/>
-       <configoption name="--debug"/>
-   </bootloadersettings>
-
-.. note::
-
-   {kiwi-ng} does not judge on the given parameters and if the provided
-   data is effectively used depends on the individual bootloader
-   implementation.
 
 <preferences><type><partitions>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

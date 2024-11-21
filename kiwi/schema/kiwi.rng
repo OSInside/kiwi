@@ -4466,6 +4466,9 @@ and to provide configuration parameters for it</a:documentation>
           <optional>
             <ref name="k.bootloadersettings"/>
           </optional>
+          <zeroOrMore>
+            <ref name="k.securelinux"/>
+          </zeroOrMore>
         </interleave>
       </element>
     </define>
@@ -4857,6 +4860,86 @@ of the storage device</a:documentation>
             <ref name="k.configoption"/>
           </zeroOrMore>
         </interleave>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    main block: <securelinux>
+    
+  -->
+  <div>
+    <sch:pattern abstract="true" id="securelinux_loader_requirement">
+      <sch:rule context="securelinux">
+        <sch:assert test="../@name='zipl' or ../@name='grub2-s390x-emu'">&lt;securelinux&gt; section only available for the bootloader types: zipl and grub2-s390x-emu</sch:assert>
+      </sch:rule>
+    </sch:pattern>
+    <define name="k.securelinux.hkd_ca_cert.attribute">
+      <attribute name="hkd_ca_cert"/>
+    </define>
+    <define name="k.securelinux.hkd_sign_cert.attribute">
+      <attribute name="hkd_sign_cert"/>
+    </define>
+    <define name="k.securelinux.attlist">
+      <interleave>
+        <ref name="k.securelinux.hkd_ca_cert.attribute"/>
+        <ref name="k.securelinux.hkd_sign_cert.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.securelinux">
+      <element name="securelinux">
+        <a:documentation>securelinux contains all elements to describe
+data required to setup a secure linux execution
+process for the individual architecture in the scope
+of the bootloader process</a:documentation>
+        <interleave>
+          <ref name="k.securelinux.attlist"/>
+          <oneOrMore>
+            <ref name="k.hkd_cert"/>
+          </oneOrMore>
+          <zeroOrMore>
+            <ref name="k.hkd_revocation_list"/>
+          </zeroOrMore>
+        </interleave>
+      </element>
+      <sch:pattern id="bootloader_matches" is-a="securelinux_loader_requirement"/>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <hkd_cert>
+    
+  -->
+  <div>
+    <define name="k.hkd_cert.name.attribute">
+      <attribute name="name"/>
+    </define>
+    <define name="k.hkd_cert.attlist">
+      <ref name="k.hkd_cert.name.attribute"/>
+    </define>
+    <define name="k.hkd_cert">
+      <element name="hkd_cert">
+        <ref name="k.hkd_cert.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <hkd_revocation_list>
+    
+  -->
+  <div>
+    <define name="k.hkd_revocation_list.name.attribute">
+      <attribute name="name"/>
+    </define>
+    <define name="k.hkd_revocation_list.attlist">
+      <ref name="k.hkd_revocation_list.name.attribute"/>
+    </define>
+    <define name="k.hkd_revocation_list">
+      <element name="hkd_revocation_list">
+        <ref name="k.hkd_revocation_list.attlist"/>
+        <empty/>
       </element>
     </define>
   </div>

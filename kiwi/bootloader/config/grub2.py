@@ -66,6 +66,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
                 {'grub_directory_name': 'grub|grub2'}
         """
+        self.host_key_certificates = self.xml_state.get_host_key_certificates()
         self.efi_csm = True if self.xml_state.build_type.get_eficsm() is None \
             else self.xml_state.build_type.get_eficsm()
         self.custom_args = custom_args
@@ -812,6 +813,31 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         if self.bls and enable_blscfg_implemented.returncode == 0:
             grub_default_entries['GRUB_ENABLE_BLSCFG'] = 'true'
+
+        if self.arch.startswith('s390') and self.host_key_certificates:
+            # At the moment no generic enabler for secure execution
+            # on s390 exists in grub upstream. Thus the following
+            # variable setup is distribution specific:
+            # Enable Secure Execution: SUSE specific variables
+            host_key_list = []
+            signing_key_list = []
+            revocation_key_list = []
+            grub_default_entries['SUSE_S390_SE_ENABLE'] = 'true'
+            grub_default_entries['SUSE_S390_SE_CA_CERT'] = \
+                self.host_key_certificates[0]['hkd_ca_cert']
+            for host_key_certificate in self.host_key_certificates:
+                signing_key_list.append(host_key_certificate['hkd_sign_cert'])
+                host_key_list += host_key_certificate['hkd_cert']
+                if host_key_certificate.get('hkd_revocation_list'):
+                    revocation_key_list += \
+                        host_key_certificate['hkd_revocation_list']
+            grub_default_entries['SUSE_S390_SE_HOST_KEY'] = \
+                ','.join(host_key_list)
+            grub_default_entries['SUSE_S390_SE_HOST_KEY_SIGNING_KEY'] = \
+                ','.join(signing_key_list)
+            if revocation_key_list:
+                grub_default_entries['SUSE_S390_SE_REVOCATION_LIST'] = \
+                    ','.join(revocation_key_list)
 
         if grub_default_entries:
             log.info('Writing grub2 defaults file')

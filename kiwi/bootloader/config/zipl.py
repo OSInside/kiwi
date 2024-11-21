@@ -16,6 +16,8 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import copy
+import logging
 from string import Template
 from typing import Dict
 
@@ -32,6 +34,8 @@ from kiwi.exceptions import (
     KiwiBootLoaderTargetError,
     KiwiDiskGeometryError
 )
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderZipl(BootLoaderSpecBase):
@@ -70,24 +74,84 @@ class BootLoaderZipl(BootLoaderSpecBase):
         kernel_info = BootImageBase(
             self.xml_state, root_dir, root_dir
         ).get_boot_names()
+        self.custom_args['secure_linux'] = False
         self.custom_args['kernel'] = \
             f'{boot_path}/{os.path.basename(kernel_info.kernel_filename)}'
         self.custom_args['initrd'] = \
             f'{boot_path}/{kernel_info.initrd_name}'
 
-        runtime_zipl_config_file = Temporary(
-            path=self.root_mount.mountpoint, prefix='kiwi_zipl.conf_'
-        ).new_file()
+        host_key_certificates = self.xml_state.get_host_key_certificates()
+        if host_key_certificates:
+            with Temporary(
+                path=self.root_mount.mountpoint, prefix='kiwi_zipl_parmfile_'
+            ).new_file() as hkd_parm_file:
+                with open(hkd_parm_file.name, 'w') as parm_file:
+                    parm_file.write(f'{self.cmdline}{os.linesep}')
+                genprotimg_init = [
+                    'chroot', root_dir, 'genprotimg',
+                    '--offline', '--verbose',
+                    '-o', f'{self.custom_args["kernel"]}.cc',
+                    '-i', self.custom_args['kernel'],
+                    '-r', self.custom_args['initrd'],
+                    '-p', hkd_parm_file.name.replace(root_dir, ''),
+                    '--cert', host_key_certificates[0]['hkd_ca_cert']
+                ]
+                # verify all host key documents individually and call
+                # genprotimg with --no-verify afterwards. This is done
+                # because genprotimg does not support verification with
+                # multiple signing keys
+                for host_key_certificate in host_key_certificates:
+                    genprotimg_host_key_check = copy.deepcopy(genprotimg_init)
+                    genprotimg_host_key_check.append('--cert')
+                    genprotimg_host_key_check.append(
+                        host_key_certificate['hkd_sign_cert']
+                    )
+                    for host_key in host_key_certificate.get('hkd_cert'):
+                        genprotimg_host_key_check.append('-k')
+                        genprotimg_host_key_check.append(host_key)
+                    for host_crl in host_key_certificate.get('hkd_revocation_list'):
+                        genprotimg_host_key_check.append('--crl')
+                        genprotimg_host_key_check.append(host_crl)
+                    log.info(
+                        'Checking HKDs for signing cert: {}'.format(
+                            host_key_certificate['hkd_sign_cert']
+                        )
+                    )
+                    Command.run(genprotimg_host_key_check)
+                # final call
+                genprotimg = genprotimg_init
+                genprotimg.append('--no-verify')
+                for host_key_certificate in host_key_certificates:
+                    genprotimg.append('--cert')
+                    genprotimg.append(host_key_certificate['hkd_sign_cert'])
+                    for host_key in host_key_certificate.get('hkd_cert'):
+                        genprotimg.append('-k')
+                        genprotimg.append(host_key)
+                    for host_crl in host_key_certificate.get('hkd_revocation_list'):
+                        genprotimg.append('--crl')
+                        genprotimg.append(host_crl)
+                Command.run(genprotimg)
 
-        BootLoaderZipl._write_config_file(
-            BootLoaderTemplateZipl().get_loader_template(),
-            runtime_zipl_config_file.name,
-            self._get_template_parameters()
-        )
-        self.set_loader_entry(
-            self.root_mount.mountpoint, self.target.disk
-        )
-        self._install_zipl(root_dir, runtime_zipl_config_file.name)
+            self.custom_args['secure_linux'] = True
+            self.custom_args['secure_image_file'] = \
+                f'{self.custom_args["kernel"]}.cc'
+            os.unlink(f'{root_dir}/{self.custom_args["kernel"]}')
+            os.unlink(f'{root_dir}/{self.custom_args["initrd"]}')
+            self.custom_args['kernel'] = ''
+            self.custom_args['initrd'] = ''
+
+        with Temporary(
+            path=self.root_mount.mountpoint, prefix='kiwi_zipl.conf_'
+        ).new_file() as runtime_zipl_config_file:
+            BootLoaderZipl._write_config_file(
+                BootLoaderTemplateZipl().get_loader_template(),
+                runtime_zipl_config_file.name,
+                self._get_template_parameters()
+            )
+            self.set_loader_entry(
+                self.root_mount.mountpoint, self.target.disk
+            )
+            self._install_zipl(root_dir, runtime_zipl_config_file.name)
 
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
@@ -99,7 +163,9 @@ class BootLoaderZipl(BootLoaderSpecBase):
         """
         entry_name = self.get_entry_name()
         BootLoaderZipl._write_config_file(
-            BootLoaderTemplateZipl().get_entry_template(),
+            BootLoaderTemplateZipl().get_entry_template(
+                self.custom_args['secure_linux']
+            ),
             root_dir + f'{self.entries_dir}/{entry_name}',
             self._get_template_parameters(entry_name)
         )
@@ -129,6 +195,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
         if disk_type not in unsupported_for_target_geometry:
             geometry = f'targetgeometry={self._get_disk_geometry()}'
         return {
+            'secure_image_file': self.custom_args.get('secure_image_file') or '',
             'kernel_file': self.custom_args['kernel'] or 'vmlinuz',
             'initrd_file': self.custom_args['initrd'] or 'initrd',
             'boot_options': self.cmdline,

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="8.2" name="test-containers">
+    <description type="system">
+        <author>Some</author>
+        <contact>some@example.com</contact>
+        <specification>
+            Test containers section used in the buildservice
+        </specification>
+    </description>
+    <preferences>
+        <version>1.1.1</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="oem" filesystem="xfs">
+            <bootloader name="zipl" timeout="10">
+                <securelinux hkd_sign_cert="some1-signing.crt" hkd_ca_cert="some-ca.crt">
+                    <hkd_cert name="some1-host.crt"/>
+                    <hkd_cert name="some2-host.crt"/>
+                    <hkd_revocation_list name="some1-revocation.crl"/>
+                </securelinux>
+                <securelinux hkd_sign_cert="some2-signing.crt" hkd_ca_cert="some-ca.crt">
+                    <hkd_cert name="some3-host.crt"/>
+                    <hkd_revocation_list name="some2-revocation.crl"/>
+                </securelinux>
+            </bootloader>
+        </type>
+    </preferences>
+    <repository>
+        <source path="obs://some/repo/oss"/>
+    </repository>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+    </packages>
+</image>

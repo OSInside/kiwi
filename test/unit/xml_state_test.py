@@ -1301,6 +1301,25 @@ class TestXMLState:
             '--joe', '-x'
         ]
 
+    def test_get_host_key_certificates(self):
+        description = XMLDescription('../data/example_hkd_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.get_host_key_certificates() == [
+            {
+                'hkd_cert': ['some1-host.crt', 'some2-host.crt'],
+                'hkd_revocation_list': ['some1-revocation.crl'],
+                'hkd_ca_cert': 'some-ca.crt',
+                'hkd_sign_cert': 'some1-signing.crt'
+            },
+            {
+                'hkd_cert': ['some3-host.crt'],
+                'hkd_revocation_list': ['some2-revocation.crl'],
+                'hkd_ca_cert': 'some-ca.crt',
+                'hkd_sign_cert': 'some2-signing.crt'
+            }
+        ]
+
     def test_get_btrfs_root_is_subvolume(self):
         assert self.state.build_type.get_btrfs_root_is_subvolume() is \
             None

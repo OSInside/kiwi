@@ -111,6 +111,12 @@ pyenchant = "*"
 travis-sphinx = "*"
 ghp-import = "*"
 
+[tool.poetry.group.development]
+[tool.poetry.group.development.dependencies]
+python-dateutil = "*"
+generateDS = "==2.29.24"
+bumpversion = "*"
+
 [build-system]
 requires = ["poetry-core>=1.2.0"]
 build-backend = "poetry.core.masonry.api"

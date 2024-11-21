@@ -17,7 +17,7 @@
 #
 import os
 from typing import (
-    List, Optional, Any, Dict, NamedTuple, Callable
+    List, Optional, Any, Dict, NamedTuple, Callable, Union
 )
 import re
 import logging
@@ -1236,10 +1236,26 @@ class XMLState:
         """
         bootloader_section = self.get_build_type_bootloader_section()
         bootloader_settings_section = None
-        if bootloader_section:
+        if bootloader_section and bootloader_section.get_bootloadersettings():
             bootloader_settings_section = \
-                bootloader_section.get_bootloadersettings()
+                bootloader_section.get_bootloadersettings()[0]
         return bootloader_settings_section
+
+    def get_build_type_bootloader_securelinux_section(self) -> List[Any]:
+        """
+        First securelinux section from the build
+        type bootloader section
+
+        :return: <securelinux> section reference
+
+        :rtype: xml_parse::securelinux
+        """
+        bootloader_section = self.get_build_type_bootloader_section()
+        bootloader_securelinux_section = []
+        if bootloader_section and bootloader_section.get_securelinux():
+            bootloader_securelinux_section = \
+                bootloader_section.get_securelinux()
+        return bootloader_securelinux_section
 
     def get_bootloader_options(self, option_type: str) -> List[str]:
         """
@@ -1748,6 +1764,29 @@ class XMLState:
                 filesystem=partition.get_filesystem()
             )
         return partitions
+
+    def get_host_key_certificates(
+        self
+    ) -> Union[List[Dict[str, List[str]]], List[Dict[str, str]]]:
+        cc_result = []
+        cc_certificates: Dict[str, List[str]] = {}
+        securelinux_list = \
+            self.get_build_type_bootloader_securelinux_section()
+        for securelinux in securelinux_list:
+            cc_certificates = {
+                'hkd_cert': [],
+                'hkd_revocation_list': [],
+                'hkd_ca_cert': securelinux.get_hkd_ca_cert(),
+                'hkd_sign_cert': securelinux.get_hkd_sign_cert()
+            }
+            for hkd_cert in securelinux.get_hkd_cert():
+                cc_certificates['hkd_cert'].append(hkd_cert.get_name())
+            for hkd_revocation_list in securelinux.get_hkd_revocation_list():
+                cc_certificates['hkd_revocation_list'].append(
+                    hkd_revocation_list.get_name()
+                )
+            cc_result.append(cc_certificates)
+        return cc_result
 
     def get_containers(self) -> List[ContainerT]:
         containers = []
