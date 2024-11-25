@@ -33,7 +33,7 @@
         </type>
     </preferences>
     <preferences profiles="EroFS">
-        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="xfs" hybridpersistent="true" mediacheck="true" filesystem="erofs">
+        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="xfs" hybridpersistent="true" mediacheck="true" filesystem="erofs" fscreateoptions="-Ededupe,all-fragments -C 65536">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
