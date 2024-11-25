@@ -257,7 +257,11 @@ class TestLiveImageBuilder:
                     device_provider=mock_DeviceProvider.return_value,
                     name='squashfs',
                     root_dir='root_dir/',
-                    custom_args={'compression': 'lzo'}
+                    custom_args={
+                        'mount_options': ['async'],
+                        'create_options': ['-O', 'option'],
+                        'compression': 'lzo'
+                    }
                 )
             ]
 

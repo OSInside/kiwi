@@ -301,17 +301,20 @@ class LiveImageBuilder:
                 )
         else:
             # Put the root filesystem into SquashFS directly
-            with FileSystem.new(
-                name=root_filesystem,
-                device_provider=DeviceProvider(),
-                root_dir=self.root_dir + os.sep,
-                custom_args={
+            filesystem_custom_parameters.update(
+                {
                     'compression':
                         self.xml_state.build_type.get_squashfscompression()
                 } if root_filesystem == 'squashfs' else {
                     'compression':
                         self.xml_state.build_type.get_erofscompression()
                 }
+            )
+            with FileSystem.new(
+                name=root_filesystem,
+                device_provider=DeviceProvider(),
+                root_dir=self.root_dir + os.sep,
+                custom_args=filesystem_custom_parameters
             ) as live_container_image:
                 container_image = Temporary().new_file()
                 live_container_image.create_on_file(
