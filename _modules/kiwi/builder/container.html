@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.builder.container &mdash; KIWI NG 10.2.0 documentation</title>
+  <title>kiwi.builder.container &mdash; KIWI NG 10.2.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d0f31c56"></script>
+      <script src="../../../_static/documentation_options.js?v=748b984f"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1307,9 +1307,9 @@
             <span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_metadata_path</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">get_derived_from_image_uri</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_root</span><span class="p">:</span>
-            <span class="c1"># The base image is expected to be unpacked by the kiwi</span>
-            <span class="c1"># prepare step and stored inside of the root_dir/image directory.</span>
-            <span class="c1"># In addition a md5 file of the image is expected too</span>
+            <span class="c1"># The base image(all derived imports) is expected to be unpacked</span>
+            <span class="c1"># by the kiwi prepare step and stored inside of the root_dir/image</span>
+            <span class="c1"># directory. In addition a md5 file of the image is expected too</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">base_image</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_imported_root_image</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span>
             <span class="p">)</span>

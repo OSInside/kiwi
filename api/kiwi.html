@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi Package &mdash; KIWI NG 10.2.0 documentation</title>
+  <title>kiwi Package &mdash; KIWI NG 10.2.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=d0f31c56"></script>
+      <script src="../_static/documentation_options.js?v=748b984f"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -7062,17 +7062,17 @@ matches the host architecture</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="kiwi.xml_state.XMLState.get_derived_from_image_uri">
-<span class="sig-name descname"><span class="pre">get_derived_from_image_uri</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kiwi.system.html#kiwi.system.uri.Uri" title="kiwi.system.uri.Uri"><span class="pre">Uri</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/kiwi/xml_state.html#XMLState.get_derived_from_image_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kiwi.xml_state.XMLState.get_derived_from_image_uri" title="Link to this definition"></a></dt>
-<dd><p>Uri object of derived image if configured</p>
-<p>Specific image types can be based on a master image.
-This method returns the location of this image when
-configured in the XML description</p>
+<span class="sig-name descname"><span class="pre">get_derived_from_image_uri</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="kiwi.system.html#kiwi.system.uri.Uri" title="kiwi.system.uri.Uri"><span class="pre">Uri</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/kiwi/xml_state.html#XMLState.get_derived_from_image_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kiwi.xml_state.XMLState.get_derived_from_image_uri" title="Link to this definition"></a></dt>
+<dd><p>Uri object(s) of derived image if configured</p>
+<p>Specific image types can be based on one ore more derived
+images. This method returns the location of this image(s)
+when configured in the XML description</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Instance of Uri</p>
+<dd class="field-odd"><p>List of Uri instances</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>object</p>
+<dd class="field-even"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
