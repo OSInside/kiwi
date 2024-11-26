@@ -82,12 +82,12 @@ class SystemPrepare:
             root_dir, allow_existing
         )
         root.create()
-        image_uri = xml_state.get_derived_from_image_uri()
+        image_uris = xml_state.get_derived_from_image_uri()
         delta_root = xml_state.build_type.get_delta_root()
 
-        if image_uri:
+        if image_uris:
             self.root_import = RootImport.new(
-                root_dir, image_uri, xml_state.build_type.get_image()
+                root_dir, image_uris, xml_state.build_type.get_image()
             )
             if delta_root:
                 self.root_import.overlay_data()

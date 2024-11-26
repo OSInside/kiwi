@@ -1105,14 +1105,14 @@ class TestXMLState:
     def test_get_derived_from_image_uri(self):
         xml_data = self.description.load()
         state = XMLState(xml_data, ['derivedContainer'], 'docker')
-        assert state.get_derived_from_image_uri().uri == \
+        assert state.get_derived_from_image_uri()[0].uri == \
             'obs://project/repo/image#mytag'
 
     def test_set_derived_from_image_uri(self):
         xml_data = self.description.load()
         state = XMLState(xml_data, ['derivedContainer'], 'docker')
         state.set_derived_from_image_uri('file:///new_uri')
-        assert state.get_derived_from_image_uri().translate() == '/new_uri'
+        assert state.get_derived_from_image_uri()[0].translate() == '/new_uri'
 
     def test_set_derived_from_image_uri_not_applied(self):
         with self._caplog.at_level(logging.WARNING):

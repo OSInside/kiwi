@@ -2781,22 +2781,26 @@ class XMLState:
             result.append(luks_pbkdf)
         return result
 
-    def get_derived_from_image_uri(self) -> Optional[Uri]:
+    def get_derived_from_image_uri(self) -> List[Uri]:
         """
-        Uri object of derived image if configured
+        Uri object(s) of derived image if configured
 
-        Specific image types can be based on a master image.
-        This method returns the location of this image when
-        configured in the XML description
+        Specific image types can be based on one ore more derived
+        images. This method returns the location of this image(s)
+        when configured in the XML description
 
-        :return: Instance of Uri
+        :return: List of Uri instances
 
-        :rtype: object
+        :rtype: list
         """
-        derived_image = self.build_type.get_derived_from()
-        if derived_image:
-            return Uri(derived_image, repo_type='container')
-        return None
+        image_uris = []
+        derived_images = self.build_type.get_derived_from()
+        if derived_images:
+            for derived_image in derived_images.split(','):
+                image_uris.append(
+                    Uri(derived_image, repo_type='container')
+                )
+        return image_uris
 
     def set_derived_from_image_uri(self, uri: str) -> None:
         """

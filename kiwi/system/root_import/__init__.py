@@ -17,6 +17,7 @@
 #
 import logging
 import importlib
+from typing import List
 from abc import (
     ABCMeta,
     abstractmethod
@@ -49,7 +50,7 @@ class RootImport(metaclass=ABCMeta):
         return None  # pragma: no cover
 
     @staticmethod
-    def new(root_dir: str, image_uri: Uri, image_type: str):
+    def new(root_dir: str, image_uri: List[Uri], image_type: str):
         name_map = {
             'docker': 'OCI',
             'oci': 'OCI'

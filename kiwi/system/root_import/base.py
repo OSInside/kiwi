@@ -18,13 +18,18 @@
 import os
 import logging
 import pathlib
+from typing import (
+    Dict, List, Optional
+)
 
 # project
 from kiwi.xml_state import XMLState
 from kiwi.defaults import Defaults
 from kiwi.system.setup import SystemSetup
 from kiwi.path import Path
+from kiwi.system.uri import Uri
 from kiwi.command import Command
+from kiwi.mount_manager import MountManager
 from kiwi.utils.checksum import Checksum
 from kiwi.exceptions import (
     KiwiRootImportError,
@@ -41,38 +46,43 @@ class RootImportBase:
     * :attr:`root_dir`
         root directory path name
 
-    * :attr:`image_uri`
-        Uri object to store source location
+    * :attr:`image_uris`
+        Uri object(s) to store source location(s)
 
     * :attr:`custom_args`
         Dictonary to set specialized class specific configuration values
     """
-    def __init__(self, root_dir, image_uri, custom_args=None):
-        self.unknown_uri = None
-        self.overlay = None
+    def __init__(
+        self, root_dir: str, image_uris: List[Uri],
+        custom_args: Dict[str, str] = {}
+    ):
+        self.raw_urls: List[str] = []
+        self.image_files: List[str] = []
+        self.overlay: Optional[MountManager] = None
         self.root_dir = root_dir
-        try:
-            if image_uri.is_remote():
-                raise KiwiRootImportError(
-                    'Only local imports are supported'
-                )
-
-            self.image_file = image_uri.translate()
-
-            if not os.path.exists(self.image_file):
-                raise KiwiRootImportError(
-                    'Could not stat base image file: {0}'.format(
-                        self.image_file
+        for image_uri in image_uris:
+            try:
+                if image_uri.is_remote():
+                    raise KiwiRootImportError(
+                        'Only local imports are supported'
                     )
+
+                image_file = image_uri.translate()
+                self.image_files.append(image_file)
+
+                if not os.path.exists(image_file):
+                    raise KiwiRootImportError(
+                        f'Could not stat base image file: {image_file}'
+                    )
+            except KiwiUriTypeUnknown:
+                # Let specialized class handle unknown uri schemes
+                raw_url = image_uri.uri
+                log.warning(
+                    f'Unkown URI type for the base image: {raw_url}'
                 )
-        except KiwiUriTypeUnknown:
-            # Let specialized class handle unknown uri schemes
-            log.warning(
-                'Unkown URI type for the base image: %s', image_uri.uri
-            )
-            self.unknown_uri = image_uri.uri
-        finally:
-            self.post_init(custom_args)
+                self.raw_urls.append(raw_url)
+
+        self.post_init(custom_args)
 
     def post_init(self, custom_args):
         """

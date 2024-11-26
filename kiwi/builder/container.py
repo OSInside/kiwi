@@ -65,9 +65,9 @@ class ContainerBuilder:
             xml_state.build_type.get_metadata_path()
 
         if xml_state.get_derived_from_image_uri() and not self.delta_root:
-            # The base image is expected to be unpacked by the kiwi
-            # prepare step and stored inside of the root_dir/image directory.
-            # In addition a md5 file of the image is expected too
+            # The base image(all derived imports) is expected to be unpacked
+            # by the kiwi prepare step and stored inside of the root_dir/image
+            # directory. In addition a md5 file of the image is expected too
             self.base_image = Defaults.get_imported_root_image(
                 self.root_dir
             )

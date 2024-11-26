@@ -18,17 +18,17 @@ class TestRootImportBase:
         mock_buildservice.return_value = False
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
-            RootImportBase('root_dir', Uri('file:///image.tar.xz'))
+            RootImportBase('root_dir', [Uri('file:///image.tar.xz')])
         assert call('/image.tar.xz') in mock_path.call_args_list
 
     def test_init_remote_uri(self):
         with raises(KiwiRootImportError):
-            RootImportBase('root_dir', Uri('http://example.com/image.tar.xz'))
+            RootImportBase('root_dir', [Uri('http://example.com/image.tar.xz')])
 
     @patch('kiwi.system.root_import.base.log.warning')
     def test_init_unknown_uri(self, mock_log_warn):
-        root = RootImportBase('root_dir', Uri('docker://opensuse:leap'))
-        assert root.unknown_uri == 'docker://opensuse:leap'
+        root = RootImportBase('root_dir', [Uri('docker://opensuse:leap')])
+        assert root.raw_urls == ['docker://opensuse:leap']
         assert mock_log_warn.called
 
     @patch('os.path.exists')
@@ -36,14 +36,14 @@ class TestRootImportBase:
         mock_path.return_value = False
         with patch.dict('os.environ', {'HOME': '../data'}):
             with raises(KiwiRootImportError):
-                RootImportBase('root_dir', Uri('file:///image.tar.xz'))
+                RootImportBase('root_dir', [Uri('file:///image.tar.xz')])
 
     @patch('os.path.exists')
     def test_data_sync(self, mock_path):
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
             root_import = RootImportBase(
-                'root_dir', Uri('file:///image.tar.xz')
+                'root_dir', [Uri('file:///image.tar.xz')]
             )
         with raises(NotImplementedError):
             root_import.sync_data()
@@ -53,7 +53,7 @@ class TestRootImportBase:
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
             root_import = RootImportBase(
-                'root_dir', Uri('docker://opensuse:leap')
+                'root_dir', [Uri('docker://opensuse:leap')]
             )
         with raises(NotImplementedError):
             root_import.overlay_data()
@@ -77,7 +77,7 @@ class TestRootImportBase:
             xml_state = Mock()
             mock_Command_run.return_value.output = '/file_a\n/file_b'
             with patch.dict('os.environ', {'HOME': '../data'}):
-                root = RootImportBase('root_dir', Uri('docker://opensuse:leap'))
+                root = RootImportBase('root_dir', [Uri('docker://opensuse:leap')])
                 root.overlay = Mock()
                 mock_pathlib.Path = Mock()
                 root_overlay_path_mock = Mock()

@@ -22,10 +22,10 @@ class TestRootImportOCI:
         mock_path.return_value = True
         with patch.dict('os.environ', {'HOME': '../data'}):
             self.oci_import = RootImportOCI(
-                'root_dir', Uri('file:///image.tar'),
+                'root_dir', [Uri('file:///image.tar')],
                 {'archive_transport': 'oci-archive'}
             )
-        assert self.oci_import.image_file == '/image.tar'
+        assert self.oci_import.image_files == ['/image.tar']
 
     @patch('os.path.exists')
     def setup_method(self, cls, mock_path):
@@ -36,7 +36,7 @@ class TestRootImportOCI:
         mock_path.return_value = False
         with raises(KiwiRootImportError):
             RootImportOCI(
-                'root_dir', Uri('file:///image.tar.xz'),
+                'root_dir', [Uri('file:///image.tar.xz')],
                 {'archive_transport': 'oci-archive'}
             )
 
@@ -137,7 +137,7 @@ class TestRootImportOCI:
         mock_md5.return_value = Mock()
         with patch.dict('os.environ', {'HOME': '../data'}):
             oci_import = RootImportOCI(
-                'root_dir', Uri('docker:image:tag'),
+                'root_dir', [Uri('docker:image:tag')],
                 {'archive_transport': 'docker-archive'}
             )
 
