@@ -77,7 +77,9 @@ class TestRootImportBase:
             xml_state = Mock()
             mock_Command_run.return_value.output = '/file_a\n/file_b'
             with patch.dict('os.environ', {'HOME': '../data'}):
-                root = RootImportBase('root_dir', [Uri('docker://opensuse:leap')])
+                root = RootImportBase(
+                    'root_dir', [Uri('docker://opensuse:leap')]
+                )
                 root.overlay = Mock()
                 mock_pathlib.Path = Mock()
                 root_overlay_path_mock = Mock()
@@ -105,7 +107,9 @@ class TestRootImportBase:
                 ]
 
                 mock_pathlib.Path.assert_called_once_with(root.overlay.upper)
-                root_overlay_path_mock.replace.assert_called_once_with('root_dir')
+                root_overlay_path_mock.replace.assert_called_once_with(
+                    'root_dir'
+                )
 
                 # find files that got removed
                 assert mock_Command_run.call_args_list == [
@@ -128,6 +132,7 @@ class TestRootImportBase:
                 ]
                 # create removed files metadata for later host provisioning
                 assert file_handle.write.call_args_list == [
+                    call('\n'),
                     call('/file_a'), call(os.linesep),
                     call('/file_b'), call(os.linesep)
                 ]

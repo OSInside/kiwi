@@ -106,6 +106,7 @@ class RootImportBase:
         if self.overlay:
             pinch_reference = f'{self.root_dir}_cow_before_pinch'
             removed = f'{self.root_dir}/{Defaults.get_removed_files_name()}'
+            systemfiles = f'{self.root_dir}/{Defaults.get_system_files_name()}'
 
             system = SystemSetup(xml_state, self.root_dir)
 
@@ -116,6 +117,12 @@ class RootImportBase:
             system.call_config_host_overlay_script(
                 working_directory=self.root_dir
             )
+
+            # Include system files if requested
+            if xml_state.build_type.get_require_system_files():
+                with open(systemfiles, 'a') as systemfiles_fd:
+                    # copy on write makes this file to become part of the delta
+                    systemfiles_fd.write(os.linesep)
 
             # Umount and rename upper to be the new root
             self.overlay.umount()

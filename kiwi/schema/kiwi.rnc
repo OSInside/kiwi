@@ -2255,6 +2255,21 @@ div {
             sch:param [ name = "attr" value = "derived_from" ]
             sch:param [ name = "types" value = "docker oci" ]
         ]
+    k.type.provide_system_files.attribute =
+        ## Create a systemfiles metadata file containing the
+        ## file list of all packages of the system
+        attribute provide_system_files { xsd:boolean }
+        >> sch:pattern [ id = "provide_system_files" is-a = "image_type"
+            sch:param [ name = "attr" value = "provide_system_files" ]
+            sch:param [ name = "types" value = "docker oci" ]
+        ]
+    k.type.require_system_files.attribute =
+        ## Include an existing systemfiles metadata file
+        attribute require_system_files { xsd:boolean }
+        >> sch:pattern [ id = "require_system_files" is-a = "image_type"
+            sch:param [ name = "attr" value = "require_system_files" ]
+            sch:param [ name = "types" value = "docker oci" ]
+        ]
     k.type.delta_root.attribute =
         ## Together with derived_from create a delta root tree
         attribute delta_root { xsd:boolean }
@@ -2405,6 +2420,8 @@ div {
         k.type.wwid_wait_timeout.attribute? &
         k.type.derived_from.attribute? &
         k.type.delta_root.attribute? &
+        k.type.provide_system_files.attribute? &
+        k.type.require_system_files.attribute? &
         k.type.ensure_empty_tmpdirs.attribute? &
         k.type.xen_server.attribute? &
         k.type.publisher.attribute? &

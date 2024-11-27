@@ -191,6 +191,7 @@ class TestSystemBuildTask:
         system_prepare.pinch_system.assert_has_calls(
             [call(force=False), call(force=True)]
         )
+        self.setup.create_system_files.assert_called_once_with()
         assert system_prepare.clean_package_manager_leftovers.called
         self.setup.call_image_script.assert_called_once_with()
         self.builder.create.assert_called_once_with()

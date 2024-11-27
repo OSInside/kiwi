@@ -53,6 +53,9 @@ class TestSystemSetup:
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
+        self.xml_state.build_type.get_provide_system_files = Mock(
+            return_value=True
+        )
         self.xml_state.xml_data.description_dir = 'description_dir'
         self.setup = SystemSetup(
             self.xml_state, 'root_dir'
@@ -1283,6 +1286,14 @@ class TestSystemSetup:
         assert self.setup.export_package_list('target_dir') == ''
 
     @patch('kiwi.defaults.Defaults.get_default_packager_tool')
+    def test_export_package_file_list_unknown_packager(
+        self, mock_get_default_packager_tool
+    ):
+        assert self.setup.export_package_file_list(
+            'target_dir', 'system_files'
+        ) == ''
+
+    @patch('kiwi.defaults.Defaults.get_default_packager_tool')
     def test_export_package_changes_unknown_packager(
         self, mock_get_default_packager_tool
     ):
@@ -1293,6 +1304,37 @@ class TestSystemSetup:
         self, mock_get_default_packager_tool
     ):
         assert self.setup.export_package_verification('target_dir') == ''
+
+    @patch('kiwi.system.setup.Command.run')
+    @patch('kiwi.system.setup.RpmDataBase')
+    @patch('kiwi.system.setup.MountManager')
+    def test_export_package_file_list(
+        self, mock_MountManager, mock_RpmDataBase, mock_command
+    ):
+        rpmdb = Mock()
+        rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
+        rpmdb.rpmdb_host.expand_query.return_value = 'host_dbpath'
+        rpmdb.has_rpm.return_value = True
+        mock_RpmDataBase.return_value = rpmdb
+        command = Mock()
+        command.output = 'packages_file_data'
+        mock_command.return_value = command
+
+        with patch('builtins.open') as m_open:
+            result = self.setup.export_package_file_list(
+                'target_dir', 'system_files'
+            )
+            m_open.assert_called_once_with(
+                'target_dir/system_files', 'w', encoding='utf-8'
+            )
+
+        assert result == 'target_dir/system_files'
+        mock_command.assert_called_once_with(
+            [
+                'rpm', '--root', 'root_dir', '-qal',
+                '--dbpath', 'image_dbpath'
+            ]
+        )
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
@@ -1391,6 +1433,13 @@ class TestSystemSetup:
         mock_path_which.return_value = None
         with self._caplog.at_level(logging.WARNING):
             self.setup.setup_permissions()
+
+    @patch.object(SystemSetup, 'export_package_file_list')
+    def test_create_system_files(self, mock_export_package_file_list):
+        self.setup.create_system_files()
+        mock_export_package_file_list.assert_called_once_with(
+            'root_dir', 'systemfiles'
+        )
 
     @patch('kiwi.system.setup.Command.run')
     def test_export_package_list_dpkg(self, mock_command):

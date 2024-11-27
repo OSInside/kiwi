@@ -3249,6 +3249,27 @@ to work on.</a:documentation>
         <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
+    <define name="k.type.provide_system_files.attribute">
+      <attribute name="provide_system_files">
+        <a:documentation>Create a systemfiles metadata file containing the
+file list of all packages of the system</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="provide_system_files" is-a="image_type">
+        <sch:param name="attr" value="provide_system_files"/>
+        <sch:param name="types" value="docker oci"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.require_system_files.attribute">
+      <attribute name="require_system_files">
+        <a:documentation>Include an existing systemfiles metadata file</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="require_system_files" is-a="image_type">
+        <sch:param name="attr" value="require_system_files"/>
+        <sch:param name="types" value="docker oci"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.delta_root.attribute">
       <attribute name="delta_root">
         <a:documentation>Together with derived_from create a delta root tree</a:documentation>
@@ -3580,6 +3601,12 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.delta_root.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.provide_system_files.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.require_system_files.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.ensure_empty_tmpdirs.attribute"/>

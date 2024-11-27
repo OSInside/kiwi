@@ -3362,7 +3362,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3444,6 +3444,8 @@ class type_(GeneratedsSuper):
         self.wwid_wait_timeout = _cast(int, wwid_wait_timeout)
         self.derived_from = _cast(None, derived_from)
         self.delta_root = _cast(bool, delta_root)
+        self.provide_system_files = _cast(bool, provide_system_files)
+        self.require_system_files = _cast(bool, require_system_files)
         self.ensure_empty_tmpdirs = _cast(bool, ensure_empty_tmpdirs)
         self.xen_server = _cast(bool, xen_server)
         self.publisher = _cast(None, publisher)
@@ -3712,6 +3714,10 @@ class type_(GeneratedsSuper):
     def set_derived_from(self, derived_from): self.derived_from = derived_from
     def get_delta_root(self): return self.delta_root
     def set_delta_root(self, delta_root): self.delta_root = delta_root
+    def get_provide_system_files(self): return self.provide_system_files
+    def set_provide_system_files(self, provide_system_files): self.provide_system_files = provide_system_files
+    def get_require_system_files(self): return self.require_system_files
+    def set_require_system_files(self, require_system_files): self.require_system_files = require_system_files
     def get_ensure_empty_tmpdirs(self): return self.ensure_empty_tmpdirs
     def set_ensure_empty_tmpdirs(self, ensure_empty_tmpdirs): self.ensure_empty_tmpdirs = ensure_empty_tmpdirs
     def get_xen_server(self): return self.xen_server
@@ -3761,13 +3767,13 @@ class type_(GeneratedsSuper):
                     self.validate_safe_posix_short_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_short_name_patterns_, ))
     validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
-    def validate_safe_posix_long_name(self, value):
-        # Validate type safe-posix-long-name, a restriction on xs:token.
+    def validate_ecma_119_achar_128_text(self, value):
+        # Validate type ecma-119-achar-128-text, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_safe_posix_long_name_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_long_name_patterns_, ))
-    validate_safe_posix_long_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,128}$']]
+                    self.validate_ecma_119_achar_128_text_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_ecma_119_achar_128_text_patterns_, ))
+    validate_ecma_119_achar_128_text_patterns_ = [['^[a-zA-Z0-9!-/:-?_ ]{1,128}$']]
     def validate_number_type(self, value):
         # Validate type number-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -4053,6 +4059,12 @@ class type_(GeneratedsSuper):
         if self.delta_root is not None and 'delta_root' not in already_processed:
             already_processed.add('delta_root')
             outfile.write(' delta_root="%s"' % self.gds_format_boolean(self.delta_root, input_name='delta_root'))
+        if self.provide_system_files is not None and 'provide_system_files' not in already_processed:
+            already_processed.add('provide_system_files')
+            outfile.write(' provide_system_files="%s"' % self.gds_format_boolean(self.provide_system_files, input_name='provide_system_files'))
+        if self.require_system_files is not None and 'require_system_files' not in already_processed:
+            already_processed.add('require_system_files')
+            outfile.write(' require_system_files="%s"' % self.gds_format_boolean(self.require_system_files, input_name='require_system_files'))
         if self.ensure_empty_tmpdirs is not None and 'ensure_empty_tmpdirs' not in already_processed:
             already_processed.add('ensure_empty_tmpdirs')
             outfile.write(' ensure_empty_tmpdirs="%s"' % self.gds_format_boolean(self.ensure_empty_tmpdirs, input_name='ensure_empty_tmpdirs'))
@@ -4061,7 +4073,7 @@ class type_(GeneratedsSuper):
             outfile.write(' xen_server="%s"' % self.gds_format_boolean(self.xen_server, input_name='xen_server'))
         if self.publisher is not None and 'publisher' not in already_processed:
             already_processed.add('publisher')
-            outfile.write(' publisher=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.publisher), input_name='publisher')), ))
+            outfile.write(' publisher=%s' % (quote_attrib(self.publisher), ))
         if self.disk_start_sector is not None and 'disk_start_sector' not in already_processed:
             already_processed.add('disk_start_sector')
             outfile.write(' disk_start_sector="%s"' % self.gds_format_integer(self.disk_start_sector, input_name='disk_start_sector'))
@@ -4615,7 +4627,7 @@ class type_(GeneratedsSuper):
             already_processed.add('application_id')
             self.application_id = value
             self.application_id = ' '.join(self.application_id.split())
-            self.validate_safe_posix_long_name(self.application_id)    # validate type safe-posix-long-name
+            self.validate_ecma_119_achar_128_text(self.application_id)    # validate type ecma-119-achar-128-text
         value = find_attr_value_('wwid_wait_timeout', node)
         if value is not None and 'wwid_wait_timeout' not in already_processed:
             already_processed.add('wwid_wait_timeout')
@@ -4636,6 +4648,24 @@ class type_(GeneratedsSuper):
                 self.delta_root = True
             elif value in ('false', '0'):
                 self.delta_root = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('provide_system_files', node)
+        if value is not None and 'provide_system_files' not in already_processed:
+            already_processed.add('provide_system_files')
+            if value in ('true', '1'):
+                self.provide_system_files = True
+            elif value in ('false', '0'):
+                self.provide_system_files = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('require_system_files', node)
+        if value is not None and 'require_system_files' not in already_processed:
+            already_processed.add('require_system_files')
+            if value in ('true', '1'):
+                self.require_system_files = True
+            elif value in ('false', '0'):
+                self.require_system_files = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('ensure_empty_tmpdirs', node)
@@ -4660,6 +4690,8 @@ class type_(GeneratedsSuper):
         if value is not None and 'publisher' not in already_processed:
             already_processed.add('publisher')
             self.publisher = value
+            self.publisher = ' '.join(self.publisher.split())
+            self.validate_ecma_119_achar_128_text(self.publisher)    # validate type ecma-119-achar-128-text
         value = find_attr_value_('disk_start_sector', node)
         if value is not None and 'disk_start_sector' not in already_processed:
             already_processed.add('disk_start_sector')

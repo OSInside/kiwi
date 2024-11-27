@@ -326,6 +326,9 @@ class SystemBuildTask(CliTask):
                 # any dependency resolution
                 system.pinch_system(force=True)
 
+                # create file list of packages if requested
+                setup.create_system_files()
+
                 # delete any custom rpm macros created
                 system.clean_package_manager_leftovers()
 

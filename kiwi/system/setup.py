@@ -625,6 +625,23 @@ class SystemSetup:
                 options=['-a']
             )
 
+    def export_package_file_list(self, target_dir: str, file_name: str) -> str:
+        """
+        Export image package file list to the target_dir
+        and filename
+
+        :param str target_dir: path name
+        :param str file_name: file name
+        """
+        packager = Defaults.get_default_packager_tool(
+            self.xml_state.get_package_manager()
+        )
+        result_file = os.path.normpath(f'{target_dir}/{file_name}')
+        if packager == 'rpm':
+            self._export_rpm_file_list(result_file)
+            return result_file
+        return ''
+
     def export_package_list(self, target_dir: str) -> str:
         """
         Export image package list as metadata reference
@@ -809,6 +826,15 @@ class SystemSetup:
             option_list=[diskname, boot_device_node],
             working_directory=working_directory
         )
+
+    def create_system_files(self) -> None:
+        """
+        Create file list of packages
+        """
+        if self.xml_state.build_type.get_provide_system_files():
+            self.export_package_file_list(
+                self.root_dir, Defaults.get_system_files_name()
+            )
 
     def create_fstab(self, fstab: Fstab) -> None:
         """
@@ -1319,6 +1345,22 @@ class SystemSetup:
         """
         if section_content:
             return section_content[0]
+
+    def _export_rpm_file_list(self, filename):
+        log.info('Export rpm packages file list')
+        dbpath_option = [
+            '--dbpath', self._get_rpm_database_location()
+        ]
+        query_call = Command.run(
+            [
+                'rpm', '--root', self.root_dir, '-qal'
+            ] + dbpath_option
+        )
+        with open(filename, 'w', encoding='utf-8') as packagefiles:
+            packagefiles.write(
+                os.linesep.join(sorted(query_call.output.splitlines()))
+            )
+            packagefiles.write(os.linesep)
 
     def _export_rpm_package_list(self, filename):
         log.info('Export rpm packages metadata')

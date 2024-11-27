@@ -389,6 +389,14 @@ class Defaults:
         return 'removed'
 
     @staticmethod
+    def get_system_files_name():
+        """
+        Provides base file name to store system files
+        in a container build
+        """
+        return 'systemfiles'
+
+    @staticmethod
     def get_exclude_list_for_removed_files_detection() -> List[str]:
         """
         Provides list of files/dirs to exclude from the removed
