@@ -40,6 +40,7 @@ class RootImportOCI(RootImportBase):
     """
     def post_init(self, custom_args: Dict[str, str]):
         self.archive_transport = custom_args['archive_transport']
+        self.compressed_image_files: List[Compress] = []
 
     def sync_data(self):
         """
@@ -90,6 +91,11 @@ class RootImportOCI(RootImportBase):
             image_urls: List[str] = []
             for image_file in self.image_files:
                 compressor = Compress(image_file)
+                # Increase livetime of the the compressor instances
+                # to the livetime of RootImportOCI. They create
+                # temporary files which are referenced later and
+                # need to live longer than this loop block
+                self.compressed_image_files.append(compressor)
                 if compressor.get_format():
                     compressor.uncompress(True)
                     uncompressed_image = compressor.uncompressed_filename
