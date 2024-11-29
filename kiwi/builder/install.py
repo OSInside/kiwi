@@ -161,6 +161,8 @@ class InstallImageBuilder:
                 'mbr_id': self.mbrid.get_id(),
                 'application_id': self.xml_state.build_type.get_application_id(),
                 'efi_mode': self.firmware.efi_mode(),
+                'efi_partition_table': self.firmware.get_partition_table_type(),
+                'gpt_hybrid_mbr': self.firmware.gpt_hybrid_mbr,
                 'ofw_mode': self.firmware.ofw_mode(),
                 'legacy_bios_mode': self.firmware.legacy_bios_mode()
             }

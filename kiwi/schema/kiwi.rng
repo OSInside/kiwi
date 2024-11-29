@@ -2473,7 +2473,7 @@ table type.</a:documentation>
       </attribute>
       <sch:pattern id="efiparttable" is-a="image_type">
         <sch:param name="attr" value="efiparttable"/>
-        <sch:param name="types" value="oem"/>
+        <sch:param name="types" value="oem iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.bootprofile.attribute">
@@ -2907,7 +2907,7 @@ create a hybrid GPT/MBR partition table</a:documentation>
       </attribute>
       <sch:pattern id="gpt_hybrid_mbr" is-a="image_type">
         <sch:param name="attr" value="gpt_hybrid_mbr"/>
-        <sch:param name="types" value="oem"/>
+        <sch:param name="types" value="oem iso"/>
       </sch:pattern>
     </define>
     <define name="k.type.initrd_system.attribute">

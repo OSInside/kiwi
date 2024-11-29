@@ -103,6 +103,11 @@ class IsoToolsXorrIso(IsoToolsBase):
             self.iso_parameters += [
                 '-compliance', 'untranslated_names'
             ]
+        else:
+            self.iso_parameters += [
+                # https://lists.gnu.org/archive/html/bug-xorriso/2024-11/msg00012.html
+                '-compliance', 'no_emul_toc'
+            ]
 
         if Defaults.is_x86_arch(self.arch) and legacy_bios_mode:
             mbr_file = os.sep.join(
@@ -145,7 +150,9 @@ class IsoToolsXorrIso(IsoToolsBase):
                 '-boot_image', 'any', 'load_size=2048'
             ]
 
-    def add_efi_loader_parameters(self, loader_file: str) -> None:
+    def add_efi_loader_parameters(
+        self, loader_file: str, custom_args: Optional[Dict[str, Union[str, bool]]] = None
+    ) -> None:
         """
         Add ISO creation parameters to embed the EFI loader
 
@@ -156,6 +163,18 @@ class IsoToolsXorrIso(IsoToolsBase):
         file refer to _create_embedded_fat_efi_image() from
         bootloader/config/grub2.py
         """
+        if custom_args:
+            efi_partition_table = custom_args.get('efi_partition_table', '')
+            legacy_bios_mode = custom_args.get('legacy_bios_mode', False)
+            gpt_hybrid_mbr = custom_args.get('gpt_hybrid_mbr', False)
+            if efi_partition_table == 'gpt':
+                self.iso_loaders += [
+                    '-boot_image', 'any', 'appended_part_as=gpt',
+                ]
+                if gpt_hybrid_mbr and legacy_bios_mode:
+                    self.iso_loaders += [
+                        '-boot_image', 'any', 'mbr_force_bootable=on',
+                    ]
         self.iso_loaders += [
             '-append_partition', '2', '0xef', loader_file,
             '-boot_image', 'any', 'next',
@@ -189,3 +208,10 @@ class IsoToolsXorrIso(IsoToolsBase):
                 '-chmod', '0755', '/', '--'
             ] + self.iso_loaders + hidden_files_parameters
         )
+        report_call = Command.run(
+            [
+                self.get_tool_name(), '-indev', filename,
+                '-report_system_area', 'plain'
+            ]
+        )
+        log.debug(report_call.output)

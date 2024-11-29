@@ -42,6 +42,7 @@ class FirmWare:
         self.firmware = xml_state.build_type.get_firmware()
         self.efipart_mbytes = xml_state.build_type.get_efipartsize()
         self.efi_partition_table = xml_state.build_type.get_efiparttable()
+        self.gpt_hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
         self.efi_csm = True if xml_state.build_type.get_eficsm() is None \
             else xml_state.build_type.get_eficsm()
 

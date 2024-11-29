@@ -19,7 +19,7 @@ import os
 import shutil
 import logging
 from typing import (
-    Dict, List, Union
+    Dict, List, Optional, Union
 )
 
 # project
@@ -72,7 +72,9 @@ class IsoToolsBase:
         """
         raise NotImplementedError
 
-    def add_efi_loader_parameters(self, loader_file: str) -> None:
+    def add_efi_loader_parameters(
+        self, loader_file: str, custom_args: Optional[Dict[str, Union[str, bool]]] = None
+    ) -> None:
         """
         Add ISO creation parameters to embed the EFI loader
 

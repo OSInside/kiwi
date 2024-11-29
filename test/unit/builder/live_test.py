@@ -247,6 +247,8 @@ class TestLiveImageBuilder:
         self.setup.export_package_list.return_value = '.packages'
 
         self.firmware.bios_mode.return_value = False
+        self.firmware.get_partition_table_type.return_value = 'gpt'
+        self.firmware.gpt_hybrid_mbr = False
         self.live_image.create()
 
         self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')
@@ -369,6 +371,8 @@ class TestLiveImageBuilder:
                     'volume_id': 'volid',
                     'efi_mode': 'uefi',
                     'efi_loader': 'kiwi-tmpfile',
+                    'efi_partition_table': 'gpt',
+                    'gpt_hybrid_mbr': False,
                     'udf': True,
                     'legacy_bios_mode': True
                 }
