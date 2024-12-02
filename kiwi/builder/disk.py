@@ -1038,7 +1038,7 @@ class DiskBuilder:
     ) -> Dict:
         disk.wipe()
         disksize_used_mbytes = 0
-        if self.firmware.legacy_bios_mode():
+        if self.firmware.get_legacy_bios_partition_size():
             log.info('--> creating EFI CSM(legacy bios) partition')
             partition_mbsize = self.firmware.get_legacy_bios_partition_size()
             disk.create_efi_csm_partition(
