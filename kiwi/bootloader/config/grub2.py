@@ -75,6 +75,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if arch == 'x86_64':
             # grub2 support for bios and efi systems
             self.arch = arch
+        elif arch == 'loongarch64':
+            # grub2 support for efi systems
+            self.arch = arch
         elif arch.startswith('ppc64'):
             # grub2 support for ofw and opal systems
             self.arch = arch
