@@ -293,6 +293,7 @@ class TestDiskBuilder:
         filesystem = MagicMock()
         mock_fs.return_value = filesystem
 
+        self.firmware.get_legacy_bios_partition_size.return_value = 2
         self.disk_builder.volume_manager_name = None
         self.disk_builder.initrd_system = 'kiwi'
 
@@ -713,6 +714,7 @@ class TestDiskBuilder:
         mock_rand.return_value = 15
         filesystem = MagicMock()
         mock_fs.return_value = filesystem
+        self.firmware.get_legacy_bios_partition_size.return_value = 2
         self.disk_builder.root_filesystem_verity_blocks = 10
         self.disk_builder.root_filesystem_embed_verity_metadata = True
         self.disk_builder.root_filesystem_is_overlay = False

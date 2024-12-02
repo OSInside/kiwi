@@ -92,6 +92,11 @@ class FirmWare:
                 return True
             else:
                 return False
+        elif self.get_partition_table_type() == 'msdos':
+            if self.arch == 'x86_64' or re.match('i.86', self.arch):
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -166,7 +171,7 @@ class FirmWare:
 
         :rtype: int
         """
-        if self.legacy_bios_mode():
+        if self.legacy_bios_mode() and self.efi_mode():
             return Defaults.get_default_legacy_bios_mbytes()
         else:
             return 0

@@ -12,9 +12,10 @@
     </description>
     <profiles>
         <profile name="Standard" description="Standard EFI/BIOS Live Boot"/>
-        <profile name="Secure" description="SecureBoot/BIOS Live Boot"/>
+        <profile name="Secure" description="SecureBoot EFI Live Boot"/>
         <profile name="SDBoot" description="EFI Boot via systemd-boot"/>
-        <profile name="EroFS" description="Live Root via EroFS"/>
+        <profile name="EroFS" description="EFI/BIOS Boot Live Root via EroFS"/>
+        <profile name="BIOS" description="Legacy BIOS Live Boot only"/>
     </profiles>
     <preferences>
         <version>1.42.3</version>
@@ -47,6 +48,11 @@
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
+    <preferences profiles="BIOS">
+        <type image="iso" flags="overlay" firmware="bios" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+        </type>
+    </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
@@ -56,7 +62,7 @@
     <packages type="image" profiles="SDBoot">
         <package name="systemd-boot"/>
     </packages>
-    <packages type="image" profiles="Standard,Secure,EroFS">
+    <packages type="image" profiles="Standard,Secure,EroFS,BIOS">
         <package name="grub2-branding-openSUSE"/>
         <package name="grub2"/>
         <package name="grub2-x86_64-efi" arch="x86_64"/>
