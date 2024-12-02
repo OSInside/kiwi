@@ -28,6 +28,15 @@ class TestRootBind:
         root.root_dir = 'root-dir'
         self.bind_root = RootBind(root)
 
+        # test expected real bind mount locations
+        assert self.bind_root.bind_locations == [
+            '/proc',
+            '/dev',
+            '/dev/pts',
+            '/var/run/dbus',
+            '/sys'
+        ]
+
         # stub config files and bind locations
         self.bind_root.config_files = ['/etc/sysconfig/proxy']
         self.bind_root.bind_locations = ['/proc']
