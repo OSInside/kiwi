@@ -134,4 +134,4 @@ Contact
   ``#kiwi:matrix.org`` room via
   `Matrix <https://matrix.to/#kiwi:matrix.org>`__ on the web
   or by using the supported
-  `clients <https://matrix.org/docs/projects/clients-matrix>`__.
+  `clients <https://matrix.org/ecosystem/clients>`__.
