@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.tasks.system_prepare &mdash; KIWI NG 10.2.2 documentation</title>
+  <title>kiwi.tasks.system_prepare &mdash; KIWI NG 10.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=43731225"></script>
+      <script src="../../../_static/documentation_options.js?v=e70b963c"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1554,6 +1554,9 @@
                 <span class="c1"># handle delete package requests, forced uninstall without</span>
                 <span class="c1"># any dependency resolution</span>
                 <span class="n">system</span><span class="o">.</span><span class="n">pinch_system</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># create file list of packages if requested</span>
+                <span class="n">setup</span><span class="o">.</span><span class="n">create_system_files</span><span class="p">()</span>
 
                 <span class="c1"># delete any custom rpm macros created</span>
                 <span class="n">system</span><span class="o">.</span><span class="n">clean_package_manager_leftovers</span><span class="p">()</span></div>

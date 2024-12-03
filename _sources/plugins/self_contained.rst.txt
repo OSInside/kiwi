@@ -121,7 +121,7 @@ the following sharing backends are supported:
 ``--virtiofs-sharing``
   QEMU virtio-fs shared file system daemon. Share a host directory tree
   with a box through a virtio-fs device. For more information
-  see `virtiofs <https://qemu.readthedocs.io/en/latest/tools/virtiofsd.html>`__.
+  see `virtiofs <https://manpages.ubuntu.com/manpages/jammy/en/man1/virtiofsd.1.html>`__.
   Using this sharing backend does not require any setup procedure from the
   user  
 

@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.system.setup &mdash; KIWI NG 10.2.2 documentation</title>
+  <title>kiwi.system.setup &mdash; KIWI NG 10.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=43731225"></script>
+      <script src="../../../_static/documentation_options.js?v=e70b963c"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1926,6 +1926,26 @@
             <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="SystemSetup.export_package_file_list">
+<a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.setup.SystemSetup.export_package_file_list">[docs]</a>
+    <span class="k">def</span> <span class="nf">export_package_file_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export image package file list to the target_dir</span>
+<span class="sd">        and filename</span>
+
+<span class="sd">        :param str target_dir: path name</span>
+<span class="sd">        :param str file_name: file name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">packager</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_default_packager_tool</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_package_manager</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">result_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">target_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">packager</span> <span class="o">==</span> <span class="s1">&#39;rpm&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_export_rpm_file_list</span><span class="p">(</span><span class="n">result_file</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result_file</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span></div>
+
+
 <div class="viewcode-block" id="SystemSetup.export_package_list">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.setup.SystemSetup.export_package_list">[docs]</a>
     <span class="k">def</span> <span class="nf">export_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2145,6 +2165,18 @@
             <span class="n">option_list</span><span class="o">=</span><span class="p">[</span><span class="n">diskname</span><span class="p">,</span> <span class="n">boot_device_node</span><span class="p">],</span>
             <span class="n">working_directory</span><span class="o">=</span><span class="n">working_directory</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SystemSetup.create_system_files">
+<a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.setup.SystemSetup.create_system_files">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_system_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create file list of packages</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_provide_system_files</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_package_file_list</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_system_files_name</span><span class="p">()</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SystemSetup.create_fstab">
@@ -2665,6 +2697,22 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">section_content</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">section_content</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_export_rpm_file_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Export rpm packages file list&#39;</span><span class="p">)</span>
+        <span class="n">dbpath_option</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;--dbpath&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rpm_database_location</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">query_call</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s1">&#39;rpm&#39;</span><span class="p">,</span> <span class="s1">&#39;--root&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;-qal&#39;</span>
+            <span class="p">]</span> <span class="o">+</span> <span class="n">dbpath_option</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">packagefiles</span><span class="p">:</span>
+            <span class="n">packagefiles</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">query_call</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()))</span>
+            <span class="p">)</span>
+            <span class="n">packagefiles</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_export_rpm_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Export rpm packages metadata&#39;</span><span class="p">)</span>

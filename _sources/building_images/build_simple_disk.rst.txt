@@ -295,7 +295,7 @@ attributes:
 - `diskmode`: The disk mode (`vmdk` format only). Valid values are
   `monolithicSparse`, `monolithicFlat`, `twoGbMaxExtentSparse`,
   `twoGbMaxExtentFlat` and `streamOptimized` (see also
-  https://www.vmware.com/support/developer/converter-sdk/conv60_apireference/vim.OvfManager.CreateImportSpecParams.DiskProvisioningType.html).
+  https://vdc-download.vmware.com/vmwb-repository/dcr-public/6335f27c-c6e9-4804-95b0-ea9449958403/c7798a8b-4c73-41d9-84e8-db5453de7b17/doc/vddkDataStruct.5.3.html).
 
 - `disktype`: The type of the disk handled internally by the VM
   (`ova` format only). This attribute is currently unused.
