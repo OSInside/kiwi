@@ -1353,7 +1353,8 @@ class SystemSetup:
         ]
         query_call = Command.run(
             [
-                'rpm', '--root', self.root_dir, '-qal'
+                'rpm', '--root', self.root_dir,
+                '--noartifact', '--noghost', '-qal'
             ] + dbpath_option
         )
         with open(filename, 'w', encoding='utf-8') as packagefiles:

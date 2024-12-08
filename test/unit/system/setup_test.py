@@ -1331,7 +1331,8 @@ class TestSystemSetup:
         assert result == 'target_dir/system_files'
         mock_command.assert_called_once_with(
             [
-                'rpm', '--root', 'root_dir', '-qal',
+                'rpm', '--root', 'root_dir',
+                '--noartifact', '--noghost', '-qal',
                 '--dbpath', 'image_dbpath'
             ]
         )
