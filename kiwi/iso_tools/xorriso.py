@@ -103,6 +103,10 @@ class IsoToolsXorrIso(IsoToolsBase):
             self.iso_parameters += [
                 '-compliance', 'untranslated_names'
             ]
+        else:
+            self.iso_parameters += [
+                '-compliance', 'no_emul_toc'
+            ]
 
         if Defaults.is_x86_arch(self.arch) and legacy_bios_mode:
             mbr_file = os.sep.join(
@@ -127,7 +131,8 @@ class IsoToolsXorrIso(IsoToolsBase):
             else:
                 log.warning(f'No hybrid MBR file found: {mbr_file}: skipped')
             self.iso_loaders += [
-                '-boot_image', 'grub', 'grub2_boot_info=on'
+                '-boot_image', 'grub', 'grub2_boot_info=on',
+                '-boot_image', 'grub', 'partition_table=on'
             ]
 
         if Defaults.is_ppc64_arch(self.arch):
@@ -136,6 +141,7 @@ class IsoToolsXorrIso(IsoToolsBase):
             ]
         else:
             self.iso_loaders += [
+                '-boot_image', 'any', 'partition_cyl_align=off',
                 '-boot_image', 'any', 'partition_offset=16',
                 '-boot_image', 'any', 'cat_path={0}'.format(catalog_file),
                 '-boot_image', 'any', 'cat_hidden=on',
@@ -157,7 +163,9 @@ class IsoToolsXorrIso(IsoToolsBase):
         bootloader/config/grub2.py
         """
         self.iso_loaders += [
+            '-boot_image', 'any', 'mbr_force_bootable=on',
             '-append_partition', '2', '0xef', loader_file,
+            '-boot_image', 'any', 'appended_part_as=gpt',
             '-boot_image', 'any', 'next',
             '-boot_image', 'any',
             'efi_path=--interval:appended_partition_2:all::',
@@ -189,3 +197,10 @@ class IsoToolsXorrIso(IsoToolsBase):
                 '-chmod', '0755', '/', '--'
             ] + self.iso_loaders + hidden_files_parameters
         )
+        report_call = Command.run(
+            [
+                self.get_tool_name(), '-indev', filename,
+                '-report_system_area', 'plain'
+            ]
+        )
+        log.debug(report_call.output)
