@@ -1,5 +1,7 @@
 import logging
-from unittest.mock import patch
+from unittest.mock import (
+    patch, call
+)
 from pytest import (
     raises, fixture
 )
@@ -94,7 +96,8 @@ class TestIsoToolsXorrIso:
             '-preparer_id', 'preparer',
             '-volid', 'vol_id',
             '-joliet', 'on',
-            '-padding', '0'
+            '-padding', '0',
+            '-compliance', 'no_emul_toc'
         ]
         assert self.iso_tool.iso_loaders == [
             '-boot_image', 'grub',
@@ -102,6 +105,8 @@ class TestIsoToolsXorrIso:
             '-boot_image', 'grub',
             'grub2_mbr=source-dir/boot/x86_64/loader/boot_hybrid.img',
             '-boot_image', 'grub', 'grub2_boot_info=on',
+            '-boot_image', 'grub', 'partition_table=on',
+            '-boot_image', 'any', 'partition_cyl_align=off',
             '-boot_image', 'any', 'partition_offset=16',
             '-boot_image', 'any', 'cat_path=boot/x86_64/boot.catalog',
             '-boot_image', 'any', 'cat_hidden=on',
@@ -133,13 +138,16 @@ class TestIsoToolsXorrIso:
             '-preparer_id', 'preparer',
             '-volid', 'vol_id',
             '-joliet', 'on',
-            '-padding', '0'
+            '-padding', '0',
+            '-compliance', 'no_emul_toc'
         ]
 
     def test_add_efi_loader_parameters(self):
         self.iso_tool.add_efi_loader_parameters('target_dir/efi-loader')
         assert self.iso_tool.iso_loaders == [
+            '-boot_image', 'any', 'mbr_force_bootable=on',
             '-append_partition', '2', '0xef', 'target_dir/efi-loader',
+            '-boot_image', 'any', 'appended_part_as=gpt',
             '-boot_image', 'any', 'next',
             '-boot_image', 'any',
             'efi_path=--interval:appended_partition_2:all::',
@@ -154,15 +162,23 @@ class TestIsoToolsXorrIso:
         mock_which.return_value = '/usr/bin/xorriso'
         self.iso_tool.create_iso('myiso', hidden_files=['hide_me'])
         mock_wipe.assert_called_once_with('myiso')
-        mock_command.assert_called_once_with(
-            [
-                '/usr/bin/xorriso',
-                '-outdev', 'myiso',
-                '-map', 'source-dir', '/',
-                '-chmod', '0755', '/', '--',
-                '--', '-find', 'hide_me', '-exec', 'hide', 'on'
-            ]
-        )
+        assert mock_command.call_args_list == [
+            call(
+                [
+                    '/usr/bin/xorriso',
+                    '-outdev', 'myiso',
+                    '-map', 'source-dir', '/',
+                    '-chmod', '0755', '/', '--',
+                    '--', '-find', 'hide_me', '-exec', 'hide', 'on'
+                ]
+            ),
+            call(
+                [
+                    '/usr/bin/xorriso', '-indev', 'myiso',
+                    '-report_system_area', 'plain'
+                ]
+            )
+        ]
 
     def test_has_iso_hybrid_capability(self):
         assert self.iso_tool.has_iso_hybrid_capability() is True
