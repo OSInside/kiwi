@@ -68,7 +68,6 @@ class RootBind:
         self.bind_locations = [
             '/proc',
             '/dev',
-            '/dev/pts',
             '/var/run/dbus',
             '/sys'
         ]
