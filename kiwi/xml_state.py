@@ -732,6 +732,17 @@ class XMLState:
                     result.append(package.get_name().strip())
         return sorted(result)
 
+    def get_system_files_ignore_packages(self) -> List[str]:
+        """
+        List of ignore package names from the type="systemfiles"
+        packages section(s)
+
+        :return: package names
+
+        :rtype: list
+        """
+        return self.get_ignore_packages('systemfiles')
+
     def get_system_ignore_packages(self) -> List:
         """
         List of ignore package names from the packages sections matching

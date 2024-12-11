@@ -5587,6 +5587,7 @@ packages are only installed if this build type is requested.</a:documentation>
           <value>kis</value>
           <value>oci</value>
           <value>uninstall</value>
+          <value>systemfiles</value>
         </choice>
       </attribute>
     </define>
