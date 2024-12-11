@@ -310,6 +310,11 @@ class TestXMLState:
             'kernel-debug'
         ]
 
+    def test_get_system_files_ignore_packages(self):
+        assert self.state.get_system_files_ignore_packages() == [
+            'rpm', 'yast', 'zypp'
+        ]
+
     def test_get_build_type_vagrant_config_section(self):
         vagrant_config = self.state.get_build_type_vagrant_config_section()
         assert vagrant_config.get_provider() == 'libvirt'

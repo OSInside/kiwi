@@ -260,4 +260,9 @@
     <packages type="uninstall">
         <package name="shadow"/>
     </packages>
+    <packages type="systemfiles">
+        <ignore name="zypp"/>
+        <ignore name="yast"/>
+        <ignore name="rpm"/>
+    </packages>
 </image>

@@ -3702,7 +3702,7 @@ div {
         attribute type {
             "bootstrap" | "delete" | "docker" | "image" |
             "iso" | "oem" | "pxe" | "kis" | "oci" |
-            "uninstall"
+            "uninstall" | "systemfiles"
         }
     k.packages.profiles.attribute = k.profiles.attribute
     k.packages.patternType.attribute =

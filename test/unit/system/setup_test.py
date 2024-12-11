@@ -1286,10 +1286,10 @@ class TestSystemSetup:
         assert self.setup.export_package_list('target_dir') == ''
 
     @patch('kiwi.defaults.Defaults.get_default_packager_tool')
-    def test_export_package_file_list_unknown_packager(
+    def test_export_flake_pilot_system_file_list_unknown_packager(
         self, mock_get_default_packager_tool
     ):
-        assert self.setup.export_package_file_list(
+        assert self.setup.export_flake_pilot_system_file_list(
             'target_dir', 'system_files'
         ) == ''
 
@@ -1308,34 +1308,98 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
     @patch('kiwi.system.setup.MountManager')
-    def test_export_package_file_list(
-        self, mock_MountManager, mock_RpmDataBase, mock_command
+    def test_export_flake_pilot_system_file_list(
+        self, mock_MountManager, mock_RpmDataBase, mock_command_run
     ):
         rpmdb = Mock()
         rpmdb.rpmdb_image.expand_query.return_value = 'image_dbpath'
         rpmdb.rpmdb_host.expand_query.return_value = 'host_dbpath'
         rpmdb.has_rpm.return_value = True
         mock_RpmDataBase.return_value = rpmdb
-        command = Mock()
-        command.output = 'packages_file_data'
-        mock_command.return_value = command
+        with open('../data/rpm_ql_dump_glibc', 'r') as glibc:
+            rpm_ql_dump_glibc = glibc.read()
+        self.xml_state.get_system_files_ignore_packages = Mock(
+            return_value=['rpm', 'yast', 'zypp']
+        )
 
-        with patch('builtins.open') as m_open:
-            result = self.setup.export_package_file_list(
+        def command_call(args):
+            if args[3] == '-qa':
+                return Mock(output='glibc\nzypper\n')
+            else:
+                return Mock(output=rpm_ql_dump_glibc)
+
+        mock_command_run.side_effect = command_call
+
+        with patch('builtins.open') as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            result = self.setup.export_flake_pilot_system_file_list(
                 'target_dir', 'system_files'
             )
-            m_open.assert_called_once_with(
-                'target_dir/system_files', 'w', encoding='utf-8'
-            )
-
-        assert result == 'target_dir/system_files'
-        mock_command.assert_called_once_with(
-            [
-                'rpm', '--root', 'root_dir',
-                '--noartifact', '--noghost', '-qal',
-                '--dbpath', 'image_dbpath'
+            assert mock_open.call_args_list == [
+                call('target_dir/system_files', 'w', encoding='utf-8'),
+                call('target_dir/system_files.libs', 'w', encoding='utf-8')
             ]
-        )
+            assert file_handle.write.call_args_list == [
+                call('/etc/bindresvport.blacklist\n'),
+                call('/etc/gai.conf\n'),
+                call('/etc/ld.so.cache\n'),
+                call('/etc/ld.so.conf\n'),
+                call('/etc/nsswitch.conf\n'),
+                call('/etc/rpc\n'),
+                call('/sbin/ldconfig\n'),
+                call('/usr/bin/gencat\n'),
+                call('/usr/bin/getconf\n'),
+                call('/usr/bin/getent\n'),
+                call('/usr/bin/iconv\n'),
+                call('/usr/bin/ld.so\n'),
+                call('/usr/bin/ldd\n'),
+                call('/usr/bin/locale\n'),
+                call('/usr/bin/localedef\n'),
+                call('/usr/sbin/iconvconfig\n'),
+                call('/usr/share/doc/packages/glibc\n'),
+                call('/usr/share/licenses/glibc\n'),
+                call('/usr/share/licenses/glibc/LICENSES\n'),
+                call('/var/cache/ldconfig\n'),
+                call('/lib64/ld-linux-x86-64.so.2\n'),
+                call('/lib64/ld-lsb-x86-64.so.3\n'),
+                call('/lib64/libBrokenLocale.so.1\n'),
+                call('/lib64/libanl.so.1\n'),
+                call('/lib64/libc.so.6\n'),
+                call('/lib64/libc_malloc_debug.so.0\n'),
+                call('/lib64/libdl.so.2\n'),
+                call('/lib64/libm.so.6\n'),
+                call('/lib64/libmvec.so.1\n'),
+                call('/lib64/libnss_compat.so.2\n'),
+                call('/lib64/libnss_db.so.2\n'),
+                call('/lib64/libnss_dns.so.2\n'),
+                call('/lib64/libnss_files.so.2\n'),
+                call('/lib64/libnss_hesiod.so.2\n'),
+                call('/lib64/libpthread.so.0\n'),
+                call('/lib64/libresolv.so.2\n'),
+                call('/lib64/librt.so.1\n'),
+                call('/lib64/libthread_db.so.1\n'),
+                call('/lib64/libutil.so.1\n'),
+                call('/usr/lib/getconf/POSIX_V6_LP64_OFF64\n'),
+                call('/usr/lib/getconf/POSIX_V7_LP64_OFF64\n'),
+                call('/usr/lib/getconf/XBS5_LP64_OFF64\n')
+            ]
+        assert result == 'target_dir/system_files'
+        assert mock_command_run.call_args_list == [
+            call(
+                [
+                    'rpm', '--root', 'root_dir',
+                    '-qa', '--dbpath', 'image_dbpath'
+                ]
+            ),
+            call(
+                [
+                    'rpm', '--root', 'root_dir',
+                    '-ql', '--noghost', '--dump', 'glibc',
+                    '--dbpath', 'image_dbpath'
+                ]
+            )
+        ]
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
@@ -1435,10 +1499,12 @@ class TestSystemSetup:
         with self._caplog.at_level(logging.WARNING):
             self.setup.setup_permissions()
 
-    @patch.object(SystemSetup, 'export_package_file_list')
-    def test_create_system_files(self, mock_export_package_file_list):
+    @patch.object(SystemSetup, 'export_flake_pilot_system_file_list')
+    def test_create_system_files(
+        self, mock_export_flake_pilot_system_file_list
+    ):
         self.setup.create_system_files()
-        mock_export_package_file_list.assert_called_once_with(
+        mock_export_flake_pilot_system_file_list.assert_called_once_with(
             'root_dir', 'systemfiles'
         )
 
