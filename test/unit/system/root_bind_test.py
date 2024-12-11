@@ -32,7 +32,6 @@ class TestRootBind:
         assert self.bind_root.bind_locations == [
             '/proc',
             '/dev',
-            '/dev/pts',
             '/var/run/dbus',
             '/sys'
         ]
