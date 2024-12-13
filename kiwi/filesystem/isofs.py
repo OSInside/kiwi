@@ -50,6 +50,6 @@ class FileSystemIsoFs(FileSystemBase):
         iso_tool.init_iso_creation_parameters(meta_data)
 
         if efi_loader:
-            iso_tool.add_efi_loader_parameters(efi_loader)
+            iso_tool.add_efi_loader_parameters(efi_loader, meta_data)
 
         iso_tool.create_iso(self.filename)
