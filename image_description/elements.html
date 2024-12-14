@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Description Elements &mdash; KIWI NG 10.2.3 documentation</title>
+  <title>Image Description Elements &mdash; KIWI NG 10.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e70b963c"></script>
+      <script src="../_static/documentation_options.js?v=2c8206f1"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1245,7 +1245,7 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This document provides a reference for the elements
-and attributes of the KIWI NG XML document in version 10.2.3</p>
+and attributes of the KIWI NG XML document in version 10.2.4</p>
 </div>
 <section id="image">
 <span id="sec-image"></span><h2>&lt;image&gt;<a class="headerlink" href="#image" title="Link to this heading"></a></h2>
@@ -1598,7 +1598,7 @@ in MB. If not set the FAT image size is set to 20 MB</p>
 </dd>
 <dt>efiparttable=”msdos|gpt”:</dt><dd><p>For images with an EFI firmware specifies the partition
 table type to use. If not set defaults to the GPT partition
-table type</p>
+table type for disk images, MBR (msdos) for ISO images.</p>
 </dd>
 <dt>dosparttable_extended_layout=”true|false”:</dt><dd><p>For oem disk images, specifies to make use of logical partitions
 inside of an extended one. If set to true and if the msdos table type
@@ -2030,7 +2030,14 @@ allows to force the use of the msdos table including all
 its restrictions in max partition size and amount of
 partitions</p>
 </dd>
-<dt>gpt_hybrid_mbr=”true|false”:</dt><dd><p>For GPT disk types only: Create a hybrid GPT/MBR partition table</p>
+<dt>gpt_hybrid_mbr=”true|false”:</dt><dd><p>For disk types, create a hybrid GPT/MBR partition table with an
+‘accurate’ MBR table that will have no ‘bootable’ flagged partition
+For ISO types, create a hybrid GPT/MBR partition table where the
+MBR partition table contains a whole-disk ‘protective’ partition
+and a second bootable-flagged partition (intended to make the image
+bootable in both UEFI and BIOS modes on as much hardware as possible)
+In both cases, only has any effect if the EFI partition table
+type is GPT</p>
 </dd>
 <dt>hybridpersistent=”true|false”:</dt><dd><p>For the live ISO type, triggers the creation of a partition for
 a COW file to keep data persistent over a reboot</p>

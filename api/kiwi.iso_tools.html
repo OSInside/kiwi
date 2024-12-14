@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.iso_tools Package &mdash; KIWI NG 10.2.3 documentation</title>
+  <title>kiwi.iso_tools Package &mdash; KIWI NG 10.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e70b963c"></script>
+      <script src="../_static/documentation_options.js?v=2c8206f1"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1254,7 +1254,7 @@
 <p><strong>Base Class for Parameter API for iso creation tools</strong></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="kiwi.iso_tools.base.IsoToolsBase.add_efi_loader_parameters">
-<span class="sig-name descname"><span class="pre">add_efi_loader_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loader_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/kiwi/iso_tools/base.html#IsoToolsBase.add_efi_loader_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kiwi.iso_tools.base.IsoToolsBase.add_efi_loader_parameters" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_efi_loader_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loader_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/kiwi/iso_tools/base.html#IsoToolsBase.add_efi_loader_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kiwi.iso_tools.base.IsoToolsBase.add_efi_loader_parameters" title="Link to this definition"></a></dt>
 <dd><p>Add ISO creation parameters to embed the EFI loader</p>
 <p>Implementation in specialized tool class</p>
 </dd></dl>
@@ -1340,7 +1340,7 @@ used as both; an iso and a disk</p>
 the libburnia project. Addressed here is the tool xorriso</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="kiwi.iso_tools.xorriso.IsoToolsXorrIso.add_efi_loader_parameters">
-<span class="sig-name descname"><span class="pre">add_efi_loader_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loader_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/kiwi/iso_tools/xorriso.html#IsoToolsXorrIso.add_efi_loader_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kiwi.iso_tools.xorriso.IsoToolsXorrIso.add_efi_loader_parameters" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_efi_loader_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loader_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/kiwi/iso_tools/xorriso.html#IsoToolsXorrIso.add_efi_loader_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kiwi.iso_tools.xorriso.IsoToolsXorrIso.add_efi_loader_parameters" title="Link to this definition"></a></dt>
 <dd><p>Add ISO creation parameters to embed the EFI loader</p>
 <p>In order to boot the ISO from EFI, the EFI binary is added as
 alternative loader to the ISO creation parameter list. The

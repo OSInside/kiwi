@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.iso_tools.xorriso &mdash; KIWI NG 10.2.3 documentation</title>
+  <title>kiwi.iso_tools.xorriso &mdash; KIWI NG 10.2.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e70b963c"></script>
+      <script src="../../../_static/documentation_options.js?v=2c8206f1"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1353,6 +1353,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">iso_parameters</span> <span class="o">+=</span> <span class="p">[</span>
                 <span class="s1">&#39;-compliance&#39;</span><span class="p">,</span> <span class="s1">&#39;untranslated_names&#39;</span>
             <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iso_parameters</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="c1"># https://lists.gnu.org/archive/html/bug-xorriso/2024-11/msg00012.html</span>
+                <span class="s1">&#39;-compliance&#39;</span><span class="p">,</span> <span class="s1">&#39;no_emul_toc&#39;</span>
+            <span class="p">]</span>
 
         <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_x86_arch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">)</span> <span class="ow">and</span> <span class="n">legacy_bios_mode</span><span class="p">:</span>
             <span class="n">mbr_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -1398,7 +1403,9 @@
 
 <div class="viewcode-block" id="IsoToolsXorrIso.add_efi_loader_parameters">
 <a class="viewcode-back" href="../../../api/kiwi.iso_tools.html#kiwi.iso_tools.xorriso.IsoToolsXorrIso.add_efi_loader_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_efi_loader_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">add_efi_loader_parameters</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">loader_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add ISO creation parameters to embed the EFI loader</span>
 
@@ -1409,6 +1416,18 @@
 <span class="sd">        file refer to _create_embedded_fat_efi_image() from</span>
 <span class="sd">        bootloader/config/grub2.py</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">custom_args</span><span class="p">:</span>
+            <span class="n">efi_partition_table</span> <span class="o">=</span> <span class="n">custom_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;efi_partition_table&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">legacy_bios_mode</span> <span class="o">=</span> <span class="n">custom_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;legacy_bios_mode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">gpt_hybrid_mbr</span> <span class="o">=</span> <span class="n">custom_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gpt_hybrid_mbr&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">efi_partition_table</span> <span class="o">==</span> <span class="s1">&#39;gpt&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">iso_loaders</span> <span class="o">+=</span> <span class="p">[</span>
+                    <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;appended_part_as=gpt&#39;</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="n">gpt_hybrid_mbr</span> <span class="ow">and</span> <span class="n">legacy_bios_mode</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">iso_loaders</span> <span class="o">+=</span> <span class="p">[</span>
+                        <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;mbr_force_bootable=on&#39;</span><span class="p">,</span>
+                    <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iso_loaders</span> <span class="o">+=</span> <span class="p">[</span>
             <span class="s1">&#39;-append_partition&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;0xef&#39;</span><span class="p">,</span> <span class="n">loader_file</span><span class="p">,</span>
             <span class="s1">&#39;-boot_image&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;next&#39;</span><span class="p">,</span>
@@ -1444,7 +1463,14 @@
                 <span class="s1">&#39;-outdev&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;-map&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_dir</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;-chmod&#39;</span><span class="p">,</span> <span class="s1">&#39;0755&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span>
             <span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso_loaders</span> <span class="o">+</span> <span class="n">hidden_files_parameters</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="n">report_call</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_tool_name</span><span class="p">(),</span> <span class="s1">&#39;-indev&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+                <span class="s1">&#39;-report_system_area&#39;</span><span class="p">,</span> <span class="s1">&#39;plain&#39;</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">report_call</span><span class="o">.</span><span class="n">output</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

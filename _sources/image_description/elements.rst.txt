@@ -402,7 +402,7 @@ efifatimagesize="nonNegativeInteger":
 efiparttable="msdos|gpt":
   For images with an EFI firmware specifies the partition
   table type to use. If not set defaults to the GPT partition
-  table type
+  table type for disk images, MBR (msdos) for ISO images.
 
 dosparttable_extended_layout="true|false":
   For oem disk images, specifies to make use of logical partitions
@@ -889,7 +889,14 @@ force_mbr="true|false":
   partitions
 
 gpt_hybrid_mbr="true|false":
-  For GPT disk types only: Create a hybrid GPT/MBR partition table
+  For disk types, create a hybrid GPT/MBR partition table with an
+  'accurate' MBR table that will have no 'bootable' flagged partition
+  For ISO types, create a hybrid GPT/MBR partition table where the
+  MBR partition table contains a whole-disk 'protective' partition
+  and a second bootable-flagged partition (intended to make the image
+  bootable in both UEFI and BIOS modes on as much hardware as possible)
+  In both cases, only has any effect if the EFI partition table
+  type is GPT
 
 hybridpersistent="true|false":
   For the live ISO type, triggers the creation of a partition for
