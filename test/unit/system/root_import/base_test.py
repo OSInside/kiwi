@@ -133,7 +133,6 @@ class TestRootImportBase:
                 # create removed files metadata for later host provisioning
                 assert file_handle.write.call_args_list == [
                     call('\n'),
-                    call('\n'),
                     call('/file_a'), call(os.linesep),
                     call('/file_b'), call(os.linesep)
                 ]

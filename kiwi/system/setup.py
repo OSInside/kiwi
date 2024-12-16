@@ -1349,84 +1349,21 @@ class SystemSetup:
             return section_content[0]
 
     def _export_rpm_flake_pilot_system_file_list(self, filename):
-        log.info('Export rpm packages system file list for flake-pilot')
+        log.info('Export rpm system files script for flake-pilot')
         dbpath_option = [
             '--dbpath', self._get_rpm_database_location()
         ]
         skip_list = self.xml_state.get_system_files_ignore_packages()
         query_call = Command.run(
-            ['rpm', '--root', self.root_dir, '-qa'] + dbpath_option
+            [
+                'rpm', '--root', self.root_dir, '-qa', '--qf', '%{NAME}\n'
+            ] + dbpath_option
         )
-        libcheck = [
-            '/lib', '/usr/lib', '/lib64', '/usr/lib64'
-        ]
-        packmeta = {}
-        for package in query_call.output.splitlines():
-            skip = False
-            for skip_package in skip_list:
-                if package.startswith(skip_package):
-                    skip = True
-                    break
-            if not skip and package:
-                package = package.strip()
-                packmeta[package] = {}
-                query_call = Command.run(
-                    [
-                        'rpm', '--root', self.root_dir, '-ql',
-                        '--noghost', '--dump', package
-                    ] + dbpath_option
-                )
-                for raw in query_call.output.splitlines():
-                    meta = raw.lstrip().split(' ')
-                    if len(meta) == 11:
-                        islib = False
-                        for libpath in libcheck:
-                            if meta[0].startswith(libpath):
-                                islib = True
-                                break
-                        packmeta[package][meta[0]] = {
-                            'islib': islib,
-                            'isdoc': True if meta[8] == '1' else False,
-                            'islink': True if meta[10] != 'X' else False,
-                            'linkname': meta[10]
-                        }
-
         with open(filename, 'w', encoding='utf-8') as systemfiles:
-            for package in packmeta.keys():
-                for file in packmeta[package].keys():
-                    meta = packmeta[package][file]
-                    if not meta['isdoc'] and not meta['islib']:
-                        systemfiles.write(f'{file}{os.linesep}')
-
-        with open(f'{filename}.libs', 'w', encoding='utf-8') as systemlibs:
-            for package in packmeta.keys():
-                for file in packmeta[package].keys():
-                    meta = packmeta[package][file]
-                    if meta['islib']:
-                        if meta['islink']:
-                            systemlibs.write(f'{file}{os.linesep}')
-                        elif not self._has_link_target(packmeta, file):
-                            systemlibs.write(f'{file}{os.linesep}')
-
-    def _has_link_target(
-        self, packages: Dict[str, Dict[str, Dict[str, str]]], filename: str
-    ) -> bool:
-        if 'ld-linux' in filename:
-            # exceptional case. /lib.../ld-linux-* could be a
-            # symlink to /usr/bin/ld.so but only providing
-            # /usr/bin/ld.so is not enough to call programs.
-            # Thus in this case we indicate the file has no link
-            # target such that the later pilot sync takes it
-            # into account.
-            return False
-        for package in packages.keys():
-            for file in packages[package].keys():
-                meta = packages[package][file]
-                base_filename = os.path.basename(filename)
-                base_linkname = os.path.basename(meta['linkname'])
-                if meta['islink'] and base_filename == base_linkname:
-                    return True
-        return False
+            systemfiles.write('set -e\n')
+            for package in query_call.output.splitlines():
+                if package not in skip_list:
+                    systemfiles.write(f'rpm --noghost -ql {package}\n')
 
     def _export_rpm_package_list(self, filename):
         log.info('Export rpm packages metadata')

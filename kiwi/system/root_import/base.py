@@ -123,9 +123,6 @@ class RootImportBase:
                 with open(systemfiles, 'a') as systemfiles_fd:
                     # copy on write makes this file to become part of the delta
                     systemfiles_fd.write(os.linesep)
-                with open(f'{systemfiles}.libs', 'a') as systemlibs_fd:
-                    # copy on write makes this file to become part of the delta
-                    systemlibs_fd.write(os.linesep)
 
             # Umount and rename upper to be the new root
             self.overlay.umount()

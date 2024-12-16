@@ -1316,19 +1316,10 @@ class TestSystemSetup:
         rpmdb.rpmdb_host.expand_query.return_value = 'host_dbpath'
         rpmdb.has_rpm.return_value = True
         mock_RpmDataBase.return_value = rpmdb
-        with open('../data/rpm_ql_dump_glibc', 'r') as glibc:
-            rpm_ql_dump_glibc = glibc.read()
         self.xml_state.get_system_files_ignore_packages = Mock(
-            return_value=['rpm', 'yast', 'zypp']
+            return_value=['rpm', 'zypper']
         )
-
-        def command_call(args):
-            if args[3] == '-qa':
-                return Mock(output='glibc\nzypper\n')
-            else:
-                return Mock(output=rpm_ql_dump_glibc)
-
-        mock_command_run.side_effect = command_call
+        mock_command_run.return_value = Mock(output='glibc\nzypper\n')
 
         with patch('builtins.open') as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
@@ -1336,70 +1327,19 @@ class TestSystemSetup:
             result = self.setup.export_flake_pilot_system_file_list(
                 'target_dir', 'system_files'
             )
-            assert mock_open.call_args_list == [
-                call('target_dir/system_files', 'w', encoding='utf-8'),
-                call('target_dir/system_files.libs', 'w', encoding='utf-8')
-            ]
+            mock_open.assert_called_once_with(
+                'target_dir/system_files', 'w', encoding='utf-8'
+            )
             assert file_handle.write.call_args_list == [
-                call('/etc/bindresvport.blacklist\n'),
-                call('/etc/gai.conf\n'),
-                call('/etc/ld.so.cache\n'),
-                call('/etc/ld.so.conf\n'),
-                call('/etc/nsswitch.conf\n'),
-                call('/etc/rpc\n'),
-                call('/sbin/ldconfig\n'),
-                call('/usr/bin/gencat\n'),
-                call('/usr/bin/getconf\n'),
-                call('/usr/bin/getent\n'),
-                call('/usr/bin/iconv\n'),
-                call('/usr/bin/ld.so\n'),
-                call('/usr/bin/ldd\n'),
-                call('/usr/bin/locale\n'),
-                call('/usr/bin/localedef\n'),
-                call('/usr/sbin/iconvconfig\n'),
-                call('/usr/share/doc/packages/glibc\n'),
-                call('/usr/share/licenses/glibc\n'),
-                call('/usr/share/licenses/glibc/LICENSES\n'),
-                call('/var/cache/ldconfig\n'),
-                call('/lib64/ld-linux-x86-64.so.2\n'),
-                call('/lib64/ld-lsb-x86-64.so.3\n'),
-                call('/lib64/libBrokenLocale.so.1\n'),
-                call('/lib64/libanl.so.1\n'),
-                call('/lib64/libc.so.6\n'),
-                call('/lib64/libc_malloc_debug.so.0\n'),
-                call('/lib64/libdl.so.2\n'),
-                call('/lib64/libm.so.6\n'),
-                call('/lib64/libmvec.so.1\n'),
-                call('/lib64/libnss_compat.so.2\n'),
-                call('/lib64/libnss_db.so.2\n'),
-                call('/lib64/libnss_dns.so.2\n'),
-                call('/lib64/libnss_files.so.2\n'),
-                call('/lib64/libnss_hesiod.so.2\n'),
-                call('/lib64/libpthread.so.0\n'),
-                call('/lib64/libresolv.so.2\n'),
-                call('/lib64/librt.so.1\n'),
-                call('/lib64/libthread_db.so.1\n'),
-                call('/lib64/libutil.so.1\n'),
-                call('/usr/lib/getconf/POSIX_V6_LP64_OFF64\n'),
-                call('/usr/lib/getconf/POSIX_V7_LP64_OFF64\n'),
-                call('/usr/lib/getconf/XBS5_LP64_OFF64\n')
+                call('set -e\n'), call('rpm --noghost -ql glibc\n')
             ]
         assert result == 'target_dir/system_files'
-        assert mock_command_run.call_args_list == [
-            call(
-                [
-                    'rpm', '--root', 'root_dir',
-                    '-qa', '--dbpath', 'image_dbpath'
-                ]
-            ),
-            call(
-                [
-                    'rpm', '--root', 'root_dir',
-                    '-ql', '--noghost', '--dump', 'glibc',
-                    '--dbpath', 'image_dbpath'
-                ]
-            )
-        ]
+        mock_command_run.assert_called_once_with(
+            [
+                'rpm', '--root', 'root_dir',
+                '-qa', '--qf', '%{NAME}\n', '--dbpath', 'image_dbpath'
+            ]
+        )
 
     @patch('kiwi.system.setup.Command.run')
     @patch('kiwi.system.setup.RpmDataBase')
