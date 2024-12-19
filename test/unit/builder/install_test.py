@@ -163,8 +163,8 @@ class TestInstallImageBuilder:
 
         self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')
 
-        self.checksum.md5.assert_called_once_with(
-            'temp-squashfs/result-image.md5'
+        self.checksum.sha256.assert_called_once_with(
+            'temp-squashfs/result-image.sha256'
         )
         mock_copy.assert_called_once_with(
             'root_dir/boot/initrd-kernel_version',
@@ -296,7 +296,7 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.Checksum')
     @patch('kiwi.builder.install.Compress')
     def test_create_install_pxe_no_kernel_found(
-        self, mock_compress, mock_md5, mock_command, mock_Temporary
+        self, mock_compress, mock_sha256, mock_command, mock_Temporary
     ):
         self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
@@ -311,7 +311,7 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.Compress')
     @patch('kiwi.builder.install.os.symlink')
     def test_create_install_pxe_no_hypervisor_found(
-        self, mock_symlink, mock_compress, mock_md5, mock_command,
+        self, mock_symlink, mock_compress, mock_sha256, mock_command,
         mock_Temporary
     ):
         self.firmware.bios_mode.return_value = False
@@ -331,7 +331,7 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.os.chmod')
     def test_create_install_pxe_archive(
         self, mock_chmod, mock_symlink, mock_copy, mock_compress,
-        mock_md5, mock_archive, mock_command, mock_Temporary
+        mock_sha256, mock_archive, mock_command, mock_Temporary
     ):
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
 
@@ -339,7 +339,7 @@ class TestInstallImageBuilder:
         mock_archive.return_value = archive
 
         checksum = mock.Mock()
-        mock_md5.return_value = checksum
+        mock_sha256.return_value = checksum
 
         compress = mock.Mock()
         src = 'target_dir/result-image.x86_64-1.2.3.raw'
@@ -357,11 +357,11 @@ class TestInstallImageBuilder:
         assert mock_command.call_args_list[0] == call(
             ['mv', src, 'tmpdir/result-image.x86_64-1.2.3.xz']
         )
-        mock_md5.assert_called_once_with(
+        mock_sha256.assert_called_once_with(
             'target_dir/result-image.x86_64-1.2.3.raw'
         )
-        checksum.md5.assert_called_once_with(
-            'tmpdir/result-image.x86_64-1.2.3.md5'
+        checksum.sha256.assert_called_once_with(
+            'tmpdir/result-image.x86_64-1.2.3.sha256'
         )
         assert m_open.call_args_list == [
             call('initrd_dir/config.vmxsystem', 'w'),

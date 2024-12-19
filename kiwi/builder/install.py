@@ -119,8 +119,8 @@ class InstallImageBuilder:
         self.squashed_diskname = ''.join(
             [xml_state.xml_data.get_name(), '.raw']
         )
-        self.md5name = ''.join(
-            [xml_state.xml_data.get_name(), '.md5']
+        self.sha256name = ''.join(
+            [xml_state.xml_data.get_name(), '.sha256']
         )
         self.xz_options = custom_args['xz_options'] if custom_args \
             and 'xz_options' in custom_args else None
@@ -174,7 +174,7 @@ class InstallImageBuilder:
             prefix='kiwi_install_squashfs.', path=self.target_dir
         ).new_dir()
         checksum = Checksum(self.diskname)
-        checksum.md5(self.squashed_contents.name + '/' + self.md5name)
+        checksum.sha256(self.squashed_contents.name + '/' + self.sha256name)
 
         # the system image name is stored in a config file
         self._write_install_image_info_to_iso_image()
@@ -291,14 +291,14 @@ class InstallImageBuilder:
 
         # the system image transfer is checked against a checksum
         log.info('Creating disk image checksum')
-        pxe_md5_filename = ''.join(
+        pxe_sha256_filename = ''.join(
             [
                 self.pxe_dir.name, '/',
-                self.pxename, '.md5'
+                self.pxename, '.sha256'
             ]
         )
         checksum = Checksum(self.diskname)
-        checksum.md5(pxe_md5_filename)
+        checksum.sha256(pxe_sha256_filename)
 
         # the install image name is stored in a config file
         if self.initrd_system == 'kiwi':

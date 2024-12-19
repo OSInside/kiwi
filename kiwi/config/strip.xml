@@ -179,7 +179,6 @@
         <file name="lvextend"/>
         <file name="lvm"/>
         <file name="lvresize"/>
-        <file name="md5sum"/>
         <file name="mdadm"/>
         <file name="mdmon"/>
         <file name="mkdir"/>

@@ -81,7 +81,7 @@ class TestContainerBuilder:
             )
 
     @patch('os.path.exists')
-    def test_init_derived_base_image_md5_not_existing(self, mock_exists):
+    def test_init_derived_base_image_sha256_not_existing(self, mock_exists):
         exists_results = [False, False, True]
 
         def side_effect(self):
@@ -210,7 +210,7 @@ class TestContainerBuilder:
         container.result = mock.Mock()
 
         checksum = mock.Mock()
-        checksum.md5 = mock.Mock(
+        checksum.sha256 = mock.Mock(
             return_value='checksumvalue'
         )
         mock_checksum.return_value = checksum
@@ -223,7 +223,7 @@ class TestContainerBuilder:
 
         mock_checksum.assert_called_once_with('root_dir/image/imported_root')
         checksum.matches.assert_called_once_with(
-            'checksumvalue', 'root_dir/image/imported_root.md5'
+            'checksumvalue', 'root_dir/image/imported_root.sha256'
         )
 
         mock_image.new.assert_called_once_with(
@@ -272,10 +272,10 @@ class TestContainerBuilder:
         )
 
     @patch('kiwi.builder.container.Checksum')
-    def test_create_derived_with_different_md5(self, mock_md5):
-        md5 = mock.Mock()
-        md5.md5.return_value = 'diffchecksumvalue'
-        mock_md5.return_value = md5
+    def test_create_derived_with_different_sha256(self, mock_sha256):
+        sha256 = mock.Mock()
+        sha256.sha256.return_value = 'diffchecksumvalue'
+        mock_sha256.return_value = sha256
 
         m_open = mock_open(read_data='checksum data\n')
         with patch('builtins.open', m_open, create=True):
@@ -286,7 +286,7 @@ class TestContainerBuilder:
                 container.create()
 
     @patch('kiwi.builder.container.Checksum')
-    def test_create_derived_fail_open(self, mock_md5):
+    def test_create_derived_fail_open(self, mock_sha256):
         with patch('builtins.open') as m_open:
             m_open = mock_open()
             m_open.return_value.__enter__.side_effect = Exception(
