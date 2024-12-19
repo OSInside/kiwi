@@ -186,4 +186,4 @@ class RootImportBase:
 
     def _make_checksum(self, image):
         checksum = Checksum(image)
-        checksum.md5(''.join([image, '.md5']))
+        checksum.sha256(''.join([image, '.sha256']))

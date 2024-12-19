@@ -21,6 +21,7 @@ import hashlib
 import encodings.ascii as encoding
 
 # project
+from kiwi.api_helper import decommissioned
 from kiwi.utils.compress import Compress
 from kiwi.utils.primes import factors
 
@@ -70,24 +71,9 @@ class Checksum:
                 return True
         return False
 
+    @decommissioned
     def md5(self, filename=None):
-        """
-        Create md5 checksum
-
-        :param str filename: filename for checksum
-
-        :return: checksum
-
-        :rtype: str
-        """
-        md5_checksum = self._calculate_hash_hexdigest(
-            hashlib.md5(), self.source_filename
-        )
-        if filename:
-            self._create_checksum_file(
-                md5_checksum, filename
-            )
-        return md5_checksum
+        pass  # pragma: no cover
 
     def sha256(self, filename=None):
         """
@@ -122,7 +108,7 @@ class Checksum:
                 os.path.getsize(compress.uncompressed_filename)
             )
             checksum = self._calculate_hash_hexdigest(
-                hashlib.md5(), compress.uncompressed_filename
+                hashlib.sha256(), compress.uncompressed_filename
             )
         else:
             blocks = self._block_list(
