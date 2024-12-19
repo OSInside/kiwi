@@ -713,7 +713,7 @@ div {
     k.oem-skip-verify.content = xsd:boolean
     k.oem-skip-verify.attlist = empty
     k.oem-skip-verify =
-        ## For oemboot driven images: do not perform the md5
+        ## For oemboot driven images: do not perform the checksum
         ## verification process, true/false
         element oem-skip-verify {
             k.oem-skip-verify.attlist,
@@ -1130,7 +1130,7 @@ div {
         ## Alias name to be used for this repository. This is an
         ## optional free-form text restricted to characters from the
         ## POSIX standard. If not set the source attribute
-        ## value is used and builds the alias name by running a md5 digest
+        ## value is used and builds the alias name by running a checksum digest
         ## of the defined URI of the repository. An alias name should be
         ## set if the source argument doesn't really explain what this
         ## repository contains.

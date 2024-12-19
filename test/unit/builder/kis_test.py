@@ -127,8 +127,8 @@ class TestKisBuilder:
             'myimage.fs', 'myimage'
         )
         compress.xz.assert_called_once_with(None)
-        checksum.md5.assert_called_once_with(
-            'target_dir/some-image.x86_64-1.2.3.md5'
+        checksum.sha256.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.sha256'
         )
         self.boot_image_task.prepare.assert_called_once_with()
         self.setup.export_modprobe_setup.assert_called_once_with(

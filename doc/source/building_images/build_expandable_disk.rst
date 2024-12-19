@@ -183,18 +183,18 @@ a target system:
           scp pxeboot.{exc_image_base_name_disk}.x86_64-{exc_image_version}.initrd PXE_SERVER_IP:/srv/tftpboot/boot/initrd
           scp pxeboot.{exc_image_base_name_disk}.x86_64-{exc_image_version}.kernel PXE_SERVER_IP:/srv/tftpboot/boot/linux
 
-3. Copy the disk image, MD5 file, system kernel, initrd and bootoptions to
+3. Copy the disk image, SHA256 file, system kernel, initrd and bootoptions to
    the PXE boot server.
 
    Activation of the deployed system is done via `kexec` of the kernel
    and initrd provided here.
 
-   a) Copy system image and MD5 checksum:
+   a) Copy system image and SHA256 checksum:
 
       .. code:: bash
 
           scp {exc_image_base_name_disk}.x86_64-{exc_image_version}.xz PXE_SERVER_IP:/srv/tftpboot/image/
-          scp {exc_image_base_name_disk}.x86_64-{exc_image_version}.md5 PXE_SERVER_IP:/srv/tftpboot/image/
+          scp {exc_image_base_name_disk}.x86_64-{exc_image_version}.sha256 PXE_SERVER_IP:/srv/tftpboot/image/
 
    b) Copy kernel, initrd and bootoptions used for booting the system via kexec:
 
@@ -224,7 +224,7 @@ a target system:
 
    The location of the image is specified as a source URI that can point
    to any location supported by the `curl` command. {kiwi} uses `curl` to fetch
-   the data from this URI. This means that the image, MD5 file, system kernel
+   the data from this URI. This means that the image, checksum file, system kernel
    and initrd can be fetched from any server, and they do not need to be stored
    on the `PXE_SERVER`.
 

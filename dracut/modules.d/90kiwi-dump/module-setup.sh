@@ -21,7 +21,7 @@ install() {
     declare moddir=${moddir}
     declare systemdutildir=${systemdutildir}
     inst_multiple \
-        tr lsblk dd md5sum head pv kexec basename awk kpartx
+        tr lsblk dd sha256sum head pv kexec basename awk kpartx
 
     inst_hook pre-udev 30 "${moddir}/kiwi-installer-genrules.sh"
 

@@ -56,9 +56,9 @@ class TestChecksum:
 
     @patch('kiwi.path.Path.which')
     @patch('kiwi.utils.checksum.Compress')
-    @patch('hashlib.md5')
+    @patch('hashlib.sha256')
     @patch('os.path.getsize')
-    def test_md5_xz(self, mock_size, mock_md5, mock_compress, mock_which):
+    def test_sha256_xz(self, mock_size, mock_sha256, mock_compress, mock_which):
         checksum = Mock
         checksum.uncompressed_filename = 'some-file-uncompressed'
         mock_which.return_value = 'factor'
@@ -75,11 +75,11 @@ class TestChecksum:
             return_value='xz'
         )
         mock_size.return_value = 1343225856
-        mock_md5.return_value = digest
+        mock_sha256.return_value = digest
         mock_compress.return_value = compress
 
         with patch('builtins.open', self.m_open, create=True):
-            self.checksum.md5('outfile')
+            self.checksum.sha256('outfile')
 
         assert self.m_open.call_args_list == [
             call('some-file', 'rb'),
@@ -92,10 +92,10 @@ class TestChecksum:
 
     @patch('kiwi.path.Path.which')
     @patch('kiwi.utils.checksum.Compress')
-    @patch('hashlib.md5')
+    @patch('hashlib.sha256')
     @patch('os.path.getsize')
-    def test_md5(
-        self, mock_size, mock_md5, mock_compress, mock_which
+    def test_sha256_file(
+        self, mock_size, mock_sha256, mock_compress, mock_which
     ):
         mock_which.return_value = 'factor'
         compress = Mock()
@@ -108,11 +108,11 @@ class TestChecksum:
             return_value=None
         )
         mock_size.return_value = 1343225856
-        mock_md5.return_value = digest
+        mock_sha256.return_value = digest
         mock_compress.return_value = compress
 
         with patch('builtins.open', self.m_open, create=True):
-            self.checksum.md5('outfile')
+            self.checksum.sha256('outfile')
 
         assert self.m_open.call_args_list == [
             call('some-file', 'rb'),
@@ -165,15 +165,3 @@ class TestChecksum:
 
         with patch('builtins.open', self.m_open, create=True):
             assert self.checksum.sha256() == digest.hexdigest.return_value
-
-    @patch('hashlib.md5')
-    def test_md5_plain(self, mock_md5):
-        digest = Mock()
-        digest.block_size = 1024
-        digest.hexdigest = Mock(
-            return_value='sum'
-        )
-        mock_md5.return_value = digest
-
-        with patch('builtins.open', self.m_open, create=True):
-            assert self.checksum.md5() == digest.hexdigest.return_value

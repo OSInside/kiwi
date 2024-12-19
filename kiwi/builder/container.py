@@ -55,7 +55,7 @@ class ContainerBuilder:
         self.requested_container_type = xml_state.get_build_type_name()
         self.delta_root = xml_state.build_type.get_delta_root()
         self.base_image = None
-        self.base_image_md5 = None
+        self.base_image_sha256 = None
         self.ensure_empty_tmpdirs = True
 
         self.container_config['xz_options'] = \
@@ -67,11 +67,11 @@ class ContainerBuilder:
         if xml_state.get_derived_from_image_uri() and not self.delta_root:
             # The base image(all derived imports) is expected to be unpacked
             # by the kiwi prepare step and stored inside of the root_dir/image
-            # directory. In addition a md5 file of the image is expected too
+            # directory. In addition a sha256 file of the image is expected too
             self.base_image = Defaults.get_imported_root_image(
                 self.root_dir
             )
-            self.base_image_md5 = ''.join([self.base_image, '.md5'])
+            self.base_image_sha256 = ''.join([self.base_image, '.sha256'])
 
             if not os.path.exists(self.base_image):
                 raise KiwiContainerBuilderError(
@@ -79,10 +79,10 @@ class ContainerBuilder:
                         self.base_image
                     )
                 )
-            if not os.path.exists(self.base_image_md5):
+            if not os.path.exists(self.base_image_sha256):
                 raise KiwiContainerBuilderError(
-                    'Base image MD5 sum {0} not found at'.format(
-                        self.base_image_md5
+                    'Base image SHA256 sum {0} not found at'.format(
+                        self.base_image_sha256
                     )
                 )
 
@@ -131,7 +131,7 @@ class ContainerBuilder:
             container_setup.setup()
         else:
             checksum = Checksum(self.base_image)
-            if not checksum.matches(checksum.md5(), self.base_image_md5):
+            if not checksum.matches(checksum.sha256(), self.base_image_sha256):
                 raise KiwiContainerBuilderError(
                     'base image file {0} checksum validation failed'.format(
                         self.base_image
