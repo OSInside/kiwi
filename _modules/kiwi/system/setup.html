@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.system.setup &mdash; KIWI NG 10.2.4 documentation</title>
+  <title>kiwi.system.setup &mdash; KIWI NG 10.2.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2c8206f1"></script>
+      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -2701,84 +2701,21 @@
             <span class="k">return</span> <span class="n">section_content</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_export_rpm_flake_pilot_system_file_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Export rpm packages system file list for flake-pilot&#39;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Export rpm system files script for flake-pilot&#39;</span><span class="p">)</span>
         <span class="n">dbpath_option</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;--dbpath&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rpm_database_location</span><span class="p">()</span>
         <span class="p">]</span>
         <span class="n">skip_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_system_files_ignore_packages</span><span class="p">()</span>
         <span class="n">query_call</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="p">[</span><span class="s1">&#39;rpm&#39;</span><span class="p">,</span> <span class="s1">&#39;--root&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;-qa&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">dbpath_option</span>
+            <span class="p">[</span>
+                <span class="s1">&#39;rpm&#39;</span><span class="p">,</span> <span class="s1">&#39;--root&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;-qa&#39;</span><span class="p">,</span> <span class="s1">&#39;--qf&#39;</span><span class="p">,</span> <span class="s1">&#39;%</span><span class="si">{NAME}</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="p">]</span> <span class="o">+</span> <span class="n">dbpath_option</span>
         <span class="p">)</span>
-        <span class="n">libcheck</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;/lib&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/lib&#39;</span><span class="p">,</span> <span class="s1">&#39;/lib64&#39;</span><span class="p">,</span> <span class="s1">&#39;/usr/lib64&#39;</span>
-        <span class="p">]</span>
-        <span class="n">packmeta</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">query_call</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-            <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">for</span> <span class="n">skip_package</span> <span class="ow">in</span> <span class="n">skip_list</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">skip_package</span><span class="p">):</span>
-                    <span class="n">skip</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">break</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">skip</span> <span class="ow">and</span> <span class="n">package</span><span class="p">:</span>
-                <span class="n">package</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="n">packmeta</span><span class="p">[</span><span class="n">package</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="n">query_call</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="s1">&#39;rpm&#39;</span><span class="p">,</span> <span class="s1">&#39;--root&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;-ql&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;--noghost&#39;</span><span class="p">,</span> <span class="s1">&#39;--dump&#39;</span><span class="p">,</span> <span class="n">package</span>
-                    <span class="p">]</span> <span class="o">+</span> <span class="n">dbpath_option</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">query_call</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-                    <span class="n">meta</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
-                        <span class="n">islib</span> <span class="o">=</span> <span class="kc">False</span>
-                        <span class="k">for</span> <span class="n">libpath</span> <span class="ow">in</span> <span class="n">libcheck</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">meta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">libpath</span><span class="p">):</span>
-                                <span class="n">islib</span> <span class="o">=</span> <span class="kc">True</span>
-                                <span class="k">break</span>
-                        <span class="n">packmeta</span><span class="p">[</span><span class="n">package</span><span class="p">][</span><span class="n">meta</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s1">&#39;islib&#39;</span><span class="p">:</span> <span class="n">islib</span><span class="p">,</span>
-                            <span class="s1">&#39;isdoc&#39;</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">meta</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
-                            <span class="s1">&#39;islink&#39;</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">meta</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;X&#39;</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
-                            <span class="s1">&#39;linkname&#39;</span><span class="p">:</span> <span class="n">meta</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
-                        <span class="p">}</span>
-
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">systemfiles</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packmeta</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">packmeta</span><span class="p">[</span><span class="n">package</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">meta</span> <span class="o">=</span> <span class="n">packmeta</span><span class="p">[</span><span class="n">package</span><span class="p">][</span><span class="n">file</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;isdoc&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;islib&#39;</span><span class="p">]:</span>
-                        <span class="n">systemfiles</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">.libs&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">systemlibs</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packmeta</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">packmeta</span><span class="p">[</span><span class="n">package</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">meta</span> <span class="o">=</span> <span class="n">packmeta</span><span class="p">[</span><span class="n">package</span><span class="p">][</span><span class="n">file</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;islib&#39;</span><span class="p">]:</span>
-                        <span class="k">if</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;islink&#39;</span><span class="p">]:</span>
-                            <span class="n">systemlibs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_link_target</span><span class="p">(</span><span class="n">packmeta</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
-                            <span class="n">systemlibs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}{</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_has_link_target</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">packages</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]],</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;ld-linux&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="c1"># exceptional case. /lib.../ld-linux-* could be a</span>
-            <span class="c1"># symlink to /usr/bin/ld.so but only providing</span>
-            <span class="c1"># /usr/bin/ld.so is not enough to call programs.</span>
-            <span class="c1"># Thus in this case we indicate the file has no link</span>
-            <span class="c1"># target such that the later pilot sync takes it</span>
-            <span class="c1"># into account.</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">[</span><span class="n">package</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="n">meta</span> <span class="o">=</span> <span class="n">packages</span><span class="p">[</span><span class="n">package</span><span class="p">][</span><span class="n">file</span><span class="p">]</span>
-                <span class="n">base_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-                <span class="n">base_linkname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;linkname&#39;</span><span class="p">])</span>
-                <span class="k">if</span> <span class="n">meta</span><span class="p">[</span><span class="s1">&#39;islink&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">base_filename</span> <span class="o">==</span> <span class="n">base_linkname</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">systemfiles</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;set -e</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">query_call</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">package</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_list</span><span class="p">:</span>
+                    <span class="n">systemfiles</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;rpm --noghost -ql </span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_export_rpm_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Export rpm packages metadata&#39;</span><span class="p">)</span>
