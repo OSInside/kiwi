@@ -135,21 +135,11 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 ['btrfs', 'subvolume', 'create', root_volume]
             )
         if self.custom_args['root_is_snapshot']:
-            snapshot_volume = self.mountpoint + \
-                f'/{self.root_volume_name}/.snapshots'
-            Command.run(
-                ['btrfs', 'subvolume', 'create', snapshot_volume]
-            )
-            os.chmod(snapshot_volume, 0o700)
-            Path.create(snapshot_volume + '/1')
-            snapshot = self.mountpoint + \
-                f'/{self.root_volume_name}/.snapshots/1/snapshot'
-            Command.run(
-                ['btrfs', 'subvolume', 'create', snapshot]
-            )
-            self._set_default_volume(
-                f'{self.root_volume_name}/.snapshots/1/snapshot'
-            )
+            Command.run([
+                '/usr/lib/snapper/installation-helper', '--root-prefix',
+                os.path.join(self.mountpoint, self.root_volume_name),
+                '--step', 'filesystem'
+            ])
             snapshot = self.mountpoint + \
                 f'/{self.root_volume_name}/.snapshots/1/snapshot'
             # Mount /{some-name}/.snapshots as /.snapshots inside the root
@@ -413,14 +403,12 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         if self.toplevel_mount:
             sync_target = self.get_mountpoint()
             if self.custom_args['root_is_snapshot']:
-                self._create_snapshot_info(
-                    ''.join(
-                        [
-                            self.mountpoint,
-                            f'/{self.root_volume_name}/.snapshots/1/info.xml'
-                        ]
-                    )
-                )
+                Command.run([
+                    '/usr/lib/snapper/installation-helper', '--root-prefix',
+                    os.path.join(self.mountpoint, self.root_volume_name),
+                    '--step', 'config', '--description',
+                    'first root filesystem'
+                ])
             data = DataSync(self.root_dir, sync_target)
             data.sync_data(
                 options=Defaults.get_sync_options(), exclude=exclude
@@ -438,6 +426,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         root_is_readonly_snapshot = \
             self.custom_args['root_is_readonly_snapshot']
         if root_is_snapshot and root_is_readonly_snapshot:
+            # TODO we could call snapper modify here instead
             sync_target = self.get_mountpoint()
             Command.run(
                 ['btrfs', 'property', 'set', sync_target, 'ro', 'true']
@@ -502,13 +491,6 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             'Failed to find btrfs volume: %s' % default_volume
         )
 
-    def _xml_pretty(self, toplevel_element):
-        xml_data_unformatted = ElementTree.tostring(
-            toplevel_element, 'utf-8'
-        )
-        xml_data_domtree = minidom.parseString(xml_data_unformatted)
-        return xml_data_domtree.toprettyxml(indent="    ")
-
     def _create_snapper_quota_configuration(self):
         root_path = os.sep.join(
             [
@@ -516,61 +498,14 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 f'{self.root_volume_name}/.snapshots/1/snapshot'
             ]
         )
-        snapper_default_conf = Defaults.get_snapper_config_template_file(
-            root_path
+        # snapper requires an extra parent qgroup to operate with quotas
+        Command.run(
+            ['btrfs', 'qgroup', 'create', '1/0', self.mountpoint]
         )
-        if snapper_default_conf:
-            # snapper requires an extra parent qgroup to operate with quotas
-            Command.run(
-                ['btrfs', 'qgroup', 'create', '1/0', self.mountpoint]
-            )
-            config_file = self._set_snapper_sysconfig_file(root_path)
-            if not os.path.exists(config_file):
-                shutil.copyfile(snapper_default_conf, config_file)
-            Command.run([
-                'chroot', root_path, 'snapper', '--no-dbus', 'set-config',
-                'QGROUP=1/0'
-            ])
-
-    @staticmethod
-    def _set_snapper_sysconfig_file(root_path):
-        sysconf_file = SysConfig(
-            os.sep.join([root_path, 'etc/sysconfig/snapper'])
-        )
-        if not sysconf_file.get('SNAPPER_CONFIGS') or \
-           len(sysconf_file['SNAPPER_CONFIGS'].strip('\"')) == 0:
-
-            sysconf_file['SNAPPER_CONFIGS'] = '"root"'
-            sysconf_file.write()
-        elif len(sysconf_file['SNAPPER_CONFIGS'].split()) > 1:
-            raise KiwiVolumeManagerSetupError(
-                'Unsupported SNAPPER_CONFIGS value: {0}'.format(
-                    sysconf_file['SNAPPER_CONFIGS']
-                )
-            )
-        return os.sep.join([
-            root_path, 'etc/snapper/configs',
-            sysconf_file['SNAPPER_CONFIGS'].strip('\"')]
-        )
-
-    def _create_snapshot_info(self, filename):
-        date_info = datetime.datetime.now()
-        snapshot = ElementTree.Element('snapshot')
-
-        snapshot_type = ElementTree.SubElement(snapshot, 'type')
-        snapshot_type.text = 'single'
-
-        snapshot_number = ElementTree.SubElement(snapshot, 'num')
-        snapshot_number.text = '1'
-
-        snapshot_description = ElementTree.SubElement(snapshot, 'description')
-        snapshot_description.text = 'first root filesystem'
-
-        snapshot_date = ElementTree.SubElement(snapshot, 'date')
-        snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
-
-        with open(filename, 'w') as snapshot_info_file:
-            snapshot_info_file.write(self._xml_pretty(snapshot))
+        Command.run([
+            'snapper', '--no-dbus', "--root", root_path, 'set-config',
+            'QGROUP=1/0'
+        ])
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.toplevel_mount:
