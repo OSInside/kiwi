@@ -1152,14 +1152,15 @@ div {
         ## or false, the default is false.
         attribute imageonly { xsd:boolean }
     k.repository.repository_gpgcheck.attribute =
-        ## Specify whether or not this specific repository is configured to
-        ## to run repository signature validation. If not set, no value is
-        ## appended into the repository configuration file.
+        ## Specify whether or not this specific repository values
+        ## the result of the repository signature validation.
+        ## The default value is false.
         attribute repository_gpgcheck { xsd:boolean }
     k.repository.package_gpgcheck.attribute =
-        ## Specify whether or not this specific repository is configured
-        ## to run package signature validation. If not set, no value is
-        ## appended into the repository configuration file.
+        ## Specify whether or not this specific repository
+        ## values the result of the package signature validation
+        ## for each package taken from this repository. The default
+        ## value is false.
         attribute package_gpgcheck { xsd:boolean }
     k.repository.customize.attribute =
         ## Specify the path to a customization script.
