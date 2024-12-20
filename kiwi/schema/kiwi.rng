@@ -1775,17 +1775,18 @@ or false, the default is false.</a:documentation>
     </define>
     <define name="k.repository.repository_gpgcheck.attribute">
       <attribute name="repository_gpgcheck">
-        <a:documentation>Specify whether or not this specific repository is configured to
-to run repository signature validation. If not set, no value is
-appended into the repository configuration file.</a:documentation>
+        <a:documentation>Specify whether or not this specific repository values
+the result of the repository signature validation.
+The default value is false.</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>
     <define name="k.repository.package_gpgcheck.attribute">
       <attribute name="package_gpgcheck">
-        <a:documentation>Specify whether or not this specific repository is configured
-to run package signature validation. If not set, no value is
-appended into the repository configuration file.</a:documentation>
+        <a:documentation>Specify whether or not this specific repository
+values the result of the package signature validation
+for each package taken from this repository. The default
+value is false.</a:documentation>
         <data type="boolean"/>
       </attribute>
     </define>

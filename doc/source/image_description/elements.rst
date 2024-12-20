@@ -1413,13 +1413,19 @@ imageonly="true|false"
   the value is set to false
 
 repository_gpgcheck="true|false"
-  Specifies whether or not this specific repository is configured to
-  to run repository signature validation. If not set, no value is
-  appended into the repository configuration file. If set the
-  relevant key information needs to be provided on the {kiwi}
-  commandline using the `--signing-key` option or via the `<signing>`
-  element as part of the `<repository><source>` setting in the
-  image description.
+  Specifies whether or not this specific repository values the result
+  of the repository signature validation. If not set, the default is
+  `false`. If set the relevant key information needs to be provided
+  on the {kiwi} commandline using the `--signing-key` option or via
+  the `<signing>` element as part of the `<repository><source>`
+  setting in the image description.
+
+package_gpgcheck="true|false"
+  Specify whether or not this specific repository values the result
+  of the package signature validation for each package taken from
+  this repository. If not set, the default value is false.
+  If set, the same key information requirements as for the
+  `repository_gpgcheck` attribute applies.
 
 customize="/path/to/custom_script"
   Custom script hook which is invoked with the repo file as parameter

@@ -58,13 +58,13 @@ following optional attributes:
   not specified, {kiwi} generates an alias name using hex representation from
   uuid4.
 
-- `repository_gpgcheck`: Specifies whether the repository is
-  configured to perform repository signature validation. If not set, the
-  package manager's default is used.
+- `repository_gpgcheck`: Specify whether or not this specific repository
+  values the result of the repository signature validation.
+  The default value is `false`.
 
-- `package_gpgcheck`: Boolean value that specifies whether each package's
-  GPG signature is verified. If omitted, the package manager's default
-  is used.
+- `package_gpgcheck`: Specify whether or not this specific repository
+  values the result of the package signature validation for each
+  package taken from this repository. The default value is `false`.
 
 - `components`: Distribution components used for `deb` repositories. Default is `main`.
 
