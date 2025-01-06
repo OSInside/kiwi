@@ -141,9 +141,7 @@ class TestBootLoaderZipl:
                     '-i', 'bootpath/kernel-filename',
                     '-r', 'bootpath/initrd-name',
                     '-p', temporary.name.replace('system_root_mount', ''),
-                    '--cert', '/path/to/DigiCertCA.crt',
                     '--no-verify',
-                    '--cert', '/path/to/ibm-z-host-key-signing.crt',
                     '-k', '/path/to/host.crt',
                     '--crl', '/path/to/revocation-list.crl',
                 ]
@@ -159,6 +157,7 @@ class TestBootLoaderZipl:
             )
         ]
         assert mock_os_unlink.call_args_list == [
+            call('system_root_mount/bootpath/kernel-filename.cc'),
             call('system_root_mount/bootpath/kernel-filename'),
             call('system_root_mount/bootpath/initrd-name')
         ]

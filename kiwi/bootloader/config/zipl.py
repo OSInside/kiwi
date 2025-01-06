@@ -81,6 +81,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
             f'{boot_path}/{kernel_info.initrd_name}'
 
         host_key_certificates = self.xml_state.get_host_key_certificates()
+        cc_boot_image = f'{self.custom_args["kernel"]}.cc'
         if host_key_certificates:
             with Temporary(
                 path=self.root_mount.mountpoint, prefix='kiwi_zipl_parmfile_'
@@ -90,11 +91,10 @@ class BootLoaderZipl(BootLoaderSpecBase):
                 genprotimg_init = [
                     'chroot', root_dir, 'genprotimg',
                     '--offline', '--verbose',
-                    '-o', f'{self.custom_args["kernel"]}.cc',
+                    '-o', cc_boot_image,
                     '-i', self.custom_args['kernel'],
                     '-r', self.custom_args['initrd'],
-                    '-p', hkd_parm_file.name.replace(root_dir, ''),
-                    '--cert', host_key_certificates[0]['hkd_ca_cert']
+                    '-p', hkd_parm_file.name.replace(root_dir, '')
                 ]
                 # verify all host key documents individually and call
                 # genprotimg with --no-verify afterwards. This is done
@@ -102,6 +102,10 @@ class BootLoaderZipl(BootLoaderSpecBase):
                 # multiple signing keys
                 for host_key_certificate in host_key_certificates:
                     genprotimg_host_key_check = copy.deepcopy(genprotimg_init)
+                    genprotimg_host_key_check.append('--cert')
+                    genprotimg_host_key_check.append(
+                        host_key_certificates[0]['hkd_ca_cert']
+                    )
                     genprotimg_host_key_check.append('--cert')
                     genprotimg_host_key_check.append(
                         host_key_certificate['hkd_sign_cert']
@@ -118,12 +122,11 @@ class BootLoaderZipl(BootLoaderSpecBase):
                         )
                     )
                     Command.run(genprotimg_host_key_check)
+                    os.unlink(f'{root_dir}/{cc_boot_image}')
                 # final call
                 genprotimg = genprotimg_init
                 genprotimg.append('--no-verify')
                 for host_key_certificate in host_key_certificates:
-                    genprotimg.append('--cert')
-                    genprotimg.append(host_key_certificate['hkd_sign_cert'])
                     for host_key in host_key_certificate.get('hkd_cert'):
                         genprotimg.append('-k')
                         genprotimg.append(host_key)
@@ -133,8 +136,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
                 Command.run(genprotimg)
 
             self.custom_args['secure_linux'] = True
-            self.custom_args['secure_image_file'] = \
-                f'{self.custom_args["kernel"]}.cc'
+            self.custom_args['secure_image_file'] = cc_boot_image
             os.unlink(f'{root_dir}/{self.custom_args["kernel"]}')
             os.unlink(f'{root_dir}/{self.custom_args["initrd"]}')
             self.custom_args['kernel'] = ''
