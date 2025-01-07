@@ -28,7 +28,8 @@
             btrfs_root_is_readonly_snapshot="false"
             btrfs_root_is_subvolume="true"
             btrfs_quota_groups="true"
-            bootpartition="false"
+            bootpartition="true"
+            bootfilesystem="ext3"
             format="qcow2"
         >
             <oemconfig>
