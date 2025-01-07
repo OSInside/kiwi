@@ -21,9 +21,6 @@
     <preferences profiles="IBM-Cloud-Standard">
         <type
             image="oem"
-            luks="random"
-            luks_pbkdf="pbkdf2"
-            luks_version="luks2"
             filesystem="btrfs"
             kernelcmdline="systemd.show_status=yes console=ttyS0,115200 console=tty0 net.ifnames=0 \$ignition_firstboot ignition.platform.id=qemu rd.debug"
             devicepersistency="by-uuid"
@@ -31,14 +28,9 @@
             btrfs_root_is_readonly_snapshot="false"
             btrfs_root_is_subvolume="true"
             btrfs_quota_groups="true"
-            bootpartition="true"
-            bootfilesystem="ext3"
+            bootpartition="false"
             format="qcow2"
         >
-            <luksformat>
-                <option name="--cipher" value="aes-xts-plain64"/>
-                <option name="--key-size" value="256"/>
-            </luksformat>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
                 <oem-resize>true</oem-resize>
