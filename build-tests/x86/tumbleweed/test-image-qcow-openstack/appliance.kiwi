@@ -89,7 +89,6 @@
         <package name="procinfo"/>
         <package name="quota"/>
         <package name="recode"/>
-        <package name="rsh"/>
         <package name="screen"/>
         <package name="strace"/>
         <package name="supportutils"/>
