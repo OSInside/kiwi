@@ -53,9 +53,10 @@ class TestLuksDevice:
         assert self.luks.get_device() is None
 
     @patch('kiwi.storage.luks_device.Command.run')
+    @patch('kiwi.storage.luks_device.Checksum')
     @patch('os.chmod')
     def test_create_crypto_luks_empty_passphrase(
-        self, mock_os_chmod, mock_command
+        self, mock_os_chmod, mock_Checksum, mock_command
     ):
         with patch('builtins.open', create=True):
             self.luks.create_crypto_luks(
@@ -89,18 +90,29 @@ class TestLuksDevice:
                     [
                         'cryptsetup', '--key-file', '/dev/zero',
                         '--keyfile-size', '32',
+                        'luksHeaderBackup', '/dev/some-device',
+                        '--header-backup-file', 'root/root/.luks.header'
+                    ]
+                ),
+                call(
+                    [
+                        'cryptsetup', '--key-file', '/dev/zero',
+                        '--keyfile-size', '32',
                         'luksOpen', '/dev/some-device', 'luksRoot'
                     ]
                 )
             ]
+            mock_Checksum.return_value.sha256.assert_called_once_with()
             self.luks.luks_device = None
 
     @patch('kiwi.storage.luks_device.LuksDevice')
     @patch('kiwi.storage.luks_device.Command.run')
     @patch('kiwi.storage.luks_device.Temporary.new_file')
+    @patch('kiwi.storage.luks_device.Checksum')
     @patch('os.chmod')
     def test_create_crypto_luks_random_passphrase(
-        self, mock_os_chmod, mock_tmpfile, mock_command, mock_LuksDevice
+        self, mock_os_chmod, mock_Checksum, mock_tmpfile,
+        mock_command, mock_LuksDevice
     ):
         tmpfile = Mock()
         tmpfile.name = 'tmpfile'
@@ -127,11 +139,19 @@ class TestLuksDevice:
                 ),
                 call(
                     [
+                        'cryptsetup', '--key-file', 'root/some-keyfile',
+                        'luksHeaderBackup', '/dev/some-device',
+                        '--header-backup-file', 'root/root/.luks.header'
+                    ]
+                ),
+                call(
+                    [
                         'cryptsetup', '--key-file', 'root/some-keyfile', 'luksOpen',
                         '/dev/some-device', 'luksRoot'
                     ]
                 )
             ]
+            mock_Checksum.return_value.sha256.assert_called_once_with()
             mock_LuksDevice.create_random_keyfile.assert_called_once_with(
                 'root/some-keyfile'
             )
@@ -141,9 +161,11 @@ class TestLuksDevice:
     @patch('kiwi.storage.luks_device.LuksDevice')
     @patch('kiwi.storage.luks_device.Command.run')
     @patch('kiwi.storage.luks_device.Temporary.new_file')
+    @patch('kiwi.storage.luks_device.Checksum')
     @patch('os.chmod')
     def test_create_crypto_luks(
-        self, mock_os_chmod, mock_tmpfile, mock_command, mock_LuksDevice
+        self, mock_os_chmod, mock_Checksum, mock_tmpfile,
+        mock_command, mock_LuksDevice
     ):
         tmpfile = Mock()
         tmpfile.name = 'tmpfile'
@@ -176,11 +198,19 @@ class TestLuksDevice:
                 ),
                 call(
                     [
+                        'cryptsetup', '--key-file', 'tmpfile',
+                        'luksHeaderBackup', '/dev/some-device',
+                        '--header-backup-file', 'root/root/.luks.header'
+                    ]
+                ),
+                call(
+                    [
                         'cryptsetup', '--key-file', 'tmpfile', 'luksOpen',
                         '/dev/some-device', 'luksRoot'
                     ]
                 )
             ]
+            mock_Checksum.return_value.sha256.assert_called_once_with()
             mock_LuksDevice.create_random_keyfile.assert_called_once_with(
                 'root/some-keyfile'
             )

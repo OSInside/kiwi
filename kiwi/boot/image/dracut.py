@@ -61,12 +61,16 @@ class BootImageDracut(BootImageBase):
         # Initialize empty list of dracut caller options
         self.dracut_options: List[str] = []
         self.included_files: List[str] = []
+        self.delete_after_include_files: List[str] = []
         self.modules: List[str] = []
         self.add_modules: List[str] = []
         self.omit_modules: List[str] = []
         self.available_modules = self._get_modules()
 
-    def include_file(self, filename: str, install_media: bool = False) -> None:
+    def include_file(
+        self, filename: str, install_media: bool = False,
+        delete_after_include: bool = False
+    ) -> None:
         """
         Include file to dracut boot image
 
@@ -75,6 +79,8 @@ class BootImageDracut(BootImageBase):
         """
         self.included_files.append('--install')
         self.included_files.append(filename)
+        if delete_after_include:
+            self.delete_after_include_files.append(filename)
 
     def include_module(self, module: str, install_media: bool = False) -> None:
         """
@@ -238,6 +244,8 @@ class BootImageDracut(BootImageBase):
             Command.run(
                 ['chmod', '644', self.initrd_filename]
             )
+            for filename in self.delete_after_include_files:
+                os.unlink(f'{self.boot_root_directory}/{filename}')
 
     def _get_modules(self) -> List[str]:
         cmd = Command.run(

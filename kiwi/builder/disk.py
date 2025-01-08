@@ -782,6 +782,8 @@ class DiskBuilder:
 
         self._write_crypttab_to_system_image(luks_root)
 
+        self._write_luks_header_checksum_to_boot_image(luks_root)
+
         self._write_integritytab_to_system_image(integrity_root)
 
         self._write_generic_fstab_to_system_image(device_map, system)
@@ -1269,6 +1271,20 @@ class DiskBuilder:
             luks_root.create_crypttab(filename)
             self.boot_image.include_file(
                 os.sep + os.sep.join(['etc', os.path.basename(filename)])
+            )
+
+    def _write_luks_header_checksum_to_boot_image(
+        self, luks_root: Optional[LuksDevice]
+    ) -> None:
+        if luks_root is not None:
+            log.info('Including origin LUKS header checksum')
+            filename = ''.join(
+                [self.root_dir, '/root/.luks.header']
+            )
+            self.boot_image.include_file(
+                filename=os.sep + os.sep.join(
+                    ['root', os.path.basename(filename)]
+                ), delete_after_include=True
             )
 
     def _write_generic_fstab_to_system_image(

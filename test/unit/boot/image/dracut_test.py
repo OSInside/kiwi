@@ -47,9 +47,12 @@ class TestBootImageKiwi:
         ]
 
     def test_include_file(self):
-        self.boot_image.include_file('foo')
+        self.boot_image.include_file(filename='foo', delete_after_include=True)
         assert self.boot_image.included_files == [
             '--install', 'foo'
+        ]
+        assert self.boot_image.delete_after_include_files == [
+            'foo'
         ]
 
     def test_include_module(self):
@@ -112,9 +115,10 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
     @patch('kiwi.boot.image.dracut.Profile')
     @patch('kiwi.boot.image.dracut.MountManager')
+    @patch('os.unlink')
     def test_create_initrd(
-        self, mock_MountManager, mock_Profile, mock_prepared,
-        mock_command, mock_kernel
+        self, mock_os_unlink, mock_MountManager, mock_Profile,
+        mock_prepared, mock_command, mock_kernel
     ):
         profile = Mock()
         profile.dot_profile = dict()
@@ -124,7 +128,9 @@ class TestBootImageKiwi:
         kernel_details.version = '1.2.3'
         kernel.get_kernel = Mock(return_value=kernel_details)
         mock_kernel.return_value = kernel
-        self.boot_image.include_file('system-directory/etc/foo')
+        self.boot_image.include_file(
+            filename='system-directory/etc/foo', delete_after_include=True
+        )
         self.boot_image.include_module('foo')
         self.boot_image.omit_module('bar')
         self.boot_image.create_initrd()
@@ -157,6 +163,9 @@ class TestBootImageKiwi:
                 ['chmod', '644', 'some-target-dir/LimeJeOS.x86_64-1.13.2.initrd']
             )
         ]
+        mock_os_unlink.assert_called_once_with(
+            'system-directory/system-directory/etc/foo'
+        )
         mock_command.reset_mock()
         self.boot_image.create_initrd(basename='foo')
         assert mock_command.call_args_list == [

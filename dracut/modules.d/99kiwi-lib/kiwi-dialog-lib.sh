@@ -165,3 +165,8 @@ function ask_and_shutdown {
         systemctl halt
     fi
 }
+
+function ask_for_credentials {
+    local text_message="$1"
+    run_dialog --insecure --passwordbox "\"${text_message}\"" 7 60
+}
