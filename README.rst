@@ -19,7 +19,7 @@ KIWI - Next Generation
 .. |Installation| replace:: `Installation <https://osinside.github.io/kiwi/installation.html>`__
 .. |Contributing| replace:: `Contributing <https://osinside.github.io/kiwi/contributing.html>`__
 .. |Donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif
-   :target: https://www.paypal.me/SchaeferMarcus
+   :target: https://www.paypal.com/donate/?hosted_button_id=CYZY57A7Q4TCC
 
 |GitHub Action Code Style| |GitHub Action Config Functions| |GitHub Action Documentation| |GitHub Action Publish Pages| |GitHub Action Publish PyPi| |GitHub Action Unit Types| |Health|
 
