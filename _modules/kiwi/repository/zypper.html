@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.repository.zypper &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.repository.zypper &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,26 +1255,26 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">ConfigParser</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">configparser</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Temporary</span><span class="p">,</span> <span class="n">TmpT</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.repository.base</span> <span class="kn">import</span> <span class="n">RepositoryBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.uri</span> <span class="kn">import</span> <span class="n">Uri</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.rpm_database</span> <span class="kn">import</span> <span class="n">RpmDataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.repository.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">RepositoryBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">Uri</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.rpm_database</span><span class="w"> </span><span class="kn">import</span> <span class="n">RpmDataBase</span>
 
 
 <div class="viewcode-block" id="RepositoryZypper">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper">[docs]</a>
-<span class="k">class</span> <span class="nc">RepositoryZypper</span><span class="p">(</span><span class="n">RepositoryBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RepositoryZypper</span><span class="p">(</span><span class="n">RepositoryBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements repo handling for zypper package manager**</span>
 
@@ -1289,7 +1289,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.post_init">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post initialization method</span>
 
@@ -1411,7 +1411,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.setup_package_database_configuration">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.setup_package_database_configuration">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_package_database_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_package_database_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup rpm macros for bootstrapping and image building</span>
 
@@ -1474,7 +1474,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.use_default_location">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.use_default_location">[docs]</a>
-    <span class="k">def</span> <span class="nf">use_default_location</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_default_location</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup zypper repository operations to store all data</span>
 <span class="sd">        in the default places</span>
@@ -1491,7 +1491,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.runtime_config">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.runtime_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">runtime_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runtime_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        zypper runtime configuration and environment</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1503,7 +1503,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.add_repo">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.add_repo">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_repo</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_repo</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repo_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;rpm-md&#39;</span><span class="p">,</span>
         <span class="n">prio</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dist</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">components</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">user</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">credentials_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1611,7 +1611,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.import_trusted_keys">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.import_trusted_keys">[docs]</a>
-    <span class="k">def</span> <span class="nf">import_trusted_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signing_keys</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">import_trusted_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signing_keys</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Imports trusted keys into the image</span>
 
@@ -1624,7 +1624,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.delete_repo">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.delete_repo">[docs]</a>
-    <span class="k">def</span> <span class="nf">delete_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete zypper repository</span>
 
@@ -1640,7 +1640,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.delete_all_repos">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.delete_all_repos">[docs]</a>
-    <span class="k">def</span> <span class="nf">delete_all_repos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_all_repos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete all zypper repositories</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1650,7 +1650,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.delete_repo_cache">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.delete_repo_cache">[docs]</a>
-    <span class="k">def</span> <span class="nf">delete_repo_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_repo_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete zypper repository cache</span>
 
@@ -1673,7 +1673,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.cleanup_unused_repos">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.cleanup_unused_repos">[docs]</a>
-    <span class="k">def</span> <span class="nf">cleanup_unused_repos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_unused_repos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete unused zypper repositories</span>
 
@@ -1696,7 +1696,7 @@
                 <span class="n">Path</span><span class="o">.</span><span class="n">wipe</span><span class="p">(</span><span class="n">repos_dir</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">repo_file</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_create_zypper_runtime_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_zypper_runtime_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">zypper_dir</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shared_zypper_dir</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="n">Path</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">zypper_dir</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
@@ -1705,13 +1705,13 @@
             <span class="n">ZYPP_CONF</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_zypp_config_file</span><span class="o">.</span><span class="n">name</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_write_runtime_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_runtime_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_zypper_config_file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">runtime_zypper_config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_zypp_config_file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">runtime_zypp_config</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_backup_package_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_backup_package_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        preserve package cache which otherwise will be removed by</span>
 <span class="sd">        zypper if no repo file is found. But this situation is</span>
@@ -1720,13 +1720,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_move_package_cache</span><span class="p">(</span><span class="n">backup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_restore_package_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_restore_package_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        restore preserved package cache at the location passed to zypper</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_move_package_cache</span><span class="p">(</span><span class="n">restore</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_move_package_cache</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_move_package_cache</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">backup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">restore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">package_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_location</span> <span class="o">+</span> <span class="s1">&#39;/packages&#39;</span>
@@ -1742,7 +1742,7 @@
 
 <div class="viewcode-block" id="RepositoryZypper.cleanup">
 <a class="viewcode-back" href="../../../api/kiwi.repository.html#kiwi.repository.zypper.RepositoryZypper.cleanup">[docs]</a>
-    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete intermediate zypp and zypper config files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1752,7 +1752,7 @@
             <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runtime_zypp_config_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_restore_package_cache</span><span class="p">()</span></div>
 
 </pre></div>
@@ -1764,7 +1764,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

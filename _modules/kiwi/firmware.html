@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.firmware &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.firmware &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -1254,19 +1254,19 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
 
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiNotImplementedError</span>
 <span class="p">)</span>
 
 
 <div class="viewcode-block" id="FirmWare">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare">[docs]</a>
-<span class="k">class</span> <span class="nc">FirmWare</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FirmWare</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements firmware specific methods**</span>
 
@@ -1276,7 +1276,7 @@
 
 <span class="sd">    * :param object xml_state: instance of :class:`XMLState`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zipl_target_type</span> <span class="o">=</span> \
             <span class="n">xml_state</span><span class="o">.</span><span class="n">get_build_type_bootloader_targettype</span><span class="p">()</span>
@@ -1300,7 +1300,7 @@
 
 <div class="viewcode-block" id="FirmWare.get_partition_table_type">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.get_partition_table_type">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_partition_table_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_partition_table_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides partition table type according to architecture and firmware</span>
 
@@ -1324,7 +1324,7 @@
 
 <div class="viewcode-block" id="FirmWare.legacy_bios_mode">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.legacy_bios_mode">[docs]</a>
-    <span class="k">def</span> <span class="nf">legacy_bios_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">legacy_bios_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the legacy boot from BIOS systems should be activated</span>
 
@@ -1350,7 +1350,7 @@
 
 <div class="viewcode-block" id="FirmWare.efi_mode">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.efi_mode">[docs]</a>
-    <span class="k">def</span> <span class="nf">efi_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">efi_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if EFI mode is requested</span>
 
@@ -1365,7 +1365,7 @@
 
 <div class="viewcode-block" id="FirmWare.ec2_mode">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.ec2_mode">[docs]</a>
-    <span class="k">def</span> <span class="nf">ec2_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ec2_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if EC2 mode is requested</span>
 
@@ -1379,7 +1379,7 @@
 
 <div class="viewcode-block" id="FirmWare.bios_mode">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.bios_mode">[docs]</a>
-    <span class="k">def</span> <span class="nf">bios_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bios_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if BIOS mode is requested</span>
 
@@ -1395,7 +1395,7 @@
 
 <div class="viewcode-block" id="FirmWare.ofw_mode">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.ofw_mode">[docs]</a>
-    <span class="k">def</span> <span class="nf">ofw_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ofw_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if OFW mode is requested</span>
 
@@ -1411,7 +1411,7 @@
 
 <div class="viewcode-block" id="FirmWare.opal_mode">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.opal_mode">[docs]</a>
-    <span class="k">def</span> <span class="nf">opal_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">opal_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if Opal mode is requested</span>
 
@@ -1427,7 +1427,7 @@
 
 <div class="viewcode-block" id="FirmWare.get_legacy_bios_partition_size">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.get_legacy_bios_partition_size">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_legacy_bios_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_legacy_bios_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Size of legacy bios_grub partition if legacy BIOS mode is</span>
 <span class="sd">        required. Returns 0 if no such partition is needed</span>
@@ -1444,7 +1444,7 @@
 
 <div class="viewcode-block" id="FirmWare.get_efi_partition_size">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.get_efi_partition_size">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_efi_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_efi_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Size of EFI partition.</span>
 <span class="sd">        Returns 0 if no such partition is needed</span>
@@ -1464,7 +1464,7 @@
 
 <div class="viewcode-block" id="FirmWare.get_prep_partition_size">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.firmware.FirmWare.get_prep_partition_size">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_prep_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_prep_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Size of Prep partition if OFW mode is requested.</span>
 <span class="sd">        Returns 0 if no such partition is needed</span>
@@ -1488,7 +1488,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

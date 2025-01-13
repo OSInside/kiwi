@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using KIWI NG in a Python Project &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Using KIWI NG in a Python Project &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../_static/documentation_options.js?v=bf020882"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1247,17 +1247,17 @@
 <p><strong>Abstract</strong></p>
 <p>KIWI NG is provided as a Python module under the <strong>kiwi</strong> namespace.
 It is available for the Python 3 version. The following
-description applies for KIWI NG version 10.2.5.</p>
+description applies for KIWI NG version 10.2.6.</p>
 </div>
 <p>KIWI NG can also function as a module for other Python projects.
 The following example demonstrates how to read an existing image
 description, add a new repository definition, and export the
 modified description on stdout.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.xml_description</span> <span class="kn">import</span> <span class="n">XMLDescription</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">XMLState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_description</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLDescription</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLState</span>
 
 <span class="n">description</span> <span class="o">=</span> <span class="n">XMLDescription</span><span class="p">(</span><span class="s1">&#39;path/to/kiwi/XML/config.xml&#39;</span><span class="p">)</span>
 
@@ -1287,10 +1287,10 @@ filesystems, partitions, etc.</p>
 you want to use the KIWI NG description format or not. The following example
 shows how to use KIWI NG to create a simple filesystem image which contains your
 host <code class="xref py py-obj docutils literal notranslate"><span class="pre">tmp</span></code> directory.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.storage.loop_device</span> <span class="kn">import</span> <span class="n">LoopDevice</span>
-<span class="kn">from</span> <span class="nn">kiwi.filesystem</span> <span class="kn">import</span> <span class="n">FileSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.loop_device</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoopDevice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.filesystem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystem</span>
 
 <span class="k">with</span> <span class="n">LoopDevice</span><span class="p">(</span>
     <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;my_tmp.ext4&#39;</span><span class="p">,</span> <span class="n">filesize_mbytes</span><span class="o">=</span><span class="mi">100</span>
@@ -1319,7 +1319,7 @@ host <code class="xref py py-obj docutils literal notranslate"><span class="pre"
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

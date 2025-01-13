@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.runtime_checker &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.runtime_checker &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -1254,32 +1254,32 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
 <span class="p">)</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.version</span> <span class="kn">import</span> <span class="n">__version__</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_description</span> <span class="kn">import</span> <span class="n">XMLDescription</span>
-<span class="kn">from</span> <span class="nn">kiwi.firmware</span> <span class="kn">import</span> <span class="n">FirmWare</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">XMLState</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.uri</span> <span class="kn">import</span> <span class="n">Uri</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.command_capabilities</span> <span class="kn">import</span> <span class="n">CommandCapabilities</span>
-<span class="kn">from</span> <span class="nn">kiwi.runtime_config</span> <span class="kn">import</span> <span class="n">RuntimeConfig</span>
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_description</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLDescription</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.firmware</span><span class="w"> </span><span class="kn">import</span> <span class="n">FirmWare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">Uri</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.command_capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandCapabilities</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.runtime_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">RuntimeConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiRuntimeError</span>
 <span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">kiwi.defaults</span> <span class="k">as</span> <span class="nn">defaults</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">defaults</span>
 
 <span class="n">dracut_module_type</span> <span class="o">=</span> <span class="n">NamedTuple</span><span class="p">(</span>
     <span class="s1">&#39;dracut_module_type&#39;</span><span class="p">,</span> <span class="p">[</span>
@@ -1293,11 +1293,11 @@
 
 <div class="viewcode-block" id="RuntimeChecker">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker">[docs]</a>
-<span class="k">class</span> <span class="nc">RuntimeChecker</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RuntimeChecker</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements build consistency checks at runtime**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The schema of an image description covers structure and syntax of</span>
 <span class="sd">        the provided data. The RuntimeChecker provides methods to perform</span>
@@ -1310,7 +1310,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_repositories_configured">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_repositories_configured">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_repositories_configured</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_repositories_configured</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Verify that there are repositories configured</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1322,7 +1322,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_include_references_unresolvable">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_include_references_unresolvable">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_include_references_unresolvable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_include_references_unresolvable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Raise for still included &lt;include&gt; statements as not resolvable.</span>
 <span class="sd">        The KIWI XSLT processing replaces the specified include</span>
@@ -1351,7 +1351,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_image_include_repos_publicly_resolvable">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_image_include_repos_publicly_resolvable">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_image_include_repos_publicly_resolvable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_image_include_repos_publicly_resolvable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Verify that all repos marked with the imageinclude attribute</span>
 <span class="sd">        can be resolved into a http based web URL</span>
@@ -1383,7 +1383,7 @@
 <div class="viewcode-block" id="RuntimeChecker.check_target_directory_not_in_shared_cache">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_target_directory_not_in_shared_cache">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">check_target_directory_not_in_shared_cache</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_target_directory_not_in_shared_cache</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The target directory must be outside of the kiwi shared cache</span>
 <span class="sd">        directory in order to avoid busy mounts because kiwi bind mounts</span>
@@ -1411,7 +1411,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_volume_label_used_with_lvm">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_volume_label_used_with_lvm">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_volume_label_used_with_lvm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_volume_label_used_with_lvm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The optional volume label in a systemdisk setup is only</span>
 <span class="sd">        effective if the LVM, logical volume manager system is</span>
@@ -1447,7 +1447,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_partuuid_persistency_type_used_with_mbr">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_partuuid_persistency_type_used_with_mbr">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_partuuid_persistency_type_used_with_mbr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_partuuid_persistency_type_used_with_mbr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The devicepersistency setting by-partuuid can only be</span>
 <span class="sd">        used in combination with a partition table type that</span>
@@ -1491,7 +1491,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_swap_name_used_with_lvm">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_swap_name_used_with_lvm">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_swap_name_used_with_lvm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_swap_name_used_with_lvm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The optional oem-swapname is only effective if used together</span>
 <span class="sd">        with the LVM volume manager. A name for the swap space can</span>
@@ -1524,7 +1524,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_volume_setup_defines_reserved_labels">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_volume_setup_defines_reserved_labels">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_volume_setup_defines_reserved_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_volume_setup_defines_reserved_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span><span class="se">\n</span>
 <span class="s1">            Reserved label name used in LVM volume setup</span>
 
@@ -1554,7 +1554,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_volume_setup_defines_multiple_fullsize_volumes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_volume_setup_defines_multiple_fullsize_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_volume_setup_defines_multiple_fullsize_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_volume_setup_defines_multiple_fullsize_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The volume size specification &#39;all&#39; makes this volume to</span>
 <span class="sd">        take the rest space available on the system. It&#39;s only</span>
@@ -1581,7 +1581,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_volume_setup_has_no_root_definition">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_volume_setup_has_no_root_definition">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_volume_setup_has_no_root_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_volume_setup_has_no_root_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The root volume in a systemdisk setup is handled in a special</span>
 <span class="sd">        way. It is not allowed to setup a custom name or mountpoint for</span>
@@ -1607,7 +1607,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_container_tool_chain_installed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_container_tool_chain_installed">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_container_tool_chain_installed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_container_tool_chain_installed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        When creating container images the specific tools are used in order</span>
 <span class="sd">        to import and export OCI or Docker compatible images. This check</span>
@@ -1661,7 +1661,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_multitag_support</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_check_multitag_support</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_multitag_support</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">dedent</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span><span class="se">\n</span>
 <span class="s1">            Using additionaltags attribute requires skopeo tool to be</span>
 <span class="s1">            capable to handle it, it must include the &#39;--additional-tag&#39;</span>
@@ -1678,7 +1678,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_luksformat_options_valid">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_luksformat_options_valid">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_luksformat_options_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_luksformat_options_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Options set via the luksformat element are passed along</span>
 <span class="sd">        to the cryptsetup tool. Only options that are known to</span>
@@ -1705,7 +1705,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_appx_naming_conventions_valid">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_appx_naming_conventions_valid">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_appx_naming_conventions_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_appx_naming_conventions_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        When building wsl images there are some naming conventions that</span>
 <span class="sd">        must be fulfilled to run the container on Microsoft Windows</span>
@@ -1744,7 +1744,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_initrd_selection_required">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_initrd_selection_required">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_initrd_selection_required</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_initrd_selection_required</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the boot attribute is used without selecting kiwi</span>
 <span class="sd">        as the initrd_system, the setting of the boot attribute</span>
@@ -1778,7 +1778,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_boot_description_exists">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_boot_description_exists">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_boot_description_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_boot_description_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If a kiwi initrd is used, a lookup to the specified boot</span>
 <span class="sd">        description is done and fails early if it does not exist</span>
@@ -1830,7 +1830,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_consistent_kernel_in_boot_and_system_image">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_consistent_kernel_in_boot_and_system_image">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_consistent_kernel_in_boot_and_system_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_consistent_kernel_in_boot_and_system_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If a kiwi initrd is used, the kernel used to build the kiwi</span>
 <span class="sd">        initrd and the kernel used in the system image must be the</span>
@@ -1914,7 +1914,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_dracut_module_versions_compatible_to_kiwi">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_dracut_module_versions_compatible_to_kiwi">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_dracut_module_versions_compatible_to_kiwi</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_dracut_module_versions_compatible_to_kiwi</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1994,7 +1994,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_dracut_module_for_oem_install_in_package_list">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_dracut_module_for_oem_install_in_package_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_dracut_module_for_oem_install_in_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_dracut_module_for_oem_install_in_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        OEM images if configured to use dracut as initrd system</span>
 <span class="sd">        and configured with one of the installiso, installstick</span>
@@ -2036,7 +2036,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_dracut_module_for_disk_oem_in_package_list">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_dracut_module_for_disk_oem_in_package_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_dracut_module_for_disk_oem_in_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_dracut_module_for_disk_oem_in_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        OEM images if configured to use dracut as initrd system</span>
 <span class="sd">        requires the KIWI provided dracut-kiwi-oem-repart module</span>
@@ -2073,7 +2073,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_dracut_module_for_live_iso_in_package_list">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_dracut_module_for_live_iso_in_package_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_dracut_module_for_live_iso_in_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_dracut_module_for_live_iso_in_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Live ISO images uses a dracut initrd to boot and requires</span>
 <span class="sd">        the KIWI provided kiwi-live dracut module to be installed</span>
@@ -2108,7 +2108,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_dracut_module_for_disk_overlay_in_package_list">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_dracut_module_for_disk_overlay_in_package_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_dracut_module_for_disk_overlay_in_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_dracut_module_for_disk_overlay_in_package_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Disk images configured to use a root filesystem overlay</span>
 <span class="sd">        requires the KIWI provided kiwi-overlay dracut module to</span>
@@ -2144,7 +2144,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_efi_mode_for_disk_overlay_correctly_setup">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_efi_mode_for_disk_overlay_correctly_setup">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_efi_mode_for_disk_overlay_correctly_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_efi_mode_for_disk_overlay_correctly_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Disk images configured to use a root filesystem overlay</span>
 <span class="sd">        only supports the standard EFI mode and not secure boot.</span>
@@ -2176,7 +2176,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_xen_uniquely_setup_as_server_or_guest">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_xen_uniquely_setup_as_server_or_guest">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_xen_uniquely_setup_as_server_or_guest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_xen_uniquely_setup_as_server_or_guest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the image is classified to be used as Xen image, it can</span>
 <span class="sd">        be either a Xen Server(dom0) or a Xen guest. The image</span>
@@ -2217,7 +2217,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_mediacheck_installed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_mediacheck_installed">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_mediacheck_installed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_mediacheck_installed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the image description enables the mediacheck attribute</span>
 <span class="sd">        the required tools to run this check must be installed</span>
@@ -2244,7 +2244,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_image_version_provided">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_image_version_provided">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_image_version_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_image_version_provided</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Kiwi requires a &lt;version&gt; element to be specified as part</span>
 <span class="sd">        of at least one &lt;preferences&gt; section.</span>
@@ -2264,7 +2264,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_image_type_unique">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_image_type_unique">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_image_type_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_image_type_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Verify that the selected image type is unique within</span>
 <span class="sd">        the range of the configured types and profiles.</span>
@@ -2308,7 +2308,7 @@
 
 <div class="viewcode-block" id="RuntimeChecker.check_efi_fat_image_has_correct_size">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.runtime_checker.RuntimeChecker.check_efi_fat_image_has_correct_size">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_efi_fat_image_has_correct_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_efi_fat_image_has_correct_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Verify that the efifatimagesize does not exceed the max</span>
 <span class="sd">        El Torito load size of 65535 * 512 bytes</span>
@@ -2330,7 +2330,7 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_package_in_list</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_package_in_list</span><span class="p">(</span>
         <span class="n">package_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">search_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -2341,7 +2341,7 @@
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_dracut_module_version_from_pdb</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_dracut_module_version_from_pdb</span><span class="p">(</span>
         <span class="n">package_manager</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">tool</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_default_packager_tool</span><span class="p">(</span><span class="n">package_manager</span><span class="p">)</span>
@@ -2376,7 +2376,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

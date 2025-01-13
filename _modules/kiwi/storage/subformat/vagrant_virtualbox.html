@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.storage.subformat.vagrant_virtualbox &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.storage.subformat.vagrant_virtualbox &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1255,37 +1255,37 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.subformat.template.virtualbox_ovf</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.subformat.template.virtualbox_ovf</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">VirtualboxOvfTemplate</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.subformat.vagrant_base</span> <span class="kn">import</span> <span class="n">DiskFormatVagrantBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.subformat.vmdk</span> <span class="kn">import</span> <span class="n">DiskFormatVmdk</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.subformat.vagrant_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiskFormatVagrantBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.subformat.vmdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiskFormatVmdk</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
 
 
 <div class="viewcode-block" id="DiskFormatVagrantVirtualBox">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVagrantVirtualBox">[docs]</a>
-<span class="k">class</span> <span class="nc">DiskFormatVagrantVirtualBox</span><span class="p">(</span><span class="n">DiskFormatVagrantBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiskFormatVagrantVirtualBox</span><span class="p">(</span><span class="n">DiskFormatVagrantBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Create a vagrant box for the virtualbox provider**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DiskFormatVagrantVirtualBox.vagrant_post_init">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVagrantVirtualBox.vagrant_post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">vagrant_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vagrant_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">provider</span> <span class="o">=</span> <span class="s1">&#39;virtualbox&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_format</span> <span class="o">=</span> <span class="s1">&#39;vagrant.virtualbox.box&#39;</span></div>
 
 
 <div class="viewcode-block" id="DiskFormatVagrantVirtualBox.get_additional_vagrant_config_settings">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVagrantVirtualBox.get_additional_vagrant_config_settings">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_additional_vagrant_config_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_additional_vagrant_config_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Configure the default shared folder to use rsync when guest additions</span>
 <span class="sd">        are not present inside the box.</span>
@@ -1309,7 +1309,7 @@
 
 <div class="viewcode-block" id="DiskFormatVagrantVirtualBox.create_box_img">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVagrantVirtualBox.create_box_img">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_box_img</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_image_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_box_img</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_image_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the vmdk image for the Virtualbox vagrant provider.</span>
 
@@ -1354,7 +1354,7 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_random_mac</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_random_mac</span><span class="p">():</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%02x%02x%02x%02x%02x%02x</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">%</span> <span class="p">(</span>
             <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x16</span><span class="p">,</span> <span class="mh">0x3e</span><span class="p">,</span>
             <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0x7e</span><span class="p">),</span>
@@ -1371,7 +1371,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

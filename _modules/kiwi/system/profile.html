@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.system.profile &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.system.profile &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1254,29 +1254,29 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="n">Temporary</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">XMLState</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.shell</span> <span class="kn">import</span> <span class="n">Shell</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="n">Temporary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.shell</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shell</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;kiwi&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Profile">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.profile.Profile">[docs]</a>
-<span class="k">class</span> <span class="nc">Profile</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Profile</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Create bash readable .profile environment from the XML description**</span>
 
 <span class="sd">    :param object xml_state: instance of :class`XMLState`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span> <span class="o">=</span> <span class="n">xml_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1294,7 +1294,7 @@
 
 <div class="viewcode-block" id="Profile.get_settings">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.profile.Profile.get_settings">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return all profile elements that has a value</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1308,7 +1308,7 @@
 
 <div class="viewcode-block" id="Profile.add">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.profile.Profile.add">[docs]</a>
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add key/value pair to profile dictionary</span>
 
@@ -1320,14 +1320,14 @@
 
 <div class="viewcode-block" id="Profile.delete">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.profile.Profile.delete">[docs]</a>
-    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Profile.create">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.profile.Profile.create">[docs]</a>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create bash quoted profile</span>
 
@@ -1347,7 +1347,7 @@
                 <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;--&gt; </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">))</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_oemconfig_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_oemconfig_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_oemvmcp_parmfile</span>
         <span class="c1"># kiwi_oemmultipath_scan</span>
         <span class="c1"># kiwi_oemswapMB</span>
@@ -1426,13 +1426,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_oemrecoveryInPlace&#39;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">(</span><span class="n">oemconfig</span><span class="o">.</span><span class="n">get_oem_inplace_recovery</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">_drivers_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_drivers_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_drivers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_drivers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_drivers_list</span><span class="p">()</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_type_complex_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_type_complex_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_xendomain</span>
         <span class="c1"># kiwi_install_volid</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">is_xen_server</span><span class="p">():</span>
@@ -1446,7 +1446,7 @@
                 <span class="n">Defaults</span><span class="o">.</span><span class="n">get_volume_id</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_live_volid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">live_iso_volid</span>
 
-    <span class="k">def</span> <span class="nf">_strip_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_strip_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_strip_delete</span>
         <span class="c1"># kiwi_strip_tools</span>
         <span class="c1"># kiwi_strip_libs</span>
@@ -1460,7 +1460,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_strip_libraries_to_keep</span><span class="p">()</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_systemdisk_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_systemdisk_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_lvmgroup</span>
         <span class="c1"># kiwi_lvm</span>
         <span class="c1"># kiwi_Volume_X</span>
@@ -1489,7 +1489,7 @@
                     <span class="p">]</span>
                 <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_preferences_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preferences_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_iversion</span>
         <span class="c1"># kiwi_showlicense</span>
         <span class="c1"># kiwi_keytable</span>
@@ -1520,7 +1520,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_loader_theme&#39;</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">_text</span><span class="p">(</span><span class="n">preferences</span><span class="o">.</span><span class="n">get_bootloader_theme</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">_type_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_type_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_type</span>
         <span class="c1"># kiwi_compressed</span>
         <span class="c1"># kiwi_boot_timeout</span>
@@ -1596,19 +1596,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_luks_empty_passphrase&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_luks_credentials</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">_profile_names_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_profile_names_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_profiles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_profiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">profiles</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_packages_marked_for_deletion_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_packages_marked_for_deletion_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_delete</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_delete&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_to_become_deleted_packages</span><span class="p">()</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_image_names_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_image_names_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_displayname</span>
         <span class="c1"># kiwi_cpio_name</span>
         <span class="c1"># kiwi_iname</span>
@@ -1624,12 +1624,12 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_build_type_name</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cpio&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_cpio_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_iname&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_root_partition_uuid_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_root_partition_uuid_to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># kiwi_rootpartuuid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dot_profile</span><span class="p">[</span><span class="s1">&#39;kiwi_rootpartuuid&#39;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_root_partition_uuid</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_content</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_content</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper method to return the text for XML elements of the</span>
 <span class="sd">        following structure: &lt;section&gt;text&lt;/section&gt;. The data</span>
@@ -1651,7 +1651,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

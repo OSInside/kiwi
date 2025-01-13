@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.utils.block &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.utils.block &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1254,16 +1254,16 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
 
 
 <div class="viewcode-block" id="BlockID">
 <a class="viewcode-back" href="../../../api/kiwi.utils.html#kiwi.utils.block.BlockID">[docs]</a>
-<span class="k">class</span> <span class="nc">BlockID</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BlockID</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Get information from a block device**</span>
 
@@ -1272,7 +1272,7 @@
 <span class="sd">        also be specified as UUID=&lt;uuid&gt;</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
         <span class="n">uuid_format</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^UUID=(.*)&#39;</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">uuid_format</span><span class="p">:</span>
             <span class="n">blkid_result</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
@@ -1284,7 +1284,7 @@
 
 <div class="viewcode-block" id="BlockID.get_label">
 <a class="viewcode-back" href="../../../api/kiwi.utils.html#kiwi.utils.block.BlockID.get_label">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve filesystem label from block device</span>
 
@@ -1297,7 +1297,7 @@
 
 <div class="viewcode-block" id="BlockID.get_uuid">
 <a class="viewcode-back" href="../../../api/kiwi.utils.html#kiwi.utils.block.BlockID.get_uuid">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve filesystem uuid from block device</span>
 
@@ -1310,7 +1310,7 @@
 
 <div class="viewcode-block" id="BlockID.get_filesystem">
 <a class="viewcode-back" href="../../../api/kiwi.utils.html#kiwi.utils.block.BlockID.get_filesystem">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve filesystem type from block device</span>
 
@@ -1323,7 +1323,7 @@
 
 <div class="viewcode-block" id="BlockID.get_partition_count">
 <a class="viewcode-back" href="../../../api/kiwi.utils.html#kiwi.utils.block.BlockID.get_partition_count">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_partition_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_partition_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve number of partitions from block device</span>
 
@@ -1343,7 +1343,7 @@
 
 <div class="viewcode-block" id="BlockID.get_blkid">
 <a class="viewcode-back" href="../../../api/kiwi.utils.html#kiwi.utils.block.BlockID.get_blkid">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_blkid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_type</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_blkid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_type</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve information for specified metadata ID from block device</span>
 
@@ -1369,7 +1369,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build an Expandable Disk Image &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Build an Expandable Disk Image &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../_static/documentation_options.js?v=bf020882"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1399,14 +1399,14 @@ scp<span class="w"> </span>pxeboot.kiwi-test-image-disk.x86_64-1.15.3.kernel<spa
 </li>
 </ol>
 </li>
-<li><p>Copy the disk image, MD5 file, system kernel, initrd and bootoptions to
+<li><p>Copy the disk image, SHA256 file, system kernel, initrd and bootoptions to
 the PXE boot server.</p>
 <p>Activation of the deployed system is done via <code class="xref py py-obj docutils literal notranslate"><span class="pre">kexec</span></code> of the kernel
 and initrd provided here.</p>
 <ol class="loweralpha">
-<li><p>Copy system image and MD5 checksum:</p>
+<li><p>Copy system image and SHA256 checksum:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.xz<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
-scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.md5<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
+scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.sha256<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
 </pre></div>
 </div>
 </li>
@@ -1436,7 +1436,7 @@ the PXE server, and add the following parameters to the append line similar to s
 </div>
 <p>The location of the image is specified as a source URI that can point
 to any location supported by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">curl</span></code> command. KIWI NG uses <code class="xref py py-obj docutils literal notranslate"><span class="pre">curl</span></code> to fetch
-the data from this URI. This means that the image, MD5 file, system kernel
+the data from this URI. This means that the image, checksum file, system kernel
 and initrd can be fetched from any server, and they do not need to be stored
 on the <code class="xref py py-obj docutils literal notranslate"><span class="pre">PXE_SERVER</span></code>.</p>
 <p>By default KIWI NG does not use specific <code class="xref py py-obj docutils literal notranslate"><span class="pre">curl</span></code> options or flags. But it is
@@ -1625,7 +1625,7 @@ default).</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

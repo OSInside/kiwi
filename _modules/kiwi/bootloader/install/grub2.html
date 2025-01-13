@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.install.grub2 &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.bootloader.install.grub2 &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1255,21 +1255,21 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExitStack</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.bootloader.install.base</span> <span class="kn">import</span> <span class="n">BootLoaderInstallBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.mount_manager</span> <span class="kn">import</span> <span class="n">MountManager</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.setup</span> <span class="kn">import</span> <span class="n">SystemSetup</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.bootloader.install.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootLoaderInstallBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.mount_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MountManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiBootLoaderGrubInstallError</span><span class="p">,</span>
     <span class="n">KiwiBootLoaderGrubPlatformError</span><span class="p">,</span>
     <span class="n">KiwiBootLoaderGrubDataError</span><span class="p">,</span>
@@ -1281,13 +1281,13 @@
 
 <div class="viewcode-block" id="BootLoaderInstallGrub2">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.grub2.BootLoaderInstallGrub2">[docs]</a>
-<span class="k">class</span> <span class="nc">BootLoaderInstallGrub2</span><span class="p">(</span><span class="n">BootLoaderInstallBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BootLoaderInstallGrub2</span><span class="p">(</span><span class="n">BootLoaderInstallBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **grub2 bootloader installation**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="BootLoaderInstallGrub2.post_init">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.grub2.BootLoaderInstallGrub2.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        grub2 post initialization method</span>
 
@@ -1347,7 +1347,7 @@
 
 <div class="viewcode-block" id="BootLoaderInstallGrub2.install_required">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.grub2.BootLoaderInstallGrub2.install_required">[docs]</a>
-    <span class="k">def</span> <span class="nf">install_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if grub2 has to be installed</span>
 
@@ -1391,7 +1391,7 @@
 
 <div class="viewcode-block" id="BootLoaderInstallGrub2.install">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.grub2.BootLoaderInstallGrub2.install">[docs]</a>
-    <span class="k">def</span> <span class="nf">install</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Install bootloader on disk device</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1519,7 +1519,7 @@
 
 <div class="viewcode-block" id="BootLoaderInstallGrub2.secure_boot_install">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.grub2.BootLoaderInstallGrub2.secure_boot_install">[docs]</a>
-    <span class="k">def</span> <span class="nf">secure_boot_install</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">secure_boot_install</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span><span class="o">.</span><span class="n">efi_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;uefi&#39;</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="n">Defaults</span><span class="o">.</span><span class="n">is_x86_arch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">)</span>
             <span class="ow">or</span> <span class="s1">&#39;arm&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">==</span> <span class="s1">&#39;aarch64&#39;</span>     <span class="c1"># noqa: W503</span>
@@ -1557,7 +1557,7 @@
 
 <div class="viewcode-block" id="BootLoaderInstallGrub2.set_disk_password">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.grub2.BootLoaderInstallGrub2.set_disk_password">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_disk_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_disk_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_mount_device_and_volumes</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span> <span class="ow">and</span> <span class="n">password</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1580,7 +1580,7 @@
                     <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_mount_device_and_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack</span><span class="p">:</span> <span class="n">ExitStack</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mount_device_and_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack</span><span class="p">:</span> <span class="n">ExitStack</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span> <span class="o">=</span> <span class="n">MountManager</span><span class="p">(</span>
             <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_device&#39;</span><span class="p">]</span>
         <span class="p">)</span>
@@ -1645,7 +1645,7 @@
         <span class="n">stack</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sysfs_mount</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sysfs_mount</span><span class="o">.</span><span class="n">bind_mount</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_disable_grub2_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_disable_grub2_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
             <span class="n">grub2_install</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -1670,7 +1670,7 @@
                 <span class="p">]</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_enable_grub2_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_enable_grub2_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
             <span class="n">grub2_install</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -1689,17 +1689,17 @@
                     <span class="p">]</span>
                 <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_grub2_install_tool_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_grub2_install_tool_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_tool_name</span><span class="p">(</span>
             <span class="n">root_path</span><span class="p">,</span> <span class="n">lookup_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;grub2-install&#39;</span><span class="p">,</span> <span class="s1">&#39;grub-install&#39;</span><span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_shim_install_tool_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_shim_install_tool_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_tool_name</span><span class="p">(</span>
             <span class="n">root_path</span><span class="p">,</span> <span class="n">lookup_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;shim-install&#39;</span><span class="p">],</span> <span class="n">fallback_on_not_found</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_tool_name</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_tool_name</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">,</span> <span class="n">lookup_list</span><span class="p">,</span> <span class="n">fallback_on_not_found</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">):</span>
         <span class="k">for</span> <span class="n">tool</span> <span class="ow">in</span> <span class="n">lookup_list</span><span class="p">:</span>
@@ -1722,7 +1722,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

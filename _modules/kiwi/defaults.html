@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.defaults &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.defaults &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -1254,28 +1254,28 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">importlib</span>
-<span class="kn">from</span> <span class="nn">importlib.resources</span> <span class="kn">import</span> <span class="n">as_file</span>
-<span class="kn">from</span> <span class="nn">importlib.util</span> <span class="kn">import</span> <span class="n">find_spec</span>
-<span class="kn">from</span> <span class="nn">importlib.machinery</span> <span class="kn">import</span> <span class="n">ModuleSpec</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
-<span class="kn">import</span> <span class="nn">platform</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_spec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.machinery</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleSpec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">List</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
 <span class="p">)</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.version</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.version</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">__githash__</span><span class="p">,</span>
     <span class="n">__version__</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="n">KiwiBootLoaderGrubDataError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">KiwiBootLoaderGrubDataError</span>
 
 <span class="n">shim_loader_type</span> <span class="o">=</span> <span class="n">NamedTuple</span><span class="p">(</span>
     <span class="s1">&#39;shim_loader_type&#39;</span><span class="p">,</span> <span class="p">[</span>
@@ -1340,14 +1340,14 @@
 
 <div class="viewcode-block" id="Defaults">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults">[docs]</a>
-<span class="k">class</span> <span class="nc">Defaults</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Defaults</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements default values**</span>
 
 <span class="sd">    Provides static methods for default values and state information</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
             <span class="c1"># alignment in bytes</span>
             <span class="s1">&#39;kiwi_align&#39;</span><span class="p">:</span> <span class="mi">1048576</span><span class="p">,</span>
@@ -1374,7 +1374,7 @@
 <div class="viewcode-block" id="Defaults.get_luks_key_length">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_luks_key_length">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_luks_key_length</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_luks_key_length</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides key length to use for random luks keys</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1384,7 +1384,7 @@
 <div class="viewcode-block" id="Defaults.get_swapsize_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_swapsize_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_swapsize_mbytes</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_swapsize_mbytes</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides swapsize in MB</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1394,7 +1394,7 @@
 <div class="viewcode-block" id="Defaults.get_xz_compression_options">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_xz_compression_options">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_xz_compression_options</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_xz_compression_options</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides compression options for the xz compressor</span>
 
@@ -1415,7 +1415,7 @@
 <div class="viewcode-block" id="Defaults.get_platform_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_platform_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_platform_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_platform_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the machine architecture name as used by KIWI</span>
 
@@ -1436,7 +1436,7 @@
 <div class="viewcode-block" id="Defaults.set_platform_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.set_platform_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">set_platform_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_platform_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the platform architecture once</span>
 
@@ -1449,7 +1449,7 @@
 <div class="viewcode-block" id="Defaults.is_x86_arch">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.is_x86_arch">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">is_x86_arch</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_x86_arch</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if machine architecture is x86 based</span>
 
@@ -1470,7 +1470,7 @@
 <div class="viewcode-block" id="Defaults.is_ppc64_arch">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.is_ppc64_arch">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">is_ppc64_arch</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_ppc64_arch</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if machine architecture is ppc64 based</span>
 
@@ -1491,7 +1491,7 @@
 <div class="viewcode-block" id="Defaults.is_buildservice_worker">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.is_buildservice_worker">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">is_buildservice_worker</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_buildservice_worker</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if build host is an open buildservice machine</span>
 
@@ -1510,7 +1510,7 @@
 <div class="viewcode-block" id="Defaults.get_buildservice_env_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_buildservice_env_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_buildservice_env_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_buildservice_env_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the base name of the environment file in a</span>
 <span class="sd">        buildservice worker</span>
@@ -1525,7 +1525,7 @@
 <div class="viewcode-block" id="Defaults.get_obs_download_server_url">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_obs_download_server_url">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_obs_download_server_url</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_obs_download_server_url</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default download server url hosting the public open</span>
 <span class="sd">        buildservice repositories</span>
@@ -1540,7 +1540,7 @@
 <div class="viewcode-block" id="Defaults.get_obs_api_server_url">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_obs_api_server_url">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_obs_api_server_url</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_obs_api_server_url</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default API server url to access the</span>
 <span class="sd">        public open buildservice API</span>
@@ -1555,7 +1555,7 @@
 <div class="viewcode-block" id="Defaults.get_solvable_location">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_solvable_location">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_solvable_location</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_solvable_location</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the directory to store SAT solvables for repositories.</span>
 <span class="sd">        The solvable files are used to perform package</span>
@@ -1571,7 +1571,7 @@
 <div class="viewcode-block" id="Defaults.set_runtime_checker_metadata">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.set_runtime_checker_metadata">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">set_runtime_checker_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_runtime_checker_metadata</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the runtime checker metadata filename</span>
 
@@ -1584,7 +1584,7 @@
 <div class="viewcode-block" id="Defaults.set_shared_cache_location">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.set_shared_cache_location">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">set_shared_cache_location</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_shared_cache_location</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the shared cache location once</span>
 
@@ -1597,7 +1597,7 @@
 <div class="viewcode-block" id="Defaults.set_custom_runtime_config_file">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.set_custom_runtime_config_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">set_custom_runtime_config_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_custom_runtime_config_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the runtime config file once</span>
 
@@ -1610,7 +1610,7 @@
 <div class="viewcode-block" id="Defaults.set_temp_location">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.set_temp_location">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">set_temp_location</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_temp_location</span><span class="p">(</span><span class="n">location</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the temp directory location once</span>
 
@@ -1623,7 +1623,7 @@
 <div class="viewcode-block" id="Defaults.get_shared_cache_location">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_shared_cache_location">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_shared_cache_location</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_shared_cache_location</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the shared cache location</span>
 
@@ -1645,7 +1645,7 @@
 <div class="viewcode-block" id="Defaults.get_temp_location">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_temp_location">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_temp_location</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_temp_location</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the base temp directory location</span>
 
@@ -1664,7 +1664,7 @@
 <div class="viewcode-block" id="Defaults.get_sync_options">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_sync_options">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_sync_options</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sync_options</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of default data sync options</span>
 
@@ -1681,7 +1681,7 @@
 <div class="viewcode-block" id="Defaults.get_removed_files_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_removed_files_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_removed_files_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_removed_files_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides base file name to store removed files</span>
 <span class="sd">        in a delta root build</span>
@@ -1692,7 +1692,7 @@
 <div class="viewcode-block" id="Defaults.get_system_files_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_system_files_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_system_files_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_system_files_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides base file name to store system files</span>
 <span class="sd">        in a container build</span>
@@ -1703,7 +1703,7 @@
 <div class="viewcode-block" id="Defaults.get_exclude_list_for_removed_files_detection">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_exclude_list_for_removed_files_detection">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_exclude_list_for_removed_files_detection</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exclude_list_for_removed_files_detection</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of files/dirs to exclude from the removed</span>
 <span class="sd">        files detection in a delta root build</span>
@@ -1722,7 +1722,7 @@
 <div class="viewcode-block" id="Defaults.get_exclude_list_for_root_data_sync">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_exclude_list_for_root_data_sync">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_exclude_list_for_root_data_sync</span><span class="p">(</span><span class="n">no_tmpdirs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exclude_list_for_root_data_sync</span><span class="p">(</span><span class="n">no_tmpdirs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the list of files or folders that are created</span>
 <span class="sd">        by KIWI for its own purposes. Those files should be not</span>
@@ -1747,7 +1747,7 @@
 <div class="viewcode-block" id="Defaults.get_runtime_checker_metadata">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_runtime_checker_metadata">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_runtime_checker_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_runtime_checker_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">RUNTIME_CHECKER_METADATA</span><span class="p">)</span> <span class="k">as</span> <span class="n">meta</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">meta</span><span class="p">)</span></div>
 
@@ -1755,7 +1755,7 @@
 <div class="viewcode-block" id="Defaults.get_exclude_list_from_custom_exclude_files">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_exclude_list_from_custom_exclude_files">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_exclude_list_from_custom_exclude_files</span><span class="p">(</span><span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exclude_list_from_custom_exclude_files</span><span class="p">(</span><span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the list of folders that are excluded by the</span>
 <span class="sd">        optional metadata file image/exclude_files.yaml</span>
@@ -1789,7 +1789,7 @@
 <div class="viewcode-block" id="Defaults.get_exclude_list_for_non_physical_devices">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_exclude_list_for_non_physical_devices">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_exclude_list_for_non_physical_devices</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exclude_list_for_non_physical_devices</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the list of folders that are not associated</span>
 <span class="sd">        with a physical device. KIWI returns the basename of</span>
@@ -1809,7 +1809,7 @@
 <div class="viewcode-block" id="Defaults.get_failsafe_kernel_options">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_failsafe_kernel_options">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_failsafe_kernel_options</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_failsafe_kernel_options</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides failsafe boot kernel options</span>
 
@@ -1837,7 +1837,7 @@
 <div class="viewcode-block" id="Defaults.get_video_mode_map">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_video_mode_map">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_video_mode_map</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_video_mode_map</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides video mode map</span>
 
@@ -1880,7 +1880,7 @@
 <div class="viewcode-block" id="Defaults.get_volume_id">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_volume_id">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_volume_id</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_volume_id</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default value for ISO volume ID</span>
 
@@ -1894,7 +1894,7 @@
 <div class="viewcode-block" id="Defaults.get_install_volume_id">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_install_volume_id">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_install_volume_id</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_install_volume_id</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default value for ISO volume ID for install media</span>
 
@@ -1908,7 +1908,7 @@
 <div class="viewcode-block" id="Defaults.get_snapper_config_template_file">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_snapper_config_template_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_snapper_config_template_file</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_snapper_config_template_file</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default configuration template file for snapper.</span>
 <span class="sd">        The location in etc/ are preferred over files in usr/</span>
@@ -1933,7 +1933,7 @@
 <div class="viewcode-block" id="Defaults.get_default_video_mode">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_video_mode">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_video_mode</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_video_mode</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Uses auto mode for default video. See get_video_mode_map</span>
 <span class="sd">        for details on the value depending which bootloader is</span>
@@ -1949,7 +1949,7 @@
 <div class="viewcode-block" id="Defaults.get_default_bootloader">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_bootloader">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_bootloader</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_bootloader</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return default bootloader name which is grub2</span>
 
@@ -1963,7 +1963,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_custom_arguments">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_custom_arguments">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_custom_arguments</span><span class="p">(</span><span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_custom_arguments</span><span class="p">(</span><span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;grub_directory_name&#39;</span><span class="p">:</span>
                 <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_boot_directory_name</span><span class="p">(</span><span class="n">root_dir</span><span class="p">),</span>
@@ -1975,7 +1975,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_boot_directory_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_boot_directory_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_boot_directory_name</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_boot_directory_name</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides grub2 data directory name in boot/ directory</span>
 
@@ -2001,7 +2001,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_basic_modules">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_basic_modules">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_basic_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_basic_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of basic grub modules</span>
 
@@ -2054,7 +2054,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_efi_modules">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_efi_modules">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_efi_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_efi_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of grub efi modules</span>
 
@@ -2080,7 +2080,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_bios_modules">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_bios_modules">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_bios_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_bios_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of grub bios modules</span>
 
@@ -2105,7 +2105,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_ofw_modules">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_ofw_modules">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_ofw_modules</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_ofw_modules</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of grub ofw modules (ppc)</span>
 
@@ -2124,7 +2124,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_s390_modules">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_s390_modules">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_s390_modules</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_s390_modules</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of grub ofw modules (s390)</span>
 
@@ -2143,7 +2143,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_path">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_path">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_path</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">raise_on_error</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_path</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">raise_on_error</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides grub path to given search file</span>
 
@@ -2190,7 +2190,7 @@
 <div class="viewcode-block" id="Defaults.get_preparer">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_preparer">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_preparer</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_preparer</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides ISO preparer name</span>
 
@@ -2204,7 +2204,7 @@
 <div class="viewcode-block" id="Defaults.get_publisher">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_publisher">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_publisher</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_publisher</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides ISO publisher name</span>
 
@@ -2218,7 +2218,7 @@
 <div class="viewcode-block" id="Defaults.get_shim_loader">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_shim_loader">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_shim_loader</span><span class="p">(</span><span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">shim_loader_type</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_shim_loader</span><span class="p">(</span><span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">shim_loader_type</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides shim loader file path</span>
 
@@ -2262,7 +2262,7 @@
 <div class="viewcode-block" id="Defaults.get_mok_manager">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_mok_manager">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_mok_manager</span><span class="p">(</span><span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_mok_manager</span><span class="p">(</span><span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides Mok Manager file path</span>
 
@@ -2290,7 +2290,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_efi_font_directory">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_efi_font_directory">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_efi_font_directory</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_efi_font_directory</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides distribution specific EFI font directory used with grub.</span>
 
@@ -2311,7 +2311,7 @@
 <div class="viewcode-block" id="Defaults.get_unsigned_grub_loader">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_unsigned_grub_loader">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_unsigned_grub_loader</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_unsigned_grub_loader</span><span class="p">(</span>
         <span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;disk&#39;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2353,7 +2353,7 @@
 <div class="viewcode-block" id="Defaults.get_grub_bios_core_loader">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_bios_core_loader">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_grub_bios_core_loader</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_bios_core_loader</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides grub bios image</span>
 
@@ -2384,7 +2384,7 @@
 <div class="viewcode-block" id="Defaults.get_iso_grub_loader">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_iso_grub_loader">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_iso_grub_loader</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iso_grub_loader</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return name of eltorito grub image used as ISO loader</span>
 
@@ -2398,7 +2398,7 @@
 <div class="viewcode-block" id="Defaults.get_iso_grub_mbr">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_iso_grub_mbr">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_iso_grub_mbr</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iso_grub_mbr</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return name of hybrid MBR image used as ISO boot record</span>
 
@@ -2412,7 +2412,7 @@
 <div class="viewcode-block" id="Defaults.get_signed_grub_loader">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_signed_grub_loader">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_signed_grub_loader</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_signed_grub_loader</span><span class="p">(</span>
         <span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;disk&#39;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">grub_loader_type</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2492,7 +2492,7 @@
 <div class="viewcode-block" id="Defaults.get_efi_vendor_directory">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_efi_vendor_directory">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_efi_vendor_directory</span><span class="p">(</span><span class="n">efi_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_efi_vendor_directory</span><span class="p">(</span><span class="n">efi_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides EFI vendor directory if present</span>
 
@@ -2521,7 +2521,7 @@
 <div class="viewcode-block" id="Defaults.get_vendor_grubenv">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_vendor_grubenv">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_vendor_grubenv</span><span class="p">(</span><span class="n">efi_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_vendor_grubenv</span><span class="p">(</span><span class="n">efi_path</span><span class="p">):</span>
         <span class="n">efi_vendor_directory</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_efi_vendor_directory</span><span class="p">(</span><span class="n">efi_path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">efi_vendor_directory</span><span class="p">:</span>
             <span class="n">grubenv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">efi_vendor_directory</span><span class="p">,</span> <span class="s1">&#39;grubenv&#39;</span><span class="p">])</span>
@@ -2532,7 +2532,7 @@
 <div class="viewcode-block" id="Defaults.get_shim_vendor_directory">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_shim_vendor_directory">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_shim_vendor_directory</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_shim_vendor_directory</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides shim vendor directory</span>
 
@@ -2558,7 +2558,7 @@
 <div class="viewcode-block" id="Defaults.get_default_volume_group_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_volume_group_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_volume_group_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_volume_group_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default LVM volume group name</span>
 
@@ -2572,7 +2572,7 @@
 <div class="viewcode-block" id="Defaults.get_min_partition_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_min_partition_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_min_partition_mbytes</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_partition_mbytes</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default minimum partition size in mbytes</span>
 
@@ -2586,7 +2586,7 @@
 <div class="viewcode-block" id="Defaults.get_min_volume_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_min_volume_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_min_volume_mbytes</span><span class="p">(</span><span class="n">filesystem</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_min_volume_mbytes</span><span class="p">(</span><span class="n">filesystem</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default minimum LVM volume size in mbytes</span>
 <span class="sd">        per filesystem</span>
@@ -2606,7 +2606,7 @@
 <div class="viewcode-block" id="Defaults.get_lvm_overhead_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_lvm_overhead_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_lvm_overhead_mbytes</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_lvm_overhead_mbytes</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides empiric LVM overhead size in mbytes</span>
 
@@ -2620,7 +2620,7 @@
 <div class="viewcode-block" id="Defaults.get_default_boot_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_boot_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_boot_mbytes</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_boot_mbytes</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default boot partition size in mbytes</span>
 
@@ -2634,7 +2634,7 @@
 <div class="viewcode-block" id="Defaults.get_default_efi_boot_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_efi_boot_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_efi_boot_mbytes</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_efi_boot_mbytes</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default EFI partition size in mbytes</span>
 
@@ -2648,7 +2648,7 @@
 <div class="viewcode-block" id="Defaults.get_recovery_spare_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_recovery_spare_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_recovery_spare_mbytes</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_recovery_spare_mbytes</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides spare size of recovery partition in mbytes</span>
 
@@ -2662,7 +2662,7 @@
 <div class="viewcode-block" id="Defaults.get_default_legacy_bios_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_legacy_bios_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_legacy_bios_mbytes</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_legacy_bios_mbytes</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default size of bios_grub partition in mbytes</span>
 
@@ -2676,7 +2676,7 @@
 <div class="viewcode-block" id="Defaults.get_default_prep_mbytes">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_prep_mbytes">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_prep_mbytes</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_prep_mbytes</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default size of prep partition in mbytes</span>
 
@@ -2690,7 +2690,7 @@
 <div class="viewcode-block" id="Defaults.get_disk_format_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_disk_format_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_disk_format_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_disk_format_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides supported disk format types</span>
 
@@ -2707,7 +2707,7 @@
 <div class="viewcode-block" id="Defaults.get_vagrant_config_virtualbox_guest_additions">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_vagrant_config_virtualbox_guest_additions">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_vagrant_config_virtualbox_guest_additions</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_vagrant_config_virtualbox_guest_additions</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default value for</span>
 <span class="sd">        ``vagrantconfig.virtualbox_guest_additions_present``</span>
@@ -2723,7 +2723,7 @@
 <div class="viewcode-block" id="Defaults.get_firmware_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_firmware_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_firmware_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_firmware_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides supported architecture specific firmware types</span>
 
@@ -2757,7 +2757,7 @@
 <div class="viewcode-block" id="Defaults.get_default_firmware">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_firmware">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_firmware</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_firmware</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default firmware for specified architecture</span>
 
@@ -2793,7 +2793,7 @@
 <div class="viewcode-block" id="Defaults.get_efi_capable_firmware_names">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_efi_capable_firmware_names">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_efi_capable_firmware_names</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_efi_capable_firmware_names</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of EFI capable firmware names. These are</span>
 <span class="sd">        those for which kiwi supports the creation of an EFI</span>
@@ -2809,7 +2809,7 @@
 <div class="viewcode-block" id="Defaults.get_ec2_capable_firmware_names">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_ec2_capable_firmware_names">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_ec2_capable_firmware_names</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ec2_capable_firmware_names</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of EC2 capable firmware names. These are</span>
 <span class="sd">        those for which kiwi supports the creation of disk images</span>
@@ -2825,7 +2825,7 @@
 <div class="viewcode-block" id="Defaults.get_efi_module_directory_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_efi_module_directory_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_efi_module_directory_name</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_efi_module_directory_name</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides architecture specific EFI directory name which</span>
 <span class="sd">        stores the EFI binaries for the desired architecture.</span>
@@ -2860,7 +2860,7 @@
 <div class="viewcode-block" id="Defaults.get_bios_module_directory_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_bios_module_directory_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_bios_module_directory_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bios_module_directory_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides BIOS directory name which stores the pc binaries</span>
 
@@ -2874,7 +2874,7 @@
 <div class="viewcode-block" id="Defaults.get_efi_image_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_efi_image_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_efi_image_name</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_efi_image_name</span><span class="p">(</span><span class="n">arch</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides architecture specific EFI boot binary name</span>
 
@@ -2902,7 +2902,7 @@
 <div class="viewcode-block" id="Defaults.get_bios_image_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_bios_image_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_bios_image_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bios_image_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides bios core boot binary name</span>
 
@@ -2916,7 +2916,7 @@
 <div class="viewcode-block" id="Defaults.get_default_boot_timeout_seconds">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_boot_timeout_seconds">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_boot_timeout_seconds</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_boot_timeout_seconds</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default boot timeout in seconds</span>
 
@@ -2930,7 +2930,7 @@
 <div class="viewcode-block" id="Defaults.get_default_disk_start_sector">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_disk_start_sector">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_disk_start_sector</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_disk_start_sector</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default initial disk sector for the first disk</span>
 <span class="sd">        partition.</span>
@@ -2945,7 +2945,7 @@
 <div class="viewcode-block" id="Defaults.get_default_efi_partition_table_type">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_efi_partition_table_type">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_efi_partition_table_type</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_efi_partition_table_type</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default partition table type for efi firmwares.</span>
 
@@ -2959,7 +2959,7 @@
 <div class="viewcode-block" id="Defaults.get_default_inode_size">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_inode_size">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_inode_size</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_inode_size</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default size of inodes in bytes. This is only</span>
 <span class="sd">        relevant for inode based filesystems</span>
@@ -2974,7 +2974,7 @@
 <div class="viewcode-block" id="Defaults.get_archive_image_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_archive_image_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_archive_image_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_archive_image_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of supported archive image types</span>
 
@@ -2988,7 +2988,7 @@
 <div class="viewcode-block" id="Defaults.get_container_image_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_container_image_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_container_image_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_container_image_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of supported container image types</span>
 
@@ -3002,7 +3002,7 @@
 <div class="viewcode-block" id="Defaults.get_filesystem_image_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_filesystem_image_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_filesystem_image_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_filesystem_image_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of supported filesystem image types</span>
 
@@ -3019,7 +3019,7 @@
 <div class="viewcode-block" id="Defaults.get_default_live_iso_type">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_live_iso_type">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_live_iso_type</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_live_iso_type</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default live iso union type</span>
 
@@ -3033,7 +3033,7 @@
 <div class="viewcode-block" id="Defaults.get_default_uri_type">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_uri_type">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_uri_type</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_uri_type</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default URI type</span>
 
@@ -3050,7 +3050,7 @@
 <div class="viewcode-block" id="Defaults.get_dracut_conf_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_dracut_conf_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_dracut_conf_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dracut_conf_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides file path of dracut config file to be used with KIWI</span>
 
@@ -3064,7 +3064,7 @@
 <div class="viewcode-block" id="Defaults.get_live_dracut_modules_from_flag">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_live_dracut_modules_from_flag">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_live_dracut_modules_from_flag</span><span class="p">(</span><span class="n">flag_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_live_dracut_modules_from_flag</span><span class="p">(</span><span class="n">flag_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides flag_name to dracut modules name map</span>
 
@@ -3088,7 +3088,7 @@
 <div class="viewcode-block" id="Defaults.get_default_live_iso_root_filesystem">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_live_iso_root_filesystem">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_live_iso_root_filesystem</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_live_iso_root_filesystem</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default live iso root filesystem type</span>
 
@@ -3102,7 +3102,7 @@
 <div class="viewcode-block" id="Defaults.get_live_iso_persistent_boot_options">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_live_iso_persistent_boot_options">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_live_iso_persistent_boot_options</span><span class="p">(</span><span class="n">persistent_filesystem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_live_iso_persistent_boot_options</span><span class="p">(</span><span class="n">persistent_filesystem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides list of boot options passed to the dracut</span>
 <span class="sd">        kiwi-live module to setup persistent writing</span>
@@ -3124,7 +3124,7 @@
 <div class="viewcode-block" id="Defaults.get_disk_image_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_disk_image_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_disk_image_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_disk_image_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides supported disk image types</span>
 
@@ -3138,7 +3138,7 @@
 <div class="viewcode-block" id="Defaults.get_live_image_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_live_image_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_live_image_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_live_image_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides supported live image types</span>
 
@@ -3152,7 +3152,7 @@
 <div class="viewcode-block" id="Defaults.get_kis_image_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_kis_image_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_kis_image_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_kis_image_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides supported kis image types</span>
 
@@ -3166,7 +3166,7 @@
 <div class="viewcode-block" id="Defaults.get_enclaves_image_types">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_enclaves_image_types">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_enclaves_image_types</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_enclaves_image_types</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides supported enclave(initrd-only) image types</span>
 
@@ -3180,7 +3180,7 @@
 <div class="viewcode-block" id="Defaults.get_boot_image_description_path">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_boot_image_description_path">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_boot_image_description_path</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_boot_image_description_path</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the path to find custom kiwi boot descriptions</span>
 
@@ -3194,7 +3194,7 @@
 <div class="viewcode-block" id="Defaults.get_boot_image_strip_file">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_boot_image_strip_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_boot_image_strip_file</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_boot_image_strip_file</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the file path to bootloader strip metadata.</span>
 <span class="sd">        This file contains information about the files and directories</span>
@@ -3210,7 +3210,7 @@
 <div class="viewcode-block" id="Defaults.get_schema_file">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_schema_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_schema_file</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_schema_file</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides file path to kiwi RelaxNG schema</span>
 
@@ -3224,7 +3224,7 @@
 <div class="viewcode-block" id="Defaults.get_common_functions_file">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_common_functions_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_common_functions_file</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_common_functions_file</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the file path to config functions metadata.</span>
 
@@ -3241,7 +3241,7 @@
 <div class="viewcode-block" id="Defaults.get_xsl_stylesheet_file">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_xsl_stylesheet_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_xsl_stylesheet_file</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_xsl_stylesheet_file</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the file path to the KIWI XSLT style sheets</span>
 
@@ -3255,7 +3255,7 @@
 <div class="viewcode-block" id="Defaults.get_schematron_module_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_schematron_module_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_schematron_module_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_schematron_module_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides module name for XML SchemaTron validations</span>
 
@@ -3269,7 +3269,7 @@
 <div class="viewcode-block" id="Defaults.project_file">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.project_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">project_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">project_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the python module base directory search path</span>
 
@@ -3289,7 +3289,7 @@
 <div class="viewcode-block" id="Defaults.get_imported_root_image">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_imported_root_image">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_imported_root_image</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_imported_root_image</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the path to an imported root system image</span>
 
@@ -3309,7 +3309,7 @@
 <div class="viewcode-block" id="Defaults.get_iso_boot_path">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_iso_boot_path">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_iso_boot_path</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iso_boot_path</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides arch specific relative path to boot files</span>
 <span class="sd">        on kiwi iso filesystems</span>
@@ -3326,7 +3326,7 @@
 <div class="viewcode-block" id="Defaults.get_iso_tool_category">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_iso_tool_category">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_iso_tool_category</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iso_tool_category</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default iso tool category</span>
 
@@ -3340,7 +3340,7 @@
 <div class="viewcode-block" id="Defaults.get_iso_media_tag_tool">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_iso_media_tag_tool">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_iso_media_tag_tool</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iso_media_tag_tool</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default iso media tag tool</span>
 
@@ -3354,7 +3354,7 @@
 <div class="viewcode-block" id="Defaults.get_container_compression">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_container_compression">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_container_compression</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_container_compression</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides default container compression</span>
 
@@ -3368,7 +3368,7 @@
 <div class="viewcode-block" id="Defaults.get_default_container_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_container_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_container_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_container_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default container name.</span>
 
@@ -3382,7 +3382,7 @@
 <div class="viewcode-block" id="Defaults.get_container_base_image_tag">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_container_base_image_tag">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_container_base_image_tag</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_container_base_image_tag</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the tag used to identify base layers during the build</span>
 <span class="sd">        of derived images.</span>
@@ -3397,7 +3397,7 @@
 <div class="viewcode-block" id="Defaults.get_oci_archive_tool">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_oci_archive_tool">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_oci_archive_tool</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_oci_archive_tool</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default OCI archive tool name.</span>
 
@@ -3411,7 +3411,7 @@
 <div class="viewcode-block" id="Defaults.get_part_mapper_tool">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_part_mapper_tool">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_part_mapper_tool</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_part_mapper_tool</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default partition mapper tool name.</span>
 
@@ -3428,7 +3428,7 @@
 <div class="viewcode-block" id="Defaults.get_default_container_tag">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_container_tag">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_container_tag</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_container_tag</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default container tag.</span>
 
@@ -3442,7 +3442,7 @@
 <div class="viewcode-block" id="Defaults.get_default_container_subcommand">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_container_subcommand">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_container_subcommand</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_container_subcommand</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default container subcommand.</span>
 
@@ -3456,7 +3456,7 @@
 <div class="viewcode-block" id="Defaults.get_default_container_created_by">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_container_created_by">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_container_created_by</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_container_created_by</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the default &#39;created by&#39; history entry for containers.</span>
 
@@ -3470,7 +3470,7 @@
 <div class="viewcode-block" id="Defaults.get_custom_rpm_macros_path">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_custom_rpm_macros_path">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_custom_rpm_macros_path</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_custom_rpm_macros_path</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the custom macros directory for the rpm database.</span>
 
@@ -3484,7 +3484,7 @@
 <div class="viewcode-block" id="Defaults.get_custom_rpm_bootstrap_macro_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_custom_rpm_bootstrap_macro_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_custom_rpm_bootstrap_macro_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_custom_rpm_bootstrap_macro_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the rpm bootstrap macro file name created</span>
 <span class="sd">        in the custom rpm macros path</span>
@@ -3499,7 +3499,7 @@
 <div class="viewcode-block" id="Defaults.get_custom_rpm_image_macro_name">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_custom_rpm_image_macro_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_custom_rpm_image_macro_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_custom_rpm_image_macro_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the rpm image macro file name created</span>
 <span class="sd">        in the custom rpm macros path</span>
@@ -3514,7 +3514,7 @@
 <div class="viewcode-block" id="Defaults.get_default_package_manager">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_package_manager">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_package_manager</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_package_manager</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the default package manager name if none</span>
 <span class="sd">        is configured in the image description</span>
@@ -3529,7 +3529,7 @@
 <div class="viewcode-block" id="Defaults.get_default_packager_tool">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_default_packager_tool">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_default_packager_tool</span><span class="p">(</span><span class="n">package_manager</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_packager_tool</span><span class="p">(</span><span class="n">package_manager</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the packager tool according to the package manager</span>
 
@@ -3552,7 +3552,7 @@
 <div class="viewcode-block" id="Defaults.get_discoverable_partition_ids">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_discoverable_partition_ids">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_discoverable_partition_ids</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_discoverable_partition_ids</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides arch specific partition UUIDs as defined</span>
 <span class="sd">        by the UAPI group</span>
@@ -3632,7 +3632,7 @@
 <div class="viewcode-block" id="Defaults.get_bls_loader_entries_dir">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_bls_loader_entries_dir">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_bls_loader_entries_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bls_loader_entries_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provide default loader entries directory for BLS loaders</span>
 
@@ -3645,7 +3645,7 @@
 
 <div class="viewcode-block" id="Defaults.get">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get">[docs]</a>
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements get method for profile elements</span>
 
@@ -3662,7 +3662,7 @@
 <div class="viewcode-block" id="Defaults.get_profile_file">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_profile_file">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_profile_file</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_profile_file</span><span class="p">(</span><span class="n">root_dir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return name of profile file for given root directory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3671,7 +3671,7 @@
 
 <div class="viewcode-block" id="Defaults.to_profile">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.to_profile">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements method to add list of profile keys and their values</span>
 <span class="sd">        to the specified instance of a Profile class</span>
@@ -3695,7 +3695,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config.zipl &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.bootloader.config.zipl &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1255,21 +1255,21 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.boot.image.base</span> <span class="kn">import</span> <span class="n">BootImageBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.bootloader.template.zipl</span> <span class="kn">import</span> <span class="n">BootLoaderTemplateZipl</span>
-<span class="kn">from</span> <span class="nn">kiwi.bootloader.config.bootloader_spec_base</span> <span class="kn">import</span> <span class="n">BootLoaderSpecBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="n">Temporary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.boot.image.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootImageBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.bootloader.template.zipl</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootLoaderTemplateZipl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.bootloader.config.bootloader_spec_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootLoaderSpecBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="n">Temporary</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiTemplateError</span><span class="p">,</span>
     <span class="n">KiwiBootLoaderTargetError</span><span class="p">,</span>
     <span class="n">KiwiDiskGeometryError</span>
@@ -1280,10 +1280,10 @@
 
 <div class="viewcode-block" id="BootLoaderZipl">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.zipl.BootLoaderZipl">[docs]</a>
-<span class="k">class</span> <span class="nc">BootLoaderZipl</span><span class="p">(</span><span class="n">BootLoaderSpecBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BootLoaderZipl</span><span class="p">(</span><span class="n">BootLoaderSpecBase</span><span class="p">):</span>
 <div class="viewcode-block" id="BootLoaderZipl.create_loader_image">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.zipl.BootLoaderZipl.create_loader_image">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_loader_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_loader_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Nothing to be done here for zipl</span>
 
@@ -1294,7 +1294,7 @@
 
 <div class="viewcode-block" id="BootLoaderZipl.setup_loader">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.zipl.BootLoaderZipl.setup_loader">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_loader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup temporary zipl config and install zipl for supported targets.</span>
 <span class="sd">        Please note we are not touching the main zipl.conf file provided</span>
@@ -1328,6 +1328,7 @@
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">boot_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">kernel_info</span><span class="o">.</span><span class="n">initrd_name</span><span class="si">}</span><span class="s1">&#39;</span>
 
         <span class="n">host_key_certificates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_host_key_certificates</span><span class="p">()</span>
+        <span class="n">cc_boot_image</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s2">&quot;kernel&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.cc&#39;</span>
         <span class="k">if</span> <span class="n">host_key_certificates</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">Temporary</span><span class="p">(</span>
                 <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;kiwi_zipl_parmfile_&#39;</span>
@@ -1337,11 +1338,10 @@
                 <span class="n">genprotimg_init</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="s1">&#39;chroot&#39;</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;genprotimg&#39;</span><span class="p">,</span>
                     <span class="s1">&#39;--offline&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s2">&quot;kernel&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.cc&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">cc_boot_image</span><span class="p">,</span>
                     <span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;kernel&#39;</span><span class="p">],</span>
                     <span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;initrd&#39;</span><span class="p">],</span>
-                    <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">hkd_parm_file</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
-                    <span class="s1">&#39;--cert&#39;</span><span class="p">,</span> <span class="n">host_key_certificates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;hkd_ca_cert&#39;</span><span class="p">]</span>
+                    <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">hkd_parm_file</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
                 <span class="p">]</span>
                 <span class="c1"># verify all host key documents individually and call</span>
                 <span class="c1"># genprotimg with --no-verify afterwards. This is done</span>
@@ -1349,6 +1349,10 @@
                 <span class="c1"># multiple signing keys</span>
                 <span class="k">for</span> <span class="n">host_key_certificate</span> <span class="ow">in</span> <span class="n">host_key_certificates</span><span class="p">:</span>
                     <span class="n">genprotimg_host_key_check</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">genprotimg_init</span><span class="p">)</span>
+                    <span class="n">genprotimg_host_key_check</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--cert&#39;</span><span class="p">)</span>
+                    <span class="n">genprotimg_host_key_check</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">host_key_certificates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;hkd_ca_cert&#39;</span><span class="p">]</span>
+                    <span class="p">)</span>
                     <span class="n">genprotimg_host_key_check</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--cert&#39;</span><span class="p">)</span>
                     <span class="n">genprotimg_host_key_check</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">host_key_certificate</span><span class="p">[</span><span class="s1">&#39;hkd_sign_cert&#39;</span><span class="p">]</span>
@@ -1365,12 +1369,11 @@
                         <span class="p">)</span>
                     <span class="p">)</span>
                     <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">genprotimg_host_key_check</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">root_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">cc_boot_image</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="c1"># final call</span>
                 <span class="n">genprotimg</span> <span class="o">=</span> <span class="n">genprotimg_init</span>
                 <span class="n">genprotimg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--no-verify&#39;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">host_key_certificate</span> <span class="ow">in</span> <span class="n">host_key_certificates</span><span class="p">:</span>
-                    <span class="n">genprotimg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--cert&#39;</span><span class="p">)</span>
-                    <span class="n">genprotimg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">host_key_certificate</span><span class="p">[</span><span class="s1">&#39;hkd_sign_cert&#39;</span><span class="p">])</span>
                     <span class="k">for</span> <span class="n">host_key</span> <span class="ow">in</span> <span class="n">host_key_certificate</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hkd_cert&#39;</span><span class="p">):</span>
                         <span class="n">genprotimg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-k&#39;</span><span class="p">)</span>
                         <span class="n">genprotimg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">host_key</span><span class="p">)</span>
@@ -1380,8 +1383,7 @@
                 <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">genprotimg</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;secure_linux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;secure_image_file&#39;</span><span class="p">]</span> <span class="o">=</span> \
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s2">&quot;kernel&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.cc&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;secure_image_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cc_boot_image</span>
             <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">root_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s2">&quot;kernel&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">root_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s2">&quot;initrd&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;kernel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -1403,7 +1405,7 @@
 
 <div class="viewcode-block" id="BootLoaderZipl.set_loader_entry">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.zipl.BootLoaderZipl.set_loader_entry">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_loader_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_loader_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup/update loader entries of the form</span>
 <span class="sd">        {boot_path}/loader/entries/{get_entry_name}</span>
@@ -1421,7 +1423,7 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_install_zipl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">zipl_config</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_install_zipl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">zipl_config</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Install zipl on target</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1435,7 +1437,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sys_mount</span><span class="o">.</span><span class="n">umount</span><span class="p">()</span>
         <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">zipl</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_template_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_template_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">default_entry</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">disk_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disk_type</span> <span class="ow">or</span> <span class="s1">&#39;SCSI&#39;</span>
@@ -1461,7 +1463,7 @@
             <span class="s1">&#39;default_entry&#39;</span><span class="p">:</span> <span class="n">default_entry</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">_get_disk_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_disk_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">target_table_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span><span class="o">.</span><span class="n">get_partition_table_type</span><span class="p">()</span>
         <span class="n">disk_device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;targetbase&#39;</span><span class="p">]</span>
         <span class="n">disk_geometry</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -1479,7 +1481,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">disk_geometry</span>
 
-    <span class="k">def</span> <span class="nf">_get_partition_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_partition_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">target_table_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span><span class="o">.</span><span class="n">get_partition_table_type</span><span class="p">()</span>
         <span class="n">disk_device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;targetbase&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">target_table_type</span> <span class="o">==</span> <span class="s1">&#39;dasd&#39;</span><span class="p">:</span>
@@ -1516,7 +1518,7 @@
                 <span class="p">[</span><span class="s1">&#39;bash&#39;</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">sfdisk_command</span><span class="p">]</span>
             <span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_get_dasd_disk_geometry_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disk_device</span><span class="p">,</span> <span class="n">search</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_dasd_disk_geometry_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disk_device</span><span class="p">,</span> <span class="n">search</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="n">fdasd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fdasd&#39;</span><span class="p">,</span> <span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">disk_device</span><span class="p">]</span>
         <span class="n">bash_command</span> <span class="o">=</span> <span class="n">fdasd</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="s1">&#39;grep&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="n">search</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">]</span>
         <span class="n">fdasd_call</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
@@ -1531,7 +1533,7 @@
             <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_write_config_file</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_config_file</span><span class="p">(</span>
         <span class="n">template</span><span class="p">:</span> <span class="n">Template</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1553,7 +1555,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

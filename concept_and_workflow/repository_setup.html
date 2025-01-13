@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Setting up Repositories &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Setting up Repositories &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../_static/documentation_options.js?v=bf020882"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1287,12 +1287,12 @@ with the highest priority is used.</p></li>
 in the image visible via <code class="docutils literal notranslate"><span class="pre">zypper</span> <span class="pre">repos</span></code> or <code class="docutils literal notranslate"><span class="pre">dnf</span> <span class="pre">repolist</span></code>. If <code class="xref py py-obj docutils literal notranslate"><span class="pre">alias`</span></code> is
 not specified, KIWI NG generates an alias name using hex representation from
 uuid4.</p></li>
-<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">repository_gpgcheck</span></code>: Specifies whether the repository is
-configured to perform repository signature validation. If not set, the
-package manager’s default is used.</p></li>
-<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">package_gpgcheck</span></code>: Boolean value that specifies whether each package’s
-GPG signature is verified. If omitted, the package manager’s default
-is used.</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">repository_gpgcheck</span></code>: Specify whether or not this specific repository
+values the result of the repository signature validation.
+The default value is <code class="xref py py-obj docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">package_gpgcheck</span></code>: Specify whether or not this specific repository
+values the result of the package signature validation for each
+package taken from this repository. The default value is <code class="xref py py-obj docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">components</span></code>: Distribution components used for <code class="xref py py-obj docutils literal notranslate"><span class="pre">deb</span></code> repositories. Default is <code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">distribution</span></code>: Distribution name information, used for deb repositories.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">profiles</span></code>: List of profiles to which this repository applies.</p></li>
@@ -1358,7 +1358,7 @@ pointing to the mounted ISO.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

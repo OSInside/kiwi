@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config.base &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.bootloader.config.base &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1255,21 +1255,21 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.mount_manager</span> <span class="kn">import</span> <span class="n">MountManager</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.setup</span> <span class="kn">import</span> <span class="n">DiskSetup</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.block</span> <span class="kn">import</span> <span class="n">BlockID</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.setup</span> <span class="kn">import</span> <span class="n">SystemSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.mount_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MountManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiskSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockID</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSetup</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiBootLoaderTargetError</span>
 <span class="p">)</span>
 
@@ -1278,7 +1278,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase">[docs]</a>
-<span class="k">class</span> <span class="nc">BootLoaderConfigBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BootLoaderConfigBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Base class for bootloader configuration**</span>
 
@@ -1286,7 +1286,7 @@
 <span class="sd">    :param string root_dir: root directory path name</span>
 <span class="sd">    :param dict custom_args: custom bootloader arguments dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">boot_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">custom_args</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">boot_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">custom_args</span><span class="o">=</span><span class="p">{}):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">boot_dir</span> <span class="o">=</span> <span class="n">boot_dir</span> <span class="ow">or</span> <span class="n">root_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span> <span class="o">=</span> <span class="n">xml_state</span>
@@ -1306,12 +1306,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">root_filesystem_is_overlay</span> <span class="o">=</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_overlayroot</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">post_init</span><span class="p">(</span><span class="n">custom_args</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="BootLoaderConfigBase.post_init">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post initialization method</span>
 
@@ -1325,7 +1325,7 @@
 <div class="viewcode-block" id="BootLoaderConfigBase.write">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.write">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write config data to config file.</span>
 
@@ -1335,7 +1335,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.write_meta_data">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.write_meta_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_meta_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_meta_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">root_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">write_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boot_options</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1353,7 +1353,7 @@
 <div class="viewcode-block" id="BootLoaderConfigBase.setup_disk_image_config">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.setup_disk_image_config">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">setup_disk_image_config</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_disk_image_config</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">boot_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">root_uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hypervisor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">kernel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initrd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boot_options</span><span class="o">=</span><span class="p">{}</span>
     <span class="p">):</span>
@@ -1382,7 +1382,7 @@
 <div class="viewcode-block" id="BootLoaderConfigBase.setup_install_image_config">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.setup_install_image_config">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">setup_install_image_config</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_install_image_config</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">hypervisor</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">initrd</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1400,7 +1400,7 @@
 <div class="viewcode-block" id="BootLoaderConfigBase.setup_live_image_config">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.setup_live_image_config">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">setup_live_image_config</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_live_image_config</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">hypervisor</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">initrd</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1418,7 +1418,7 @@
 <div class="viewcode-block" id="BootLoaderConfigBase.setup_disk_boot_images">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.setup_disk_boot_images">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">setup_disk_boot_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boot_uuid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_disk_boot_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boot_uuid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create bootloader images for disk boot</span>
 
@@ -1436,7 +1436,7 @@
 <div class="viewcode-block" id="BootLoaderConfigBase.setup_install_boot_images">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.setup_install_boot_images">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">setup_install_boot_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_install_boot_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create bootloader images for ISO boot an install media</span>
 
@@ -1450,7 +1450,7 @@
 <div class="viewcode-block" id="BootLoaderConfigBase.setup_live_boot_images">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.setup_live_boot_images">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">setup_live_boot_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_live_boot_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create bootloader images for ISO boot a live ISO image</span>
 
@@ -1464,7 +1464,7 @@
 <div class="viewcode-block" id="BootLoaderConfigBase.setup_sysconfig_bootloader">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.setup_sysconfig_bootloader">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">setup_sysconfig_bootloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_sysconfig_bootloader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create or update etc/sysconfig/bootloader by parameters</span>
 <span class="sd">        required according to the bootloader setup</span>
@@ -1475,7 +1475,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.create_efi_path">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.create_efi_path">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_efi_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_sub_dir</span><span class="o">=</span><span class="s1">&#39;boot/efi&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_efi_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_sub_dir</span><span class="o">=</span><span class="s1">&#39;boot/efi&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create standard EFI boot directory structure</span>
 
@@ -1494,7 +1494,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_boot_theme">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_theme">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_boot_theme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_boot_theme</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bootloader Theme name</span>
 
@@ -1512,7 +1512,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_boot_timeout_seconds">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_timeout_seconds">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_boot_timeout_seconds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_boot_timeout_seconds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bootloader timeout in seconds</span>
 
@@ -1530,7 +1530,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_continue_on_timeout">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_continue_on_timeout">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_continue_on_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_continue_on_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the boot should continue after boot timeout or not</span>
 
@@ -1547,7 +1547,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.failsafe_boot_entry_requested">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.failsafe_boot_entry_requested">[docs]</a>
-    <span class="k">def</span> <span class="nf">failsafe_boot_entry_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">failsafe_boot_entry_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if a failsafe boot entry is requested</span>
 
@@ -1562,7 +1562,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_boot_cmdline">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_cmdline">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_boot_cmdline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boot_device</span><span class="p">,</span> <span class="n">write_device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_boot_cmdline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boot_device</span><span class="p">,</span> <span class="n">write_device</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Boot commandline arguments passed to the kernel</span>
 
@@ -1598,7 +1598,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_install_image_boot_default">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_install_image_boot_default">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_install_image_boot_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_install_image_boot_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provide the default boot menu entry identifier for install images</span>
 
@@ -1654,7 +1654,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_boot_path">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_boot_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;disk&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_boot_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;disk&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bootloader lookup path on boot device</span>
 
@@ -1712,7 +1712,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.quote_title">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.quote_title">[docs]</a>
-    <span class="k">def</span> <span class="nf">quote_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quote_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Quote special characters in the title name</span>
 
@@ -1733,7 +1733,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_menu_entry_title">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_menu_entry_title">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_menu_entry_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plain</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_menu_entry_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plain</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prefixed menu entry title</span>
 
@@ -1763,7 +1763,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_menu_entry_install_title">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_menu_entry_install_title">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_menu_entry_install_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_menu_entry_install_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prefixed menu entry title for install images</span>
 
@@ -1782,7 +1782,7 @@
 
 <div class="viewcode-block" id="BootLoaderConfigBase.get_gfxmode">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.config.html#kiwi.bootloader.config.base.BootLoaderConfigBase.get_gfxmode">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_gfxmode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_gfxmode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Graphics mode according to bootloader target</span>
 
@@ -1814,7 +1814,7 @@
             <span class="k">return</span> <span class="n">gfxmode</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_mount_system</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mount_system</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">root_device</span><span class="p">,</span> <span class="n">boot_device</span><span class="p">,</span> <span class="n">efi_device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">volumes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">root_volume_name</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
@@ -1890,7 +1890,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sys_mount</span><span class="o">.</span><span class="n">bind_mount</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_is_mounted</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">_umount_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_umount_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_is_mounted</span><span class="p">:</span>
             <span class="c1"># Rebuild security context</span>
             <span class="n">setup</span> <span class="o">=</span> <span class="n">SystemSetup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">)</span>
@@ -1914,7 +1914,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">root_mount</span><span class="o">.</span><span class="n">umount</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">system_is_mounted</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_get_root_cmdline_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boot_device</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_root_cmdline_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boot_device</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        root= argument passed to the kernel</span>
 
@@ -1951,7 +1951,7 @@
                 <span class="s1">&#39;No explicit root= cmdline provided&#39;</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_root_overlay_cmdline_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boot_device</span><span class="p">,</span> <span class="n">write_device</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_root_overlay_cmdline_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boot_device</span><span class="p">,</span> <span class="n">write_device</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        rd.root.overlay.write= argument passed to the kernel</span>
 
@@ -1978,7 +1978,7 @@
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">root_overlay_parameter</span>
 
-    <span class="k">def</span> <span class="nf">_get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">persistency_type</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">persistency_type</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">persistency_type</span><span class="p">:</span>
             <span class="n">persistency_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_devicepersistency</span><span class="p">()</span>
         <span class="n">block_operation</span> <span class="o">=</span> <span class="n">BlockID</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
@@ -1996,7 +1996,7 @@
             <span class="s1">&#39;node&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;/dev/disk/</span><span class="si">{</span><span class="n">persistency_type</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_umount_system</span><span class="p">()</span></div>
 
 </pre></div>
@@ -2008,7 +2008,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

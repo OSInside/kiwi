@@ -209,6 +209,18 @@ the available kernel boot parameters for these modules:
   Note that options starting with `rd.kiwi` are not passed to avoid
   side effects.
 
+``rd.kiwi.oem.luks.reencrypt``
+  For OEM LUKS2 encrypted disk images. If set, reencrypts the disk
+  prior an eventual resize and therefore creates a new key pool and
+  master key. The reencryption is advisable if the image binary is
+  not protected. With access to the image binary it's possible to
+  extract the luks header which then allows to decrypt the data
+  unless it was reencrypted. The reencryption process only runs if
+  the checksum of the luks header still matches the one from the
+  original disk image. Be aware that the reencryption will ask
+  for the passphrase if the image has been built with an initial
+  luks passphrase.
+
 ``rd.kiwi.oem.maxdisk=size[KMGT]``
   Specifies the maximum disk size an unattended OEM installation uses for image
   deployment. Unattended OEM deployments default to deploying on `/dev/sda` (or

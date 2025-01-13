@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.storage.subformat.vhdfixed &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.storage.subformat.vhdfixed &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1255,28 +1255,28 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
-<span class="kn">import</span> <span class="nn">struct</span>
-<span class="kn">from</span> <span class="nn">binascii</span> <span class="kn">import</span> <span class="n">unhexlify</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">binascii</span><span class="w"> </span><span class="kn">import</span> <span class="n">unhexlify</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.result</span> <span class="kn">import</span> <span class="n">Result</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.subformat.base</span> <span class="kn">import</span> <span class="n">DiskFormatBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.subformat.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiskFormatBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="n">KiwiVhdTagError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">KiwiVhdTagError</span>
 
 
 <div class="viewcode-block" id="DiskFormatVhdFixed">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.vhdfixed.DiskFormatVhdFixed">[docs]</a>
-<span class="k">class</span> <span class="nc">DiskFormatVhdFixed</span><span class="p">(</span><span class="n">DiskFormatBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiskFormatVhdFixed</span><span class="p">(</span><span class="n">DiskFormatBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Create vhd image format in fixed subformat**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="DiskFormatVhdFixed.post_init">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.vhdfixed.DiskFormatVhdFixed.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        vhd disk format post initialization method</span>
 
@@ -1303,7 +1303,7 @@
 
 <div class="viewcode-block" id="DiskFormatVhdFixed.create_image_format">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.vhdfixed.DiskFormatVhdFixed.create_image_format">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_image_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_image_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create vhd fixed disk format</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1321,7 +1321,7 @@
 
 <div class="viewcode-block" id="DiskFormatVhdFixed.store_to_result">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.vhdfixed.DiskFormatVhdFixed.store_to_result">[docs]</a>
-    <span class="k">def</span> <span class="nf">store_to_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store_to_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Store result file of the vhdfixed format conversion into the</span>
 <span class="sd">        provided result instance. In this case compressing the result</span>
@@ -1343,7 +1343,7 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_pack_net_guid_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pack_net_guid_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pack tag format into 16 byte binary representation. String format</span>
 <span class="sd">        of the tag is: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX</span>
@@ -1392,7 +1392,7 @@
             <span class="n">binary_tag_part_3</span> <span class="o">+</span> <span class="n">binary_tag_part_4</span> <span class="o">+</span> \
             <span class="n">binary_tag_part_5</span>
 
-    <span class="k">def</span> <span class="nf">_write_vhd_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_vhd_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Azure service uses a tag injected into the disk</span>
 <span class="sd">        image to identify the OS. The tag is 512B long,</span>
@@ -1428,7 +1428,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

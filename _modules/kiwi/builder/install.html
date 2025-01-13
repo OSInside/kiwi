@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.builder.install &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.builder.install &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,36 +1255,36 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="p">)</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="n">Temporary</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.device_provider</span> <span class="kn">import</span> <span class="n">DeviceProvider</span>
-<span class="kn">from</span> <span class="nn">kiwi.boot.image.base</span> <span class="kn">import</span> <span class="n">BootImageBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.boot.image</span> <span class="kn">import</span> <span class="n">BootImage</span>
-<span class="kn">from</span> <span class="nn">kiwi.bootloader.config</span> <span class="kn">import</span> <span class="n">create_boot_loader_config</span>
-<span class="kn">from</span> <span class="nn">kiwi.filesystem.squashfs</span> <span class="kn">import</span> <span class="n">FileSystemSquashFs</span>
-<span class="kn">from</span> <span class="nn">kiwi.filesystem.isofs</span> <span class="kn">import</span> <span class="n">FileSystemIsoFs</span>
-<span class="kn">from</span> <span class="nn">kiwi.firmware</span> <span class="kn">import</span> <span class="n">FirmWare</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.identifier</span> <span class="kn">import</span> <span class="n">SystemIdentifier</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.checksum</span> <span class="kn">import</span> <span class="n">Checksum</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.kernel</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.compress</span> <span class="kn">import</span> <span class="n">Compress</span>
-<span class="kn">from</span> <span class="nn">kiwi.archive.tar</span> <span class="kn">import</span> <span class="n">ArchiveTar</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.setup</span> <span class="kn">import</span> <span class="n">SystemSetup</span>
-<span class="kn">from</span> <span class="nn">kiwi.iso_tools.base</span> <span class="kn">import</span> <span class="n">IsoToolsBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">XMLState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="n">Temporary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.device_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.boot.image.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootImageBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.boot.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootImage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.bootloader.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_boot_loader_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.filesystem.squashfs</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystemSquashFs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.filesystem.isofs</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystemIsoFs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.firmware</span><span class="w"> </span><span class="kn">import</span> <span class="n">FirmWare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.identifier</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemIdentifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.checksum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checksum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.kernel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Kernel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.compress</span><span class="w"> </span><span class="kn">import</span> <span class="n">Compress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.archive.tar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchiveTar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.iso_tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsoToolsBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLState</span>
 
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiInstallBootImageError</span>
 <span class="p">)</span>
 
@@ -1293,7 +1293,7 @@
 
 <div class="viewcode-block" id="InstallImageBuilder">
 <a class="viewcode-back" href="../../../api/kiwi.builder.html#kiwi.builder.install.InstallImageBuilder">[docs]</a>
-<span class="k">class</span> <span class="nc">InstallImageBuilder</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InstallImageBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Installation image builder**</span>
 
@@ -1304,7 +1304,7 @@
 <span class="sd">    :param dict custom_args: Custom processing arguments defined as hash keys:</span>
 <span class="sd">        * xz_options: string of XZ compression parameters</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">boot_image_task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BootImageBase</span><span class="p">],</span>
         <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1361,8 +1361,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">squashed_diskname</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span><span class="n">xml_state</span><span class="o">.</span><span class="n">xml_data</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span> <span class="s1">&#39;.raw&#39;</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">md5name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">xml_state</span><span class="o">.</span><span class="n">xml_data</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span> <span class="s1">&#39;.md5&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sha256name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">xml_state</span><span class="o">.</span><span class="n">xml_data</span><span class="o">.</span><span class="n">get_name</span><span class="p">(),</span> <span class="s1">&#39;.sha256&#39;</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xz_options</span> <span class="o">=</span> <span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;xz_options&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">custom_args</span> \
             <span class="ow">and</span> <span class="s1">&#39;xz_options&#39;</span> <span class="ow">in</span> <span class="n">custom_args</span> <span class="k">else</span> <span class="kc">None</span>
@@ -1382,7 +1382,7 @@
 
 <div class="viewcode-block" id="InstallImageBuilder.create_install_iso">
 <a class="viewcode-back" href="../../../api/kiwi.builder.html#kiwi.builder.install.InstallImageBuilder.create_install_iso">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_install_iso</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_install_iso</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an install ISO from the disk_image as hybrid ISO</span>
 <span class="sd">        bootable via legacy BIOS, EFI and as disk from Stick</span>
@@ -1418,7 +1418,7 @@
             <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;kiwi_install_squashfs.&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_dir</span>
         <span class="p">)</span><span class="o">.</span><span class="n">new_dir</span><span class="p">()</span>
         <span class="n">checksum</span> <span class="o">=</span> <span class="n">Checksum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diskname</span><span class="p">)</span>
-        <span class="n">checksum</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">squashed_contents</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">md5name</span><span class="p">)</span>
+        <span class="n">checksum</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">squashed_contents</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sha256name</span><span class="p">)</span>
 
         <span class="c1"># the system image name is stored in a config file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_write_install_image_info_to_iso_image</span><span class="p">()</span>
@@ -1499,7 +1499,7 @@
 
 <div class="viewcode-block" id="InstallImageBuilder.create_install_pxe_archive">
 <a class="viewcode-back" href="../../../api/kiwi.builder.html#kiwi.builder.install.InstallImageBuilder.create_install_pxe_archive">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_install_pxe_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_install_pxe_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an oem install tar archive suitable for installing a</span>
 <span class="sd">        disk image via the network using the PXE boot protocol.</span>
@@ -1538,14 +1538,14 @@
 
         <span class="c1"># the system image transfer is checked against a checksum</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Creating disk image checksum&#39;</span><span class="p">)</span>
-        <span class="n">pxe_md5_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">pxe_sha256_filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pxe_dir</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pxename</span><span class="p">,</span> <span class="s1">&#39;.md5&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pxename</span><span class="p">,</span> <span class="s1">&#39;.sha256&#39;</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="n">checksum</span> <span class="o">=</span> <span class="n">Checksum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diskname</span><span class="p">)</span>
-        <span class="n">checksum</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">pxe_md5_filename</span><span class="p">)</span>
+        <span class="n">checksum</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">pxe_sha256_filename</span><span class="p">)</span>
 
         <span class="c1"># the install image name is stored in a config file</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initrd_system</span> <span class="o">==</span> <span class="s1">&#39;kiwi&#39;</span><span class="p">:</span>
@@ -1608,7 +1608,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_create_bootloader_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_bootloader_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">create_boot_loader_config</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootloader</span><span class="p">,</span> <span class="n">xml_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="p">,</span>
             <span class="n">root_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span>
@@ -1618,7 +1618,7 @@
             <span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bootloader</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;grub&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_create_pxe_install_kernel_and_initrd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_pxe_install_kernel_and_initrd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">kernelname</span> <span class="o">=</span> <span class="s1">&#39;pxeboot.</span><span class="si">{0}</span><span class="s1">.kernel&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pxename</span><span class="p">)</span>
         <span class="n">initrdname</span> <span class="o">=</span> <span class="s1">&#39;pxeboot.</span><span class="si">{0}</span><span class="s1">.initrd&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pxename</span><span class="p">)</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">Kernel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">boot_root_directory</span><span class="p">)</span>
@@ -1672,7 +1672,7 @@
         <span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pxe_dir</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/</span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">initrdname</span><span class="p">),</span> <span class="mi">420</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_create_iso_install_kernel_and_initrd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_iso_install_kernel_and_initrd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">boot_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_dir</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/boot/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">+</span> <span class="s1">&#39;/loader&#39;</span>
         <span class="n">Path</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">boot_path</span><span class="p">)</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">Kernel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">boot_root_directory</span><span class="p">)</span>
@@ -1715,13 +1715,13 @@
             <span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_add_system_image_boot_options_to_boot_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_system_image_boot_options_to_boot_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">boot_root_directory</span><span class="p">,</span> <span class="s1">&#39;/config.bootoptions&#39;</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">include_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_copy_system_image_initrd_to_iso_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_copy_system_image_initrd_to_iso_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">boot_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">get_boot_names</span><span class="p">()</span>
         <span class="n">system_image_initrd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;boot&#39;</span><span class="p">,</span> <span class="n">boot_names</span><span class="o">.</span><span class="n">initrd_name</span><span class="p">]</span>
@@ -1730,12 +1730,12 @@
             <span class="n">system_image_initrd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_dir</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/initrd.system_image&#39;</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_write_install_image_info_to_iso_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_install_image_info_to_iso_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">iso_trigger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_dir</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/config.isoclient&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">iso_trigger</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">iso_system</span><span class="p">:</span>
             <span class="n">iso_system</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;IMAGE=&quot;</span><span class="si">%s</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">squashed_diskname</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_write_install_image_info_to_boot_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_install_image_info_to_boot_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">initrd_trigger</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">boot_root_directory</span> <span class="o">+</span> <span class="s1">&#39;/config.vmxsystem&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">initrd_trigger</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">vmx_system</span><span class="p">:</span>
@@ -1750,7 +1750,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

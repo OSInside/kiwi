@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.system.kernel &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.system.kernel &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1254,16 +1254,16 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="p">)</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="n">KiwiKernelLookupError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">KiwiKernelLookupError</span>
 
 <span class="n">kernel_type</span> <span class="o">=</span> <span class="n">NamedTuple</span><span class="p">(</span>
     <span class="s1">&#39;kernel_type&#39;</span><span class="p">,</span> <span class="p">[</span>
@@ -1282,7 +1282,7 @@
 
 <div class="viewcode-block" id="Kernel">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.kernel.Kernel">[docs]</a>
-<span class="k">class</span> <span class="nc">Kernel</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Kernel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implementes kernel lookup and extraction from given root tree**</span>
 
@@ -1292,13 +1292,13 @@
 <span class="sd">        file so that we do not have to search for many different</span>
 <span class="sd">        names in this code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kernel_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_kernel_names_for_lookup</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Kernel.get_kernel">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.kernel.Kernel.get_kernel">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_kernel</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_kernel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">raise_on_not_found</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">kernel_type</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1344,7 +1344,7 @@
 
 <div class="viewcode-block" id="Kernel.get_xen_hypervisor">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.kernel.Kernel.get_xen_hypervisor">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_xen_hypervisor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">xen_hypervisor_type</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_xen_hypervisor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">xen_hypervisor_type</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Lookup xen hypervisor and provide filename and hypervisor name</span>
 
@@ -1363,7 +1363,7 @@
 
 <div class="viewcode-block" id="Kernel.copy_kernel">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.kernel.Kernel.copy_kernel">[docs]</a>
-    <span class="k">def</span> <span class="nf">copy_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Copy kernel to specified target</span>
 
@@ -1385,7 +1385,7 @@
 
 <div class="viewcode-block" id="Kernel.copy_xen_hypervisor">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.kernel.Kernel.copy_xen_hypervisor">[docs]</a>
-    <span class="k">def</span> <span class="nf">copy_xen_hypervisor</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_xen_hypervisor</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1407,7 +1407,7 @@
             <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="n">xen</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">target_file</span><span class="p">])</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_setup_kernel_names_for_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_kernel_names_for_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The kernel image name is different per arch and distribution</span>
 <span class="sd">        This method returns a list of possible kernel image names in</span>
@@ -1459,7 +1459,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

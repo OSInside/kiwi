@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.builder.live &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.builder.live &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,43 +1255,43 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="n">Temporary</span>
-<span class="kn">from</span> <span class="nn">kiwi.bootloader.config</span> <span class="kn">import</span> <span class="n">create_boot_loader_config</span>
-<span class="kn">from</span> <span class="nn">kiwi.bootloader.config.base</span> <span class="kn">import</span> <span class="n">BootLoaderConfigBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.filesystem</span> <span class="kn">import</span> <span class="n">FileSystem</span>
-<span class="kn">from</span> <span class="nn">kiwi.filesystem.isofs</span> <span class="kn">import</span> <span class="n">FileSystemIsoFs</span>
-<span class="kn">from</span> <span class="nn">kiwi.filesystem.setup</span> <span class="kn">import</span> <span class="n">FileSystemSetup</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.loop_device</span> <span class="kn">import</span> <span class="n">LoopDevice</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.device_provider</span> <span class="kn">import</span> <span class="n">DeviceProvider</span>
-<span class="kn">from</span> <span class="nn">kiwi.boot.image.dracut</span> <span class="kn">import</span> <span class="n">BootImageDracut</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.size</span> <span class="kn">import</span> <span class="n">SystemSize</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.setup</span> <span class="kn">import</span> <span class="n">SystemSetup</span>
-<span class="kn">from</span> <span class="nn">kiwi.firmware</span> <span class="kn">import</span> <span class="n">FirmWare</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.result</span> <span class="kn">import</span> <span class="n">Result</span>
-<span class="kn">from</span> <span class="nn">kiwi.iso_tools.iso</span> <span class="kn">import</span> <span class="n">Iso</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.identifier</span> <span class="kn">import</span> <span class="n">SystemIdentifier</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.kernel</span> <span class="kn">import</span> <span class="n">Kernel</span>
-<span class="kn">from</span> <span class="nn">kiwi.runtime_config</span> <span class="kn">import</span> <span class="n">RuntimeConfig</span>
-<span class="kn">from</span> <span class="nn">kiwi.iso_tools.base</span> <span class="kn">import</span> <span class="n">IsoToolsBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">XMLState</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="n">Temporary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.bootloader.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_boot_loader_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.bootloader.config.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootLoaderConfigBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.filesystem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.filesystem.isofs</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystemIsoFs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.filesystem.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystemSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.loop_device</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoopDevice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.device_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.boot.image.dracut</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootImageDracut</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.size</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.firmware</span><span class="w"> </span><span class="kn">import</span> <span class="n">FirmWare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.iso_tools.iso</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iso</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.identifier</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemIdentifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.kernel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Kernel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.runtime_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">RuntimeConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.iso_tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsoToolsBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="n">KiwiLiveBootImageError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">KiwiLiveBootImageError</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;kiwi&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="LiveImageBuilder">
 <a class="viewcode-back" href="../../../api/kiwi.builder.html#kiwi.builder.live.LiveImageBuilder">[docs]</a>
-<span class="k">class</span> <span class="nc">LiveImageBuilder</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LiveImageBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Live image builder**</span>
 
@@ -1300,7 +1300,7 @@
 <span class="sd">    :param str root_dir: root directory path name</span>
 <span class="sd">    :param dict custom_args: Custom processing arguments</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
@@ -1351,7 +1351,7 @@
 
 <div class="viewcode-block" id="LiveImageBuilder.create">
 <a class="viewcode-back" href="../../../api/kiwi.builder.html#kiwi.builder.live.LiveImageBuilder.create">[docs]</a>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build a bootable hybrid live ISO image</span>
 
@@ -1634,7 +1634,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_create_bootloader_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BootLoaderConfigBase</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_bootloader_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BootLoaderConfigBase</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">create_boot_loader_config</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootloader</span><span class="p">,</span> <span class="n">xml_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="p">,</span>
             <span class="n">root_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span>
@@ -1644,7 +1644,7 @@
             <span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bootloader</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;grub&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_setup_live_iso_kernel_and_initrd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_live_iso_kernel_and_initrd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Copy kernel and initrd from the root tree into the iso boot structure</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1696,7 +1696,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

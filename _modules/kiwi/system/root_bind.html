@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.system.root_bind &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.system.root_bind &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1254,21 +1254,21 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">textwrap</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">textwrap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.mount_manager</span> <span class="kn">import</span> <span class="n">MountManager</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.checksum</span> <span class="kn">import</span> <span class="n">Checksum</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.root_init</span> <span class="kn">import</span> <span class="n">RootInit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.mount_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MountManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.checksum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checksum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.root_init</span><span class="w"> </span><span class="kn">import</span> <span class="n">RootInit</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiMountKernelFileSystemsError</span><span class="p">,</span>
     <span class="n">KiwiMountSharedDirectoryError</span><span class="p">,</span>
     <span class="n">KiwiSetupIntermediateConfigError</span>
@@ -1279,7 +1279,7 @@
 
 <div class="viewcode-block" id="RootBind">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.root_bind.RootBind">[docs]</a>
-<span class="k">class</span> <span class="nc">RootBind</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RootBind</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements binding/copying of host system paths</span>
 <span class="sd">    into the new root directory**</span>
@@ -1293,7 +1293,7 @@
 <span class="sd">    :param str shared_location: shared directory between image root and</span>
 <span class="sd">        build system root</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_init</span><span class="p">:</span> <span class="n">RootInit</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_init</span><span class="p">:</span> <span class="n">RootInit</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_init</span><span class="o">.</span><span class="n">root_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cleanup_files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mount_stack</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">MountManager</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1317,7 +1317,7 @@
 
 <div class="viewcode-block" id="RootBind.mount_kernel_file_systems">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.root_bind.RootBind.mount_kernel_file_systems">[docs]</a>
-    <span class="k">def</span> <span class="nf">mount_kernel_file_systems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_root</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mount_kernel_file_systems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_root</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bind mount kernel filesystems</span>
 
@@ -1358,7 +1358,7 @@
 
 <div class="viewcode-block" id="RootBind.umount_kernel_file_systems">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.root_bind.RootBind.umount_kernel_file_systems">[docs]</a>
-    <span class="k">def</span> <span class="nf">umount_kernel_file_systems</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">umount_kernel_file_systems</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Umount kernel filesystems</span>
 
@@ -1374,7 +1374,7 @@
 
 <div class="viewcode-block" id="RootBind.mount_shared_directory">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.root_bind.RootBind.mount_shared_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">mount_shared_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mount_shared_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bind mount shared location</span>
 
@@ -1409,7 +1409,7 @@
 
 <div class="viewcode-block" id="RootBind.setup_intermediate_config">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.root_bind.RootBind.setup_intermediate_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_intermediate_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_intermediate_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create intermediate config files</span>
 
@@ -1445,7 +1445,7 @@
 
 <div class="viewcode-block" id="RootBind.cleanup">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.root_bind.RootBind.cleanup">[docs]</a>
-    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cleanup mounted locations, directories and intermediate config files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1454,7 +1454,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cleanup_intermediate_config</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_cleanup_intermediate_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_intermediate_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># delete kiwi copied config files</span>
         <span class="n">config_files_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1510,7 +1510,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_restore_intermediate_config_rpmnew_variants</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_restore_config_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_restore_config_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Systems that use configuration templates and a tool to</span>
 <span class="sd">        manage them might have skipped their call due to the</span>
@@ -1536,7 +1536,7 @@
                         <span class="p">[</span><span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="n">template_file</span><span class="p">,</span> <span class="n">config_file</span><span class="p">]</span>
                     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_restore_intermediate_config_rpmnew_variants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_restore_intermediate_config_rpmnew_variants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        check for rpmnew variants of the config files. if the package</span>
 <span class="sd">        installed an rpmnew variant of the config file it needs to be</span>
@@ -1549,7 +1549,7 @@
 
                 <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">config_rpm_new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">+</span> <span class="n">config</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_cleanup_mounts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">umounts</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_mounts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">umounts</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">umount</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">umounts</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">umount</span><span class="o">.</span><span class="n">is_mounted</span><span class="p">():</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -1563,11 +1563,11 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Path </span><span class="si">%s</span><span class="s1"> not a mountpoint&#39;</span><span class="p">,</span> <span class="n">umount</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_cleanup_mount_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_mount_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cleanup_mounts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mount_stack</span><span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">mount_stack</span><span class="p">[:]</span>
 
-    <span class="k">def</span> <span class="nf">_cleanup_dir_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup_dir_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dir_stack</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">Path</span><span class="o">.</span><span class="n">remove_hierarchy</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">location</span><span class="p">)</span>
@@ -1588,7 +1588,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

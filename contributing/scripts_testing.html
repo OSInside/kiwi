@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Write Integration Tests for the Scripts &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Write Integration Tests for the Scripts &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../_static/documentation_options.js?v=bf020882"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1270,7 +1270,7 @@ available in <code class="docutils literal notranslate"><span class="pre">PATH</
 <a class="reference external" href="https://docs.pytest.org/en/stable/parametrize.html">parametrize</a> the
 <code class="docutils literal notranslate"><span class="pre">container</span></code> fixture indirectly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;container_per_test&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">TUMBLEWEED</span><span class="p">,</span> <span class="n">LEAP_15_3</span><span class="p">),</span> <span class="n">indirect</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_RmWorks</span><span class="p">(</span><span class="n">container_per_test</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_RmWorks</span><span class="p">(</span><span class="n">container_per_test</span><span class="p">):</span>
     <span class="c1"># create the file /root/foobar</span>
     <span class="n">container_per_test</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">run_expect</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;touch /root/foobar&quot;</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">container_per_test</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">file</span><span class="p">(</span><span class="s2">&quot;/root/foobar&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span>
@@ -1304,7 +1304,7 @@ expense of safety in case of mutation.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

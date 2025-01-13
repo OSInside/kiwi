@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.iso_tools.xorriso &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.iso_tools.xorriso &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,25 +1255,25 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="p">)</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.iso_tools.base</span> <span class="kn">import</span> <span class="n">IsoToolsBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="n">KiwiIsoToolError</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.iso_tools.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsoToolsBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">KiwiIsoToolError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;kiwi&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="IsoToolsXorrIso">
 <a class="viewcode-back" href="../../../api/kiwi.iso_tools.html#kiwi.iso_tools.xorriso.IsoToolsXorrIso">[docs]</a>
-<span class="k">class</span> <span class="nc">IsoToolsXorrIso</span><span class="p">(</span><span class="n">IsoToolsBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IsoToolsXorrIso</span><span class="p">(</span><span class="n">IsoToolsBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **xorriso wrapper class**</span>
 
@@ -1282,7 +1282,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="IsoToolsXorrIso.has_iso_hybrid_capability">
 <a class="viewcode-back" href="../../../api/kiwi.iso_tools.html#kiwi.iso_tools.xorriso.IsoToolsXorrIso.has_iso_hybrid_capability">[docs]</a>
-    <span class="k">def</span> <span class="nf">has_iso_hybrid_capability</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_iso_hybrid_capability</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Indicate if the iso tool has the capability to embed a</span>
 <span class="sd">        partition table into the iso such that it can be</span>
@@ -1297,7 +1297,7 @@
 
 <div class="viewcode-block" id="IsoToolsXorrIso.get_tool_name">
 <a class="viewcode-back" href="../../../api/kiwi.iso_tools.html#kiwi.iso_tools.xorriso.IsoToolsXorrIso.get_tool_name">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_tool_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tool_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Lookup xorriso in search path</span>
 
@@ -1315,7 +1315,7 @@
 
 <div class="viewcode-block" id="IsoToolsXorrIso.init_iso_creation_parameters">
 <a class="viewcode-back" href="../../../api/kiwi.iso_tools.html#kiwi.iso_tools.xorriso.IsoToolsXorrIso.init_iso_creation_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">init_iso_creation_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_iso_creation_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1403,7 +1403,7 @@
 
 <div class="viewcode-block" id="IsoToolsXorrIso.add_efi_loader_parameters">
 <a class="viewcode-back" href="../../../api/kiwi.iso_tools.html#kiwi.iso_tools.xorriso.IsoToolsXorrIso.add_efi_loader_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_efi_loader_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_efi_loader_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">loader_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1440,7 +1440,7 @@
 
 <div class="viewcode-block" id="IsoToolsXorrIso.create_iso">
 <a class="viewcode-back" href="../../../api/kiwi.iso_tools.html#kiwi.iso_tools.xorriso.IsoToolsXorrIso.create_iso">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_iso</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_iso</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hidden_files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1482,7 +1482,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.logger &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.logger &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -1254,16 +1254,16 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="p">)</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">kiwi.logger_socket</span> <span class="kn">import</span> <span class="n">PlainTextSocketHandler</span>
-<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.logger_socket</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlainTextSocketHandler</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.logger_color_formatter</span> <span class="kn">import</span> <span class="n">ColorFormatter</span>
-<span class="kn">from</span> <span class="nn">kiwi.logger_filter</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.logger_color_formatter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorFormatter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.logger_filter</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LoggerSchedulerFilter</span><span class="p">,</span>
     <span class="n">InfoFilter</span><span class="p">,</span>
     <span class="n">DebugFilter</span><span class="p">,</span>
@@ -1271,7 +1271,7 @@
     <span class="n">WarningFilter</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiLogFileSetupFailed</span><span class="p">,</span>
     <span class="n">KiwiLogSocketSetupFailed</span>
 <span class="p">)</span>
@@ -1279,13 +1279,13 @@
 
 <div class="viewcode-block" id="Logger">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger">[docs]</a>
-<span class="k">class</span> <span class="nc">Logger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Logger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Extended logging facility based on Python logging**</span>
 
 <span class="sd">    :param str name: name of the logger</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_handlers</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1319,7 +1319,7 @@
 
 <div class="viewcode-block" id="Logger.getLogLevel">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.getLogLevel">[docs]</a>
-    <span class="k">def</span> <span class="nf">getLogLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLogLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return currently used log level</span>
 
@@ -1332,7 +1332,7 @@
 
 <div class="viewcode-block" id="Logger.getLogFlags">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.getLogFlags">[docs]</a>
-    <span class="k">def</span> <span class="nf">getLogFlags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getLogFlags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return logging flags</span>
 
@@ -1346,7 +1346,7 @@
 
 <div class="viewcode-block" id="Logger.setLogLevel">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.setLogLevel">[docs]</a>
-    <span class="k">def</span> <span class="nf">setLogLevel</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLogLevel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">except_for</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">only_for</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1374,7 +1374,7 @@
 
 <div class="viewcode-block" id="Logger.setLogFlag">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.setLogFlag">[docs]</a>
-    <span class="k">def</span> <span class="nf">setLogFlag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setLogFlag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set logging flag for further properties of the logging facility</span>
 <span class="sd">        Available flags are:</span>
@@ -1388,7 +1388,7 @@
 
 <div class="viewcode-block" id="Logger.set_color_format">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.set_color_format">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_color_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_color_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set color format for all console handlers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1409,7 +1409,7 @@
 
 <div class="viewcode-block" id="Logger.set_logfile">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.set_logfile">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_logfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_logfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set logfile handler</span>
 
@@ -1441,7 +1441,7 @@
 
 <div class="viewcode-block" id="Logger.set_log_socket">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.set_log_socket">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_log_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_log_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set log socket handler</span>
 
@@ -1470,7 +1470,7 @@
 
 <div class="viewcode-block" id="Logger.get_logfile">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.get_logfile">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_logfile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_logfile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return file path name of logfile</span>
 
@@ -1484,7 +1484,7 @@
 <div class="viewcode-block" id="Logger.progress">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.logger.Logger.progress">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">progress</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">progress</span><span class="p">(</span>
         <span class="n">current</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bar_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1515,7 +1515,7 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_add_stream_handler</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_stream_handler</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">handler_type</span><span class="p">,</span> <span class="n">message_format</span><span class="p">,</span> <span class="n">message_filter</span><span class="p">,</span>
         <span class="n">channel</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">__stdout__</span>
     <span class="p">):</span>
@@ -1537,7 +1537,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

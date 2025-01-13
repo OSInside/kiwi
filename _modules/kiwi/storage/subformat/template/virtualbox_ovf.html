@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.storage.subformat.template.virtualbox_ovf &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.storage.subformat.template.virtualbox_ovf &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/js/theme.js"></script>
@@ -1256,12 +1256,12 @@
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
 
-<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
 
 
 <div class="viewcode-block" id="VirtualboxOvfTemplate">
 <a class="viewcode-back" href="../../../../../api/kiwi.storage.subformat.template.html#kiwi.storage.subformat.template.virtualbox_ovf.VirtualboxOvfTemplate">[docs]</a>
-<span class="k">class</span> <span class="nc">VirtualboxOvfTemplate</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VirtualboxOvfTemplate</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Generate a OVF file template for a vagrant virtualbox box**</span>
 
@@ -1271,7 +1271,7 @@
 <span class="sd">    Gompa.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># note: the OS ID is set to Other Linux 64</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">OVF_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&lt;?xml version=&quot;1.0&quot;?&gt;</span>
 <span class="s2">&lt;Envelope ovf:version=&quot;1.0&quot; xml:lang=&quot;en-US&quot; xmlns=&quot;http://schemas.dmtf.org/ovf/envelope/1&quot; xmlns:ovf=&quot;http://schemas.dmtf.org/ovf/envelope/1&quot; xmlns:rasd=&quot;http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData&quot; xmlns:vssd=&quot;http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:vbox=&quot;http://www.virtualbox.org/ovf/machine&quot;&gt;</span>
@@ -1396,7 +1396,7 @@
 
 <div class="viewcode-block" id="VirtualboxOvfTemplate.get_template">
 <a class="viewcode-back" href="../../../../../api/kiwi.storage.subformat.template.html#kiwi.storage.subformat.template.virtualbox_ovf.VirtualboxOvfTemplate.get_template">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_template</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the actual ovf template. The following values must be</span>
 <span class="sd">        substituted:</span>
@@ -1416,7 +1416,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

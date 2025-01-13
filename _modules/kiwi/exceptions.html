@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.exceptions &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.exceptions &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -1258,7 +1258,7 @@
 
 <div class="viewcode-block" id="KiwiError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Base class to handle all known exceptions**</span>
 
@@ -1268,17 +1268,17 @@
 
 <span class="sd">    :param string message: Exception message text</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="KiwiArchiveSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiArchiveSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiArchiveSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiArchiveSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an unsupported image archive type is used.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1287,7 +1287,7 @@
 
 <div class="viewcode-block" id="KiwiArchiveTarError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiArchiveTarError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiArchiveTarError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiArchiveTarError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if impossible to determine which tar command</span>
 <span class="sd">    version is installed on the underlying system</span>
@@ -1297,7 +1297,7 @@
 
 <div class="viewcode-block" id="KiwiBootImageSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootImageSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootImageSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootImageSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an unsupported initrd system type is used.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1306,7 +1306,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderConfigSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderConfigSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderConfigSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderConfigSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a configuration for an unsupported</span>
 <span class="sd">    bootloader is requested.</span>
@@ -1316,7 +1316,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderGrubDataError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderGrubDataError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderGrubDataError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderGrubDataError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if no grub installation was found.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1325,7 +1325,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderGrubFontError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderGrubFontError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderGrubFontError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderGrubFontError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if no grub unicode font was found.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1334,7 +1334,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderGrubInstallError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderGrubInstallError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderGrubInstallError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderGrubInstallError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if grub install to master boot record has failed.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1343,7 +1343,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderGrubModulesError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderGrubModulesError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderGrubModulesError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderGrubModulesError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the synchronisation of modules from the</span>
 <span class="sd">    grub installation to the boot space has failed.</span>
@@ -1353,7 +1353,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderGrubPlatformError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderGrubPlatformError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderGrubPlatformError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderGrubPlatformError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to use grub on an</span>
 <span class="sd">    unsupported platform.</span>
@@ -1363,7 +1363,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderGrubSecureBootError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderGrubSecureBootError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderGrubSecureBootError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderGrubSecureBootError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the Microsoft signed shim loader or</span>
 <span class="sd">    grub2 loader could not be found in the image root system</span>
@@ -1373,7 +1373,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderInstallSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderInstallSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderInstallSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderInstallSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an installation for an unsupported</span>
 <span class="sd">    bootloader is requested.</span>
@@ -1383,7 +1383,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderTargetError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderTargetError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderTargetError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderTargetError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the target to read the bootloader path</span>
 <span class="sd">    from is not a disk or an iso image.</span>
@@ -1393,7 +1393,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderZiplInstallError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderZiplInstallError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderZiplInstallError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderZiplInstallError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the installation of zipl has failed.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1402,7 +1402,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderZiplPlatformError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderZiplPlatformError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderZiplPlatformError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderZiplPlatformError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a configuration for an unsupported</span>
 <span class="sd">    zipl architecture is requested.</span>
@@ -1412,7 +1412,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderZiplSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderZiplSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderZiplSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderZiplSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the data set to configure the zipl</span>
 <span class="sd">    bootloader is incomplete.</span>
@@ -1422,7 +1422,7 @@
 
 <div class="viewcode-block" id="KiwiBootStrapPhaseFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootStrapPhaseFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootStrapPhaseFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootStrapPhaseFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the bootstrap phase of the system prepare</span>
 <span class="sd">    command has failed.</span>
@@ -1432,7 +1432,7 @@
 
 <div class="viewcode-block" id="KiwiBundleError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBundleError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBundleError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBundleError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the system bundle command has failed.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1441,7 +1441,7 @@
 
 <div class="viewcode-block" id="KiwiCommandError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiCommandError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiCommandError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiCommandError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an external command called via a Command</span>
 <span class="sd">    instance has returned with an exit code != 0 or could not</span>
@@ -1452,7 +1452,7 @@
 
 <div class="viewcode-block" id="KiwiCommandNotFound">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiCommandNotFound">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiCommandNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiCommandNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if any executable command cannot be found in</span>
 <span class="sd">    the evironment PATH variable.</span>
@@ -1462,7 +1462,7 @@
 
 <div class="viewcode-block" id="KiwiCommandNotLoaded">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiCommandNotLoaded">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiCommandNotLoaded</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiCommandNotLoaded</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a kiwi command task module could not be</span>
 <span class="sd">    loaded.</span>
@@ -1472,7 +1472,7 @@
 
 <div class="viewcode-block" id="KiwiCompressionFormatUnknown">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiCompressionFormatUnknown">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiCompressionFormatUnknown</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiCompressionFormatUnknown</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the compression format of the data could</span>
 <span class="sd">    not be detected.</span>
@@ -1482,7 +1482,7 @@
 
 <div class="viewcode-block" id="KiwiConfigFileNotFound">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiConfigFileNotFound">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiConfigFileNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiConfigFileNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if no kiwi XML description was found.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1491,7 +1491,7 @@
 
 <div class="viewcode-block" id="KiwiConfigFileFormatNotSupported">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiConfigFileFormatNotSupported">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiConfigFileFormatNotSupported</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiConfigFileFormatNotSupported</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if kiwi description file format is not supported.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1500,7 +1500,7 @@
 
 <div class="viewcode-block" id="KiwiContainerSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiContainerSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiContainerSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiContainerSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an error in the creation of the</span>
 <span class="sd">    container archive happened.</span>
@@ -1510,7 +1510,7 @@
 
 <div class="viewcode-block" id="KiwiContainerImageSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiContainerImageSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiContainerImageSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiContainerImageSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt to create a container instance</span>
 <span class="sd">    for an unsupported container type is performed.</span>
@@ -1520,7 +1520,7 @@
 
 <div class="viewcode-block" id="KiwiDataStructureError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDataStructureError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDataStructureError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDataStructureError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the XML description failed to parse the</span>
 <span class="sd">    data structure.</span>
@@ -1530,7 +1530,7 @@
 
 <div class="viewcode-block" id="KiwiDebianBootstrapError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDebianBootstrapError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDebianBootstrapError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDebianBootstrapError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the bootstrap installation for Debian</span>
 <span class="sd">    based systems has failed</span>
@@ -1540,7 +1540,7 @@
 
 <div class="viewcode-block" id="KiwiDescriptionInvalid">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDescriptionInvalid">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDescriptionInvalid</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDescriptionInvalid</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the XML description failed to validate</span>
 <span class="sd">    the XML schema.</span>
@@ -1550,7 +1550,7 @@
 
 <div class="viewcode-block" id="KiwiDeviceProviderError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDeviceProviderError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDeviceProviderError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDeviceProviderError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a storage provide is asked for its</span>
 <span class="sd">    managed device but no such device exists.</span>
@@ -1560,7 +1560,7 @@
 
 <div class="viewcode-block" id="KiwiDiskBootImageError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDiskBootImageError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDiskBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDiskBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a kiwi boot image does not provide the</span>
 <span class="sd">    requested data, e.g kernel, or hypervisor files.</span>
@@ -1570,7 +1570,7 @@
 
 <div class="viewcode-block" id="KiwiDiskFormatSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDiskFormatSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDiskFormatSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDiskFormatSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to create a disk format</span>
 <span class="sd">    instance of an unsupported disk format.</span>
@@ -1580,7 +1580,7 @@
 
 <div class="viewcode-block" id="KiwiDiskGeometryError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDiskGeometryError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDiskGeometryError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDiskGeometryError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the disk geometry (partition table) could</span>
 <span class="sd">    not be read or evaluated against their expected geometry and</span>
@@ -1591,7 +1591,7 @@
 
 <div class="viewcode-block" id="KiwiDistributionNameError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDistributionNameError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDistributionNameError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDistributionNameError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the distribution name could not be found.</span>
 <span class="sd">    The information is extracted from the boot attribute of the</span>
@@ -1603,7 +1603,7 @@
 
 <div class="viewcode-block" id="KiwiExtensionError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiExtensionError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiExtensionError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiExtensionError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an extension section of the same namespace</span>
 <span class="sd">    is used multiple times as toplevel section within the extension</span>
@@ -1615,7 +1615,7 @@
 
 <div class="viewcode-block" id="KiwiFileNotFound">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiFileNotFound">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiFileNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiFileNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the requested file could not be found.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1624,7 +1624,7 @@
 
 <div class="viewcode-block" id="KiwiFileSystemSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiFileSystemSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiFileSystemSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiFileSystemSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to build an</span>
 <span class="sd">    unsupported or unspecified filesystem.</span>
@@ -1634,7 +1634,7 @@
 
 <div class="viewcode-block" id="KiwiFileSystemSyncError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiFileSystemSyncError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiFileSystemSyncError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiFileSystemSyncError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the data sync from the system into the</span>
 <span class="sd">    loop mounted filesystem image failed.</span>
@@ -1644,7 +1644,7 @@
 
 <div class="viewcode-block" id="KiwiFormatSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiFormatSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiFormatSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiFormatSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the requested disk format could not be created.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1653,7 +1653,7 @@
 
 <div class="viewcode-block" id="KiwiHelpNoCommandGiven">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiHelpNoCommandGiven">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiHelpNoCommandGiven</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiHelpNoCommandGiven</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the request for the help page is</span>
 <span class="sd">    executed without a command to show the help for.</span>
@@ -1663,7 +1663,7 @@
 
 <div class="viewcode-block" id="KiwiImageResizeError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiImageResizeError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiImageResizeError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiImageResizeError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the request to resize a disk image failed.</span>
 <span class="sd">    Reasons could be a missing raw disk reference or a wrong size</span>
@@ -1674,7 +1674,7 @@
 
 <div class="viewcode-block" id="KiwiImportDescriptionError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiImportDescriptionError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiImportDescriptionError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiImportDescriptionError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the XML description data and scripts could</span>
 <span class="sd">    not be imported into the root of the image.</span>
@@ -1684,7 +1684,7 @@
 
 <div class="viewcode-block" id="KiwiInstallBootImageError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiInstallBootImageError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiInstallBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiInstallBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the required files to boot an installation</span>
 <span class="sd">    image could not be found, e.g kernel or hypervisor.</span>
@@ -1694,7 +1694,7 @@
 
 <div class="viewcode-block" id="KiwiInstallMediaError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiInstallMediaError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiInstallMediaError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiInstallMediaError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a request for an installation media is made</span>
 <span class="sd">    but the system image type is not an oem type.</span>
@@ -1704,7 +1704,7 @@
 
 <div class="viewcode-block" id="KiwiInstallPhaseFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiInstallPhaseFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiInstallPhaseFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiInstallPhaseFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the install phase of a system prepare command</span>
 <span class="sd">    has failed.</span>
@@ -1714,7 +1714,7 @@
 
 <div class="viewcode-block" id="KiwiPackagesDeletePhaseFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiPackagesDeletePhaseFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiPackagesDeletePhaseFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiPackagesDeletePhaseFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the packages deletion phase in system prepare</span>
 <span class="sd">    fails.</span>
@@ -1724,7 +1724,7 @@
 
 <div class="viewcode-block" id="KiwiIsoMetaDataError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiIsoMetaDataError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiIsoMetaDataError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiIsoMetaDataError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an inconsistency in the ISO header</span>
 <span class="sd">    was found such like invalid eltorito specification or a</span>
@@ -1735,7 +1735,7 @@
 
 <div class="viewcode-block" id="KiwiIsoToolError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiIsoToolError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiIsoToolError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiIsoToolError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an iso helper tool such as isoinfo</span>
 <span class="sd">    could not be found on the build system.</span>
@@ -1745,7 +1745,7 @@
 
 <div class="viewcode-block" id="KiwiKernelLookupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiKernelLookupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiKernelLookupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiKernelLookupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the search for the kernel image file failed</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1754,7 +1754,7 @@
 
 <div class="viewcode-block" id="KiwiLiveBootImageError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiLiveBootImageError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiLiveBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiLiveBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to use an</span>
 <span class="sd">    unsupported live iso type.</span>
@@ -1764,7 +1764,7 @@
 
 <div class="viewcode-block" id="KiwiLuksSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiLuksSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiLuksSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiLuksSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if not enough user data is provided to</span>
 <span class="sd">    setup the luks encryption on the given device.</span>
@@ -1774,7 +1774,7 @@
 
 <div class="viewcode-block" id="KiwiLoadCommandUndefined">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiLoadCommandUndefined">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiLoadCommandUndefined</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiLoadCommandUndefined</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if no command is specified for a given</span>
 <span class="sd">    service on the commandline.</span>
@@ -1784,7 +1784,7 @@
 
 <div class="viewcode-block" id="KiwiLogFileSetupFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiLogFileSetupFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiLogFileSetupFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiLogFileSetupFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the log file could not be created.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1793,7 +1793,7 @@
 
 <div class="viewcode-block" id="KiwiLogSocketSetupFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiLogSocketSetupFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiLogSocketSetupFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiLogSocketSetupFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the Unix Domain log socket could not be created.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1802,7 +1802,7 @@
 
 <div class="viewcode-block" id="KiwiLoopSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiLoopSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiLoopSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiLoopSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if not enough user data to create a</span>
 <span class="sd">    loop device is specified.</span>
@@ -1812,7 +1812,7 @@
 
 <div class="viewcode-block" id="KiwiMappedDeviceError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiMappedDeviceError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiMappedDeviceError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiMappedDeviceError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the device to become mapped does not exist.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1821,7 +1821,7 @@
 
 <div class="viewcode-block" id="KiwiMountKernelFileSystemsError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiMountKernelFileSystemsError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiMountKernelFileSystemsError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiMountKernelFileSystemsError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a kernel filesystem such as proc or sys</span>
 <span class="sd">    could not be mounted.</span>
@@ -1831,7 +1831,7 @@
 
 <div class="viewcode-block" id="KiwiMountSharedDirectoryError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiMountSharedDirectoryError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiMountSharedDirectoryError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiMountSharedDirectoryError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the host &lt;-&gt; image shared directory</span>
 <span class="sd">    could not be mounted.</span>
@@ -1841,7 +1841,7 @@
 
 <div class="viewcode-block" id="KiwiNotImplementedError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiNotImplementedError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiNotImplementedError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiNotImplementedError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a functionality is not yet implemented.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1850,7 +1850,7 @@
 
 <div class="viewcode-block" id="KiwiOCIArchiveToolError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiOCIArchiveToolError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiOCIArchiveToolError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiOCIArchiveToolError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the requested OCI archive tool is not supported</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1859,7 +1859,7 @@
 
 <div class="viewcode-block" id="KiwiOSReleaseImportError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiOSReleaseImportError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiOSReleaseImportError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiOSReleaseImportError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if reading etc/os-release caused an issue</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1868,7 +1868,7 @@
 
 <div class="viewcode-block" id="KiwiPackageManagerSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiPackageManagerSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiPackageManagerSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiPackageManagerSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to create a package</span>
 <span class="sd">    manager instance for an unsupported package manager.</span>
@@ -1878,7 +1878,7 @@
 
 <div class="viewcode-block" id="KiwiPartitionerGptFlagError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiPartitionerGptFlagError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiPartitionerGptFlagError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiPartitionerGptFlagError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to set an unknown</span>
 <span class="sd">    partition flag for an entry in the GPT table.</span>
@@ -1888,7 +1888,7 @@
 
 <div class="viewcode-block" id="KiwiPartitionerMsDosFlagError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiPartitionerMsDosFlagError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiPartitionerMsDosFlagError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiPartitionerMsDosFlagError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to set an unknown</span>
 <span class="sd">    partition flag for an entry in the MSDOS table.</span>
@@ -1898,7 +1898,7 @@
 
 <div class="viewcode-block" id="KiwiPartitionerSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiPartitionerSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiPartitionerSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiPartitionerSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to create an instance</span>
 <span class="sd">    of a partitioner for an unsupporte partitioner.</span>
@@ -1908,7 +1908,7 @@
 
 <div class="viewcode-block" id="KiwiPrivilegesError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiPrivilegesError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiPrivilegesError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiPrivilegesError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if root privileges are required but not granted.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -1917,7 +1917,7 @@
 
 <div class="viewcode-block" id="KiwiProfileNotFound">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiProfileNotFound">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiProfileNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiProfileNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a specified profile does not exist in the</span>
 <span class="sd">    XML configuration.</span>
@@ -1927,7 +1927,7 @@
 
 <div class="viewcode-block" id="KiwiKisBootImageError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiKisBootImageError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiKisBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiKisBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a required boot file e.g the kernel could</span>
 <span class="sd">    not be found in the process of building a kis image.</span>
@@ -1937,7 +1937,7 @@
 
 <div class="viewcode-block" id="KiwiEnclaveBootImageError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveBootImageError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiEnclaveBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiEnclaveBootImageError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if no kernel image was found while</span>
 <span class="sd">    building an enclave image.</span>
@@ -1947,7 +1947,7 @@
 
 <div class="viewcode-block" id="KiwiRaidSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRaidSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRaidSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRaidSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if invalid or not enough user data is provided</span>
 <span class="sd">    to create a raid array on the specified storage device.</span>
@@ -1957,7 +1957,7 @@
 
 <div class="viewcode-block" id="KiwiRepositorySetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRepositorySetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRepositorySetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRepositorySetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to create an instance of</span>
 <span class="sd">    a repository for an unsupported package manager.</span>
@@ -1967,7 +1967,7 @@
 
 <div class="viewcode-block" id="KiwiRequestedTypeError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRequestedTypeError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRequestedTypeError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRequestedTypeError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to build an image for</span>
 <span class="sd">    an unsupported image type.</span>
@@ -1977,7 +1977,7 @@
 
 <div class="viewcode-block" id="KiwiRequestError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRequestError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRequestError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRequestError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a package request could not be processed by</span>
 <span class="sd">    the corresponding package manager instance.</span>
@@ -1987,7 +1987,7 @@
 
 <div class="viewcode-block" id="KiwiResizeRawDiskError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiResizeRawDiskError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiResizeRawDiskError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiResizeRawDiskError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an attempt was made to resize the image disk</span>
 <span class="sd">    to a smaller size than the current one. Simply shrinking a disk image</span>
@@ -2005,7 +2005,7 @@
 
 <div class="viewcode-block" id="KiwiResultError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiResultError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiResultError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiResultError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the image build result pickle information</span>
 <span class="sd">    could not be created or loaded.</span>
@@ -2015,7 +2015,7 @@
 
 <div class="viewcode-block" id="KiwiRootDirExists">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRootDirExists">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRootDirExists</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRootDirExists</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the specified image root directory already</span>
 <span class="sd">    exists and should not be re-used.</span>
@@ -2025,7 +2025,7 @@
 
 <div class="viewcode-block" id="KiwiRootInitCreationError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRootInitCreationError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRootInitCreationError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRootInitCreationError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the initialization of a new image root</span>
 <span class="sd">    directory has failed.</span>
@@ -2035,7 +2035,7 @@
 
 <div class="viewcode-block" id="KiwiRpmDirNotRemoteError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRpmDirNotRemoteError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRpmDirNotRemoteError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRpmDirNotRemoteError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the provided rpm-dir repository is not local</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2044,7 +2044,7 @@
 
 <div class="viewcode-block" id="KiwiRuntimeConfigFileError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRuntimeConfigFileError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRuntimeConfigFileError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRuntimeConfigFileError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the provided custom runtime config</span>
 <span class="sd">    file could not be found</span>
@@ -2054,7 +2054,7 @@
 
 <div class="viewcode-block" id="KiwiRuntimeConfigFormatError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRuntimeConfigFormatError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRuntimeConfigFormatError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRuntimeConfigFormatError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the expected format in the yaml KIWI</span>
 <span class="sd">    runtime config file does not match</span>
@@ -2064,7 +2064,7 @@
 
 <div class="viewcode-block" id="KiwiRuntimeError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRuntimeError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRuntimeError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRuntimeError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a runtime check has failed.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2073,7 +2073,7 @@
 
 <div class="viewcode-block" id="KiwiSatSolverJobError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSatSolverJobError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSatSolverJobError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSatSolverJobError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a sat solver job can not be done, e.g because</span>
 <span class="sd">    the requested package or collection does not exist in the registered</span>
@@ -2084,7 +2084,7 @@
 
 <div class="viewcode-block" id="KiwiSatSolverJobProblems">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSatSolverJobProblems">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSatSolverJobProblems</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSatSolverJobProblems</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the sat solver operations returned with solver</span>
 <span class="sd">    problems e.g package conflicts</span>
@@ -2094,7 +2094,7 @@
 
 <div class="viewcode-block" id="KiwiSatSolverPluginError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSatSolverPluginError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSatSolverPluginError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSatSolverPluginError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the python solv module failed to load.</span>
 <span class="sd">    The solv module is provided by SUSE&#39;s rpm package python-solv</span>
@@ -2105,7 +2105,7 @@
 
 <div class="viewcode-block" id="KiwiAnyMarkupPluginError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiAnyMarkupPluginError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiAnyMarkupPluginError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiAnyMarkupPluginError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the python anymarkup module failed to load.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2114,7 +2114,7 @@
 
 <div class="viewcode-block" id="KiwiMarkupConversionError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiMarkupConversionError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiMarkupConversionError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiMarkupConversionError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the markup format conversion is not possible.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2123,7 +2123,7 @@
 
 <div class="viewcode-block" id="KiwiSchemaImportError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSchemaImportError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSchemaImportError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSchemaImportError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the schema file could not be read</span>
 <span class="sd">    by lxml.RelaxNG.</span>
@@ -2133,7 +2133,7 @@
 
 <div class="viewcode-block" id="KiwiScriptFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiScriptFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiScriptFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiScriptFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a user script returned with an exit code != 0.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2142,7 +2142,7 @@
 
 <div class="viewcode-block" id="KiwiSetupIntermediateConfigError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSetupIntermediateConfigError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSetupIntermediateConfigError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSetupIntermediateConfigError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the setup of the temporary image system</span>
 <span class="sd">    configuration for the duration of the build process has</span>
@@ -2153,7 +2153,7 @@
 
 <div class="viewcode-block" id="KiwiSolverRepositorySetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSolverRepositorySetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSolverRepositorySetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSolverRepositorySetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the repository type is not supported for</span>
 <span class="sd">    the creation of a SAT solvable</span>
@@ -2163,7 +2163,7 @@
 
 <div class="viewcode-block" id="KiwiSystemDeletePackagesFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSystemDeletePackagesFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSystemDeletePackagesFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSystemDeletePackagesFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the deletion of a package has failed in</span>
 <span class="sd">    the corresponding package manager instance.</span>
@@ -2173,7 +2173,7 @@
 
 <div class="viewcode-block" id="KiwiSystemInstallPackagesFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSystemInstallPackagesFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSystemInstallPackagesFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSystemInstallPackagesFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the installation of a package has failed in</span>
 <span class="sd">    the corresponding package manager instance.</span>
@@ -2183,7 +2183,7 @@
 
 <div class="viewcode-block" id="KiwiSystemUpdateFailed">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSystemUpdateFailed">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSystemUpdateFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSystemUpdateFailed</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the package upgrade has failed in</span>
 <span class="sd">    the corresponding package manager instance.</span>
@@ -2193,7 +2193,7 @@
 
 <div class="viewcode-block" id="KiwiTargetDirectoryNotFound">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiTargetDirectoryNotFound">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiTargetDirectoryNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiTargetDirectoryNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the specified target directory to store</span>
 <span class="sd">    the image results was not found.</span>
@@ -2203,7 +2203,7 @@
 
 <div class="viewcode-block" id="KiwiTemplateError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiTemplateError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiTemplateError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiTemplateError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the substitution of variables in a</span>
 <span class="sd">    configuration file template has failed.</span>
@@ -2213,7 +2213,7 @@
 
 <div class="viewcode-block" id="KiwiTypeNotFound">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiTypeNotFound">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiTypeNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiTypeNotFound</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if no build type was found in the XML description.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2222,7 +2222,7 @@
 
 <div class="viewcode-block" id="KiwiUnknownServiceName">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiUnknownServiceName">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiUnknownServiceName</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiUnknownServiceName</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an unknown service name was provided</span>
 <span class="sd">    on the commandline.</span>
@@ -2232,7 +2232,7 @@
 
 <div class="viewcode-block" id="KiwiUriOpenError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiUriOpenError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiUriOpenError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiUriOpenError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the urllib urlopen request has failed</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2241,7 +2241,7 @@
 
 <div class="viewcode-block" id="KiwiUriStyleUnknown">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiUriStyleUnknown">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiUriStyleUnknown</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiUriStyleUnknown</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if an unsupported URI style was used in the</span>
 <span class="sd">    source definition of a repository.</span>
@@ -2251,7 +2251,7 @@
 
 <div class="viewcode-block" id="KiwiUriTypeUnknown">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiUriTypeUnknown">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiUriTypeUnknown</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiUriTypeUnknown</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the protocol type of an URI is unknown</span>
 <span class="sd">    in the source definition of a repository.</span>
@@ -2261,7 +2261,7 @@
 
 <div class="viewcode-block" id="KiwiValidationError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiValidationError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiValidationError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiValidationError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the XML validation against the schema has failed.</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2270,7 +2270,7 @@
 
 <div class="viewcode-block" id="KiwiVhdTagError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiVhdTagError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiVhdTagError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiVhdTagError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the GUID tag is not provided in the</span>
 <span class="sd">    expected format.</span>
@@ -2280,7 +2280,7 @@
 
 <div class="viewcode-block" id="KiwiVolumeGroupConflict">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiVolumeGroupConflict">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiVolumeGroupConflict</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiVolumeGroupConflict</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the requested LVM volume group already is</span>
 <span class="sd">    in use on the build system.</span>
@@ -2290,7 +2290,7 @@
 
 <div class="viewcode-block" id="KiwiVolumeManagerSetupError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiVolumeManagerSetupError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiVolumeManagerSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiVolumeManagerSetupError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the preconditions for volume mangement</span>
 <span class="sd">    support are not met or an attempt was made to create an</span>
@@ -2302,7 +2302,7 @@
 
 <div class="viewcode-block" id="KiwiVolumeRootIDError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiVolumeRootIDError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiVolumeRootIDError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiVolumeRootIDError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the root volume can not be found. This</span>
 <span class="sd">    concept currently exists only for the btrfs subvolume system.</span>
@@ -2312,7 +2312,7 @@
 
 <div class="viewcode-block" id="KiwiRootImportError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiRootImportError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiRootImportError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiRootImportError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception is raised when something fails during the root import</span>
 <span class="sd">    procedure.</span>
@@ -2322,7 +2322,7 @@
 
 <div class="viewcode-block" id="KiwiContainerBuilderError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiContainerBuilderError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiContainerBuilderError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiContainerBuilderError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception is raised when something fails during a container image</span>
 <span class="sd">    build procedure.</span>
@@ -2332,7 +2332,7 @@
 
 <div class="viewcode-block" id="KiwiSizeError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiSizeError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiSizeError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiSizeError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception is raised when the convertion from a given size in string</span>
 <span class="sd">    format to a number.</span>
@@ -2342,7 +2342,7 @@
 
 <div class="viewcode-block" id="KiwiCommandCapabilitiesError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiCommandCapabilitiesError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiCommandCapabilitiesError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiCommandCapabilitiesError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception is raised when some the CommandCapabilities methods fails,</span>
 <span class="sd">    usually meaning there is some issue trying to parse some command output.</span>
@@ -2352,7 +2352,7 @@
 
 <div class="viewcode-block" id="KiwiDecodingError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiDecodingError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiDecodingError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiDecodingError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception is raised on decoding literals failure</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2361,7 +2361,7 @@
 
 <div class="viewcode-block" id="KiwiBuildahError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBuildahError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBuildahError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBuildahError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised on inconsistent buildah class calls</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2370,7 +2370,7 @@
 
 <div class="viewcode-block" id="KiwiFileAccessError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiFileAccessError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiFileAccessError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiFileAccessError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if accessing a file or its metadata failed</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2379,7 +2379,7 @@
 
 <div class="viewcode-block" id="KiwiShellVariableValueError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiShellVariableValueError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiShellVariableValueError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiShellVariableValueError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if a given python value cannot be converted</span>
 <span class="sd">    into a string representation for use in shell scripts</span>
@@ -2389,7 +2389,7 @@
 
 <div class="viewcode-block" id="KiwiIncludFileNotFoundError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiIncludFileNotFoundError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiIncludFileNotFoundError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiIncludFileNotFoundError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the file reference in an &lt;include&gt;</span>
 <span class="sd">    statement could not be found</span>
@@ -2399,7 +2399,7 @@
 
 <div class="viewcode-block" id="KiwiUmountBusyError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiUmountBusyError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiUmountBusyError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiUmountBusyError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the attempt to umount a resource has failed</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2408,7 +2408,7 @@
 
 <div class="viewcode-block" id="KiwiCustomPartitionConflictError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiCustomPartitionConflictError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiCustomPartitionConflictError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiCustomPartitionConflictError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the entry in a custom partition setup</span>
 <span class="sd">    conflicts with an existing partition table layout setting</span>
@@ -2418,7 +2418,7 @@
 
 <div class="viewcode-block" id="KiwiVolumeTooSmallError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiVolumeTooSmallError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiVolumeTooSmallError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiVolumeTooSmallError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the specified volume size is smaller</span>
 <span class="sd">    than the required bytes to store the data</span>
@@ -2428,7 +2428,7 @@
 
 <div class="viewcode-block" id="KiwiPartitionTooSmallError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiPartitionTooSmallError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiPartitionTooSmallError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiPartitionTooSmallError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the specified partition size is smaller</span>
 <span class="sd">    than the required bytes to store the data</span>
@@ -2438,7 +2438,7 @@
 
 <div class="viewcode-block" id="KiwiCredentialsError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiCredentialsError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiCredentialsError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiCredentialsError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if required credentials information is missing</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2447,7 +2447,7 @@
 
 <div class="viewcode-block" id="KiwiOffsetError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiOffsetError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiOffsetError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiOffsetError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the offset for a seek operation does not</span>
 <span class="sd">    match the expected data to write</span>
@@ -2457,7 +2457,7 @@
 
 <div class="viewcode-block" id="KiwiBootLoaderDiskPasswordError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiBootLoaderDiskPasswordError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiBootLoaderDiskPasswordError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiBootLoaderDiskPasswordError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if the disk password could not be set</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
@@ -2466,7 +2466,7 @@
 
 <div class="viewcode-block" id="KiwiEnclaveFormatError">
 <a class="viewcode-back" href="../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveFormatError">[docs]</a>
-<span class="k">class</span> <span class="nc">KiwiEnclaveFormatError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KiwiEnclaveFormatError</span><span class="p">(</span><span class="n">KiwiError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception raised if no enclave_format attribute specified</span>
 <span class="sd">    for the selected build type</span>
@@ -2481,7 +2481,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

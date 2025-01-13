@@ -90,12 +90,12 @@ system. As diskless client, a QEMU virtual machine is used.
        $ cp *.initrd /srv/tftpboot/boot/initrd
        $ cp *.kernel /srv/tftpboot/boot/linux
 
-5. Copy the system image and its MD5 sum to :file:`/srv/tftpboot/image`:
+5. Copy the system image and its SHA256 sum to :file:`/srv/tftpboot/image`:
 
    .. code:: bash
 
        $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version} /srv/tftpboot/image
-       $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version}.md5 /srv/tftpboot/image
+       $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version}.sha256 /srv/tftpboot/image
 
 6. Adjust the PXE configuration file.
    The configuration file controls which kernel and initrd is
@@ -317,7 +317,7 @@ CONF, the following setup is required:
    RELOAD_CONFIG=1
 
 By default only configuration files which has changed according to
-their md5sum value will be reloaded. With the above setup all files
+their checksum value will be reloaded. With the above setup all files
 will be reloaded from the PXE server. The option only applies to
 configurations with a DISK/PART setup
 

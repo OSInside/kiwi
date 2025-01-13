@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.install.systemd_boot &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.bootloader.install.systemd_boot &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1255,24 +1255,24 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.bootloader.install.base</span> <span class="kn">import</span> <span class="n">BootLoaderInstallBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.bootloader.install.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootLoaderInstallBase</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;kiwi&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BootLoaderInstallSystemdBoot">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.systemd_boot.BootLoaderInstallSystemdBoot">[docs]</a>
-<span class="k">class</span> <span class="nc">BootLoaderInstallSystemdBoot</span><span class="p">(</span><span class="n">BootLoaderInstallBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BootLoaderInstallSystemdBoot</span><span class="p">(</span><span class="n">BootLoaderInstallBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **systemd-boot bootloader installation**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="BootLoaderInstallSystemdBoot.post_init">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.systemd_boot.BootLoaderInstallSystemdBoot.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        systemd-boot post initialization method</span>
 
@@ -1284,7 +1284,7 @@
 
 <div class="viewcode-block" id="BootLoaderInstallSystemdBoot.install_required">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.systemd_boot.BootLoaderInstallSystemdBoot.install_required">[docs]</a>
-    <span class="k">def</span> <span class="nf">install_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if systemd-boot needs to install boot code</span>
 
@@ -1301,7 +1301,7 @@
 
 <div class="viewcode-block" id="BootLoaderInstallSystemdBoot.secure_boot_install">
 <a class="viewcode-back" href="../../../../api/kiwi.bootloader.install.html#kiwi.bootloader.install.systemd_boot.BootLoaderInstallSystemdBoot.secure_boot_install">[docs]</a>
-    <span class="k">def</span> <span class="nf">secure_boot_install</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">secure_boot_install</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run shim installation for secure boot setup</span>
 
@@ -1320,7 +1320,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

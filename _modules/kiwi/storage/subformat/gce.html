@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.storage.subformat.gce &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.storage.subformat.gce &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1255,26 +1255,26 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="n">Temporary</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.subformat.base</span> <span class="kn">import</span> <span class="n">DiskFormatBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.archive.tar</span> <span class="kn">import</span> <span class="n">ArchiveTar</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.result</span> <span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="n">Temporary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.subformat.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiskFormatBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.archive.tar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchiveTar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
 
 
 <div class="viewcode-block" id="DiskFormatGce">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.gce.DiskFormatGce">[docs]</a>
-<span class="k">class</span> <span class="nc">DiskFormatGce</span><span class="p">(</span><span class="n">DiskFormatBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiskFormatGce</span><span class="p">(</span><span class="n">DiskFormatBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Create GCE - Google Compute Engine image format**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="DiskFormatGce.post_init">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.gce.DiskFormatGce.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        GCE disk format post initialization method</span>
 
@@ -1298,7 +1298,7 @@
 
 <div class="viewcode-block" id="DiskFormatGce.create_image_format">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.gce.DiskFormatGce.create_image_format">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_image_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_image_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create GCE disk format and manifest</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1344,7 +1344,7 @@
 
 <div class="viewcode-block" id="DiskFormatGce.store_to_result">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.gce.DiskFormatGce.store_to_result">[docs]</a>
-    <span class="k">def</span> <span class="nf">store_to_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store_to_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Store result file of the gce format conversion into the</span>
 <span class="sd">        provided result instance. In this case compression is unwanted</span>
@@ -1366,7 +1366,7 @@
 
 <div class="viewcode-block" id="DiskFormatGce.get_target_file_path_for_format">
 <a class="viewcode-back" href="../../../../api/kiwi.storage.subformat.html#kiwi.storage.subformat.gce.DiskFormatGce.get_target_file_path_for_format">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_target_file_path_for_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_target_file_path_for_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Google requires the image name to follow their naming</span>
 <span class="sd">        convetion. Therefore it&#39;s required to provide a suitable</span>
@@ -1400,7 +1400,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

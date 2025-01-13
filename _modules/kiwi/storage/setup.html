@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.storage.setup &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.storage.setup &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1254,17 +1254,17 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
-<span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.firmware</span> <span class="kn">import</span> <span class="n">FirmWare</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.size</span> <span class="kn">import</span> <span class="n">SystemSize</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">XMLState</span>
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.firmware</span><span class="w"> </span><span class="kn">import</span> <span class="n">FirmWare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.size</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiVolumeTooSmallError</span><span class="p">,</span>
     <span class="n">KiwiPartitionTooSmallError</span>
 <span class="p">)</span>
@@ -1274,7 +1274,7 @@
 
 <div class="viewcode-block" id="DiskSetup">
 <a class="viewcode-back" href="../../../api/kiwi.storage.html#kiwi.storage.setup.DiskSetup">[docs]</a>
-<span class="k">class</span> <span class="nc">DiskSetup</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiskSetup</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements disk setup methods**</span>
 
@@ -1284,7 +1284,7 @@
 <span class="sd">    :param object xml_state: Instance of XMLState</span>
 <span class="sd">    :param string root_dir: root directory path name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_filesystem_is_overlay</span> <span class="o">=</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_overlayroot</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">swap_mbytes</span> <span class="o">=</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">get_oemconfig_swap_mbytes</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">configured_size</span> <span class="o">=</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">get_build_type_size</span><span class="p">()</span>
@@ -1313,7 +1313,7 @@
 
 <div class="viewcode-block" id="DiskSetup.get_disksize_mbytes">
 <a class="viewcode-back" href="../../../api/kiwi.storage.html#kiwi.storage.setup.DiskSetup.get_disksize_mbytes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_disksize_mbytes</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_disksize_mbytes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">root_clone</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">boot_clone</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1455,7 +1455,7 @@
 
 <div class="viewcode-block" id="DiskSetup.need_boot_partition">
 <a class="viewcode-back" href="../../../api/kiwi.storage.html#kiwi.storage.setup.DiskSetup.need_boot_partition">[docs]</a>
-    <span class="k">def</span> <span class="nf">need_boot_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">need_boot_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decide if an extra boot partition is needed. This is done with</span>
 <span class="sd">        the bootpartition attribute from the type, however if it is not</span>
@@ -1484,7 +1484,7 @@
 <div class="viewcode-block" id="DiskSetup.get_boot_label">
 <a class="viewcode-back" href="../../../api/kiwi.storage.html#kiwi.storage.setup.DiskSetup.get_boot_label">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_boot_label</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_boot_label</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Filesystem Label to use for the boot partition</span>
 
@@ -1497,7 +1497,7 @@
 
 <div class="viewcode-block" id="DiskSetup.get_root_label">
 <a class="viewcode-back" href="../../../api/kiwi.storage.html#kiwi.storage.setup.DiskSetup.get_root_label">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_root_label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_root_label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Filesystem Label to use for the root partition</span>
 
@@ -1517,7 +1517,7 @@
 <div class="viewcode-block" id="DiskSetup.get_efi_label">
 <a class="viewcode-back" href="../../../api/kiwi.storage.html#kiwi.storage.setup.DiskSetup.get_efi_label">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_efi_label</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_efi_label</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Filesystem Label to use for the EFI partition</span>
 
@@ -1530,7 +1530,7 @@
 
 <div class="viewcode-block" id="DiskSetup.boot_partition_size">
 <a class="viewcode-back" href="../../../api/kiwi.storage.html#kiwi.storage.setup.DiskSetup.boot_partition_size">[docs]</a>
-    <span class="k">def</span> <span class="nf">boot_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">boot_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Size of the boot partition in mbytes</span>
 
@@ -1545,7 +1545,7 @@
         <span class="k">return</span> <span class="mi">0</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_inplace_recovery_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_inplace_recovery_partition_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        In inplace recovery mode the recovery archive is created at</span>
 <span class="sd">        install time. This requires free space on the disk. The</span>
@@ -1560,7 +1560,7 @@
             <span class="k">if</span> <span class="n">recovery_mbytes</span><span class="p">:</span>
                 <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">recovery_mbytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.7</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_accumulate_partitions_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_accumulate_partitions_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate number of mbytes to add to the disk to allow</span>
 <span class="sd">        the creaton of the partitions with their configured size</span>
@@ -1605,7 +1605,7 @@
                     <span class="p">)</span>
         <span class="k">return</span> <span class="n">disk_partition_mbytes</span>
 
-    <span class="k">def</span> <span class="nf">_accumulate_volume_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_mbytes</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_accumulate_volume_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_mbytes</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate number of mbytes to add to the disk to allow</span>
 <span class="sd">        the creaton of the volumes with their configured size</span>
@@ -1672,7 +1672,7 @@
 
         <span class="k">return</span> <span class="n">disk_volume_mbytes</span>
 
-    <span class="k">def</span> <span class="nf">_get_root_volume_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_root_volume_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provide root volume configuration if present and in</span>
 <span class="sd">        use according to the selected volume management. So far</span>
@@ -1690,7 +1690,7 @@
                         <span class="n">req_size</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">req_size</span><span class="p">)</span>
                     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_calculate_volume_mbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_volume_mbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the number of mbytes each volume path currently</span>
 <span class="sd">        consumes and also provide a total number of these values.</span>
@@ -1718,7 +1718,7 @@
             <span class="n">total</span><span class="o">=</span><span class="n">volume_total</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_calculate_partition_mbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_partition_mbytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the number of mbytes each partition path consumes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1754,7 +1754,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

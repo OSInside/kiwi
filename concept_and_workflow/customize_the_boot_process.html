@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Customizing the Boot Process &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Customizing the Boot Process &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../_static/documentation_options.js?v=bf020882"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1420,6 +1420,17 @@ can be used, for example, to pass on first boot configuration for a PXE image.
 Note that options starting with <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi</span></code> are not passed to avoid
 side effects.</p>
 </dd>
+<dt><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.luks.reencrypt</span></code></dt><dd><p>For OEM LUKS2 encrypted disk images. If set, reencrypts the disk
+prior an eventual resize and therefore creates a new key pool and
+master key. The reencryption is advisable if the image binary is
+not protected. With access to the image binary it’s possible to
+extract the luks header which then allows to decrypt the data
+unless it was reencrypted. The reencryption process only runs if
+the checksum of the luks header still matches the one from the
+original disk image. Be aware that the reencryption will ask
+for the passphrase if the image has been built with an initial
+luks passphrase.</p>
+</dd>
 <dt><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.maxdisk=size[KMGT]</span></code></dt><dd><p>Specifies the maximum disk size an unattended OEM installation uses for image
 deployment. Unattended OEM deployments default to deploying on <code class="xref py py-obj docutils literal notranslate"><span class="pre">/dev/sda</span></code> (or
 more precisely, the first device that is not filtered out by
@@ -1522,7 +1533,7 @@ during boot. The shell provides a basic set of tools, and it can be used for ins
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

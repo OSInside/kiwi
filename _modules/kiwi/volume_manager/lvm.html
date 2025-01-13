@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.volume_manager.lvm &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.volume_manager.lvm &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,23 +1255,23 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
 <span class="p">)</span>
 
 <span class="c1"># project</span>
-<span class="kn">import</span> <span class="nn">kiwi.defaults</span> <span class="k">as</span> <span class="nn">defaults</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">defaults</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.volume_manager.base</span> <span class="kn">import</span> <span class="n">VolumeManagerBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.mount_manager</span> <span class="kn">import</span> <span class="n">MountManager</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.mapped_device</span> <span class="kn">import</span> <span class="n">MappedDevice</span>
-<span class="kn">from</span> <span class="nn">kiwi.filesystem</span> <span class="kn">import</span> <span class="n">FileSystem</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.volume_manager.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">VolumeManagerBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.mount_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MountManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.mapped_device</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappedDevice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.filesystem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiVolumeGroupConflict</span><span class="p">,</span>
     <span class="n">KiwiCommandError</span>
 <span class="p">)</span>
@@ -1281,13 +1281,13 @@
 
 <div class="viewcode-block" id="VolumeManagerLVM">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM">[docs]</a>
-<span class="k">class</span> <span class="nc">VolumeManagerLVM</span><span class="p">(</span><span class="n">VolumeManagerBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VolumeManagerLVM</span><span class="p">(</span><span class="n">VolumeManagerBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements LVM volume management**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="VolumeManagerLVM.post_init">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post initialization method</span>
 
@@ -1316,7 +1316,7 @@
 
 <div class="viewcode-block" id="VolumeManagerLVM.get_device">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM.get_device">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Dictionary of MappedDevice instances per volume</span>
 
@@ -1346,7 +1346,7 @@
 
 <div class="viewcode-block" id="VolumeManagerLVM.setup">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM.setup">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_group_name</span><span class="o">=</span><span class="s1">&#39;systemVG&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_group_name</span><span class="o">=</span><span class="s1">&#39;systemVG&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup lvm volume management</span>
 
@@ -1382,7 +1382,7 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_create_volume_no_zero</span><span class="p">(</span><span class="n">lvm_tool_options</span><span class="p">,</span> <span class="n">lvcreate_args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_volume_no_zero</span><span class="p">(</span><span class="n">lvm_tool_options</span><span class="p">,</span> <span class="n">lvcreate_args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an LV using specified arguments to lvcreate</span>
 
@@ -1415,7 +1415,7 @@
 
 <div class="viewcode-block" id="VolumeManagerLVM.create_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM.create_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create configured lvm volumes and filesystems</span>
 
@@ -1488,7 +1488,7 @@
 
 <div class="viewcode-block" id="VolumeManagerLVM.get_fstab">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM.get_fstab">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_fstab</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fstab</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">persistency_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;by-label&#39;</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1531,7 +1531,7 @@
 
 <div class="viewcode-block" id="VolumeManagerLVM.get_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM.get_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return dict of volumes</span>
 
@@ -1555,7 +1555,7 @@
 
 <div class="viewcode-block" id="VolumeManagerLVM.mount_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM.mount_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">mount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Mount lvm volumes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1568,7 +1568,7 @@
 
 <div class="viewcode-block" id="VolumeManagerLVM.umount_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.lvm.VolumeManagerLVM.umount_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">umount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">umount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Umount lvm volumes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1577,14 +1577,14 @@
                 <span class="n">volume_mount</span><span class="o">.</span><span class="n">umount</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_is_volume_enabled_for_fs_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_volume_enabled_for_fs_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">volume</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">volume_name</span> <span class="o">==</span> <span class="n">volume</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
                 <span class="k">if</span> <span class="s1">&#39;enable-for-filesystem-check&#39;</span> <span class="ow">in</span> <span class="n">volume</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
                     <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_create_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">,</span> <span class="n">volume_label</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">,</span> <span class="n">volume_label</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">):</span>
         <span class="n">device_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_map</span><span class="p">[</span><span class="n">volume_name</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_root_volume</span><span class="p">(</span><span class="n">volume_name</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">volume_label</span><span class="p">:</span>
             <span class="c1"># if there is no @root volume definition for the root volume,</span>
@@ -1602,7 +1602,7 @@
                 <span class="n">label</span><span class="o">=</span><span class="n">volume_label</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_add_to_mount_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">,</span> <span class="n">realpath</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_to_mount_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">,</span> <span class="n">realpath</span><span class="p">):</span>
         <span class="n">device_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_map</span><span class="p">[</span><span class="n">volume_name</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_root_volume</span><span class="p">(</span><span class="n">volume_name</span><span class="p">):</span>
             <span class="c1"># root volume must be first in the list</span>
@@ -1620,17 +1620,17 @@
                 <span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_add_to_volume_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_to_volume_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">volume_map</span><span class="p">[</span><span class="n">volume_name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span><span class="s1">&#39;/dev/&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_group</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_volume_name_from_volume_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_volume_name_from_volume_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">volume_name</span><span class="p">,</span> <span class="n">volume_path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">volume_path</span> <span class="o">==</span> <span class="n">device</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">volume_name</span>
 
-    <span class="k">def</span> <span class="nf">_volume_group_in_use_on_host_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_group_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_volume_group_in_use_on_host_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_group_name</span><span class="p">):</span>
         <span class="n">vgs_call</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="s1">&#39;vgs&#39;</span><span class="p">,</span> <span class="s1">&#39;--noheadings&#39;</span><span class="p">,</span>
@@ -1646,17 +1646,17 @@
             <span class="c1"># group name, it is considered to be not used</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">_is_root_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_root_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">volume</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">volume_name</span> <span class="o">==</span> <span class="n">volume</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">volume</span><span class="o">.</span><span class="n">is_root_volume</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">_is_swap_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_swap_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_name</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">volume</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">volume_name</span> <span class="o">==</span> <span class="n">volume</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="n">volume</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="s1">&#39;SWAP&#39;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_group</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">umount_volumes</span><span class="p">()</span>
@@ -1681,7 +1681,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

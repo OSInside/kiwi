@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.builder.container &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.builder.container &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,27 +1255,27 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.container</span> <span class="kn">import</span> <span class="n">ContainerImage</span>
-<span class="kn">from</span> <span class="nn">kiwi.container.setup</span> <span class="kn">import</span> <span class="n">ContainerSetup</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.setup</span> <span class="kn">import</span> <span class="n">SystemSetup</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.result</span> <span class="kn">import</span> <span class="n">Result</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.checksum</span> <span class="kn">import</span> <span class="n">Checksum</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="n">KiwiContainerBuilderError</span>
-<span class="kn">from</span> <span class="nn">kiwi.runtime_config</span> <span class="kn">import</span> <span class="n">RuntimeConfig</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">XMLState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.container</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContainerImage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.container.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContainerSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.checksum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checksum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">KiwiContainerBuilderError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.runtime_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">RuntimeConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLState</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;kiwi&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ContainerBuilder">
 <a class="viewcode-back" href="../../../api/kiwi.builder.html#kiwi.builder.container.ContainerBuilder">[docs]</a>
-<span class="k">class</span> <span class="nc">ContainerBuilder</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ContainerBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Container image builder**</span>
 
@@ -1285,7 +1285,7 @@
 <span class="sd">    :param dict custom_args: Custom processing arguments defined as hash keys:</span>
 <span class="sd">        * xz_options: string of XZ compression parameters</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
@@ -1297,7 +1297,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">requested_container_type</span> <span class="o">=</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">get_build_type_name</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delta_root</span> <span class="o">=</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_delta_root</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_image</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">base_image_md5</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_image_sha256</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ensure_empty_tmpdirs</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">container_config</span><span class="p">[</span><span class="s1">&#39;xz_options&#39;</span><span class="p">]</span> <span class="o">=</span> \
@@ -1309,11 +1309,11 @@
         <span class="k">if</span> <span class="n">xml_state</span><span class="o">.</span><span class="n">get_derived_from_image_uri</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_root</span><span class="p">:</span>
             <span class="c1"># The base image(all derived imports) is expected to be unpacked</span>
             <span class="c1"># by the kiwi prepare step and stored inside of the root_dir/image</span>
-            <span class="c1"># directory. In addition a md5 file of the image is expected too</span>
+            <span class="c1"># directory. In addition a sha256 file of the image is expected too</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">base_image</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_imported_root_image</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base_image_md5</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">base_image</span><span class="p">,</span> <span class="s1">&#39;.md5&#39;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_image_sha256</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">base_image</span><span class="p">,</span> <span class="s1">&#39;.sha256&#39;</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_image</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">KiwiContainerBuilderError</span><span class="p">(</span>
@@ -1321,10 +1321,10 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">base_image</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_image_md5</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_image_sha256</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">KiwiContainerBuilderError</span><span class="p">(</span>
-                    <span class="s1">&#39;Base image MD5 sum </span><span class="si">{0}</span><span class="s1"> not found at&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">base_image_md5</span>
+                    <span class="s1">&#39;Base image SHA256 sum </span><span class="si">{0}</span><span class="s1"> not found at&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">base_image_sha256</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
@@ -1349,7 +1349,7 @@
 
 <div class="viewcode-block" id="ContainerBuilder.create">
 <a class="viewcode-back" href="../../../api/kiwi.builder.html#kiwi.builder.container.ContainerBuilder.create">[docs]</a>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Builds a container image which is usually a data archive</span>
 <span class="sd">        including container specific metadata.</span>
@@ -1375,7 +1375,7 @@
             <span class="n">container_setup</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">checksum</span> <span class="o">=</span> <span class="n">Checksum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_image</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">checksum</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">checksum</span><span class="o">.</span><span class="n">md5</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_image_md5</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">checksum</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">checksum</span><span class="o">.</span><span class="n">sha256</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_image_sha256</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">KiwiContainerBuilderError</span><span class="p">(</span>
                     <span class="s1">&#39;base image file </span><span class="si">{0}</span><span class="s1"> checksum validation failed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">base_image</span>
@@ -1447,7 +1447,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

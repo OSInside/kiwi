@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.system.prepare &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.system.prepare &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1254,29 +1254,29 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExitStack</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">List</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">textwrap</span> <span class="kn">import</span> <span class="n">dedent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">dedent</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_parse</span> <span class="kn">import</span> <span class="n">repository</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">XMLState</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.root_init</span> <span class="kn">import</span> <span class="n">RootInit</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.root_import</span> <span class="kn">import</span> <span class="n">RootImport</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.root_bind</span> <span class="kn">import</span> <span class="n">RootBind</span>
-<span class="kn">from</span> <span class="nn">kiwi.repository</span> <span class="kn">import</span> <span class="n">Repository</span>
-<span class="kn">from</span> <span class="nn">kiwi.package_manager</span> <span class="kn">import</span> <span class="n">PackageManager</span>
-<span class="kn">from</span> <span class="nn">kiwi.package_manager.base</span> <span class="kn">import</span> <span class="n">PackageManagerBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.command_process</span> <span class="kn">import</span> <span class="n">CommandProcess</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.uri</span> <span class="kn">import</span> <span class="n">Uri</span>
-<span class="kn">from</span> <span class="nn">kiwi.archive.tar</span> <span class="kn">import</span> <span class="n">ArchiveTar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">repository</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">XMLState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.root_init</span><span class="w"> </span><span class="kn">import</span> <span class="n">RootInit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.root_import</span><span class="w"> </span><span class="kn">import</span> <span class="n">RootImport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.root_bind</span><span class="w"> </span><span class="kn">import</span> <span class="n">RootBind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.repository</span><span class="w"> </span><span class="kn">import</span> <span class="n">Repository</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.package_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">PackageManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.package_manager.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">PackageManagerBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command_process</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandProcess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">Uri</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.archive.tar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchiveTar</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiBootStrapPhaseFailed</span><span class="p">,</span>
     <span class="n">KiwiSystemUpdateFailed</span><span class="p">,</span>
     <span class="n">KiwiSystemInstallPackagesFailed</span><span class="p">,</span>
@@ -1290,7 +1290,7 @@
 
 <div class="viewcode-block" id="SystemPrepare">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare">[docs]</a>
-<span class="k">class</span> <span class="nc">SystemPrepare</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SystemPrepare</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements preparation and installation of a new root system</span>
 
@@ -1298,7 +1298,7 @@
 <span class="sd">    :param str root_dir: Path to new root directory</span>
 <span class="sd">    :param bool allow_existing: Allow using an existing root_dir</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">xml_state</span><span class="p">:</span> <span class="n">XMLState</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">allow_existing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1350,12 +1350,12 @@
         <span class="c1">#: A list of Uri references</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">uri_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Uri</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="SystemPrepare.setup_repositories">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare.setup_repositories">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_repositories</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_repositories</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">clear_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">signing_keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">target_arch</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PackageManagerBase</span><span class="p">:</span>
@@ -1469,7 +1469,7 @@
 
 <div class="viewcode-block" id="SystemPrepare.install_bootstrap">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare.install_bootstrap">[docs]</a>
-    <span class="k">def</span> <span class="nf">install_bootstrap</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install_bootstrap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="n">PackageManagerBase</span><span class="p">,</span> <span class="n">plus_packages</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1555,7 +1555,7 @@
 
 <div class="viewcode-block" id="SystemPrepare.install_system">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare.install_system">[docs]</a>
-    <span class="k">def</span> <span class="nf">install_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="n">PackageManagerBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="n">PackageManagerBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Install system software using the package manager inside</span>
 <span class="sd">        of the new root directory. This is done via a chroot operation</span>
@@ -1629,7 +1629,7 @@
 
 <div class="viewcode-block" id="SystemPrepare.pinch_system">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare.pinch_system">[docs]</a>
-    <span class="k">def</span> <span class="nf">pinch_system</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pinch_system</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PackageManagerBase</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1689,7 +1689,7 @@
 
 <div class="viewcode-block" id="SystemPrepare.install_packages">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare.install_packages">[docs]</a>
-    <span class="k">def</span> <span class="nf">install_packages</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install_packages</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="n">PackageManagerBase</span><span class="p">,</span> <span class="n">packages</span><span class="p">:</span> <span class="n">List</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1727,7 +1727,7 @@
 
 <div class="viewcode-block" id="SystemPrepare.delete_packages">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare.delete_packages">[docs]</a>
-    <span class="k">def</span> <span class="nf">delete_packages</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_packages</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="n">PackageManagerBase</span><span class="p">,</span> <span class="n">packages</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1774,7 +1774,7 @@
 
 <div class="viewcode-block" id="SystemPrepare.update_system">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare.update_system">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="n">PackageManagerBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="n">PackageManagerBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Install package updates from the used repositories.</span>
 <span class="sd">        the process uses the package manager from inside of the</span>
@@ -1801,7 +1801,7 @@
 
 <div class="viewcode-block" id="SystemPrepare.clean_package_manager_leftovers">
 <a class="viewcode-back" href="../../../api/kiwi.system.html#kiwi.system.prepare.SystemPrepare.clean_package_manager_leftovers">[docs]</a>
-    <span class="k">def</span> <span class="nf">clean_package_manager_leftovers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_package_manager_leftovers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This methods cleans some package manager artifacts created</span>
 <span class="sd">        at run time such as macros</span>
@@ -1817,7 +1817,7 @@
                 <span class="n">manager</span><span class="o">.</span><span class="n">clean_leftovers</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_install_archives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">archive_list</span><span class="p">,</span> <span class="n">archive_target_dir_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_install_archives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">archive_list</span><span class="p">,</span> <span class="n">archive_target_dir_dict</span><span class="p">):</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Installing archives&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">archive</span> <span class="ow">in</span> <span class="n">archive_list</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;--&gt; archive: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">archive</span><span class="p">)</span>
@@ -1849,7 +1849,7 @@
             <span class="n">tar</span> <span class="o">=</span> <span class="n">ArchiveTar</span><span class="p">(</span><span class="n">archive_file</span><span class="p">)</span>
             <span class="n">tar</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_setup_requests</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_requests</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">packages</span><span class="p">,</span> <span class="n">collections</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">products</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignored</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">packages</span><span class="p">:</span>
@@ -1874,7 +1874,7 @@
             <span class="n">manager</span><span class="o">.</span><span class="n">product_requests</span> <span class="o">+</span> \
             <span class="n">manager</span><span class="o">.</span><span class="n">exclude_requests</span>
 
-    <span class="k">def</span> <span class="nf">_get_repo_customization_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_repo</span><span class="p">:</span> <span class="n">repository</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_repo_customization_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_repo</span><span class="p">:</span> <span class="n">repository</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">script_path</span> <span class="o">=</span> <span class="n">xml_repo</span><span class="o">.</span><span class="n">get_customize</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">script_path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">script_path</span><span class="p">):</span>
             <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -1882,7 +1882,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">script_path</span>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;root_bind&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">root_bind</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_import</span><span class="p">:</span>
@@ -1897,7 +1897,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

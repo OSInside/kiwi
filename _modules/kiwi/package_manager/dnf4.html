@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.package_manager.dnf4 &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.package_manager.dnf4 &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,27 +1255,27 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
 <span class="p">)</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">CommandCallT</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.rpm_database</span> <span class="kn">import</span> <span class="n">RpmDataBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.rpm</span> <span class="kn">import</span> <span class="n">Rpm</span>
-<span class="kn">from</span> <span class="nn">kiwi.package_manager.base</span> <span class="kn">import</span> <span class="n">PackageManagerBase</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.root_bind</span> <span class="kn">import</span> <span class="n">RootBind</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandCallT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.rpm_database</span><span class="w"> </span><span class="kn">import</span> <span class="n">RpmDataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.rpm</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rpm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.package_manager.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">PackageManagerBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.root_bind</span><span class="w"> </span><span class="kn">import</span> <span class="n">RootBind</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="n">KiwiRequestError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">KiwiRequestError</span>
 
 
 <div class="viewcode-block" id="PackageManagerDnf4">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4">[docs]</a>
-<span class="k">class</span> <span class="nc">PackageManagerDnf4</span><span class="p">(</span><span class="n">PackageManagerBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PackageManagerDnf4</span><span class="p">(</span><span class="n">PackageManagerBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ***Implements base class for installation/deletion of</span>
 <span class="sd">    packages and collections using dnf***</span>
@@ -1286,7 +1286,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="PackageManagerDnf4.post_init">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post initialization method</span>
 
@@ -1301,7 +1301,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.request_package">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.request_package">[docs]</a>
-    <span class="k">def</span> <span class="nf">request_package</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request_package</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Queue a package request</span>
 
@@ -1312,7 +1312,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.request_collection">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.request_collection">[docs]</a>
-    <span class="k">def</span> <span class="nf">request_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Queue a collection request</span>
 
@@ -1323,7 +1323,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.request_product">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.request_product">[docs]</a>
-    <span class="k">def</span> <span class="nf">request_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Queue a product request</span>
 
@@ -1336,7 +1336,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.request_package_exclusion">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.request_package_exclusion">[docs]</a>
-    <span class="k">def</span> <span class="nf">request_package_exclusion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">request_package_exclusion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Queue a package exclusion(skip) request</span>
 
@@ -1347,7 +1347,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.setup_repository_modules">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.setup_repository_modules">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_repository_modules</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_repository_modules</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">collection_modules</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1396,7 +1396,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.process_install_requests_bootstrap">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.process_install_requests_bootstrap">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_install_requests_bootstrap</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_install_requests_bootstrap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">root_bind</span><span class="p">:</span> <span class="n">RootBind</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bootstrap_package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1438,7 +1438,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.process_install_requests">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.process_install_requests">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_install_requests</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallT</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_install_requests</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process package install requests for image phase (chroot)</span>
 
@@ -1472,7 +1472,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.process_delete_requests">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.process_delete_requests">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_delete_requests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallT</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_delete_requests</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process package delete requests (chroot)</span>
 
@@ -1524,7 +1524,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.update">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.update">[docs]</a>
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallT</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandCallT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process package update requests (chroot)</span>
 
@@ -1547,7 +1547,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.process_only_required">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.process_only_required">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_only_required</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_only_required</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup package processing only for required packages</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1557,7 +1557,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.process_plus_recommended">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.process_plus_recommended">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_plus_recommended</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_plus_recommended</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup package processing to also include recommended dependencies.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1567,7 +1567,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.match_package_installed">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.match_package_installed">[docs]</a>
-    <span class="k">def</span> <span class="nf">match_package_installed</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">match_package_installed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">package_manager_output</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1595,7 +1595,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.match_package_deleted">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.match_package_deleted">[docs]</a>
-    <span class="k">def</span> <span class="nf">match_package_deleted</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">match_package_deleted</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">package_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">package_manager_output</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1618,7 +1618,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.post_process_install_requests_bootstrap">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.post_process_install_requests_bootstrap">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_process_install_requests_bootstrap</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_process_install_requests_bootstrap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">root_bind</span><span class="p">:</span> <span class="n">RootBind</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">delta_root</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1636,7 +1636,7 @@
 
 <div class="viewcode-block" id="PackageManagerDnf4.clean_leftovers">
 <a class="viewcode-back" href="../../../api/kiwi.package_manager.html#kiwi.package_manager.dnf4.PackageManagerDnf4.clean_leftovers">[docs]</a>
-    <span class="k">def</span> <span class="nf">clean_leftovers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_leftovers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cleans package manager related data not needed in the</span>
 <span class="sd">        resulting image such as custom macros</span>
@@ -1655,7 +1655,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

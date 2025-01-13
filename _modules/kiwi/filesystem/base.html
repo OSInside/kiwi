@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.filesystem.base &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.filesystem.base &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,24 +1255,24 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="p">)</span>
 
 <span class="c1"># project</span>
-<span class="kn">import</span> <span class="nn">kiwi.defaults</span> <span class="k">as</span> <span class="nn">defaults</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">defaults</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.sync</span> <span class="kn">import</span> <span class="n">DataSync</span>
-<span class="kn">from</span> <span class="nn">kiwi.mount_manager</span> <span class="kn">import</span> <span class="n">MountManager</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.device_provider</span> <span class="kn">import</span> <span class="n">DeviceProvider</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.veritysetup</span> <span class="kn">import</span> <span class="n">VeritySetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSync</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.mount_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MountManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.device_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.veritysetup</span><span class="w"> </span><span class="kn">import</span> <span class="n">VeritySetup</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiFileSystemSyncError</span>
 <span class="p">)</span>
 
@@ -1281,7 +1281,7 @@
 
 <div class="viewcode-block" id="FileSystemBase">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase">[docs]</a>
-<span class="k">class</span> <span class="nc">FileSystemBase</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FileSystemBase</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements base class for filesystem interface**</span>
 
@@ -1292,7 +1292,7 @@
 <span class="sd">    :param string root_dir: root directory path name</span>
 <span class="sd">    :param dict custom_args: custom filesystem arguments</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">device_provider</span><span class="p">:</span> <span class="n">DeviceProvider</span><span class="p">,</span>
         <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="p">):</span>
@@ -1316,12 +1316,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">post_init</span><span class="p">(</span><span class="n">custom_args</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">veritysetup</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VeritySetup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="FileSystemBase.post_init">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post initialization method</span>
 
@@ -1358,7 +1358,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.set_uuid">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.set_uuid">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create new random filesystem UUID</span>
 
@@ -1374,7 +1374,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.create_on_device">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.create_on_device">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_on_device</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_on_device</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">UNIT</span><span class="o">.</span><span class="n">kb</span><span class="p">,</span>
         <span class="n">uuid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
@@ -1397,7 +1397,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.create_on_file">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.create_on_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_on_file</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_on_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1415,7 +1415,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.get_mountpoint">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.get_mountpoint">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_mountpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_mountpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides mount point directory</span>
 
@@ -1432,7 +1432,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.sync_data">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.sync_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">sync_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[])</span> <span class="o">-&gt;</span> <span class="n">MountManager</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[])</span> <span class="o">-&gt;</span> <span class="n">MountManager</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Copy data tree into filesystem</span>
 
@@ -1466,7 +1466,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.create_verity_layer">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.create_verity_layer">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_verity_layer</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_verity_layer</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1497,7 +1497,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.create_verification_metadata">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.create_verification_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_verification_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_node</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_verification_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_node</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write verification block at the end of the device</span>
 
@@ -1517,7 +1517,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.mount">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.mount">[docs]</a>
-    <span class="k">def</span> <span class="nf">mount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Mount the filesystem</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1529,7 +1529,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.umount">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.umount">[docs]</a>
-    <span class="k">def</span> <span class="nf">umount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">umount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Umounts the filesystem in case it is mounted, does nothing otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1540,7 +1540,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.umount_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.umount_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">umount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">umount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consistency layer with regards to VolumeManager classes</span>
 
@@ -1551,7 +1551,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.mount_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.mount_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">mount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consistency layer with regards to VolumeManager classes</span>
 
@@ -1562,7 +1562,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.get_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.get_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consistency layer with regards to VolumeManager classes</span>
 
@@ -1573,7 +1573,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.get_root_volume_name">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.get_root_volume_name">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_root_volume_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_root_volume_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consistency layer with regards to VolumeManager classes</span>
 
@@ -1584,7 +1584,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.get_fstab">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.get_fstab">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_fstab</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fstab</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">persistency_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;by-label&#39;</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1597,7 +1597,7 @@
 
 <div class="viewcode-block" id="FileSystemBase.set_property_readonly_root">
 <a class="viewcode-back" href="../../../api/kiwi.filesystem.html#kiwi.filesystem.base.FileSystemBase.set_property_readonly_root">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_property_readonly_root</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_property_readonly_root</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consistency layer with regards to VolumeManager classes</span>
 
@@ -1606,7 +1606,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_map_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">from_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_map_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">from_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return byte size value for given size and unit</span>
 
@@ -1630,7 +1630,7 @@
         <span class="n">byte_size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">*</span> <span class="n">unit_map</span><span class="p">[</span><span class="n">from_unit</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">byte_size</span> <span class="o">/</span> <span class="n">unit_map</span><span class="p">[</span><span class="n">to_unit</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_fs_size</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fs_size</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">blocksize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">UNIT</span><span class="o">.</span><span class="n">kb</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1667,7 +1667,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">result_size</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_apply_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply filesystem attributes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1689,7 +1689,7 @@
                     <span class="p">]</span>
                 <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">umount</span><span class="p">()</span></div>
 
 </pre></div>
@@ -1701,7 +1701,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build PXE Root File System Image for the legacy netboot infrastructure &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Build PXE Root File System Image for the legacy netboot infrastructure &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../_static/documentation_options.js?v=bf020882"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1317,9 +1317,9 @@ $<span class="w"> </span>cp<span class="w"> </span>*.kernel<span class="w"> </sp
 </pre></div>
 </div>
 </li>
-<li><p>Copy the system image and its MD5 sum to <code class="file docutils literal notranslate"><span class="pre">/srv/tftpboot/image</span></code>:</p>
+<li><p>Copy the system image and its SHA256 sum to <code class="file docutils literal notranslate"><span class="pre">/srv/tftpboot/image</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span>kiwi-test-image-pxe.x86_64-1.15.3<span class="w"> </span>/srv/tftpboot/image
-$<span class="w"> </span>cp<span class="w"> </span>kiwi-test-image-pxe.x86_64-1.15.3.md5<span class="w"> </span>/srv/tftpboot/image
+$<span class="w"> </span>cp<span class="w"> </span>kiwi-test-image-pxe.x86_64-1.15.3.sha256<span class="w"> </span>/srv/tftpboot/image
 </pre></div>
 </div>
 </li>
@@ -1513,7 +1513,7 @@ CONF, the following setup is required:</p>
 </pre></div>
 </div>
 <p>By default only configuration files which has changed according to
-their md5sum value will be reloaded. With the above setup all files
+their checksum value will be reloaded. With the above setup all files
 will be reloaded from the PXE server. The option only applies to
 configurations with a DISK/PART setup</p>
 </section>
@@ -1590,7 +1590,7 @@ as initially provided by the <code class="docutils literal notranslate"><span cl
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

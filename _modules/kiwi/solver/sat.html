@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.solver.sat &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.solver.sat &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1254,16 +1254,16 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">importlib</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
-<span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span>
-<span class="kn">from</span> <span class="nn">xml.dom</span> <span class="kn">import</span> <span class="n">minidom</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xml.etree</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElementTree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xml.dom</span><span class="w"> </span><span class="kn">import</span> <span class="n">minidom</span>
 
 <span class="c1"># project</span>
-<span class="kn">import</span> <span class="nn">kiwi.defaults</span> <span class="k">as</span> <span class="nn">defaults</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">defaults</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiSatSolverPluginError</span><span class="p">,</span>
     <span class="n">KiwiSatSolverJobError</span><span class="p">,</span>
     <span class="n">KiwiSatSolverJobProblems</span>
@@ -1274,13 +1274,13 @@
 
 <div class="viewcode-block" id="Sat">
 <a class="viewcode-back" href="../../../api/kiwi.solver.html#kiwi.solver.sat.Sat">[docs]</a>
-<span class="k">class</span> <span class="nc">Sat</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Sat</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Sat Solver class to run package solver operations**</span>
 
 <span class="sd">    The class uses SUSE&#39;s libsolv sat plugin</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        An instance of Sat auto loads the python solv plugin which is a</span>
 <span class="sd">        python binding to the libsolv C library. An exception is raised</span>
@@ -1301,7 +1301,7 @@
 
 <div class="viewcode-block" id="Sat.set_dist_type">
 <a class="viewcode-back" href="../../../api/kiwi.solver.html#kiwi.solver.sat.Sat.set_dist_type">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_dist_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_dist_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">arch</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">arch</span><span class="p">:</span>
             <span class="n">arch</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">PLATFORM_MACHINE</span>
         <span class="n">dist_types</span> <span class="o">=</span> <span class="p">{</span>
@@ -1328,7 +1328,7 @@
 
 <div class="viewcode-block" id="Sat.add_repository">
 <a class="viewcode-back" href="../../../api/kiwi.solver.html#kiwi.solver.sat.Sat.add_repository">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_repository</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_repository</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_repository</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_repository</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a repository solvable to the pool. This basically add the</span>
 <span class="sd">        required repository metadata which is needed to run a solver</span>
@@ -1345,7 +1345,7 @@
 
 <div class="viewcode-block" id="Sat.solve">
 <a class="viewcode-back" href="../../../api/kiwi.solver.html#kiwi.solver.sat.Sat.solve">[docs]</a>
-    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_names</span><span class="p">,</span> <span class="n">skip_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_recommended</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_names</span><span class="p">,</span> <span class="n">skip_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_recommended</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve dependencies for the given job list. The list is allowed</span>
 <span class="sd">        to contain element names of the following format:</span>
@@ -1391,7 +1391,7 @@
         <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_evaluate_solver_problems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_problems</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_solver_problems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_problems</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate over solver problems and their solutions</span>
 
@@ -1427,7 +1427,7 @@
             <span class="n">xml_data_domtree</span> <span class="o">=</span> <span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">xml_data_unformatted</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">xml_data_domtree</span><span class="o">.</span><span class="n">toprettyxml</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="s2">&quot;    &quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_evaluate_solver_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_transaction</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_solver_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver_transaction</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate over solver result and return a data dictionary</span>
 
@@ -1463,7 +1463,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">def</span> <span class="nf">_setup_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_names</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_names</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a solver job list from given list of job names</span>
 
@@ -1506,7 +1506,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

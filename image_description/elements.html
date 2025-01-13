@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Description Elements &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+  <title>Image Description Elements &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../_static/documentation_options.js?v=bf020882"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1245,7 +1245,7 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This document provides a reference for the elements
-and attributes of the KIWI NG XML document in version 10.2.5</p>
+and attributes of the KIWI NG XML document in version 10.2.6</p>
 </div>
 <section id="image">
 <span id="sec-image"></span><h2>&lt;image&gt;<a class="headerlink" href="#image" title="Link to this heading"></a></h2>
@@ -2519,13 +2519,18 @@ distribution name used in the repository data structure.</p>
 the resulting image without using it at build time. By default
 the value is set to false</p>
 </dd>
-<dt>repository_gpgcheck=”true|false”</dt><dd><p>Specifies whether or not this specific repository is configured to
-to run repository signature validation. If not set, no value is
-appended into the repository configuration file. If set the
-relevant key information needs to be provided on the KIWI NG
-commandline using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">--signing-key</span></code> option or via the <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;signing&gt;</span></code>
-element as part of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;repository&gt;</span></code> setting in the
-image description.</p>
+<dt>repository_gpgcheck=”true|false”</dt><dd><p>Specifies whether or not this specific repository values the result
+of the repository signature validation. If not set, the default is
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">false</span></code>. If set the relevant key information needs to be provided
+on the KIWI NG commandline using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">--signing-key</span></code> option or via
+the <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;signing&gt;</span></code> element as part of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;repository&gt;</span></code>
+setting in the image description.</p>
+</dd>
+<dt>package_gpgcheck=”true|false”</dt><dd><p>Specify whether or not this specific repository values the result
+of the package signature validation for each package taken from
+this repository. If not set, the default value is false.
+If set, the same key information requirements as for the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">repository_gpgcheck</span></code> attribute applies.</p>
 </dd>
 <dt>customize=”/path/to/custom_script”</dt><dd><p>Custom script hook which is invoked with the repo file as parameter
 for each file created by KIWI NG.</p>
@@ -2986,7 +2991,7 @@ can be selected by passing this option multiple times.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

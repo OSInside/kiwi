@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.volume_manager.base &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.volume_manager.base &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1255,23 +1255,23 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="n">Temporary</span>
-<span class="kn">from</span> <span class="nn">kiwi.command</span> <span class="kn">import</span> <span class="n">Command</span>
-<span class="kn">from</span> <span class="nn">kiwi.storage.device_provider</span> <span class="kn">import</span> <span class="n">DeviceProvider</span>
-<span class="kn">from</span> <span class="nn">kiwi.mount_manager</span> <span class="kn">import</span> <span class="n">MountManager</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.sync</span> <span class="kn">import</span> <span class="n">DataSync</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.size</span> <span class="kn">import</span> <span class="n">SystemSize</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.xml_state</span> <span class="kn">import</span> <span class="n">volume_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="n">Temporary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.command</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.storage.device_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.mount_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">MountManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSync</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.size</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.xml_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">volume_type</span>
 
-<span class="kn">from</span> <span class="nn">kiwi.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">KiwiVolumeManagerSetupError</span>
 <span class="p">)</span>
 
@@ -1280,7 +1280,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase">[docs]</a>
-<span class="k">class</span> <span class="nc">VolumeManagerBase</span><span class="p">(</span><span class="n">DeviceProvider</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VolumeManagerBase</span><span class="p">(</span><span class="n">DeviceProvider</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements base class for volume management interface**</span>
 
@@ -1294,7 +1294,7 @@
 <span class="sd">    :raises KiwiVolumeManagerSetupError: if the given root_dir doesn&#39;t exist</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DeviceProvider</span><span class="p">],</span>
         <span class="n">root_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1358,12 +1358,12 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">post_init</span><span class="p">(</span><span class="n">custom_args</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="VolumeManagerBase.post_init">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post initialization method</span>
 
@@ -1376,7 +1376,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.setup">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.setup">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements setup required prior to the creation of volumes</span>
 
@@ -1389,7 +1389,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.create_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.create_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements creation of volumes</span>
 
@@ -1402,7 +1402,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.apply_attributes_on_volume">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.apply_attributes_on_volume">[docs]</a>
-    <span class="k">def</span> <span class="nf">apply_attributes_on_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toplevel</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_attributes_on_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toplevel</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">volume</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">attribute</span> <span class="o">==</span> <span class="s1">&#39;no-copy-on-write&#39;</span><span class="p">:</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -1418,7 +1418,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.get_fstab">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.get_fstab">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_fstab</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_fstab</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">persistency_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1433,7 +1433,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.get_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.get_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements return of dictionary of volumes and</span>
 <span class="sd">        their mount options</span>
@@ -1443,7 +1443,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.mount_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.mount_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">mount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements mounting of all volumes below one master directory</span>
 
@@ -1454,7 +1454,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.umount_volumes">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.umount_volumes">[docs]</a>
-    <span class="k">def</span> <span class="nf">umount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">umount_volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements umounting of all volumes</span>
 
@@ -1465,7 +1465,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.umount">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.umount">[docs]</a>
-    <span class="k">def</span> <span class="nf">umount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">umount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consistency layer with regards to FileSystem classes</span>
 
@@ -1476,7 +1476,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.mount">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.mount">[docs]</a>
-    <span class="k">def</span> <span class="nf">mount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consistency layer with regards to FileSystem classes</span>
 
@@ -1487,7 +1487,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.is_loop">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.is_loop">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if storage provider is loop based</span>
 
@@ -1503,7 +1503,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.get_device">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.get_device">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return current DeviceProvider dictionary</span>
 
@@ -1516,7 +1516,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.create_volume_paths_in_root_dir">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.create_volume_paths_in_root_dir">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_volume_paths_in_root_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_volume_paths_in_root_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements creation of volume paths in the given root directory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1535,7 +1535,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.get_canonical_volume_list">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.get_canonical_volume_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_canonical_volume_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_canonical_volume_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements hierarchical sorting of volumes according to their</span>
 <span class="sd">        paths and provides information about the volume configured as</span>
@@ -1568,7 +1568,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.get_volume_mbsize">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.get_volume_mbsize">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_volume_mbsize</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_volume_mbsize</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">,</span> <span class="n">all_volumes</span><span class="p">,</span> <span class="n">filesystem_name</span><span class="p">,</span> <span class="n">resize_on_boot</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1634,7 +1634,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.get_mountpoint">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.get_mountpoint">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_mountpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_mountpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides mount point directory</span>
 
@@ -1649,7 +1649,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.get_root_volume_name">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.get_root_volume_name">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_root_volume_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_root_volume_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides name of the root volume</span>
 
@@ -1665,7 +1665,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.sync_data">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.sync_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">sync_data</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MountManager</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1691,7 +1691,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.create_verity_layer">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.create_verity_layer">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_verity_layer</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_verity_layer</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1702,7 +1702,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.create_verification_metadata">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.create_verification_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_verification_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_node</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_verification_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_node</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write verification block on LVM devices is not supported</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1711,7 +1711,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.set_property_readonly_root">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.set_property_readonly_root">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_property_readonly_root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_property_readonly_root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements setup of read-only root property</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1722,7 +1722,7 @@
 
 <div class="viewcode-block" id="VolumeManagerBase.setup_mountpoint">
 <a class="viewcode-back" href="../../../api/kiwi.volume_manager.html#kiwi.volume_manager.base.VolumeManagerBase.setup_mountpoint">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_mountpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_mountpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements creation of a master directory holding</span>
 <span class="sd">        the mounts of all volumes</span>
@@ -1732,7 +1732,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">temp_directories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mountpoint_tempdir</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="k">pass</span></div>
 
 </pre></div>
@@ -1744,7 +1744,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

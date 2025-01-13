@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.boot.image.builtin_kiwi &mdash; KIWI NG 10.2.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+  <title>kiwi.boot.image.builtin_kiwi &mdash; KIWI NG 10.2.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=88fa82e8"></script>
+      <script src="../../../../_static/documentation_options.js?v=bf020882"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1255,31 +1255,31 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with kiwi.  If not, see &lt;http://www.gnu.org/licenses/&gt;</span>
 <span class="c1">#</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.temporary</span> <span class="kn">import</span> <span class="n">Temporary</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="n">Temporary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="p">)</span>
 
 <span class="c1"># project</span>
-<span class="kn">from</span> <span class="nn">kiwi.defaults</span> <span class="kn">import</span> <span class="n">Defaults</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.identifier</span> <span class="kn">import</span> <span class="n">SystemIdentifier</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.sync</span> <span class="kn">import</span> <span class="n">DataSync</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.prepare</span> <span class="kn">import</span> <span class="n">SystemPrepare</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
-<span class="kn">from</span> <span class="nn">kiwi.system.setup</span> <span class="kn">import</span> <span class="n">SystemSetup</span>
-<span class="kn">from</span> <span class="nn">kiwi.archive.cpio</span> <span class="kn">import</span> <span class="n">ArchiveCpio</span>
-<span class="kn">from</span> <span class="nn">kiwi.utils.compress</span> <span class="kn">import</span> <span class="n">Compress</span>
-<span class="kn">from</span> <span class="nn">kiwi.path</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">kiwi.boot.image.base</span> <span class="kn">import</span> <span class="n">BootImageBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.identifier</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemIdentifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSync</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.prepare</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemPrepare</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.profile</span><span class="w"> </span><span class="kn">import</span> <span class="n">Profile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemSetup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.archive.cpio</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArchiveCpio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.compress</span><span class="w"> </span><span class="kn">import</span> <span class="n">Compress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.boot.image.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BootImageBase</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;kiwi&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BootImageKiwi">
 <a class="viewcode-back" href="../../../../api/kiwi.boot.image.html#kiwi.boot.image.builtin_kiwi.BootImageKiwi">[docs]</a>
-<span class="k">class</span> <span class="nc">BootImageKiwi</span><span class="p">(</span><span class="n">BootImageBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BootImageKiwi</span><span class="p">(</span><span class="n">BootImageBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    **Implements preparation and creation of kiwi boot(initrd) images**</span>
 
@@ -1290,7 +1290,7 @@
 <div class="viewcode-block" id="BootImageKiwi.has_initrd_support">
 <a class="viewcode-back" href="../../../../api/kiwi.boot.image.html#kiwi.boot.image.builtin_kiwi.BootImageKiwi.has_initrd_support">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">has_initrd_support</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_initrd_support</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This instance supports initrd preparation and creation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1299,7 +1299,7 @@
 
 <div class="viewcode-block" id="BootImageKiwi.post_init">
 <a class="viewcode-back" href="../../../../api/kiwi.boot.image.html#kiwi.boot.image.builtin_kiwi.BootImageKiwi.post_init">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Post initialization method</span>
 
@@ -1318,7 +1318,7 @@
 
 <div class="viewcode-block" id="BootImageKiwi.prepare">
 <a class="viewcode-back" href="../../../../api/kiwi.boot.image.html#kiwi.boot.image.builtin_kiwi.BootImageKiwi.prepare">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare new root system suitable to create a kiwi initrd from it</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1378,7 +1378,7 @@
 
 <div class="viewcode-block" id="BootImageKiwi.create_initrd">
 <a class="viewcode-back" href="../../../../api/kiwi.boot.image.html#kiwi.boot.image.builtin_kiwi.BootImageKiwi.create_initrd">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_initrd</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_initrd</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SystemIdentifier</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">basename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">install_initrd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1457,7 +1457,7 @@
 
 <div class="viewcode-block" id="BootImageKiwi.cleanup">
 <a class="viewcode-back" href="../../../../api/kiwi.boot.image.html#kiwi.boot.image.builtin_kiwi.BootImageKiwi.cleanup">[docs]</a>
-    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_directories</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">directory</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
                 <span class="n">Path</span><span class="o">.</span><span class="n">wipe</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span></div>
@@ -1472,7 +1472,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020-2024, Marcus Schäfer.</p>
+    <p>&#169; Copyright 2020-2025, Marcus Schäfer.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
