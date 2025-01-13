@@ -448,17 +448,18 @@ btrfs_root_is_subvolume="true|false":
 
   By default the creation of a toplevel volume is set to: `true`
 
-btrfs_root_is_snapshot="true|false":
+btrfs_root_is_snapper_snapshot="true|false":
   Boolean parameter that tells {kiwi} to install
-  the system into a btrfs snapshot. The snapshot layout is compatible with
-  snapper. By default snapshots are turned off.
+  the system into a btrfs snapshot. The snapshot layout is compatible
+  with the snapper management toolkit and follows a concept by SUSE.
+  By default snapshots are turned off.
 
 btrfs_root_is_readonly_snapshot="true|false":
   Boolean parameter notifying {kiwi} that
   the btrfs root filesystem snapshot has to made read-only. if this option
   is set to true, the root filesystem snapshot it will be turned into
   read-only mode, once all data has been placed to it. The option is only
-  effective if `btrfs_root_is_snapshot` is also set to true. By default the
+  effective if `btrfs_root_is_snapper_snapshot` is also set to true. By default the
   root filesystem snapshot is writable.
 
 bootstrap_package="package_name":

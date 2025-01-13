@@ -289,7 +289,7 @@ class Profile:
         # kiwi_fsmountoptions
         # kiwi_bootprofile
         # kiwi_vga
-        # kiwi_btrfs_root_is_snapshot
+        # kiwi_btrfs_root_is_snapper_snapshot
         # kiwi_startsector
         type_section = self.xml_state.build_type
         self.dot_profile['kiwi_type'] = \
@@ -322,8 +322,8 @@ class Profile:
             self.xml_state.get_build_type_bootloader_console()[0] or 'default',
             self.xml_state.get_build_type_bootloader_console()[1] or 'default'
         )
-        self.dot_profile['kiwi_btrfs_root_is_snapshot'] = \
-            type_section.get_btrfs_root_is_snapshot()
+        self.dot_profile['kiwi_btrfs_root_is_snapper_snapshot'] = \
+            type_section.get_btrfs_root_is_snapper_snapshot()
         self.dot_profile['kiwi_gpt_hybrid_mbr'] = \
             type_section.get_gpt_hybrid_mbr()
         self.dot_profile['kiwi_devicepersistency'] = \

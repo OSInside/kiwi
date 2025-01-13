@@ -226,8 +226,8 @@ class DiskBuilder:
                 self.custom_root_creation_args,
             'root_label':
                 self.disk_setup.get_root_label(),
-            'root_is_snapshot':
-                self.xml_state.build_type.get_btrfs_root_is_snapshot(),
+            'root_is_snapper_snapshot':
+                self.xml_state.build_type.get_btrfs_root_is_snapper_snapshot(),
             'root_is_readonly_snapshot':
                 self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot(),
             'root_is_subvolume':
@@ -1308,14 +1308,14 @@ class DiskBuilder:
         self, device_map: Dict, setup: SystemSetup,
         system: Optional[Union[FileSystemBase, VolumeManagerBase]]
     ) -> None:
-        root_is_snapshot = \
-            self.xml_state.build_type.get_btrfs_root_is_snapshot()
+        root_is_snapper_snapshot = \
+            self.xml_state.build_type.get_btrfs_root_is_snapper_snapshot()
         root_is_readonly_snapshot = \
             self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot()
 
         fs_check_interval = '0 1'
         custom_root_mount_args = list(self.custom_root_mount_args)
-        if root_is_snapshot and root_is_readonly_snapshot:
+        if root_is_snapper_snapshot and root_is_readonly_snapshot:
             custom_root_mount_args += ['ro']
             fs_check_interval = '0 0'
 
@@ -1788,11 +1788,11 @@ class DiskBuilder:
         self, system: Union[FileSystemBase, VolumeManagerBase]
     ) -> None:
         if self.volume_manager_name:
-            root_is_snapshot = \
-                self.xml_state.build_type.get_btrfs_root_is_snapshot()
+            root_is_snapper_snapshot = \
+                self.xml_state.build_type.get_btrfs_root_is_snapper_snapshot()
             root_is_readonly_snapshot = \
                 self.xml_state.build_type.get_btrfs_root_is_readonly_snapshot()
-            if root_is_snapshot and root_is_readonly_snapshot:
+            if root_is_snapper_snapshot and root_is_readonly_snapshot:
                 log.info(
                     'Setting root filesystem into read-only mode'
                 )

@@ -65,8 +65,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             self.custom_args = {}
         if 'root_label' not in self.custom_args:
             self.custom_args['root_label'] = 'ROOT'
-        if 'root_is_snapshot' not in self.custom_args:
-            self.custom_args['root_is_snapshot'] = False
+        if 'root_is_snapper_snapshot' not in self.custom_args:
+            self.custom_args['root_is_snapper_snapshot'] = False
         if 'btrfs_default_volume_requested' not in self.custom_args:
             self.custom_args['btrfs_default_volume_requested'] = True
         if 'root_is_readonly_snapshot' not in self.custom_args:
@@ -86,11 +86,11 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     self.root_volume_name = volume.name
                     self.default_volume_name = self.root_volume_name
 
-        if self.custom_args['root_is_snapshot'] and \
+        if self.custom_args['root_is_snapper_snapshot'] and \
            self.root_volume_name == '/':
-            log.warning('root_is_snapshot requires a toplevel sub-volume')
-            log.warning('root_is_snapshot has been disabled')
-            self.custom_args['root_is_snapshot'] = False
+            log.warning('root_is_snapper_snapshot requires a toplevel sub-volume')
+            log.warning('root_is_snapper_snapshot has been disabled')
+            self.custom_args['root_is_snapper_snapshot'] = False
 
         self.subvol_mount_list = []
         self.toplevel_mount = None
@@ -134,7 +134,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             Command.run(
                 ['btrfs', 'subvolume', 'create', root_volume]
             )
-        if self.custom_args['root_is_snapshot']:
+        if self.custom_args['root_is_snapper_snapshot']:
             snapshot_volume = self.mountpoint + \
                 f'/{self.root_volume_name}/.snapshots'
             Command.run(
@@ -233,7 +233,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 )
 
                 volume_mountpoint = toplevel
-                root_is_snapshot = self.custom_args['root_is_snapshot']
+                root_is_snapper_snapshot = \
+                    self.custom_args['root_is_snapper_snapshot']
 
                 attributes = {
                     'parent': volume.parent or '',
@@ -244,7 +245,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     ).lstrip(os.sep),
                     'subvol_name': volume.name
                 }
-                if root_is_snapshot:
+                if root_is_snapper_snapshot:
                     volume_mountpoint = self.mountpoint + \
                         f'/{self.root_volume_name}/.snapshots/1/snapshot/'
                     attributes = {
@@ -263,7 +264,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                         os.sep.join(
                             [
                                 volume_mountpoint,
-                                self.root_volume_name if not root_is_snapshot else '',
+                                self.root_volume_name if not root_is_snapper_snapshot else '',
                                 volume.realpath
                             ]
                         )
@@ -397,7 +398,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         sync_target: List[str] = [self.mountpoint]
         if self.root_volume_name != '/':
             sync_target.append(self.root_volume_name)
-        if self.custom_args.get('root_is_snapshot'):
+        if self.custom_args.get('root_is_snapper_snapshot'):
             sync_target.extend(['.snapshots', '1', 'snapshot'])
         return os.path.join(*sync_target)
 
@@ -412,7 +413,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         if self.toplevel_mount:
             sync_target = self.get_mountpoint()
-            if self.custom_args['root_is_snapshot']:
+            if self.custom_args['root_is_snapper_snapshot']:
                 self._create_snapshot_info(
                     ''.join(
                         [
@@ -426,18 +427,18 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 options=Defaults.get_sync_options(), exclude=exclude
             )
             if self.custom_args['quota_groups'] and \
-               self.custom_args['root_is_snapshot']:
+               self.custom_args['root_is_snapper_snapshot']:
                 self._create_snapper_quota_configuration()
 
     def set_property_readonly_root(self):
         """
         Sets the root volume to be a readonly filesystem
         """
-        root_is_snapshot = \
-            self.custom_args['root_is_snapshot']
+        root_is_snapper_snapshot = \
+            self.custom_args['root_is_snapper_snapshot']
         root_is_readonly_snapshot = \
             self.custom_args['root_is_readonly_snapshot']
-        if root_is_snapshot and root_is_readonly_snapshot:
+        if root_is_snapper_snapshot and root_is_readonly_snapshot:
             sync_target = self.get_mountpoint()
             Command.run(
                 ['btrfs', 'property', 'set', sync_target, 'ro', 'true']

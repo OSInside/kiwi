@@ -800,7 +800,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
             if os.path.exists(os.sep.join([self.root_dir, theme_background])):
                 grub_default_entries['GRUB_BACKGROUND'] = theme_background
-        if self.xml_state.build_type.get_btrfs_root_is_snapshot():
+        if self.xml_state.build_type.get_btrfs_root_is_snapper_snapshot():
             grub_default_entries['SUSE_BTRFS_SNAPSHOT_BOOTING'] = 'true'
         if self.custom_args.get('crypto_disk'):
             grub_default_entries['GRUB_ENABLE_CRYPTODISK'] = 'y'

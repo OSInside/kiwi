@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="8.2" name="LiveImage" displayname="Live">
+<image schemaversion="8.3" name="LiveImage" displayname="Live">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>bob@example.com</contact>

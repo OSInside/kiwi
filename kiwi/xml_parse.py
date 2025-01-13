@@ -3362,7 +3362,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3377,7 +3377,7 @@ class type_(GeneratedsSuper):
         self.dosparttable_extended_layout = _cast(bool, dosparttable_extended_layout)
         self.bootprofile = _cast(None, bootprofile)
         self.btrfs_quota_groups = _cast(bool, btrfs_quota_groups)
-        self.btrfs_root_is_snapshot = _cast(bool, btrfs_root_is_snapshot)
+        self.btrfs_root_is_snapper_snapshot = _cast(bool, btrfs_root_is_snapper_snapshot)
         self.btrfs_root_is_subvolume = _cast(bool, btrfs_root_is_subvolume)
         self.btrfs_set_default_volume = _cast(bool, btrfs_set_default_volume)
         self.btrfs_root_is_readonly_snapshot = _cast(bool, btrfs_root_is_readonly_snapshot)
@@ -3580,8 +3580,8 @@ class type_(GeneratedsSuper):
     def set_bootprofile(self, bootprofile): self.bootprofile = bootprofile
     def get_btrfs_quota_groups(self): return self.btrfs_quota_groups
     def set_btrfs_quota_groups(self, btrfs_quota_groups): self.btrfs_quota_groups = btrfs_quota_groups
-    def get_btrfs_root_is_snapshot(self): return self.btrfs_root_is_snapshot
-    def set_btrfs_root_is_snapshot(self, btrfs_root_is_snapshot): self.btrfs_root_is_snapshot = btrfs_root_is_snapshot
+    def get_btrfs_root_is_snapper_snapshot(self): return self.btrfs_root_is_snapper_snapshot
+    def set_btrfs_root_is_snapper_snapshot(self, btrfs_root_is_snapper_snapshot): self.btrfs_root_is_snapper_snapshot = btrfs_root_is_snapper_snapshot
     def get_btrfs_root_is_subvolume(self): return self.btrfs_root_is_subvolume
     def set_btrfs_root_is_subvolume(self, btrfs_root_is_subvolume): self.btrfs_root_is_subvolume = btrfs_root_is_subvolume
     def get_btrfs_set_default_volume(self): return self.btrfs_set_default_volume
@@ -3858,9 +3858,9 @@ class type_(GeneratedsSuper):
         if self.btrfs_quota_groups is not None and 'btrfs_quota_groups' not in already_processed:
             already_processed.add('btrfs_quota_groups')
             outfile.write(' btrfs_quota_groups="%s"' % self.gds_format_boolean(self.btrfs_quota_groups, input_name='btrfs_quota_groups'))
-        if self.btrfs_root_is_snapshot is not None and 'btrfs_root_is_snapshot' not in already_processed:
-            already_processed.add('btrfs_root_is_snapshot')
-            outfile.write(' btrfs_root_is_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_snapshot, input_name='btrfs_root_is_snapshot'))
+        if self.btrfs_root_is_snapper_snapshot is not None and 'btrfs_root_is_snapper_snapshot' not in already_processed:
+            already_processed.add('btrfs_root_is_snapper_snapshot')
+            outfile.write(' btrfs_root_is_snapper_snapshot="%s"' % self.gds_format_boolean(self.btrfs_root_is_snapper_snapshot, input_name='btrfs_root_is_snapper_snapshot'))
         if self.btrfs_root_is_subvolume is not None and 'btrfs_root_is_subvolume' not in already_processed:
             already_processed.add('btrfs_root_is_subvolume')
             outfile.write(' btrfs_root_is_subvolume="%s"' % self.gds_format_boolean(self.btrfs_root_is_subvolume, input_name='btrfs_root_is_subvolume'))
@@ -4209,13 +4209,13 @@ class type_(GeneratedsSuper):
                 self.btrfs_quota_groups = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('btrfs_root_is_snapshot', node)
-        if value is not None and 'btrfs_root_is_snapshot' not in already_processed:
-            already_processed.add('btrfs_root_is_snapshot')
+        value = find_attr_value_('btrfs_root_is_snapper_snapshot', node)
+        if value is not None and 'btrfs_root_is_snapper_snapshot' not in already_processed:
+            already_processed.add('btrfs_root_is_snapper_snapshot')
             if value in ('true', '1'):
-                self.btrfs_root_is_snapshot = True
+                self.btrfs_root_is_snapper_snapshot = True
             elif value in ('false', '0'):
-                self.btrfs_root_is_snapshot = False
+                self.btrfs_root_is_snapper_snapshot = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('btrfs_root_is_subvolume', node)

@@ -66,7 +66,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "8.2" }
+        attribute schemaversion { "8.3" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -1524,20 +1524,21 @@ div {
             sch:param [ name = "attr" value = "btrfs_root_is_subvolume" ]
             sch:param [ name = "types" value = "oem" ]
         ]
-    k.type.btrfs_root_is_snapshot.attribute =
+    k.type.btrfs_root_is_snapper_snapshot.attribute =
         ## Tell kiwi to install the system into a btrfs snapshot
         ## The snapshot layout is compatible with the snapper management
-        ## toolkit. By default no snapshots are used
-        attribute btrfs_root_is_snapshot { xsd:boolean }
-        >> sch:pattern [ id = "btrfs_root_is_snapshot" is-a = "image_type"
-            sch:param [ name = "attr" value = "btrfs_root_is_snapshot" ]
+        ## toolkit and follows a concept by SUSE.
+        ## By default no snapshots are used
+        attribute btrfs_root_is_snapper_snapshot { xsd:boolean }
+        >> sch:pattern [ id = "btrfs_root_is_snapper_snapshot" is-a = "image_type"
+            sch:param [ name = "attr" value = "btrfs_root_is_snapper_snapshot" ]
             sch:param [ name = "types" value = "oem" ]
         ]
     k.type.btrfs_root_is_readonly_snapshot.attribute =
         ## Tell kiwi to set the btrfs root filesystem snapshot read-only
         ## Once all data has been placed to the root filesystem snapshot
         ## it will be turned into read-only mode if this option is set to
-        ## true. The option is only effective if btrfs_root_is_snapshot
+        ## true. The option is only effective if btrfs_root_is_snapper_snapshot
         ## is also set to true. By default the root filesystem snapshot
         ## is writable
         attribute btrfs_root_is_readonly_snapshot { xsd:boolean }
@@ -2354,7 +2355,7 @@ div {
         k.type.dosparttable_extended_layout.attribute? &
         k.type.bootprofile.attribute? &
         k.type.btrfs_quota_groups.attribute? &
-        k.type.btrfs_root_is_snapshot.attribute? &
+        k.type.btrfs_root_is_snapper_snapshot.attribute? &
         k.type.btrfs_root_is_subvolume.attribute? &
         k.type.btrfs_set_default_volume.attribute? &
         k.type.btrfs_root_is_readonly_snapshot.attribute? &

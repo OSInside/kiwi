@@ -74,7 +74,7 @@ class TestVolumeManagerBtrfs:
         self.volume_manager.post_init({'some-arg': 'some-val'})
         assert self.volume_manager.custom_args['some-arg'] == 'some-val'
 
-    def test_post_init_root_is_snapshot_without_root_volume(self):
+    def test_post_init_root_is_snapper_snapshot_without_root_volume(self):
         self.volume_manager.volumes = [
             volume_type(
                 name='/', parent='', size='freespace:100', realpath='/',
@@ -82,8 +82,8 @@ class TestVolumeManagerBtrfs:
                 attributes=[], is_root_volume=True
             )
         ]
-        self.volume_manager.post_init({'root_is_snapshot': True})
-        assert self.volume_manager.custom_args['root_is_snapshot'] is False
+        self.volume_manager.post_init({'root_is_snapper_snapshot': True})
+        assert self.volume_manager.custom_args['root_is_snapper_snapshot'] is False
 
     def test_fails_to_get_mountpoint_without_mountpoint(self):
         self.volume_manager.mountpoint = ''
@@ -141,7 +141,7 @@ class TestVolumeManagerBtrfs:
         mock_mapped_device.return_value = 'mapped_device'
         mock_os_exists.return_value = False
         mock_command.return_value = command_call
-        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         self.volume_manager.custom_args['quota_groups'] = True
 
         self.volume_manager.setup()
@@ -197,7 +197,7 @@ class TestVolumeManagerBtrfs:
         volume_mount = Mock()
         mock_mount.return_value = volume_mount
         self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.custom_args['root_is_snapshot'] = False
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = False
         mock_os_exists.return_value = False
 
         self.volume_manager.root_volume_name = '/'
@@ -244,7 +244,7 @@ class TestVolumeManagerBtrfs:
         volume_mount = Mock()
         mock_mount.return_value = volume_mount
         self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         mock_os_exists.return_value = False
 
         self.volume_manager.create_volumes('btrfs')
@@ -326,7 +326,7 @@ class TestVolumeManagerBtrfs:
             'subvol_path': '@/boot/grub2'
         }
         self.volume_manager.subvol_mount_list = [volume_mount]
-        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         assert self.volume_manager.get_volumes() == {
             '/boot/grub2': {
                 'volume_options': 'subvol=@/boot/grub2',
@@ -348,7 +348,7 @@ class TestVolumeManagerBtrfs:
             'parent': 'subvol_takes_precedence'
         }
         self.volume_manager.subvol_mount_list = [volume_mount]
-        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         assert self.volume_manager.get_fstab() == [
             'LABEL=id /var/tmp btrfs defaults,subvol=@/var/tmp 0 0'
         ]
@@ -383,7 +383,7 @@ class TestVolumeManagerBtrfs:
         volume_mount.get_attributes.return_value = {
             'subvol_path': '@/var/tmp'
         }
-        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         self.volume_manager.subvol_mount_list = [volume_mount]
 
         self.volume_manager.mount_volumes()
@@ -451,7 +451,7 @@ class TestVolumeManagerBtrfs:
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
         self.volume_manager.toplevel_mount = Mock()
         self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         sync = Mock()
         mock_sync.return_value = sync
 
@@ -515,7 +515,7 @@ class TestVolumeManagerBtrfs:
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
         self.volume_manager.toplevel_mount = Mock()
         self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         sync = Mock()
         mock_sync.return_value = sync
 
@@ -553,7 +553,7 @@ class TestVolumeManagerBtrfs:
         datetime.datetime.now.return_value = datetime.datetime(2016, 1, 1)
         self.volume_manager.toplevel_mount = Mock()
         self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.custom_args['root_is_snapshot'] = False
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = False
         sync = Mock()
         mock_sync.return_value = sync
 
@@ -575,7 +575,7 @@ class TestVolumeManagerBtrfs:
     @patch('kiwi.volume_manager.btrfs.Command.run')
     def test_set_property_readonly_root(self, mock_command):
         self.volume_manager.mountpoint = 'tmpdir'
-        self.volume_manager.custom_args['root_is_snapshot'] = True
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         self.volume_manager.custom_args['root_is_readonly_snapshot'] = True
         self.volume_manager.set_property_readonly_root()
         mock_command.assert_called_once_with(
