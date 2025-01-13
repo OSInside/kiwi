@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="8.2" name="LimeJeOS" displayname="Bob">
+<image schemaversion="8.3" name="LimeJeOS" displayname="Bob">
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>
@@ -57,7 +57,7 @@
         <type image="iso" firmware="efi"/>
     </preferences>
     <preferences profiles="vmxFlavour">
-        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" fscreateoptions="-O ^has_journal" btrfs_root_is_snapshot="true" spare_part="200M" spare_part_fs_attributes="no-copy-on-write" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4" installiso="true">
+        <type image="oem" primary="true" boot="oemboot/example-distribution" firmware="efi" kernelcmdline="splash" vga="0x303" editbootconfig="my_edit_boot_script" editbootinstall="/absolute/path/to/my_edit_boot_install" fsmountoptions="async" fscreateoptions="-O ^has_journal" spare_part="200M" spare_part_fs_attributes="no-copy-on-write" xen_server="true" formatoptions="force_size,super=man" filesystem="ext4" installiso="true" btrfs_root_is_snapper_snapshot="true">
             <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
             <machine memory="512" xen_loader="hvmloader">

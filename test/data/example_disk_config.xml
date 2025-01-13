@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="8.2" name="LimeJeOS-openSUSE-13.2">
+<image schemaversion="8.3" name="LimeJeOS-openSUSE-13.2">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
@@ -18,7 +18,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" initrd_system="kiwi" boot="oemboot/example-distribution" installiso="true" kernelcmdline="splash" firmware="efi" btrfs_root_is_snapshot="true" btrfs_root_is_readonly_snapshot="true">
+        <type image="oem" filesystem="btrfs" initrd_system="kiwi" boot="oemboot/example-distribution" installiso="true" kernelcmdline="splash" firmware="efi" btrfs_root_is_readonly_snapshot="true" btrfs_root_is_snapper_snapshot="true">
             <oemconfig>
                 <oem-multipath-scan>false</oem-multipath-scan>
                 <oem-swap>true</oem-swap>
