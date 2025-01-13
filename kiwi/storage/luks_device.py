@@ -21,6 +21,8 @@ from typing import Optional
 
 # project
 from kiwi.utils.temporary import Temporary
+from kiwi.utils.checksum import Checksum
+from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 from kiwi.storage.device_provider import DeviceProvider
@@ -172,6 +174,23 @@ class LuksDevice(DeviceProvider):
                     'luksAddKey', storage_device, keyfile_path
                 ]
             )
+
+        # Create backup header checksum as reencryption reference
+        master_checksum = f'{root_dir}/root/.luks.header'
+        Path.wipe(master_checksum)
+        Command.run(
+            [
+                'cryptsetup', '--key-file', passphrase_file
+            ] + extra_options + [
+                'luksHeaderBackup', storage_device,
+                '--header-backup-file', master_checksum
+            ]
+        )
+        checksum = Checksum(master_checksum).sha256()
+        with open(master_checksum, 'w') as shasum:
+            shasum.write(checksum)
+
+        # open the pool
         Command.run(
             [
                 'cryptsetup', '--key-file', passphrase_file

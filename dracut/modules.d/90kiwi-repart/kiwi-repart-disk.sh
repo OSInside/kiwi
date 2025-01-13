@@ -24,6 +24,14 @@ function initialize {
     test -f ${profile} && import_file ${profile}
     import_file ${partition_ids}
 
+    # Optional env TERM setup
+    term=$(getarg "rd.kiwi.term=")
+    [ -n "${term}" ] && export TERM="${term}"
+
+    # Create dialog profile from current env
+    # Used in the systemd dialog unit
+    env >/dialog_profile
+
     disk=$(lookup_disk_device_from_root)
     export disk
 
@@ -248,6 +256,16 @@ mask_fsck_root_service
 # initialize for disk repartition
 initialize
 
+# reencrypt luks device
+if luks_system "${disk}";then
+    if getargbool 0 rd.kiwi.oem.luks.reencrypt; then
+        reencrypt_luks "${disk}"
+    fi
+fi
+
+# wait for the root device to appear
+wait_for_storage_device "${root_device}"
+
 # check if repart/resize is wanted
 if ! resize_wanted "${root_device}" "${disk}"; then
     return
@@ -257,9 +275,6 @@ fi
 if [ "$(get_partition_table_type "${disk}")" = 'gpt' ];then
     relocate_gpt_at_end_of_disk "${disk}"
 fi
-
-# wait for the root device to appear
-wait_for_storage_device "${root_device}"
 
 # resize disk partition table
 if lvm_system;then

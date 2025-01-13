@@ -22,7 +22,7 @@ install() {
         e2fsck btrfsck xfs_repair \
         vgs vgchange lvextend lvcreate lvresize pvresize \
         mdadm cryptsetup dialog \
-        pv curl xz \
+        pv curl xz sha256sum sed \
         dmsetup
     inst_multiple -o dolly
     if type partx &> /dev/null;then
