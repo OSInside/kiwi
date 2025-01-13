@@ -150,7 +150,7 @@ class TestImageInfoTask:
                         ('kiwi_bootloader', 'grub2'),
                         ('kiwi_bootloader_console', 'default:default'),
                         ('kiwi_bootprofile', ''),
-                        ('kiwi_btrfs_root_is_snapshot', ''),
+                        ('kiwi_btrfs_root_is_snapper_snapshot', ''),
                         ('kiwi_cmdline', ''),
                         ('kiwi_compressed', ''),
                         ('kiwi_delete', ''),

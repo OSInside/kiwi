@@ -359,7 +359,7 @@ class BootImageBase:
         type_attributes = [
             'bootkernel',
             'bootprofile',
-            'btrfs_root_is_snapshot',
+            'btrfs_root_is_snapper_snapshot',
             'gpt_hybrid_mbr',
             'devicepersistency',
             'filesystem',

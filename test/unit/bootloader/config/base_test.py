@@ -232,7 +232,7 @@ class TestBootLoaderConfigBase:
 
     @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
-    @patch('kiwi.xml_parse.type_.get_btrfs_root_is_snapshot')
+    @patch('kiwi.xml_parse.type_.get_btrfs_root_is_snapper_snapshot')
     @patch('kiwi.xml_state.XMLState.get_volumes')
     def test_get_boot_path_btrfs_no_snapshot(
         self, mock_volumes, mock_snapshot, mock_fs, mock_disk_setup
@@ -252,7 +252,7 @@ class TestBootLoaderConfigBase:
 
     @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
-    @patch('kiwi.xml_parse.type_.get_btrfs_root_is_snapshot')
+    @patch('kiwi.xml_parse.type_.get_btrfs_root_is_snapper_snapshot')
     @patch('kiwi.xml_state.XMLState.get_volumes')
     def test_get_boot_path_btrfs_snapshot(
         self, mock_volumes, mock_snapshot, mock_fs, mock_disk_setup

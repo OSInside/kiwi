@@ -150,7 +150,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>8.2</value>
+        <value>8.3</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -2255,15 +2255,16 @@ By default the creation of a root subvolume is set to: true</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
-    <define name="k.type.btrfs_root_is_snapshot.attribute">
-      <attribute name="btrfs_root_is_snapshot">
+    <define name="k.type.btrfs_root_is_snapper_snapshot.attribute">
+      <attribute name="btrfs_root_is_snapper_snapshot">
         <a:documentation>Tell kiwi to install the system into a btrfs snapshot
 The snapshot layout is compatible with the snapper management
-toolkit. By default no snapshots are used</a:documentation>
+toolkit and follows a concept by SUSE.
+By default no snapshots are used</a:documentation>
         <data type="boolean"/>
       </attribute>
-      <sch:pattern id="btrfs_root_is_snapshot" is-a="image_type">
-        <sch:param name="attr" value="btrfs_root_is_snapshot"/>
+      <sch:pattern id="btrfs_root_is_snapper_snapshot" is-a="image_type">
+        <sch:param name="attr" value="btrfs_root_is_snapper_snapshot"/>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
@@ -2272,7 +2273,7 @@ toolkit. By default no snapshots are used</a:documentation>
         <a:documentation>Tell kiwi to set the btrfs root filesystem snapshot read-only
 Once all data has been placed to the root filesystem snapshot
 it will be turned into read-only mode if this option is set to
-true. The option is only effective if btrfs_root_is_snapshot
+true. The option is only effective if btrfs_root_is_snapper_snapshot
 is also set to true. By default the root filesystem snapshot
 is writable</a:documentation>
         <data type="boolean"/>
@@ -3405,7 +3406,7 @@ kiwi-ng result bundle ...</a:documentation>
           <ref name="k.type.btrfs_quota_groups.attribute"/>
         </optional>
         <optional>
-          <ref name="k.type.btrfs_root_is_snapshot.attribute"/>
+          <ref name="k.type.btrfs_root_is_snapper_snapshot.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.btrfs_root_is_subvolume.attribute"/>
