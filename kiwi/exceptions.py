@@ -444,6 +444,13 @@ class KiwiOSReleaseImportError(KiwiError):
     """
 
 
+class KiwiEnvImportError(KiwiError):
+    """
+    Exception raised if extending os.environ with another
+    env file caused an issue
+    """
+
+
 class KiwiPackageManagerSetupError(KiwiError):
     """
     Exception raised if an attempt was made to create a package

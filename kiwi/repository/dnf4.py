@@ -21,6 +21,7 @@ from configparser import ConfigParser
 from typing import List, Dict
 
 # project
+import kiwi.defaults as defaults
 from kiwi.utils.temporary import (
     Temporary, TmpT
 )
@@ -29,6 +30,7 @@ from kiwi.command import Command
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.utils.rpm_database import RpmDataBase
+from kiwi.utils.toenv import ToEnv
 
 
 class RepositoryDnf4(RepositoryBase):
@@ -315,6 +317,7 @@ class RepositoryDnf4(RepositoryBase):
     def _create_dnf_runtime_environment(self) -> Dict:
         for dnf_dir in list(self.shared_dnf_dir.values()):
             Path.create(dnf_dir)
+        ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return dict(
             os.environ, LANG='C'
         )
