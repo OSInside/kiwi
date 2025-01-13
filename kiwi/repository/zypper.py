@@ -21,6 +21,7 @@ from configparser import ConfigParser
 from typing import List, Dict
 
 # project
+import kiwi.defaults as defaults
 from kiwi.utils.temporary import (
     Temporary, TmpT
 )
@@ -30,6 +31,7 @@ from kiwi.repository.base import RepositoryBase
 from kiwi.system.uri import Uri
 from kiwi.path import Path
 from kiwi.utils.rpm_database import RpmDataBase
+from kiwi.utils.toenv import ToEnv
 
 
 class RepositoryZypper(RepositoryBase):
@@ -427,6 +429,7 @@ class RepositoryZypper(RepositoryBase):
     def _create_zypper_runtime_environment(self) -> Dict:
         for zypper_dir in list(self.shared_zypper_dir.values()):
             Path.create(zypper_dir)
+        ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return dict(
             os.environ,
             LANG='C',

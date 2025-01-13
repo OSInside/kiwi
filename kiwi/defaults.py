@@ -96,6 +96,9 @@ CUSTOM_RUNTIME_CONFIG_FILE = None
 PLATFORM_MACHINE = platform.machine()
 EFI_FAT_IMAGE_SIZE = 20
 
+# optional package manager environment variables
+PACKAGE_MANAGER_ENV_VARS = '/.kiwi.package_manager.env'
+
 log = logging.getLogger('kiwi')
 
 

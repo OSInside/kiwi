@@ -21,6 +21,7 @@ from urllib.parse import urlparse
 from typing import List, Dict
 
 # project
+import kiwi.defaults as defaults
 from kiwi.utils.temporary import (
     Temporary, TmpT
 )
@@ -28,6 +29,7 @@ from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.command import Command
+from kiwi.utils.toenv import ToEnv
 
 log = logging.getLogger('kiwi')
 
@@ -306,6 +308,7 @@ class RepositoryApt(RepositoryBase):
     def _create_apt_get_runtime_environment(self) -> Dict:
         for apt_get_dir in list(self.shared_apt_get_dir.values()):
             Path.create(apt_get_dir)
+        ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return dict(
             os.environ, LANG='C', DEBIAN_FRONTEND='noninteractive'
         )

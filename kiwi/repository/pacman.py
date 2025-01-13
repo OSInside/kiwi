@@ -22,12 +22,14 @@ from typing import (
 )
 
 # project
+import kiwi.defaults as defaults
 from kiwi.utils.temporary import (
     Temporary, TmpT
 )
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.command import Command
+from kiwi.utils.toenv import ToEnv
 
 
 class RepositoryPacman(RepositoryBase):
@@ -90,6 +92,7 @@ class RepositoryPacman(RepositoryBase):
         """
         pacman runtime configuration and environment
         """
+        ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return {
             'pacman_args': self.pacman_args,
             'command_env': os.environ
