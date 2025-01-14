@@ -10,11 +10,11 @@ configured on your system. With Podman, the integration tests use :command:`podm
 **rootless mode** by default. You can select
 :command:`docker` instead by setting the environment variable
 ``CONTAINER_RUNTIME`` to ``docker``. Then you can run the integration tests via
-tox:
+the `test_scripts` Makefile target:
 
 .. code:: shell-session
 
-    $ tox -e scripts -- -n NUMBER_OF_THREADS
+    $ sudo make test_scripts
 
 
 The tests are written using the `pytest-container
