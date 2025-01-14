@@ -64,13 +64,6 @@ Create a Python Virtual Development Environment
 The following commands initializes and activates a development
 environment for Python 3:
 
-.. note::
-
-   {kiwi} uses tox to create a devel environment and to run
-   tests, linters and other tasks in the tox generated environment.
-   A tox version >= 3.3 is required for this setup process. On your
-   host a python version >= 3.9 is required for tox to work.
-
 .. code:: shell-session
 
    $ poetry install
@@ -87,47 +80,13 @@ Python sources inside the virtual environment using Poetry:
 Running the Unit Tests
 ----------------------
 
-We use :command:`tox` to run the unit tests. Tox sets up its own
-virtualenvs inside the :file:`.tox` directory for multiple Python versions
-and should thus **not** be invoked from inside your development virtualenv.
-
 Before submitting your changes via a pull request, ensure that all tests
 pass and that the code has the required test coverage via the command:
 
 .. code:: shell-session
 
-    $ tox
-
-We also include `pytest-xdist` in the development virtualenv which allows
-to run the unit tests in parallel. It is turned off by default but can be
-enabled via:
-
-.. code:: shell-session
-
-    $ tox -- "-n NUMBER_OF_PROCESSES"
-
-where you can insert an arbitrary number as `NUMBER_OF_PROCESSES` (or a
-shell command like `$(nproc)`). Note that the double quotes around `-n
-NUMBER_OF_PROCESSES` are required (otherwise :command:`tox` will consume
-this command line flag instead of forwarding it to :command:`pytest`).
-
-The previous call would run the unit tests for different Python versions,
-check the source code for errors and build the documentation.
-
-If you want to see the available targets, use the option `-l` to let
-:command:`tox` print a list of them:
-
-.. code:: shell-session
-
-    $ tox -l
-
-To only run a special target, use the `-e` option. The following
-example runs the test cases for the Python 3.11 interpreter only:
-
-.. code:: shell-session
-
-    $ tox -e unit_py3_11
-
+    $ make check
+    $ make test
 
 Create a Branch for each Feature or Bugfix
 ------------------------------------------
@@ -158,13 +117,6 @@ Make and commit your changes.
 .. code:: shell-session
 
     $ git commit -S -a
-
-Run the tests and code style checks. All of these are also performed by
-`GitLab CI <https://gitlab.com/kiwi3>`_ when a pull request is created.
-
-.. code:: shell-session
-
-    $ tox
 
 Once everything is done, push your local branch to your forked repository and
 create a pull request into the upstream repository.
@@ -199,7 +151,7 @@ user documentation and manual pages
 
 .. code:: shell-session
 
-    tox -e doc
+    $ make docs
 
 Document all your classes, methods, their parameters and their types using
 the standard `reStructuredText

@@ -25,8 +25,6 @@ packages = [
 include = [
    { path = ".bumpversion.cfg", format = "sdist" },
    { path = ".coverage*", format = "sdist" },
-   { path = ".virtualenv.requirements*.txt", format = "sdist" },
-   { path = ".virtualenv.dev-requirements.txt", format = "sdist" },
    { path = "setup.cfg", format = "sdist" },
    { path = "doc/source", format = "sdist" },
    { path = "doc/Makefile", format = "sdist" },
@@ -36,7 +34,6 @@ include = [
    { path = "Makefile", format = "sdist" },
    { path = "package", format = "sdist" },
    { path = "test", format = "sdist" },
-   { path = "tox.ini", format = "sdist" },
    { path = "kiwi/runtime_checker_metadata.yml", format = "sdist" },
 ]
 
