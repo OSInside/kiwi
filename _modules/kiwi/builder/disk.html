@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.builder.disk &mdash; KIWI NG 10.2.6 documentation</title>
+  <title>kiwi.builder.disk &mdash; KIWI NG 10.2.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
+      <script src="../../../_static/documentation_options.js?v=1b7a8c9b"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -126,7 +126,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html">Build Host Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html#zypper-modalias-matching">zypper: modalias matching</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
@@ -477,6 +483,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiDistributionNameError"><code class="docutils literal notranslate"><span class="pre">KiwiDistributionNameError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveBootImageError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveBootImageError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveFormatError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveFormatError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnvImportError"><code class="docutils literal notranslate"><span class="pre">KiwiEnvImportError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiError"><code class="docutils literal notranslate"><span class="pre">KiwiError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiExtensionError"><code class="docutils literal notranslate"><span class="pre">KiwiExtensionError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiFileAccessError"><code class="docutils literal notranslate"><span class="pre">KiwiFileAccessError</span></code></a></li>
@@ -1471,8 +1478,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">custom_root_creation_args</span><span class="p">,</span>
             <span class="s1">&#39;root_label&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">disk_setup</span><span class="o">.</span><span class="n">get_root_label</span><span class="p">(),</span>
-            <span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_snapshot</span><span class="p">(),</span>
+            <span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_snapper_snapshot</span><span class="p">(),</span>
             <span class="s1">&#39;root_is_readonly_snapshot&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_readonly_snapshot</span><span class="p">(),</span>
             <span class="s1">&#39;root_is_subvolume&#39;</span><span class="p">:</span>
@@ -2568,14 +2575,14 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">device_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">setup</span><span class="p">:</span> <span class="n">SystemSetup</span><span class="p">,</span>
         <span class="n">system</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">FileSystemBase</span><span class="p">,</span> <span class="n">VolumeManagerBase</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">root_is_snapshot</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_snapshot</span><span class="p">()</span>
+        <span class="n">root_is_snapper_snapshot</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_snapper_snapshot</span><span class="p">()</span>
         <span class="n">root_is_readonly_snapshot</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_readonly_snapshot</span><span class="p">()</span>
 
         <span class="n">fs_check_interval</span> <span class="o">=</span> <span class="s1">&#39;0 1&#39;</span>
         <span class="n">custom_root_mount_args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">custom_root_mount_args</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">root_is_snapshot</span> <span class="ow">and</span> <span class="n">root_is_readonly_snapshot</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">root_is_snapper_snapshot</span> <span class="ow">and</span> <span class="n">root_is_readonly_snapshot</span><span class="p">:</span>
             <span class="n">custom_root_mount_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;ro&#39;</span><span class="p">]</span>
             <span class="n">fs_check_interval</span> <span class="o">=</span> <span class="s1">&#39;0 0&#39;</span>
 
@@ -3048,11 +3055,11 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">FileSystemBase</span><span class="p">,</span> <span class="n">VolumeManagerBase</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_manager_name</span><span class="p">:</span>
-            <span class="n">root_is_snapshot</span> <span class="o">=</span> \
-                <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_snapshot</span><span class="p">()</span>
+            <span class="n">root_is_snapper_snapshot</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_snapper_snapshot</span><span class="p">()</span>
             <span class="n">root_is_readonly_snapshot</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">build_type</span><span class="o">.</span><span class="n">get_btrfs_root_is_readonly_snapshot</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">root_is_snapshot</span> <span class="ow">and</span> <span class="n">root_is_readonly_snapshot</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">root_is_snapper_snapshot</span> <span class="ow">and</span> <span class="n">root_is_readonly_snapshot</span><span class="p">:</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="s1">&#39;Setting root filesystem into read-only mode&#39;</span>
                 <span class="p">)</span>

@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.repository.zypper &mdash; KIWI NG 10.2.6 documentation</title>
+  <title>kiwi.repository.zypper &mdash; KIWI NG 10.2.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
+      <script src="../../../_static/documentation_options.js?v=1b7a8c9b"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -126,7 +126,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html">Build Host Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html#zypper-modalias-matching">zypper: modalias matching</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
@@ -477,6 +483,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiDistributionNameError"><code class="docutils literal notranslate"><span class="pre">KiwiDistributionNameError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveBootImageError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveBootImageError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveFormatError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveFormatError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnvImportError"><code class="docutils literal notranslate"><span class="pre">KiwiEnvImportError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiError"><code class="docutils literal notranslate"><span class="pre">KiwiError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiExtensionError"><code class="docutils literal notranslate"><span class="pre">KiwiExtensionError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiFileAccessError"><code class="docutils literal notranslate"><span class="pre">KiwiFileAccessError</span></code></a></li>
@@ -1261,6 +1268,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="c1"># project</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">defaults</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.temporary</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Temporary</span><span class="p">,</span> <span class="n">TmpT</span>
 <span class="p">)</span>
@@ -1270,6 +1278,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.uri</span><span class="w"> </span><span class="kn">import</span> <span class="n">Uri</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.rpm_database</span><span class="w"> </span><span class="kn">import</span> <span class="n">RpmDataBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.toenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToEnv</span>
 
 
 <div class="viewcode-block" id="RepositoryZypper">
@@ -1699,6 +1708,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_zypper_runtime_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">zypper_dir</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shared_zypper_dir</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="n">Path</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">zypper_dir</span><span class="p">)</span>
+        <span class="n">ToEnv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">defaults</span><span class="o">.</span><span class="n">PACKAGE_MANAGER_ENV_VARS</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span>
             <span class="n">LANG</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>

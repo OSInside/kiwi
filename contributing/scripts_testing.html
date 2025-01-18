@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Write Integration Tests for the Scripts &mdash; KIWI NG 10.2.6 documentation</title>
+  <title>Write Integration Tests for the Scripts &mdash; KIWI NG 10.2.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=bf020882"></script>
+      <script src="../_static/documentation_options.js?v=1b7a8c9b"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -129,7 +129,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html">Build Host Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html#zypper-modalias-matching">zypper: modalias matching</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
@@ -480,6 +486,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiDistributionNameError"><code class="docutils literal notranslate"><span class="pre">KiwiDistributionNameError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiEnclaveBootImageError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveBootImageError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiEnclaveFormatError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveFormatError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiEnvImportError"><code class="docutils literal notranslate"><span class="pre">KiwiEnvImportError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiError"><code class="docutils literal notranslate"><span class="pre">KiwiError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiExtensionError"><code class="docutils literal notranslate"><span class="pre">KiwiExtensionError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiFileAccessError"><code class="docutils literal notranslate"><span class="pre">KiwiFileAccessError</span></code></a></li>
@@ -1250,8 +1257,8 @@ configured on your system. With Podman, the integration tests use <strong class=
 <strong>rootless mode</strong> by default. You can select
 <strong class="command">docker</strong> instead by setting the environment variable
 <code class="docutils literal notranslate"><span class="pre">CONTAINER_RUNTIME</span></code> to <code class="docutils literal notranslate"><span class="pre">docker</span></code>. Then you can run the integration tests via
-tox:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tox<span class="w"> </span>-e<span class="w"> </span>scripts<span class="w"> </span>--<span class="w"> </span>-n<span class="w"> </span>NUMBER_OF_THREADS
+the <code class="xref py py-obj docutils literal notranslate"><span class="pre">test_scripts</span></code> Makefile target:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>make<span class="w"> </span>test_scripts
 </pre></div>
 </div>
 <p>The tests are written using the <a class="reference external" href="https://github.com/dcermak/pytest_container">pytest-container</a> plugin. If applicable,

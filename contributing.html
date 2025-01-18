@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contributing &mdash; KIWI NG 10.2.6 documentation</title>
+  <title>Contributing &mdash; KIWI NG 10.2.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=bf020882"></script>
+      <script src="_static/documentation_options.js?v=1b7a8c9b"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -129,7 +129,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="troubleshooting/buildhost_constraints.html">Build Host Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting/buildhost_constraints.html#zypper-modalias-matching">zypper: modalias matching</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
@@ -480,6 +486,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/kiwi.html#kiwi.exceptions.KiwiDistributionNameError"><code class="docutils literal notranslate"><span class="pre">KiwiDistributionNameError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/kiwi.html#kiwi.exceptions.KiwiEnclaveBootImageError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveBootImageError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/kiwi.html#kiwi.exceptions.KiwiEnclaveFormatError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveFormatError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/kiwi.html#kiwi.exceptions.KiwiEnvImportError"><code class="docutils literal notranslate"><span class="pre">KiwiEnvImportError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/kiwi.html#kiwi.exceptions.KiwiError"><code class="docutils literal notranslate"><span class="pre">KiwiError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/kiwi.html#kiwi.exceptions.KiwiExtensionError"><code class="docutils literal notranslate"><span class="pre">KiwiExtensionError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/kiwi.html#kiwi.exceptions.KiwiFileAccessError"><code class="docutils literal notranslate"><span class="pre">KiwiFileAccessError</span></code></a></li>
@@ -1246,7 +1253,7 @@
 <p><strong>Abstract</strong></p>
 <p>This document describes the development process of KIWI NG
 and how you can be part of it. This description applies
-to version 10.2.6.</p>
+to version 10.2.7.</p>
 </div>
 <div class="toctree-wrapper compound">
 <ul>
@@ -1298,13 +1305,6 @@ out Git repository.</p>
 <h2>Create a Python Virtual Development Environment<a class="headerlink" href="#create-a-python-virtual-development-environment" title="Link to this heading"></a></h2>
 <p>The following commands initializes and activates a development
 environment for Python 3:</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>KIWI NG uses tox to create a devel environment and to run
-tests, linters and other tasks in the tox generated environment.
-A tox version &gt;= 3.3 is required for this setup process. On your
-host a python version &gt;= 3.9 is required for tox to work.</p>
-</div>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>poetry<span class="w"> </span>install
 </pre></div>
 </div>
@@ -1317,34 +1317,10 @@ Python sources inside the virtual environment using Poetry:</p>
 </section>
 <section id="running-the-unit-tests">
 <h2>Running the Unit Tests<a class="headerlink" href="#running-the-unit-tests" title="Link to this heading"></a></h2>
-<p>We use <strong class="command">tox</strong> to run the unit tests. Tox sets up its own
-virtualenvs inside the <code class="file docutils literal notranslate"><span class="pre">.tox</span></code> directory for multiple Python versions
-and should thus <strong>not</strong> be invoked from inside your development virtualenv.</p>
 <p>Before submitting your changes via a pull request, ensure that all tests
 pass and that the code has the required test coverage via the command:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tox
-</pre></div>
-</div>
-<p>We also include <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytest-xdist</span></code> in the development virtualenv which allows
-to run the unit tests in parallel. It is turned off by default but can be
-enabled via:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tox<span class="w"> </span>--<span class="w"> </span><span class="s2">&quot;-n NUMBER_OF_PROCESSES&quot;</span>
-</pre></div>
-</div>
-<p>where you can insert an arbitrary number as <code class="xref py py-obj docutils literal notranslate"><span class="pre">NUMBER_OF_PROCESSES</span></code> (or a
-shell command like <code class="xref py py-obj docutils literal notranslate"><span class="pre">$(nproc)</span></code>). Note that the double quotes around <code class="xref py py-obj docutils literal notranslate"><span class="pre">-n</span>
-<span class="pre">NUMBER_OF_PROCESSES</span></code> are required (otherwise <strong class="command">tox</strong> will consume
-this command line flag instead of forwarding it to <strong class="command">pytest</strong>).</p>
-<p>The previous call would run the unit tests for different Python versions,
-check the source code for errors and build the documentation.</p>
-<p>If you want to see the available targets, use the option <code class="xref py py-obj docutils literal notranslate"><span class="pre">-l</span></code> to let
-<strong class="command">tox</strong> print a list of them:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tox<span class="w"> </span>-l
-</pre></div>
-</div>
-<p>To only run a special target, use the <code class="xref py py-obj docutils literal notranslate"><span class="pre">-e</span></code> option. The following
-example runs the test cases for the Python 3.11 interpreter only:</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tox<span class="w"> </span>-e<span class="w"> </span>unit_py3_11
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>check
+<span class="gp">$ </span>make<span class="w"> </span><span class="nb">test</span>
 </pre></div>
 </div>
 </section>
@@ -1372,11 +1348,6 @@ as documented in <a class="reference internal" href="#signing-git-patches"><span
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>commit<span class="w"> </span>-S<span class="w"> </span>-a
 </pre></div>
 </div>
-<p>Run the tests and code style checks. All of these are also performed by
-<a class="reference external" href="https://gitlab.com/kiwi3">GitLab CI</a> when a pull request is created.</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tox
-</pre></div>
-</div>
 <p>Once everything is done, push your local branch to your forked repository and
 create a pull request into the upstream repository.</p>
 <div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>my-topic-branch
@@ -1400,7 +1371,7 @@ of a class, but should be either prefixed with the <code class="xref py py-obj d
 <h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h3>
 <p>KIWI NG uses <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a> for the API,
 user documentation and manual pages</p>
-<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="go">tox -e doc</span>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>docs
 </pre></div>
 </div>
 <p>Document all your classes, methods, their parameters and their types using

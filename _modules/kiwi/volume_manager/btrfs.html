@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.volume_manager.btrfs &mdash; KIWI NG 10.2.6 documentation</title>
+  <title>kiwi.volume_manager.btrfs &mdash; KIWI NG 10.2.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=bf020882"></script>
+      <script src="../../../_static/documentation_options.js?v=1b7a8c9b"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -126,7 +126,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html">Build Host Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../troubleshooting/buildhost_constraints.html#zypper-modalias-matching">zypper: modalias matching</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
@@ -477,6 +483,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiDistributionNameError"><code class="docutils literal notranslate"><span class="pre">KiwiDistributionNameError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveBootImageError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveBootImageError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnclaveFormatError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveFormatError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiEnvImportError"><code class="docutils literal notranslate"><span class="pre">KiwiEnvImportError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiError"><code class="docutils literal notranslate"><span class="pre">KiwiError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiExtensionError"><code class="docutils literal notranslate"><span class="pre">KiwiExtensionError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/kiwi.html#kiwi.exceptions.KiwiFileAccessError"><code class="docutils literal notranslate"><span class="pre">KiwiFileAccessError</span></code></a></li>
@@ -1309,8 +1316,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="s1">&#39;root_label&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ROOT&#39;</span>
-        <span class="k">if</span> <span class="s1">&#39;root_is_snapshot&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s1">&#39;root_is_snapper_snapshot&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="s1">&#39;btrfs_default_volume_requested&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;btrfs_default_volume_requested&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="s1">&#39;root_is_readonly_snapshot&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">:</span>
@@ -1330,11 +1337,11 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span> <span class="o">=</span> <span class="n">volume</span><span class="o">.</span><span class="n">name</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">default_volume_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">]</span> <span class="ow">and</span> \
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">]</span> <span class="ow">and</span> \
            <span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;root_is_snapshot requires a toplevel sub-volume&#39;</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;root_is_snapshot has been disabled&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;root_is_snapper_snapshot requires a toplevel sub-volume&#39;</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;root_is_snapper_snapshot has been disabled&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">subvol_mount_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">toplevel_mount</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -1381,7 +1388,7 @@
             <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                 <span class="p">[</span><span class="s1">&#39;btrfs&#39;</span><span class="p">,</span> <span class="s1">&#39;subvolume&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="n">root_volume</span><span class="p">]</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">]:</span>
             <span class="n">snapshot_volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mountpoint</span> <span class="o">+</span> \
                 <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span><span class="si">}</span><span class="s1">/.snapshots&#39;</span>
             <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
@@ -1486,7 +1493,8 @@
                 <span class="p">)</span>
 
                 <span class="n">volume_mountpoint</span> <span class="o">=</span> <span class="n">toplevel</span>
-                <span class="n">root_is_snapshot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">]</span>
+                <span class="n">root_is_snapper_snapshot</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">]</span>
 
                 <span class="n">attributes</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="n">volume</span><span class="o">.</span><span class="n">parent</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
@@ -1497,7 +1505,7 @@
                     <span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">),</span>
                     <span class="s1">&#39;subvol_name&#39;</span><span class="p">:</span> <span class="n">volume</span><span class="o">.</span><span class="n">name</span>
                 <span class="p">}</span>
-                <span class="k">if</span> <span class="n">root_is_snapshot</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">root_is_snapper_snapshot</span><span class="p">:</span>
                     <span class="n">volume_mountpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mountpoint</span> <span class="o">+</span> \
                         <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span><span class="si">}</span><span class="s1">/.snapshots/1/snapshot/&#39;</span>
                     <span class="n">attributes</span> <span class="o">=</span> <span class="p">{</span>
@@ -1516,7 +1524,7 @@
                         <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                             <span class="p">[</span>
                                 <span class="n">volume_mountpoint</span><span class="p">,</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">root_is_snapshot</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">root_is_snapper_snapshot</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
                                 <span class="n">volume</span><span class="o">.</span><span class="n">realpath</span>
                             <span class="p">]</span>
                         <span class="p">)</span>
@@ -1665,7 +1673,7 @@
         <span class="n">sync_target</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mountpoint</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
             <span class="n">sync_target</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_volume_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">):</span>
             <span class="n">sync_target</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;.snapshots&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;snapshot&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">sync_target</span><span class="p">)</span></div>
 
@@ -1683,7 +1691,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">toplevel_mount</span><span class="p">:</span>
             <span class="n">sync_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mountpoint</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_create_snapshot_info</span><span class="p">(</span>
                     <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="p">[</span>
@@ -1697,7 +1705,7 @@
                 <span class="n">options</span><span class="o">=</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_sync_options</span><span class="p">(),</span> <span class="n">exclude</span><span class="o">=</span><span class="n">exclude</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;quota_groups&#39;</span><span class="p">]</span> <span class="ow">and</span> \
-               <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">]:</span>
+               <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_create_snapper_quota_configuration</span><span class="p">()</span></div>
 
 
@@ -1707,11 +1715,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the root volume to be a readonly filesystem</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">root_is_snapshot</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapshot&#39;</span><span class="p">]</span>
+        <span class="n">root_is_snapper_snapshot</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_snapper_snapshot&#39;</span><span class="p">]</span>
         <span class="n">root_is_readonly_snapshot</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">custom_args</span><span class="p">[</span><span class="s1">&#39;root_is_readonly_snapshot&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">root_is_snapshot</span> <span class="ow">and</span> <span class="n">root_is_readonly_snapshot</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">root_is_snapper_snapshot</span> <span class="ow">and</span> <span class="n">root_is_readonly_snapshot</span><span class="p">:</span>
             <span class="n">sync_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mountpoint</span><span class="p">()</span>
             <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                 <span class="p">[</span><span class="s1">&#39;btrfs&#39;</span><span class="p">,</span> <span class="s1">&#39;property&#39;</span><span class="p">,</span> <span class="s1">&#39;set&#39;</span><span class="p">,</span> <span class="n">sync_target</span><span class="p">,</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="s1">&#39;true&#39;</span><span class="p">]</span>

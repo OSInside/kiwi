@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Description Elements &mdash; KIWI NG 10.2.6 documentation</title>
+  <title>Image Description Elements &mdash; KIWI NG 10.2.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=bf020882"></script>
+      <script src="../_static/documentation_options.js?v=1b7a8c9b"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -129,7 +129,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html">Build Host Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html#zypper-modalias-matching">zypper: modalias matching</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/architectures.html">Architectures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
@@ -480,6 +486,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiDistributionNameError"><code class="docutils literal notranslate"><span class="pre">KiwiDistributionNameError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiEnclaveBootImageError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveBootImageError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiEnclaveFormatError"><code class="docutils literal notranslate"><span class="pre">KiwiEnclaveFormatError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiEnvImportError"><code class="docutils literal notranslate"><span class="pre">KiwiEnvImportError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiError"><code class="docutils literal notranslate"><span class="pre">KiwiError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiExtensionError"><code class="docutils literal notranslate"><span class="pre">KiwiExtensionError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kiwi.html#kiwi.exceptions.KiwiFileAccessError"><code class="docutils literal notranslate"><span class="pre">KiwiFileAccessError</span></code></a></li>
@@ -1245,7 +1252,7 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This document provides a reference for the elements
-and attributes of the KIWI NG XML document in version 10.2.6</p>
+and attributes of the KIWI NG XML document in version 10.2.7</p>
 </div>
 <section id="image">
 <span id="sec-image"></span><h2>&lt;image&gt;<a class="headerlink" href="#image" title="Link to this heading"></a></h2>
@@ -1638,15 +1645,16 @@ of the form:</p>
 </div>
 <p>By default the creation of a toplevel volume is set to: <code class="xref py py-obj docutils literal notranslate"><span class="pre">true</span></code></p>
 </dd>
-<dt>btrfs_root_is_snapshot=”true|false”:</dt><dd><p>Boolean parameter that tells KIWI NG to install
-the system into a btrfs snapshot. The snapshot layout is compatible with
-snapper. By default snapshots are turned off.</p>
+<dt>btrfs_root_is_snapper_snapshot=”true|false”:</dt><dd><p>Boolean parameter that tells KIWI NG to install
+the system into a btrfs snapshot. The snapshot layout is compatible
+with the snapper management toolkit and follows a concept by SUSE.
+By default snapshots are turned off.</p>
 </dd>
 <dt>btrfs_root_is_readonly_snapshot=”true|false”:</dt><dd><p>Boolean parameter notifying KIWI NG that
 the btrfs root filesystem snapshot has to made read-only. if this option
 is set to true, the root filesystem snapshot it will be turned into
 read-only mode, once all data has been placed to it. The option is only
-effective if <code class="xref py py-obj docutils literal notranslate"><span class="pre">btrfs_root_is_snapshot</span></code> is also set to true. By default the
+effective if <code class="xref py py-obj docutils literal notranslate"><span class="pre">btrfs_root_is_snapper_snapshot</span></code> is also set to true. By default the
 root filesystem snapshot is writable.</p>
 </dd>
 <dt>bootstrap_package=”package_name”:</dt><dd><p>For use with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">apt</span></code> packagemanager only. Specifies the name
