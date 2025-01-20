@@ -1514,8 +1514,8 @@ the `%arch` macro which will expand to the architecture of the image
 building host. The value for the path attribute may begin with any of
 the following location indicators:
 
-* ``dir:///local/path``
-  An absolute path to a directory accessible through the local file system.
+* ``file:///local/path/to/file``
+  An absolute path to a file accessible through the local file system.
 
 * ``ftp://<ftp://>``
   A ftp protocol based network location.
@@ -1558,8 +1558,8 @@ following example:
 
    <repository alias="kiwi">
      <source path="{exc_kiwi_repo}">
-       <signing key="/path/to/sign_key_a"/>
-       <signing key="/path/to/sign_key_b"/>
+       <signing key="file:///path/to/sign_key_a"/>
+       <signing key="file:///path/to/sign_key_b"/>
      </source>
    </repository>
 
