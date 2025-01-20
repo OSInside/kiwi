@@ -42,6 +42,11 @@ class TestBlockID:
         self.blkid.get_uuid()
         mock_get_blkid.assert_called_once_with('UUID')
 
+    @patch('kiwi.utils.block.BlockID.get_blkid')
+    def test_get_ptuuid(self, mock_get_blkid):
+        self.blkid.get_ptuuid()
+        mock_get_blkid.assert_called_once_with('PTUUID')
+
     @patch('kiwi.utils.block.Command.run')
     def test_get_partition_count(self, mock_Command_run):
         lsblk_call = Mock()

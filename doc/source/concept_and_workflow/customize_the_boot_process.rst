@@ -221,6 +221,18 @@ the available kernel boot parameters for these modules:
   for the passphrase if the image has been built with an initial
   luks passphrase.
 
+``rd.kiwi.oem.disk.consistency``
+  For OEM disk images providing an installation image. If set,
+  the installation image will check against all disks that are
+  not the selected target disk if there is any disk in the system
+  that has the same PTUUID compared to the image that is about
+  to be installed. If such a disk is found this indicates that
+  the same image was already installed to another storage disk
+  on the same system which will cause device id inconsistencies
+  for the entire system. In such a case an error message is
+  displayed providing information about the conflicting device
+  and the installation will be cancelled.
+
 ``rd.kiwi.oem.maxdisk=size[KMGT]``
   Specifies the maximum disk size an unattended OEM installation uses for image
   deployment. Unattended OEM deployments default to deploying on `/dev/sda` (or

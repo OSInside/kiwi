@@ -138,6 +138,27 @@ function get_disk_list {
     echo "${list_items}"
 }
 
+function validate_disk_selection {
+    local selected=$1
+    local disk_list
+    local entry
+    local count=0
+    disk_list=$(get_disk_list)
+    for entry in ${disk_list};do
+        if [ $((count % 2)) -eq 0 ];then
+            if [ ! "${entry}" = "${selected}" ];then
+                # check system_identifier for the not selected disk
+                # if one of them matches the system_identifier because
+                # that would produce a global system inconsistency
+                if disk_matches_system_identifier "${entry}";then
+                    report_and_quit "Disk ${entry} has the same partition UUID"
+                fi
+            fi
+        fi
+        count=$((count + 1))
+    done
+}
+
 function get_selected_disk {
     declare kiwi_oemunattended=${kiwi_oemunattended}
     declare kiwi_oemunattended_id=${kiwi_oemunattended_id}
@@ -422,6 +443,10 @@ initialize
 udev_pending
 
 image_target=$(get_selected_disk)
+
+if getargbool 0 rd.kiwi.oem.disk.consistency; then
+    validate_disk_selection "${image_target}"
+fi
 
 if getargbool 0 rd.kiwi.install.pxe; then
     image_source_files=$(get_remote_image_source_files)

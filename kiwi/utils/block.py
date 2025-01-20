@@ -61,6 +61,16 @@ class BlockID:
         """
         return self.get_blkid('UUID')
 
+    def get_ptuuid(self):
+        """
+        Retrieve partition uuid from block device
+
+        :return: uuid of the partition table
+
+        :rtype: str
+        """
+        return self.get_blkid('PTUUID')
+
     def get_filesystem(self):
         """
         Retrieve filesystem type from block device

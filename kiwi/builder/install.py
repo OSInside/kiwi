@@ -34,6 +34,7 @@ from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.firmware import FirmWare
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.path import Path
+from kiwi.utils.block import BlockID
 from kiwi.defaults import Defaults
 from kiwi.utils.checksum import Checksum
 from kiwi.system.kernel import Kernel
@@ -456,6 +457,7 @@ class InstallImageBuilder:
                 self.xml_state.get_installmedia_initrd_modules('set')
             )
             self._add_system_image_boot_options_to_boot_image()
+            self._add_system_identifier_to_boot_image()
         self.boot_image_task.create_initrd(
             self.mbrid, 'initrd_kiwi_install',
             install_initrd=True
@@ -466,6 +468,15 @@ class InstallImageBuilder:
                 boot_path + '/initrd'
             ]
         )
+
+    def _add_system_identifier_to_boot_image(self) -> None:
+        filename = ''.join(
+            [self.boot_image_task.boot_root_directory, '/system_identifier']
+        )
+        blockid = BlockID(self.diskname)
+        with open(filename, 'w') as system_identifier:
+            system_identifier.write(blockid.get_ptuuid())
+        self.boot_image_task.include_file(os.sep + os.path.basename(filename))
 
     def _add_system_image_boot_options_to_boot_image(self) -> None:
         filename = ''.join(
