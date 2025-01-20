@@ -129,11 +129,15 @@ class TestInstallImageBuilder:
     @patch('kiwi.builder.install.Temporary')
     @patch('kiwi.builder.install.Command.run')
     @patch('kiwi.builder.install.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.install.BlockID.get_ptuuid')
     def test_create_install_iso(
-        self, mock_grub_dir, mock_command, mock_Temporary, mock_copy,
-        mock_setup_media_loader_directory, mock_create_boot_loader_config,
-        mock_DeviceProvider, mock_FileSystemSquashFs, mock_FileSystemIsoFs
+        self, mock_get_ptuuid, mock_grub_dir, mock_command, mock_Temporary,
+        mock_copy, mock_setup_media_loader_directory,
+        mock_create_boot_loader_config, mock_DeviceProvider,
+        mock_FileSystemSquashFs, mock_FileSystemIsoFs
     ):
+        mock_get_ptuuid.return_value = 'some_PTUUID'
+
         temp_squashfs = Mock()
         temp_squashfs.new_dir.return_value.name = 'temp-squashfs'
 
@@ -253,14 +257,17 @@ class TestInstallImageBuilder:
             ['module1', 'module2']
         )
 
-        self.boot_image_task.include_file.assert_called_once_with(
-            '/config.bootoptions'
-        )
+        assert self.boot_image_task.include_file.call_args_list == [
+            call('/config.bootoptions'),
+            call('/system_identifier')
+        ]
         assert m_open.call_args_list == [
             call('temp_media_dir/config.isoclient', 'w'),
+            call('initrd_dir/system_identifier', 'w')
         ]
         assert m_open.return_value.write.call_args_list == [
-            call('IMAGE="result-image.raw"\n')
+            call('IMAGE="result-image.raw"\n'),
+            call('some_PTUUID')
         ]
 
     @patch('kiwi.builder.disk.create_boot_loader_config')

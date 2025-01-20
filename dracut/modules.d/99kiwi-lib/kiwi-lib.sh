@@ -12,6 +12,26 @@ function setup_debug {
     fi
 }
 
+function get_system_id {
+    local disk_device=$1
+    blkid -s PTUUID -o value "${disk_device}"
+}
+
+function disk_matches_system_identifier {
+    local disk_device=$1
+    local system_identifier=/system_identifier
+    local id_disk
+    local id_image
+    if [ -e "${system_identifier}" ];then
+        id_disk=$(get_system_id "${disk_device}")
+        read -r id_image < "${system_identifier}"
+        if [ "${id_disk}" = "${id_image}" ]; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
 function set_root_map {
     root_map=$1
     export root_map
