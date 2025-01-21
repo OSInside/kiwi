@@ -1229,21 +1229,25 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 )
             )
 
-    def _get_grub2_mkimage_tool(self):
+    def _get_grub2_mkimage_tool(self) -> str:
+        grub_mkimage_file_path = ''
         for grub_mkimage_tool in ['grub2-mkimage', 'grub-mkimage']:
             grub_mkimage_file_path = Path.which(
                 grub_mkimage_tool, root_dir=self.root_dir
-            )
+            ) or ''
             if grub_mkimage_file_path:
-                return grub_mkimage_file_path
+                break
+        return grub_mkimage_file_path
 
-    def _get_grub2_mkconfig_tool(self):
+    def _get_grub2_mkconfig_tool(self) -> str:
+        grub_mkconfig_file_path = ''
         for grub_mkconfig_tool in ['grub2-mkconfig', 'grub-mkconfig']:
             grub_mkconfig_file_path = Path.which(
                 grub_mkconfig_tool, root_dir=self.root_dir
-            )
+            ) or ''
             if grub_mkconfig_file_path:
-                return grub_mkconfig_file_path
+                break
+        return grub_mkconfig_file_path
 
     def _get_grub2_boot_path(self):
         return self.boot_dir + '/boot/' + self.boot_directory_name
