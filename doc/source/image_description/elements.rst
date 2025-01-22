@@ -1535,12 +1535,6 @@ the following location indicators:
      individual to the used distribution. On SUSE systems as one example
      this would be `openssl-certs` and `cracklib-dict-full`
 
-* ``iso://<iso://>``
-  An absolute path to an .iso file accessible via the local file
-  system. {kiwi} will loop mount the the .iso file to a temporary
-  directory with a generated name. The generated path is provided to
-  the specified package manager as a directory based repository location.
-
 * ``obs://Open:Build:Service:Project:Name``
   A reference to a project in the Open Build Service (OBS). {kiwi}
   translates the given project path into a remote url at which
