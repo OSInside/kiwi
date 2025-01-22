@@ -123,7 +123,3 @@ following paths types:
 - `dir:///path/to/directory` or `file:///path/to/file`: an absolute path to
   a local directory or file available on the host building the
   appliance.
-
-- `iso:///path/to/image.iso`: the specified ISO image is mounted
-  during the build of the {kiwi} image and a repository is created,
-  pointing to the mounted ISO.
