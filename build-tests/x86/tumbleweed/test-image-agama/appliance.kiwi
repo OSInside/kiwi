@@ -82,8 +82,6 @@
         <package name="MozillaFirefox-branding-openSUSE" arch="aarch64,x86_64"/>
         <package name="libpwquality-tools"/>
         <package name="NetworkManager"/>
-        <package name="ruby3.3-rubygem-byebug"/>
-        <package name="ruby3.3-rubygem-agama-yast"/>
         <package name="agama"/>
         <package name="agama-web-ui"/>
         <package name="agama-cli"/>
