@@ -90,7 +90,6 @@
         <package name="netcat-openbsd"/>
         <package name="nfs-client"/>
         <package name="nfs-kernel-server"/>
-        <package name="nscd"/>
         <package name="ntp"/>
         <package name="openldap2-client"/>
         <package name="polkit-default-privs"/>
