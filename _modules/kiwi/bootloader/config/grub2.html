@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.2.7 documentation</title>
+  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.2.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=1b7a8c9b"></script>
+      <script src="../../../../_static/documentation_options.js?v=f3602f59"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -2508,21 +2508,25 @@
                 <span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_grub2_mkimage_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_grub2_mkimage_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">grub_mkimage_file_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">for</span> <span class="n">grub_mkimage_tool</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;grub2-mkimage&#39;</span><span class="p">,</span> <span class="s1">&#39;grub-mkimage&#39;</span><span class="p">]:</span>
             <span class="n">grub_mkimage_file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">which</span><span class="p">(</span>
                 <span class="n">grub_mkimage_tool</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span>
-            <span class="p">)</span>
+            <span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
             <span class="k">if</span> <span class="n">grub_mkimage_file_path</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">grub_mkimage_file_path</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">grub_mkimage_file_path</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_grub2_mkconfig_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_grub2_mkconfig_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">grub_mkconfig_file_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">for</span> <span class="n">grub_mkconfig_tool</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;grub2-mkconfig&#39;</span><span class="p">,</span> <span class="s1">&#39;grub-mkconfig&#39;</span><span class="p">]:</span>
             <span class="n">grub_mkconfig_file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">which</span><span class="p">(</span>
                 <span class="n">grub_mkconfig_tool</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span>
-            <span class="p">)</span>
+            <span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
             <span class="k">if</span> <span class="n">grub_mkconfig_file_path</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">grub_mkconfig_file_path</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">grub_mkconfig_file_path</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_grub2_boot_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">boot_dir</span> <span class="o">+</span> <span class="s1">&#39;/boot/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">boot_directory_name</span>

@@ -1514,8 +1514,8 @@ the `%arch` macro which will expand to the architecture of the image
 building host. The value for the path attribute may begin with any of
 the following location indicators:
 
-* ``dir:///local/path``
-  An absolute path to a directory accessible through the local file system.
+* ``file:///local/path/to/file``
+  An absolute path to a file accessible through the local file system.
 
 * ``ftp://<ftp://>``
   A ftp protocol based network location.
@@ -1535,12 +1535,6 @@ the following location indicators:
      individual to the used distribution. On SUSE systems as one example
      this would be `openssl-certs` and `cracklib-dict-full`
 
-* ``iso://<iso://>``
-  An absolute path to an .iso file accessible via the local file
-  system. {kiwi} will loop mount the the .iso file to a temporary
-  directory with a generated name. The generated path is provided to
-  the specified package manager as a directory based repository location.
-
 * ``obs://Open:Build:Service:Project:Name``
   A reference to a project in the Open Build Service (OBS). {kiwi}
   translates the given project path into a remote url at which
@@ -1558,8 +1552,8 @@ following example:
 
    <repository alias="kiwi">
      <source path="{exc_kiwi_repo}">
-       <signing key="/path/to/sign_key_a"/>
-       <signing key="/path/to/sign_key_b"/>
+       <signing key="file:///path/to/sign_key_a"/>
+       <signing key="file:///path/to/sign_key_b"/>
      </source>
    </repository>
 

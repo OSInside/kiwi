@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Customizing the Boot Process &mdash; KIWI NG 10.2.7 documentation</title>
+  <title>Customizing the Boot Process &mdash; KIWI NG 10.2.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=1b7a8c9b"></script>
+      <script src="../_static/documentation_options.js?v=f3602f59"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1437,6 +1437,17 @@ the checksum of the luks header still matches the one from the
 original disk image. Be aware that the reencryption will ask
 for the passphrase if the image has been built with an initial
 luks passphrase.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.disk.consistency</span></code></dt><dd><p>For OEM disk images providing an installation image. If set,
+the installation image will check against all disks that are
+not the selected target disk if there is any disk in the system
+that has the same PTUUID compared to the image that is about
+to be installed. If such a disk is found this indicates that
+the same image was already installed to another storage disk
+on the same system which will cause device id inconsistencies
+for the entire system. In such a case an error message is
+displayed providing information about the conflicting device
+and the installation will be cancelled.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">rd.kiwi.oem.maxdisk=size[KMGT]</span></code></dt><dd><p>Specifies the maximum disk size an unattended OEM installation uses for image
 deployment. Unattended OEM deployments default to deploying on <code class="xref py py-obj docutils literal notranslate"><span class="pre">/dev/sda</span></code> (or

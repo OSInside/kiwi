@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.builder.install &mdash; KIWI NG 10.2.7 documentation</title>
+  <title>kiwi.builder.install &mdash; KIWI NG 10.2.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=1b7a8c9b"></script>
+      <script src="../../../_static/documentation_options.js?v=f3602f59"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -1281,6 +1281,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.firmware</span><span class="w"> </span><span class="kn">import</span> <span class="n">FirmWare</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.identifier</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemIdentifier</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.block</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockID</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">Defaults</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.utils.checksum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Checksum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">kiwi.system.kernel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Kernel</span>
@@ -1711,6 +1712,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">xml_state</span><span class="o">.</span><span class="n">get_installmedia_initrd_modules</span><span class="p">(</span><span class="s1">&#39;set&#39;</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_system_image_boot_options_to_boot_image</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_system_identifier_to_boot_image</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">create_initrd</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mbrid</span><span class="p">,</span> <span class="s1">&#39;initrd_kiwi_install&#39;</span><span class="p">,</span>
             <span class="n">install_initrd</span><span class="o">=</span><span class="kc">True</span>
@@ -1721,6 +1723,15 @@
                 <span class="n">boot_path</span> <span class="o">+</span> <span class="s1">&#39;/initrd&#39;</span>
             <span class="p">]</span>
         <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_system_identifier_to_boot_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">boot_root_directory</span><span class="p">,</span> <span class="s1">&#39;/system_identifier&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">blockid</span> <span class="o">=</span> <span class="n">BlockID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diskname</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">system_identifier</span><span class="p">:</span>
+            <span class="n">system_identifier</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">blockid</span><span class="o">.</span><span class="n">get_ptuuid</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boot_image_task</span><span class="o">.</span><span class="n">include_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_add_system_image_boot_options_to_boot_image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>

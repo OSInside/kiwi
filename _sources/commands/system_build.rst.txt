@@ -238,11 +238,6 @@ URI_TYPES
   Internal Open Buildservice repository. The source data is translated into
   an HTTP URL pointing to download.suse.de.
 
-- **iso://**
-
-  Local ISO file. {kiwi} loop mounts the file and uses the mount point
-  as temporary directory source type.
-
 - **dir://**
 
   Local directory.

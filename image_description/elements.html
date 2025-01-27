@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Description Elements &mdash; KIWI NG 10.2.7 documentation</title>
+  <title>Image Description Elements &mdash; KIWI NG 10.2.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=1b7a8c9b"></script>
+      <script src="../_static/documentation_options.js?v=f3602f59"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1252,7 +1252,7 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This document provides a reference for the elements
-and attributes of the KIWI NG XML document in version 10.2.7</p>
+and attributes of the KIWI NG XML document in version 10.2.8</p>
 </div>
 <section id="image">
 <span id="sec-image"></span><h2>&lt;image&gt;<a class="headerlink" href="#image" title="Link to this heading"></a></h2>
@@ -2618,8 +2618,8 @@ the <code class="xref py py-obj docutils literal notranslate"><span class="pre">
 building host. The value for the path attribute may begin with any of
 the following location indicators:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">dir:///local/path</span></code>
-An absolute path to a directory accessible through the local file system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">file:///local/path/to/file</span></code>
+An absolute path to a file accessible through the local file system.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ftp://&lt;ftp://&gt;</span></code>
 A ftp protocol based network location.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">http://&lt;http://&gt;</span></code>
@@ -2637,11 +2637,6 @@ individual to the used distribution. On SUSE systems as one example
 this would be <code class="xref py py-obj docutils literal notranslate"><span class="pre">openssl-certs</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">cracklib-dict-full</span></code></p>
 </div>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">iso://&lt;iso://&gt;</span></code>
-An absolute path to an .iso file accessible via the local file
-system. KIWI NG will loop mount the the .iso file to a temporary
-directory with a generated name. The generated path is provided to
-the specified package manager as a directory based repository location.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">obs://Open:Build:Service:Project:Name</span></code>
 A reference to a project in the Open Build Service (OBS). KIWI NG
 translates the given project path into a remote url at which
@@ -2655,8 +2650,8 @@ signing keys for the packages from this repository like shown in the
 following example:</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;repository</span><span class="w"> </span><span class="na">alias=</span><span class="s">&quot;kiwi&quot;</span><span class="nt">&gt;</span>
 <span class="w">  </span><span class="nt">&lt;source</span><span class="w"> </span><span class="na">path=</span><span class="s">&quot;obs://Virtualization:Appliances:Builder/openSUSE_Leap_15.5&quot;</span><span class="nt">&gt;</span>
-<span class="w">    </span><span class="nt">&lt;signing</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;/path/to/sign_key_a&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;signing</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;/path/to/sign_key_b&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;signing</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;file:///path/to/sign_key_a&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;signing</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;file:///path/to/sign_key_b&quot;</span><span class="nt">/&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/source&gt;</span>
 <span class="nt">&lt;/repository&gt;</span>
 </pre></div>
