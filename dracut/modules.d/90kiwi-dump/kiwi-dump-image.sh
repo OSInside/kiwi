@@ -76,6 +76,14 @@ function get_disk_list {
             # ignore install source device
             continue
         fi
+        disk_mpath_child=$(
+            eval lsblk "${blk_opts}" "${disk_device}" | grep mpath | \
+            tr ' ' ":"
+        )
+        if [[ -n "${disk_mpath_child}" ]];then
+          # use mpath device instead of parent device for multipath
+          disk_device="$(echo "${disk_mpath_child}" | cut -f1 -d:)"
+        fi
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
         if [ "${max_disk}" -gt 0 ]; then
             local disk_size_bytes
@@ -109,6 +117,10 @@ function get_disk_list {
                 continue
             fi
         fi
+        if [[ "${list_items}" == *"${disk_device}"* ]];then
+           # device already in the list, can happen in multipath systems
+           continue
+        fi
         list_items="${list_items} ${disk_device} ${disk_size}"
     done
     if [ -n "${kiwi_oem_installdevice}" ];then
@@ -126,7 +138,7 @@ function get_disk_list {
         fi
         device_meta=$(
             eval lsblk "${blk_opts}" "${device}" |\
-            grep -E "disk|raid" | tr ' ' ":"
+            grep -E "disk|raid|mpath" | tr ' ' ":"
         )
         device_size=$(echo "${device_meta}" | cut -f2 -d:)
         list_items="${device} ${device_size}"
