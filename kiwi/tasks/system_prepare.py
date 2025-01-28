@@ -261,6 +261,10 @@ class SystemPrepareTask(CliTask):
                 # call post_bootstrap.sh script if present
                 setup.call_post_bootstrap_script()
 
+                custom_ca = self.runtime_config.get_custom_ca_cert()
+                if custom_ca is not None:
+                    setup.setup_ca_certificate(custom_ca)
+
                 system.install_system(
                     manager
                 )

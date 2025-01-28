@@ -529,6 +529,22 @@ class SystemSetup:
                         ['chroot', self.root_dir, theme_setup, splash_theme]
                     )
 
+    def setup_ca_certificate(self, cacert: str) -> None:
+        """
+        Setup CA certificate to the chroot and call update-ca-certificates
+
+        This is to be used when repositories in later stage require custom CA
+        certificate
+        """
+        log.info('--> Setting up custom CA certificate')
+        ca_file_path = self.root_dir + '/etc/pki/trust/anchors/custom_ca.crt'
+        with open(ca_file_path, 'w') as cafile:
+            cafile.write(cacert)
+
+        Command.run(
+            ['chroot', self.root_dir, 'update-ca-certificates']
+        )
+
     def import_image_identifier(self) -> None:
         """
         Create etc/ImageID identifier file
