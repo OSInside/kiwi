@@ -588,7 +588,7 @@ class SystemSetup:
             Command.run(
                 [
                     'chroot', self.root_dir, 'setfiles',
-                    '-F', '-p', '-c', self._find_selinux_policy_file(
+                    '-T0', '-F', '-p', '-c', self._find_selinux_policy_file(
                         self.xml_state.build_type.get_selinux_policy() or 'targeted'
                     )
                 ] + exclude + [
