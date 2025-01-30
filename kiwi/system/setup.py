@@ -284,7 +284,8 @@ class SystemSetup:
         overlay_archive = self.description_dir + '/root.tar.gz'
         if os.path.exists(overlay_directory):
             self._sync_overlay_files(
-                overlay_directory, follow_links, preserve_owner_group
+                f'{os.path.normpath(overlay_directory)}/',
+                follow_links, preserve_owner_group
             )
         elif os.path.exists(overlay_archive):
             log.info('Extracting user defined files from archive to image tree')
