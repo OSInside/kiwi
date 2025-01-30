@@ -1652,7 +1652,7 @@ class TestSystemSetup:
         mock_command.assert_called_once_with(
             [
                 'chroot', 'root_dir',
-                'setfiles', '-F', '-p',
+                'setfiles', '-T0', '-F', '-p',
                 '-c', '/etc/selinux/targeted/policy/policy.some_policy',
                 '-e', '/proc', '-e', '/sys', '-e', '/dev',
                 'security_context_file', '/'
