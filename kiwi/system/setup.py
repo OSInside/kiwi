@@ -356,7 +356,7 @@ class SystemSetup:
                 ['chroot', self.root_dir, 'chkstat', '--system', '--set']
             )
         else:
-            log.warning(
+            log.debug(
                 'chkstat not found in image. File Permissions Check skipped'
             )
 
