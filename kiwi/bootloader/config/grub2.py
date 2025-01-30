@@ -610,7 +610,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     config_file, grub_config_file_for_efi_boot
                 )
             )
-            shutil.copy(
+            shutil.copy2(
                 config_file, grub_config_file_for_efi_boot
             )
 
@@ -685,10 +685,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if target_type and os.path.exists(zipl2grub_config_file):
             if os.path.exists(zipl2grub_config_file_orig):
                 # reset the original template file first
-                shutil.copy(zipl2grub_config_file_orig, zipl2grub_config_file)
+                shutil.copy2(zipl2grub_config_file_orig, zipl2grub_config_file)
             else:
                 # no copy of the original template, create it
-                shutil.copy(zipl2grub_config_file, zipl2grub_config_file_orig)
+                shutil.copy2(zipl2grub_config_file, zipl2grub_config_file_orig)
             with open(zipl2grub_config_file) as zipl_config_file:
                 zipl_config = zipl_config_file.read()
                 zipl_config = re.sub(
@@ -1069,7 +1069,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             log.debug(
                 f'Copy earlyboot to media path: {early_boot_script_on_media}'
             )
-            shutil.copy(
+            shutil.copy2(
                 early_boot_script, early_boot_script_on_media
             )
         mkimage_call = Command.run(
@@ -1099,7 +1099,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 f'Copy grub image to media path: {efi_image_media_file}'
             )
             Path.create(os.path.dirname(efi_image_media_file))
-            shutil.copy(efi_image_root_file, efi_image_media_file)
+            shutil.copy2(efi_image_root_file, efi_image_media_file)
 
     def _create_efi_config_search(self, uuid=None, mbrid=None):
         efi_boot_config = self.efi_boot_path + '/grub.cfg'
@@ -1130,7 +1130,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Path.create(
                 os.path.dirname(early_boot_script_on_media)
             )
-            shutil.copy(
+            shutil.copy2(
                 early_boot_script, early_boot_script_on_media
             )
         mkimage_call = Command.run(
@@ -1166,7 +1166,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 f'Copy grub image to media path: {bios_image_media_file}'
             )
             Path.create(os.path.dirname(bios_image_media_file))
-            shutil.copy(bios_image_root_file, bios_image_media_file)
+            shutil.copy2(bios_image_root_file, bios_image_media_file)
 
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:

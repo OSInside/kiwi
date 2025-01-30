@@ -403,8 +403,9 @@ class TestBootLoaderInstallGrub2:
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('os.path.exists')
     @patch('os.access')
+    @patch('shutil.copy2')
     def test_secure_boot_install(
-        self, mock_access, mock_exists,
+        self, mock_shutil_copy2, mock_access, mock_exists,
         mock_mount_manager, mock_command
     ):
         mock_access.return_value = True
@@ -419,16 +420,18 @@ class TestBootLoaderInstallGrub2:
 
         self.bootloader.secure_boot_install()
 
+        assert mock_shutil_copy2.call_args_list == [
+            call(
+                'tmp_root/usr/sbin/grub2-install',
+                'tmp_root/usr/sbin/grub2-install.orig'
+            ),
+            call(
+                'tmp_root/bin/true',
+                'tmp_root/usr/sbin/grub2-install'
+            )
+        ]
+
         assert mock_command.call_args_list == [
-            call([
-                'chroot', 'tmp_root',
-                'cp', '-p', '/usr/sbin/grub2-install',
-                '/usr/sbin/grub2-install.orig'
-            ]),
-            call([
-                'chroot', 'tmp_root',
-                'cp', '/bin/true', '/usr/sbin/grub2-install'
-            ]),
             call([
                 'chroot', 'tmp_root', 'shim-install', '--removable',
                 '/dev/some-device'

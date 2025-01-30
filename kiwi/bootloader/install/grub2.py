@@ -18,6 +18,7 @@
 import glob
 import os
 import re
+import shutil
 import logging
 from contextlib import ExitStack
 
@@ -400,17 +401,13 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 [grub2_install, '.orig']
             )
             grub2_install_noop = '/bin/true'
-            Command.run(
-                [
-                    'chroot', root_path,
-                    'cp', '-p', grub2_install, grub2_install_backup
-                ]
+            shutil.copy2(
+                os.path.normpath(f'{root_path}/{grub2_install}'),
+                os.path.normpath(f'{root_path}/{grub2_install_backup}')
             )
-            Command.run(
-                [
-                    'chroot', root_path,
-                    'cp', grub2_install_noop, grub2_install
-                ]
+            shutil.copy2(
+                os.path.normpath(f'{root_path}/{grub2_install_noop}'),
+                os.path.normpath(f'{root_path}/{grub2_install}')
             )
 
     def _enable_grub2_install(self, root_path):
