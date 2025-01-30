@@ -399,7 +399,10 @@ class TestSystemPrepare:
 
         self.system.install_bootstrap(self.manager)
 
-        tar.extract.assert_called_once_with('root_dir/foo')
+        assert tar.extract.call_args_list == [
+            call('root_dir/foo'),
+            call('root_dir/etc')
+        ]
 
     @patch('kiwi.xml_state.XMLState.get_bootstrap_packages_sections')
     def test_install_bootstrap_skipped(self, mock_bootstrap_section):
