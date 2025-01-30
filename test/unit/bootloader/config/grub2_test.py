@@ -173,9 +173,9 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('os.path.exists')
-    @patch('shutil.copy')
+    @patch('shutil.copy2')
     def test_setup_install_boot_images_raises_no_efigrub(
-        self, mock_shutil_copy, mock_exists, mock_Path_which,
+        self, mock_shutil_copy2, mock_exists, mock_Path_which,
         mock_sync, mock_command, mock_grub, mock_shim
     ):
         Defaults.set_platform_name('x86_64')
@@ -349,14 +349,14 @@ class TestBootLoaderConfigGrub2:
         ]
 
     @patch('glob.iglob')
-    @patch('shutil.copy')
+    @patch('shutil.copy2')
     @patch('kiwi.bootloader.config.grub2.Path.create')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.Defaults.get_signed_grub_loader')
     @patch('kiwi.bootloader.config.grub2.Path.which')
     def test_copy_grub_config_to_efi_path(
         self, mock_Path_which, mock_get_signed_grub_loader, mock_Command,
-        mock_Path_create, mock_shutil_copy, mock_glob
+        mock_Path_create, mock_shutil_copy2, mock_glob
     ):
         mock_get_signed_grub_loader.return_value = None
         mock_glob.return_value = []
@@ -381,12 +381,12 @@ class TestBootLoaderConfigGrub2:
         mock_Path_create.assert_called_once_with(
             'root_dir/EFI/BOOT'
         )
-        mock_shutil_copy.assert_called_once_with(
+        mock_shutil_copy2.assert_called_once_with(
             'config_file', 'root_dir/EFI/BOOT/grub.cfg'
         )
 
         # 3. run: check with vendor directory read from grub binary
-        mock_shutil_copy.reset_mock()
+        mock_shutil_copy2.reset_mock()
         mock_Path_create.reset_mock()
         strings_out = Mock()
         strings_out.output = '/EFI/ubuntu'
@@ -401,12 +401,12 @@ class TestBootLoaderConfigGrub2:
         mock_Path_create.assert_called_once_with(
             'root_dir/EFI/ubuntu'
         )
-        mock_shutil_copy.assert_called_once_with(
+        mock_shutil_copy2.assert_called_once_with(
             'config_file', 'root_dir/EFI/ubuntu/grub.cfg'
         )
 
         # 4. run: check with installed vendor directory
-        mock_shutil_copy.reset_mock()
+        mock_shutil_copy2.reset_mock()
         mock_Path_create.reset_mock()
         mock_get_signed_grub_loader.return_value = None
         mock_glob.return_value = ['root_dir/EFI/fedora/shim.efi']
@@ -417,15 +417,15 @@ class TestBootLoaderConfigGrub2:
         mock_Path_create.assert_called_once_with(
             'root_dir/EFI/fedora'
         )
-        mock_shutil_copy.assert_called_once_with(
+        mock_shutil_copy2.assert_called_once_with(
             'config_file', 'root_dir/EFI/fedora/grub.cfg'
         )
 
-    @patch('shutil.copy')
+    @patch('shutil.copy2')
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     def test_setup_zipl2grub_conf_512_byte_target(
-        self, mock_Command_run, mock_exists, mock_shutil_copy
+        self, mock_Command_run, mock_exists, mock_shutil_copy2
     ):
         path_return_values = [True, False]
 
@@ -457,26 +457,26 @@ class TestBootLoaderConfigGrub2:
                 '    targetblocksize = 512\n' \
                 '    targetoffset = 2048' \
                 in file_handle.write.call_args[0][0]
-        mock_shutil_copy.assert_called_once_with(
+        mock_shutil_copy2.assert_called_once_with(
             'root_dir/etc/default/zipl2grub.conf.in',
             'root_dir/etc/default/zipl2grub.conf.in.orig'
         )
         path_return_values = [True, True]
-        mock_shutil_copy.reset_mock()
+        mock_shutil_copy2.reset_mock()
         with patch('builtins.open', create=True) as mock_open:
             file_handle = mock_open.return_value.__enter__.return_value
             file_handle.read.return_value = zipl_config
             self.bootloader._setup_zipl2grub_conf()
-        mock_shutil_copy.assert_called_once_with(
+        mock_shutil_copy2.assert_called_once_with(
             'root_dir/etc/default/zipl2grub.conf.in.orig',
             'root_dir/etc/default/zipl2grub.conf.in'
         )
 
-    @patch('shutil.copy')
+    @patch('shutil.copy2')
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     def test_setup_zipl2grub_conf_4096_byte_target(
-        self, mock_Command_run, mock_exists, mock_shutil_copy
+        self, mock_Command_run, mock_exists, mock_shutil_copy2
     ):
         path_return_values = [True, False]
         command_return_values = [
@@ -1754,9 +1754,9 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.Path.create')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('os.path.exists')
-    @patch('shutil.copy')
+    @patch('shutil.copy2')
     def test_setup_install_boot_images_ppc(
-        self, mock_shutil_copy, mock_exists, mock_sync,
+        self, mock_shutil_copy2, mock_exists, mock_sync,
         mock_Path_create, mock_Path_which, mock_command,
         mock_get_grub_bios_core_loader, mock_get_unsigned_grub_loader,
         mock_get_boot_path
@@ -1817,9 +1817,9 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.Path.create')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('os.path.exists')
-    @patch('shutil.copy')
+    @patch('shutil.copy2')
     def test_setup_install_boot_images_efi(
-        self, mock_shutil_copy, mock_exists, mock_sync,
+        self, mock_shutil_copy2, mock_exists, mock_sync,
         mock_Path_create, mock_Path_which, mock_command,
         mock_get_grub_bios_core_loader, mock_get_unsigned_grub_loader,
         mock_get_boot_path
@@ -1959,7 +1959,7 @@ class TestBootLoaderConfigGrub2:
             call(exclude=['*.module'], options=['-a']),
             call(exclude=['*.module'], options=['-a'])
         ]
-        assert mock_shutil_copy.call_args_list == [
+        assert mock_shutil_copy2.call_args_list == [
             call(
                 'boot_dir/boot/grub2/earlyboot.cfg',
                 'root_dir/boot/grub2/earlyboot.cfg'
@@ -2229,9 +2229,9 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('os.path.exists')
     @patch('kiwi.defaults.Defaults.get_grub_path')
-    @patch('shutil.copy')
+    @patch('shutil.copy2')
     def test_setup_install_boot_images_with_theme_not_existing(
-        self, mock_shutil_copy, mock_get_grub_path,
+        self, mock_shutil_copy2, mock_get_grub_path,
         mock_exists, mock_sync, mock_Path_which, mock_command
     ):
         Defaults.set_platform_name('x86_64')
