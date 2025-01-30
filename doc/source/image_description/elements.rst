@@ -1729,7 +1729,7 @@ is installed using the `tar` program. Thus the file name is
 expected to be a tar archive. The compression of the archive is
 detected automatically by the tar program. The optional target_dir
 attribute can be used to specify a target directory to unpack the
-archive.
+archive inside the image root tree.
 
 <packages><ignore>
 ~~~~~~~~~~~~~~~~~~

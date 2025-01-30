@@ -214,6 +214,7 @@
         <namedCollection name="bootstrap-collection"/>
         <product name="kiwi"/>
         <archive name="bootstrap.tgz" target_dir="foo"/>
+        <archive name="some.tgz" target_dir="/etc"/>
     </packages>
     <packages type="delete">
         <package name="kernel-debug"/>
