@@ -194,6 +194,12 @@ the available kernel boot parameters for these modules:
   Activates the debug log file for the {kiwi} part of
   the boot process in :file:`/run/initramfs/log/boot.kiwi`.
 
+``rd.kiwi.dialog.timeout=seconds|off``
+  Sets a timeout value for dialogs invoked by kiwi dracut
+  modules. By default the timeout is set to 60 seconds.
+  If set to the special value `off`, the dialog will never
+  timeout.
+
 ``rd.kiwi.install.pxe``
   Instructs an OEM installation image to lookup the system
   image on a remote location specified in `rd.kiwi.install.image`.
