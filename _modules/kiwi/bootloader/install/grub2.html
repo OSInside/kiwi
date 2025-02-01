@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.install.grub2 &mdash; KIWI NG 10.2.8 documentation</title>
+  <title>kiwi.bootloader.install.grub2 &mdash; KIWI NG 10.2.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=f3602f59"></script>
+      <script src="../../../../_static/documentation_options.js?v=5718ab40"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1265,6 +1265,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExitStack</span>
 
@@ -1664,17 +1665,13 @@
                 <span class="p">[</span><span class="n">grub2_install</span><span class="p">,</span> <span class="s1">&#39;.orig&#39;</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="n">grub2_install_noop</span> <span class="o">=</span> <span class="s1">&#39;/bin/true&#39;</span>
-            <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="s1">&#39;chroot&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="p">,</span>
-                    <span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">grub2_install</span><span class="p">,</span> <span class="n">grub2_install_backup</span>
-                <span class="p">]</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">grub2_install</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">grub2_install_backup</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="s1">&#39;chroot&#39;</span><span class="p">,</span> <span class="n">root_path</span><span class="p">,</span>
-                    <span class="s1">&#39;cp&#39;</span><span class="p">,</span> <span class="n">grub2_install_noop</span><span class="p">,</span> <span class="n">grub2_install</span>
-                <span class="p">]</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">grub2_install_noop</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">root_path</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">grub2_install</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_enable_grub2_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>

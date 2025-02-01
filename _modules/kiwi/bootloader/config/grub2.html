@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.2.8 documentation</title>
+  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.2.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=f3602f59"></script>
+      <script src="../../../../_static/documentation_options.js?v=5718ab40"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1889,7 +1889,7 @@
                     <span class="n">config_file</span><span class="p">,</span> <span class="n">grub_config_file_for_efi_boot</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span>
                 <span class="n">config_file</span><span class="p">,</span> <span class="n">grub_config_file_for_efi_boot</span>
             <span class="p">)</span>
 
@@ -1964,10 +1964,10 @@
         <span class="k">if</span> <span class="n">target_type</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zipl2grub_config_file</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zipl2grub_config_file_orig</span><span class="p">):</span>
                 <span class="c1"># reset the original template file first</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">zipl2grub_config_file_orig</span><span class="p">,</span> <span class="n">zipl2grub_config_file</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">zipl2grub_config_file_orig</span><span class="p">,</span> <span class="n">zipl2grub_config_file</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># no copy of the original template, create it</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">zipl2grub_config_file</span><span class="p">,</span> <span class="n">zipl2grub_config_file_orig</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">zipl2grub_config_file</span><span class="p">,</span> <span class="n">zipl2grub_config_file_orig</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">zipl2grub_config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">zipl_config_file</span><span class="p">:</span>
                 <span class="n">zipl_config</span> <span class="o">=</span> <span class="n">zipl_config_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                 <span class="n">zipl_config</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
@@ -2348,7 +2348,7 @@
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Copy earlyboot to media path: </span><span class="si">{</span><span class="n">early_boot_script_on_media</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span>
                 <span class="n">early_boot_script</span><span class="p">,</span> <span class="n">early_boot_script_on_media</span>
             <span class="p">)</span>
         <span class="n">mkimage_call</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
@@ -2378,7 +2378,7 @@
                 <span class="sa">f</span><span class="s1">&#39;Copy grub image to media path: </span><span class="si">{</span><span class="n">efi_image_media_file</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
             <span class="n">Path</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">efi_image_media_file</span><span class="p">))</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">efi_image_root_file</span><span class="p">,</span> <span class="n">efi_image_media_file</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">efi_image_root_file</span><span class="p">,</span> <span class="n">efi_image_media_file</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_efi_config_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mbrid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">efi_boot_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efi_boot_path</span> <span class="o">+</span> <span class="s1">&#39;/grub.cfg&#39;</span>
@@ -2409,7 +2409,7 @@
             <span class="n">Path</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">early_boot_script_on_media</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span>
                 <span class="n">early_boot_script</span><span class="p">,</span> <span class="n">early_boot_script_on_media</span>
             <span class="p">)</span>
         <span class="n">mkimage_call</span> <span class="o">=</span> <span class="n">Command</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
@@ -2445,7 +2445,7 @@
                 <span class="sa">f</span><span class="s1">&#39;Copy grub image to media path: </span><span class="si">{</span><span class="n">bios_image_media_file</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="p">)</span>
             <span class="n">Path</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">bios_image_media_file</span><span class="p">))</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">bios_image_root_file</span><span class="p">,</span> <span class="n">bios_image_media_file</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">bios_image_root_file</span><span class="p">,</span> <span class="n">bios_image_media_file</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_early_boot_script_for_uuid_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">early_boot</span><span class="p">:</span>

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Customizing the Boot Process &mdash; KIWI NG 10.2.8 documentation</title>
+  <title>Customizing the Boot Process &mdash; KIWI NG 10.2.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=f3602f59"></script>
+      <script src="../_static/documentation_options.js?v=5718ab40"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -1414,6 +1414,11 @@ TERM setting applies there too.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">rd.kiwi.debug</span></code></dt><dd><p>Activates the debug log file for the KIWI NG part of
 the boot process in <code class="file docutils literal notranslate"><span class="pre">/run/initramfs/log/boot.kiwi</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">rd.kiwi.dialog.timeout=seconds|off</span></code></dt><dd><p>Sets a timeout value for dialogs invoked by kiwi dracut
+modules. By default the timeout is set to 60 seconds.
+If set to the special value <code class="xref py py-obj docutils literal notranslate"><span class="pre">off</span></code>, the dialog will never
+timeout.</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">rd.kiwi.install.pxe</span></code></dt><dd><p>Instructs an OEM installation image to lookup the system
 image on a remote location specified in <code class="xref py py-obj docutils literal notranslate"><span class="pre">rd.kiwi.install.image</span></code>.</p>
