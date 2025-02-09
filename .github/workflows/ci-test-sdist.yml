@@ -35,6 +35,6 @@ jobs:
     - name: Prepare
       run: |
         printenv SOURCE_DATE_EPOCH
-        ls -l .bumpversion.cfg
+        stat .bumpversion.cfg
         make prepare_for_pypi
         tar -tvf dist/*.tar.gz
