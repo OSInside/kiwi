@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - "main"
-  env:
-    SOURCE_DATE_EPOCH: 0
   pull_request:
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      SOURCE_DATE_EPOCH: '0'
     strategy:
       matrix:
         python-version: ["3.11"]
