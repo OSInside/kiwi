@@ -114,7 +114,6 @@ test_scripts: setup
 		'pip install pytest-container && pushd test/scripts && pytest -s -vv'
 
 check: setup
-	env
 	# shell code checks
 	bash -c 'shellcheck -e ${sc_disable} dracut/modules.d/*/*.sh -s bash'
 	bash -c 'shellcheck -e ${sc_disable} kiwi/config/functions.sh -s bash'
