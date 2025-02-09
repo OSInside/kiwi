@@ -32,5 +32,6 @@ jobs:
         python -m pip install poetry
     - name: Prepare
       run: |
+        env
         make prepare_for_pypi
         tar -tvf dist/*.tar.gz
