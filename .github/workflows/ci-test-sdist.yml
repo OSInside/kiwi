@@ -30,10 +30,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install poetry
-    - name: Set epoch
-      run: echo "SOURCE_DATE_EPOCH=0" >> $GITHUB_ENV
     - name: Prepare
       run: |
+        export SOURCE_DATE_EPOCH=0
         env
         make prepare_for_pypi
         tar -tvf dist/*.tar.gz
