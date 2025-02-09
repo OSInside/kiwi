@@ -34,6 +34,7 @@ jobs:
         python -m pip install poetry
     - name: Prepare
       run: |
+        poetry build --version
         printenv SOURCE_DATE_EPOCH
         stat .bumpversion.cfg
         make prepare_for_pypi
