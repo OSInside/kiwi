@@ -65,13 +65,14 @@ the `build` command. The plugin validates the given command call with the
 capabilities of the `build` command. Thus one part of the `boxbuild` command
 is exactly the same as with the `build` command. The separation between
 `boxbuild` and `build` options is done using the `--` separator. The following
-example shows how to build one of {kiwi}'s integration test image:
+example shows how to build an example from the `kiwi-descriptions` repo:
 
 .. code:: bash
 
-   $ kiwi-ng --type oem system boxbuild --box leap -- \
-         --description KIWI_GIT_CHECKOUT/build-tests/{exc_description_disk} \
-         --set-repo {exc_repo_leap} \
+   $ git clone https://github.com/OSInside/kiwi-descriptions.git
+
+   $ kiwi-ng --profile Virtual system boxbuild --box leap -- \
+         --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
          --target-dir /tmp/myimage
 
 .. note::
@@ -129,3 +130,63 @@ the following sharing backends are supported:
 
      virtiofs support was added but considered experimental and
      not yet stable across the distributions. Feedback welcome.
+
+Building in Container
+---------------------
+
+By default and also as preferred method, boxbuild runs in a KVM
+virtual machine. However, support for building in container
+instances via `podman` is also implemented. The boxes built as
+virtual machine images and also as OCI containers hosted on the
+openSUSE registry. In container mode boxbuild pulls
+the requested box from the remote registry to the local registry
+and starts a container instance. The following example shows how
+to build the mentioned {kiwi} integration test image in a
+container:
+
+.. code:: bash
+
+   $ kiwi-ng --profile Virtual system boxbuild --container --box leap -- \
+         --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
+         --target-dir /tmp/myimage
+
+.. note::
+
+   The provided `--description` and `--target-dir` options are
+   setup as shared volumes between the host and the box container.
+   In addition containers also shares the kiwi cache from
+   `/var/cache/kiwi` with the host for better performance.
+
+.. warning::
+
+   For building in a container several runtime constraints
+   exists and the isolation model is not as strict as it is
+   when building in a VM. Please read the following information
+   to get clarity on the existing constraints.
+
+``loop devices``
+  As kiwi requires loop devices and calls other operations
+  which requires root privileges, `podman` is started through `sudo`.
+  As podman runs daemonless, the calling user must have the
+  privileges to perform the needed kiwi actions. Non
+  privileged builds are therefore not possible in container
+  mode with kiwi.
+
+``linux capabilities``
+  Several linux capabilities as they can be found in
+  https://man7.org/linux/man-pages/man7/capabilities.7.html are
+  set when `boxbuild` starts the container:
+
+  * AUDIT_WRITE
+  * AUDIT_CONTROL
+  * CAP_MKNOD
+  * CAP_SYS_ADMIN
+
+``host device nodes``
+  The host device nodes from `/dev` are shared with the container
+  instance. This is required to work with loop devices
+  inside of the container. Device isolation is therefore
+  not possible in container mode with kiwi. The loop device
+  handling for container based builds, restricts the number of
+  simultaneous kiwi build processes on this host to the number
+  of available loop device nodes exposed from the host kernel.
