@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image Types &mdash; KIWI NG 10.2.10 documentation</title>
+  <title>Image Types &mdash; KIWI NG 10.2.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=9d299fc4"></script>
+      <script src="_static/documentation_options.js?v=39511bdd"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -150,6 +150,7 @@
 <li class="toctree-l3"><a class="reference internal" href="plugins/self_contained.html#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plugins/self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plugins/self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins/self_contained.html#building-in-container">Building in Container</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="plugins/stackbuild.html">Building based on Containers</a><ul>
@@ -1341,20 +1342,20 @@ the image.</p>
 <dt>image=”tbz”</dt><dd><p>For this image type the result is mainly a root tree packed in a tarball:</p>
 <ul class="simple">
 <li><p><strong>root archive</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.tar.xz</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.tar.xz</span></code></p></li>
 </ul>
 </dd>
 <dt>image=”btrfs|ext2|ext3|ext4|squashfs|xfs”</dt><dd><p>The image root tree data is packed into a filesystem image of the given
 type, hence the resutl for an <code class="xref py py-obj docutils literal notranslate"><span class="pre">ext4</span></code> image would be:</p>
 <ul class="simple">
 <li><p><strong>filesystem image</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.ext4</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.ext4</span></code></p></li>
 </ul>
 </dd>
 <dt>image=”iso”</dt><dd><p>The image result is an ISO file:</p>
 <ul class="simple">
 <li><p><strong>live image</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.iso</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.iso</span></code></p></li>
 </ul>
 </dd>
 <dt>image=”oem”</dt><dd><p>An image representing an expandable disk image. KIWI NG can also produce an
@@ -1365,11 +1366,11 @@ For further details see <a class="reference internal" href="building_images/buil
 can be:</p>
 <ul class="simple">
 <li><p><strong>disk image</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.raw</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.raw</span></code></p></li>
 <li><p><strong>installation image (optional)</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.install.iso</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.install.iso</span></code></p></li>
 <li><p><strong>installation pxe archive (optional)</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.install.tar</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.install.tar</span></code></p></li>
 </ul>
 <p>The disk image can also be provided in one of the various virtual disk
 formats which can be specified in <code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span></code> attribute of the
@@ -1378,7 +1379,7 @@ details see <a class="reference internal" href="building_images/build_simple_dis
 would be:</p>
 <ul class="simple">
 <li><p><strong>disk image</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.qcow2</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.qcow2</span></code></p></li>
 </ul>
 <p>instead of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">raw</span></code> default disk format.</p>
 </dd>
@@ -1386,7 +1387,7 @@ would be:</p>
 a loadable (<strong class="command">docker load -i &lt;image&gt;</strong>) tarball:</p>
 <ul class="simple">
 <li><p><strong>container</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.docker.tar.xz</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.docker.tar.xz</span></code></p></li>
 </ul>
 </dd>
 <dt>image=”oci”</dt><dd><p>An archive image that builds a container matching the OCI
@@ -1394,14 +1395,14 @@ a loadable (<strong class="command">docker load -i &lt;image&gt;</strong>) tarba
 standards:</p>
 <ul class="simple">
 <li><p><strong>container</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.oci.tar.xz</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.oci.tar.xz</span></code></p></li>
 </ul>
 </dd>
 <dt>image=”appx”</dt><dd><p>An archive image suitable for the Windows Subsystem For Linux
 container engine. The result is an <code class="xref py py-obj docutils literal notranslate"><span class="pre">appx</span></code> binary file:</p>
 <ul class="simple">
 <li><p><strong>container</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.appx</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.appx</span></code></p></li>
 </ul>
 </dd>
 <dt>image=”kis”</dt><dd><p>An optional root filesystem image associated with a kernel and initrd.
@@ -1409,7 +1410,7 @@ All three binaries are packed in a tarball, see <a class="reference internal" hr
 details about the kis archive:</p>
 <ul class="simple">
 <li><p><strong>kis archive</strong>:
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.tar.xz</span></code></p></li>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.tar.xz</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -1431,9 +1432,9 @@ exist in <code class="file docutils literal notranslate"><span class="pre">/path
 <code class="file docutils literal notranslate"><span class="pre">/path/to/image/release_result/</span></code>. The only modification on the file
 names is the <code class="xref py py-obj docutils literal notranslate"><span class="pre">--id</span></code> information which is appended with a <code class="xref py py-obj docutils literal notranslate"><span class="pre">-</span></code> to at the
 end of the version substring. If we take
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3.iso</span></code> as example.
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6.iso</span></code> as example.
 This file would be bundled as
-<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.3-release_identifier.iso</span></code></p>
+<code class="file docutils literal notranslate"><em><span class="pre">exc_image_base_name</span></em><span class="pre">.x86_64-1.15.6-release_identifier.iso</span></code></p>
 <p>Depending on the use case and the customer requirements this naming
 schema and the default way how the kiwi bundler processes the result files
 is not appropriate. To allow for a more flexible naming schema when

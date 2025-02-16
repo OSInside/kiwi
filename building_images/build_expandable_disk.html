@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build an Expandable Disk Image &mdash; KIWI NG 10.2.10 documentation</title>
+  <title>Build an Expandable Disk Image &mdash; KIWI NG 10.2.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9d299fc4"></script>
+      <script src="../_static/documentation_options.js?v=39511bdd"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -150,6 +150,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-in-container">Building in Container</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../plugins/stackbuild.html">Building based on Containers</a><ul>
@@ -1271,7 +1272,7 @@ system:</p>
 <li><p>Build an image with KIWI NG:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>kiwi-ng<span class="w"> </span>--type<span class="w"> </span>oem<span class="w"> </span>system<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--description<span class="w"> </span>kiwi/build-tests/x86/leap/test-image-disk<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--set-repo<span class="w"> </span>obs://openSUSE:Leap:15.5/standard<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--set-repo<span class="w"> </span>https://download.opensuse.org/distribution/leap/15.6/repo/oss<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--target-dir<span class="w"> </span>/tmp/myimage
 </pre></div>
 </div>
@@ -1325,7 +1326,7 @@ original disk geometry stays unchanged.</p>
 </div>
 </li>
 <li><p>Dump disk image on target disk:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>kiwi-test-image-disk.x86_64-1.15.3.raw<span class="w"> </span><span class="nv">of</span><span class="o">=</span>target_disk<span class="w"> </span><span class="nv">conv</span><span class="o">=</span>notrunc
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>kiwi-test-image-disk.x86_64-1.15.6.raw<span class="w"> </span><span class="nv">of</span><span class="o">=</span>target_disk<span class="w"> </span><span class="nv">conv</span><span class="o">=</span>notrunc
 </pre></div>
 </div>
 </li>
@@ -1351,7 +1352,7 @@ To do this, follow the steps below.</p>
 <li><p>Boot the installation image as CD/DVD with the
 target disk attached.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>qemu<span class="w"> </span>-cdrom<span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>kiwi-test-image-disk.x86_64-1.15.3.install.iso<span class="w"> </span>-hda<span class="w"> </span>target_disk<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>kiwi-test-image-disk.x86_64-1.15.6.install.iso<span class="w"> </span>-hda<span class="w"> </span>target_disk<span class="w"> </span><span class="se">\</span>
 <span class="w">      </span>-boot<span class="w"> </span>d<span class="w"> </span>-m<span class="w"> </span><span class="m">4096</span><span class="w"> </span>-serial<span class="w"> </span>stdio
 </pre></div>
 </div>
@@ -1388,19 +1389,19 @@ kiwi/build-tests/x86/leap/test-image-disk/appliance.kiwi</p>
 </div>
 </li>
 <li><p>Rebuild the image, unpack the resulting
-<code class="file docutils literal notranslate"><span class="pre">kiwi-test-image-disk.x86_64-1.15.3.install.tar.xz</span></code>
+<code class="file docutils literal notranslate"><span class="pre">kiwi-test-image-disk.x86_64-1.15.6.install.tar.xz</span></code>
 file to a temporary directory, and copy the initrd and kernel images to
 the PXE server.</p>
 <ol class="loweralpha">
 <li><p>Unpack installation tarball:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>/tmp/pxe<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/tmp/pxe
-tar<span class="w"> </span>-xf<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.install.tar.xz
+tar<span class="w"> </span>-xf<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.6.install.tar.xz
 </pre></div>
 </div>
 </li>
 <li><p>Copy kernel and initrd used for PXE boot:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp<span class="w"> </span>pxeboot.kiwi-test-image-disk.x86_64-1.15.3.initrd<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/boot/initrd
-scp<span class="w"> </span>pxeboot.kiwi-test-image-disk.x86_64-1.15.3.kernel<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/boot/linux
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp<span class="w"> </span>pxeboot.kiwi-test-image-disk.x86_64-1.15.6.initrd<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/boot/initrd
+scp<span class="w"> </span>pxeboot.kiwi-test-image-disk.x86_64-1.15.6.kernel<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/boot/linux
 </pre></div>
 </div>
 </li>
@@ -1412,15 +1413,15 @@ the PXE boot server.</p>
 and initrd provided here.</p>
 <ol class="loweralpha">
 <li><p>Copy system image and SHA256 checksum:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.xz<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
-scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.sha256<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.6.xz<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
+scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.6.sha256<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
 </pre></div>
 </div>
 </li>
 <li><p>Copy kernel, initrd and bootoptions used for booting the system via kexec:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.initrd<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
-scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.kernel<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
-scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.3.config.bootoptions<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.6.initrd<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
+scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.6.kernel<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
+scp<span class="w"> </span>kiwi-test-image-disk.x86_64-1.15.6.config.bootoptions<span class="w"> </span>PXE_SERVER_IP:/srv/tftpboot/image/
 </pre></div>
 </div>
 <div class="admonition note">
@@ -1438,7 +1439,7 @@ correct root reference.</p>
 <li><p>Add/Update the kernel command line parameters.</p>
 <p>Edit your PXE configuration (for example <code class="file docutils literal notranslate"><span class="pre">pxelinux.cfg/default</span></code>) on
 the PXE server, and add the following parameters to the append line similar to shown below:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>append<span class="w"> </span><span class="nv">initrd</span><span class="o">=</span>boot/initrd<span class="w"> </span>rd.kiwi.install.pxe<span class="w"> </span>rd.kiwi.install.image<span class="o">=</span>tftp://192.168.100.16/image/kiwi-test-image-disk.x86_64-1.15.3.xz
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>append<span class="w"> </span><span class="nv">initrd</span><span class="o">=</span>boot/initrd<span class="w"> </span>rd.kiwi.install.pxe<span class="w"> </span>rd.kiwi.install.image<span class="o">=</span>tftp://192.168.100.16/image/kiwi-test-image-disk.x86_64-1.15.6.xz
 </pre></div>
 </div>
 <p>The location of the image is specified as a source URI that can point

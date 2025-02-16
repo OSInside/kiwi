@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build PXE Root File System Image for the legacy netboot infrastructure &mdash; KIWI NG 10.2.10 documentation</title>
+  <title>Build PXE Root File System Image for the legacy netboot infrastructure &mdash; KIWI NG 10.2.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9d299fc4"></script>
+      <script src="../_static/documentation_options.js?v=39511bdd"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -150,6 +150,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-in-container">Building in Container</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../plugins/stackbuild.html">Building based on Containers</a><ul>
@@ -1308,7 +1309,7 @@ see <a class="reference internal" href="../installation.html#example-description
 <li><p>Build the image with KIWI NG:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>kiwi-ng<span class="w"> </span>--profile<span class="w"> </span>Flat<span class="w"> </span>system<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--description<span class="w"> </span>kiwi/build-tests/x86/tumbleweed/test-image-pxe<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--set-repo<span class="w"> </span>http://download.opensuse.org/tumbleweed/repo/oss<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--set-repo<span class="w"> </span>https://download.opensuse.org/tumbleweed/repo/oss<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--target-dir<span class="w"> </span>/tmp/mypxe-result
 </pre></div>
 </div>
@@ -1325,8 +1326,8 @@ $<span class="w"> </span>cp<span class="w"> </span>*.kernel<span class="w"> </sp
 </div>
 </li>
 <li><p>Copy the system image and its SHA256 sum to <code class="file docutils literal notranslate"><span class="pre">/srv/tftpboot/image</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span>kiwi-test-image-pxe.x86_64-1.15.3<span class="w"> </span>/srv/tftpboot/image
-$<span class="w"> </span>cp<span class="w"> </span>kiwi-test-image-pxe.x86_64-1.15.3.sha256<span class="w"> </span>/srv/tftpboot/image
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cp<span class="w"> </span>kiwi-test-image-pxe.x86_64-1.15.6<span class="w"> </span>/srv/tftpboot/image
+$<span class="w"> </span>cp<span class="w"> </span>kiwi-test-image-pxe.x86_64-1.15.6.sha256<span class="w"> </span>/srv/tftpboot/image
 </pre></div>
 </div>
 </li>
@@ -1348,7 +1349,7 @@ LABEL<span class="w"> </span>KIWI-Boot
 <li><p>Create the image client configuration file:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>vi<span class="w"> </span>/srv/tftpboot/KIWI/config.default
 
-<span class="nv">IMAGE</span><span class="o">=</span>/dev/ram1<span class="p">;</span>kiwi-test-image-pxe.x86_64<span class="p">;</span><span class="m">1</span>.15.3<span class="p">;</span><span class="m">192</span>.168.100.2<span class="p">;</span><span class="m">4096</span>
+<span class="nv">IMAGE</span><span class="o">=</span>/dev/ram1<span class="p">;</span>kiwi-test-image-pxe.x86_64<span class="p">;</span><span class="m">1</span>.15.6<span class="p">;</span><span class="m">192</span>.168.100.2<span class="p">;</span><span class="m">4096</span>
 <span class="nv">UNIONFS_CONFIG</span><span class="o">=</span>/dev/ram2,/dev/ram1,overlay
 </pre></div>
 </div>
@@ -1453,7 +1454,7 @@ rebuild:</p>
 </pre></div>
 </div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">IMAGE</span><span class="o">=</span><span class="s2">&quot;/dev/sda2;kiwi-test-image-pxe.x86_64;1.15.3;192.168.100.2;4096&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">IMAGE</span><span class="o">=</span><span class="s2">&quot;/dev/sda2;kiwi-test-image-pxe.x86_64;1.15.6;192.168.100.2;4096&quot;</span>
 <span class="nv">DISK</span><span class="o">=</span><span class="s2">&quot;/dev/sda&quot;</span>
 <span class="nv">PART</span><span class="o">=</span><span class="s2">&quot;5;S;X,X;L;/&quot;</span>
 </pre></div>
@@ -1477,7 +1478,7 @@ rebuild:</p>
 </div>
 </div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">RAID</span><span class="o">=</span><span class="s2">&quot;1;/dev/sda;/dev/sdb&quot;</span>
-<span class="nv">IMAGE</span><span class="o">=</span><span class="s2">&quot;/dev/md1;kiwi-test-image-pxe.x86_64;1.15.3;192.168.100.2;4096&quot;</span>
+<span class="nv">IMAGE</span><span class="o">=</span><span class="s2">&quot;/dev/md1;kiwi-test-image-pxe.x86_64;1.15.6;192.168.100.2;4096&quot;</span>
 <span class="nv">PART</span><span class="o">=</span><span class="s2">&quot;5;S;x,x;L;/&quot;</span>
 </pre></div>
 </div>

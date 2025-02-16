@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Build KIS Image (Kernel, Initrd, System) &mdash; KIWI NG 10.2.10 documentation</title>
+  <title>Build KIS Image (Kernel, Initrd, System) &mdash; KIWI NG 10.2.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9d299fc4"></script>
+      <script src="../_static/documentation_options.js?v=39511bdd"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -150,6 +150,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-in-container">Building in Container</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../plugins/stackbuild.html">Building based on Containers</a><ul>
@@ -1301,7 +1302,7 @@ image as well.</p>
 build the image:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>kiwi-ng<span class="w"> </span>--type<span class="w"> </span>kis<span class="w"> </span>system<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--description<span class="w"> </span>kiwi/build-tests/x86/tumbleweed/test-image-pxe<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--set-repo<span class="w"> </span>http://download.opensuse.org/tumbleweed/repo/oss<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--set-repo<span class="w"> </span>https://download.opensuse.org/tumbleweed/repo/oss<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--target-dir<span class="w"> </span>/tmp/myimage
 </pre></div>
 </div>
@@ -1312,7 +1313,7 @@ tested with QEMU as follows:</p>
 <span class="w">    </span>-kernel<span class="w"> </span>/tmp/myimage/*.kernel<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-initrd<span class="w"> </span>/tmp/myimage/*.initrd<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-append<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span>/tmp/myimage/*.append<span class="k">)</span><span class="s2"> rw&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-drive<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/tmp/myimage/kiwi-test-image-pxe.*-1.15.3,if<span class="o">=</span>virtio,driver<span class="o">=</span>raw<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-drive<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/tmp/myimage/kiwi-test-image-pxe.*-1.15.6,if<span class="o">=</span>virtio,driver<span class="o">=</span>raw<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-serial<span class="w"> </span>stdio
 </pre></div>
 </div>

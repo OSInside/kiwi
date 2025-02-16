@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Building based on Containers &mdash; KIWI NG 10.2.10 documentation</title>
+  <title>Building based on Containers &mdash; KIWI NG 10.2.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9d299fc4"></script>
+      <script src="../_static/documentation_options.js?v=39511bdd"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -150,6 +150,7 @@
 <li class="toctree-l3"><a class="reference internal" href="self_contained.html#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="self_contained.html#building-in-container">Building in Container</a></li>
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Building based on Containers</a><ul>
@@ -1413,7 +1414,7 @@ $<span class="w"> </span>vi<span class="w"> </span>container_to_VM_layer/config.
 <span class="w">        </span><span class="nt">&lt;timezone&gt;</span>UTC<span class="nt">&lt;/timezone&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/preferences&gt;</span>
 <span class="w">    </span><span class="nt">&lt;repository</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;rpm-md&quot;</span><span class="w"> </span><span class="na">alias=</span><span class="s">&quot;Leap&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;source</span><span class="w"> </span><span class="na">path=</span><span class="s">&quot;obs://openSUSE:Leap:15.5/standard&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;source</span><span class="w"> </span><span class="na">path=</span><span class="s">&quot;https://download.opensuse.org/distribution/leap/15.6/repo/oss&quot;</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/repository&gt;</span>
 <span class="w">    </span><span class="nt">&lt;packages</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;image&quot;</span><span class="nt">&gt;</span>
 <span class="w">        </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;grub2&quot;</span><span class="nt">/&gt;</span>
@@ -1431,7 +1432,7 @@ $<span class="w"> </span>vi<span class="w"> </span>container_to_VM_layer/config.
 <p>To build the virtual machine image from the current hosted Leap 15.3
 container at SUSE, call the following <code class="xref py py-obj docutils literal notranslate"><span class="pre">stackbuild</span></code> command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>kiwi-ng<span class="w"> </span>system<span class="w"> </span>stackbuild<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--stash<span class="w"> </span>leap:15.5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stash<span class="w"> </span>leap:15.6<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--from-registry<span class="w"> </span>registry.opensuse.org/opensuse<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--target-dir<span class="w"> </span>/tmp/myLeap<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--description<span class="w"> </span>container_to_VM_layer

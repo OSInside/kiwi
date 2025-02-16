@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config Package &mdash; KIWI NG 10.2.10 documentation</title>
+  <title>kiwi.bootloader.config Package &mdash; KIWI NG 10.2.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9d299fc4"></script>
+      <script src="../_static/documentation_options.js?v=39511bdd"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -150,6 +150,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-in-container">Building in Container</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../plugins/stackbuild.html">Building based on Containers</a><ul>
@@ -1719,7 +1720,7 @@ mount the system prior to run grub2-mkconfig.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="kiwi.bootloader.config.grub2.BootLoaderConfigGrub2.setup_install_boot_images">
-<span class="sig-name descname"><span class="pre">setup_install_boot_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mbrid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kiwi.system.html#kiwi.system.identifier.SystemIdentifier" title="kiwi.system.identifier.SystemIdentifier"><span class="pre">SystemIdentifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/kiwi/bootloader/config/grub2.html#BootLoaderConfigGrub2.setup_install_boot_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kiwi.bootloader.config.grub2.BootLoaderConfigGrub2.setup_install_boot_images" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">setup_install_boot_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mbrid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kiwi.system.html#kiwi.system.identifier.SystemIdentifier" title="kiwi.system.identifier.SystemIdentifier"><span class="pre">SystemIdentifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/kiwi/bootloader/config/grub2.html#BootLoaderConfigGrub2.setup_install_boot_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kiwi.bootloader.config.grub2.BootLoaderConfigGrub2.setup_install_boot_images" title="Link to this definition"></a></dt>
 <dd><p>Create/Provide grub2 boot images and metadata</p>
 <p>In order to boot from the ISO grub2 modules, images and theme
 data needs to be created and provided at the correct place on
