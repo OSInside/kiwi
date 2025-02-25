@@ -729,9 +729,9 @@ class Defaults:
         return modules
 
     @staticmethod
-    def get_grub_bios_modules(multiboot=False):
+    def get_grub_platform_modules(multiboot=False):
         """
-        Provides list of grub bios modules
+        Provides list of platform specific grub modules
 
         :param bool multiboot: grub multiboot mode
 
@@ -739,15 +739,19 @@ class Defaults:
 
         :rtype: list
         """
-        modules = Defaults.get_grub_basic_modules(multiboot) + [
-            'part_gpt',
-            'part_msdos',
-            'biosdisk',
-            'vga',
-            'vbe',
-            'chain',
-            'boot'
-        ]
+        modules = Defaults.get_grub_basic_modules(multiboot)
+        if Defaults.is_ppc64_arch(Defaults.get_platform_name()):
+            return Defaults.get_grub_ofw_modules()
+        else:
+            modules += [
+                'part_gpt',
+                'part_msdos',
+                'biosdisk',
+                'vga',
+                'vbe',
+                'chain',
+                'boot'
+            ]
         return modules
 
     @staticmethod
@@ -972,7 +976,7 @@ class Defaults:
         return None
 
     @staticmethod
-    def get_grub_bios_core_loader(root_path):
+    def get_grub_platform_core_loader(root_path):
         """
         Provides grub bios image
 
@@ -987,10 +991,12 @@ class Defaults:
         """
         bios_grub_core_patterns = [
             '/usr/share/grub*/{0}/{1}'.format(
-                Defaults.get_bios_module_directory_name(), Defaults.get_bios_image_name()
+                Defaults.get_grub_platform_module_directory_name(),
+                Defaults.get_grub_platform_image_name()
             ),
             '/usr/lib/grub*/{0}/{1}'.format(
-                Defaults.get_bios_module_directory_name(), Defaults.get_bios_image_name()
+                Defaults.get_grub_platform_module_directory_name(),
+                Defaults.get_grub_platform_image_name()
             )
         ]
         for bios_grub_core_pattern in bios_grub_core_patterns:
@@ -1410,15 +1416,18 @@ class Defaults:
             return default_module_directory_names[arch]
 
     @staticmethod
-    def get_bios_module_directory_name():
+    def get_grub_platform_module_directory_name():
         """
-        Provides BIOS directory name which stores the pc binaries
+        Provides grub platform specific directory name which
+        stores the grub module binaries
 
         :return: directory name
 
         :rtype: str
         """
-        return 'powerpc-ieee1275' if Defaults.is_ppc64_arch(Defaults.get_platform_name()) else 'i386-pc'
+        return 'powerpc-ieee1275' if Defaults.is_ppc64_arch(
+            Defaults.get_platform_name()
+        ) else 'i386-pc'
 
     @staticmethod
     def get_efi_image_name(arch):
@@ -1446,15 +1455,17 @@ class Defaults:
             return default_efi_image_names[arch]
 
     @staticmethod
-    def get_bios_image_name():
+    def get_grub_platform_image_name():
         """
-        Provides bios core boot binary name
+        Provides platform specific core boot binary name
 
         :return: name
 
         :rtype: str
         """
-        return 'grub.elf' if Defaults.is_ppc64_arch(Defaults.get_platform_name()) else 'core.img'
+        return 'grub.elf' if Defaults.is_ppc64_arch(
+            Defaults.get_platform_name()
+        ) else 'core.img'
 
     @staticmethod
     def get_default_boot_timeout_seconds():

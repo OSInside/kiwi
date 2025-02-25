@@ -155,7 +155,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.target = 'i386-pc'
             self.install_device = self.device
             self.modules = ' '.join(
-                Defaults.get_grub_bios_modules(multiboot=True)
+                Defaults.get_grub_platform_modules(multiboot=True)
             )
             self.install_arguments.append('--skip-fs-probe')
         elif self.arch.startswith('ppc64'):

@@ -500,9 +500,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         self._copy_theme_data_to_boot_directory(lookup_path, 'iso')
 
-        if self._supports_bios_modules():
+        if self._supports_platform_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
-            self._setup_bios_image(mbrid=mbrid, lookup_path=lookup_path)
+            self._setup_platform_image(mbrid=mbrid, lookup_path=lookup_path)
 
         if self.firmware.efi_mode():
             self._setup_EFI_path(lookup_path)
@@ -549,7 +549,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
         self._copy_theme_data_to_boot_directory(lookup_path, 'disk')
 
-        if not self.xen_guest and self._supports_bios_modules():
+        if not self.xen_guest and self._supports_platform_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
@@ -614,7 +614,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 config_file, grub_config_file_for_efi_boot
             )
 
-    def _supports_bios_modules(self):
+    def _supports_platform_modules(self):
         if self.efi_csm and (
             self.arch == 'ix86' or self.arch == 'x86_64' or Defaults.is_ppc64_arch(self.arch)
         ):
@@ -983,18 +983,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 chrp_config.format(os_name=self.get_menu_entry_install_title())
             )
 
-    def _setup_bios_image(self, mbrid, lookup_path=None):
+    def _setup_platform_image(self, mbrid, lookup_path=None):
         """
         Provide bios grub image
         """
         if not lookup_path:
             lookup_path = self.boot_dir
-        grub_image = Defaults.get_grub_bios_core_loader(lookup_path)
+        grub_image = Defaults.get_grub_platform_core_loader(lookup_path)
         if grub_image:
             log.info(f'--> Using prebuilt bios image: {grub_image}')
         else:
             log.info('--> Creating bios image')
-            self._create_bios_image(
+            self._create_platform_image(
                 mbrid, lookup_path
             )
         if Defaults.is_ppc64_arch(Defaults.get_platform_name()):
@@ -1003,12 +1003,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         bash_command = ' '.join(
             [
                 'cat',
-                self._get_bios_modules_path(lookup_path) + '/cdboot.img',
-                grub_image or self._get_bios_image_name(lookup_path),
+                self._get_grub_platform_modules_path(
+                    lookup_path
+                ) + '/cdboot.img',
+                grub_image or self._get_grub_platform_image_name(lookup_path),
                 '>',
                 os.sep.join(
                     [
-                        self._get_bios_modules_path(lookup_path),
+                        self._get_grub_platform_modules_path(lookup_path),
                         Defaults.get_iso_grub_loader()
                     ]
                 )
@@ -1113,7 +1115,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 efi_boot_config, mbrid
             )
 
-    def _create_bios_image(self, mbrid, lookup_path=None):
+    def _create_platform_image(self, mbrid, lookup_path=None):
         early_boot_script = os.path.normpath(
             os.sep.join([self._get_grub2_boot_path(), 'earlyboot.cfg'])
         )
@@ -1139,25 +1141,25 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 os.path.basename(
                     self._get_grub2_mkimage_tool()
                 ) or 'grub2-mkimage',
-                '-O', Defaults.get_bios_module_directory_name(),
-                '-o', self._get_bios_image_name(self.root_dir).replace(
+                '-O', Defaults.get_grub_platform_module_directory_name(),
+                '-o', self._get_grub_platform_image_name(self.root_dir).replace(
                     self.root_dir, ''
                 ),
                 '-c', early_boot_script.replace(self.boot_dir, ''),
                 '-p', os.sep.join(
                     [self.get_boot_path(), self.boot_directory_name]
                 ),
-                '-d', self._get_bios_modules_path(self.root_dir).replace(
-                    self.root_dir, ''
-                )
-            ] + Defaults.get_grub_bios_modules(multiboot=self.xen_guest)
+                '-d', self._get_grub_platform_modules_path(
+                    self.root_dir
+                ).replace(self.root_dir, '')
+            ] + Defaults.get_grub_platform_modules(multiboot=self.xen_guest)
         )
         log.debug(mkimage_call.output)
 
         # Copy generated EFI image to the media directory if this
         # is different from the system root directory, e.g the case
         # for live image builds or when using a custom kiwi initrd
-        bios_image_root_file = self._get_bios_image_name(self.root_dir)
+        bios_image_root_file = self._get_grub_platform_image_name(self.root_dir)
         bios_image_media_file = bios_image_root_file.replace(
             self.root_dir, lookup_path
         )
@@ -1260,11 +1262,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
-    def _get_bios_image_name(self, lookup_path):
+    def _get_grub_platform_image_name(self, lookup_path):
         return os.sep.join(
             [
-                self._get_bios_modules_path(lookup_path),
-                Defaults.get_bios_image_name()
+                self._get_grub_platform_modules_path(lookup_path),
+                Defaults.get_grub_platform_image_name()
             ]
         )
 
@@ -1274,8 +1276,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             lookup_path
         )
 
-    def _get_bios_modules_path(self, lookup_path=None):
-        return self._get_module_path(Defaults.get_bios_module_directory_name(), lookup_path)
+    def _get_grub_platform_modules_path(self, lookup_path=None):
+        return self._get_module_path(
+            Defaults.get_grub_platform_module_directory_name(), lookup_path
+        )
 
     def _get_xen_modules_path(self, lookup_path=None):
         return self._get_module_path(
@@ -1419,7 +1423,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _copy_bios_modules_to_boot_directory(self, lookup_path):
         self._copy_modules_to_boot_directory_from(
-            self._get_bios_modules_path(lookup_path)
+            self._get_grub_platform_modules_path(lookup_path)
         )
 
     def _copy_xen_modules_to_boot_directory(self, lookup_path):
