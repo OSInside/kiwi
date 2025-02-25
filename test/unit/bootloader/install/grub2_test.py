@@ -203,7 +203,7 @@ class TestBootLoaderInstallGrub2:
                 '--boot-directory', '/boot',
                 '--target', 'i386-pc',
                 '--modules', ' '.join(
-                    Defaults.get_grub_bios_modules(multiboot=True)
+                    Defaults.get_grub_platform_modules(multiboot=True)
                 ),
                 '/dev/some-device'
             ]
@@ -392,7 +392,7 @@ class TestBootLoaderInstallGrub2:
                 '--boot-directory', '/boot',
                 '--target', 'i386-pc',
                 '--modules', ' '.join(
-                    Defaults.get_grub_bios_modules(multiboot=True)
+                    Defaults.get_grub_platform_modules(multiboot=True)
                 ),
                 '/dev/some-device'
             ]
