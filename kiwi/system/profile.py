@@ -322,6 +322,8 @@ class Profile:
             self.xml_state.get_build_type_bootloader_console()[0] or 'default',
             self.xml_state.get_build_type_bootloader_console()[1] or 'default'
         )
+        self.dot_profile['kiwi_btrfs_root_is_snapshot'] = \
+            type_section.get_btrfs_root_is_snapper_snapshot()
         self.dot_profile['kiwi_btrfs_root_is_snapper_snapshot'] = \
             type_section.get_btrfs_root_is_snapper_snapshot()
         self.dot_profile['kiwi_gpt_hybrid_mbr'] = \
