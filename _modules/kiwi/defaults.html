@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.defaults &mdash; KIWI NG 10.2.11 documentation</title>
+  <title>kiwi.defaults &mdash; KIWI NG 10.2.12 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=39511bdd"></script>
+      <script src="../../_static/documentation_options.js?v=0ea991b7"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -2088,12 +2088,12 @@
         <span class="k">return</span> <span class="n">modules</span></div>
 
 
-<div class="viewcode-block" id="Defaults.get_grub_bios_modules">
-<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_bios_modules">[docs]</a>
+<div class="viewcode-block" id="Defaults.get_grub_platform_modules">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_platform_modules">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_bios_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_platform_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Provides list of grub bios modules</span>
+<span class="sd">        Provides list of platform specific grub modules</span>
 
 <span class="sd">        :param bool multiboot: grub multiboot mode</span>
 
@@ -2101,15 +2101,19 @@
 
 <span class="sd">        :rtype: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">modules</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_basic_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span>
-            <span class="s1">&#39;part_gpt&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;part_msdos&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;biosdisk&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;vga&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;vbe&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;chain&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;boot&#39;</span>
-        <span class="p">]</span>
+        <span class="n">modules</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_basic_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">()):</span>
+            <span class="k">return</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_ofw_modules</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">modules</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="s1">&#39;part_gpt&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;part_msdos&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;biosdisk&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;vga&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;vbe&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;chain&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;boot&#39;</span>
+            <span class="p">]</span>
         <span class="k">return</span> <span class="n">modules</span></div>
 
 
@@ -2361,10 +2365,10 @@
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="Defaults.get_grub_bios_core_loader">
-<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_bios_core_loader">[docs]</a>
+<div class="viewcode-block" id="Defaults.get_grub_platform_core_loader">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_platform_core_loader">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_bios_core_loader</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_platform_core_loader</span><span class="p">(</span><span class="n">root_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides grub bios image</span>
 
@@ -2379,10 +2383,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bios_grub_core_patterns</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;/usr/share/grub*/</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_module_directory_name</span><span class="p">(),</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_image_name</span><span class="p">()</span>
+                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_module_directory_name</span><span class="p">(),</span>
+                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_image_name</span><span class="p">()</span>
             <span class="p">),</span>
             <span class="s1">&#39;/usr/lib/grub*/</span><span class="si">{0}</span><span class="s1">/</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_module_directory_name</span><span class="p">(),</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_image_name</span><span class="p">()</span>
+                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_module_directory_name</span><span class="p">(),</span>
+                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_image_name</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">bios_grub_core_pattern</span> <span class="ow">in</span> <span class="n">bios_grub_core_patterns</span><span class="p">:</span>
@@ -2868,18 +2874,21 @@
             <span class="k">return</span> <span class="n">default_module_directory_names</span><span class="p">[</span><span class="n">arch</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Defaults.get_bios_module_directory_name">
-<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_bios_module_directory_name">[docs]</a>
+<div class="viewcode-block" id="Defaults.get_grub_platform_module_directory_name">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_platform_module_directory_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_bios_module_directory_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_platform_module_directory_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Provides BIOS directory name which stores the pc binaries</span>
+<span class="sd">        Provides grub platform specific directory name which</span>
+<span class="sd">        stores the grub module binaries</span>
 
 <span class="sd">        :return: directory name</span>
 
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s1">&#39;powerpc-ieee1275&#39;</span> <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">())</span> <span class="k">else</span> <span class="s1">&#39;i386-pc&#39;</span></div>
+        <span class="k">return</span> <span class="s1">&#39;powerpc-ieee1275&#39;</span> <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span>
+            <span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">()</span>
+        <span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;i386-pc&#39;</span></div>
 
 
 <div class="viewcode-block" id="Defaults.get_efi_image_name">
@@ -2910,18 +2919,20 @@
             <span class="k">return</span> <span class="n">default_efi_image_names</span><span class="p">[</span><span class="n">arch</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Defaults.get_bios_image_name">
-<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_bios_image_name">[docs]</a>
+<div class="viewcode-block" id="Defaults.get_grub_platform_image_name">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_platform_image_name">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_bios_image_name</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_platform_image_name</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Provides bios core boot binary name</span>
+<span class="sd">        Provides platform specific core boot binary name</span>
 
 <span class="sd">        :return: name</span>
 
 <span class="sd">        :rtype: str</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s1">&#39;grub.elf&#39;</span> <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">())</span> <span class="k">else</span> <span class="s1">&#39;core.img&#39;</span></div>
+        <span class="k">return</span> <span class="s1">&#39;grub.elf&#39;</span> <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span>
+            <span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">()</span>
+        <span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;core.img&#39;</span></div>
 
 
 <div class="viewcode-block" id="Defaults.get_default_boot_timeout_seconds">

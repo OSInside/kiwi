@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.2.11 documentation</title>
+  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.2.12 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=39511bdd"></script>
+      <script src="../../../../_static/documentation_options.js?v=0ea991b7"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -1773,9 +1773,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_copy_theme_data_to_boot_directory</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">,</span> <span class="s1">&#39;iso&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supports_bios_modules</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supports_platform_modules</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_copy_bios_modules_to_boot_directory</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_setup_bios_image</span><span class="p">(</span><span class="n">mbrid</span><span class="o">=</span><span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="n">lookup_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_setup_platform_image</span><span class="p">(</span><span class="n">mbrid</span><span class="o">=</span><span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="n">lookup_path</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span><span class="o">.</span><span class="n">efi_mode</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup_EFI_path</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">)</span>
@@ -1828,7 +1828,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_copy_theme_data_to_boot_directory</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">,</span> <span class="s1">&#39;disk&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">xen_guest</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supports_bios_modules</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">xen_guest</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supports_platform_modules</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_copy_bios_modules_to_boot_directory</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware</span><span class="o">.</span><span class="n">efi_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;efi&#39;</span><span class="p">:</span>
@@ -1894,7 +1894,7 @@
                 <span class="n">config_file</span><span class="p">,</span> <span class="n">grub_config_file_for_efi_boot</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_supports_bios_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_supports_platform_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">efi_csm</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">==</span> <span class="s1">&#39;ix86&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">arch</span> <span class="o">==</span> <span class="s1">&#39;x86_64&#39;</span> <span class="ow">or</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch</span><span class="p">)</span>
         <span class="p">):</span>
@@ -2263,18 +2263,18 @@
                 <span class="n">chrp_config</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_menu_entry_install_title</span><span class="p">())</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_bios_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_platform_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provide bios grub image</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">lookup_path</span><span class="p">:</span>
             <span class="n">lookup_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boot_dir</span>
-        <span class="n">grub_image</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_bios_core_loader</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">)</span>
+        <span class="n">grub_image</span> <span class="o">=</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_core_loader</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">grub_image</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;--&gt; Using prebuilt bios image: </span><span class="si">{</span><span class="n">grub_image</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;--&gt; Creating bios image&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_create_bios_image</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_platform_image</span><span class="p">(</span>
                 <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">is_ppc64_arch</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_platform_name</span><span class="p">()):</span>
@@ -2283,12 +2283,14 @@
         <span class="n">bash_command</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="s1">&#39;cat&#39;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_get_bios_modules_path</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/cdboot.img&#39;</span><span class="p">,</span>
-                <span class="n">grub_image</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bios_image_name</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub_platform_modules_path</span><span class="p">(</span>
+                    <span class="n">lookup_path</span>
+                <span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/cdboot.img&#39;</span><span class="p">,</span>
+                <span class="n">grub_image</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub_platform_image_name</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">),</span>
                 <span class="s1">&#39;&gt;&#39;</span><span class="p">,</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                     <span class="p">[</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_bios_modules_path</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub_platform_modules_path</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">),</span>
                         <span class="n">Defaults</span><span class="o">.</span><span class="n">get_iso_grub_loader</span><span class="p">()</span>
                     <span class="p">]</span>
                 <span class="p">)</span>
@@ -2393,7 +2395,7 @@
                 <span class="n">efi_boot_config</span><span class="p">,</span> <span class="n">mbrid</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_bios_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_platform_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">early_boot_script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_grub2_boot_path</span><span class="p">(),</span> <span class="s1">&#39;earlyboot.cfg&#39;</span><span class="p">])</span>
         <span class="p">)</span>
@@ -2419,25 +2421,25 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub2_mkimage_tool</span><span class="p">()</span>
                 <span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;grub2-mkimage&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;-O&#39;</span><span class="p">,</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_module_directory_name</span><span class="p">(),</span>
-                <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bios_image_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">&#39;-O&#39;</span><span class="p">,</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_module_directory_name</span><span class="p">(),</span>
+                <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub_platform_image_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
                 <span class="p">),</span>
                 <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">early_boot_script</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boot_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
                 <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                     <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_boot_path</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">boot_directory_name</span><span class="p">]</span>
                 <span class="p">),</span>
-                <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bios_modules_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
-                <span class="p">)</span>
-            <span class="p">]</span> <span class="o">+</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_bios_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xen_guest</span><span class="p">)</span>
+                <span class="s1">&#39;-d&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub_platform_modules_path</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="p">]</span> <span class="o">+</span> <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_modules</span><span class="p">(</span><span class="n">multiboot</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xen_guest</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">mkimage_call</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
 
         <span class="c1"># Copy generated EFI image to the media directory if this</span>
         <span class="c1"># is different from the system root directory, e.g the case</span>
         <span class="c1"># for live image builds or when using a custom kiwi initrd</span>
-        <span class="n">bios_image_root_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_bios_image_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">)</span>
+        <span class="n">bios_image_root_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub_platform_image_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">)</span>
         <span class="n">bios_image_media_file</span> <span class="o">=</span> <span class="n">bios_image_root_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">lookup_path</span>
         <span class="p">)</span>
@@ -2540,11 +2542,11 @@
             <span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_bios_image_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_grub_platform_image_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_get_bios_modules_path</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">),</span>
-                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_image_name</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub_platform_modules_path</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">),</span>
+                <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_image_name</span><span class="p">()</span>
             <span class="p">]</span>
         <span class="p">)</span>
 
@@ -2554,8 +2556,10 @@
             <span class="n">lookup_path</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_bios_modules_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_module_path</span><span class="p">(</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_bios_module_directory_name</span><span class="p">(),</span> <span class="n">lookup_path</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_grub_platform_modules_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_module_path</span><span class="p">(</span>
+            <span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_platform_module_directory_name</span><span class="p">(),</span> <span class="n">lookup_path</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_xen_modules_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_module_path</span><span class="p">(</span>
@@ -2699,7 +2703,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_copy_bios_modules_to_boot_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_copy_modules_to_boot_directory_from</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_bios_modules_path</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_grub_platform_modules_path</span><span class="p">(</span><span class="n">lookup_path</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_copy_xen_modules_to_boot_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookup_path</span><span class="p">):</span>
