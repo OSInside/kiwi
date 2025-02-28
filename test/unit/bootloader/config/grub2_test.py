@@ -1749,6 +1749,7 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('kiwi.bootloader.config.grub2.Defaults.get_unsigned_grub_loader')
     @patch('kiwi.bootloader.config.grub2.Defaults.get_grub_platform_core_loader')
+    @patch('kiwi.bootloader.config.grub2.Defaults.get_grub_chrp_loader')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('kiwi.bootloader.config.grub2.Path.create')
@@ -1758,10 +1759,11 @@ class TestBootLoaderConfigGrub2:
     def test_setup_install_boot_images_ppc(
         self, mock_shutil_copy2, mock_exists, mock_sync,
         mock_Path_create, mock_Path_which, mock_command,
-        mock_get_grub_platform_core_loader, mock_get_unsigned_grub_loader,
-        mock_get_boot_path
+        mock_get_grub_chrp_loader, mock_get_grub_platform_core_loader,
+        mock_get_unsigned_grub_loader, mock_get_boot_path
     ):
         Defaults.set_platform_name('ppc64le')
+        mock_get_grub_chrp_loader.return_value = 'grub.elf'
         mock_get_grub_platform_core_loader.return_value = None
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
         mock_get_boot_path.return_value = '/boot'

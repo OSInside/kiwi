@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-live">
+    <description type="system">
+        <author>Marcus Schaefer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Fedora Rawhide Live</specification>
+    </description>
+    <preferences>
+        <version>2.0.0</version>
+        <packagemanager>dnf5</packagemanager>
+        <bootsplash-theme>charge</bootsplash-theme>
+        <bootloader-theme>breeze</bootloader-theme>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences>
+        <type image="iso" flags="overlay" firmware="ofw" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="grub2"/>
+        <package name="grubby"/>
+        <package name="kernel"/>
+        <package name="plymouth-theme-charge"/>
+        <package name="grub2-breeze-theme"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+        <package name="NetworkManager"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="fedora-release"/>
+        <package name="dracut-kiwi-live"/>
+    </packages>
+</image>
