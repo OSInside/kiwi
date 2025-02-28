@@ -976,6 +976,29 @@ class Defaults:
         return None
 
     @staticmethod
+    def get_grub_chrp_loader(boot_path: str) -> str:
+        """
+        Lookup CHRP boot loader (ppc)
+
+        :param string boot_path: boot path
+
+        :return: file base name
+
+        :rtype: str
+        """
+        for chrp_loader in ['grub.elf', 'core.elf']:
+            for grub_chrp in glob.iglob(
+                os.sep.join(
+                    [boot_path, 'boot/grub*/powerpc-ieee1275', chrp_loader]
+                )
+            ):
+                log.info(f'Found CHRP loader at: {grub_chrp}')
+                return os.path.basename(grub_chrp)
+        raise KiwiBootLoaderGrubDataError(
+            f'CHRP loader not found in {boot_path}'
+        )
+
+    @staticmethod
     def get_grub_platform_core_loader(root_path):
         """
         Provides grub bios image

@@ -3,13 +3,17 @@ from unittest.mock import patch
 
 import sys
 from unittest.mock import MagicMock
-from pytest import fixture
+from pytest import (
+    fixture, raises
+)
 
 from .test_helper import argv_kiwi_tests
 
 from kiwi.defaults import Defaults
 from kiwi.defaults import grub_loader_type
 from kiwi.defaults import shim_loader_type
+
+from kiwi.exceptions import KiwiBootLoaderGrubDataError
 
 
 class TestDefaults:
@@ -222,3 +226,18 @@ class TestDefaults:
         assert Defaults.get_min_volume_mbytes('btrfs') == 120
         assert Defaults.get_min_volume_mbytes('xfs') == 300
         assert Defaults.get_min_volume_mbytes('some') == 30
+
+    @patch('glob.iglob')
+    def test_get_grub_chrp_loader(self, mock_glob_iglob):
+        mock_glob_iglob.return_value = []
+        with raises(KiwiBootLoaderGrubDataError):
+            Defaults.get_grub_chrp_loader('some-boot')
+
+        mock_glob_iglob.reset_mock()
+        mock_glob_iglob.return_value = [
+            '/some-boot/boot/grub2/powerpc-ieee1275/grub.elf'
+        ]
+        assert Defaults.get_grub_chrp_loader('some-boot') == 'grub.elf'
+        mock_glob_iglob.assert_called_once_with(
+            'some-boot/boot/grub*/powerpc-ieee1275/grub.elf'
+        )

@@ -975,12 +975,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             <chrp-boot>
             <description>{os_name}</description>
             <os-name>{os_name}</os-name>
-            <boot-script>boot &device;:1,\\boot\\grub2\\powerpc-ieee1275\\grub.elf</boot-script>
+            <boot-script>boot &device;:1,\\boot\\grub2\\powerpc-ieee1275\\{chrp_loader}</boot-script>
             </chrp-boot>
         ''').strip() + os.linesep
         with open(chrp_bootinfo_file, 'w') as chrp_bootinfo:
             chrp_bootinfo.write(
-                chrp_config.format(os_name=self.get_menu_entry_install_title())
+                chrp_config.format(
+                    os_name=self.get_menu_entry_install_title(),
+                    chrp_loader=Defaults.get_grub_chrp_loader(self.boot_dir)
+                )
             )
 
     def _setup_platform_image(self, mbrid, lookup_path=None):
