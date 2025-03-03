@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kiwi"
-version = "10.2.12"
+version = "10.2.13"
 description = "KIWI - Appliance Builder"
 license = "GPL-3.0-or-later"
 readme = "README.rst"
