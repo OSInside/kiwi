@@ -227,6 +227,21 @@ the available kernel boot parameters for these modules:
   for the passphrase if the image has been built with an initial
   luks passphrase.
 
+``rd.kiwi.oem.luks.reencrypt_randompass``
+  For OEM LUKS2 encrypted disk images in combination
+  with `rd.kiwi.oem.luks.reencrypt`. Reset insecure built time
+  passphrase, set via the `luks=` attribute, with a random
+  onetime passphrase that will be stored in memory at
+  `/run/.kiwi_reencrypt.keyfile`.
+
+  .. warning::
+
+     The passphrase will only persist as long as the system
+     does not reboot. Using this option usually requires that
+     the boot process implements code to set a retrievable keyfile
+     information for subsequent boot processes of this system, e.g
+     TPM setup or similar.
+
 ``rd.kiwi.oem.disk.consistency``
   For OEM disk images providing an installation image. If set,
   the installation image will check against all disks that are
