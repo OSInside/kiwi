@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.defaults &mdash; KIWI NG 10.2.12 documentation</title>
+  <title>kiwi.defaults &mdash; KIWI NG 10.2.13 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=0ea991b7"></script>
+      <script src="../../_static/documentation_options.js?v=aad115ae"></script>
       <script src="../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -2363,6 +2363,32 @@
             <span class="p">):</span>
                 <span class="k">return</span> <span class="n">unsigned_grub_file</span>
         <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Defaults.get_grub_chrp_loader">
+<a class="viewcode-back" href="../../api/kiwi.html#kiwi.defaults.Defaults.get_grub_chrp_loader">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grub_chrp_loader</span><span class="p">(</span><span class="n">boot_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lookup CHRP boot loader (ppc)</span>
+
+<span class="sd">        :param string boot_path: boot path</span>
+
+<span class="sd">        :return: file base name</span>
+
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">chrp_loader</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;grub.elf&#39;</span><span class="p">,</span> <span class="s1">&#39;core.elf&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">grub_chrp</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">boot_path</span><span class="p">,</span> <span class="s1">&#39;boot/grub*/powerpc-ieee1275&#39;</span><span class="p">,</span> <span class="n">chrp_loader</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found CHRP loader at: </span><span class="si">{</span><span class="n">grub_chrp</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">grub_chrp</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">KiwiBootLoaderGrubDataError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;CHRP loader not found in </span><span class="si">{</span><span class="n">boot_path</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Defaults.get_grub_platform_core_loader">

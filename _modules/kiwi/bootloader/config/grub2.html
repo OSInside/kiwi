@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.2.12 documentation</title>
+  <title>kiwi.bootloader.config.grub2 &mdash; KIWI NG 10.2.13 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=0ea991b7"></script>
+      <script src="../../../../_static/documentation_options.js?v=aad115ae"></script>
       <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -2255,12 +2255,15 @@
 <span class="s1">            &lt;chrp-boot&gt;</span>
 <span class="s1">            &lt;description&gt;</span><span class="si">{os_name}</span><span class="s1">&lt;/description&gt;</span>
 <span class="s1">            &lt;os-name&gt;</span><span class="si">{os_name}</span><span class="s1">&lt;/os-name&gt;</span>
-<span class="s1">            &lt;boot-script&gt;boot &amp;device;:1,</span><span class="se">\\</span><span class="s1">boot</span><span class="se">\\</span><span class="s1">grub2</span><span class="se">\\</span><span class="s1">powerpc-ieee1275</span><span class="se">\\</span><span class="s1">grub.elf&lt;/boot-script&gt;</span>
+<span class="s1">            &lt;boot-script&gt;boot &amp;device;:1,</span><span class="se">\\</span><span class="s1">boot</span><span class="se">\\</span><span class="s1">grub2</span><span class="se">\\</span><span class="s1">powerpc-ieee1275</span><span class="se">\\</span><span class="si">{chrp_loader}</span><span class="s1">&lt;/boot-script&gt;</span>
 <span class="s1">            &lt;/chrp-boot&gt;</span>
 <span class="s1">        &#39;&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">chrp_bootinfo_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">chrp_bootinfo</span><span class="p">:</span>
             <span class="n">chrp_bootinfo</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="n">chrp_config</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_menu_entry_install_title</span><span class="p">())</span>
+                <span class="n">chrp_config</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">os_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_menu_entry_install_title</span><span class="p">(),</span>
+                    <span class="n">chrp_loader</span><span class="o">=</span><span class="n">Defaults</span><span class="o">.</span><span class="n">get_grub_chrp_loader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boot_dir</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_platform_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbrid</span><span class="p">,</span> <span class="n">lookup_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
