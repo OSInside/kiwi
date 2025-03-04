@@ -1,0 +1,4 @@
+https://ports.ubuntu.com/ubuntu-ports,apt-deb,lunar,,,,,,main multiverse restricted universe,lunar
+https://ports.ubuntu.com/ubuntu-ports,apt-deb,lunar-updates,,,,,,main multiverse restricted universe,lunar-updates
+https://ports.ubuntu.com/ubuntu-ports,apt-deb,lunar-backports,,,,,,main multiverse restricted universe,lunar-backports
+https://ports.ubuntu.com/ubuntu-ports,apt-deb,lunar-security,,,,,,main multiverse restricted universe,lunar-security
