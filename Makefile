@@ -117,6 +117,7 @@ check: setup
 	# shell code checks
 	bash -c 'shellcheck -e ${sc_disable} dracut/modules.d/*/*.sh -s bash'
 	bash -c 'shellcheck -e ${sc_disable} kiwi/config/functions.sh -s bash'
+	bash -c 'shellcheck build-tests.sh'
 	# python flake tests
 	poetry run flake8 --statistics -j auto --count kiwi
 	poetry run flake8 --statistics -j auto --count test/unit

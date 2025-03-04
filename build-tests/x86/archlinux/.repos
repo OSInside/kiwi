@@ -1,0 +1,4 @@
+http://download.opensuse.org/repositories/Virtualization:/Appliances:/Staging/Arch_Linux/x86_64/,,,,,,,Virtualization_Appliances_Staging_Arch_Linux,,false
+http://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/archlinux/standard/x86_64/,,,,,,,Virtualization_Appliances_Images_Testing_x86_archlinux,,false
+https://mirror.rackspace.com/archlinux/core/os/x86_64/,,,,,,,core,,false
+https://mirror.rackspace.com/archlinux/extra/os/x86_64/,,,,,,,extra,,false

@@ -34,22 +34,22 @@
         </type>
     </preferences>
     <preferences profiles="EroFS">
-        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="xfs" hybridpersistent="true" mediacheck="true" filesystem="erofs" fscreateoptions="-Ededupe,all-fragments -C 65536">
+        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="xfs" hybridpersistent="true" filesystem="erofs" fscreateoptions="-Ededupe,all-fragments -C 65536">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
     <preferences profiles="Standard">
-        <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
+        <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
     <preferences profiles="Secure">
-        <type image="iso" flags="overlay" firmware="uefi" eficsm="false" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
+        <type image="iso" flags="overlay" firmware="uefi" eficsm="false" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
     <preferences profiles="BIOS">
-        <type image="iso" flags="overlay" firmware="bios" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
+        <type image="iso" flags="overlay" firmware="bios" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
@@ -105,6 +105,7 @@
         <package name="gzip"/>
         <package name="udev"/>
         <package name="xz"/>
+        <package name="shadow"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>

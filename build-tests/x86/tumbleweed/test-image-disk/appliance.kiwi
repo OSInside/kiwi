@@ -24,7 +24,7 @@
                 <oem-multipath-scan>false</oem-multipath-scan>
             </oemconfig>
             <systemdisk>
-                <volume name="home" quota="5G"/>
+                <volume name="home"/>
             </systemdisk>
         </type>
     </preferences>
