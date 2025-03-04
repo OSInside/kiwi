@@ -84,11 +84,13 @@ fi
 
 function create_repo_list() {
     local build_dir=$1
-    local repo_options="--ignore-repos"
-    while read -r repo;do
-        repo_options="${repo_options} --add-repo ${repo}"
-    done < "${build_dir}"/.repos
-    echo "${repo_options}"
+    if [ -s "${build_dir}"/.repos ];then
+        local repo_options="--ignore-repos"
+        while read -r repo;do
+            repo_options="${repo_options} --add-repo ${repo}"
+        done < "${build_dir}"/.repos
+        echo "${repo_options}"
+    fi
 }
 
 function create_build_commands() {
