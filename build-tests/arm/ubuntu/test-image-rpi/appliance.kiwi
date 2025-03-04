@@ -65,11 +65,9 @@
         <package name="dbus"/>
         <package name="xfsprogs"/>
         <package name="dracut-kiwi-oem-repart"/>
-        <package name="usrmerge"/>
         <package name="mawk"/>
         <package name="openssh-client"/>
         <package name="openssh-server"/>
-        <package name="netcat"/>
         <package name="zstd"/>
         <package name="util-linux"/>
         <package name="less"/>
