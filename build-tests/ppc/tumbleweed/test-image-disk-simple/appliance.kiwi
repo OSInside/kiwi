@@ -52,9 +52,9 @@
         <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
-        <package name="udev"/>
-        <package name="filesystem"/>
+        <package name="shadow"/>
         <package name="glibc-locale"/>
+        <package name="filesystem"/>
         <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
         <package name="ca-certificates-mozilla"/>

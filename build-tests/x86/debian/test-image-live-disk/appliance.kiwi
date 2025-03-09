@@ -52,7 +52,7 @@
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
     <repository type="apt-deb" repository_gpgcheck="false" architectures="amd64">
-        <source path="obs://Virtualization:Appliances:Staging/Debian_12"/>
+        <source path="obs://Virtualization:Appliances:Staging/Debian_12_x86_64"/>
     </repository>
     <repository type="apt-deb" distribution="bookworm" components="main contrib non-free" repository_gpgcheck="false">
         <source path="obs://Debian:12/universe"/>
@@ -103,5 +103,7 @@
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
-    <packages type="bootstrap"/>
+    <packages type="bootstrap">
+        <package name="ca-certificates"/>
+    </packages>
 </image>

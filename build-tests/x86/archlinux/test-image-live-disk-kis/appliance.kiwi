@@ -10,17 +10,10 @@
         <specification>Arch Appliance</specification>
     </description>
     <profiles>
-        <profile name="Live" description="Live image of Arch Linux">
-            <requires profile="Bootloader"/>
-        </profile>
-        <profile name="Virtual" description="Virtual image of Arch Linux">
-            <requires profile="Bootloader"/>
-        </profile>
-        <profile name="Disk" description="OEM image of Arch Linux">
-            <requires profile="Bootloader"/>
-        </profile>
+        <profile name="Live" description="Live image of Arch Linux"/>
+        <profile name="Virtual" description="Virtual image of Arch Linux"/>
+        <profile name="Disk" description="OEM image of Arch Linux"/>
         <profile name="KIS" description="KIS image of Arch Linux"/>
-        <profile name="Bootloader" description="bootloader related software"/>
     </profiles>
     <preferences>
         <version>1.0.0</version>
@@ -31,12 +24,12 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" firmware="efi" flags="overlay" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0">
+        <type image="iso" firmware="efi" flags="dmsquash" kernelcmdline="console=ttyS0">
             <bootloader name="grub2" console="serial" grub_template="iso_boot.template"/>
         </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="oem" primary="true" filesystem="ext4" firmware="efi" kernelcmdline="console=ttyS0" editbootinstall="editbootinstall_arch.sh">
+        <type image="oem" primary="true" filesystem="ext4" firmware="efi" kernelcmdline="console=ttyS0" editbootinstall="editbootinstall_arch.sh" format="qcow2">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -49,10 +42,11 @@
              because of that the editbootinstall script and iso_boot.template
              is used to hot patch grub.cfg file.
         -->
-        <type image="oem" filesystem="ext4" installiso="true" installboot="install" kernelcmdline="console=ttyS0" editbootinstall="editbootinstall_arch.sh" firmware="efi">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" editbootinstall="editbootinstall_arch.sh" firmware="efi">
             <bootloader name="grub2" console="serial" timeout="10" grub_template="iso_boot.template"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
+                <oem-resize>false</oem-resize>
             </oemconfig>
         </type>
     </preferences>
@@ -99,17 +93,10 @@
         updates.
     -->
     </packages>
-    <packages type="image" profiles="Bootloader">
+    <packages type="image" profiles="Live,Virtual,Disk">
         <package name="efibootmgr"/>
         <package name="dosfstools"/>
         <package name="grub"/>
-    </packages>
-    <packages type="image" profiles="Live">
-        <package name="dracut-kiwi-live"/>
-    </packages>
-    <packages type="image" profiles="Disk">
-        <package name="dracut-kiwi-oem-repart"/>
-        <package name="dracut-kiwi-oem-dump"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>

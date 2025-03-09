@@ -31,6 +31,7 @@ include = [
    { path = "dracut", format = "sdist" },
    { path = "helper", format = "sdist" },
    { path = "kiwi.yml", format = "sdist" },
+   { path = "build-tests.sh", format = "sdist" },
    { path = "Makefile", format = "sdist" },
    { path = "package", format = "sdist" },
    { path = "test", format = "sdist" },

@@ -27,6 +27,7 @@ Building Linux System Appliances
    building_images
    working_with_images
    contributing
+   integration_testing
    api
 
 .. sidebar:: Links

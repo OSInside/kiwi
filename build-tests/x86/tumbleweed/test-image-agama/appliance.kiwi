@@ -36,7 +36,6 @@
         <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
-        <namedCollection name="x11"/>
         <package name="avahi"/>
         <package name="bind-utils"/>
         <package name="patterns-openSUSE-base"/>
