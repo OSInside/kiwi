@@ -500,7 +500,7 @@ class TestVolumeManagerBtrfs:
             call([
                 'chroot', 'tmpdir/@/.snapshots/1/snapshot',
                 'snapper', '--no-dbus', 'set-config', 'QGROUP=1/0'
-            ])
+            ], None, True, False, True)
         ]
 
     @patch('kiwi.volume_manager.btrfs.SysConfig')
