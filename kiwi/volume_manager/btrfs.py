@@ -564,9 +564,18 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         )
 
     def _create_first_snapper_snapshot_as_default(self):
-        if not CommandCapabilities.check_version(
-            'snapper', (0,12,1), root=self.root_dir
+        if CommandCapabilities.check_version(
+            'snapper', (0, 12, 1), root=self.root_dir
         ):
+            with ChrootManager(
+                self.root_dir, binds=[self.mountpoint]
+            ) as chroot:
+                chroot.run([
+                    '/usr/lib/snapper/installation-helper', '--root-prefix',
+                    os.sep.join([self.mountpoint, self.root_volume_name]),
+                    '--step', 'filesystem'
+                ])
+        else:
             snapshot_volume = self.mountpoint + \
                 f'/{self.root_volume_name}/.snapshots'
             Command.run(
@@ -584,9 +593,19 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             )
 
     def _create_snapshot_info(self, path):
-        if not CommandCapabilities.check_version(
-            'snapper', (0,12,1), root=self.mountpoint
+        if CommandCapabilities.check_version(
+            'snapper', (0, 12, 1), root=self.mountpoint
         ):
+            snapshots_prefix = os.sep.join([path, '.snapshots'])
+            with ChrootManager(
+                self.root_dir, binds=[path, snapshots_prefix]
+            ) as chroot:
+                chroot.run([
+                    '/usr/lib/snapper/installation-helper', '--root-prefix',
+                    path, '--step', 'config', '--description',
+                    'first root filesystem'
+                ])
+        else:
             date_info = datetime.datetime.now()
             snapshot = ElementTree.Element('snapshot')
 
