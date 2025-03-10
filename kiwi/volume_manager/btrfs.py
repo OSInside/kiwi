@@ -31,6 +31,7 @@ from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.mount_manager import MountManager
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.filesystem import FileSystem
+from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.utils.sync import DataSync
 from kiwi.utils.block import BlockID
 from kiwi.utils.sysconfig import SysConfig
@@ -541,40 +542,46 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         )
 
     def _create_first_snapper_snapshot_as_default(self):
-        snapshot_volume = self.mountpoint + \
-            f'/{self.root_volume_name}/.snapshots'
-        Command.run(
-            ['btrfs', 'subvolume', 'create', snapshot_volume]
-        )
-        os.chmod(snapshot_volume, 0o700)
-        Path.create(snapshot_volume + '/1')
-        snapshot = self.mountpoint + \
-            f'/{self.root_volume_name}/.snapshots/1/snapshot'
-        Command.run(
-            ['btrfs', 'subvolume', 'create', snapshot]
-        )
-        self._set_default_volume(
-            f'{self.root_volume_name}/.snapshots/1/snapshot'
-        )
+        if not CommandCapabilities.check_version(
+            'snapper', (0,12,1), root=self.root_dir
+        ):
+            snapshot_volume = self.mountpoint + \
+                f'/{self.root_volume_name}/.snapshots'
+            Command.run(
+                ['btrfs', 'subvolume', 'create', snapshot_volume]
+            )
+            os.chmod(snapshot_volume, 0o700)
+            Path.create(snapshot_volume + '/1')
+            snapshot = self.mountpoint + \
+                f'/{self.root_volume_name}/.snapshots/1/snapshot'
+            Command.run(
+                ['btrfs', 'subvolume', 'create', snapshot]
+            )
+            self._set_default_volume(
+                f'{self.root_volume_name}/.snapshots/1/snapshot'
+            )
 
     def _create_snapshot_info(self, path):
-        date_info = datetime.datetime.now()
-        snapshot = ElementTree.Element('snapshot')
+        if not CommandCapabilities.check_version(
+            'snapper', (0,12,1), root=self.mountpoint
+        ):
+            date_info = datetime.datetime.now()
+            snapshot = ElementTree.Element('snapshot')
 
-        snapshot_type = ElementTree.SubElement(snapshot, 'type')
-        snapshot_type.text = 'single'
+            snapshot_type = ElementTree.SubElement(snapshot, 'type')
+            snapshot_type.text = 'single'
 
-        snapshot_number = ElementTree.SubElement(snapshot, 'num')
-        snapshot_number.text = '1'
+            snapshot_number = ElementTree.SubElement(snapshot, 'num')
+            snapshot_number.text = '1'
 
-        snapshot_description = ElementTree.SubElement(snapshot, 'description')
-        snapshot_description.text = 'first root filesystem'
+            snapshot_description = ElementTree.SubElement(snapshot, 'description')
+            snapshot_description.text = 'first root filesystem'
 
-        snapshot_date = ElementTree.SubElement(snapshot, 'date')
-        snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
+            snapshot_date = ElementTree.SubElement(snapshot, 'date')
+            snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
 
-        with open(os.path.join(path, 'info.xml'), 'w') as snapshot_info_file:
-            snapshot_info_file.write(self._xml_pretty(snapshot))
+            with open(os.path.join(path, 'info.xml'), 'w') as snapshot_info_file:
+                snapshot_info_file.write(self._xml_pretty(snapshot))
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.toplevel_mount:
