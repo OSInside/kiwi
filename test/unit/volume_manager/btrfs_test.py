@@ -133,15 +133,25 @@ class TestVolumeManagerBtrfs:
         self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
         mock_command, mock_os_exists, mock_os_chmod
     ):
+        def return_snapper_version(cmd, *args):
+            mock = Mock()
+            snapperCmd = ['chroot', 'snapper', '--version']
+            subCmd = [element for element in cmd if element in snapperCmd]
+            if snapperCmd == subCmd:
+                mock = Mock()
+                mock.output = 'snapper 0.12.0'
+            else:
+                mock.output = \
+                    'ID 258 gen 26 top level 257 path @/.snapshots/1/snapshot'
+            return mock
+
+        mock_command.side_effect = return_snapper_version
+
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
         toplevel_mount = Mock()
         mock_mount.return_value = toplevel_mount
-        command_call = Mock()
-        command_call.output = \
-            'ID 258 gen 26 top level 257 path @/.snapshots/1/snapshot'
         mock_mapped_device.return_value = 'mapped_device'
         mock_os_exists.return_value = False
-        mock_command.return_value = command_call
         self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
         self.volume_manager.custom_args['quota_groups'] = True
 
@@ -166,12 +176,80 @@ class TestVolumeManagerBtrfs:
         assert mock_command.call_args_list == [
             call(['btrfs', 'quota', 'enable', 'tmpdir']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
+            call(['chroot', 'root_dir', 'snapper', '--version']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots']),
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@/.snapshots/1/snapshot']),
             call(['btrfs', 'subvolume', 'list', 'tmpdir']),
             call(['btrfs', 'subvolume', 'set-default', '258', 'tmpdir'])
         ]
         mock_os_chmod.assert_called_once_with('tmpdir/@/.snapshots', 0o700)
+
+    @patch('os.chmod')
+    @patch('os.path.exists')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('kiwi.volume_manager.btrfs.FileSystem.new')
+    @patch('kiwi.volume_manager.btrfs.MappedDevice')
+    @patch('kiwi.volume_manager.btrfs.MountManager')
+    @patch('kiwi.volume_manager.base.Temporary')
+    def test_setup_with_snapshot_helpers(
+        self, mock_Temporary, mock_mount, mock_mapped_device, mock_fs,
+        mock_command, mock_os_exists, mock_os_chmod
+    ):
+        def return_snapper_version(command=None, raise_on_error=None, *args):
+            mock = Mock()
+            snapperCmd = ['chroot', 'snapper', '--version']
+            subCmd = [element for element in command if element in snapperCmd]
+            if snapperCmd == subCmd:
+                mock = Mock()
+                mock.output = 'snapper 0.12.1'
+            else:
+                mock.output = \
+                    'ID 258 gen 26 top level 257 path @/.snapshots/1/snapshot'
+            mock.return_code = 0
+            return mock
+
+        mock_command.side_effect = return_snapper_version
+
+        mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
+        toplevel_mount = Mock()
+        mock_mount.return_value = toplevel_mount
+        mock_mapped_device.return_value = 'mapped_device'
+        mock_os_exists.return_value = False
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
+        self.volume_manager.custom_args['quota_groups'] = True
+
+        self.volume_manager.setup()
+
+        assert mock_mount.call_args_list == [
+            call(device='/dev/storage', mountpoint='tmpdir'),
+            call(
+                device='/dev/storage',
+                attributes={
+                    'subvol_path': '@/.snapshots',
+                    'subvol_name': '@/.snapshots'
+                },
+                mountpoint='tmpdir/@/.snapshots/1/snapshot/.snapshots'
+            )
+        ]
+        toplevel_mount.mount.assert_called_once_with([])
+        assert mock_command.call_args_list == [
+            call(['btrfs', 'quota', 'enable', 'tmpdir']),
+            call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
+            call(['chroot', 'root_dir', 'snapper', '--version']),
+            call(
+                command=['mountpoint', '-q', 'root_dir/tmpdir'],
+                raise_on_error=False
+            ),
+            call(['mount', '-n', '--bind', 'tmpdir', 'root_dir/tmpdir']),
+            call([
+                'chroot', 'root_dir', '/usr/lib/snapper/installation-helper',
+                '--root-prefix', 'tmpdir/@', '--step', 'filesystem'
+            ], None, True, False, True),
+            call(
+                command=['mountpoint', '-q', 'root_dir/tmpdir'],
+                raise_on_error=False
+            ),
+        ]
 
     @patch('os.path.exists')
     @patch('kiwi.volume_manager.btrfs.Command.run')
@@ -453,6 +531,16 @@ class TestVolumeManagerBtrfs:
                 return False
             return True
 
+        def return_snapper_version(cmd, *args):
+            snapperCmd = ['chroot', 'snapper', '--version']
+            subCmd = [element for element in cmd if element in snapperCmd]
+            if snapperCmd == subCmd:
+                mock = Mock()
+                mock.output = 'snapper 0.12.0'
+                return mock
+
+        mock_command.side_effect = return_snapper_version
+
         self.volume_manager.custom_args['quota_groups'] = True
         mock_exists.side_effect = exists
 
@@ -496,10 +584,115 @@ class TestVolumeManagerBtrfs:
             call(minidom.parseString(xml_info).toprettyxml(indent="    "))
         ]
         assert mock_command.call_args_list == [
+            call(['chroot', 'tmpdir', 'snapper', '--version']),
             call(['btrfs', 'qgroup', 'create', '1/0', 'tmpdir']),
             call([
                 'chroot', 'tmpdir/@/.snapshots/1/snapshot',
                 'snapper', '--no-dbus', 'set-config', 'QGROUP=1/0'
+            ], None, True, False, True)
+        ]
+
+    @patch('kiwi.volume_manager.btrfs.SysConfig')
+    @patch('kiwi.volume_manager.btrfs.DataSync')
+    @patch('kiwi.volume_manager.btrfs.Command.run')
+    @patch('os.path.exists')
+    @patch('shutil.copyfile')
+    def test_sync_data_with_snapper_helpers(
+        self, mock_copy, mock_exists, mock_command,
+        mock_sync, mock_sysconf
+    ):
+        item = {'SNAPPER_CONFIGS': '""'}
+
+        def getitem(key):
+            return item[key]
+
+        def setitem(key, value):
+            item[key] = value
+
+        def contains(key):
+            return key in item
+
+        def exists(name):
+            if 'snapper/configs/root' in name:
+                return False
+            return True
+
+        def return_snapper_version(command=None, raise_on_error=None, *args):
+            snapperCmd = ['chroot', 'snapper', '--version']
+            subCmd = [element for element in command if element in snapperCmd]
+            mock = Mock()
+            if snapperCmd == subCmd:
+                mock.output = 'snapper 0.12.1'
+            mock.return_code = 0
+            return mock
+
+        mock_command.side_effect = return_snapper_version
+
+        self.volume_manager.custom_args['quota_groups'] = True
+        mock_exists.side_effect = exists
+
+        sysconf = Mock()
+        sysconf.__contains__ = Mock(side_effect=contains)
+        sysconf.__getitem__ = Mock(side_effect=getitem)
+        sysconf.__setitem__ = Mock(side_effect=setitem)
+        mock_sysconf.return_value = sysconf
+
+        self.volume_manager.toplevel_mount = Mock()
+        self.volume_manager.mountpoint = 'tmpdir'
+        self.volume_manager.custom_args['root_is_snapper_snapshot'] = True
+        sync = Mock()
+        mock_sync.return_value = sync
+
+        self.volume_manager.sync_data(['exclude_me'])
+
+        root_path = 'tmpdir/@/.snapshots/1/snapshot'
+        mock_sync.assert_called_once_with('root_dir', root_path)
+        mock_copy.assert_called_once_with(
+            root_path + '/etc/snapper/config-templates/default',
+            root_path + '/etc/snapper/configs/root'
+        )
+        sync.sync_data.assert_called_once_with(
+            exclude=['exclude_me'],
+            options=[
+                '--archive', '--hard-links', '--xattrs',
+                '--acls', '--one-file-system', '--inplace'
+            ]
+        )
+        assert mock_command.call_args_list == [
+            call(['chroot', 'tmpdir', 'snapper', '--version']),
+            call(
+                command=['mountpoint', '-q', 'root_dir/tmpdir/@/.snapshots/1'],
+                raise_on_error=False
+            ),
+            call([
+                'mount', '-n', '--bind', 'tmpdir/@/.snapshots/1',
+                'root_dir/tmpdir/@/.snapshots/1'
+            ]),
+            call(
+                command=['mountpoint', '-q', 'root_dir/tmpdir/@/.snapshots/1/.snapshots'],
+                raise_on_error=False
+            ),
+            call([
+                'mount', '-n', '--bind', 'tmpdir/@/.snapshots/1/.snapshots',
+                'root_dir/tmpdir/@/.snapshots/1/.snapshots'
+            ]),
+            call([
+                'chroot', 'root_dir', '/usr/lib/snapper/installation-helper',
+                '--root-prefix', 'tmpdir/@/.snapshots/1', '--step', 'config',
+                '--description', 'first root filesystem'
+            ], None, True, False, True),
+            call(
+                command=['mountpoint', '-q', 'root_dir/tmpdir/@/.snapshots/1/.snapshots'],
+                raise_on_error=False
+            ),
+            call(
+                command=['mountpoint', '-q', 'root_dir/tmpdir/@/.snapshots/1'],
+                raise_on_error=False
+            ),
+            call(['btrfs', 'qgroup', 'create', '1/0', 'tmpdir']),
+            call([
+                'chroot', 'tmpdir/@/.snapshots/1/snapshot', 'snapper', '--no-dbus',
+                'set-config', 'QGROUP=1/0'
             ], None, True, False, True)
         ]
 
@@ -518,6 +711,16 @@ class TestVolumeManagerBtrfs:
 
         def contains(key):
             return key in item
+
+        def return_snapper_version(cmd, *args):
+            snapperCmd = ['chroot', 'snapper', '--version']
+            subCmd = [element for element in cmd if element in snapperCmd]
+            if snapperCmd == subCmd:
+                mock = Mock()
+                mock.output = 'snapper 0.12.0'
+                return mock
+
+        mock_command.side_effect = return_snapper_version
 
         sysconf = Mock()
         sysconf.__contains__ = Mock(side_effect=contains)
