@@ -1,0 +1,9 @@
+obs://Virtualization:Appliances:Staging/xUbuntu_24.04_x86_64,apt-deb,kiwi,,,,,,,false
+https://us.archive.ubuntu.com/ubuntu,apt-deb,noble_1,,,,,main,noble,false
+https://us.archive.ubuntu.com/ubuntu,apt-deb,noble_2,,,,,multiverse,noble,false
+https://us.archive.ubuntu.com/ubuntu,apt-deb,noble_3,,,,,restricted,noble,false
+https://us.archive.ubuntu.com/ubuntu,apt-deb,noble_4,,,,,universe,noble,false
+https://us.archive.ubuntu.com/ubuntu,apt-deb,noble-updates_1,,,,,main,noble-updates,false
+https://us.archive.ubuntu.com/ubuntu,apt-deb,noble-updates_2,,,,,multiverse,noble-updates,false
+https://us.archive.ubuntu.com/ubuntu,apt-deb,noble-updates_3,,,,,restricted,noble-updates,false
+https://us.archive.ubuntu.com/ubuntu,apt-deb,noble-updates_4,,,,,universe,noble-updates,false
