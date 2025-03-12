@@ -49,6 +49,7 @@
     <packages type="bootstrap">
         <package name="filesystem"/>
         <package name="basesystem"/>
+        <package name="shadow-utils"/>
         <package name="grub2-efi-x64-modules"/>
         <package name="grub2-efi-x64"/>
         <package name="shim" arch="x86_64"/>

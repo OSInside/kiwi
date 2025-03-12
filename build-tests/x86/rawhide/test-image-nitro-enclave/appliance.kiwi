@@ -48,6 +48,7 @@
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
+        <package name="shadow-utils"/>
         <package name="basesystem"/>
         <package name="fedora-release"/>
     </packages>

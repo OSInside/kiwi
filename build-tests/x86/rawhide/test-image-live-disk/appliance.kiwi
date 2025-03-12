@@ -86,6 +86,7 @@
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
+        <package name="shadow-utils"/>
         <package name="basesystem"/>
         <package name="grub2-efi-x64-modules"/>
         <package name="grub2-efi-x64"/>
