@@ -1646,7 +1646,14 @@ class TestSystemSetup:
     def test_set_selinux_file_contexts_new_version(
         self, mock_os_scandir, mock_command, mock_has_option_in_help
     ):
-        mock_has_option_in_help.return_value = False
+        def has_option_in_help(
+            call, flag, help_flags, root, raise_on_error, silent
+        ):
+            if flag == 'setfiles [-diIDlmnpqvCEFWT]':
+                return True
+            return False
+
+        mock_has_option_in_help.side_effect = has_option_in_help
         mock_os_scandir.return_value = self.selinux_policies
         self.setup.set_selinux_file_contexts('security_context_file')
         mock_command.assert_called_once_with(

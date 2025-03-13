@@ -557,6 +557,14 @@ class SystemSetup:
         for devname in Defaults.get_exclude_list_for_non_physical_devices():
             exclude.append('-e')
             exclude.append(f'/{devname}')
+        # check for -T in setfiles
+        setfiles_supports_threads = False
+        if CommandCapabilities.has_option_in_help(
+            'setfiles', 'setfiles [-diIDlmnpqvCEFWT]', ['--help'],
+            root=self.root_dir, raise_on_error=False, silent=True
+        ):
+            setfiles_supports_threads = True
+
         # setfiles doesn't come with a stable command API and older versions
         # needs a different invocation syntax. On older versions the usage
         # information explicitly lists "setfiles -c policyfile" which is not
@@ -585,16 +593,19 @@ class SystemSetup:
                 ]
             )
         else:
-            Command.run(
-                [
-                    'chroot', self.root_dir, 'setfiles',
-                    '-T0', '-F', '-p', '-c', self._find_selinux_policy_file(
-                        self.xml_state.build_type.get_selinux_policy() or 'targeted'
-                    )
-                ] + exclude + [
-                    security_context_file, '/'
-                ]
-            )
+            setfiles = [
+                'chroot', self.root_dir, 'setfiles'
+            ]
+            if setfiles_supports_threads:
+                setfiles.append('-T0')
+            setfiles += [
+                '-F', '-p', '-c', self._find_selinux_policy_file(
+                    self.xml_state.build_type.get_selinux_policy() or 'targeted'
+                )
+            ] + exclude + [
+                security_context_file, '/'
+            ]
+            Command.run(setfiles)
 
     def setup_selinux_file_contexts(self) -> None:
         """
