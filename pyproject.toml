@@ -23,6 +23,7 @@ packages = [
 ]
 
 include = [
+   { path = "completions", format = "sdist" },
    { path = ".bumpversion.cfg", format = "sdist" },
    { path = ".coverage*", format = "sdist" },
    { path = "setup.cfg", format = "sdist" },
@@ -51,7 +52,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-docopt-ng = ">=0.9.0"
+typer = ">=0.9.0"
 lxml = ">=4.6.0"
 requests = ">=2.25.0"
 PyYAML = ">=5.4.0"
