@@ -15,29 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: kiwi-ng system create -h | --help
-       kiwi-ng system create --root=<directory> --target-dir=<directory>
-           [--signing-key=<key-file>...]
-       kiwi-ng system create help
-
-commands:
-    create
-        create a system image from the specified root directory
-        the root directory is the result of a system prepare
-        command
-    create help
-        show manual page for create command
-
-options:
-    --root=<directory>
-        the path to the root directory, usually the result of
-        a former system prepare call
-    --target-dir=<directory>
-        the target directory to store the system image file(s)
-    --signing-key=<key-file>
-        includes the key-file as a trusted key for package manager validations
-"""
 import os
 import logging
 

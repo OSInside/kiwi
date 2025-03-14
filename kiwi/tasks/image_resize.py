@@ -15,34 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: kiwi-ng image resize -h | --help
-       kiwi-ng image resize --target-dir=<directory> --size=<size>
-           [--root=<directory>]
-       kiwi-ng image resize help
-
-commands:
-    resize
-        for disk based images, allow to resize the image to a new
-        disk geometry. The additional space is free and not in use
-        by the image. In order to make use of the additional free
-        space a repartition process is required like it is provided
-        by kiwi's oem boot code. Therefore the resize operation is
-        useful for oem image builds most of the time
-
-options:
-    --root=<directory>
-        the path to the root directory, if not specified kiwi
-        searches the root directory in build/image-root below
-        the specified target directory
-
-    --size=<size>
-        new size of the image. The value is either a size in bytes
-        or can be specified with m=MB or g=GB. Example: 20g
-
-    --target-dir=<directory>
-        the target directory to expect image build results
-"""
 import os
 import logging
 

@@ -15,40 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: kiwi-ng image info -h | --help
-       kiwi-ng image info --description=<directory>
-           [--resolve-package-list]
-           [--list-profiles]
-           [--print-kiwi-env]
-           [--ignore-repos]
-           [--add-repo=<source,type,alias,priority>...]
-           [--print-xml|--print-yaml|--print-toml]
-       kiwi-ng image info help
-
-commands:
-    info
-        provide information about the specified image description
-
-options:
-    --add-repo=<source,type,alias,priority>
-        add repository with given source, type, alias and priority
-    --description=<directory>
-        the description must be a directory containing a kiwi XML
-        description and optional metadata files
-    --ignore-repos
-        ignore all repos from the XML configuration
-    --resolve-package-list
-        solve package dependencies and return a list of all
-        packages including their attributes e.g size,
-        shasum, etc...
-    --list-profiles
-        list profiles available for the selected/default type
-    --print-kiwi-env
-        print kiwi profile environment variables
-    --print-xml|--print-yaml|--print-toml
-        print image description in specified format
-"""
 import os
 
 # project
