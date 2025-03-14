@@ -23,6 +23,7 @@ packages = [
 ]
 
 include = [
+   { path = "completions", format = "sdist" },
    { path = ".bumpversion.cfg", format = "sdist" },
    { path = ".coverage*", format = "sdist" },
    { path = "setup.cfg", format = "sdist" },
@@ -50,8 +51,8 @@ classifiers = [
 "Bug Tracker" = "https://github.com/OSInside/kiwi/issues"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-docopt-ng = ">=0.9.0"
+python = "^3.10"
+typer = ">=0.15.2"
 lxml = ">=4.6.0"
 requests = ">=2.25.0"
 PyYAML = ">=5.4.0"
