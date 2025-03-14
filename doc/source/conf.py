@@ -35,22 +35,6 @@ extensions = [
     'sphinx_rtd_theme'
 ]
 
-docopt_ignore = [
-    'kiwi.cli',
-    'kiwi.tasks.system_build',
-    'kiwi.tasks.system_prepare',
-    'kiwi.tasks.system_update',
-    'kiwi.tasks.system_create',
-    'kiwi.tasks.result_list',
-    'kiwi.tasks.result_bundle',
-    'kiwi.tasks.image_resize',
-    'kiwi.tasks.image_info'
-]
-
-def remove_module_docstring(app, what, name, obj, options, lines):
-    if what == "module" and name in docopt_ignore:
-        del lines[:]
-
 def prologReplace(app, docname, source):
     result = source[0]
     for key in app.config.prolog_replacements:
@@ -60,7 +44,6 @@ def prologReplace(app, docname, source):
 def setup(app):
     app.add_config_value('prolog_replacements', {}, True)
     app.connect('source-read', prologReplace)
-    app.connect("autodoc-process-docstring", remove_module_docstring)
 
 
 prolog_replacements = {
