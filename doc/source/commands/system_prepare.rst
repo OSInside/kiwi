@@ -10,7 +10,7 @@ SYNOPSIS
 
    kiwi-ng [global options] service <command> [<args>]
 
-   kiwi-ng system prepare -h | --help
+   kiwi-ng system prepare --help
    kiwi-ng system prepare --description=<directory> --root=<directory>
        [--allow-existing-root]
        [--clear-cache]
@@ -31,7 +31,6 @@ SYNOPSIS
        [--set-type-attr=<attribute=value>...]
        [--set-release-version=<version>]
        [--signing-key=<key-file>...]
-   kiwi-ng system prepare help
 
 .. _db_kiwi_system_prepare_desc:
 
