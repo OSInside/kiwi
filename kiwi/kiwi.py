@@ -16,41 +16,13 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import sys
-import docopt
 import logging
 
 # project
 from kiwi.app import App
 from kiwi.exceptions import KiwiError
-from kiwi.defaults import Defaults
 
 log = logging.getLogger('kiwi')
-
-
-def extras(help_, version, options, doc):
-    """
-    Overwritten method from docopt
-
-    Shows our own usage message for -h|--help
-
-    :param bool help_: indicate to show help
-    :param string version: version string
-    :param list options:
-
-    list of option tuples
-
-    .. code:: python
-
-        [option(name='name', value='value')]
-
-    :param string doc: docopt doc string
-    """
-    if help_ and any((o.name in ('-h', '--help')) and o.value for o in options):
-        usage(doc.strip("\n"))
-        sys.exit(1)
-    if version and any(o.name == '--version' and o.value for o in options):
-        print(version)
-        sys.exit(0)
 
 
 def main():
@@ -63,7 +35,6 @@ def main():
     which is handled as unexpected error including the python
     backtrace
     """
-    docopt.__dict__['extras'] = extras
     try:
         App()
     except KiwiError as e:
@@ -73,10 +44,6 @@ def main():
     except KeyboardInterrupt:
         log.error('kiwi aborted by keyboard interrupt')
         sys.exit(1)
-    except docopt.DocoptExit as e:
-        # exception thrown by docopt, results in usage message
-        usage(e)
-        sys.exit(1)
     except SystemExit as e:
         # user exception, program aborted by user
         sys.exit(e)
@@ -84,38 +51,3 @@ def main():
         # exception we did no expect, show python backtrace
         log.error('Unexpected error:')
         raise
-
-
-def usage(command_usage):
-    """
-    Instead of the docopt way to show the usage information we
-    provide a kiwi specific usage information. The usage
-    data now always consists out of:
-
-    1. the generic call
-       kiwi-ng [global options] service <command> [<args>]
-
-    2. the command specific usage defined by the docopt string
-       short form by default, long form with -h | --help
-
-    3. the global options
-
-    :param string command_usage: usage data
-    """
-    with open(Defaults.project_file('cli.py'), 'r') as cli:
-        program_code = cli.readlines()
-
-    global_options = '\n'
-    process_lines = False
-    for line in program_code:
-        if line.rstrip().startswith('global options'):
-            process_lines = True
-        if line.rstrip() == '"""':
-            process_lines = False
-        if process_lines:
-            global_options += format(line)
-
-    print('usage: kiwi-ng [global options] service <command> [<args>]\n')
-    print(format(command_usage).replace('usage:', '      '))
-    if 'global options' not in format(command_usage):
-        print(format(global_options))

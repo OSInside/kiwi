@@ -15,49 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: kiwi-ng result bundle -h | --help
-       kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
-           [--bundle-format=<format>]
-           [--zsync-source=<download_location>]
-           [--package-as-rpm]
-           [--no-compress]
-       kiwi-ng result bundle help
-
-commands:
-    bundle
-        create result bundle from the image build results in the
-        specified target directory. Each result image will contain
-        the specified bundle identifier as part of its filename.
-        Uncompressed image files will also become xz compressed
-        and a sha sum will be created from every result image.
-
-options:
-    --bundle-dir=<directory>
-        directory to store the bundle results
-    --id=<bundle_id>
-        the bundle id. A free form text appended to the version
-        information of the result image filename
-    --target-dir=<directory>
-        the target directory to expect image build results
-    --zsync-source=<download_location>
-        specify the download location from which the bundle file(s)
-        can be fetched from. The information is effective if zsync is
-        used to sync the bundle. The zsync control file is only created
-        for those bundle files which are marked for compression because
-        in a kiwi build only those are meaningful for a partial binary
-        file download. It is expected that all files from a bundle
-        are placed to the same download location
-    --package-as-rpm
-        Take all result files and create an rpm package out of it
-    --bundle-format=<format>
-        specify the bundle format to create the bundle.
-        If provided this setting will overwrite an eventually
-        provided bundle_format attribute from the main
-        image description
-    --no-compress
-        Do not compress the result image file(s)
-"""
 from collections import OrderedDict
 from textwrap import dedent
 from typing import List
