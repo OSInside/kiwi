@@ -12,10 +12,9 @@ SYNOPSIS
 
    kiwi-ng [global options] service <command> [<args>]
 
-   kiwi-ng image resize -h | --help
+   kiwi-ng image resize --help
    kiwi-ng image resize --target-dir=<directory> --size=<size>
        [--root=<directory>]
-   kiwi-ng image resize help
 
 .. _db_kiwi_image_resize_desc:
 

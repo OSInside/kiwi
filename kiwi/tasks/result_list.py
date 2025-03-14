@@ -15,19 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: kiwi-ng result list -h | --help
-       kiwi-ng result list --target-dir=<directory>
-       kiwi-ng result list help
-
-commands:
-    list
-        list result information from a previous system command
-
-options:
-    --target-dir=<directory>
-        the target directory as it was used in a system command
-"""
 import os
 import logging
 
