@@ -15,112 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: kiwi-ng -h | --help
-       kiwi-ng [--profile=<name>...]
-               [--temp-dir=<directory>]
-               [--target-arch=<name>]
-               [--type=<build_type>]
-               [--logfile=<filename>]
-               [--logsocket=<socketfile>]
-               [--loglevel=<number>]
-               [--debug]
-               [--debug-run-scripts-in-screen]
-               [--color-output]
-               [--config=<configfile>]
-               [--kiwi-file=<kiwifile>]
-           image <command> [<args>...]
-       kiwi-ng [--logfile=<filename>]
-               [--logsocket=<socketfile>]
-               [--loglevel=<number>]
-               [--debug]
-               [--debug-run-scripts-in-screen]
-               [--color-output]
-               [--config=<configfile>]
-           result <command> [<args>...]
-       kiwi-ng [--profile=<name>...]
-               [--shared-cache-dir=<directory>]
-               [--temp-dir=<directory>]
-               [--target-arch=<name>]
-               [--type=<build_type>]
-               [--logfile=<filename>]
-               [--logsocket=<socketfile>]
-               [--loglevel=<number>]
-               [--debug]
-               [--debug-run-scripts-in-screen]
-               [--color-output]
-               [--config=<configfile>]
-               [--kiwi-file=<kiwifile>]
-           system <command> [<args>...]
-       kiwi-ng -v | --version
-       kiwi-ng help
-
-global options:
-    --color-output
-        use colors for warning and error messages
-    --config=<configfile>
-        use specified runtime configuration file. If
-        not specified the runtime configuration is looked
-        up at ~/.config/kiwi/config.yml or /etc/kiwi.yml
-    --logfile=<filename>
-        create a log file containing all log information including
-        debug information even if this was not requested by the
-        debug switch. The special call: '--logfile stdout' sends all
-        information to standard out instead of writing to a file
-    --logsocket=<socketfile>
-        send log data to the given Unix Domain socket in the same
-        format as with --logfile
-    --loglevel=<number>
-        specify logging level as number. Details about the
-        available log levels can be found at:
-        https://docs.python.org/3/library/logging.html#logging-levels
-        Setting a log level causes all message >= level to be
-        displayed.
-    --debug
-        print debug information, same as: '--loglevel 10'
-    --debug-run-scripts-in-screen
-        run scripts called by kiwi in a screen session
-    -v --version
-        show program version
-    help
-        show manual page
-
-global options for services: image, system
-    --profile=<name>
-        profile name, multiple profiles can be selected by passing
-        this option multiple times
-    --shared-cache-dir=<directory>
-        specify an alternative shared cache directory. The directory
-        is shared via bind mount between the build host and image
-        root system and contains information about package repositories
-        and their cache and meta data.
-    --temp-dir=<directory>
-        specify an alternative base temporary directory. The
-        provided path is used as base directory to store temporary
-        files and directories. By default /var/tmp is used.
-    --type=<build_type>
-        image build type. If not set the default XML specified
-        build type will be used
-    --kiwi-file=<kiwifile>
-        Basename of kiwi file which contains the main image
-        configuration elements. If not specified kiwi searches for
-        a file named config.xml or a file matching *.kiwi
-
-global options for services: image, system
-    --target-arch=<name>
-        set the image architecture. By default the host architecture is
-        used as the image architecture. If the specified architecture name
-        does not match the host architecture and is therefore requesting
-        a cross architecture image build, it's important to understand that
-        for this process to work a preparatory step to support the image
-        architecture and binary format on the building host is required
-        and not a responsibility of kiwi.
-"""
+# TODO: check how plugins can work when docopt is gone
+import typer
 import logging
 import sys
 import os
+from unittest.mock import patch
 from importlib.metadata import entry_points
-from docopt import docopt
+from pathlib import Path
+from typing import (
+    Annotated, Dict, Optional, List
+)
 
 # project
 from kiwi.exceptions import (
@@ -143,23 +48,250 @@ class Cli:
     application and implements methods to load further command plugins
     which itself provides their own command line interface
     """
+    global_args = {}
+    subcommand_args = {}
+    cli_ok = False
+
+    # system
+    system = typer.Typer()
+
+    # result
+    result = typer.Typer()
+
+    # image
+    image = typer.Typer()
+
+    cli = typer.Typer()
+    cli.add_typer(system, name='system')
+    cli.add_typer(result, name='result')
+    cli.add_typer(image, name='image')
+
     def __init__(self):
-        self.all_args = docopt(
-            __doc__,
-            version='KIWI (next generation) version ' + __version__,
-            options_first=True
+        with patch('sys.exit'):
+            self.cli()
+
+        # FIXME: this is only here during development
+        # print(self.global_args)
+        # print(self.subcommand_args)
+
+        if not self.cli_ok:
+            sys.exit(1)
+
+        self.command_args = self.get_command_args(
+            raise_if_no_command=False
         )
-        self.command_args = self.all_args['<args>']
         self.command_loaded = None
 
-    def show_and_exit_on_help_request(self):
+        # FIXME: this is only here during development
+        print("OK")
+        # sys.exit(0)
+
+    @staticmethod
+    def version(perform: bool):
+        if perform:
+            print(f'KIWI (next generation) version {__version__}')
+            raise typer.Exit()
+
+    @cli.callback()
+    def main(
+        color_output: Annotated[
+            bool, typer.Option(
+                help='use colors for warning and error messages'
+            )
+        ] = False,
+        config: Annotated[
+            Optional[Path], typer.Option(
+                help='use specified runtime configuration file. If '
+                'not specified the runtime configuration is looked '
+                'up at ~/.config/kiwi/config.yml or /etc/kiwi.yml'
+            )
+        ] = None,
+        debug: Annotated[
+            bool, typer.Option(
+                '--debug',
+                help='print debug information, same as: --loglevel 10'
+            )
+        ] = False,
+        debug_run_scripts_in_screen: Annotated[
+            bool, typer.Option(
+                '--debug-run-scripts-in-screen',
+                help='run scripts called by kiwi in a screen session'
+            )
+        ] = False,
+        kiwi_file: Annotated[
+            Optional[str], typer.Option(
+                help='Basename of kiwi file which contains the main image '
+                'configuration elements. If not specified kiwi searches '
+                'for a file named config.xml or a file matching *.kiwi'
+            )
+        ] = '',
+        logfile: Annotated[
+            Optional[Path], typer.Option(
+                help='create a log file containing all log information '
+                'including debug information even if this was not requested '
+                'by the debug switch. The special call: "--logfile stdout" '
+                'sends all information to standard out instead of writing to '
+                'a file'
+            )
+        ] = None,
+        logsocket: Annotated[
+            Optional[Path], typer.Option(
+                help='send log data to the given Unix Domain socket in '
+                'the same format as with --logfile'
+            )
+        ] = None,
+        loglevel: Annotated[
+            Optional[int], typer.Option(
+                help='specify logging level as number. Details about the '
+                'available log levels can be found at: '
+                'https://docs.python.org/3/library/logging.html#logging-levels '
+                'Setting a log level causes all message >= level to be '
+                'displayed.'
+            )
+        ] = None,
+        profile: Annotated[
+            Optional[List[str]], typer.Option(
+                help='profile name, multiple profiles can be selected '
+                'by passing this option multiple times'
+            )
+        ] = None,
+        shared_cache_dir: Annotated[
+            Optional[Path], typer.Option(
+                help='specify an alternative shared cache directory. '
+                'The directory is shared via bind mount between the '
+                'build host and image root system and contains '
+                'information about package repositories and their '
+                'cache and meta data.'
+            )
+        ] = None,
+        target_arch: Annotated[
+            Optional[str], typer.Option(
+                help='set the image architecture. By default the host '
+                'architecture is used as the image architecture. If the '
+                'specified architecture name does not match the host '
+                'architecture and is therefore requesting a cross '
+                'architecture image build, it is important to understand '
+                'that for this process to work a preparatory step to '
+                'support the image architecture and binary format on the '
+                'building host is required first.'
+            )
+        ] = '',
+        temp_dir: Annotated[
+            Optional[Path], typer.Option(
+                help='specify an alternative base temporary directory. '
+                'The provided path is used as base directory to store '
+                'temporary files and directories.'
+            )
+        ] = '/var/tmp',
+        type: Annotated[
+            Optional[str], typer.Option(
+                help='image build type. If not set the default XML '
+                'specified build type will be used'
+            )
+        ] = '',
+        version: Annotated[
+            Optional[bool], typer.Option(
+                '--version', help='show program version', callback=version
+            )
+        ] = None
+    ) -> Dict:
         """
-        Execute man to show the selected manual page
+        KIWI - Appliance Builder
         """
-        if self.all_args['help']:
-            manual = Help()
-            manual.show('kiwi')
-            sys.exit(0)
+        Cli.global_args['--color-output'] = color_output
+        Cli.global_args['--config'] = config
+        Cli.global_args['--debug'] = debug
+        Cli.global_args['--debug-run-scripts-in-screen'] = \
+            debug_run_scripts_in_screen
+        Cli.global_args['--kiwi-file'] = kiwi_file
+        Cli.global_args['--logfile'] = logfile
+        Cli.global_args['--loglevel'] = loglevel
+        Cli.global_args['--logsocket'] = logsocket
+        Cli.global_args['--profile'] = profile
+        Cli.global_args['--shared-cache-dir'] = shared_cache_dir
+        Cli.global_args['--target-arch'] = target_arch
+        Cli.global_args['--temp-dir'] = temp_dir
+        Cli.global_args['--type'] = type
+        Cli.global_args['command'] = None
+        Cli.global_args['image'] = False
+        Cli.global_args['result'] = False
+        Cli.global_args['system'] = False
+
+    @cli.command()
+    def help(command: Annotated[str, typer.Argument()] = 'kiwi'):
+        manual = Help()
+        manual.show(command)
+
+    @image.command()
+    def info(
+        description: Annotated[
+            Path, typer.Option(
+                help='the description must be a directory '
+                'containing a kiwi XML description and '
+                'optional metadata files'
+            )
+        ],
+        resolve_package_list: Annotated[
+            bool, typer.Option(
+                help='solve package dependencies and return a '
+                'list of all packages including their attributes '
+                'e.g. size, shasum, etc...'
+            )
+        ] = False,
+    ):
+        # TODO
+        Cli.subcommand_args['image_info'] = {
+        }
+        Cli.cli_ok = True
+
+    @image.command()
+    def resize():
+        # TODO
+        Cli.subcommand_args['image_resize'] = {
+        }
+        Cli.cli_ok = True
+
+    @result.command()
+    def list():
+        # TODO
+        Cli.subcommand_args['result_list'] = {
+        }
+        Cli.cli_ok = True
+
+    @result.command()
+    def bundle():
+        # TODO
+        Cli.subcommand_args['result_bundle'] = {
+        }
+        Cli.cli_ok = True
+
+    @system.command()
+    def build():
+        # TODO
+        Cli.subcommand_args['system_build'] = {
+        }
+        Cli.cli_ok = True
+
+    @system.command()
+    def prepare():
+        # TODO
+        Cli.subcommand_args['system_prepare'] = {
+        }
+        Cli.cli_ok = True
+
+    @system.command()
+    def update():
+        # TODO
+        Cli.subcommand_args['system_update'] = {
+        }
+        Cli.cli_ok = True
+
+    @system.command()
+    def create():
+        # TODO
+        Cli.subcommand_args['system_create'] = {
+        }
+        Cli.cli_ok = True
 
     def get_servicename(self):
         """
@@ -169,11 +301,11 @@ class Cli:
 
         :rtype: str
         """
-        if self.all_args.get('image') is True:
+        if self.global_args.get('image') is True:
             return 'image'
-        elif self.all_args.get('system') is True:
+        elif self.global_args.get('system') is True:
             return 'system'
-        elif self.all_args.get('result') is True:
+        elif self.global_args.get('result') is True:
             return 'result'
         else:
             raise KiwiUnknownServiceName(
@@ -187,11 +319,12 @@ class Cli:
         :return: command name
         :rtype: str
         """
-        return self.all_args['<command>']
+        return self.global_args['command']
 
-    def get_command_args(self):
+    def get_command_args(self, raise_if_no_command: bool = True) -> Dict:
         """
-        Extract argument dict for selected command
+        Get argument dict for selected command
+        including global options
 
         :return:
             Contains dictionary of command arguments
@@ -199,16 +332,25 @@ class Cli:
             .. code:: python
 
                 {
-                    '--command-option': 'value'
+                    '--some-option-name': 'value'
                 }
 
         :rtype: dict
         """
-        return self._load_command_args()
+        result = self.global_args
+        command = self.get_command()
+        if self.subcommand_args.get(command):
+            return result.update(
+                self.subcommand_args.get(command)
+            )
+        elif raise_if_no_command:
+            raise KiwiCommandNotLoaded(
+                f'{command} command not loaded'
+            )
 
     def get_global_args(self):
         """
-        Extract argument dict for global arguments
+        Get argument dict for global arguments
 
         :return:
             Contains dictionary of global arguments
@@ -216,14 +358,14 @@ class Cli:
             .. code:: python
 
                 {
-                    '--global-option': 'value'
+                    '--some-global-option': 'value'
                 }
 
         :rtype: dict
         """
         result = {}
-        for arg, value in list(self.all_args.items()):
-            if not arg == '<command>' and not arg == '<args>':
+        for arg, value in list(self.global_args.items()):
+            if not arg == 'command':
                 if arg == '--type' and value == 'vmx':
                     log.warning(
                         'vmx type is now a subset of oem, --type set to oem'
@@ -288,14 +430,3 @@ class Cli:
                 )
             )
         return self.command_loaded
-
-    def _load_command_args(self):
-        try:
-            argv = [
-                self.get_servicename(), self.get_command()
-            ] + self.command_args
-            return docopt(self.command_loaded.__doc__, argv=argv)
-        except Exception:
-            raise KiwiCommandNotLoaded(
-                '%s command not loaded' % self.get_command()
-            )
