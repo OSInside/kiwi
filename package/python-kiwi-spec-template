@@ -85,7 +85,7 @@ BuildRequires:  passwd
 # Main build requirements
 BuildRequires:  gcc
 BuildRequires:  make
-BuildRequires:  python%{python3_pkgversion}-%{develsuffix} >= 3.10
+BuildRequires:  python%{python3_pkgversion}-%{develsuffix} >= 3.9
 BuildRequires:  python%{python3_pkgversion}-build
 BuildRequires:  python%{python3_pkgversion}-installer
 BuildRequires:  python%{python3_pkgversion}-poetry-core >= 1.2.0
@@ -425,7 +425,7 @@ Requires:       screen
 Requires:       file
 Requires:       sed
 Requires:       bash
-Requires:       python%{python3_pkgversion} >= 3.10
+Requires:       python%{python3_pkgversion} >= 3.9
 %if 0%{?ubuntu} || 0%{?debian}
 Requires:       python%{python3_pkgversion}-yaml
 %else

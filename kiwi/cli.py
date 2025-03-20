@@ -112,8 +112,7 @@ class Cli:
         )
         self.command_loaded = None
 
-    @staticmethod
-    def version(perform: bool):
+    def version(self, perform: bool):
         if perform:
             print(f'KIWI (next generation) version {__version__}')
             raise typer.Exit(0)
