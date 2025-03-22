@@ -122,14 +122,12 @@ class Cli:
     def main(
         color_output: Annotated[
             bool, typer.Option(
-                ...,
                 '--color-output',
                 help='use colors for warning and error messages'
             )
         ] = False,
         config: Annotated[
             Optional[Path], typer.Option(
-                ...,
                 help='use specified runtime configuration file. If '
                 'not specified the runtime configuration is looked '
                 'up at ~/.config/kiwi/config.yml or /etc/kiwi.yml'
@@ -137,21 +135,18 @@ class Cli:
         ] = None,
         debug: Annotated[
             bool, typer.Option(
-                ...,
                 '--debug',
                 help='print debug information, same as: --loglevel 10'
             )
         ] = False,
         debug_run_scripts_in_screen: Annotated[
             bool, typer.Option(
-                ...,
                 '--debug-run-scripts-in-screen',
                 help='run scripts called by kiwi in a screen session'
             )
         ] = False,
         kiwi_file: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<kiwifile> Basename of kiwi file which contains '
                 'the main image configuration elements. If not specified '
                 'kiwi searches for a file named config.xml or a file '
@@ -160,7 +155,6 @@ class Cli:
         ] = None,
         logfile: Annotated[
             Optional[Path], typer.Option(
-                ...,
                 help='<filename> create a log file containing all log '
                 'information including debug information even if this '
                 'was not requested by the debug switch. The special '
@@ -170,14 +164,12 @@ class Cli:
         ] = None,
         logsocket: Annotated[
             Optional[Path], typer.Option(
-                ...,
                 help='<socketfile> send log data to the given Unix '
                 'Domain socket in the same format as with --logfile'
             )
         ] = None,
         loglevel: Annotated[
             Optional[int], typer.Option(
-                ...,
                 help='<number> specify logging level as number. '
                 'Details about the available log levels can be found at: '
                 'https://docs.python.org/3/library/logging.html#logging-levels '
@@ -187,14 +179,12 @@ class Cli:
         ] = None,
         profile: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Profile name, multiple profiles can be selected '
                 'by passing this option multiple times'
             )
         ] = [],
         shared_cache_dir: Annotated[
             Optional[Path], typer.Option(
-                ...,
                 help='<directory> An alternative shared cache directory. '
                 'The directory is shared via bind mount between the '
                 'build host and image root system and contains '
@@ -204,7 +194,6 @@ class Cli:
         ] = Path(os.sep + Defaults.get_shared_cache_location()),
         target_arch: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<name> set the image architecture. By default the host '
                 'architecture is used as the image architecture. If the '
                 'specified architecture name does not match the host '
@@ -217,7 +206,6 @@ class Cli:
         ] = None,
         temp_dir: Annotated[
             Optional[Path], typer.Option(
-                ...,
                 help='<directory> An alternative base temporary directory. '
                 'The provided path is used as base directory to store '
                 'temporary files and directories.'
@@ -225,16 +213,13 @@ class Cli:
         ] = Path(Defaults.get_temp_location()),
         type: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<build_type> Image build type. If not set the '
                 'default XML specified build type will be used'
             )
         ] = None,
         version: Annotated[
             Optional[bool], typer.Option(
-                ...,
-                '--version',
-                help='show program version', callback=version
+                '--version', help='show program version', callback=version
             )
         ] = None
     ):
@@ -262,7 +247,7 @@ class Cli:
 
     @staticmethod
     @cli.command(help='[kiwi::COMMAND:SUBCOMMAND]')
-    def help(command: Annotated[str, typer.Argument(...)] = 'kiwi'):
+    def help(command: Annotated[str, typer.Argument()] = 'kiwi'):
         manual = Help()
         manual.show(command)
 
@@ -271,7 +256,6 @@ class Cli:
     def info(
         description: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The description must be a directory '
                 'containing a kiwi XML description and '
                 'optional metadata files'
@@ -279,7 +263,6 @@ class Cli:
         ],
         resolve_package_list: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--resolve-package-list',
                 help='solve package dependencies and return a '
                 'list of all packages including their attributes '
@@ -288,28 +271,24 @@ class Cli:
         ] = False,
         list_profiles: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--list-profiles',
                 help='list profiles available for the selected/default type'
             )
         ] = False,
         print_kiwi_env: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--print-kiwi-env',
                 help='list profiles available for the selected/default type'
             )
         ] = False,
         ignore_repos: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--ignore-repos',
                 help='ignore all repos from the XML configuration'
             )
         ] = False,
         add_repo: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<source,type,alias,priority> Add repository '
                 'with given source, type, alias and priority. The '
                 'option can be specified multiple times'
@@ -317,21 +296,18 @@ class Cli:
         ] = [],
         print_xml: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--print-xml',
                 help='print image description in XML'
             )
         ] = False,
         print_yaml: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--print-yaml',
                 help='print image description in YAML'
             )
         ] = False,
         print_toml: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--print-toml',
                 help='print image description in TOML'
             )
@@ -362,14 +338,12 @@ class Cli:
     def resize(
         target_dir: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The target directory '
                 'to expect image build results'
             )
         ],
         size: Annotated[
             str, typer.Option(
-                ...,
                 help='<size-unit> New size of the image. The value is either '
                 'a size in bytes or can be specified with m=MB '
                 'or g=GB. Example: 20g'
@@ -377,7 +351,6 @@ class Cli:
         ],
         root: Annotated[
             Optional[Path], typer.Option(
-                ...,
                 help='<directory> The path to the root directory, if not '
                 'specified kiwi searches the root directory '
                 'in build/image-root below the specified target '
@@ -409,7 +382,6 @@ class Cli:
     def list(
         target_dir: Annotated[
             Path, typer.Option(
-                ...,
                 help='the target directory to expect image build results'
             )
         ]
@@ -431,14 +403,12 @@ class Cli:
     def bundle(
         target_dir: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The target directory to '
                 'expect image build results'
             )
         ],
         id: Annotated[
             str, typer.Option(
-                ...,
                 help='<bundle_id> The bundle id. A free form text '
                 'appended to the version information of the result '
                 'image filename'
@@ -446,13 +416,11 @@ class Cli:
         ],
         bundle_dir: Annotated[
             str, typer.Option(
-                ...,
                 help='<directory> Directory to store the bundle results'
             )
         ],
         bundle_format: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<format> The bundle format to create the bundle. '
                 'If provided this setting will overwrite an eventually '
                 'provided bundle_format attribute from the main '
@@ -461,7 +429,6 @@ class Cli:
         ] = None,
         zsync_source: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<download_location> Specify the download '
                 'location from which the bundle file(s) can be '
                 'fetched from. The information is effective if zsync '
@@ -475,7 +442,6 @@ class Cli:
         ] = None,
         package_as_rpm: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--package-as-rpm',
                 help='Take all result files and create an rpm package out of it'
             )
@@ -507,7 +473,6 @@ class Cli:
     def build(
         description: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The description must be a '
                 'directory containing a kiwi XML description '
                 'and optional metadata files'
@@ -515,14 +480,12 @@ class Cli:
         ],
         target_dir: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The target directory to '
                 'store the system image file(s)'
             )
         ],
         allow_existing_root: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--allow-existing-root',
                 help='Allow to use an existing root directory '
                 'from an earlier build attempt. Use with caution '
@@ -533,7 +496,6 @@ class Cli:
         ] = False,
         clear_cache: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--clear-cache',
                 help='Delete repository cache for each of the '
                 'used repositories before installing any package'
@@ -541,14 +503,12 @@ class Cli:
         ] = False,
         ignore_repos: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--ignore-repos',
                 help='Ignore all repos from the XML configuration'
             )
         ] = False,
         ignore_repos_used_for_build: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--ignore-repos-used-for-build',
                 help='Ignore all repos from the XML configuration '
                 'except the ones marked as imageonly'
@@ -556,7 +516,6 @@ class Cli:
         ] = False,
         set_repo: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<source,type,alias,priority,imageinclude, '
                 'package_gpgcheck,{signing_keys},components,distribution, '
                 'repo_gpgcheck> Overwrite the first XML listed repository '
@@ -570,7 +529,6 @@ class Cli:
         ] = None,
         set_repo_credentials: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<user:pass_or_filename> '
                 'For repo sources of the form: uri://user:pass@location, '
                 'set the user and password connected to the set-repo '
@@ -581,7 +539,6 @@ class Cli:
         ] = None,
         add_repo: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='Same as --set-repo, but it adds the repo to the '
                 'current list of repositories. The option can be specified '
                 'multiple times'
@@ -589,7 +546,6 @@ class Cli:
         ] = [],
         add_repo_credentials: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='Same as --set-repo-credentials, but The first '
                 '--add-repo-credentials is connected with the first '
                 '--add-repo specification and so on. The option can be '
@@ -598,14 +554,12 @@ class Cli:
         ] = [],
         add_package: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Install the given package name '
                 'The option can be specified multiple times'
             )
         ] = [],
         add_bootstrap_package: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Install the given package name as '
                 'part of the early bootstrap process. The option '
                 'can be specified multiple times'
@@ -613,14 +567,12 @@ class Cli:
         ] = [],
         delete_package: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Delete the given package name '
                 'The option can be specified multiple times'
             )
         ] = [],
         set_container_derived_from: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<uri> Overwrite the source location of the '
                 'base container for the selected image type. '
                 'The setting is only effective if the configured '
@@ -629,7 +581,6 @@ class Cli:
         ] = None,
         set_container_tag: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<name> Overwrite the container tag in the '
                 'container configuration. The setting is only '
                 'effective if the container configuraiton provides '
@@ -638,7 +589,6 @@ class Cli:
         ] = None,
         add_container_label: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name=value> Add a container label in the '
                 'container configuration metadata. The label with '
                 'the provided key-value pair will be overwritten '
@@ -648,7 +598,6 @@ class Cli:
         ] = [],
         set_type_attr: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<attribute=value> Overwrite/set the attribute '
                 'with the provided value in the selected build type '
                 'section. The option can be specified multiple times'
@@ -656,14 +605,12 @@ class Cli:
         ] = [],
         set_release_version: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<version> Overwrite/set the release-version '
                 'element in the selected build type preferences section'
             )
         ] = None,
         signing_key: Annotated[
             Optional[List[Path]], typer.Option(
-                ...,
                 help='<key-file> Includes the given key-file as a trusted '
                 'key for package manager validations. The option can be '
                 'specified multiple times'
@@ -706,7 +653,6 @@ class Cli:
     def prepare(
         description: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The description must be a '
                 'directory containing a kiwi XML description '
                 'and optional metadata files'
@@ -714,14 +660,12 @@ class Cli:
         ],
         root: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The path to the new root '
                 'directory of the system '
             )
         ],
         allow_existing_root: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--allow-existing-root',
                 help='Allow to use an existing root directory '
                 'from an earlier build attempt. Use with caution '
@@ -732,7 +676,6 @@ class Cli:
         ] = False,
         clear_cache: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--clear-cache',
                 help='Delete repository cache for each of the '
                 'used repositories before installing any package'
@@ -740,14 +683,12 @@ class Cli:
         ] = False,
         ignore_repos: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--ignore-repos',
                 help='Ignore all repos from the XML configuration'
             )
         ] = False,
         ignore_repos_used_for_build: Annotated[
             Optional[bool], typer.Option(
-                ...,
                 '--ignore-repos-used-for-build',
                 help='Ignore all repos from the XML configuration '
                 'except the ones marked as imageonly'
@@ -755,7 +696,6 @@ class Cli:
         ] = False,
         set_repo: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<source,type,alias,priority,imageinclude, '
                 'package_gpgcheck,{signing_keys},components,distribution, '
                 'repo_gpgcheck> Overwrite the first XML listed repository '
@@ -769,7 +709,6 @@ class Cli:
         ] = None,
         set_repo_credentials: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<user:pass_or_filename> '
                 'For repo sources of the form: uri://user:pass@location, '
                 'set the user and password connected to the set-repo '
@@ -780,7 +719,6 @@ class Cli:
         ] = None,
         add_repo: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='Same as --set-repo, but it adds the repo to the '
                 'current list of repositories. The option can be specified '
                 'multiple times'
@@ -788,7 +726,6 @@ class Cli:
         ] = [],
         add_repo_credentials: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='Same as --set-repo-credentials, but The first '
                 '--add-repo-credentials is connected with the first '
                 '--add-repo specification and so on. The option can be '
@@ -797,14 +734,12 @@ class Cli:
         ] = [],
         add_package: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Install the given package name '
                 'The option can be specified multiple times'
             )
         ] = [],
         add_bootstrap_package: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Install the given package name as '
                 'part of the early bootstrap process. The option '
                 'can be specified multiple times'
@@ -812,14 +747,12 @@ class Cli:
         ] = [],
         delete_package: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Delete the given package name '
                 'The option can be specified multiple times'
             )
         ] = [],
         set_container_derived_from: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<uri> Overwrite the source location of the '
                 'base container for the selected image type. '
                 'The setting is only effective if the configured '
@@ -828,7 +761,6 @@ class Cli:
         ] = None,
         set_container_tag: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<name> Overwrite the container tag in the '
                 'container configuration. The setting is only '
                 'effective if the container configuraiton provides '
@@ -837,7 +769,6 @@ class Cli:
         ] = None,
         add_container_label: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name=value> Add a container label in the '
                 'container configuration metadata. The label with '
                 'the provided key-value pair will be overwritten '
@@ -847,7 +778,6 @@ class Cli:
         ] = [],
         set_type_attr: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<attribute=value> Overwrite/set the attribute '
                 'with the provided value in the selected build type '
                 'section. The option can be specified multiple times'
@@ -855,14 +785,12 @@ class Cli:
         ] = [],
         set_release_version: Annotated[
             Optional[str], typer.Option(
-                ...,
                 help='<version> Overwrite/set the release-version '
                 'element in the selected build type preferences section'
             )
         ] = None,
         signing_key: Annotated[
             Optional[List[Path]], typer.Option(
-                ...,
                 help='<key-file> Includes the given key-file as a trusted '
                 'key for package manager validations. The option can be '
                 'specified multiple times'
@@ -904,20 +832,17 @@ class Cli:
     def update(
         root: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The path to the root directory'
             )
         ],
         add_package: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Install the given package name '
                 'The option can be specified multiple times'
             )
         ] = [],
         delete_package: Annotated[
             Optional[List[str]], typer.Option(
-                ...,
                 help='<name> Delete the given package name '
                 'The option can be specified multiple times'
             )
@@ -942,20 +867,17 @@ class Cli:
     def create(
         root: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The path to the root directory'
             )
         ],
         target_dir: Annotated[
             Path, typer.Option(
-                ...,
                 help='<directory> The target directory to '
                 'store the system image file(s)'
             )
         ],
         signing_key: Annotated[
             Optional[List[Path]], typer.Option(
-                ...,
                 help='<key-file> Includes the given key-file as a trusted '
                 'key for package manager validations. The option can be '
                 'specified multiple times'
