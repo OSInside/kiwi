@@ -308,7 +308,7 @@ class PackageManagerDnf5(PackageManagerBase):
         """
         return bool(
             re.match(
-                '.*Installing.*: {0}.*'.format(re.escape(package_name)),
+                '.*Installing.* {0}.*'.format(re.escape(package_name)),
                 package_manager_output
             )
         )
@@ -328,7 +328,7 @@ class PackageManagerDnf5(PackageManagerBase):
         """
         return bool(
             re.match(
-                '.*Removing.*: {0}.*'.format(re.escape(package_name)),
+                '.*Removing.* {0}.*'.format(re.escape(package_name)),
                 package_manager_output
             )
         )

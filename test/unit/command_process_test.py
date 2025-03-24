@@ -7,8 +7,10 @@ from pytest import (
 )
 from builtins import bytes
 
-from kiwi.command_process import CommandProcess
-from kiwi.command_process import CommandIterator
+from kiwi.command_process import (
+    CommandProcess,
+    CommandIterator
+)
 
 from kiwi.exceptions import KiwiCommandError
 
@@ -42,13 +44,13 @@ class TestCommandProcess:
         return create_method
 
     def setup(self):
-        self.data_flow = [True, None, None, None, None, None, None]
+        self.data_flow = [True, None, None, None, None, None, None, None]
         self.data_out = [
-            bytes(b''), bytes(b'\n'), bytes(b'a'),
+            bytes(b''), bytes(b''), bytes(b'\n'), bytes(b'a'),
             bytes(b't'), bytes(b'a'), bytes(b'd')
         ]
         self.data_err = [
-            bytes(b''), bytes(b'r'), bytes(b'o'),
+            bytes(b''), bytes(b'\n'), bytes(b'r'), bytes(b'o'),
             bytes(b'r'), bytes(b'r'), bytes(b'e')
         ]
         self.flow = self.create_flow_method(self.poll)
@@ -80,7 +82,7 @@ class TestCommandProcess:
         process.command.command.error.read = self.flow_err
         process.command.command.process.returncode = 0
         with self._caplog.at_level(logging.DEBUG):
-            process.poll_show_progress(['a', 'b'], match_method)
+            process.poll_show_progress(['a', 'b'], match_method, True)
             assert 'system: data' in self._caplog.text
 
     @patch('kiwi.command.Command')
