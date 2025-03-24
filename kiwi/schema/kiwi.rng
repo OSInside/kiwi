@@ -5773,10 +5773,18 @@ drivers can bind itself to one of the listed namespaces.</a:documentation>
     <define name="k.users.profiles.attribute">
       <ref name="k.profiles.attribute"/>
     </define>
+    <define name="k.users.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.users.attlist">
-      <optional>
-        <ref name="k.users.profiles.attribute"/>
-      </optional>
+      <interleave>
+        <optional>
+          <ref name="k.users.arch.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.users.profiles.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.users">
       <element name="users">

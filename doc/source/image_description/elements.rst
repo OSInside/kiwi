@@ -1768,7 +1768,7 @@ Setup image users.
 
 .. code:: xml
 
-   <users>
+   <users arch="arch">
      <user
        name="user"
        groups="group_list"
@@ -1782,8 +1782,10 @@ Setup image users.
    </users>
 
 The optional users element contains the user setup {kiwi} should create
-in the system. At least one user child element must be specified as
-part of the users element. Multiple user elements may be specified.
+in the system. The optional `arch` attribute can be used to limit the
+users setup to the host architecture from which {kiwi} is called.
+At least one user child element must be specified as part of the users
+element. Multiple user elements may be specified.
 
 Each `user` element represents a specific user that is added or
 modified. The following attributes are mandatory:

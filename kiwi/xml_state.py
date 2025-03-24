@@ -157,9 +157,11 @@ class XMLState:
 
         :rtype: list
         """
-        return self._profiled(
-            self.xml_data.get_users()
-        )
+        users = []
+        for users_section in self._profiled(self.xml_data.get_users()):
+            if self.users_matches_host_architecture(users_section):
+                users.append(users_section)
+        return users
 
     def get_build_type_bundle_format(self) -> str:
         """
@@ -406,6 +408,22 @@ class XMLState:
         :rtype: bool
         """
         return self._section_matches_host_architecture(package)
+
+    def users_matches_host_architecture(self, users: Any) -> bool:
+        """
+        Tests if the given users section is applicable for the current host
+        architecture. If no architecture is specified within the section
+        it is considered as a match returning True.
+
+        Note: The XML section pointer must provide an arch attribute
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return self._section_matches_host_architecture(users)
 
     def collection_matches_host_architecture(self, collection: Any) -> bool:
         """
