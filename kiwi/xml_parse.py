@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.10 (main, Sep 18 2024, 22:13:39) [GCC]
+# Python 3.11.10 (main, Sep 18 2024, 22:14:32) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -9959,8 +9959,9 @@ class users(GeneratedsSuper):
     """A List of Users"""
     subclass = None
     superclass = None
-    def __init__(self, profiles=None, user=None):
+    def __init__(self, arch=None, profiles=None, user=None):
         self.original_tagname_ = None
+        self.arch = _cast(None, arch)
         self.profiles = _cast(None, profiles)
         if user is None:
             self.user = []
@@ -9982,8 +9983,17 @@ class users(GeneratedsSuper):
     def add_user(self, value): self.user.append(value)
     def insert_user_at(self, index, value): self.user.insert(index, value)
     def replace_user_at(self, index, value): self.user[index] = value
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
     def get_profiles(self): return self.profiles
     def set_profiles(self, profiles): self.profiles = profiles
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
             self.user
@@ -10013,6 +10023,9 @@ class users(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='users'):
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
         if self.profiles is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')
             outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
@@ -10031,6 +10044,12 @@ class users(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
         value = find_attr_value_('profiles', node)
         if value is not None and 'profiles' not in already_processed:
             already_processed.add('profiles')

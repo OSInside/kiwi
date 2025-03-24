@@ -3806,7 +3806,9 @@ div {
 #
 div {
     k.users.profiles.attribute = k.profiles.attribute
+    k.users.arch.attribute = k.arch.attribute
     k.users.attlist =
+        k.users.arch.attribute? &
         k.users.profiles.attribute?
     k.users =
         ## A List of Users
