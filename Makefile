@@ -162,15 +162,6 @@ prepare_for_pypi: clean setup
 	# ci-publish-to-pypi.yml github action
 	poetry build --format=sdist
 
-prepare_for_docs: clean setup
-	# documentation man pages
-	poetry run make -C doc man
-	# documentation github pages, the actual publishing via
-	# the ci-publish-pages.yml github action
-	poetry run bash -c 'pushd doc && \
-		travis-sphinx --outdir build_gh_pages build --nowarn --source ./source'
-	bash -c 'touch ./doc/build_gh_pages/.nojekyll'
-
 clean: clean_git_attributes
 	rm -rf dist
 	rm -rf doc/build

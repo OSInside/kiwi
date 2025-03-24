@@ -106,7 +106,6 @@ sphinx = ">=5.0.0"
 sphinx_rtd_theme = "*"
 sphinxcontrib-spelling = "*"
 pyenchant = "*"
-travis-sphinx = "*"
 ghp-import = "*"
 
 [tool.poetry.group.development]
