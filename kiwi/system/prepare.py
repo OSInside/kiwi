@@ -254,6 +254,7 @@ class SystemPrepare:
         bootstrap_archives = self.xml_state.get_bootstrap_archives()
         bootstrap_archives_target_dirs = self.xml_state.get_bootstrap_archives_target_dirs()
         bootstrap_packages_ignored = self.xml_state.get_bootstrap_ignore_packages()
+        package_manager = self.xml_state.get_package_manager()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -279,7 +280,8 @@ class SystemPrepare:
                 items_to_complete=all_install_items,
                 match_method=process.create_match_method(
                     manager.match_package_installed
-                )
+                ),
+                with_stderr=True if package_manager == 'dnf5' else False
             )
         except Exception as issue:
             if manager.has_failed(process.returncode()):
@@ -331,6 +333,7 @@ class SystemPrepare:
         system_archives = self.xml_state.get_system_archives()
         system_archives_target_dirs = self.xml_state.get_system_archives_target_dirs()
         system_packages_ignored = self.xml_state.get_system_ignore_packages()
+        package_manager = self.xml_state.get_package_manager()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -352,7 +355,8 @@ class SystemPrepare:
                     items_to_complete=all_install_items,
                     match_method=process.create_match_method(
                         manager.match_package_installed
-                    )
+                    ),
+                    with_stderr=True if package_manager == 'dnf5' else False
                 )
             except Exception as issue:
                 if manager.has_failed(process.returncode()):
@@ -447,6 +451,7 @@ class SystemPrepare:
         :raises KiwiSystemInstallPackagesFailed: if installation process fails
         """
         log.info('Installing system packages (chroot)')
+        package_manager = self.xml_state.get_package_manager()
         all_install_items = self._setup_requests(
             manager, packages
         )
@@ -459,7 +464,8 @@ class SystemPrepare:
                     items_to_complete=all_install_items,
                     match_method=process.create_match_method(
                         manager.match_package_installed
-                    )
+                    ),
+                    with_stderr=True if package_manager == 'dnf5' else False
                 )
             except Exception as issue:
                 raise KiwiSystemInstallPackagesFailed(
@@ -484,6 +490,7 @@ class SystemPrepare:
 
         :raises KiwiSystemDeletePackagesFailed: if installation process fails
         """
+        package_manager = self.xml_state.get_package_manager()
         all_delete_items = self._setup_requests(
             manager, packages
         )
@@ -502,7 +509,8 @@ class SystemPrepare:
                     items_to_complete=all_delete_items,
                     match_method=process.create_match_method(
                         manager.match_package_deleted
-                    )
+                    ),
+                    with_stderr=True if package_manager == 'dnf5' else False
                 )
                 manager.post_process_delete_requests(self.root_bind)
             except Exception as issue:
