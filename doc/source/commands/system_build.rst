@@ -18,9 +18,9 @@ SYNOPSIS
        [--clear-cache]
        [--ignore-repos]
        [--ignore-repos-used-for-build]
-       [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>]
+       [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>]
        [--set-repo-credentials=<user:pass_or_filename>]
-       [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>...]
+       [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>...]
        [--add-repo-credentials=<user:pass_or_filename>...]
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
@@ -66,7 +66,7 @@ OPTIONS
   Specify package to add (install). The option can be specified
   multiple times.
 
---add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
+--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
 
   Add a new repository to the existing repository setup in the XML
   description. This option can be specified multiple times.
@@ -120,7 +120,7 @@ OPTIONS
   Works the same way as `--ignore-repos`, except that repository configuration
   with the imageonly attribute set to **true** is not ignored.
 
---set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
+--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
 
   Overwrite the first repository entry in the XML description with the
   provided information:
@@ -177,6 +177,15 @@ OPTIONS
 
     Set to either **true** or **false** to indicate if the repository
     should validate the repository signature.
+
+  - **repo_sourcetype**
+
+    Specify the source type of the repository path. Supported values
+    are baseurl, metalink or mirrorlist. With baseurl the source
+    path is interpreted as simple URI. If metalink is set the source
+    path is resolved as metalink URI and if mirrorlist is set the
+    source path is resolved as a mirrorlist file. If not specified,
+    baseurl is the default
 
 --set-repo-credentials=<user:pass_or_filename>
 

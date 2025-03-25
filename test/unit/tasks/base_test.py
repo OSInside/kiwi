@@ -148,16 +148,16 @@ class TestCliTask:
     def test_quadruple_token(self):
         assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]
 
-    def test_tentuple_token(self):
-        assert self.task.tentuple_token(
-            'a,b,,d,e,f,{1;2;3},x y z,jammy,false'
+    def test_eleventuple_token(self):
+        assert self.task.eleventuple_token(
+            'a,b,,d,e,f,{1;2;3},x y z,jammy,false,metalink'
         ) == [
             'a', 'b', '', 'd', 'e', 'f', ['1', '2', '3'], 'x y z',
-            'jammy', False
+            'jammy', False, 'metalink'
         ]
-        assert self.task.tentuple_token('a,b,,d,e,f,{1;2;3}') == [
+        assert self.task.eleventuple_token('a,b,,d,e,f,{1;2;3}') == [
             'a', 'b', '', 'd', 'e', 'f', ['1', '2', '3'],
-            None, None, None
+            None, None, None, None
         ]
 
     def test_attr_token(self):

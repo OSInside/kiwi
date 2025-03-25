@@ -22,9 +22,9 @@ usage: kiwi-ng system build -h | --help
            [--clear-cache]
            [--ignore-repos]
            [--ignore-repos-used-for-build]
-           [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>]
+           [--set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>]
            [--set-repo-credentials=<user:pass_or_filename>]
-           [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>...]
+           [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>...]
            [--add-repo-credentials=<user:pass_or_filename>...]
            [--add-package=<name>...]
            [--add-bootstrap-package=<name>...]
@@ -54,8 +54,8 @@ options:
         priority, imageinclude(true|false), package_gpgcheck(true|false),
         list of signing_keys enclosed in curly brackets delimited by a colon,
         component list for debian based repos as string delimited by a space,
-        main distribution name for debian based repos and
-        repo_gpgcheck(true|false)
+        main distribution name for debian based repos,
+        repo_gpgcheck(true|false) and repo_sourcetype(metalink|baseurl|mirrorlist)
     --add-repo-credentials=<user:pass_or_filename>
         for uri://user:pass@location type repositories, set the user and
         password connected with an add-repo specification. The first
@@ -94,13 +94,13 @@ options:
         add a container label in the container configuration metadata. It
         overwrites the label with the provided key-value pair in case it was
         already defined in the XML description
-    --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
+    --set-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
         overwrite the first XML listed repository source, type, alias,
         priority, imageinclude(true|false), package_gpgcheck(true|false),
         list of signing_keys enclosed in curly brackets delimited by a colon,
         component list for debian based repos as string delimited by a space,
-        main distribution name for debian based repos and
-        repo_gpgcheck(true|false)
+        main distribution name for debian based repos,
+        repo_gpgcheck(true|false) and repo_sourcetype(metalink|baseurl|mirrorlist)
     --set-repo-credentials=<user:pass_or_filename>
         for uri://user:pass@location type repositories, set the user and
         password connected to the set-repo specification. If the provided
@@ -366,7 +366,7 @@ class SystemBuildTask(CliTask):
         return self.manual
 
     def _get_repo_parameters(self, tokens, credentials):
-        parameters = self.tentuple_token(tokens)
+        parameters = self.eleventuple_token(tokens)
         signing_keys_index = 6
         repo_source_index = 0
         if not parameters[signing_keys_index]:
