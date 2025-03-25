@@ -342,14 +342,14 @@ class TestSystemBuildTask:
         self.task.process()
         mock_set_repo.assert_called_once_with(
             'http://example.com', 'yast2', 'alias',
-            None, None, None, [], None, None, None
+            None, None, None, [], None, None, None, None
         )
         self.task.command_args['--set-repo-credentials'] = 'user:pass'
         mock_set_repo.reset_mock()
         self.task.process()
         mock_set_repo.assert_called_once_with(
             'http://user:pass@example.com', 'yast2', 'alias',
-            None, None, None, [], None, None, None
+            None, None, None, [], None, None, None, None
         )
         self.task.command_args['--set-repo-credentials'] = '../data/credentials'
         mock_os_path_is_file.return_value = True
@@ -357,7 +357,7 @@ class TestSystemBuildTask:
         self.task.process()
         mock_set_repo.assert_called_once_with(
             'http://user:pass@example.com', 'yast2', 'alias',
-            None, None, None, [], None, None, None
+            None, None, None, [], None, None, None, None
         )
         mock_os_unlink.assert_called_once_with('../data/credentials')
 
@@ -377,15 +377,15 @@ class TestSystemBuildTask:
         assert mock_add_repo.call_args_list == [
             call(
                 'http://example1.com', 'yast2', 'alias', '99',
-                False, True, [], None, None, None
+                False, True, [], None, None, None, None
             ),
             call(
                 'http://example2.com', 'yast2', 'alias', '99',
-                False, True, [], None, None, None
+                False, True, [], None, None, None, None
             ),
             call(
                 'http://example3.com', 'yast2', 'alias', '99',
-                False, True, [], None, None, None
+                False, True, [], None, None, None, None
             )
         ]
         self.task.command_args['--add-repo-credentials'] = [
@@ -397,15 +397,15 @@ class TestSystemBuildTask:
         assert mock_add_repo.call_args_list == [
             call(
                 'http://user1:pass1@example1.com', 'yast2', 'alias', '99',
-                False, True, [], None, None, None
+                False, True, [], None, None, None, None
             ),
             call(
                 'http://user2:pass2@example2.com', 'yast2', 'alias', '99',
-                False, True, [], None, None, None
+                False, True, [], None, None, None, None
             ),
             call(
                 'http://example3.com', 'yast2', 'alias', '99',
-                False, True, [], None, None, None
+                False, True, [], None, None, None, None
             )
         ]
 

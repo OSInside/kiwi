@@ -222,12 +222,12 @@ class CliTask:
         """
         return self._ntuple_token(option, 4)
 
-    def tentuple_token(
+    def eleventuple_token(
         self, option: str
     ) -> List[Union[bool, str, List[str], None]]:
         """
         Helper method for commandline options of the
-        form --option a,b,c,d,e,f,g,h,i,j
+        form --option a,b,c,d,e,f,g,h,i,j,k
 
         Make sure to provide a common result for option values which
         separates the information in a comma separated list of values
@@ -238,7 +238,7 @@ class CliTask:
 
         :rtype: list
         """
-        return self._ntuple_token(option, 10)
+        return self._ntuple_token(option, 11)
 
     def attr_token(
         self, option: str

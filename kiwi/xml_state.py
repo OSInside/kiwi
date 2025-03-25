@@ -2308,7 +2308,8 @@ class XMLState:
         repo_prio: str, repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None,
         repo_signing_keys: List[str] = [], components: str = None,
-        distribution: str = None, repo_gpgcheck: Optional[bool] = None
+        distribution: str = None, repo_gpgcheck: Optional[bool] = None,
+        repo_sourcetype: str = None
     ) -> None:
         """
         Overwrite repository data of the first repository
@@ -2349,13 +2350,16 @@ class XMLState:
                 repository.set_distribution(distribution)
             if repo_gpgcheck is not None:
                 repository.set_repository_gpgcheck(repo_gpgcheck)
+            if repo_sourcetype:
+                repository.set_sourcetype(repo_sourcetype)
 
     def add_repository(
         self, repo_source: str, repo_type: str, repo_alias: str = None,
         repo_prio: str = '', repo_imageinclude: bool = False,
         repo_package_gpgcheck: Optional[bool] = None,
         repo_signing_keys: List[str] = [], components: str = None,
-        distribution: str = None, repo_gpgcheck: Optional[bool] = None
+        distribution: str = None, repo_gpgcheck: Optional[bool] = None,
+        repo_sourcetype: str = None
     ) -> None:
         """
         Add a new repository section at the end of the list
@@ -2392,7 +2396,8 @@ class XMLState:
                 package_gpgcheck=repo_package_gpgcheck,
                 repository_gpgcheck=repo_gpgcheck,
                 components=components,
-                distribution=distribution
+                distribution=distribution,
+                sourcetype=repo_sourcetype
             )
         )
 

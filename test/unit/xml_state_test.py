@@ -250,7 +250,7 @@ class TestXMLState:
     def test_set_repository(self):
         self.state.set_repository(
             'repo', 'type', 'alias', 1, True, False, ['key_a', 'key_b'],
-            'main universe', 'jammy', False
+            'main universe', 'jammy', False, 'metalink'
         )
         assert self.state.xml_data.get_repository()[0].get_source().get_path() \
             == 'repo'
@@ -271,11 +271,13 @@ class TestXMLState:
             == 'jammy'
         assert self.state.xml_data.get_repository()[0] \
             .get_repository_gpgcheck() is False
+        assert self.state.xml_data.get_repository()[0] \
+            .get_sourcetype() == 'metalink'
 
     def test_add_repository(self):
         self.state.add_repository(
             'repo', 'type', 'alias', 1, True, None, ['key_a', 'key_b'],
-            'main universe', 'jammy', False
+            'main universe', 'jammy', False, 'metalink'
         )
         assert self.state.xml_data.get_repository()[3].get_source().get_path() \
             == 'repo'
@@ -294,6 +296,8 @@ class TestXMLState:
             == 'jammy'
         assert self.state.xml_data.get_repository()[3] \
             .get_repository_gpgcheck() is False
+        assert self.state.xml_data.get_repository()[3] \
+            .get_sourcetype() == 'metalink'
 
     def test_add_repository_with_empty_values(self):
         self.state.add_repository('repo', 'type', '', '', True)
@@ -304,6 +308,8 @@ class TestXMLState:
         assert self.state.xml_data.get_repository()[3].get_priority() is None
         assert self.state.xml_data.get_repository()[3] \
             .get_imageinclude() is True
+        assert self.state.xml_data.get_repository()[3] \
+            .get_sourcetype() is None
 
     def test_get_to_become_deleted_packages(self):
         assert self.state.get_to_become_deleted_packages() == [
