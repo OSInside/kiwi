@@ -25,6 +25,7 @@ jobs:
         python -m pip install poetry
     - name: Render
       run: |
+        poetry install --all-extras
         poetry run sphinx-build doc/source doc/build
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
