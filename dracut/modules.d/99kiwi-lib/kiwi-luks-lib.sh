@@ -28,6 +28,7 @@ function reencrypt_luks {
     local header_checksum_origin=/root/.luks.header
     local header_checksum_cur=/root/.luks.header.cur
     local keyfile=/root/.root.keyfile
+    local new_keyfile=/run/.kiwi_reencrypt.keyfile
     local passphrase_file=/root/.slot0
     local progress=/dev/install_progress
     local load_text="Reencrypting..."
@@ -35,29 +36,39 @@ function reencrypt_luks {
     local device
     device=$(get_partition_node_name "${disk}" "${kiwi_RootPart}")
     read -r header_checksum_origin < "${header_checksum_origin}"
-    if [ "${kiwi_luks_empty_passphrase}" = "true" ];then
-        cryptsetup \
-            --key-file /dev/zero \
-            --keyfile-size 32 \
-        luksHeaderBackup "${device}" \
-            --header-backup-file "${header_checksum_cur}"
-    else
-        cryptsetup \
-            --key-file "${keyfile}" \
-        luksHeaderBackup "${device}" \
-            --header-backup-file "${header_checksum_cur}"
-    fi
+
+    # Checksum test if luks header is still the image origin header
+    cryptsetup luksHeaderBackup \
+        "${device}" --header-backup-file "${header_checksum_cur}"
     header_checksum_cur=$(
         sha256sum "${header_checksum_cur}" |\
         cut -f1 -d" "; rm -f "${header_checksum_cur}"
     )
     if [ "${header_checksum_origin}" == "${header_checksum_cur}" ];then
+        # setup credentials
         if [ "${kiwi_luks_empty_passphrase}" = "true" ];then
             echo -n > "${passphrase_file}"
+        elif [ -e "${keyfile}" ];then
+            cp "${keyfile}" "${passphrase_file}"
         else
             ask_for_credentials "Enter Credentials for Key Slot(0)"
             get_dialog_result > "${passphrase_file}"
         fi
+        if getargbool 0 rd.kiwi.oem.luks.reencrypt_randompass; then
+            # reset insecure built time passphrase with a random
+            # onetime passphrase that will be stored in memory at $new_keyfile
+            # This action require that the boot process uses $new_keyfile
+            # and sets a retrievable keyfile information for subsequent
+            # boot processes of this system
+            tr -dc '[:graph:]' 2>/dev/null < /dev/urandom |\
+                head -c 32 > "${new_keyfile}"
+            cryptsetup \
+                --key-file "${passphrase_file}" \
+                --key-slot 0 \
+            luksChangeKey "${device}" "${new_keyfile}"
+            cp "${new_keyfile}" "${passphrase_file}"
+        fi
+        # reencrypt
         setup_progress_fifo ${progress}
         (
             # reencrypt slot0, this will wipe all key slots
