@@ -759,6 +759,28 @@ fi
 %endif
 %endif
 
+%post -n python%{python3_pkgversion}-kiwi
+if [ -x /usr/sbin/semanage -a -x /usr/sbin/restorecon ]; then
+    # file contexts
+    semanage fcontext --add --type install_exec_t        '%{_bindir}/kiwi'               2> /dev/null || :
+    semanage fcontext --add --type install_exec_t        '%{_bindir}/kiwi-ng(.*)'        2> /dev/null || :
+    restorecon -r %{_bindir}/kiwi %{_bindir}/kiwi-ng* || :
+fi
+
+%postun -n python%{python3_pkgversion}-kiwi
+%if 0%{?is_deb}
+if [ "$1" = "purge" ] || [ "$1" = "remove" ]; then
+%else
+if [ $1 -eq 0 ]; then
+%endif
+    if [ -x /usr/sbin/semanage ]; then
+        # file contexts
+        semanage fcontext --delete --type install_exec_t        '%{_bindir}/kiwi'               2> /dev/null || :
+        semanage fcontext --delete --type install_exec_t        '%{_bindir}/kiwi-ng(.*)'        2> /dev/null || :
+    fi
+fi
+
+
 %files -n kiwi-systemdeps-core
 # Empty metapackage
 
