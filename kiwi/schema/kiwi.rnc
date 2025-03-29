@@ -27,7 +27,7 @@ namespace nul = ""
 safe-posix-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]+"}
 safe-posix-short-name = xsd:token {pattern = "[a-zA-Z0-9_\-\.]{1,32}"}
 ecma-119-achar-128-text = xsd:token {pattern = "[a-zA-Z0-9!-/:-?_ ]{1,128}"}
-locale-name = xsd:token {pattern = "(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*"}
+locale-name = xsd:token {pattern = "(C.UTF-8|POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*"}
 mac-address-type = xsd:token {pattern = "([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}"}
 size-type = xsd:token {pattern = "(\d*|image)"}
 number-type = xsd:token {pattern = "\d+"}
