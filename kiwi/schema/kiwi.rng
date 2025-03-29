@@ -38,7 +38,7 @@
   </define>
   <define name="locale-name">
     <data type="token">
-      <param name="pattern">(POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*</param>
+      <param name="pattern">(C|POSIX|[a-z]{2,3}_[A-Z]{2})(,[a-z]{2,3}_[A-Z]{2})*</param>
     </data>
   </define>
   <define name="mac-address-type">
