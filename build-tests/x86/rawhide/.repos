@@ -1,2 +1,2 @@
 obs://Virtualization:Appliances:Staging/Fedora_Rawhide
-https://download.fedoraproject.org/pub/fedora/development/rawhide/Everything/x86_64/os/
+https://mirrors.fedoraproject.org/metalink?repo=rawhide&arch=x86_64,,,,,,,,,,metalink

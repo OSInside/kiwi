@@ -49,7 +49,7 @@ options:
         install the given package name as part of the early bootstrap process
     --add-package=<name>
         install the given package name
-    --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck>
+    --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
         add repository with given source, type, alias,
         priority, imageinclude(true|false), package_gpgcheck(true|false),
         list of signing_keys enclosed in curly brackets delimited by a colon,
