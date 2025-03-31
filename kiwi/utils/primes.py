@@ -30,7 +30,6 @@ def _update_primes(n: int) -> None:
     """
     Extend the list of prime numbers if required.
     """
-    global _primes
     if n <= _primes[-1]:
         return
     _n = int(math.ceil(n**0.5))
@@ -50,7 +49,6 @@ def primes(number: int) -> Iterator[int]:
 
     :rtype: int generator
     """
-    global _primes
     _update_primes(number)
     for p in _primes:
         if p <= number:
