@@ -976,7 +976,7 @@ div {
 #
 div {
     k.packagemanager.content =
-        "apt" | "zypper" | "dnf4" | "dnf5" | "microdnf" | "pacman"
+        "apk" | "apt" | "zypper" | "dnf4" | "dnf5" | "microdnf" | "pacman"
     k.packagemanager.attlist = empty
     k.packagemanager =
         ## Name of the Package Manager
@@ -1124,7 +1124,7 @@ div {
     k.repository.type.attribute =
         ## Type of repository
         attribute type {
-            "apt-deb" | "apt-rpm" | "deb-dir" | "mirrors" | "rpm-md"
+            "apk" | "apt-deb" | "apt-rpm" | "deb-dir" | "mirrors" | "rpm-md"
         }
     k.repository.alias.attribute =
         ## Alias name to be used for this repository. This is an

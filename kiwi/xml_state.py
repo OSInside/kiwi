@@ -626,6 +626,8 @@ class XMLState:
                     # The package name for dnf4 is just dnf. Thus
                     # the name must be adapted in this case
                     package_manager_name = 'dnf'
+                elif package_manager_name == 'apk':
+                    package_manager_name = 'apk-tools'
                 result.append(package_manager_name)
         if plus_packages:
             result += plus_packages

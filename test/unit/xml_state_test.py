@@ -152,6 +152,12 @@ class TestXMLState:
         assert self.state.get_bootstrap_packages() == [
             'dnf', 'filesystem',
         ]
+        self.state.get_package_manager = Mock(
+            return_value="apk"
+        )
+        assert self.state.get_bootstrap_packages() == [
+            'apk-tools', 'filesystem',
+        ]
 
     def test_get_system_packages(self):
         assert self.state.get_system_packages() == [

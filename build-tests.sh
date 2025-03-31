@@ -20,6 +20,7 @@ ARGUMENT_LIST=(
     "test-dir:"
     "test-name:"
     "box-name:"
+    "vm"
 )
 
 function usage() {
@@ -30,6 +31,8 @@ function usage() {
     echo "    some test name, e.g. test-image-disk"
     echo "  --box-name <name>"
     echo "    name of the box to use for the build, default: universal"
+    echo "  --vm"
+    echo "    build in a virtual machine instead of a container"
 }
 
 if ! opts=$(getopt \
@@ -59,6 +62,11 @@ while [[ $# -gt 0 ]]; do
         --box-name)
             argBoxName=$2
             shift 2
+            ;;
+
+        --vm)
+            argVM=1
+            shift
             ;;
 
         *)
@@ -107,6 +115,10 @@ function create_build_commands() {
         build_command="kiwi-ng --debug"
         has_profiles=false
         repo_options=$(create_repo_list "${build_dir}")
+        box_options="system boxbuild --box ${boxname}"
+        if [ ! "${argVM}" = 1 ];then
+            box_options="${box_options} --container"
+        fi
         for profile in $(
             xmllint --xpath "//image/profiles/profile/@name" \
             "${image}/appliance.kiwi" 2>/dev/null | cut -f2 -d\"
@@ -114,8 +126,7 @@ function create_build_commands() {
             has_profiles=true
             target_dir="build_results/${base_image}/${profile}"
             build_command="${build_command} --profile ${profile}"
-            build_command="${build_command} system boxbuild"
-            build_command="${build_command} --box ${boxname} --container --"
+            build_command="${build_command} ${box_options} --"
             build_command="${build_command} --description $image"
             build_command="${build_command} ${repo_options}"
             build_command="${build_command} --target-dir ${target_dir}"
@@ -126,8 +137,7 @@ function create_build_commands() {
         done
         if [ "${has_profiles}" = "false" ];then
             target_dir="build_results/${base_image}"
-            build_command="${build_command} system boxbuild"
-            build_command="${build_command} --box ${boxname} --container --"
+            build_command="${build_command} ${box_options} --"
             build_command="${build_command} --description $image"
             build_command="${build_command} ${repo_options}"
             build_command="${build_command} --target-dir ${target_dir}"

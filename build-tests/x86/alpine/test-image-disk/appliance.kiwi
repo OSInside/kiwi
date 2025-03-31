@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-disk">
+    <description type="system">
+        <author>Marcus Schaefer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Alpine Appliance</specification>
+    </description>
+    <preferences>
+        <version>3.21.0</version>
+        <packagemanager>apk</packagemanager>
+    </preferences>
+    <preferences>
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="efi" eficsm="false" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" console="serial" timeout="10"/>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <!-- first repository is also used for bootstrap -->
+    <repository type="apk">
+        <source path="https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/"/>
+    </repository>
+    <repository type="apk">
+        <source path="https://dl-cdn.alpinelinux.org/alpine/latest-stable/community/"/>
+    </repository>
+    <packages type="image">
+        <package name="shadow"/>
+        <package name="dracut"/>
+        <package name="fts"/>
+        <package name="linux-edge"/>
+        <package name="linux-firmware"/>
+        <package name="grub"/>
+        <package name="grub-efi"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="alpine-base"/>
+    </packages>
+</image>

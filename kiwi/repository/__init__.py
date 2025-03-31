@@ -53,7 +53,8 @@ class Repository(metaclass=ABCMeta):
             'dnf4': ['dnf4', 'Dnf4'],
             'microdnf': ['dnf4', 'Dnf4'],
             'apt': ['apt', 'Apt'],
-            'pacman': ['pacman', 'Pacman']
+            'pacman': ['pacman', 'Pacman'],
+            'apk': ['apk', 'Apk']
         }
         try:
             repository = importlib.import_module(
