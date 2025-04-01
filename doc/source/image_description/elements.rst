@@ -176,6 +176,8 @@ table shows which package manager is connected to which distributor:
 +--------------+-----------------+ 
 | Arch Linux   | pacman          |
 +--------------+-----------------+
+| Alpine Linux | apk             |
++--------------+-----------------+
 
 In general the specification of one preferences section is sufficient.
 However, it’s possible to specify multiple preferences sections and
@@ -1389,9 +1391,9 @@ Setup software sources for the image.
 
 The mandatory repository element specifies the location and type of a
 repository to be used by the package manager as a package installation
-source. {kiwi} supports apt, dnf4, dnf5, pacman and zypper as package managers,
-specified with the packagemanager element. The repository element has
-the following optional attributes:
+source. {kiwi} supports apk, apt, dnf4, dnf5, pacman and zypper as
+package managers, specified with the packagemanager element.
+The repository element has the following optional attributes:
 
 alias="name"
   Specifies an alternative name for the configured repository. If the
