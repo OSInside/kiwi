@@ -59,7 +59,8 @@ class PackageManager(metaclass=ABCMeta):
             'dnf4': ['dnf4', 'Dnf4'],
             'microdnf': ['microdnf', 'MicroDnf'],
             'pacman': ['pacman', 'Pacman'],
-            'apt': ['apt', 'Apt']
+            'apt': ['apt', 'Apt'],
+            'apk': ['apk', 'Apk']
         }
         try:
             (module_namespace, module_name) = name_map[package_manager_name]

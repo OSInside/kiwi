@@ -2091,6 +2091,17 @@ class Defaults:
         """
         return '/boot/loader/entries'
 
+    @staticmethod
+    def get_apk_repo_config() -> str:
+        """
+        Repository file for apk
+
+        :return: file path name
+
+        :rtype: str
+        """
+        return '/etc/apk/repositories'
+
     def get(self, key):
         """
         Implements get method for profile elements

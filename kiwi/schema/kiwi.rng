@@ -1492,6 +1492,7 @@ the device is looked up in /dev/disk/by-* and /dev/mapper/*</a:documentation>
   <div>
     <define name="k.packagemanager.content">
       <choice>
+        <value>apk</value>
         <value>apt</value>
         <value>zypper</value>
         <value>dnf4</value>
@@ -1727,6 +1728,7 @@ loading of the container at first boot</a:documentation>
       <attribute name="type">
         <a:documentation>Type of repository</a:documentation>
         <choice>
+          <value>apk</value>
           <value>apt-deb</value>
           <value>apt-rpm</value>
           <value>deb-dir</value>

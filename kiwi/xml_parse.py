@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.10 (main, Sep 18 2024, 22:14:32) [GCC]
+# Python 3.11.11 (main, Dec 06 2024, 17:06:18) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -726,6 +726,7 @@ def _cast(typ, value):
 
 
 class k_packagemanager_content(object):
+    APK='apk'
     APT='apt'
     ZYPPER='zypper'
     DNF_4='dnf4'
