@@ -64,6 +64,7 @@ class XMLDescription:
     def __init__(
         self, description: str = '', derived_from: str = None
     ):
+        log.info(f'Loading XML description: {description}')
         self.markup = Markup.new(description)
         self.description = self.markup.get_xml_description()
         self.derived_from = derived_from

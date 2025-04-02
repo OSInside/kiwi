@@ -160,7 +160,6 @@ class CliTask:
             kiwi searches for a file named config.xml or
             a file matching .kiwi
         """
-        log.info('Loading XML description')
         if kiwi_file:
             config_file = os.sep.join([description_directory, kiwi_file])
         else:
