@@ -280,6 +280,7 @@
         <file name="touch"/>
         <file name="tr"/>
         <file name="true"/>
+        <file name="ts"/>
         <file name="tty"/>
         <file name="tune2fs"/>
         <file name="udevadm"/>
