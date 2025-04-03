@@ -60,8 +60,10 @@ function reencrypt_luks {
             # This action require that the boot process uses $new_keyfile
             # and sets a retrievable keyfile information for subsequent
             # boot processes of this system
+            (umask 077; touch "${new_keyfile}")
             tr -dc '[:graph:]' 2>/dev/null < /dev/urandom |\
                 head -c 32 > "${new_keyfile}"
+            chmod 0400 "${new_keyfile}"
             cryptsetup \
                 --key-file "${passphrase_file}" \
                 --key-slot 0 \
