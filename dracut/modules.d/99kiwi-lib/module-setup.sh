@@ -23,7 +23,7 @@ install() {
         vgs vgchange lvextend lvcreate lvresize pvresize \
         mdadm cryptsetup dialog \
         pv curl xz sha256sum sed \
-        dmsetup
+        dmsetup touch chmod
     inst_multiple -o dolly
     if type partx &> /dev/null;then
         inst_multiple partx
