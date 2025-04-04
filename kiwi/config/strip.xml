@@ -259,6 +259,7 @@
         <file name="sfdisk"/>
         <file name="sg_inq"/>
         <file name="sh"/>
+        <file name="sha256sum"/>
         <file name="showconsole"/>
         <file name="shutdown"/>
         <file name="sleep"/>
