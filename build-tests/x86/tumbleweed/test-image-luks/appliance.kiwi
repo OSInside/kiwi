@@ -48,7 +48,7 @@
         </type>
     </preferences>
     <preferences profiles="ReEncryptExtraBootWithPass">
-        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 rd.kiwi.oem.luks.reencrypt rd.kiwi.oem.luks.reencrypt_randompass quiet" firmware="uefi" luks="linux" luks_version="luks2" luks_pbkdf="pbkdf2" bootpartition="true">
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0 rd.kiwi.oem.luks.reencrypt rd.kiwi.oem.luks.reencrypt_randompass quiet" firmware="uefi" luks="random" luks_version="luks2" luks_pbkdf="pbkdf2" bootpartition="true">
             <luksformat>
                 <option name="--cipher" value="aes-xts-plain64"/>
                 <option name="--key-size" value="256"/>

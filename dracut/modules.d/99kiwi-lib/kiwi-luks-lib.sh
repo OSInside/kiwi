@@ -81,8 +81,8 @@ function reencrypt_luks {
             "${device}" 2>&1 | sed -u 's/.* \([0-9]*\)[0-9.]*%.*/\1/'
         ) >"${progress}" &
         run_progress_dialog "${load_text}" "${title_text}"
-        if [ -e "${keyfile}" ];then
-            # re-add keyfile if present
+        if [ -e "${keyfile}" ] && [ ! -e "${new_keyfile}" ];then
+            # re-add keyfile if present and no other keyfile was created
             cryptsetup --key-file "${passphrase_file}" luksAddKey \
                 "${device}" "${keyfile}"
         fi
