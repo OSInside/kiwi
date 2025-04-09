@@ -72,6 +72,7 @@ class PackageManagerApt(PackageManagerBase):
         self.command_env = runtime_config['command_env']
         self.distribution = runtime_config['distribution']
         self.distribution_path = runtime_config['distribution_path']
+        self.bootstrap_packages: List[str] = []
 
     def request_package(self, name: str) -> None:
         """
@@ -243,14 +244,16 @@ class PackageManagerApt(PackageManagerBase):
                 'Apt update: {0} {1}'.format(result.output, result.error)
             )
             package_names = Temporary(prefix='kiwi_debs_').new_file()
+            self.bootstrap_packages = [
+                '?essential'
+            ] + self.package_requests
             download_bootstrap = [
                 'apt-get'
             ] + self.apt_get_args + self.custom_args + [
                 'install',
                 '-oDebug::pkgDPkgPm=1',
-                f'-oDPkg::Pre-Install-Pkgs::=cat >{package_names.name}',
-                '?essential'
-            ] + self.package_requests
+                f'-oDPkg::Pre-Install-Pkgs::=cat >{package_names.name}'
+            ] + self.bootstrap_packages
             # Download solved bootstrap packages
             result = Command.run(
                 download_bootstrap, self.command_env
@@ -319,6 +322,13 @@ class PackageManagerApt(PackageManagerBase):
         )
         apt_get_command.extend(self.custom_args)
         apt_get_command.append('install')
+        # Due to the special bootstrap process, the packages unpacked
+        # during bootstrap are not properly listed in the apt index.
+        # Therefore the bootstrap packages are added to the install
+        # phase which causes an install of this packages again to
+        # fix the apt index and provide a consistent system from
+        # an apt perspective.
+        apt_get_command.extend(self.bootstrap_packages)
         apt_get_command.extend(self._package_requests())
 
         return Command.call(

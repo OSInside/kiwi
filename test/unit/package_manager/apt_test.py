@@ -258,11 +258,14 @@ class TestPackageManagerApt:
     @patch('kiwi.command.Command.run')
     def test_process_install_requests(self, mock_run, mock_call):
         self.manager.request_package('vim')
+        self.manager.bootstrap_packages = ['?essential', 'some']
         self.manager.process_install_requests()
-        mock_call.assert_called_once_with([
-            'chroot', 'root-dir', 'apt-get',
-            '-c', 'apt.conf', '-y', 'install', 'vim'],
-            self.env
+        mock_call.assert_called_once_with(
+            [
+                'chroot', 'root-dir', 'apt-get',
+                '-c', 'apt.conf', '-y', 'install',
+                '?essential', 'some', 'vim'
+            ], self.env
         )
 
     @patch('kiwi.command.Command.call')
