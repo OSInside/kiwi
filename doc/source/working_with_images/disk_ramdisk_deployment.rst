@@ -20,7 +20,7 @@ oem type definition:
 
 .. code:: xml
 
-    <type image="oem" filesystem="ext4" installiso="true" initrd_system="dracut" installboot="install" kernelcmdline="rd.kiwi.ramdisk ramdisk_size=2048000">
+    <type image="oem" filesystem="ext4" installiso="true" initrd_system="dracut" installboot="install" kernelcmdline="rd.kiwi.ramdisk">
         <bootloader name="grub2" timeout="1"/>
         <oemconfig>
             <oem-skip-verify>true</oem-skip-verify>
@@ -28,6 +28,7 @@ oem type definition:
             <oem-unattended-id>/dev/ram1</oem-unattended-id>
             <oem-swap>false</oem-swap>
             <oem-multipath-scan>false</oem-multipath-scan>
+            <oem-ramdisk-size>2048000</oem-ramdisk-size>
          </oemconfig>
      </type>
 
@@ -39,12 +40,12 @@ without asking any questions. In a ramdisk deployment the
 optional target verification, swap space and multipath targets
 are out of scope and therefore disabled.
 
-The configured size of the ramdisk specifies the size of the
-OS disk and must be at least of the size of the System Image.
-The disk size can be configured with the following value in
-the kernelcmdline attribute:
+The configured size of the ramdisk via `oem-ramdisk-size` specifies
+the kB size of the OS disk and it must be at least of the size of the
+System Image. The disk size can be configured dynamically with the
+following value in the kernelcmdline attribute:
 
-*  ramdisk_size=kbyte-value"
+*  ramdisk_size=kbyte-value
 
 An image built with the above setup can be tested in QEMU as
 follows:

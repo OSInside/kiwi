@@ -134,6 +134,8 @@ class Profile:
                 self._text(oemconfig.get_oem_resize_once())
             self.dot_profile['kiwi_oempartition_install'] = \
                 self._text(oemconfig.get_oem_partition_install())
+            self.dot_profile['kiwi_oemramdisksize'] = \
+                self._text(oemconfig.get_oem_ramdisk_size())
             self.dot_profile['kiwi_oemdevicefilter'] = \
                 self._text(oemconfig.get_oem_device_filter())
             self.dot_profile['kiwi_oemtitle'] = \

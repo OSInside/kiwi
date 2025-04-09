@@ -8001,7 +8001,7 @@ class oemconfig(GeneratedsSuper):
     which are used to repartition and setup the system disk."""
     subclass = None
     superclass = None
-    def __init__(self, oem_boot_title=None, oem_bootwait=None, oem_resize=None, oem_resize_once=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_swapname=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
+    def __init__(self, oem_boot_title=None, oem_bootwait=None, oem_resize=None, oem_resize_once=None, oem_ramdisk_size=None, oem_device_filter=None, oem_nic_filter=None, oem_inplace_recovery=None, oem_kiwi_initrd=None, oem_multipath_scan=None, oem_vmcp_parmfile=None, oem_partition_install=None, oem_reboot=None, oem_reboot_interactive=None, oem_recovery=None, oem_recoveryID=None, oem_recovery_part_size=None, oem_shutdown=None, oem_shutdown_interactive=None, oem_silent_boot=None, oem_silent_install=None, oem_silent_verify=None, oem_skip_verify=None, oem_swap=None, oem_swapsize=None, oem_swapname=None, oem_systemsize=None, oem_unattended=None, oem_unattended_id=None):
         self.original_tagname_ = None
         if oem_boot_title is None:
             self.oem_boot_title = []
@@ -8019,6 +8019,10 @@ class oemconfig(GeneratedsSuper):
             self.oem_resize_once = []
         else:
             self.oem_resize_once = oem_resize_once
+        if oem_ramdisk_size is None:
+            self.oem_ramdisk_size = []
+        else:
+            self.oem_ramdisk_size = oem_ramdisk_size
         if oem_device_filter is None:
             self.oem_device_filter = []
         else:
@@ -8146,6 +8150,11 @@ class oemconfig(GeneratedsSuper):
     def add_oem_resize_once(self, value): self.oem_resize_once.append(value)
     def insert_oem_resize_once_at(self, index, value): self.oem_resize_once.insert(index, value)
     def replace_oem_resize_once_at(self, index, value): self.oem_resize_once[index] = value
+    def get_oem_ramdisk_size(self): return self.oem_ramdisk_size
+    def set_oem_ramdisk_size(self, oem_ramdisk_size): self.oem_ramdisk_size = oem_ramdisk_size
+    def add_oem_ramdisk_size(self, value): self.oem_ramdisk_size.append(value)
+    def insert_oem_ramdisk_size_at(self, index, value): self.oem_ramdisk_size.insert(index, value)
+    def replace_oem_ramdisk_size_at(self, index, value): self.oem_ramdisk_size[index] = value
     def get_oem_device_filter(self): return self.oem_device_filter
     def set_oem_device_filter(self, oem_device_filter): self.oem_device_filter = oem_device_filter
     def add_oem_device_filter(self, value): self.oem_device_filter.append(value)
@@ -8272,6 +8281,7 @@ class oemconfig(GeneratedsSuper):
             self.oem_bootwait or
             self.oem_resize or
             self.oem_resize_once or
+            self.oem_ramdisk_size or
             self.oem_device_filter or
             self.oem_nic_filter or
             self.oem_inplace_recovery or
@@ -8340,6 +8350,9 @@ class oemconfig(GeneratedsSuper):
         for oem_resize_once_ in self.oem_resize_once:
             showIndent(outfile, level, pretty_print)
             outfile.write('<oem-resize-once>%s</oem-resize-once>%s' % (self.gds_format_boolean(oem_resize_once_, input_name='oem-resize-once'), eol_))
+        for oem_ramdisk_size_ in self.oem_ramdisk_size:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<oem-ramdisk-size>%s</oem-ramdisk-size>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_ramdisk_size_), input_name='oem-ramdisk-size')), eol_))
         for oem_device_filter_ in self.oem_device_filter:
             showIndent(outfile, level, pretty_print)
             outfile.write('<oem-device-filter>%s</oem-device-filter>%s' % (self.gds_encode(self.gds_format_string(quote_xml(oem_device_filter_), input_name='oem-device-filter')), eol_))
@@ -8456,6 +8469,10 @@ class oemconfig(GeneratedsSuper):
                 raise_parse_error(child_, 'requires boolean')
             ival_ = self.gds_validate_boolean(ival_, node, 'oem_resize_once')
             self.oem_resize_once.append(ival_)
+        elif nodeName_ == 'oem-ramdisk-size':
+            oem_ramdisk_size_ = child_.text
+            oem_ramdisk_size_ = self.gds_validate_string(oem_ramdisk_size_, node, 'oem_ramdisk_size')
+            self.oem_ramdisk_size.append(oem_ramdisk_size_)
         elif nodeName_ == 'oem-device-filter':
             oem_device_filter_ = child_.text
             oem_device_filter_ = self.gds_validate_string(oem_device_filter_, node, 'oem_device_filter')

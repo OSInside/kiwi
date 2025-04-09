@@ -492,6 +492,23 @@ div {
 }
 
 #==========================================
+# common element <oem-ramdisk-size>
+#
+div {
+    k.oem-ramdisk-size.content = text
+    k.oem-ramdisk-size.attlist = empty
+    k.oem-ramdisk-size =
+        ## For oemboot driven images: specify the size of the ramdisk
+        ## The value is taken into account if the deployment of the
+        ## image happens into a ramdisk. The value can be overwritten
+        ## with the kernel boot parameter: ramdisk_size
+        element oem-ramdisk-size {
+            k.oem-ramdisk-size.attlist,
+            k.oem-ramdisk-size.content
+        }
+}
+
+#==========================================
 # common element <oem-device-filter>
 #
 div {
@@ -3462,6 +3479,7 @@ div {
             k.oem-bootwait? &
             k.oem-resize? &
             k.oem-resize-once? &
+            k.oem-ramdisk-size? &
             k.oem-device-filter? &
             k.oem-nic-filter? &
             k.oem-inplace-recovery? &
