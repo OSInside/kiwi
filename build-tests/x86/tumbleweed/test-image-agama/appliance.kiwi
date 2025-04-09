@@ -16,7 +16,7 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" fsmountoptions="compress=zstd:15" firmware="uefi" installiso="true" installpxe="true" installboot="install" kernelcmdline="rd.kiwi.ramdisk ramdisk_size=3145728 rd.kiwi.install.pass.bootparam" volid="agama">
+        <type image="oem" filesystem="btrfs" fsmountoptions="compress=zstd:15" firmware="uefi" installiso="true" installpxe="true" installboot="install" kernelcmdline="rd.kiwi.ramdisk rd.kiwi.install.pass.bootparam" volid="agama">
             <bootloader name="grub2" timeout="1"/>
             <oemconfig>
                 <oem-skip-verify>true</oem-skip-verify>
@@ -24,6 +24,7 @@
                 <oem-unattended-id>/dev/ram1</oem-unattended-id>
                 <oem-swap>false</oem-swap>
                 <oem-multipath-scan>false</oem-multipath-scan>
+                <oem-ramdisk-size>3145728</oem-ramdisk-size>
             </oemconfig>
             <size unit="M">2500</size>
         </type>
