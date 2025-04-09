@@ -425,15 +425,17 @@ function get_remote_image_source_files {
             "Failed to fetch ${image_sha256_uri}" /tmp/fetch.info
     fi
 
-    if ! fetch_file "${image_kernel_uri}" > "${metadata_dir}/linux";then
-        show_log_and_quit \
-            "Failed to fetch ${image_kernel_uri}" /tmp/fetch.info
-    fi
+    if ! getargbool 0 rd.kiwi.ramdisk; then
+        if ! fetch_file "${image_kernel_uri}" > "${metadata_dir}/linux";then
+            show_log_and_quit \
+                "Failed to fetch ${image_kernel_uri}" /tmp/fetch.info
+        fi
 
-    if ! fetch_file "${image_initrd_uri}" > "${install_dir}/initrd.system_image"
-    then
-        show_log_and_quit \
-            "Failed to fetch ${image_initrd_uri}" /tmp/fetch.info
+        if ! fetch_file "${image_initrd_uri}" > "${install_dir}/initrd.system_image"
+        then
+            show_log_and_quit \
+                "Failed to fetch ${image_initrd_uri}" /tmp/fetch.info
+        fi
     fi
 
     if ! fetch_file "${image_config_uri}" > "/config.bootoptions"
