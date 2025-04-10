@@ -25,7 +25,7 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="PXE">
-        <type image="oem" filesystem="btrfs" fsmountoptions="compress=zstd:15" firmware="uefi" installpxe="true" kernelcmdline="rd.kiwi.ramdisk rd.kiwi.install.pass.bootparam">
+        <type image="oem" filesystem="btrfs" fsmountoptions="compress=zstd:15" firmware="custom" installpxe="true" kernelcmdline="rd.kiwi.ramdisk rd.kiwi.install.pass.bootparam">
             <bootloader name="custom"/>
             <oemconfig>
                 <oem-skip-verify>true</oem-skip-verify>
