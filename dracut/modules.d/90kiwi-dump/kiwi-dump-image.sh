@@ -22,6 +22,7 @@ function get_disk_list {
     declare kiwi_install_volid=${kiwi_install_volid}
     declare kiwi_oemunattended=${kiwi_oemunattended}
     declare kiwi_oemunattended_id=${kiwi_oemunattended_id}
+    declare kiwi_oemramdisksize=${kiwi_oemramdisksize}
     local disk_id="by-id"
     local disk_size
     local disk_device
@@ -48,8 +49,14 @@ function get_disk_list {
         # target should be a ramdisk on request. Thus actively
         # load the ramdisk block driver and support custom sizes
         local rd_size
+        local custom_rd_size
         local modfile=/etc/modprobe.d/99-brd.conf
-        rd_size=$(getarg ramdisk_size=)
+        custom_rd_size=$(getarg ramdisk_size=)
+        if [ -n "${custom_rd_size}" ];then
+            rd_size="${custom_rd_size}"
+        elif [ -n "${kiwi_oemramdisksize}" ];then
+            rd_size="${kiwi_oemramdisksize}"
+        fi
         mkdir -p /etc/modprobe.d
         if [ -n "${rd_size}" ];then
             echo "options brd rd_size=${rd_size}" > ${modfile}

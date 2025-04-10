@@ -6,6 +6,10 @@
         <contact>yast2-maintainers@suse.de</contact>
         <specification>Agama RamDisk Installer ISO</specification>
     </description>
+    <profiles>
+        <profile name="PXE" description="Small Agama instance for remote installation"/>
+        <profile name="ISO" description="Standard Agama instance for local installation"/>
+    </profiles>
     <preferences>
         <version>1.0.1</version>
         <packagemanager>zypper</packagemanager>
@@ -16,7 +20,23 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="btrfs" fsmountoptions="compress=zstd:15" firmware="uefi" installiso="true" installpxe="true" installboot="install" kernelcmdline="rd.kiwi.ramdisk ramdisk_size=3145728 rd.kiwi.install.pass.bootparam" volid="agama">
+    </preferences>
+    <preferences profiles="PXE">
+        <type image="oem" filesystem="btrfs" fsmountoptions="compress=zstd:15" firmware="uefi" installpxe="true" kernelcmdline="rd.kiwi.ramdisk rd.kiwi.install.pass.bootparam">
+            <bootloader name="custom"/>
+            <oemconfig>
+                <oem-skip-verify>true</oem-skip-verify>
+                <oem-unattended>true</oem-unattended>
+                <oem-unattended-id>/dev/ram1</oem-unattended-id>
+                <oem-swap>false</oem-swap>
+                <oem-multipath-scan>false</oem-multipath-scan>
+                <oem-ramdisk-size>3145728</oem-ramdisk-size>
+            </oemconfig>
+            <size unit="M">2500</size>
+        </type>
+    </preferences>
+    <preferences profiles="ISO">
+        <type image="oem" filesystem="btrfs" fsmountoptions="compress=zstd:15" firmware="uefi" installiso="true" installboot="install" kernelcmdline="rd.kiwi.ramdisk rd.kiwi.install.pass.bootparam" volid="agama">
             <bootloader name="grub2" timeout="1"/>
             <oemconfig>
                 <oem-skip-verify>true</oem-skip-verify>
@@ -24,6 +44,7 @@
                 <oem-unattended-id>/dev/ram1</oem-unattended-id>
                 <oem-swap>false</oem-swap>
                 <oem-multipath-scan>false</oem-multipath-scan>
+                <oem-ramdisk-size>3145728</oem-ramdisk-size>
             </oemconfig>
             <size unit="M">2500</size>
         </type>
@@ -35,20 +56,28 @@
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
     </repository>
-    <packages type="image">
-        <package name="avahi"/>
-        <package name="bind-utils"/>
-        <package name="patterns-openSUSE-base"/>
-        <package name="systemd"/>
+    <packages type="image" profiles="PXE">
+        <!-- specific packages for Agama remote install -->
+        <package name="kernel-default"/>
+    </packages>
+    <packages type="image" profiles="ISO">
+        <!-- specific packages for agama ISO workload -->
+        <package name="kernel-default"/>
         <package name="grub2-branding-openSUSE" arch="aarch64,x86_64"/>
-        <package name="iputils"/>
-        <package name="vim"/>
-        <package name="vim-data"/>
         <package name="grub2"/>
         <package name="grub2-arm64-efi" arch="aarch64"/>
         <package name="grub2-x86_64-efi" arch="x86_64"/>
         <package name="grub2-i386-pc" arch="x86_64"/>
-        <package name="syslinux" arch="x86_64"/>
+        <package name="shim" arch="aarch64,x86_64"/>
+    </packages>
+    <packages type="image">
+        <!-- general system packages for agama workload -->
+        <package name="avahi"/>
+        <package name="bind-utils"/>
+        <package name="patterns-openSUSE-base"/>
+        <package name="systemd"/>
+        <package name="iputils"/>
+        <package name="vim"/>
         <package name="fontconfig"/>
         <package name="fonts-config"/>
         <package name="adobe-sourcecodepro-fonts"/>
@@ -59,8 +88,6 @@
         <package name="bash-completion"/>
         <package name="dhcp-client"/>
         <package name="which"/>
-        <package name="kernel-default"/>
-        <!-- the firmware files not referenced by any kernel driver are removed from the image -->
         <package name="kernel-firmware"/>
         <package name="adaptec-firmware"/>
         <package name="atmel-firmware"/>
@@ -68,10 +95,8 @@
         <package name="ipw-firmware"/>
         <package name="mpt-firmware"/>
         <package name="zd1211-firmware"/>
-        <package name="systemd-zram-service"/> <!--- needed for zram -->
-        <package name="shim" arch="aarch64,x86_64"/>
+        <package name="systemd-zram-service"/>
         <package name="timezone"/>
-        <package name="dracut-kiwi-live"/>
         <package name="blog" arch="s390x" />
         <package name="libblogger2" arch="s390x" />
         <package name="xauth"/>
@@ -90,7 +115,6 @@
         <package name="icewm-lite"/>
         <package name="xinit"/>
         <package name="psmisc"/>
-        <package name="joe"/>
         <package name="checkmedia"/>
         <package name="spice-vdagent"/>
         <package name="libtss2-tcti-device0"/>
@@ -99,7 +123,6 @@
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
     <packages type="delete">
-        <package name="vim-data"/>
         <package name="alsa"/>
         <package name="alsa-utils"/>
         <package name="alsa-ucm-conf"/>

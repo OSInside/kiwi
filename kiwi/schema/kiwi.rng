@@ -808,6 +808,29 @@ operation happens only once and then never again</a:documentation>
   </div>
   <!--
     ==========================================
+    common element <oem-ramdisk-size>
+    
+  -->
+  <div>
+    <define name="k.oem-ramdisk-size.content">
+      <text/>
+    </define>
+    <define name="k.oem-ramdisk-size.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-ramdisk-size">
+      <element name="oem-ramdisk-size">
+        <a:documentation>For oemboot driven images: specify the size of the ramdisk
+The value is taken into account if the deployment of the
+image happens into a ramdisk. The value can be overwritten
+with the kernel boot parameter: ramdisk_size</a:documentation>
+        <ref name="k.oem-ramdisk-size.attlist"/>
+        <ref name="k.oem-ramdisk-size.content"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-device-filter>
     
   -->
@@ -5173,6 +5196,9 @@ and setup the system disk.</a:documentation>
           </optional>
           <optional>
             <ref name="k.oem-resize-once"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-ramdisk-size"/>
           </optional>
           <optional>
             <ref name="k.oem-device-filter"/>

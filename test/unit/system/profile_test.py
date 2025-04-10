@@ -110,6 +110,7 @@ class TestProfile:
             'kiwi_lvm': 'true',
             'kiwi_lvmgroup': 'systemVG',
             'kiwi_oembootwait': None,
+            'kiwi_oemramdisksize': None,
             'kiwi_oemdevicefilter': None,
             'kiwi_oemnicfilter': None,
             'kiwi_oemkboot': None,
