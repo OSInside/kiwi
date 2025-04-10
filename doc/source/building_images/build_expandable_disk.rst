@@ -213,6 +213,15 @@ a target system:
          other images are deployed, the file must be modified to match the
          correct root reference.
 
+      .. note::
+
+         If the image gets deployed into a ramdisk which is configured
+         by passing `rd.kiwi.ramdisk` as part of the append setup below,
+         it is not required to copy the above mentioned kernel and initrd
+         file to boot the system because for ramdisk deployments the
+         currently active kernel and initrd will be used as kexec cannot
+         be called with a system in memory.
+
 4. Add/Update the kernel command line parameters.
 
    Edit your PXE configuration (for example :file:`pxelinux.cfg/default`) on
