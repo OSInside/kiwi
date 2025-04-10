@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
 <image schemaversion="7.5" name="test-image-agama">
     <description type="system">
         <author>YaST Team</author>
