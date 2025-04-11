@@ -869,6 +869,7 @@ class TestBootLoaderConfigGrub2:
         sysconfig_bootloader = MagicMock()
         mock_sysconfig.return_value = sysconfig_bootloader
         mock_exists.return_value = True
+        self.bootloader.bls = False
         self.bootloader._setup_sysconfig_bootloader()
         mock_sysconfig.assert_called_once_with(
             'root_dir/etc/sysconfig/bootloader'
@@ -909,6 +910,7 @@ class TestBootLoaderConfigGrub2:
         sysconfig_bootloader = MagicMock()
         mock_sysconfig.return_value = sysconfig_bootloader
         mock_exists.return_value = True
+        self.bootloader.bls = False
         self.bootloader._setup_sysconfig_bootloader()
         mock_sysconfig.assert_called_once_with(
             'root_dir/etc/sysconfig/bootloader'
@@ -937,6 +939,20 @@ class TestBootLoaderConfigGrub2:
             ),
             call('LOADER_LOCATION', 'none'),
             call('LOADER_TYPE', 'grub2-efi'),
+            call('SECURE_BOOT', 'no'),
+            call('TRUSTED_BOOT', 'yes')
+        ]
+        sysconfig_bootloader.__setitem__.reset_mock()
+        self.bootloader.bls = True
+        self.bootloader._setup_sysconfig_bootloader()
+        assert sysconfig_bootloader.__setitem__.call_args_list == [
+            call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
+            call(
+                'FAILSAFE_APPEND',
+                '"some-cmdline root=UUID=foo failsafe-options"'
+            ),
+            call('LOADER_LOCATION', 'none'),
+            call('LOADER_TYPE', 'grub2-bls'),
             call('SECURE_BOOT', 'no'),
             call('TRUSTED_BOOT', 'yes')
         ]
