@@ -286,10 +286,11 @@ class ResultBundleTask(CliTask):
     ) -> str:
         image_version = result.xml_state.get_image_version()
         image_name = result.xml_state.xml_data.get_name()
-        if '.tar.' in result_file.filename:
+        special_exts = ['.oci.tar.', '.docker.tar.', '.vagrant.']
+        if any(special_ext in result_file.filename for special_ext in special_exts):
+            extension = f'{".".join(result_file.filename.split(".")[-3:])}'
+        elif '.tar.' in result_file.filename:
             extension = f'tar.{result_file.filename.split(".").pop()}'
-        elif '.vagrant.' in result_file.filename:
-            extension = f'vagrant.{".".join(result_file.filename.split(".")[-2:])}'
         else:
             extension = result_file.filename.split('.').pop()
         if bundle_file_format_name:
