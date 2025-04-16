@@ -61,6 +61,8 @@
         <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
+        <!-- Filter out unwanted EFI files from the embedded ESP -->
+        <file name="iso-esp-excludes.yaml" target="image/exclude_files_efifatimage.yaml"/>
         <package name="grub2"/>
         <package name="grubby"/>
         <package name="kernel"/>

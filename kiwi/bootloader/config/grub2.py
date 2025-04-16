@@ -35,6 +35,7 @@ from kiwi.path import Path
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.utils.sync import DataSync
 from kiwi.utils.sysconfig import SysConfig
+from kiwi.utils.temporary import Temporary
 
 from kiwi.exceptions import (
     KiwiTemplateError,
@@ -1032,6 +1033,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.xml_state.build_type
                 .get_efifatimagesize() or defaults.EFI_FAT_IMAGE_SIZE
         )
+        efi_folder = Temporary(prefix='efi_folder').new_dir()
+        efi_data = DataSync(self.boot_dir + '/EFI/', efi_folder.name)
+        efi_data.sync_data(
+            options=Defaults.get_sync_options(),
+            exclude=Defaults.get_exclude_list_from_custom_exclude_files_for_efifatimage(self.root_dir)
+        )
         Command.run(
             ['qemu-img', 'create', path, f'{fat_image_mbsize}M']
         )
@@ -1041,7 +1048,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         Command.run(
             [
                 'mcopy', '-Do', '-s', '-i', path,
-                self.boot_dir + '/EFI', '::'
+                efi_folder.name, '::EFI'
             ]
         )
 

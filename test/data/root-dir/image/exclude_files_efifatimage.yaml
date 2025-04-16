@@ -1,0 +1,3 @@
+exclude:
+- BOOT/fbia32.efi
+- BOOT/fbx64.efi
