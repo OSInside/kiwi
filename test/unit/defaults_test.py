@@ -107,6 +107,23 @@ class TestDefaults:
         assert Defaults.get_vendor_grubenv('boot/efi') == \
             'boot/efi/EFI/fedora/grubenv'
 
+    def test_parse_exclude_file_is_valid(self):
+        assert Defaults._parse_exclude_file(
+            '../data/root-dir', 'exclude_files.yaml'
+        ) == [
+            'usr/bin/qemu-binfmt',
+            'usr/bin/qemu-x86_64-binfmt',
+            'usr/bin/qemu-x86_64'
+        ]
+
+    @patch('yaml.safe_load')
+    def test_parse_exclude_file_is_invalid(self, mock_yaml_safe_load):
+        mock_yaml_safe_load.return_value = {'invalid': 'artificial'}
+        with self._caplog.at_level(logging.WARNING):
+            assert Defaults._parse_exclude_file(
+                '../data/root-dir', 'exclude_files.yaml'
+            ) == []
+
     def test_get_exclude_list_from_custom_exclude_files(self):
         assert Defaults.get_exclude_list_from_custom_exclude_files(
             '../data/root-dir'
@@ -123,6 +140,24 @@ class TestDefaults:
         mock_yaml_safe_load.return_value = {'invalid': 'artificial'}
         with self._caplog.at_level(logging.WARNING):
             assert Defaults.get_exclude_list_from_custom_exclude_files(
+                '../data/root-dir'
+            ) == []
+
+    def test_get_exclude_list_from_custom_exclude_files_for_efifatimage(self):
+        assert Defaults.get_exclude_list_from_custom_exclude_files_for_efifatimage(
+            '../data/root-dir'
+        ) == [
+            'BOOT/fbia32.efi',
+            'BOOT/fbx64.efi',
+        ]
+
+    @patch('yaml.safe_load')
+    def test_get_exclude_list_from_custom_exclude_files_for_efifatimage_is_invalid(
+        self, mock_yaml_safe_load
+    ):
+        mock_yaml_safe_load.return_value = {'invalid': 'artificial'}
+        with self._caplog.at_level(logging.WARNING):
+            assert Defaults.get_exclude_list_from_custom_exclude_files_for_efifatimage(
                 '../data/root-dir'
             ) == []
 

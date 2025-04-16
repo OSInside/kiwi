@@ -443,19 +443,30 @@ class Defaults:
             return yaml.safe_load(meta)
 
     @staticmethod
-    def get_exclude_list_from_custom_exclude_files(root_dir: str) -> List:
+    def _parse_exclude_file(root_dir: str, exclude_filename: str) -> List:
         """
-        Provides the list of folders that are excluded by the
-        optional metadata file image/exclude_files.yaml
+        Retrieves an exclusion list from the provided metadata file
 
-        :return: list of file and directory names
+        The file should contain a YAML dictionary with a top-level key
+        named 'exclude' and the list of exclusions as its value.
+
+        The list of exclusions may include:
+            * file paths
+            * folder paths
+            * glob patterns
+
+        Paths and patterns should be relative to the filesystem or
+        directory that they're being excluded from.
+
+        :return: list of paths and glob patterns
 
         :param string root_dir: image root directory
+        :param string exclude_filename: file exclusion YAML metadata file
 
         :rtype: list
         """
         exclude_file = os.sep.join(
-            [root_dir, 'image', 'exclude_files.yaml']
+            [root_dir, 'image', exclude_filename]
         )
         exclude_list = []
         if os.path.isfile(exclude_file):
@@ -472,6 +483,36 @@ class Defaults:
                         f'invalid yaml structure in {exclude_file}, ignored'
                     )
         return exclude_list
+
+    @staticmethod
+    def get_exclude_list_from_custom_exclude_files(root_dir: str) -> List:
+        """
+        Gets the list of excluded items for the root filesystem from
+        the optional metadata file image/exclude_files.yaml
+
+        :return: list of paths and glob patterns
+
+        :param string root_dir: image root directory
+
+        :rtype: list
+        """
+        return Defaults._parse_exclude_file(root_dir, 'exclude_files.yaml')
+
+    @staticmethod
+    def get_exclude_list_from_custom_exclude_files_for_efifatimage(root_dir: str) -> List:
+        """
+        Gets the list of excluded items for the ESP's EFI folder from
+        the optional metadata file image/exclude_files_efifatimage.yaml
+
+        Excluded items must be relative to the ESP's /EFI directory.
+
+        :return: list of paths and glob patterns
+
+        :param string root_dir: EFI root directory
+
+        :rtype: list
+        """
+        return Defaults._parse_exclude_file(root_dir, 'exclude_files_efifatimage.yaml')
 
     @staticmethod
     def get_exclude_list_for_non_physical_devices():
