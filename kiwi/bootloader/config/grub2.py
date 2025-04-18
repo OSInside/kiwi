@@ -640,6 +640,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'LOADER_LOCATION':
                 'none' if self.firmware.efi_mode() else 'mbr'
         }
+        if self.bls:
+            sysconfig_bootloader_entries['LOADER_TYPE'] = 'grub2-bls'
         if '--set-trusted-boot' in self.config_options:
             sysconfig_bootloader_entries['TRUSTED_BOOT'] = 'yes'
         if self.firmware.efi_mode() == 'uefi':
