@@ -116,6 +116,7 @@
         <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
+        <package name="dracut"/>
         <package name="gawk"/>
         <package name="grep"/>
         <package name="gzip"/>
