@@ -119,7 +119,7 @@
         <package name="elfutils"/>
         <package name="udev"/>
         <package name="growpart"/>
-        <package name="python3-gcemetadata"/>
+        <package name="python-gcemetadata"/>
         <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
