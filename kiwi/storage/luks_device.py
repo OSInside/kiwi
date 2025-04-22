@@ -94,6 +94,7 @@ class LuksDevice(DeviceProvider):
             to unlock the luks device
         :param string root_dir: root dir path
         """
+        keyslot = '0'
         if not options:
             options = []
         if osname:
@@ -174,6 +175,7 @@ class LuksDevice(DeviceProvider):
                     'luksAddKey', storage_device, keyfile_path
                 ]
             )
+            keyslot = '1'
 
         # Create backup header checksum as reencryption reference
         master_checksum = f'{root_dir}/root/.luks.header'
@@ -189,6 +191,11 @@ class LuksDevice(DeviceProvider):
         checksum = Checksum(master_checksum).sha256()
         with open(master_checksum, 'w') as shasum:
             shasum.write(checksum)
+
+        # Create key slot number as reencryption reference
+        master_slot = f'{root_dir}/root/.luks.slot'
+        with open(master_slot, 'w') as slot:
+            slot.write(keyslot)
 
         # open the pool
         Command.run(

@@ -25,17 +25,19 @@ function deactivate_luks {
 function reencrypt_luks {
     declare kiwi_RootPart=${kiwi_RootPart}
     local disk=$1
+    local keyslot=/root/.luks.slot
     local header_checksum_origin=/root/.luks.header
     local header_checksum_cur=/root/.luks.header.cur
     local keyfile=/root/.root.keyfile
     local new_keyfile=/run/.kiwi_reencrypt.keyfile
-    local passphrase_file=/root/.slot0
+    local passphrase_file=/root/.slotpass
     local progress=/dev/install_progress
     local load_text="Reencrypting..."
     local title_text="LUKS"
     local device
     device=$(get_partition_node_name "${disk}" "${kiwi_RootPart}")
     read -r header_checksum_origin < "${header_checksum_origin}"
+    read -r keyslot < "${keyslot}"
 
     # Checksum test if luks header is still the image origin header
     cryptsetup luksHeaderBackup \
@@ -66,18 +68,18 @@ function reencrypt_luks {
             chmod 0400 "${new_keyfile}"
             cryptsetup \
                 --key-file "${passphrase_file}" \
-                --key-slot 0 \
+                --key-slot "${keyslot}" \
             luksChangeKey "${device}" "${new_keyfile}"
             cp "${new_keyfile}" "${passphrase_file}"
         fi
         # reencrypt
         setup_progress_fifo ${progress}
         (
-            # reencrypt slot0, this will wipe all key slots
+            # reencrypt, this will overwrite all key slots
             cryptsetup reencrypt \
                 --progress-frequency 1 \
                 --key-file "${passphrase_file}" \
-                --key-slot 0 \
+                --key-slot "${keyslot}" \
             "${device}" 2>&1 | sed -u 's/.* \([0-9]*\)[0-9.]*%.*/\1/'
         ) >"${progress}" &
         run_progress_dialog "${load_text}" "${title_text}"

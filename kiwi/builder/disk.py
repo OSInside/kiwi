@@ -1277,15 +1277,19 @@ class DiskBuilder:
         self, luks_root: Optional[LuksDevice]
     ) -> None:
         if luks_root is not None:
-            log.info('Including origin LUKS header checksum')
-            filename = ''.join(
-                [self.root_dir, '/root/.luks.header']
+            log.info(
+                'Including origin LUKS header checksum and key slot number'
             )
-            self.boot_image.include_file(
-                filename=os.sep + os.sep.join(
-                    ['root', os.path.basename(filename)]
-                ), delete_after_include=True
-            )
+            filenames = [
+                ''.join([self.root_dir, '/root/.luks.header']),
+                ''.join([self.root_dir, '/root/.luks.slot'])
+            ]
+            for filename in filenames:
+                self.boot_image.include_file(
+                    filename=os.sep + os.sep.join(
+                        ['root', os.path.basename(filename)]
+                    ), delete_after_include=True
+                )
 
     def _write_generic_fstab_to_system_image(
         self, device_map: Dict,
