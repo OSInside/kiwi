@@ -1196,7 +1196,8 @@ class TestDiskBuilder:
             call('/root/.root.keyfile'),
             call('/config.partids'),
             call('/etc/crypttab'),
-            call(filename='/root/.luks.header', delete_after_include=True)
+            call(filename='/root/.luks.header', delete_after_include=True),
+            call(filename='/root/.luks.slot', delete_after_include=True)
         ]
         self.boot_image_task.write_system_config_file.assert_called_once_with(
             config={'install_items': ['/root/.root.keyfile']},
@@ -1251,7 +1252,8 @@ class TestDiskBuilder:
             call('/root/.root.keyfile'),
             call('/config.partids'),
             call('/etc/crypttab'),
-            call(filename='/root/.luks.header', delete_after_include=True)
+            call(filename='/root/.luks.header', delete_after_include=True),
+            call(filename='/root/.luks.slot', delete_after_include=True)
         ]
         self.boot_image_task.write_system_config_file.assert_called_once_with(
             config={'install_items': ['/root/.root.keyfile']},
