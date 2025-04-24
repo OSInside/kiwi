@@ -624,8 +624,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
 
     def _setup_sysconfig_bootloader(self):
         """
-        Create or update etc/sysconfig/bootloader by the following
-        parameters required according to the grub2 bootloader setup
+        Create or update etc/sysconfig/bootloader for the following
+        parameters. Please note this file is consumed by perl-bootloader
+        only and marked for deletion with the next major release of
+        kiwi because not a mainline grub config file.
 
         * LOADER_TYPE
         * LOADER_LOCATION
@@ -640,6 +642,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             'LOADER_LOCATION':
                 'none' if self.firmware.efi_mode() else 'mbr'
         }
+        if self.bls:
+            sysconfig_bootloader_entries['LOADER_TYPE'] = 'grub2-bls'
         if '--set-trusted-boot' in self.config_options:
             sysconfig_bootloader_entries['TRUSTED_BOOT'] = 'yes'
         if self.firmware.efi_mode() == 'uefi':
