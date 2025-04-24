@@ -173,7 +173,7 @@ class TestBootLoaderZipl:
         self.bootloader.disk_type = 'CDL'
         self.bootloader.disk_blocksize = 4096
         assert self.bootloader._get_template_parameters() == {
-            'secure_image_file': 'bootpath/kernel-filename.cc',
+            'secure_image_file': '',
             'kernel_file': 'vmlinuz',
             'initrd_file': 'initrd',
             'boot_options': 'options',
