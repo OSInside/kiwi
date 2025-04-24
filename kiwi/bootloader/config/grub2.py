@@ -253,7 +253,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
 
         self._setup_default_grub()
-        self._setup_sysconfig_bootloader()
         if self.arch.startswith('s390'):
             self._setup_zipl2grub_conf()
 
@@ -658,62 +657,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         ):
             return True
         return False
-
-    def _setup_sysconfig_bootloader(self):
-        """
-        Create or update etc/sysconfig/bootloader for the following
-        parameters. Please note this file is consumed by perl-bootloader
-        only and marked for deletion with the next major release of
-        kiwi because not a mainline grub config file.
-
-        * LOADER_TYPE
-        * LOADER_LOCATION
-        * DEFAULT_APPEND
-        * FAILSAFE_APPEND
-        * SECURE_BOOT
-        * TRUSTED_BOOT
-        """
-        sysconfig_bootloader_entries = {
-            'LOADER_TYPE':
-                'grub2-efi' if self.firmware.efi_mode() else 'grub2',
-            'LOADER_LOCATION':
-                'none' if self.firmware.efi_mode() else 'mbr'
-        }
-        if self.bls:
-            sysconfig_bootloader_entries['LOADER_TYPE'] = 'grub2-bls'
-        if '--set-trusted-boot' in self.config_options:
-            sysconfig_bootloader_entries['TRUSTED_BOOT'] = 'yes'
-        if self.firmware.efi_mode() == 'uefi':
-            sysconfig_bootloader_entries['SECURE_BOOT'] = 'yes'
-        elif self.firmware.efi_mode() == 'efi':
-            sysconfig_bootloader_entries['SECURE_BOOT'] = 'no'
-        if self.cmdline:
-            sysconfig_bootloader_entries['DEFAULT_APPEND'] = '"{0}"'.format(
-                self.cmdline
-            )
-        if self.cmdline_failsafe:
-            sysconfig_bootloader_entries['FAILSAFE_APPEND'] = '"{0}"'.format(
-                self.cmdline_failsafe
-            )
-
-        sysconfig_bootloader_location = ''.join(
-            [self.root_dir, '/etc/sysconfig/']
-        )
-        if os.path.exists(sysconfig_bootloader_location):
-            log.info('Writing sysconfig bootloader file')
-            sysconfig_bootloader_file = ''.join(
-                [sysconfig_bootloader_location, 'bootloader']
-            )
-            sysconfig_bootloader = SysConfig(
-                sysconfig_bootloader_file
-            )
-            sysconfig_bootloader_entries_sorted = OrderedDict(
-                sorted(sysconfig_bootloader_entries.items())
-            )
-            for key, value in list(sysconfig_bootloader_entries_sorted.items()):
-                log.info('--> {0}:{1}'.format(key, value))
-                sysconfig_bootloader[key] = value
-            sysconfig_bootloader.write()
 
     def _setup_zipl2grub_conf(self):
         zipl2grub_config_file = ''.join(
