@@ -122,12 +122,28 @@ class TestBootLoaderConfigBase:
         self.state.build_type.get_overlayroot = Mock(
             return_value=True
         )
+        self.state.get_luks_credentials = Mock(
+            return_value=None
+        )
         with self._caplog.at_level(logging.WARNING):
             assert self.bootloader.get_boot_cmdline(
                 '/dev/myroot'
             ) == 'rd.root.overlay.write=/dev/myrw root=overlay:PARTUUID=mock'
             assert 'Overlay write device explicitly set via kernelcmdline' \
                 in self._caplog.text
+
+    @patch('kiwi.xml_parse.type_.get_kernelcmdline')
+    def test_get_boot_cmdline_root_overlay_luks(self, mock_cmdline):
+        mock_cmdline.return_value = ''
+        self.state.build_type.get_overlayroot = Mock(
+            return_value=True
+        )
+        self.state.get_luks_credentials = Mock(
+            return_value='some'
+        )
+        assert self.bootloader.get_boot_cmdline(
+            '/dev/myroot'
+        ) == 'root=overlay:MAPPER=luks'
 
     @patch('kiwi.xml_parse.type_.get_initrd_system')
     @patch('kiwi.bootloader.config.base.BlockID')
@@ -182,6 +198,9 @@ class TestBootLoaderConfigBase:
         mock_initrd.return_value = 'dracut'
         self.state.build_type.get_overlayroot = Mock(
             return_value=True
+        )
+        self.state.get_luks_credentials = Mock(
+            return_value=None
         )
         assert self.bootloader.get_boot_cmdline('/dev/ro', '/dev/rw') == \
             'splash rd.root.overlay.write=/dev/disk/by-uuid/mock root=overlay:PARTUUID=mock'

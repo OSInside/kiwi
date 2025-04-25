@@ -628,11 +628,18 @@ class BootLoaderConfigBase(ABC):
             if self.xml_state.build_type.get_overlayroot():
                 # In case of an overlay setup the root partition is a squashfs
                 # In this case the root location can only be specified by the
-                # partition uuid because squashfs itself doesn't have one
-                root_location = self._get_location(boot_device, 'by-partuuid')
-                return 'root=overlay:{0}={1}'.format(
-                    root_location['type'], root_location['name']
-                )
+                # partition uuid because squashfs itself doesn't have one.
+                # Exception to this is if the overlay is also encrypted
+                luks = self.xml_state.get_luks_credentials()
+                if luks is not None:
+                    return 'root=overlay:MAPPER=luks'
+                else:
+                    root_location = self._get_location(
+                        boot_device, 'by-partuuid'
+                    )
+                    return 'root=overlay:{0}={1}'.format(
+                        root_location['type'], root_location['name']
+                    )
             else:
                 root_location = self._get_location(boot_device)
                 return 'root={0}={1}'.format(
