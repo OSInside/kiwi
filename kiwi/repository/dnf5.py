@@ -98,7 +98,7 @@ class RepositoryDnf5(RepositoryBase):
         }
 
         self.runtime_dnf_config_file = Temporary(
-            path=self.root_dir, prefix='kiwi_dnf5.conf'
+            path=self.root_dir, prefix='kiwi_dnf5.config'
         ).unmanaged_file()
 
         self.dnf_args = [
