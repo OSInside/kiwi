@@ -319,10 +319,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         # More details can be found in the individual methods.
         # One fine day the following fix methods can hopefully
         # be deleted...
-        if self.xml_state.build_type.get_overlayroot_write_partition() is not False:
-            self._fix_grub_root_device_reference(config_file, boot_options)
-            self._fix_grub_loader_entries_boot_cmdline()
-            self._fix_grub_loader_entries_linux_and_initrd_paths()
+        self._fix_grub_root_device_reference(config_file, boot_options)
+        self._fix_grub_loader_entries_boot_cmdline()
+        self._fix_grub_loader_entries_linux_and_initrd_paths()
 
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
