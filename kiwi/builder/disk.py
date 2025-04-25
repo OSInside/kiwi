@@ -848,10 +848,8 @@ class DiskBuilder:
                 integrity_root
             )
 
-            # run post sync script hook
-            if system and self.system_setup.script_exists(
-                defaults.POST_DISK_SYNC_SCRIPT
-            ):
+            # run post sync actions...
+            if system:
                 with ImageSystem(
                     device_map, self.root_dir,
                     system.get_volumes() if self.volume_manager_name else {},
@@ -861,7 +859,13 @@ class DiskBuilder:
                     disk_system = SystemSetup(
                         self.xml_state, image_system.mountpoint()
                     )
-                    disk_system.call_disk_script()
+                    if self.system_setup.script_exists(
+                        defaults.POST_DISK_SYNC_SCRIPT
+                    ):
+                        # run post sync script hook
+                        disk_system.call_disk_script()
+                    # setup security context
+                    disk_system.setup_selinux_file_contexts()
 
             # install boot loader
             if self.bootloader != 'custom':
