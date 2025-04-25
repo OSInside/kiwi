@@ -116,10 +116,10 @@ class RepositoryZypper(RepositoryBase):
         }
 
         self.runtime_zypper_config_file = Temporary(
-            path=self.root_dir, prefix='kiwi_zypper.conf'
+            path=self.root_dir, prefix='kiwi_zypper.config'
         ).unmanaged_file()
         self.runtime_zypp_config_file = Temporary(
-            path=self.root_dir, prefix='kiwi_zypp.conf'
+            path=self.root_dir, prefix='kiwi_zypp.config'
         ).unmanaged_file()
 
         self.zypper_args = [

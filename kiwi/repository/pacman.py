@@ -58,7 +58,7 @@ class RepositoryPacman(RepositoryBase):
         self.repo_names: List = []
 
         self.runtime_pacman_config_file = Temporary(
-            path=self.root_dir, prefix='kiwi_pacman.conf'
+            path=self.root_dir, prefix='kiwi_pacman.config'
         ).unmanaged_file()
 
         if 'check_signatures' in self.custom_args:

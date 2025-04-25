@@ -91,7 +91,7 @@ class RepositoryApt(RepositoryBase):
         self.keyring = '{}/trusted.gpg'.format(self.manager_base)
 
         self.runtime_apt_get_config_file = Temporary(
-            path=self.root_dir, prefix='kiwi_apt.conf'
+            path=self.root_dir, prefix='kiwi_apt.config'
         ).unmanaged_file()
 
         self.apt_get_args = [
