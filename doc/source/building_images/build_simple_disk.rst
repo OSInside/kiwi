@@ -164,8 +164,8 @@ The following attributes are supported by the `machine` element:
   `vmware`.
 
 - `HWversion`: The virtual machine's hardware version (`vmdk` and `ova`
-  formats only), refer https://kb.vmware.com/s/article/1003746 for further
-  information on which value to choose.
+  formats only), refer to VMware documentation for further
+  information on the supported values.
 
 - `arch`: the VM architecture (`vmdk` format only). Valid values are
   `ix86` (= `i585` and `i686`) and `x86_64`.
