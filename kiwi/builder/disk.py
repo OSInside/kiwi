@@ -876,17 +876,17 @@ class DiskBuilder:
                             device_map, disk, system, bootloader_config
                         )
 
-                    # call edit_boot_install script
-                    boot_device = device_map['root']
-                    if 'boot' in device_map:
-                        boot_device = device_map['boot']
-                    self.system_setup.call_edit_boot_install_script(
-                        self.diskname, boot_device.get_device()
-                    )
-
                     # set root filesystem properties
                     if system:
                         self._setup_property_root_is_readonly_snapshot(system)
+
+            # call edit_boot_install script
+            boot_device = device_map['root']
+            if 'boot' in device_map:
+                boot_device = device_map['boot']
+            self.system_setup.call_edit_boot_install_script(
+                self.diskname, boot_device.get_device()
+            )
 
     def _install_image_requested(self) -> bool:
         return bool(
@@ -1584,9 +1584,6 @@ class DiskBuilder:
                 # root tree
                 exclude_list.remove('image')
                 exclude_list.append('image/*')
-                for entry in ['boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*']:
-                    if entry in exclude_list:
-                        exclude_list.remove(entry)
                 with MountManager(
                     device='tmpfs', mountpoint=os.path.join(
                         self.root_dir, 'boot'
@@ -1597,6 +1594,13 @@ class DiskBuilder:
                         # make sure to keep boot/efi mountpoints
                         # as they can't be created later
                         Path.create(f'{self.root_dir}/boot/efi')
+                        for entry in [
+                            'boot/*', 'boot/.*',
+                            'boot/efi/*', 'boot/efi/.*'
+                        ]:
+                            if entry in exclude_list:
+                                exclude_list.remove(entry)
+
                     squashed_root.create_on_file(
                         filename=squashed_root_file.name,
                         exclude=exclude_list
