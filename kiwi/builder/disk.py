@@ -30,6 +30,8 @@ else:  # pragma: no cover
 # project
 import kiwi.defaults as defaults
 
+from kiwi.path import Path
+from kiwi.mount_manager import MountManager
 from kiwi.utils.veritysetup import VeritySetup
 from kiwi.utils.temporary import Temporary
 from kiwi.system.mount import ImageSystem
@@ -1581,11 +1583,24 @@ class DiskBuilder:
                 # such that it can be bind mounted from the unpacked
                 # root tree
                 exclude_list.remove('image')
+                exclude_list.remove('boot/*')
+                exclude_list.remove('boot/.*')
+                exclude_list.remove('boot/efi/*')
+                exclude_list.remove('boot/efi/.*')
                 exclude_list.append('image/*')
-                squashed_root.create_on_file(
-                    filename=squashed_root_file.name,
-                    exclude=exclude_list
-                )
+                with MountManager(
+                    device='tmpfs', mountpoint=os.path.join(
+                        self.root_dir, 'boot'
+                    )
+                ) as overlay_boot:
+                    overlay_boot.tmpfs_mount()
+                    # make sure to keep boot/efi mountpoints
+                    # as they can't be created later
+                    Path.create(f'{self.root_dir}/boot/efi')
+                    squashed_root.create_on_file(
+                        filename=squashed_root_file.name,
+                        exclude=exclude_list
+                    )
 
                 if self.root_filesystem_verity_blocks:
                     squashed_root.create_verity_layer(

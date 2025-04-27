@@ -895,6 +895,7 @@ class TestDiskBuilder:
             'clone:1024:1024', 1
         )
 
+    @patch('kiwi.builder.disk.Path')
     @patch('kiwi.builder.disk.Disk')
     @patch('kiwi.builder.disk.create_boot_loader_config')
     @patch('kiwi.builder.disk.LoopDevice')
@@ -908,12 +909,13 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Temporary.new_file')
     @patch('random.randrange')
     @patch('kiwi.builder.disk.BlockID')
+    @patch('kiwi.builder.disk.MountManager')
     def test_create_disk_standard_root_is_overlay(
-        self, mock_BlockID, mock_rand, mock_temp,
+        self, mock_MountManager, mock_BlockID, mock_rand, mock_temp,
         mock_getsize, mock_exists, mock_grub_dir, mock_command,
         mock_squashfs, mock_fs, mock_DeviceProvider,
         mock_LoopDevice, mock_create_boot_loader_config,
-        mock_Disk
+        mock_Disk, mock_Path
     ):
         disk = self._get_disk_instance()
         mock_Disk.return_value.__enter__.return_value = disk
@@ -967,7 +969,7 @@ class TestDiskBuilder:
             call(exclude=[
                 '.kconfig', 'run/*', 'tmp/*',
                 '.buildenv', 'var/cache/kiwi',
-                'boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*', 'image/*'
+                'image/*'
             ], filename='kiwi-tempname')
         ]
         squashfs.create_verity_layer.assert_called_once_with(10)
