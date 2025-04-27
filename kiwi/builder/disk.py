@@ -1583,11 +1583,10 @@ class DiskBuilder:
                 # such that it can be bind mounted from the unpacked
                 # root tree
                 exclude_list.remove('image')
-                exclude_list.remove('boot/*')
-                exclude_list.remove('boot/.*')
-                exclude_list.remove('boot/efi/*')
-                exclude_list.remove('boot/efi/.*')
                 exclude_list.append('image/*')
+                for entry in ['boot/*', 'boot/.*', 'boot/efi/*', 'boot/efi/.*']:
+                    if entry in exclude_list:
+                        exclude_list.remove(entry)
                 with MountManager(
                     device='tmpfs', mountpoint=os.path.join(
                         self.root_dir, 'boot'
