@@ -24,12 +24,9 @@ class TestImageSystem:
             'efi': MappedDevice('/dev/efi-device', Mock()),
             'var': MappedDevice('/dev/var-device', Mock())
         }
-        self.volumes = {
-            'name': {
-                'volume_options': 'a,b,c',
-                'volume_device': '/dev/vgroup/volume'
-            }
-        }
+        volume_manager = Mock()
+        volume_manager.get_mountpoint.return_value = 'volume_manager_root'
+        self.volume_manager = volume_manager
         self.partitions = {
             'var': ptable_entry_type(
                 mbsize=100,
@@ -41,7 +38,7 @@ class TestImageSystem:
             )
         }
         self.image_system = ImageSystem(
-            self.device_map, 'root_dir', self.volumes, self.partitions
+            self.device_map, 'root_dir', self.volume_manager, self.partitions
         )
 
     @patch('os.path.exists')
@@ -49,16 +46,14 @@ class TestImageSystem:
         self.setup()
 
     def test_mountpoint(self):
-        some_mount = MagicMock()
-        self.image_system.mount_list.append(some_mount)
-        assert self.image_system.mountpoint() == some_mount.mountpoint
+        assert self.image_system.mountpoint() == ''
 
     @patch('kiwi.system.mount.MountManager')
-    def test_mount(self, mock_MountManager):
+    def test_mount_with_volumes(self, mock_MountManager):
         self.image_system.mount()
-        root_mount_mountpoint = self.image_system.mount_list[0].mountpoint
+        root_mount_mountpoint = self.image_system.mountpoint()
+        self.volume_manager.mount_volumes.assert_called_once_with()
         assert mock_MountManager.call_args_list == [
-            call(device='/dev/readonly-root-device'),
             call(
                 device='/dev/boot-device',
                 mountpoint=os.path.join(root_mount_mountpoint, 'boot')
@@ -72,8 +67,49 @@ class TestImageSystem:
                 mountpoint=os.path.join(root_mount_mountpoint, 'var')
             ),
             call(
-                device='/dev/vgroup/volume',
-                mountpoint=os.path.join(root_mount_mountpoint, 'name')
+                device='root_dir/image',
+                mountpoint=os.path.join(root_mount_mountpoint, 'image')
+            ),
+            call(
+                device='tmpfs',
+                mountpoint=os.path.join(root_mount_mountpoint, 'tmp')
+            ),
+            call(
+                device='tmpfs',
+                mountpoint=os.path.join(root_mount_mountpoint, 'var', 'tmp')
+            ),
+            call(
+                device='/proc',
+                mountpoint=os.path.join(root_mount_mountpoint, 'proc')
+            ),
+            call(
+                device='/sys',
+                mountpoint=os.path.join(root_mount_mountpoint, 'sys')
+            ),
+            call(
+                device='/dev',
+                mountpoint=os.path.join(root_mount_mountpoint, 'dev')
+            )
+        ]
+
+    @patch('kiwi.system.mount.MountManager')
+    def test_mount(self, mock_MountManager):
+        self.image_system.volume_manager = None
+        self.image_system.mount()
+        root_mount_mountpoint = self.image_system.mountpoint()
+        assert mock_MountManager.call_args_list == [
+            call(device='/dev/readonly-root-device'),
+            call(
+                device='/dev/boot-device',
+                mountpoint=os.path.join(root_mount_mountpoint, 'boot')
+            ),
+            call(
+                device='/dev/efi-device',
+                mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'efi')
+            ),
+            call(
+                device='/dev/var-device',
+                mountpoint=os.path.join(root_mount_mountpoint, 'var')
             ),
             call(
                 device='root_dir/image',
@@ -105,8 +141,8 @@ class TestImageSystem:
     def test_mount_s390(self, mock_MountManager):
         self.image_system.arch = 's390x'
         self.image_system.mount()
-        root_mount_mountpoint = self.image_system.mount_list[0].mountpoint
-        assert mock_MountManager.call_args_list[1] == call(
+        root_mount_mountpoint = self.image_system.mountpoint()
+        assert mock_MountManager.call_args_list[0] == call(
             device='/dev/boot-device',
             mountpoint=os.path.join(root_mount_mountpoint, 'boot', 'zipl')
         )

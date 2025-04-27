@@ -852,7 +852,7 @@ class DiskBuilder:
             if system:
                 with ImageSystem(
                     device_map, self.root_dir,
-                    system.get_volumes() if self.volume_manager_name else {},
+                    system if self.volume_manager_name else None,
                     self.custom_partitions if self.custom_partitions else {}
                 ) as image_system:
                     image_system.mount()
@@ -862,10 +862,11 @@ class DiskBuilder:
                     if self.system_setup.script_exists(
                         defaults.POST_DISK_SYNC_SCRIPT
                     ):
-                        # run post sync script hook
+                        # run post sync script hook and security context
                         disk_system.call_disk_script()
-                    # setup security context
-                    disk_system.setup_selinux_file_contexts()
+                    else:
+                        # setup security context
+                        disk_system.setup_selinux_file_contexts()
 
             # install boot loader
             if self.bootloader != 'custom':
