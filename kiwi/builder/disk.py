@@ -1592,10 +1592,11 @@ class DiskBuilder:
                         self.root_dir, 'boot'
                     )
                 ) as overlay_boot:
-                    overlay_boot.tmpfs_mount()
-                    # make sure to keep boot/efi mountpoints
-                    # as they can't be created later
-                    Path.create(f'{self.root_dir}/boot/efi')
+                    if system_boot:
+                        overlay_boot.tmpfs_mount()
+                        # make sure to keep boot/efi mountpoints
+                        # as they can't be created later
+                        Path.create(f'{self.root_dir}/boot/efi')
                     squashed_root.create_on_file(
                         filename=squashed_root_file.name,
                         exclude=exclude_list
