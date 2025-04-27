@@ -1168,6 +1168,19 @@ class TestBootLoaderConfigGrub2:
             assert 'initrd /initrd' in \
                 file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
 
+            # test read-only device
+            file_handle_grub.write.side_effect = OSError('readonly system')
+            file_handle_grubenv.write.side_effect = OSError('readonly system')
+            file_handle_menu.write.side_effect = OSError('readonly system')
+
+            with self._caplog.at_level(logging.INFO):
+                self.bootloader.setup_disk_image_config(
+                    boot_options={
+                        'root_device': 'rootdev', 'boot_device': 'bootdev'
+                    }
+                )
+                assert 'readonly system' in self._caplog.text
+
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     def test_setup_install_image_config_standard(
         self, mock_copy_grub_config_to_efi_path

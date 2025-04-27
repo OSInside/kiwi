@@ -18,6 +18,7 @@
 from string import Template
 from textwrap import dedent
 import re
+import sys
 import os
 import logging
 import glob
@@ -50,6 +51,13 @@ from kiwi.exceptions import (
 import kiwi.defaults as defaults
 
 log = logging.getLogger('kiwi')
+
+
+def func_name():
+    """
+    helper method to return name of caller
+    """
+    return sys._getframe(1).f_code.co_name
 
 
 class BootLoaderConfigGrub2(BootLoaderConfigBase):
@@ -1488,8 +1496,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     grub_config
                 )
 
-            with open(config_file, 'w') as grub_config_file:
-                grub_config_file.write(grub_config)
+            try:
+                with open(config_file, 'w') as grub_config_file:
+                    grub_config_file.write(grub_config)
+            except OSError as issue:
+                log.warning(f'{func_name()} skipped: {issue}')
+                return
 
             if self.firmware.efi_mode():
                 vendor_grubenv_file = \
@@ -1535,8 +1547,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                         r'options {0}'.format(self.cmdline),
                         menu_entry
                     )
-                with open(menu_entry_file, 'w') as grub_menu_entry_file:
-                    grub_menu_entry_file.write(menu_entry)
+                try:
+                    with open(menu_entry_file, 'w') as grub_menu_entry_file:
+                        grub_menu_entry_file.write(menu_entry)
+                except OSError as issue:
+                    log.warning(f'{func_name()} skipped: {issue}')
+                    return
 
     def _fix_grub_loader_entries_linux_and_initrd_paths(self):
         # For the same reasons encoded in _fix_grub_loader_entries_boot_cmdline
@@ -1568,8 +1584,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     log.debug(f'Updated loader entry: {config_path}')
 
             menu_entry = os.linesep.join(menu_entry)
-            with open(menu_entry_file, 'w') as grub_menu_entry_file:
-                grub_menu_entry_file.write(menu_entry)
+            try:
+                with open(menu_entry_file, 'w') as grub_menu_entry_file:
+                    grub_menu_entry_file.write(menu_entry)
+            except OSError as issue:
+                log.warning(f'{func_name()} skipped: {issue}')
 
     def _get_partition_start(self, disk_device):
         if self.target_table_type == 'dasd':
