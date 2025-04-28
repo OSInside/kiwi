@@ -1805,8 +1805,10 @@ class DiskBuilder:
                 bootloader.install()
             bootloader.secure_boot_install()
 
-            if self.use_disk_password and self.luks:
-                bootloader.set_disk_password(self.luks)
+            if self.use_disk_password and self.storage_map['luks_root']:
+                bootloader.set_disk_password(
+                    self.storage_map['luks_root'].passphrase
+                )
         else:
             log.warning(
                 'No install of bootcode on read-only root possible'
