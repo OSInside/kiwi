@@ -17,6 +17,7 @@
 #
 import os
 import logging
+import binascii
 from typing import Optional
 
 # project
@@ -47,6 +48,7 @@ class LuksDevice(DeviceProvider):
 
         self.luks_device: Optional[str] = None
         self.luks_keyfile: str = ''
+        self.passphrase: str = ''
         self.luks_name = 'luksRoot'
 
         self.option_map = {
@@ -95,6 +97,7 @@ class LuksDevice(DeviceProvider):
         :param string root_dir: root dir path
         """
         keyslot = '0'
+        self.passphrase = passphrase
         if not options:
             options = []
         if osname:
@@ -116,7 +119,7 @@ class LuksDevice(DeviceProvider):
             keyfile_path = os.path.normpath(
                 os.sep.join([root_dir, self.luks_keyfile])
             )
-            LuksDevice.create_random_keyfile(keyfile_path)
+            random_passphrase = LuksDevice.create_random_keyfile(keyfile_path)
 
         if randomize:
             log.info('--> Randomizing...')
@@ -139,6 +142,7 @@ class LuksDevice(DeviceProvider):
             # initrd also gets protected, e.g through encryption
             # like it is done with the secure linux execution on
             # zSystems
+            self.passphrase = random_passphrase
             passphrase_file = keyfile_path
             # Do not add an additional keyfile
             keyfile = ''
@@ -242,15 +246,19 @@ class LuksDevice(DeviceProvider):
         return self.storage_provider.is_loop()
 
     @staticmethod
-    def create_random_keyfile(filename: str) -> None:
+    def create_random_keyfile(filename: str) -> str:
         """
         Create keyfile with random data
 
         :param string filename: file path name
         """
-        with open(filename, 'wb') as keyfile:
-            keyfile.write(os.urandom(Defaults.get_luks_key_length()))
+        random_data = binascii.hexlify(
+            os.urandom(Defaults.get_luks_key_length())
+        ).decode()
+        with open(filename, 'w') as keyfile:
+            keyfile.write(random_data)
         os.chmod(filename, 0o600)
+        return random_data
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.luks_device:

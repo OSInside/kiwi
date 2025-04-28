@@ -167,6 +167,7 @@ class TestDiskBuilder:
             return_value=self.integrity_root
         )
         self.luks_root = Mock()
+        self.luks_root.passphrase = 'passphrase'
         kiwi.builder.disk.LuksDevice = Mock(
             return_value=self.luks_root
         )

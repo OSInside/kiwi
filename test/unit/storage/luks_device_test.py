@@ -247,7 +247,7 @@ class TestLuksDevice:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
             LuksDevice.create_random_keyfile('some-file')
-            file_handle.write.assert_called_once_with(secret)
+            file_handle.write.assert_called_once_with('736563726574')
             mock_os_chmod.assert_called_once_with('some-file', 0o600)
 
     def test_is_loop(self):
