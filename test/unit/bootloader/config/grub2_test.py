@@ -1591,13 +1591,6 @@ class TestBootLoaderConfigGrub2:
                         'root_dir/usr/share/grub2/i386-pc/',
                         'root_dir/boot/grub2/i386-pc'
                     ]
-                ),
-                call(
-                    [
-                        'rsync', '-a', '--exclude', '/*.module',
-                        'root_dir/usr/share/grub2/x86_64-efi/',
-                        'root_dir/boot/grub2/x86_64-efi'
-                    ]
                 )
             ]
 
@@ -1666,13 +1659,6 @@ class TestBootLoaderConfigGrub2:
                             'rsync', '-a', '--exclude', '/*.module',
                             'root_dir/usr/share/grub2/i386-pc/',
                             'root_dir/boot/grub2/i386-pc'
-                        ]
-                    ),
-                    call(
-                        [
-                            'rsync', '-a', '--exclude', '/*.module',
-                            'root_dir/usr/share/grub2/x86_64-efi/',
-                            'root_dir/boot/grub2/x86_64-efi'
                         ]
                     ),
                     call(
@@ -1763,13 +1749,6 @@ class TestBootLoaderConfigGrub2:
                             'rsync', '-a', '--exclude', '/*.module',
                             'root_dir/usr/share/grub2/i386-pc/',
                             'root_dir/boot/grub2/i386-pc'
-                        ]
-                    ),
-                    call(
-                        [
-                            'rsync', '-a', '--exclude', '/*.module',
-                            'root_dir/usr/share/grub2/x86_64-efi/',
-                            'root_dir/boot/grub2/x86_64-efi'
                         ]
                     ),
                     call(

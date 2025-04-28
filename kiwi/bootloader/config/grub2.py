@@ -564,7 +564,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._setup_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
-            self._copy_efi_modules_to_boot_directory(lookup_path)
             if not self._get_shim_install():
                 self._setup_secure_boot_efi_image(
                     lookup_path=lookup_path, uuid=boot_uuid
