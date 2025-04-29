@@ -10,12 +10,11 @@ SYNOPSIS
 
    kiwi-ng [global options] service <command> [<args>]
 
-   kiwi-ng result bundle -h | --help
+   kiwi-ng result bundle --help
    kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
        [--bundle-format=<format>]
        [--zsync_source=<download_location>]
        [--package-as-rpm]
-   kiwi-ng result bundle help
 
 .. _db_kiwi_result_bundle_desc:
 
