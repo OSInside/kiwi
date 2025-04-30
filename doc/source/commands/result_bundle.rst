@@ -15,6 +15,7 @@ SYNOPSIS
        [--bundle-format=<format>]
        [--zsync_source=<download_location>]
        [--package-as-rpm]
+       [--no-compress]
    kiwi-ng result bundle help
 
 .. _db_kiwi_result_bundle_desc:
@@ -75,3 +76,8 @@ OPTIONS
 --package-as-rpm
 
   Create an RPM package containing the result files.
+
+--no-compress
+
+  Do not compress the result image file(s). Note: Image files that
+  were already produced as compressed variants stays compressed.
