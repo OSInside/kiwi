@@ -21,6 +21,7 @@ usage: kiwi-ng result bundle -h | --help
            [--bundle-format=<format>]
            [--zsync-source=<download_location>]
            [--package-as-rpm]
+           [--no-compress]
        kiwi-ng result bundle help
 
 commands:
@@ -54,6 +55,8 @@ options:
         If provided this setting will overwrite an eventually
         provided bundle_format attribute from the main
         image description
+    --no-compress
+        Do not compress the result image file(s)
 """
 from collections import OrderedDict
 from textwrap import dedent
@@ -231,7 +234,7 @@ class ResultBundleTask(CliTask):
                 bundle_file = ''.join(
                     [bundle_directory, '/', bundle_file_basename]
                 )
-                if result_file.compress:
+                if result_file.compress and not self.command_args['--no-compress']:
                     log.info('--> Compressing')
                     compress = Compress(bundle_file)
                     bundle_file = compress.xz(self.runtime_config.get_xz_options())

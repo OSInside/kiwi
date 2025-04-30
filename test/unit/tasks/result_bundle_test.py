@@ -74,6 +74,7 @@ class TestResultBundleTask:
         self.task.command_args['--zsync-source'] = None
         self.task.command_args['--package-as-rpm'] = None
         self.task.command_args['--bundle-format'] = None
+        self.task.command_args['--no-compress'] = None
 
     def test_process_invalid_bundle_directory(self):
         self._init_command_args()
