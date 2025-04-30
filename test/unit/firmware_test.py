@@ -38,6 +38,9 @@ class TestFirmWare:
         xml_state.get_build_type_bootloader_targettype.return_value = 'CDL'
         self.firmware_s390_cdl = FirmWare(xml_state)
 
+        xml_state.get_build_type_bootloader_targettype.return_value = 'GPT'
+        self.firmware_s390_gpt = FirmWare(xml_state)
+
         xml_state.get_build_type_bootloader_targettype.return_value = 'SCSI'
         self.firmware_s390_scsi = FirmWare(xml_state)
 
@@ -67,6 +70,7 @@ class TestFirmWare:
         assert self.firmware_efi_mbr.get_partition_table_type() == 'msdos'
         assert self.firmware_s390_cdl.get_partition_table_type() == 'dasd'
         assert self.firmware_s390_scsi.get_partition_table_type() == 'msdos'
+        assert self.firmware_s390_gpt.get_partition_table_type() == 'gpt'
 
     def test_get_partition_table_type_ppc_ofw_mode(self):
         assert self.firmware_ofw.get_partition_table_type() == 'gpt'

@@ -1181,11 +1181,11 @@ timeout_style="countdown|hidden":
   an indication of the remaining time is displayed. The attribute is
   available for the grub loader only.
 
-targettype="CDL|LDL|FBA|SCSI":
+targettype="CDL|LDL|FBA|SCSI|GPT":
   Specifies the device type of the disk zipl should boot.
-  On zFCP devices, use `SCSI`; on DASD devices, use `CDL` or `LDL`; on
-  emulated DASD devices, use `FBA`. The attribute is available for the
-  zipl loader only.
+  On zFCP and/or KVM devices, use `SCSI` or `GPT`; on DASD devices,
+  use `CDL` or `LDL`; on emulated DASD devices, use `FBA`.
+  The attribute is available for the zipl loader only.
 
 <preferences><type><bootloader><securelinux>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
