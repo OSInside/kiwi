@@ -31,11 +31,11 @@
         </type>
     </preferences>
     <preferences profiles="Virtual_GPT">
-        <type image="oem" filesystem="xfs" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2" targettype="GPT">
+        <type image="oem" filesystem="xfs" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2_s390x_emu" console="serial" timeout="10"/>
+            <bootloader name="grub2_s390x_emu" console="serial" timeout="10" targettype="GPT"/>
         </type>
     </preferences>
     <preferences profiles="Physical">
