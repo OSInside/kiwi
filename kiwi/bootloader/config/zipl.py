@@ -204,7 +204,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
             'boot_timeout': self.timeout,
             'bootpath': self.get_boot_path(),
             'targetbase': targetbase,
-            'targettype': disk_type,
+            'targettype': disk_type if disk_type != 'GPT' else 'SCSI',
             'targetblocksize': format(blocksize),
             'targetoffset': self._get_partition_start(),
             'targetgeometry': geometry,

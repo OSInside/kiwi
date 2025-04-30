@@ -710,7 +710,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     '    targetblocksize = {2}\n'
                     '    targetoffset = {3}\n'
                     '    {4}'.format(
-                        target_type,
+                        target_type if target_type != 'GPT' else 'SCSI',
                         self.custom_args['targetbase'],
                         target_blocksize or 512,
                         self._get_partition_start(
