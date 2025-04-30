@@ -9,7 +9,8 @@
         <specification>Virtual and Physical disk image test</specification>
     </description>
     <profiles>
-        <profile name="Virtual" description="Image for use with kvm"/>
+        <profile name="Virtual" description="Image for use with kvm DOS disk"/>
+        <profile name="Virtual_GPT" description="Image for use with kvm GPT disk"/>
         <profile name="Physical" description="Image for physical storage disk CDL mode"/>
     </profiles>
     <preferences>
@@ -23,6 +24,14 @@
     </preferences>
     <preferences profiles="Virtual">
         <type image="oem" filesystem="xfs" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2_s390x_emu" console="serial" timeout="10"/>
+        </type>
+    </preferences>
+    <preferences profiles="Virtual_GPT">
+        <type image="oem" filesystem="xfs" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2" targettype="GPT">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>

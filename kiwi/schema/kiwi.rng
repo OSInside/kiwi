@@ -4467,6 +4467,7 @@ for 4k DASD devices use CDL</a:documentation>
           <value>FBA</value>
           <value>SCSI</value>
           <value>CDL</value>
+          <value>GPT</value>
         </choice>
       </attribute>
       <sch:pattern id="targettype" is-a="bootloader_name_type">

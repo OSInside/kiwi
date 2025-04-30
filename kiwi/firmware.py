@@ -68,6 +68,8 @@ class FirmWare:
         if 's390' in self.arch:
             if self.zipl_target_type and 'CDL' in self.zipl_target_type:
                 return 'dasd'
+            elif self.zipl_target_type and 'GPT' in self.zipl_target_type:
+                return 'gpt'
             else:
                 return 'msdos'
         elif 'ppc64' in self.arch:

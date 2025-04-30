@@ -2967,7 +2967,7 @@ div {
         ## devices use SCSI, for  emulated DASD devices use FBA,
         ## for 4k DASD devices use CDL
         attribute targettype {
-            "FBA" | "SCSI" | "CDL"
+            "FBA" | "SCSI" | "CDL" | "GPT"
         }
         >> sch:pattern [ id = "targettype" is-a = "bootloader_name_type"
             sch:param [ name = "attr" value = "targettype" ]
