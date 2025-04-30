@@ -1208,7 +1208,12 @@ class TestXMLState:
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_bls(self, mock_bootloader):
         mock_bootloader.return_value = [self.bootloader]
+        self.bootloader.get_bls.return_value = False
         assert self.state.get_build_type_bootloader_bls() is False
+        self.bootloader.get_bls.return_value = True
+        assert self.state.get_build_type_bootloader_bls() is True
+        self.bootloader.get_bls.return_value = None
+        assert self.state.get_build_type_bootloader_bls() is True
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_console(self, mock_bootloader):
