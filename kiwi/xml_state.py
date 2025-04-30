@@ -1174,7 +1174,7 @@ class XMLState:
         :rtype: bool
         """
         bootloader = self.get_build_type_bootloader_section()
-        if bootloader:
+        if bootloader and bootloader.get_bls() is not None:
             return bootloader.get_bls()
         return True
 
