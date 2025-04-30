@@ -31,6 +31,7 @@
         <package name="vim"/>
         <package name="tzdata"/>
         <package name="NetworkManager"/>
+        <package name="shadow-utils"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
