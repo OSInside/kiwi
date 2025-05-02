@@ -1182,6 +1182,7 @@ class TestDiskBuilder:
         self.disk_builder.boot_is_crypto = True
         disk.public_partition_id_map = self.id_map
         disk.public_partition_id_map['kiwi_ROPart'] = 1
+        self.disk_builder.cmdline = 'rd.kiwi.oem.luks.reencrypt'
 
         with patch('builtins.open'):
             self.disk_builder.create_disk()
@@ -1200,7 +1201,8 @@ class TestDiskBuilder:
             call('/config.partids'),
             call('/etc/crypttab'),
             call(filename='/root/.luks.header', delete_after_include=True),
-            call(filename='/root/.luks.slot', delete_after_include=True)
+            call(filename='/root/.luks.slot', delete_after_include=True),
+            call(filename='/root/.slotpass', delete_after_include=True)
         ]
         self.boot_image_task.write_system_config_file.assert_called_once_with(
             config={'install_items': ['/root/.root.keyfile']},
@@ -1238,6 +1240,7 @@ class TestDiskBuilder:
         disk.public_partition_id_map = self.id_map
         disk.public_partition_id_map['kiwi_ROPart'] = 1
         bootloader = mock_BootLoaderInstall.return_value
+        self.disk_builder.cmdline = 'rd.kiwi.oem.luks.reencrypt'
 
         with patch('builtins.open'):
             self.disk_builder.create_disk()
@@ -1256,7 +1259,8 @@ class TestDiskBuilder:
             call('/config.partids'),
             call('/etc/crypttab'),
             call(filename='/root/.luks.header', delete_after_include=True),
-            call(filename='/root/.luks.slot', delete_after_include=True)
+            call(filename='/root/.luks.slot', delete_after_include=True),
+            call(filename='/root/.slotpass', delete_after_include=True)
         ]
         self.boot_image_task.write_system_config_file.assert_called_once_with(
             config={'install_items': ['/root/.root.keyfile']},

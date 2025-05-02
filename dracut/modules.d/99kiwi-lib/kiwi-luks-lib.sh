@@ -47,15 +47,6 @@ function reencrypt_luks {
         cut -f1 -d" "; rm -f "${header_checksum_cur}"
     )
     if [ "${header_checksum_origin}" == "${header_checksum_cur}" ];then
-        # setup credentials
-        if [ "${kiwi_luks_empty_passphrase}" = "true" ];then
-            echo -n > "${passphrase_file}"
-        elif [ -e "${keyfile}" ];then
-            cp "${keyfile}" "${passphrase_file}"
-        else
-            ask_for_credentials "Enter Credentials for Key Slot(0)"
-            get_dialog_result > "${passphrase_file}"
-        fi
         if getargbool 0 rd.kiwi.oem.luks.reencrypt_randompass; then
             # reset insecure built time passphrase with a random
             # onetime passphrase that will be stored in memory at $new_keyfile

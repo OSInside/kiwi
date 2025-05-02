@@ -179,7 +179,6 @@ class LuksDevice(DeviceProvider):
                     'luksAddKey', storage_device, keyfile_path
                 ]
             )
-            keyslot = '1'
 
         # Create backup header checksum as reencryption reference
         master_checksum = f'{root_dir}/root/.luks.header'
@@ -200,6 +199,11 @@ class LuksDevice(DeviceProvider):
         master_slot = f'{root_dir}/root/.luks.slot'
         with open(master_slot, 'w') as slot:
             slot.write(keyslot)
+
+        # Create slot passphrase as reencryption reference
+        master_slotpass = f'{root_dir}/root/.slotpass'
+        with open(master_slotpass, 'w') as slotpass:
+            slotpass.write(self.passphrase)
 
         # open the pool
         Command.run(

@@ -118,6 +118,7 @@ class DiskBuilder:
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
+        self.cmdline = xml_state.build_type.get_kernelcmdline() or ''
         self.spare_part_mbsize = xml_state.get_build_type_spare_part_size()
         self.spare_part_fs = xml_state.build_type.get_spare_part_fs()
         self.spare_part_is_last = xml_state.build_type.get_spare_part_is_last()
@@ -784,7 +785,8 @@ class DiskBuilder:
 
         self._write_crypttab_to_system_image(luks_root)
 
-        self._write_luks_header_checksum_to_boot_image(luks_root)
+        if 'rd.kiwi.oem.luks.reencrypt' in self.cmdline:
+            self._write_luks_header_checksum_to_boot_image(luks_root)
 
         self._write_integritytab_to_system_image(integrity_root)
 
@@ -1289,7 +1291,8 @@ class DiskBuilder:
             )
             filenames = [
                 ''.join([self.root_dir, '/root/.luks.header']),
-                ''.join([self.root_dir, '/root/.luks.slot'])
+                ''.join([self.root_dir, '/root/.luks.slot']),
+                ''.join([self.root_dir, '/root/.slotpass'])
             ]
             for filename in filenames:
                 self.boot_image.include_file(
