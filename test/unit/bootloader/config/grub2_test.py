@@ -252,6 +252,15 @@ class TestBootLoaderConfigGrub2:
         bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
         assert bootloader.arch == 'riscv64'
 
+    def test_post_init_loongarch64_platform(self):
+        Defaults.set_platform_name('loongarch64')
+        xml_state = MagicMock()
+        xml_state.build_type.get_firmware = Mock(
+            return_value=None
+        )
+        bootloader = BootLoaderConfigGrub2(xml_state, 'root_dir')
+        assert bootloader.arch == 'loongarch64'
+
     @patch('os.path.exists')
     def test_post_init_dom0(self, mock_exists):
         Defaults.set_platform_name('x86_64')
