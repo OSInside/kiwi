@@ -568,7 +568,7 @@ class TestDiskBuilder:
             self.disk_setup.boot_partition_size(), 1
         )
         disk.create_root_partition.assert_called_once_with(
-            'clone:all_free:458', 1
+            'clone:458:458', 1
         )
         disk.create_custom_partitions.assert_called_once_with(
             self.disk_builder.custom_partitions
