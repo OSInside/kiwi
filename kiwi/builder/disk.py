@@ -1168,7 +1168,8 @@ class DiskBuilder:
                     clone_rootfs_mbsize = int(
                         (disksize_mbytes - disksize_used_mbytes) / (root_clone_count + 1)
                     ) + Defaults.get_min_partition_mbytes()
-                    rootfs_mbsize = f'clone:all_free:{clone_rootfs_mbsize}'
+                    rootfs_mbsize = \
+                        f'clone:{clone_rootfs_mbsize}:{clone_rootfs_mbsize}'
                 else:
                     rootfs_mbsize = f'clone:{rootfs_mbsize}:{rootfs_mbsize}'
             if self.volume_manager_name and self.volume_manager_name == 'lvm':
