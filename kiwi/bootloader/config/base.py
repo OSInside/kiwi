@@ -626,13 +626,17 @@ class BootLoaderConfigBase(ABC):
                 return root_search.group(1)
         if boot_device:
             if self.xml_state.build_type.get_overlayroot():
-                # In case of an overlay setup the root partition is a squashfs
-                # In this case the root location can only be specified by the
-                # partition uuid because squashfs itself doesn't have one.
+                # In case of an overlay setup the root partition is read-only
+                # In this case the root location will be specified by the
+                # partition uuid because not all read-only filesystems have one.
                 # Exception to this is if the overlay is also encrypted
+                # Exception to this is if the overlay is on verity
+                verity = self.xml_state.build_type.get_verity_blocks()
                 luks = self.xml_state.get_luks_credentials()
                 if luks is not None:
                     return 'root=overlay:MAPPER=luks'
+                elif verity:
+                    return 'root=overlay:MAPPER=verityroot'
                 else:
                     root_location = self._get_location(
                         boot_device, 'by-partuuid'

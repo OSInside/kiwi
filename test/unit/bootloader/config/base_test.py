@@ -145,6 +145,22 @@ class TestBootLoaderConfigBase:
             '/dev/myroot'
         ) == 'root=overlay:MAPPER=luks'
 
+    @patch('kiwi.xml_parse.type_.get_kernelcmdline')
+    def test_get_boot_cmdline_root_overlay_verity(self, mock_cmdline):
+        mock_cmdline.return_value = ''
+        self.state.build_type.get_overlayroot = Mock(
+            return_value=True
+        )
+        self.state.build_type.get_verity_blocks = Mock(
+            return_value=42
+        )
+        self.state.get_luks_credentials = Mock(
+            return_value=None
+        )
+        assert self.bootloader.get_boot_cmdline(
+            '/dev/myroot'
+        ) == 'root=overlay:MAPPER=verityroot'
+
     @patch('kiwi.xml_parse.type_.get_initrd_system')
     @patch('kiwi.bootloader.config.base.BlockID')
     def test_get_boot_cmdline_initrd_system_is_dracut(
