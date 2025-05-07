@@ -1,25 +1,8 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Marcus Schaefer <ms@suse.de>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#               :
-# STATUS        : BETA
-#----------------
-#======================================
-# Functions...
-#--------------------------------------
-test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
+set -ex
+
+declare kiwi_iname=${kiwi_iname}
+declare kiwi_profiles=${kiwi_profiles}
 
 #======================================
 # Greeting...
@@ -27,19 +10,9 @@ test -f /.profile && . /.profile
 echo "Configure image: [$kiwi_iname]..."
 
 #======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
-
-#======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
-
-#======================================
-# Setup default target, multi-user
-#--------------------------------------
-baseSetRunlevel 3
+systemctl enable sshd
 
 # For image tests with an extra boot partition the
 # kernel must not be a symlink to another area of
@@ -57,10 +30,32 @@ baseSetRunlevel 3
 pushd /
 
 for file in /boot/* /boot/.*; do
-    if [ -L ${file} ];then
-        link_target=$(readlink ${file})
+    if [ -L "${file}" ];then
+        link_target=$(readlink "${file}")
         if [[ ${link_target} =~ usr/lib/modules ]];then
-            mv ${link_target} ${file}
+            mv "${link_target}" "${file}"
         fi
+    fi
+done
+
+#======================================
+# Include erofs module
+#--------------------------------------
+# remove from blacklist
+rm -f /usr/lib/modprobe.d/60-blacklist_fs-erofs.conf
+
+#======================================
+# Include systemd-verity to initrd
+#--------------------------------------
+# for some reason dracut doesn't automatically pick up
+# the needed systemd veritysetup generator and tools
+# and also the kiwi written /etc/veritytab is not added
+# automatically. Thus we do this programatically here.
+for profile in ${kiwi_profiles//,/ }; do
+    if [ "${profile}" = "verity" ]; then
+        cat >/etc/dracut.conf.d/verity.conf <<- EOF
+			dracutmodules+=" systemd-veritysetup "
+			install_items+=" /etc/veritytab "
+		EOF
     fi
 done

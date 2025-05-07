@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 <image schemaversion="7.5" name="kiwi-test-image-overlayroot">
     <description type="system">
         <author>Marcus Schäfer</author>
-        <contact>ms@suse.com</contact>
+        <contact>marcus.schaefer@suse.com</contact>
         <specification>Overlayroot Disk test build</specification>
     </description>
+    <profiles>
+        <profile name="standard" description="Standard overlay disk using erofs"/>
+        <profile name="verity" description="Verity baked overlay disk using erofs"/>
+    </profiles>
     <preferences>
         <version>1.42.1</version>
         <packagemanager>zypper</packagemanager>
@@ -16,7 +20,18 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="efi" format="vmdk" overlayroot="true">
+    </preferences>
+    <preferences profiles="standard">
+        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="efi" format="vmdk" overlayroot="true" overlayroot_readonly_filesystem="erofs" erofscompression="zstd,level=9" eficsm="false">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" console="serial" timeout="10"/>
+            <size unit="G">4</size>
+        </type>
+    </preferences>
+    <preferences profiles="verity">
+        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0 rd.systemd.verity=1" firmware="efi" format="vmdk" overlayroot="true" overlayroot_readonly_filesystem="erofs" erofscompression="zstd,level=9" eficsm="false" verity_blocks="all">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -30,6 +45,9 @@
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
     </repository>
+    <packages type="image" profiles="verity">
+        <package name="cryptsetup"/>
+    </packages>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>
         <package name="procps"/>
