@@ -853,7 +853,8 @@ class TestDiskBuilder:
         )
         assert self.boot_image_task.include_file.call_args_list == [
             call('/config.partids'),
-            call('/recovery.partition.size')
+            call('/recovery.partition.size'),
+            call(filename='/etc/veritytab', delete_after_include=True)
         ]
         self.boot_image_task.include_module.assert_called_once_with(
             'kiwi-repart'

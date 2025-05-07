@@ -43,19 +43,3 @@ done
 #--------------------------------------
 # remove from blacklist
 rm -f /usr/lib/modprobe.d/60-blacklist_fs-erofs.conf
-
-#======================================
-# Include systemd-verity to initrd
-#--------------------------------------
-# for some reason dracut doesn't automatically pick up
-# the needed systemd veritysetup generator and tools
-# and also the kiwi written /etc/veritytab is not added
-# automatically. Thus we do this programatically here.
-for profile in ${kiwi_profiles//,/ }; do
-    if [ "${profile}" = "verity" ]; then
-        cat >/etc/dracut.conf.d/verity.conf <<- EOF
-			dracutmodules+=" systemd-veritysetup "
-			install_items+=" /etc/veritytab "
-		EOF
-    fi
-done

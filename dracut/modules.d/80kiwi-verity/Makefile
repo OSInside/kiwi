@@ -11,7 +11,8 @@ all: build
 
 .PHONY: install
 install: build
-	install -Dm0755 kiwi-verity-setup.sh module-setup.sh \
+	install -Dm0755 \
+		kiwi-verity-setup.sh kiwi-veritytab-setup.sh module-setup.sh \
 		-t ${buildroot}usr/lib/dracut/modules.d/80kiwi-verity
 	install -Dm0755 $(BINARY) ${buildroot}usr/bin/$(BINARY)
 

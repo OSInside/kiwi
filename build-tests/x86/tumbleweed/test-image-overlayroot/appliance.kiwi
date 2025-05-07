@@ -47,6 +47,7 @@
     </repository>
     <packages type="image" profiles="verity">
         <package name="cryptsetup"/>
+        <package name="dracut-kiwi-verity"/>
     </packages>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>

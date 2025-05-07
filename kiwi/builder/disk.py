@@ -1348,6 +1348,11 @@ class DiskBuilder:
                     os.linesep
                 )
             )
+            self.boot_image.include_file(
+                filename=os.sep + os.sep.join(
+                    ['etc', os.path.basename(veritytab_filename)]
+                ), delete_after_include=True
+            )
 
     def _write_generic_fstab_to_boot_image(
         self, device_map: Dict,

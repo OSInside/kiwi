@@ -30,6 +30,11 @@ depends() {
 }
 
 install() {
-    inst_multiple /usr/bin/kiwi-parse-verity /usr/sbin/veritysetup
+    inst_multiple \
+        /usr/bin/kiwi-parse-verity \
+        /usr/sbin/veritysetup \
+        cut \
+        tr
     inst_hook initqueue/settled 70 "$moddir/kiwi-verity-setup.sh"
+    inst_hook initqueue/settled 71 "$moddir/kiwi-veritytab-setup.sh"
 }
