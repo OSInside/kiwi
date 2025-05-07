@@ -1867,7 +1867,7 @@ div {
         ]
     k.type.overlayroot.attribute =
         ## Specifies to use an overlay root system consisting
-        ## out of a squashfs compressed read-only root system
+        ## out of a squashfs or erofs compressed read-only root system
         ## overlayed using the overlayfs filesystem into an
         ## extra read-write partition. Available for the disk
         ## image type oem
@@ -1876,6 +1876,18 @@ div {
             sch:param [ name = "attr" value = "overlayroot" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.overlayroot_readonly_filesystem.attribute =
+        ## Specifies the filesystem type to use as read-only
+        ## filesystem in an overlayroot setup. By default
+        ## squashfs is used
+        attribute overlayroot_readonly_filesystem {
+            "squashfs" | "erofs"
+        }
+        >> sch:pattern [ id = "overlayroot_readonly_filesystem" is-a = "image_type"
+            sch:param [ name = "attr" value = "overlayroot_readonly_filesystem" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+
     k.type.overlayroot_write_partition.attribute =
         ## Specifies to create an extra read-write partition
         ## in combination with the overlayroot attribute on the
@@ -2413,6 +2425,7 @@ div {
         k.type.mdraid.attribute? &
         k.type.overlayroot.attribute? &
         k.type.overlayroot_write_partition.attribute? &
+        k.type.overlayroot_readonly_filesystem.attribute? &
         k.type.overlayroot_readonly_partsize.attribute? &
         k.type.verity_blocks.attribute? &
         k.type.embed_verity_metadata.attribute? &
