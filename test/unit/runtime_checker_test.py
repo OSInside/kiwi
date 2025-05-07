@@ -348,17 +348,6 @@ class TestRuntimeChecker:
             runtime_checker.\
                 check_dracut_module_for_disk_overlay_in_package_list()
 
-    def test_check_efi_mode_for_disk_overlay_correctly_setup(self):
-        self.xml_state.build_type.get_overlayroot = Mock(
-            return_value=True
-        )
-        self.xml_state.build_type.get_firmware = Mock(
-            return_value='uefi'
-        )
-        with raises(KiwiRuntimeError):
-            self.runtime_checker.\
-                check_efi_mode_for_disk_overlay_correctly_setup()
-
     @pytest.mark.parametrize("tool_name, tool_binary", [("isomd5sum", "implantisomd5"), ("checkmedia", "tagmedia")])
     @patch('kiwi.runtime_checker.Path.which')
     @patch('kiwi.runtime_checker.RuntimeConfig')

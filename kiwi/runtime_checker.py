@@ -838,35 +838,6 @@ class RuntimeChecker:
                     message.format(required_dracut_packages)
                 )
 
-    def check_efi_mode_for_disk_overlay_correctly_setup(self) -> None:
-        """
-        Disk images configured to use a root filesystem overlay
-        only supports the standard EFI mode and not secure boot.
-        That's because the shim setup performs changes to the
-        root filesystem which can not be applied during the
-        bootloader setup at build time because at that point
-        the root filesystem is a read-only squashfs source.
-        """
-        message = dedent('''\n
-            Secure Boot not supported with overlay disk image
-
-            Disk images configured to use a root filesystem overlay
-            only supports the standard EFI mode and not secure boot.
-            That's because the shim setup performs changes to the
-            root filesystem which can not be applied during the
-            bootloader setup at build time because at that point
-            the root filesystem is a read-only squashfs source
-
-            Thus please change the firmware attribute in the <type>
-            section of the system XML description as follows:
-
-            <type ... firmware="efi"/>
-        ''')
-        overlayroot = self.xml_state.build_type.get_overlayroot()
-        firmware = self.xml_state.build_type.get_firmware()
-        if overlayroot and firmware == 'uefi':
-            raise KiwiRuntimeError(message)
-
     def check_xen_uniquely_setup_as_server_or_guest(self) -> None:
         """
         If the image is classified to be used as Xen image, it can

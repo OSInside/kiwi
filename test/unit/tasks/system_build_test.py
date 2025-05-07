@@ -156,9 +156,6 @@ class TestSystemBuildTask:
         self.runtime_checker.\
             check_dracut_module_for_oem_install_in_package_list.\
             assert_called_once_with()
-        self.runtime_checker.\
-            check_efi_mode_for_disk_overlay_correctly_setup.\
-            assert_called_once_with()
         system_prepare.setup_repositories.assert_called_once_with(
             False, ['some_key', 'some_other_key'], None
         )
