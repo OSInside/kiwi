@@ -825,6 +825,11 @@ overlayroot="true|false":
   the squashfs root filesystem. In fact this mode is the same
   as not installing the `kiwi-overlay` dracut module.
 
+overlayroot_readonly_filesystem="squashfs|erofs":
+  For the `oem` type only, specifies the filesystem type to use
+  as read-only filesystem in an `overlayroot` setup. By default
+  `squashfs` is used
+
 overlayroot_write_partition="true|false":
   For the `oem` type only, allows to specify if the extra read-write
   partition in an `overlayroot` setup should be created or not.
