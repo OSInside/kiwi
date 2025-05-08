@@ -867,17 +867,20 @@ class DiskBuilder:
                     self.custom_partitions if self.custom_partitions else {}
                 ) as image_system:
                     image_system.mount()
+                    root = image_system.mountpoint()
 
-                    if self.veritysetup and self.boot_image.has_initrd_support():
+                    # rebuild initrd with veritytab included
+                    if self.veritysetup and \
+                       self.boot_image.has_initrd_support():
                         self.boot_image.create_initrd(self.mbrid)
                         boot_names = self.boot_image.get_boot_names()
-                        root = image_system.mountpoint()
-                        Command.run(
-                            [
-                                'mv', self.boot_image.initrd_filename,
-                                f'{root}/boot/{boot_names.initrd_name}'
-                            ]
-                        )
+                        if os.access(f'{root}/boot/', os.W_OK):
+                            Command.run(
+                                [
+                                    'mv', self.boot_image.initrd_filename,
+                                    f'{root}/boot/{boot_names.initrd_name}'
+                                ]
+                            )
 
                     disk_system = SystemSetup(
                         self.xml_state, image_system.mountpoint()
@@ -895,6 +898,18 @@ class DiskBuilder:
                     if self.bootloader != 'custom':
                         self._install_bootloader(
                             device_map, disk, system, bootloader_config
+                        )
+
+                    # initrd update on the ESP for systemd for read-only boot/
+                    if self.veritysetup and \
+                       self.boot_image.has_initrd_support() and not \
+                       os.access(f'{root}/boot/', os.W_OK) and \
+                       self.bootloader == 'systemd_boot':
+                        Command.run(
+                            [
+                                'mv', self.boot_image.initrd_filename,
+                                f'{root}/boot/efi/os/{boot_names.initrd_name}'
+                            ]
                         )
 
                     # set root filesystem properties

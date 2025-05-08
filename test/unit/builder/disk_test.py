@@ -686,13 +686,91 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.ImageSystem')
     @patch('kiwi.builder.disk.VeritySetup')
     @patch('kiwi.builder.disk.Temporary.new_file')
-    def test_create_disk_standard_root_with_dracut_initrd(
-        self, mock_Temporary_new_file, mock_VeritySetup,
+    @patch('os.access')
+    def test_create_disk_standard_root_with_dracut_initrd_readonly_root(
+        self, mock_os_access, mock_Temporary_new_file, mock_VeritySetup,
         mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
         mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs,
         mock_LoopDevice, mock_create_boot_loader_config,
         mock_Disk
     ):
+        mock_os_access.return_value = False
+        system = Mock()
+        system.mountpoint.return_value = 'diskroot'
+        mock_ImageSystem.return_value.__enter__.return_value = system
+        disk = self._get_disk_instance()
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
+        tempfile = Mock()
+        tempfile.name = 'tempfile'
+        mock_Temporary_new_file.return_value = tempfile
+        mock_os_path_getsize.return_value = 42
+        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
+            kernel_name='vmlinuz-1.2.3-default',
+            initrd_name='initramfs-1.2.3.img'
+        )
+        mock_path.return_value = True
+        mock_rand.return_value = 15
+        filesystem = MagicMock()
+        mock_fs.return_value = filesystem
+        self.firmware.get_legacy_bios_partition_size.return_value = 2
+        self.disk_builder.root_filesystem_verity_blocks = 10
+        self.disk_builder.root_filesystem_embed_verity_metadata = True
+        self.disk_builder.root_filesystem_is_overlay = False
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.bootloader = 'systemd_boot'
+        self.setup.script_exists.return_value = True
+        disk_system = Mock()
+        mock_SystemSetup.return_value = disk_system
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+
+        assert mock_command.call_args_list == [
+            call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
+            call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img']),
+            call(['blockdev', '--getsize64', '/dev/root-device']),
+            call(['dd', 'if=tempfile', 'of=/dev/root-device']),
+            call(
+                [
+                    'blkid', '/dev/readonly-root-device',
+                    '-s', 'UUID', '-o', 'value'
+                ]
+            ),
+            call(['mv', 'initrd', 'diskroot/boot/efi/os/initramfs-1.2.3.img'])
+        ]
+
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.LoopDevice')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('random.randrange')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.SystemSetup')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('kiwi.builder.disk.VeritySetup')
+    @patch('kiwi.builder.disk.Temporary.new_file')
+    @patch('os.access')
+    def test_create_disk_standard_root_with_dracut_initrd(
+        self, mock_os_access, mock_Temporary_new_file, mock_VeritySetup,
+        mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
+        mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs,
+        mock_LoopDevice, mock_create_boot_loader_config,
+        mock_Disk
+    ):
+        mock_os_access.return_value = True
         system = Mock()
         system.mountpoint.return_value = 'diskroot'
         mock_ImageSystem.return_value.__enter__.return_value = system
