@@ -2706,7 +2706,7 @@ The format of this key argument is:
     <define name="k.type.overlayroot.attribute">
       <attribute name="overlayroot">
         <a:documentation>Specifies to use an overlay root system consisting
-out of a squashfs compressed read-only root system
+out of a squashfs or erofs compressed read-only root system
 overlayed using the overlayfs filesystem into an
 extra read-write partition. Available for the disk
 image type oem</a:documentation>
@@ -2714,6 +2714,21 @@ image type oem</a:documentation>
       </attribute>
       <sch:pattern id="overlayroot" is-a="image_type">
         <sch:param name="attr" value="overlayroot"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.overlayroot_readonly_filesystem.attribute">
+      <attribute name="overlayroot_readonly_filesystem">
+        <a:documentation>Specifies the filesystem type to use as read-only
+filesystem in an overlayroot setup. By default
+squashfs is used</a:documentation>
+        <choice>
+          <value>squashfs</value>
+          <value>erofs</value>
+        </choice>
+      </attribute>
+      <sch:pattern id="overlayroot_readonly_filesystem" is-a="image_type">
+        <sch:param name="attr" value="overlayroot_readonly_filesystem"/>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
@@ -3550,6 +3565,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.overlayroot_write_partition.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.overlayroot_readonly_filesystem.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.overlayroot_readonly_partsize.attribute"/>

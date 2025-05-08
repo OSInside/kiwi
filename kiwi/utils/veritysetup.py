@@ -73,7 +73,6 @@ class VeritySetup:
             [
                 'veritysetup', 'format',
                 self.image_filepath, self.image_filepath,
-                '--no-superblock',
                 f'--hash-offset={self.verity_hash_offset}',
                 f'--hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}'
             ] + (
@@ -109,7 +108,6 @@ class VeritySetup:
             [
                 'veritysetup', 'format',
                 self.image_filepath, temp_file.name,
-                '--no-superblock',
                 f'--hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}'
             ] + (
                 [
@@ -240,5 +238,5 @@ class VeritySetup:
                 verity.write(
                     f'Root hashoffset: {self.verity_hash_offset}')
                 verity.write(os.linesep)
-                verity.write('Superblock: --no-superblock')
+                verity.write('Superblock:')
                 verity.write(os.linesep)

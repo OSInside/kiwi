@@ -686,13 +686,94 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.ImageSystem')
     @patch('kiwi.builder.disk.VeritySetup')
     @patch('kiwi.builder.disk.Temporary.new_file')
-    def test_create_disk_standard_root_with_dracut_initrd(
-        self, mock_Temporary_new_file, mock_VeritySetup,
+    @patch('os.access')
+    def test_create_disk_standard_root_with_dracut_initrd_readonly_root(
+        self, mock_os_access, mock_Temporary_new_file, mock_VeritySetup,
         mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
         mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs,
         mock_LoopDevice, mock_create_boot_loader_config,
         mock_Disk
     ):
+        mock_os_access.return_value = False
+        system = Mock()
+        system.mountpoint.return_value = 'diskroot'
+        mock_ImageSystem.return_value.__enter__.return_value = system
+        disk = self._get_disk_instance()
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
+        tempfile = Mock()
+        tempfile.name = 'tempfile'
+        mock_Temporary_new_file.return_value = tempfile
+        mock_os_path_getsize.return_value = 42
+        self.boot_image_task.get_boot_names.return_value = self.boot_names_type(
+            kernel_name='vmlinuz-1.2.3-default',
+            initrd_name='initramfs-1.2.3.img'
+        )
+        mock_path.return_value = True
+        mock_rand.return_value = 15
+        filesystem = MagicMock()
+        mock_fs.return_value = filesystem
+        self.firmware.get_legacy_bios_partition_size.return_value = 2
+        self.disk_builder.root_filesystem_verity_blocks = 10
+        self.disk_builder.root_filesystem_embed_verity_metadata = True
+        self.disk_builder.root_filesystem_is_overlay = False
+        self.disk_builder.volume_manager_name = None
+        self.disk_builder.initrd_system = 'dracut'
+        self.disk_builder.bootloader = 'systemd_boot'
+        self.setup.script_exists.return_value = True
+        disk_system = Mock()
+        mock_SystemSetup.return_value = disk_system
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+
+        assert mock_command.call_args_list == [
+            call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
+            call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img']),
+            call(['blockdev', '--getsize64', '/dev/root-device']),
+            call(['dd', 'if=tempfile', 'of=/dev/root-device']),
+            call(
+                [
+                    'blkid', '/dev/readonly-root-device',
+                    '-s', 'UUID', '-o', 'value'
+                ]
+            ),
+            call(['mv', 'initrd', 'diskroot/boot/efi/os/initramfs-1.2.3.img'])
+        ]
+
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.LoopDevice')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('random.randrange')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('os.path.getsize')
+    @patch('kiwi.builder.disk.SystemSetup')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('kiwi.builder.disk.VeritySetup')
+    @patch('kiwi.builder.disk.Temporary.new_file')
+    @patch('os.access')
+    def test_create_disk_standard_root_with_dracut_initrd(
+        self, mock_os_access, mock_Temporary_new_file, mock_VeritySetup,
+        mock_ImageSystem, mock_SystemSetup, mock_os_path_getsize,
+        mock_path, mock_grub_dir, mock_command, mock_rand, mock_fs,
+        mock_LoopDevice, mock_create_boot_loader_config,
+        mock_Disk
+    ):
+        mock_os_access.return_value = True
+        system = Mock()
+        system.mountpoint.return_value = 'diskroot'
+        mock_ImageSystem.return_value.__enter__.return_value = system
         disk = self._get_disk_instance()
         mock_Disk.return_value.__enter__.return_value = disk
         bootloader_config = Mock()
@@ -814,20 +895,30 @@ class TestDiskBuilder:
             call('boot_dir/config.partids', 'w'),
             call('root_dir/boot/mbrid', 'w'),
             call('boot_dir/config.bootoptions', 'w'),
-            call('/dev/some-loop', 'wb')
+            call('/dev/some-loop', 'wb'),
+            call('root_dir/etc/veritytab', 'w')
         ]
-        assert m_open.return_value.write.call_args_list == [
-            call('kiwi_BootPart="1"\n'),
-            call('kiwi_RootPart="1"\n'),
-            call('0x0f0f0f0f\n'),
-            call('boot_cmdline\n'),
-            call(bytes(b'\x0f\x0f\x0f\x0f'))
-        ]
+        m_open.return_value.write.assert_has_calls(
+            [
+                call('kiwi_BootPart="1"\n'),
+                call('kiwi_RootPart="1"\n'),
+                call('0x0f0f0f0f\n'),
+                call('boot_cmdline\n'),
+                call(bytes(b'\x0f\x0f\x0f\x0f')),
+            ]
+        )
         assert mock_command.call_args_list == [
             call(['cp', 'root_dir/recovery.partition.size', 'boot_dir']),
             call(['mv', 'initrd', 'root_dir/boot/initramfs-1.2.3.img']),
             call(['blockdev', '--getsize64', '/dev/root-device']),
-            call(['dd', 'if=tempfile', 'of=/dev/root-device'])
+            call(['dd', 'if=tempfile', 'of=/dev/root-device']),
+            call(
+                [
+                    'blkid', '/dev/readonly-root-device',
+                    '-s', 'UUID', '-o', 'value'
+                ]
+            ),
+            call(['mv', 'initrd', 'diskroot/boot/initramfs-1.2.3.img'])
         ]
         self.block_operation.get_blkid.assert_has_calls(
             [call('PARTUUID')]
@@ -840,7 +931,8 @@ class TestDiskBuilder:
         )
         assert self.boot_image_task.include_file.call_args_list == [
             call('/config.partids'),
-            call('/recovery.partition.size')
+            call('/recovery.partition.size'),
+            call(filename='/etc/veritytab', delete_after_include=True)
         ]
         self.boot_image_task.include_module.assert_called_once_with(
             'kiwi-repart'
@@ -902,7 +994,6 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.LoopDevice')
     @patch('kiwi.builder.disk.DeviceProvider')
     @patch('kiwi.builder.disk.FileSystem.new')
-    @patch('kiwi.builder.disk.FileSystemSquashFs')
     @patch('kiwi.builder.disk.Command.run')
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('os.path.exists')
@@ -914,7 +1005,7 @@ class TestDiskBuilder:
     def test_create_disk_standard_root_is_overlay(
         self, mock_MountManager, mock_BlockID, mock_rand, mock_temp,
         mock_getsize, mock_exists, mock_grub_dir, mock_command,
-        mock_squashfs, mock_fs, mock_DeviceProvider,
+        mock_fs, mock_DeviceProvider,
         mock_LoopDevice, mock_create_boot_loader_config,
         mock_Disk, mock_Path
     ):
@@ -940,8 +1031,12 @@ class TestDiskBuilder:
         self.disk_builder.integrity = True
         self.disk_builder.root_filesystem_embed_integrity_metadata = True
         self.disk_builder.volume_manager_name = None
-        squashfs = Mock()
-        mock_squashfs.return_value.__enter__.return_value = squashfs
+        fs = Mock()
+        fs.veritysetup.verity_hash_offset = 'Some'
+        fs.veritysetup.verity_dict = {
+            'Roothash': 'Some'
+        }
+        mock_fs.return_value.__enter__.return_value = fs
         mock_getsize.return_value = 1048576
         tempfile = Mock()
         tempfile.name = 'kiwi-tempname'
@@ -954,27 +1049,28 @@ class TestDiskBuilder:
         with patch('builtins.open', m_open, create=True):
             self.disk_builder.create_disk()
 
-        assert mock_squashfs.call_args_list == [
-            call(
-                custom_args={'compression': None},
-                device_provider=mock_DeviceProvider.return_value,
-                root_dir='root_dir'
-            ), call(
-                custom_args={'compression': None},
-                device_provider=mock_DeviceProvider.return_value,
-                root_dir='root_dir'
-            )
-        ]
-        assert squashfs.create_on_file.call_args_list == [
-            call(exclude=['var/cache/kiwi'], filename='kiwi-tempname'),
-            call(exclude=[
-                '.kconfig', 'run/*', 'tmp/*',
-                '.buildenv', 'var/cache/kiwi',
-                'image/*'
-            ], filename='kiwi-tempname')
-        ]
-        squashfs.create_verity_layer.assert_called_once_with(10)
-        squashfs.create_verification_metadata.assert_called_once_with(
+        mock_fs.assert_has_calls(
+            [
+                call(
+                    'squashfs',
+                    custom_args={'compression': None},
+                    device_provider=mock_DeviceProvider.return_value,
+                    root_dir='root_dir'
+                )
+            ]
+        )
+        fs.create_on_file.assert_has_calls(
+            [
+                call(exclude=['var/cache/kiwi'], filename='kiwi-tempname'),
+                call(exclude=[
+                    '.kconfig', 'run/*', 'tmp/*',
+                    '.buildenv', 'var/cache/kiwi',
+                    'image/*'
+                ], filename='kiwi-tempname')
+            ], any_order=True
+        )
+        fs.create_verity_layer.assert_called_once_with(10)
+        fs.create_verification_metadata.assert_called_once_with(
             '/dev/integrityRoot'
         )
         self.integrity_root.create_integrity_metadata.assert_called_once_with()
@@ -989,17 +1085,19 @@ class TestDiskBuilder:
         assert mock_command.call_args_list[3] == call(
             ['dd', 'if=kiwi-tempname', 'of=/dev/integrityRoot']
         )
-        assert m_open.return_value.write.call_args_list == [
-            # config.partids
-            call('kiwi_BootPart="1"\n'),
-            call('kiwi_RootPart="1"\n'),
-            # mbrid
-            call('0x0f0f0f0f\n'),
-            # config.bootoptions
-            call('boot_cmdline\n'),
-            # some-loop
-            call(b'\x0f\x0f\x0f\x0f')
-        ]
+        m_open.return_value.write.assert_has_calls(
+            [
+                # config.partids
+                call('kiwi_BootPart="1"\n'),
+                call('kiwi_RootPart="1"\n'),
+                # mbrid
+                call('0x0f0f0f0f\n'),
+                # config.bootoptions
+                call('boot_cmdline\n'),
+                # some-loop
+                call(b'\x0f\x0f\x0f\x0f')
+            ], any_order=True
+        )
         assert self.boot_image_task.include_module.call_args_list == [
             call('kiwi-overlay'), call('kiwi-repart')
         ]

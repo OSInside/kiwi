@@ -101,9 +101,6 @@
 #      # verify that the URL for imageinclude repos is accessable
 #      - check_image_include_repos_publicly_resolvable
 
-#      # verify secure boot setup disabled for overlay configured disk images
-#      - check_efi_mode_for_disk_overlay_correctly_setup
-
 #      # verify for legacy kiwi boot images that they exist on the host
 #      - check_boot_description_exists
 

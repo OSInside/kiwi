@@ -56,7 +56,6 @@ from kiwi.storage.integrity_device import (
 )
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.filesystem import FileSystem
-from kiwi.filesystem.squashfs import FileSystemSquashFs
 from kiwi.volume_manager import VolumeManager
 from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.command import Command
@@ -126,10 +125,13 @@ class DiskBuilder:
             xml_state.build_type.get_spare_part_mountpoint()
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
+        self.root_filesystem_read_only_type = \
+            xml_state.build_type.get_overlayroot_readonly_filesystem()
         self.root_filesystem_has_write_partition = \
             xml_state.build_type.get_overlayroot_write_partition()
         self.root_filesystem_read_only_partsize = \
             xml_state.build_type.get_overlayroot_readonly_partsize()
+        self.veritysetup = None
         self.root_filesystem_verity_blocks = \
             xml_state.build_type.get_verity_blocks()
         self.root_filesystem_embed_verity_metadata = \
@@ -853,6 +855,11 @@ class DiskBuilder:
             )
 
             # run post sync actions...
+            if self.veritysetup:
+                self._write_veritytab_to_boot_image(
+                    device_map, self.veritysetup
+                )
+
             if system:
                 with ImageSystem(
                     device_map, self.root_dir,
@@ -860,6 +867,21 @@ class DiskBuilder:
                     self.custom_partitions if self.custom_partitions else {}
                 ) as image_system:
                     image_system.mount()
+                    root = image_system.mountpoint()
+
+                    # rebuild initrd with veritytab included
+                    if self.veritysetup and \
+                       self.boot_image.has_initrd_support():
+                        self.boot_image.create_initrd(self.mbrid)
+                        boot_names = self.boot_image.get_boot_names()
+                        if os.access(f'{root}/boot/', os.W_OK):
+                            Command.run(
+                                [
+                                    'mv', self.boot_image.initrd_filename,
+                                    f'{root}/boot/{boot_names.initrd_name}'
+                                ]
+                            )
+
                     disk_system = SystemSetup(
                         self.xml_state, image_system.mountpoint()
                     )
@@ -868,7 +890,7 @@ class DiskBuilder:
                     ):
                         # run post sync script hook and security context
                         disk_system.call_disk_script()
-                    else:
+                    elif not self.root_filesystem_is_overlay:
                         # setup security context
                         disk_system.setup_selinux_file_contexts()
 
@@ -876,6 +898,18 @@ class DiskBuilder:
                     if self.bootloader != 'custom':
                         self._install_bootloader(
                             device_map, disk, system, bootloader_config
+                        )
+
+                    # initrd update on the ESP for systemd for read-only boot/
+                    if self.veritysetup and \
+                       self.boot_image.has_initrd_support() and not \
+                       os.access(f'{root}/boot/', os.W_OK) and \
+                       self.bootloader == 'systemd_boot':
+                        Command.run(
+                            [
+                                'mv', self.boot_image.initrd_filename,
+                                f'{root}/boot/efi/os/{boot_names.initrd_name}'
+                            ]
                         )
 
                     # set root filesystem properties
@@ -1115,7 +1149,8 @@ class DiskBuilder:
             squashed_rootfs_mbsize = self.root_filesystem_read_only_partsize
             if not self.root_filesystem_read_only_partsize:
                 squashed_root_file = Temporary().new_file()
-                with FileSystemSquashFs(
+                with FileSystem.new(
+                    self.root_filesystem_read_only_type or 'squashfs',
                     device_provider=DeviceProvider(), root_dir=self.root_dir,
                     custom_args={
                         'compression':
@@ -1308,6 +1343,31 @@ class DiskBuilder:
     ) -> None:
         log.info('Creating generic system etc/fstab')
         self._write_generic_fstab(device_map, self.system_setup, system)
+
+    def _write_veritytab_to_boot_image(
+        self, device_map: Dict, veritysetup: VeritySetup
+    ) -> None:
+        log.info('Creating generic boot image etc/veritytab')
+        veritytab_filename = ''.join([self.root_dir, '/etc/veritytab'])
+        uuid = device_map['readonly'].get_uuid(
+            device_map['readonly'].get_device()
+        ) if device_map.get('readonly') else device_map['root'].get_uuid(
+            device_map['root'].get_device()
+        )
+        with open(veritytab_filename, 'w') as veritytab:
+            veritytab.write(
+                'verityroot UUID={0} UUID={0} {1} {2},{3}{4}'.format(
+                    uuid, veritysetup.verity_dict.get('Roothash'),
+                    f'hash-offset={veritysetup.verity_hash_offset}',
+                    f'hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}',
+                    os.linesep
+                )
+            )
+            self.boot_image.include_file(
+                filename=os.sep + os.sep.join(
+                    ['etc', os.path.basename(veritytab_filename)]
+                ), delete_after_include=True
+            )
 
     def _write_generic_fstab_to_boot_image(
         self, device_map: Dict,
@@ -1572,7 +1632,8 @@ class DiskBuilder:
         log.info('--> Syncing root filesystem data')
         if self.root_filesystem_is_overlay:
             squashed_root_file = Temporary().new_file()
-            with FileSystemSquashFs(
+            with FileSystem.new(
+                self.root_filesystem_read_only_type or 'squashfs',
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
                     'compression':
@@ -1615,6 +1676,7 @@ class DiskBuilder:
                         self.root_filesystem_verity_blocks if
                         self.root_filesystem_verity_blocks != 'all' else None
                     )
+                    self.veritysetup = squashed_root.veritysetup
 
                 readonly_target = device_map['readonly'].get_device()
                 readonly_target_bytesize = device_map['readonly'].get_byte_size(
@@ -1682,6 +1744,7 @@ class DiskBuilder:
                     self.root_filesystem_verity_blocks != 'all' else None,
                     verity_root_file.name
                 )
+                self.veritysetup = filesystem.veritysetup
 
             log.info(
                 '--> Dumping rootfs file({0} bytes) -> {1}({2} bytes)'.format(
@@ -1745,11 +1808,12 @@ class DiskBuilder:
         root_device = device_map['root']
         boot_device = root_device
         readonly_device = None
-        if 'boot' in device_map:
-            boot_device = device_map['boot']
-
         if 'readonly' in device_map:
             readonly_device = device_map['readonly']
+            boot_device = readonly_device
+
+        if 'boot' in device_map:
+            boot_device = device_map['boot']
 
         custom_install_arguments = {
             'boot_device': boot_device.get_device(),

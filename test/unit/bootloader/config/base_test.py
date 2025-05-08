@@ -145,6 +145,22 @@ class TestBootLoaderConfigBase:
             '/dev/myroot'
         ) == 'root=overlay:MAPPER=luks'
 
+    @patch('kiwi.xml_parse.type_.get_kernelcmdline')
+    def test_get_boot_cmdline_root_overlay_verity(self, mock_cmdline):
+        mock_cmdline.return_value = ''
+        self.state.build_type.get_overlayroot = Mock(
+            return_value=True
+        )
+        self.state.build_type.get_verity_blocks = Mock(
+            return_value=42
+        )
+        self.state.get_luks_credentials = Mock(
+            return_value=None
+        )
+        assert self.bootloader.get_boot_cmdline(
+            '/dev/myroot'
+        ) == 'root=overlay:MAPPER=verityroot'
+
     @patch('kiwi.xml_parse.type_.get_initrd_system')
     @patch('kiwi.bootloader.config.base.BlockID')
     def test_get_boot_cmdline_initrd_system_is_dracut(
@@ -339,6 +355,7 @@ class TestBootLoaderConfigBase:
     @patch('kiwi.bootloader.config.base.MountManager')
     def test_mount_system_s390(self, mock_MountManager):
         tmp_mount = MagicMock()
+        etc_kernel_mount = MagicMock()
         proc_mount = MagicMock()
         sys_mount = MagicMock()
         dev_mount = MagicMock()
@@ -349,7 +366,8 @@ class TestBootLoaderConfigBase:
         boot_mount.device = 'bootdev'
 
         mount_managers = [
-            proc_mount, sys_mount, dev_mount, tmp_mount, boot_mount, root_mount
+            proc_mount, sys_mount, dev_mount, tmp_mount,
+            etc_kernel_mount, boot_mount, root_mount
         ]
 
         def mount_managers_effect(**args):
@@ -372,10 +390,15 @@ class TestBootLoaderConfigBase:
 
     @patch('kiwi.bootloader.config.base.MountManager')
     @patch('kiwi.bootloader.config.base.SystemSetup')
-    def test_mount_system(self, mock_SystemSetup, mock_MountManager):
+    @patch('os.path.exists')
+    def test_mount_system(
+        self, mock_os_path_exists, mock_SystemSetup, mock_MountManager
+    ):
+        mock_os_path_exists.return_value = True
         setup = Mock()
         mock_SystemSetup.return_value = setup
         tmp_mount = MagicMock()
+        etc_kernel_mount = MagicMock()
         proc_mount = MagicMock()
         sys_mount = MagicMock()
         dev_mount = MagicMock()
@@ -389,8 +412,8 @@ class TestBootLoaderConfigBase:
         volume_mount = MagicMock()
 
         mount_managers = [
-            proc_mount, sys_mount, dev_mount, tmp_mount, volume_mount,
-            efi_mount, boot_mount, root_mount
+            proc_mount, sys_mount, dev_mount, tmp_mount, etc_kernel_mount,
+            volume_mount, efi_mount, boot_mount, root_mount
         ]
 
         def mount_managers_effect(**args):
@@ -414,6 +437,7 @@ class TestBootLoaderConfigBase:
                 call(device='efidev', mountpoint='root_mount_point/boot/efi'),
                 call(device='device', mountpoint='root_mount_point/boot/grub2'),
                 call(device='/tmp', mountpoint='root_mount_point/tmp'),
+                call(device='efidev', mountpoint='root_mount_point/etc/kernel'),
                 call(device='/dev', mountpoint='root_mount_point/dev'),
                 call(device='/proc', mountpoint='root_mount_point/proc'),
                 call(device='/sys', mountpoint='root_mount_point/sys')
@@ -434,6 +458,7 @@ class TestBootLoaderConfigBase:
 
         volume_mount.umount.assert_called_once_with()
         tmp_mount.umount.assert_called_once_with()
+        etc_kernel_mount.umount.assert_called_once_with()
         dev_mount.umount.assert_called_once_with()
         proc_mount.umount.assert_called_once_with()
         sys_mount.umount.assert_called_once_with()

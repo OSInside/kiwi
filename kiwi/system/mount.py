@@ -103,7 +103,7 @@ class ImageSystem:
                     self.root_mount_mountpoint, 'boot', 'efi'
                 )
             )
-        if not f'{root_device}' == f'{boot_device}':
+        if root_device != boot_device:
             self.mount_list.append(boot_mount)
             boot_mount.mount()
 
@@ -175,11 +175,12 @@ class ImageSystem:
     def _setup_device_names(self) -> tuple:
         root_device = self.device_map['root'].get_device()
         boot_device = root_device
-        efi_device = None
-        if 'boot' in self.device_map:
-            boot_device = self.device_map['boot'].get_device()
+        efi_device = ''
         if 'readonly' in self.device_map:
             root_device = self.device_map['readonly'].get_device()
+            boot_device = root_device
+        if 'boot' in self.device_map:
+            boot_device = self.device_map['boot'].get_device()
         if 'efi' in self.device_map:
             efi_device = self.device_map['efi'].get_device()
         return (root_device, boot_device, efi_device)

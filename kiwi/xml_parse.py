@@ -3363,7 +3363,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3419,6 +3419,7 @@ class type_(GeneratedsSuper):
         self.mdraid = _cast(None, mdraid)
         self.overlayroot = _cast(bool, overlayroot)
         self.overlayroot_write_partition = _cast(bool, overlayroot_write_partition)
+        self.overlayroot_readonly_filesystem = _cast(None, overlayroot_readonly_filesystem)
         self.overlayroot_readonly_partsize = _cast(int, overlayroot_readonly_partsize)
         self.verity_blocks = _cast(None, verity_blocks)
         self.embed_verity_metadata = _cast(bool, embed_verity_metadata)
@@ -3663,6 +3664,8 @@ class type_(GeneratedsSuper):
     def set_overlayroot(self, overlayroot): self.overlayroot = overlayroot
     def get_overlayroot_write_partition(self): return self.overlayroot_write_partition
     def set_overlayroot_write_partition(self, overlayroot_write_partition): self.overlayroot_write_partition = overlayroot_write_partition
+    def get_overlayroot_readonly_filesystem(self): return self.overlayroot_readonly_filesystem
+    def set_overlayroot_readonly_filesystem(self, overlayroot_readonly_filesystem): self.overlayroot_readonly_filesystem = overlayroot_readonly_filesystem
     def get_overlayroot_readonly_partsize(self): return self.overlayroot_readonly_partsize
     def set_overlayroot_readonly_partsize(self, overlayroot_readonly_partsize): self.overlayroot_readonly_partsize = overlayroot_readonly_partsize
     def get_verity_blocks(self): return self.verity_blocks
@@ -3982,6 +3985,9 @@ class type_(GeneratedsSuper):
         if self.overlayroot_write_partition is not None and 'overlayroot_write_partition' not in already_processed:
             already_processed.add('overlayroot_write_partition')
             outfile.write(' overlayroot_write_partition="%s"' % self.gds_format_boolean(self.overlayroot_write_partition, input_name='overlayroot_write_partition'))
+        if self.overlayroot_readonly_filesystem is not None and 'overlayroot_readonly_filesystem' not in already_processed:
+            already_processed.add('overlayroot_readonly_filesystem')
+            outfile.write(' overlayroot_readonly_filesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.overlayroot_readonly_filesystem), input_name='overlayroot_readonly_filesystem')), ))
         if self.overlayroot_readonly_partsize is not None and 'overlayroot_readonly_partsize' not in already_processed:
             already_processed.add('overlayroot_readonly_partsize')
             outfile.write(' overlayroot_readonly_partsize="%s"' % self.gds_format_integer(self.overlayroot_readonly_partsize, input_name='overlayroot_readonly_partsize'))
@@ -4473,6 +4479,11 @@ class type_(GeneratedsSuper):
                 self.overlayroot_write_partition = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('overlayroot_readonly_filesystem', node)
+        if value is not None and 'overlayroot_readonly_filesystem' not in already_processed:
+            already_processed.add('overlayroot_readonly_filesystem')
+            self.overlayroot_readonly_filesystem = value
+            self.overlayroot_readonly_filesystem = ' '.join(self.overlayroot_readonly_filesystem.split())
         value = find_attr_value_('overlayroot_readonly_partsize', node)
         if value is not None and 'overlayroot_readonly_partsize' not in already_processed:
             already_processed.add('overlayroot_readonly_partsize')
