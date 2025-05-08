@@ -887,7 +887,7 @@ class DiskBuilder:
                     ):
                         # run post sync script hook and security context
                         disk_system.call_disk_script()
-                    else:
+                    elif not self.root_filesystem_is_overlay:
                         # setup security context
                         disk_system.setup_selinux_file_contexts()
 
@@ -1793,11 +1793,12 @@ class DiskBuilder:
         root_device = device_map['root']
         boot_device = root_device
         readonly_device = None
-        if 'boot' in device_map:
-            boot_device = device_map['boot']
-
         if 'readonly' in device_map:
             readonly_device = device_map['readonly']
+            boot_device = readonly_device
+
+        if 'boot' in device_map:
+            boot_device = device_map['boot']
 
         custom_install_arguments = {
             'boot_device': boot_device.get_device(),
