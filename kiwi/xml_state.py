@@ -2110,7 +2110,7 @@ class XMLState:
         if selected_system_disk and selected_system_disk.get_preferlvm():
             # LVM volume management is preferred, use it
             volume_management = 'lvm'
-        elif selected_filesystem in volume_filesystems:
+        elif selected_filesystem in volume_filesystems and selected_system_disk:
             # specified filesystem has its own volume management system
             volume_management = selected_filesystem
         elif selected_system_disk:
