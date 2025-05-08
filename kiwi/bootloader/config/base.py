@@ -60,6 +60,7 @@ class BootLoaderConfigBase(ABC):
         self.proc_mount = None
         self.sys_mount = None
         self.tmp_mount = None
+        self.etc_kernel_mount = None
 
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.post_init(custom_args)
@@ -555,15 +556,23 @@ class BootLoaderConfigBase(ABC):
 
         if self.root_filesystem_is_overlay:
             # In case of an overlay root system all parts of the rootfs
-            # are read-only by squashfs except for the extra boot partition.
-            # However tools like grub's mkconfig creates temporary files
-            # at call time and therefore /tmp needs to be writable during
-            # the call time of the tools
+            # are read-only. However tools like grub's mkconfig creates
+            # temporary files at call time and therefore /tmp needs to
+            # be writable during the call time of the tools
             self.tmp_mount = MountManager(
                 device='/tmp',
                 mountpoint=self.root_mount.mountpoint + '/tmp'
             )
             self.tmp_mount.bind_mount()
+
+            # There are also tools that writes to /etc/kernel, e.g
+            # systemd-boot. If it exists we map it to the ESP
+            etc_kernel = f'{self.root_mount.mountpoint}/etc/kernel'
+            if os.path.exists(etc_kernel):
+                self.etc_kernel_mount = MountManager(
+                    device=efi_device, mountpoint=etc_kernel
+                )
+                self.etc_kernel_mount.mount()
 
         self.device_mount = MountManager(
             device='/dev',
@@ -600,6 +609,8 @@ class BootLoaderConfigBase(ABC):
                 self.efi_mount.umount()
             if self.tmp_mount:
                 self.tmp_mount.umount()
+            if self.etc_kernel_mount:
+                self.etc_kernel_mount.umount()
             if self.boot_mount:
                 self.boot_mount.umount()
             if self.root_mount:
