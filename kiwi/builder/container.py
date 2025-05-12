@@ -92,6 +92,7 @@ class ContainerBuilder:
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=self.root_dir
         )
+        self.special_needs = ['appx', 'wsl']
         self.filename = ''.join(
             [
                 target_dir, '/',
@@ -99,7 +100,7 @@ class ContainerBuilder:
                 '.' + Defaults.get_platform_name(),
                 '-' + xml_state.get_image_version(),
                 '.', self.requested_container_type,
-                '.tar' if self.requested_container_type != 'appx' else ''
+                '.tar' if self.requested_container_type not in self.special_needs else ''
             ]
         )
         self.result = Result(xml_state)
@@ -115,6 +116,7 @@ class ContainerBuilder:
         * image="docker"
         * image="oci"
         * image="appx"
+        * image="wsl"
 
         :return: result
 
@@ -148,7 +150,8 @@ class ContainerBuilder:
             self.filename, self.base_image or '', self.ensure_empty_tmpdirs,
             self.runtime_config.get_container_compression()
             # appx containers already contains a compressed root
-            if self.requested_container_type != 'appx' else False
+            # wsl containers recommends gzip and we default to it
+            if self.requested_container_type not in self.special_needs else False
         )
         Result.verify_image_size(
             self.runtime_config.get_max_size_constraint(),

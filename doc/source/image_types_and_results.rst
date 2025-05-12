@@ -173,6 +173,14 @@ image="appx"
   - **container**:
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.appx`
 
+image="wsl"
+  An archive image suitable for the Windows Subsystem For Linux
+  container engine >= v2.4.4. The result is a gzip compressed tar
+  archive with the `.wsl` extension:
+
+  - **container**:
+    :file:`{exc_image_base_name}.x86_64-{exc_image_version}.wsl`
+
 image="kis"
   An optional root filesystem image associated with a kernel and initrd.
   All three binaries are packed in a tarball, see :ref:`kis` for further

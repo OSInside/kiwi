@@ -45,12 +45,14 @@ class ContainerImage(metaclass=ABCMeta):
         name_map = {
             'docker': 'OCI',
             'oci': 'OCI',
-            'appx': 'Appx'
+            'appx': 'Appx',
+            'wsl': 'Wsl'
         }
         args_map = {
             'docker': [root_dir, 'docker-archive', custom_args],
             'oci': [root_dir, 'oci-archive', custom_args],
-            'appx': [root_dir, custom_args]
+            'appx': [root_dir, custom_args],
+            'wsl': [root_dir, custom_args]
         }
         try:
             container_image = importlib.import_module(

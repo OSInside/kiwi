@@ -207,6 +207,7 @@ Provides:       kiwi-image-wsl-requires = %{version}-%{release}
 Obsoletes:      kiwi-image-wsl-requires < %{version}-%{release}
 %if "%{_vendor}" != "debbuild"
 Provides:       kiwi-image:appx
+Provides:       kiwi-image:wsl
 %endif
 %if 0%{?suse_version}
 Requires:       fb-util-for-appx

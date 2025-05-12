@@ -41,7 +41,8 @@ class ContainerSetup(metaclass=ABCMeta):
         name_map = {
             'docker': 'Docker',
             'oci': 'OCI',
-            'appx': 'Appx'
+            'appx': 'Appx',
+            'wsl': 'Wsl'
         }
         try:
             container_setup = importlib.import_module(

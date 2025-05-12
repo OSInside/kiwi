@@ -364,6 +364,14 @@ image="appx"
   container engine. The image can be loaded From a Windows System
   that has support for WSL activated.
 
+image="wsl"
+  An archive image suitable for the Windows Subsystem For Linux
+  container engine >= v2.4.4. The image represents a gzip compressed
+  tar file as described in
+  https://learn.microsoft.com/en-us/windows/wsl/build-custom-distro
+  and can be loaded From a Windows System
+  that has support for WSL in that version activated.
+
 image="kis"
   An optional root filesystem image associated with a kernel and initrd.
   The use case for this component image type is highly customizable.
