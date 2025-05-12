@@ -125,6 +125,7 @@
         <package name="health-checker-plugins-MicroOS"/>
         <package name="squashfs"/>
         <package name="systemd-network"/>
+        <package name="systemd-resolved"/>
         <package name="NetworkManager"/>
     </packages>
     <packages type="bootstrap">

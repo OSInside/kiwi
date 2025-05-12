@@ -75,6 +75,7 @@
         <package name="patterns-openSUSE-base"/>
         <package name="openSUSE-repos-Tumbleweed"/>
         <package name="systemd-network"/>
+        <package name="systemd-resolved"/>
         <package name="procps"/>
         <package name="systemd"/>
         <package name="plymouth-theme-breeze"/>
