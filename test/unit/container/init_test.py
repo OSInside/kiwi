@@ -31,3 +31,10 @@ class TestContainerImage:
         mock_appx.assert_called_once_with(
             'root_dir', None
         )
+
+    @patch('kiwi.container.wsl.ContainerImageWsl')
+    def test_container_image_wsl(self, mock_wsl):
+        ContainerImage.new('wsl', 'root_dir')
+        mock_wsl.assert_called_once_with(
+            'root_dir', None
+        )

@@ -1601,7 +1601,7 @@ class Defaults:
 
         :rtype: list
         """
-        return ['docker', 'oci', 'appx']
+        return ['docker', 'oci', 'appx', 'wsl']
 
     @staticmethod
     def get_filesystem_image_types():

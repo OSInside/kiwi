@@ -2060,7 +2060,7 @@ div {
         attribute image {
             "btrfs" | "cpio" | "docker" | "ext2" | "ext3" |
             "ext4" | "iso" | "oem" | "pxe" | "kis" | "squashfs" | "erofs" | "tbz" |
-            "xfs" | "oci" | "appx" | "enclave"
+            "xfs" | "oci" | "appx" | "enclave" | "wsl"
         }
         >> sch:pattern [
             id = "metadata_path_mandatory" is-a = "image_type_requirement"

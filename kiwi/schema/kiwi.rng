@@ -2988,6 +2988,7 @@ initrd architecture.</a:documentation>
           <value>oci</value>
           <value>appx</value>
           <value>enclave</value>
+          <value>wsl</value>
         </choice>
       </attribute>
       <sch:pattern id="metadata_path_mandatory" is-a="image_type_requirement">

@@ -29,7 +29,8 @@ following systemdeps packages:
     compliant container images.
 
 `kiwi-systemdeps-containers-wsl`:
-  * Supports building `appx` image types.
+  * Supports building `appx` and `wsl` image types. The `wsl` type
+    is the successor for the former `appx` type
   * Installs the distribution specific tool chain to build
     WSL compliant container images on Windows systems.
 
