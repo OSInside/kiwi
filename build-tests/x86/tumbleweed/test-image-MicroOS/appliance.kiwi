@@ -126,6 +126,7 @@
         <package name="squashfs"/>
         <package name="systemd-network"/>
         <package name="systemd-resolved"/>
+        <package name="read-only-root-fs"/>
         <package name="NetworkManager"/>
     </packages>
     <packages type="bootstrap">
