@@ -62,6 +62,13 @@ function reencrypt_luks {
                 --key-slot "${keyslot}" \
             luksChangeKey "${device}" "${new_keyfile}"
             cp "${new_keyfile}" "${passphrase_file}"
+            if [ -e "${keyfile}" ]; then
+                # if there is a keyfile it's referenced in the crypttab
+                # of this initrd instance in memory. Make sure all subsequent
+                # tasks e.g. luks resize have permissions to complete while
+                # inside of this initrd instance
+                cp "${new_keyfile}" "${keyfile}"
+            fi
         fi
         # reencrypt
         setup_progress_fifo ${progress}
