@@ -92,7 +92,7 @@ class RuntimeChecker:
             image misbehave.
         ''')
         support_target_filesystem = [
-            'tmpfs', 'btrfs', 'xfs', 'ext2', 'ext3', 'ext4'
+            'tmpfs', 'btrfs', 'xfs', 'ext2', 'ext3', 'ext4', 'ext2/ext3'
         ]
         stat = Command.run(
             ['stat', '-f', '-c', '%T', target_dir]
