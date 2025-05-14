@@ -53,7 +53,7 @@ Image Description
    Specification to define an appliance. The image description is a
    collection of human readable files in a directory. At least one XML
    file :file:`config.xml` or :file:`.kiwi` is required. In addition
-   there may be as well other files like scripts or configuration data.
+   there may be other files like scripts or configuration data.
    These can be used to customize certain parts either of the {kiwi}
    build process or of the initial start-up behavior of the image.
 
