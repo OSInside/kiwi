@@ -76,6 +76,34 @@ class RuntimeChecker:
                 'No repositories configured'
             )
 
+    @staticmethod
+    def check_target_dir_on_unsupported_filesystem(target_dir: str) -> None:
+        """
+        Raise if the given target dir does not reside on a
+        filesystem that supports all important features like
+        extended permissions(fscaps), ACLs or xattrs.
+        """
+        message = dedent('''\n
+            Target root/image directory is lacking filesystem features
+
+            The filesystem {0} for the given image target directory {1}
+            does not support important features like extended permissions,
+            ACLs or xattrs. The image build may fail or the resulting
+            image misbehave.
+        ''')
+        support_target_filesystem = [
+            'tmpfs', 'btrfs', 'xfs', 'ext2', 'ext3', 'ext4'
+        ]
+        stat = Command.run(
+            ['stat', '-f', '-c', '%T', target_dir]
+        )
+        if stat:
+            target_fs = stat.output.strip()
+            if target_fs not in support_target_filesystem:
+                raise KiwiRuntimeError(
+                    message.format(target_fs, target_dir)
+                )
+
     def check_include_references_unresolvable(self) -> None:
         """
         Raise for still included <include> statements as not resolvable.

@@ -87,6 +87,8 @@ class SystemCreateTask(CliTask):
                 'check_target_directory_not_in_shared_cache':
                     [abs_root_path],
                 'check_dracut_module_versions_compatible_to_kiwi':
+                    [abs_root_path],
+                'check_target_dir_on_unsupported_filesystem':
                     [abs_root_path]
             }
         )
