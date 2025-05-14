@@ -52,6 +52,16 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_image_include_repos_publicly_resolvable()
 
+    @patch('kiwi.runtime_checker.Command.run')
+    def test_check_target_dir_on_unsupported_filesystem(self, mock_Command_run):
+        stat = Mock()
+        stat.output = 'bogus'
+        mock_Command_run.return_value = stat
+        with raises(KiwiRuntimeError):
+            self.runtime_checker.check_target_dir_on_unsupported_filesystem(
+                '/some/root_dir'
+            )
+
     def test_invalid_target_dir_pointing_to_shared_cache_1(self):
         with raises(KiwiRuntimeError):
             self.runtime_checker.check_target_directory_not_in_shared_cache(

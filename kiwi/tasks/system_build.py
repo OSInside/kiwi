@@ -176,6 +176,8 @@ class SystemBuildTask(CliTask):
         build_checks.update(
             {
                 'check_target_directory_not_in_shared_cache':
+                    [abs_target_dir_path],
+                'check_target_dir_on_unsupported_filesystem':
                     [abs_target_dir_path]
             }
         )

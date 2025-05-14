@@ -160,7 +160,8 @@ class SystemPrepareTask(CliTask):
         prepare_checks = self.checks_before_command_args
         prepare_checks.update(
             {
-                'check_target_directory_not_in_shared_cache': [abs_root_path]
+                'check_target_directory_not_in_shared_cache': [abs_root_path],
+                'check_target_dir_on_unsupported_filesystem': [abs_root_path]
             }
         )
         self.run_checks(prepare_checks)
