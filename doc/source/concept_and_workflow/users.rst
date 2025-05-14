@@ -29,7 +29,7 @@ The following attributes are mandatory:
 
 - `password`: The password for the user account. It can be provided either
   in clear-text form (`pwdformat="plain"`) or in encrypted form
-  (`pwdformat="encrypted"`). Using lain passwords is not advisable, as anyone
+  (`pwdformat="encrypted"`). Using plain passwords is not advisable, as anyone
   with access to the image description can see the password. It is
   recommended to generate a hash of your password using `openssl` as
   follows:
