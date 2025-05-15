@@ -553,6 +553,9 @@ class SystemSetup:
         :param str security_context_file: path file name
         """
         log.info('Processing SELinux file security contexts')
+        if not os.access(self.root_dir, os.W_OK):
+            log.info('System is read-only, security context unchanged')
+            return
         exclude = []
         for devname in Defaults.get_exclude_list_for_non_physical_devices():
             exclude.append('-e')

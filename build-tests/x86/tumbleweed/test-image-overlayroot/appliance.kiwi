@@ -46,7 +46,7 @@
         <type
             image="oem"
             filesystem="xfs"
-            kernelcmdline="console=ttyS0 rd.systemd.verity=1"
+            kernelcmdline="console=ttyS0 rd.systemd.verity=1 security=selinux selinux=1 enforcing=1"
             firmware="uefi"
             format="vmdk"
             overlayroot="true"
@@ -69,7 +69,7 @@
         <type
             image="oem"
             filesystem="btrfs"
-            kernelcmdline="console=ttyS0 rd.systemd.verity=1"
+            kernelcmdline="console=ttyS0 rd.systemd.verity=1 security=selinux selinux=1 enforcing=1"
             firmware="efi"
             format="vmdk"
             overlayroot="true"
@@ -95,6 +95,12 @@
     <packages type="image" profiles="sdboot_verity_erofs,grub_verity_erofs">
         <package name="cryptsetup"/>
         <package name="dracut-kiwi-verity"/>
+        <package name="restorecond"/>
+        <package name="policycoreutils"/>
+        <package name="setools-console"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="selinux-policy-devel"/>
+        <package name="selinux-autorelabel"/>
     </packages>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>
