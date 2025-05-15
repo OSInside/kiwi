@@ -1662,6 +1662,20 @@ class TestSystemSetup:
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
     @patch('os.scandir')
+    @patch('os.access')
+    def test_set_selinux_file_contexts_read_only_root(
+        self, mock_os_access, mock_os_scandir, mock_command,
+        mock_has_option_in_help
+    ):
+        mock_os_access.return_value = False
+        mock_has_option_in_help.return_value = False
+        mock_os_scandir.return_value = self.selinux_policies
+        self.setup.set_selinux_file_contexts('security_context_file')
+        assert not mock_command.called
+
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.system.setup.Command.run')
+    @patch('os.scandir')
     def test_set_selinux_file_contexts_old_version(
         self, mock_os_scandir, mock_command, mock_has_option_in_help
     ):
