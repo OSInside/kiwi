@@ -85,16 +85,16 @@ Private and Public Clouds
   service provider. The classic way to install a machine is not
   possible in such an environment because there is no physical access
   to the machine. An appliance is needed to be registered with the
-  cloud
+  cloud.
 
 Custom Linux Distribution
-  Linux distributors provides their distribution based on a collection
+  Linux distributors provide their distribution based on a collection
   of packages and release them on an install media like a DVD or an USB
   stick. Typically a lot more software components exists for the
   distribution which are not part of the default installation media
   or the installation media comes with software and installation
   routines that are not matching your target audience. With an
-  appliance made by {kiwi} you can create provide an installation
+  appliance made by {kiwi} you can create an installation
   media that matches custom criteria as needed by the customer
   and does not require extra post processing steps after the
   default installation method provided by the distributor.
@@ -105,11 +105,11 @@ Live Systems
   system administrators. The creation of such a live system includes
   use of technologies that are not part of a standard installation
   process. An appliance builder is needed to create this sort of
-  system
+  system.
 
 Embedded Systems
-  Embedded Systems like the Raspberry Pi comes with limited hardware
-  components. Their boot sequences often does not allow for classic
+  Embedded Systems like the Raspberry Pi come with limited hardware
+  components. Their boot sequences often do not allow for classic
   installation methods through USB or DVD devices. Instead they boot
   through SD card slots or via the network. SoC (System on Chip) devices
   also tend to implement non standard boot methods which can only

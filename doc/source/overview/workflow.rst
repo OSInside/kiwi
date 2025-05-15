@@ -54,7 +54,7 @@ See :ref:`description_components` section for further details.
 Components of an Image Description
 ----------------------------------
 
-A {kiwi} image description can composed by several parts. The main part is
+A {kiwi} image description can be composed of several parts. The main part is
 the {kiwi} description file itself (named :file:`config.xml` or an arbitrary
 name plus the :file:`*.kiwi` extension). The configuration XML is the
 only required component, others are optional.
