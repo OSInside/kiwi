@@ -192,3 +192,7 @@ class TestBootImageKiwi:
 
     def test_has_initrd_support(self):
         assert self.boot_image.has_initrd_support() is True
+
+    def test_add_argument(self):
+        self.boot_image.add_argument('option', 'value')
+        assert self.boot_image.dracut_options == ['option', 'value']

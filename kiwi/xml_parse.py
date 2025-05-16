@@ -3363,7 +3363,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3491,6 +3491,10 @@ class type_(GeneratedsSuper):
             self.installmedia = []
         else:
             self.installmedia = installmedia
+        if initrd is None:
+            self.initrd = []
+        else:
+            self.initrd = initrd
         if luksformat is None:
             self.luksformat = []
         else:
@@ -3551,6 +3555,11 @@ class type_(GeneratedsSuper):
     def add_installmedia(self, value): self.installmedia.append(value)
     def insert_installmedia_at(self, index, value): self.installmedia.insert(index, value)
     def replace_installmedia_at(self, index, value): self.installmedia[index] = value
+    def get_initrd(self): return self.initrd
+    def set_initrd(self, initrd): self.initrd = initrd
+    def add_initrd(self, value): self.initrd.append(value)
+    def insert_initrd_at(self, index, value): self.initrd.insert(index, value)
+    def replace_initrd_at(self, index, value): self.initrd[index] = value
     def get_luksformat(self): return self.luksformat
     def set_luksformat(self, luksformat): self.luksformat = luksformat
     def add_luksformat(self, value): self.luksformat.append(value)
@@ -3796,6 +3805,7 @@ class type_(GeneratedsSuper):
             self.partitions or
             self.vagrantconfig or
             self.installmedia or
+            self.initrd or
             self.luksformat
         ):
             return True
@@ -4116,6 +4126,8 @@ class type_(GeneratedsSuper):
             vagrantconfig_.export(outfile, level, namespaceprefix_, name_='vagrantconfig', pretty_print=pretty_print)
         for installmedia_ in self.installmedia:
             installmedia_.export(outfile, level, namespaceprefix_, name_='installmedia', pretty_print=pretty_print)
+        for initrd_ in self.initrd:
+            initrd_.export(outfile, level, namespaceprefix_, name_='initrd', pretty_print=pretty_print)
         for luksformat_ in self.luksformat:
             luksformat_.export(outfile, level, namespaceprefix_, name_='luksformat', pretty_print=pretty_print)
     def build(self, node):
@@ -4773,6 +4785,11 @@ class type_(GeneratedsSuper):
             obj_.build(child_)
             self.installmedia.append(obj_)
             obj_.original_tagname_ = 'installmedia'
+        elif nodeName_ == 'initrd':
+            obj_ = initrd.factory()
+            obj_.build(child_)
+            self.initrd.append(obj_)
+            obj_.original_tagname_ = 'initrd'
         elif nodeName_ == 'luksformat':
             obj_ = luksformat.factory()
             obj_.build(child_)
@@ -8996,9 +9013,10 @@ class dracut(GeneratedsSuper):
     """A dracut module"""
     subclass = None
     superclass = None
-    def __init__(self, module=None):
+    def __init__(self, module=None, uefi=None):
         self.original_tagname_ = None
         self.module = _cast(None, module)
+        self.uefi = _cast(bool, uefi)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -9012,6 +9030,8 @@ class dracut(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_module(self): return self.module
     def set_module(self, module): self.module = module
+    def get_uefi(self): return self.uefi
+    def set_uefi(self, uefi): self.uefi = uefi
     def hasContent_(self):
         if (
 
@@ -9043,6 +9063,9 @@ class dracut(GeneratedsSuper):
         if self.module is not None and 'module' not in already_processed:
             already_processed.add('module')
             outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+        if self.uefi is not None and 'uefi' not in already_processed:
+            already_processed.add('uefi')
+            outfile.write(' uefi="%s"' % self.gds_format_boolean(self.uefi, input_name='uefi'))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='dracut', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -9057,6 +9080,15 @@ class dracut(GeneratedsSuper):
         if value is not None and 'module' not in already_processed:
             already_processed.add('module')
             self.module = value
+        value = find_attr_value_('uefi', node)
+        if value is not None and 'uefi' not in already_processed:
+            already_processed.add('uefi')
+            if value in ('true', '1'):
+                self.uefi = True
+            elif value in ('false', '0'):
+                self.uefi = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class dracut
