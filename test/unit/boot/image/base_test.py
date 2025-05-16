@@ -208,3 +208,6 @@ class TestBootImageBase:
 
     def test_has_initrd_support(self):
         assert self.boot_image.has_initrd_support() is False
+
+    def test_add_argument(self):
+        assert self.boot_image.add_argument('some') is None

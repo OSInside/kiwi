@@ -168,6 +168,17 @@ class BootImageDracut(BootImageBase):
         self.dracut_options.append('--install')
         self.dracut_options.append('/.profile')
 
+    def add_argument(self, option: str, value: str = '') -> None:
+        """
+        Add caller argument to boot image creation tool
+
+        :param str option: argument name
+        :param str value: optional argument value
+        """
+        self.dracut_options.append(option)
+        if value:
+            self.dracut_options.append(value)
+
     def create_initrd(
         self, mbrid: Optional[SystemIdentifier] = None,
         basename: Optional[str] = None, install_initrd: bool = False

@@ -1252,12 +1252,20 @@ class TestXMLState:
             'some-target'
 
     def test_get_installintrd_modules(self):
-        self.state.get_installmedia_initrd_modules('add') == ['network-legacy']
-        self.state.get_installmedia_initrd_modules('set') == []
-        self.state.get_installmedia_initrd_modules('omit') == []
+        assert self.state.get_installmedia_initrd_modules('add') == \
+            ['network-legacy']
+        assert self.state.get_installmedia_initrd_modules('set') == []
+        assert self.state.get_installmedia_initrd_modules('omit') == []
         xml_data = self.description.load()
         state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
-        state.get_installmedia_initrd_modules('add') == []
+        assert state.get_installmedia_initrd_modules('add') == []
+
+    def test_get_dracut_config(self):
+        assert self.state.get_dracut_config('setup').uefi is False
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
+        assert state.get_dracut_config('setup').uefi is True
+        assert state.get_dracut_config('add').modules == ['some']
 
     @patch('kiwi.system.uri.os.path.abspath')
     def test_get_repositories_signing_keys(self, mock_root_path):
