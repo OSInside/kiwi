@@ -7,6 +7,7 @@ from kiwi.defaults import Defaults
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
+from kiwi.boot.image.base import boot_names_type
 
 
 class TestBootImageKiwi:
@@ -116,6 +117,77 @@ class TestBootImageKiwi:
     @patch('kiwi.boot.image.dracut.Profile')
     @patch('kiwi.boot.image.dracut.MountManager')
     @patch('os.unlink')
+    def test_create_uki(
+        self, mock_os_unlink, mock_MountManager, mock_Profile,
+        mock_prepared, mock_command, mock_kernel
+    ):
+        profile = Mock()
+        profile.dot_profile = dict()
+        mock_Profile.return_value = profile
+        kernel = Mock()
+        kernel_details = Mock()
+        kernel_details.version = '1.2.3'
+        kernel.get_kernel = Mock(return_value=kernel_details)
+        mock_kernel.return_value = kernel
+        self.boot_image.include_file(
+            filename='system-directory/etc/foo', delete_after_include=True
+        )
+        self.boot_image.include_module('foo')
+        self.boot_image.omit_module('bar')
+        self.boot_image.get_boot_names = Mock(
+            return_value=boot_names_type(
+                kernel_name='kernel_name',
+                initrd_name='initrd-kernel_version',
+                kernel_version='kernel_version',
+                kernel_filename='kernel_filename'
+            )
+        )
+        mock_prepared.return_value = False
+        assert self.boot_image.create_uki('some_cmdline') == ''
+        mock_prepared.return_value = True
+        assert self.boot_image.create_uki('some_cmdline') == \
+            'some-target-dir/vmlinuz-kernel_version.efi'
+        profile.create.assert_called_once_with(
+            'system-directory/.profile'
+        )
+        assert mock_MountManager.call_args_list == [
+            call(device='/dev', mountpoint='system-directory/dev'),
+            call(device='/proc', mountpoint='system-directory/proc')
+        ]
+        assert mock_command.call_args_list == [
+            call(
+                [
+                    'chroot', 'system-directory',
+                    'dracut',
+                    '--no-hostonly',
+                    '--no-hostonly-cmdline',
+                    '--force',
+                    '--verbose',
+                    '--kver', '1.2.3',
+                    '--uefi',
+                    '--kernel-cmdline', 'some_cmdline',
+                    '--add', ' foo ',
+                    '--omit', ' bar ',
+                    '--install', 'system-directory/etc/foo',
+                    'vmlinuz-kernel_version.efi'
+                ], stderr_to_stdout=True),
+            call(
+                [
+                    'mv', 'system-directory/vmlinuz-kernel_version.efi',
+                    'some-target-dir'
+                ]
+            )
+        ]
+        mock_os_unlink.assert_called_once_with(
+            'system-directory/system-directory/etc/foo'
+        )
+
+    @patch('kiwi.boot.image.dracut.Kernel')
+    @patch('kiwi.boot.image.dracut.Command.run')
+    @patch('kiwi.boot.image.base.BootImageBase.is_prepared')
+    @patch('kiwi.boot.image.dracut.Profile')
+    @patch('kiwi.boot.image.dracut.MountManager')
+    @patch('os.unlink')
     def test_create_initrd(
         self, mock_os_unlink, mock_MountManager, mock_Profile,
         mock_prepared, mock_command, mock_kernel
@@ -192,3 +264,7 @@ class TestBootImageKiwi:
 
     def test_has_initrd_support(self):
         assert self.boot_image.has_initrd_support() is True
+
+    def test_add_argument(self):
+        self.boot_image.add_argument('option', 'value')
+        assert self.boot_image.dracut_options == ['option', 'value']

@@ -17,6 +17,7 @@
 #
 import os
 import glob
+import logging
 from string import Template
 from contextlib import ExitStack
 from typing import Dict
@@ -39,6 +40,8 @@ from kiwi.exceptions import (
 )
 
 import kiwi.defaults as defaults
+
+log = logging.getLogger('kiwi')
 
 
 class BootLoaderSystemdBoot(BootLoaderSpecBase):
@@ -77,8 +80,23 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             boot_options.get('efi_device'),
             boot_options.get('system_volumes')
         )
+        dracut_setup = self.xml_state.get_dracut_config('setup')
         self._run_bootctl(self.root_mount.mountpoint)
-        self.set_loader_entry(self.root_mount.mountpoint, self.target.disk)
+        if dracut_setup.uefi:
+            boot_image = boot_options.get('boot_image')
+            if boot_image:
+                log.info('Creating UKI EFI binary')
+                Command.run(
+                    [
+                        'mv', boot_image.create_uki(self.cmdline),
+                        f'{self.root_mount.mountpoint}/boot/efi/EFI/Linux/'
+                    ]
+                )
+        else:
+            log.info('Creating loader entry')
+            self.set_loader_entry(
+                self.root_mount.mountpoint, self.target.disk
+            )
 
     def set_loader_entry(self, root_dir: str, target: str) -> None:
         """
@@ -181,20 +199,22 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
         self._write_kernel_cmdline_file(root_dir)
 
         # copy kernel and initrd
-        entry_dir = f'{root_dir}/boot/efi/loader/entries'
-        os_dir = f'{root_dir}/boot/efi/os'
-        Path.create(entry_dir)
-        Path.create(os_dir)
-        self.custom_args['kernel'] = \
-            f'os/{os.path.basename(kernel_info.kernel_filename)}'
-        self.custom_args['initrd'] = \
-            f'os/{kernel_info.initrd_name}'
-        Command.run(
-            ['cp', kernel_info.kernel_filename, os_dir]
-        )
-        Command.run(
-            ['cp', f'{root_dir}/boot/{kernel_info.initrd_name}', os_dir]
-        )
+        dracut_setup = self.xml_state.get_dracut_config('setup')
+        if not dracut_setup.uefi:
+            entry_dir = f'{root_dir}/boot/efi/loader/entries'
+            os_dir = f'{root_dir}/boot/efi/os'
+            Path.create(entry_dir)
+            Path.create(os_dir)
+            self.custom_args['kernel'] = \
+                f'os/{os.path.basename(kernel_info.kernel_filename)}'
+            self.custom_args['initrd'] = \
+                f'os/{kernel_info.initrd_name}'
+            Command.run(
+                ['cp', kernel_info.kernel_filename, os_dir]
+            )
+            Command.run(
+                ['cp', f'{root_dir}/boot/{kernel_info.initrd_name}', os_dir]
+            )
 
         # create loader.conf
         BootLoaderSystemdBoot._write_config_file(

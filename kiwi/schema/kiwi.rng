@@ -3709,6 +3709,9 @@ kiwi-ng result bundle ...</a:documentation>
           <optional>
             <ref name="k.installmedia"/>
           </optional>
+          <zeroOrMore>
+            <ref name="k.initrd"/>
+          </zeroOrMore>
           <optional>
             <ref name="k.luksformat"/>
           </optional>
@@ -5414,6 +5417,7 @@ installation initrd.</a:documentation>
           <value>omit</value>
           <value>add</value>
           <value>set</value>
+          <value>setup</value>
         </choice>
       </attribute>
     </define>
@@ -5444,8 +5448,20 @@ for the installation media.</a:documentation>
         <a:documentation>A module name</a:documentation>
       </attribute>
     </define>
+    <define name="k.dracut.uefi.attribute">
+      <attribute name="uefi">
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.dracut.attlist">
-      <ref name="k.dracut.module.attribute"/>
+      <interleave>
+        <optional>
+          <ref name="k.dracut.module.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.dracut.uefi.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.dracut">
       <element name="dracut">

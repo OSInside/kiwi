@@ -136,6 +136,12 @@
                 <vmconfig-entry>numvcpus = "4"</vmconfig-entry>
                 <vmconfig-entry>cpuid.coresPerSocket = "2"</vmconfig-entry>
             </machine>
+            <initrd action="setup">
+                <dracut uefi="true"/>
+            </initrd>
+            <initrd action="add">
+                <dracut module="some"/>
+            </initrd>
         </type>
         <type image="iso" mediacheck="true"/>
     </preferences>

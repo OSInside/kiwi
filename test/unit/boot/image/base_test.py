@@ -68,6 +68,10 @@ class TestBootImageBase:
         with raises(NotImplementedError):
             self.boot_image.create_initrd()
 
+    def test_create_uki(self):
+        with raises(NotImplementedError):
+            self.boot_image.create_uki('some_cmdline')
+
     @patch('os.listdir')
     def test_is_prepared(self, mock_listdir):
         mock_listdir.return_value = []
@@ -208,3 +212,6 @@ class TestBootImageBase:
 
     def test_has_initrd_support(self):
         assert self.boot_image.has_initrd_support() is False
+
+    def test_add_argument(self):
+        assert self.boot_image.add_argument('some') is None

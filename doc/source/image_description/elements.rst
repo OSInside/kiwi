@@ -1319,6 +1319,27 @@ Used to customize the installation media images created for oem images
 deployment.
 For details see: :ref:`installmedia_customize`
 
+<preferences><type><initrd>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Used to specify custom arguments for the initrd tooling e.g. dracut
+
+.. code:: xml
+
+   <initrd action="setup">
+       <dracut uefi="true"/>
+   </initrd>
+   <initrd action="add|omit">
+       <dracut module="some_a"/>
+       <dracut module="some_b"/>
+   </initrd>
+
+dracut.uefi.true:
+  As part of the `setup` action, enables creating a UKI EFI binary
+
+dracut.module.NAME:
+  As part of the `add` or `omit` action, adds or omits the given
+  module name. The element can be specified multiple times
+
 .. _sec.registry:
 
 <containers>
