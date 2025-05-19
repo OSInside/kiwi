@@ -242,13 +242,13 @@ class BootImageDracut(BootImageBase):
                     os.sep.join(
                         [self.boot_root_directory, uki_base_name]
                     ),
-                    self.target_dir
+                    f'{self.target_dir}/kiwi.efi'
                 ]
             )
             for filename in self.delete_after_include_files:
                 os.unlink(f'{self.boot_root_directory}/{filename}')
             return os.path.normpath(
-                os.sep.join([self.target_dir, uki_base_name])
+                os.sep.join([self.target_dir, 'kiwi.efi'])
             )
         return ''
 

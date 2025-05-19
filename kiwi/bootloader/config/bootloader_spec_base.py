@@ -168,12 +168,13 @@ class BootLoaderSpecBase(BootLoaderConfigBase):
         pass
 
     def setup_disk_boot_images(
-        self, boot_uuid: str, lookup_path: str = ''
+        self, boot_uuid: str, efi_uuid: str = '', lookup_path: str = ''
     ) -> None:
         """
         Create bootloader image(s) for disk boot
 
-        :param string mbrid: unused
+        :param string boot_uuid: unused
+        :param string efi_uuid: unused
         :param str lookup_path: unused
 
         Targeted to bootloader spec interface

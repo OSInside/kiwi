@@ -18,6 +18,7 @@ from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 from kiwi.utils.sysconfig import SysConfig
+from kiwi.xml_state import DracutT
 
 from kiwi.exceptions import (
     KiwiBootLoaderGrubPlatformError,
@@ -1074,13 +1075,18 @@ class TestBootLoaderConfigGrub2:
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
     @patch('kiwi.bootloader.config.grub2.Path.which')
+    @patch('kiwi.bootloader.config.grub2.Path.create')
     @patch('kiwi.defaults.Defaults.get_vendor_grubenv')
     @patch('glob.iglob')
     def test_setup_disk_image_config(
-        self, mock_iglob, mock_get_vendor_grubenv, mock_Path_which,
+        self, mock_iglob, mock_get_vendor_grubenv,
+        mock_Path_create, mock_Path_which,
         mock_Command_run, mock_copy_grub_config_to_efi_path,
         mock_mount_system
     ):
+        self.state.get_dracut_config = Mock(
+            return_value=DracutT(uefi=False, modules=[])
+        )
         mock_iglob.return_value = ['some_entry.conf']
         mock_get_vendor_grubenv.return_value = 'grubenv'
         mock_Path_which.return_value = '/path/to/grub2-mkconfig'
@@ -1176,6 +1182,22 @@ class TestBootLoaderConfigGrub2:
                 file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
             assert 'initrd /initrd' in \
                 file_handle_menu.write.call_args_list[1][0][0].split(os.linesep)
+
+            # test UKI setup
+            self.state.get_dracut_config.return_value = DracutT(
+                uefi=True, modules=[]
+            )
+            boot_image = Mock()
+            self.bootloader.setup_disk_image_config(
+                boot_options={
+                    'root_device': 'rootdev',
+                    'boot_device': 'bootdev',
+                    'boot_image': boot_image
+                }
+            )
+            boot_image.create_uki.assert_called_once_with(
+                'some-cmdline root=UUID=foo'
+            )
 
             # test read-only device
             file_handle_grub.write.side_effect = OSError('readonly system')
@@ -1470,6 +1492,23 @@ class TestBootLoaderConfigGrub2:
                 ]
             )
         ]
+
+        self.state.get_dracut_config = Mock(
+            return_value=DracutT(uefi=True, modules=[])
+        )
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.bootloader.setup_disk_boot_images('0815', '0815')
+
+            assert file_handle.write.call_args_list == [
+                call('search --no-floppy --set=root --fs-uuid 0815\n'),
+                call('chainloader ($root)/EFI/Linux/kiwi.efi\n'),
+                call('boot\n')
+            ]
+            mock_open.assert_called_once_with(
+                'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'
+            )
 
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -2086,6 +2125,22 @@ class TestBootLoaderConfigGrub2:
                 call('search --file --set=root /boot/mbrid\n'),
                 call('set prefix=($root)/boot/grub2\n'),
                 call('source ($root)/boot/grub2/grub.cfg\n'),
+            ]
+
+        mock_get_unsigned_grub_loader.return_value = None
+        self.state.get_dracut_config = Mock(
+            return_value=DracutT(uefi=True, modules=[])
+        )
+        with patch('builtins.open', create=True) as mock_open:
+            # Test UKI chainloader for earlyboot
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.bootloader._setup_efi_image(efi_uuid='0815')
+
+            assert file_handle.write.call_args_list == [
+                call('search --no-floppy --set=root --fs-uuid 0815\n'),
+                call('chainloader ($root)/EFI/Linux/kiwi.efi\n'),
+                call('boot\n')
             ]
 
     @patch.object(BootLoaderConfigGrub2, '_supports_platform_modules')

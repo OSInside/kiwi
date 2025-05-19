@@ -1556,6 +1556,10 @@ class DiskBuilder:
         if 'boot' in device_map:
             boot_device = device_map['boot']
 
+        efi_uuid = disk.get_uuid(
+            device_map['efi'].get_device()
+        ) if device_map.get('efi') else None
+
         boot_uuid = disk.get_uuid(
             boot_device.get_device()
         )
@@ -1563,7 +1567,7 @@ class DiskBuilder:
             device_map['luks_root'].get_device()
         ) if self.luks and self.boot_is_crypto else boot_uuid
         bootloader_config.setup_disk_boot_images(
-            boot_uuid_unmapped
+            boot_uuid_unmapped, efi_uuid
         )
         bootloader_config.write_meta_data(
             root_device=ro_device.

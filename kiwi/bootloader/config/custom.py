@@ -26,7 +26,9 @@ class BootLoaderConfigCustom(BootLoaderConfigBase):
     """
     **custom bootloader configuration.**
     """
-    def setup_disk_boot_images(self, boot_uuid, lookup_path=None) -> None:
+    def setup_disk_boot_images(
+        self, boot_uuid, efi_uuid=None, lookup_path=None
+    ) -> None:
         raise NotImplementedError
 
     def setup_disk_image_config(

@@ -157,7 +157,9 @@ class BootLoaderConfigBase(ABC):
         """
 
     @abstractmethod
-    def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
+    def setup_disk_boot_images(
+        self, boot_uuid, efi_uuid=None, lookup_path=None
+    ):
         """
         Create bootloader images for disk boot
 
@@ -166,6 +168,7 @@ class BootLoaderConfigBase(ABC):
         path on a filesystem.
 
         :param string boot_uuid: boot device UUID
+        :param string efi_uuid: EFI device UUID
         :param string lookup_path: custom module lookup path
 
         Implementation in specialized bootloader class required
