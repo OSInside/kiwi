@@ -168,6 +168,90 @@ class BootImageDracut(BootImageBase):
         self.dracut_options.append('--install')
         self.dracut_options.append('/.profile')
 
+    def add_argument(self, option: str, value: str = '') -> None:
+        """
+        Add caller argument to boot image creation tool
+
+        :param str option: argument name
+        :param str value: optional argument value
+        """
+        self.dracut_options.append(option)
+        if value:
+            self.dracut_options.append(value)
+
+    def create_uki(self, cmdline: str) -> str:
+        """
+        Create UKI EFI binary
+        """
+        if self.is_prepared():
+            log.info('Creating generic UKI EFI binary')
+            self._create_profile_environment()
+            kernel_info = Kernel(self.boot_root_directory)
+            kernel_details = kernel_info.get_kernel(raise_on_not_found=True)
+            boot_names = self.get_boot_names()
+            uki_base_name = \
+                f'{boot_names.initrd_name}.efi'
+            uki_base_name = uki_base_name.replace(
+                'initrd-', 'vmlinuz-'
+            )
+            included_files = self.included_files
+            modules_args = [
+                '--modules', ' {0} '.format(' '.join(self.modules))
+            ] if self.modules else []
+            modules_args += [
+                '--add', ' {0} '.format(' '.join(self.add_modules))
+            ] if self.add_modules else []
+            modules_args += [
+                '--omit', ' {0} '.format(' '.join(self.omit_modules))
+            ] if self.omit_modules else []
+            options = self.dracut_options + modules_args + included_files
+            if kernel_details:
+                with ExitStack() as stack:
+                    device_mount = MountManager(
+                        device='/dev',
+                        mountpoint=self.boot_root_directory + '/dev'
+                    )
+                    stack.push(device_mount)
+                    device_mount.bind_mount()
+                    proc_mount = MountManager(
+                        device='/proc',
+                        mountpoint=self.boot_root_directory + '/proc'
+                    )
+                    stack.push(proc_mount)
+                    proc_mount.bind_mount()
+                    dracut_call = Command.run(
+                        [
+                            'chroot', self.boot_root_directory,
+                            'dracut',
+                            '--no-hostonly',
+                            '--no-hostonly-cmdline',
+                            '--force',
+                            '--verbose',
+                            '--kver', kernel_details.version,
+                            '--uefi',
+                            '--kernel-cmdline', cmdline
+                        ] + options + [
+                            uki_base_name
+                        ],
+                        stderr_to_stdout=True
+                    )
+            log.debug(dracut_call.output)
+            Command.run(
+                [
+                    'mv',
+                    os.sep.join(
+                        [self.boot_root_directory, uki_base_name]
+                    ),
+                    self.target_dir
+                ]
+            )
+            for filename in self.delete_after_include_files:
+                os.unlink(f'{self.boot_root_directory}/{filename}')
+            return os.path.normpath(
+                os.sep.join([self.target_dir, uki_base_name])
+            )
+        return ''
+
     def create_initrd(
         self, mbrid: Optional[SystemIdentifier] = None,
         basename: Optional[str] = None, install_initrd: bool = False

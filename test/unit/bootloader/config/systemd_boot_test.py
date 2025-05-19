@@ -4,6 +4,7 @@ from unittest.mock import (
     Mock, patch, call, MagicMock
 )
 from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
+from kiwi.xml_state import DracutT
 
 from kiwi.exceptions import (
     KiwiTemplateError,
@@ -16,13 +17,19 @@ class TestBootLoaderSystemdBoot:
     @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
     def setup(self, mock_FirmWare):
         self.state = Mock()
+        self.boot_image = Mock()
         self.state.xml_data.get_name.return_value = 'image-name'
         self.state.get_image_version.return_value = 'image-version'
+        self.state.get_dracut_config.return_value = DracutT(
+            uefi=False, modules=[]
+        )
         self.state.build_type.get_efifatimagesize.return_value = None
         self.bootloader = BootLoaderSystemdBoot(self.state, 'root_dir')
         self.bootloader.custom_args['kernel'] = None
         self.bootloader.custom_args['initrd'] = None
-        self.bootloader.custom_args['boot_options'] = {}
+        self.bootloader.custom_args['boot_options'] = {
+            'boot_image': self.boot_image
+        }
         self.bootloader.root_mount = Mock(
             mountpoint='system_root_mount'
         )
@@ -114,6 +121,28 @@ class TestBootLoaderSystemdBoot:
                 [
                     'cp', 'system_root_mount/boot/initrd-name',
                     'system_root_mount/boot/efi/os'
+                ]
+            )
+        ]
+        mock_Command_run.reset_mock()
+        self.state.get_dracut_config.return_value = DracutT(
+            uefi=True, modules=[]
+        )
+        self.bootloader.setup_loader('disk')
+        assert mock_Command_run.call_args_list == [
+            call(
+                [
+                    'chroot', 'system_root_mount',
+                    'bootctl', 'install',
+                    '--esp-path=/boot/efi',
+                    '--no-variables',
+                    '--entry-token', 'os-id'
+                ]
+            ),
+            call(
+                [
+                    'mv', self.boot_image.create_uki.return_value,
+                    'system_root_mount/boot/efi/EFI/Linux/'
                 ]
             )
         ]

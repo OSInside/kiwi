@@ -80,6 +80,11 @@ volume_type = NamedTuple(
 )
 
 
+class DracutT(NamedTuple):
+    uefi: bool
+    modules: List[str]
+
+
 class FileT(NamedTuple):
     target: str
     owner: str
@@ -1453,6 +1458,23 @@ class XMLState:
         if container_config_sections:
             return container_config_sections[0]
         return None
+
+    def get_dracut_config(self, action: str) -> DracutT:
+        """
+        Get dracut initrd config for the specified action
+        """
+        uefi = False
+        modules = []
+        initrd_sections = self.build_type.get_initrd()
+        for initrd_section in initrd_sections:
+            if initrd_section.get_action() == action:
+                for dracut in initrd_section.get_dracut():
+                    uefi = bool(dracut.get_uefi())
+                    if dracut.get_module():
+                        modules.append(dracut.get_module())
+        return DracutT(
+            uefi=uefi, modules=modules
+        )
 
     def get_installmedia_initrd_modules(self, action: str) -> List[str]:
         """

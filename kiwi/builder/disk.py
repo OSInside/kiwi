@@ -43,6 +43,7 @@ from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.bootloader.install import BootLoaderInstall
 from kiwi.system.identifier import SystemIdentifier
 from kiwi.boot.image import BootImage
+from kiwi.boot.image.base import BootImageBase
 from kiwi.storage.setup import DiskSetup
 from kiwi.storage.loop_device import LoopDevice
 from kiwi.storage.clone_device import CloneDevice
@@ -154,6 +155,9 @@ class DiskBuilder:
         self.volumes = xml_state.get_volumes()
         self.custom_partitions = xml_state.get_partitions()
         self.volume_group_name = xml_state.get_volume_group_name()
+        self.dracut_setup = xml_state.get_dracut_config('setup')
+        self.dracut_add_modules = xml_state.get_dracut_config('add').modules
+        self.dracut_omit_modules = xml_state.get_dracut_config('omit').modules
         self.mdraid = xml_state.build_type.get_mdraid()
         self.hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
         self.force_mbr = xml_state.build_type.get_force_mbr()
@@ -795,6 +799,10 @@ class DiskBuilder:
         self._write_generic_fstab_to_system_image(device_map, system)
 
         if self.initrd_system == 'dracut':
+            for module in self.dracut_add_modules:
+                self.boot_image.include_module(module)
+            for module in self.dracut_omit_modules:
+                self.boot_image.omit_module(module)
             if self.root_filesystem_is_multipath is False:
                 self.boot_image.omit_module('multipath')
             if self.root_filesystem_is_overlay:
@@ -806,7 +814,7 @@ class DiskBuilder:
                 self.boot_image.include_module('kiwi-repart')
 
         # create initrd
-        if self.boot_image.has_initrd_support():
+        if self.boot_image.has_initrd_support() and not self.dracut_setup.uefi:
             self.boot_image.create_initrd(self.mbrid)
 
         # create second stage metadata to system image
@@ -871,13 +879,16 @@ class DiskBuilder:
 
                     # rebuild initrd with veritytab included
                     if self.veritysetup and \
-                       self.boot_image.has_initrd_support():
+                       self.boot_image.has_initrd_support() and not \
+                       self.dracut_setup.uefi:
                         self.boot_image.create_initrd(self.mbrid)
+                        self._copy_first_boot_files_to_system_image()
                         boot_names = self.boot_image.get_boot_names()
                         if os.access(f'{root}/boot/', os.W_OK):
                             Command.run(
                                 [
-                                    'mv', self.boot_image.initrd_filename,
+                                    'cp',
+                                    f'{self.root_dir}/boot/{boot_names.initrd_name}',
                                     f'{root}/boot/{boot_names.initrd_name}'
                                 ]
                             )
@@ -897,17 +908,20 @@ class DiskBuilder:
                     # install boot loader
                     if self.bootloader != 'custom':
                         self._install_bootloader(
-                            device_map, disk, system, bootloader_config
+                            device_map, disk, system, bootloader_config,
+                            self.boot_image
                         )
 
                     # initrd update on the ESP for systemd for read-only boot/
                     if self.veritysetup and \
                        self.boot_image.has_initrd_support() and not \
+                       self.dracut_setup.uefi and not \
                        os.access(f'{root}/boot/', os.W_OK) and \
                        self.bootloader == 'systemd_boot':
                         Command.run(
                             [
-                                'mv', self.boot_image.initrd_filename,
+                                'cp',
+                                f'{self.root_dir}/boot/{boot_names.initrd_name}',
                                 f'{root}/boot/efi/os/{boot_names.initrd_name}'
                             ]
                         )
@@ -1803,7 +1817,8 @@ class DiskBuilder:
     def _install_bootloader(
         self, device_map: Dict, disk,
         system: Optional[Union[FileSystemBase, VolumeManagerBase]],
-        bootloader_config: BootLoaderConfigBase
+        bootloader_config: BootLoaderConfigBase,
+        boot_image: BootImageBase
     ) -> None:
         root_device = device_map['root']
         boot_device = root_device
@@ -1816,6 +1831,7 @@ class DiskBuilder:
             boot_device = device_map['boot']
 
         custom_install_arguments = {
+            'boot_image': boot_image,
             'boot_device': boot_device.get_device(),
             'root_device':
                 readonly_device.

@@ -115,6 +115,15 @@ class BootImageBase:
         """
         return False
 
+    def add_argument(self, option: str, value: str = '') -> None:
+        """
+        Add caller argument to boot image creation tool
+
+        :param str option: argument name
+        :param str value: optional argument value
+        """
+        pass
+
     def include_file(self, filename: str, install_media: bool = False) -> None:
         """
         Include file to boot image
@@ -233,6 +242,14 @@ class BootImageBase:
         """
         Prepare new root system to create initrd from. Implementation
         is only needed if there is no other root system available
+
+        Implementation in specialized boot image class
+        """
+        raise NotImplementedError
+
+    def create_uki(self, cmdline: str) -> str:
+        """
+        Create UKI EFI binary
 
         Implementation in specialized boot image class
         """

@@ -2474,6 +2474,7 @@ div {
             k.partitions? &
             k.vagrantconfig* &
             k.installmedia? &
+            k.initrd* &
             k.luksformat?
         }
 }
@@ -3609,7 +3610,7 @@ div {
         ## Sets weather the dracut modules list are meant to be appended,
         ## omitted or they define the static list of modules for the
         ## installation initrd.
-        attribute action { "omit" | "add" | "set" }
+        attribute action { "omit" | "add" | "set" | "setup" }
     k.initrd.attlist =
         k.initrd.action.attribute
     k.initrd =
@@ -3628,8 +3629,11 @@ div {
     k.dracut.module.attribute =
         ## A module name
         attribute module { text }
+    k.dracut.uefi.attribute =
+        attribute uefi { xsd:boolean }
     k.dracut.attlist =
-        k.dracut.module.attribute
+        k.dracut.module.attribute? &
+        k.dracut.uefi.attribute?
     k.dracut =
         ## A dracut module
         element dracut {
