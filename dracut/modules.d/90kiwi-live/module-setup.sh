@@ -16,7 +16,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    instmods squashfs loop aoe iso9660 overlay
+    instmods squashfs loop aoe brd iso9660 overlay
 }
 
 # called by dracut
@@ -29,7 +29,7 @@ install() {
     inst_multiple \
         umount dmsetup partx blkid lsblk dd losetup \
         grep cut partprobe find wc fdisk tail mkfs.ext4 mkfs.xfs \
-        dialog cat mountpoint
+        dialog cat mountpoint curl dolly dd
 
     dmsquashdir=$(find "${dracutbasedir}/modules.d" -name "*dmsquash-live")
     if [ -n "${dmsquashdir}" ] && \

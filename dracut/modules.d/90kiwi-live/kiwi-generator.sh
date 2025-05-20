@@ -22,6 +22,10 @@ case "${liveroot}" in
         root="${root//\//\\x2f}"
         root="live:aoe:/dev/etherd/${root#AOEINTERFACE=}"
         rootok=1 ;;
+    live:ftp:*|live:http:*|live:https:*|live:dolly:*) \
+        root="${root#live:}"
+        root="live:net:${root}"
+        rootok=1 ;;
 esac
 
 [ "${rootok}" != "1" ] && exit 0
