@@ -14,11 +14,6 @@ fi
 
 modprobe -q loop
 
-need_network=0
-if getargbool 0 rd.kiwi.live.pxe; then
-    need_network=1
-fi
-
 case "${liveroot}" in
     live:CDLABEL=*|CDLABEL=*) \
         root="${root#live:}"
@@ -30,21 +25,17 @@ case "${liveroot}" in
         root="${root#live:}"
         root="${root//\//\\x2f}"
         root="live:aoe:/dev/etherd/${root#AOEINTERFACE=}"
-        need_network=1
+        rootok=1 ;;
+    live:ftp:*|live:http:*|live:https:*|live:dolly:*) \
+        modprobe -q brd
+        root="${root#live:}"
+        root="live:net:${root}"
         rootok=1 ;;
 esac
 
 [ "$rootok" = "1" ] || return 1
 
 info "root was ${liveroot}, is now ${root}"
-
-# create network setup if needed
-if [ "${need_network}" = "1" ];then
-    echo "rd.neednet=1" > /etc/cmdline.d/kiwi-generated.conf
-    if ! getarg "ip="; then
-        echo "ip=dhcp" >> /etc/cmdline.d/kiwi-generated.conf
-    fi
-fi
 
 # make sure that init doesn't complain
 [ -z "${root}" ] && root="live"
