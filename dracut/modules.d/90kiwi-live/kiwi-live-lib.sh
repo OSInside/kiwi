@@ -15,6 +15,60 @@ function getOverlayBaseDirectory {
     echo "${overlay_base}"
 }
 
+function ProvideIso {
+    local root=$1
+    local iso_url=${root#live:net:}
+    local system
+    local rd_size
+    local custom_rd_size
+    local modfile=/etc/modprobe.d/99-brd.conf
+    system=$(getarg rd.kiwi.live.system=)
+    if [ ! -b "${system}" ];then
+        system=/dev/ram0
+    fi
+    ptable=$(blkid -s PTTYPE -o value "${system}" 2>/dev/null)
+    case "${iso_url}" in
+        ftp:*|http:*|https:*|dolly:*) \
+            if [ -z "${ptable}" ] || getargbool 0 rd.kiwi.live.reset; then
+                custom_rd_size=$(getarg ramdisk_size=)
+                if [ -n "${custom_rd_size}" ];then
+                    rd_size="${custom_rd_size}"
+                else
+                    # set minimum default ramdisk size: 2G
+                    rd_size="2097152"
+                fi
+                mkdir -p /etc/modprobe.d
+                if [ -n "${rd_size}" ];then
+                    echo "options brd rd_size=${rd_size}" > ${modfile}
+                fi
+                modprobe --remove brd
+                modprobe brd
+                udev_pending
+                fetch_file "${iso_url}" | dd bs=32k of="${system}" &>/dev/null
+            fi
+            if [[ ${system} =~ ^/dev/ram ]];then
+                echo "${system}"
+            else
+                udev_pending
+                # This is not 100% safe as in theory the volume ID
+                # of the live ISO could be configured in the kiwi image
+                # description and doesn't have to be set to: CDROM.
+                # The value could be obtained as follows:
+                # label=$(
+                #     isoinfo -j utf-8 -d -i ${system} |\
+                #     grep "Volume id:" | cut -f2 -d:
+                # )
+                # but this would require an additional tool as part of the
+                # initrd. Thus this is subject to a followup pull request
+                echo "/dev/disk/by-label/CDROM"
+            fi
+        ;;
+        *) \
+            echo "${root}"
+        ;;
+    esac
+}
+
 function lookupIsoDiskDevice {
     local root=$1
     local iso_label=${root#/dev/disk/by-label/}
@@ -276,9 +330,73 @@ function runMediaCheck {
     fi
 }
 
+function fetch_file {
+    # Fetch file from remote location
+    local source_url=$1
+    local source_uncompressed_bytes=$2
+    local fetch_info=/tmp/fetch.info
+    local fetch
+    local curl_options
+    local dolly_options
+    curl_options=$(getarg rd.kiwi.live.curl_options=)
+    dolly_options=$(getarg rd.kiwi.live.dolly_options=)
+    if [ -n "${curl_options}" ]; then
+        curl_options=$(str_replace "${curl_options}" "," " ")
+        fetch="curl ${curl_options} -f ${source_url}"
+    else
+        fetch="curl -f ${source_url}"
+    fi
+    if [ -n "${dolly_options}" ]; then
+        dolly_options=$(str_replace "${dolly_options}" "," " ")
+        fetch="dolly ${dolly_options} -f ${source_url}"
+    fi
+    if _is_dolly "${source_url}";then
+        fetch="dolly"
+    fi
+    if _is_xz_compressed "${source_url}";then
+        fetch="${fetch} | xz -d"
+    fi
+    if [ -z "${source_uncompressed_bytes}" ];then
+        eval "${fetch}" 2>${fetch_info}
+    else
+        eval "${fetch}" 2>${fetch_info} |\
+            pv --size "${source_uncompressed_bytes}" --stop-at-size -n
+    fi
+    return "${PIPESTATUS[0]}"
+}
+
+function show_log_and_quit {
+    local text_message="$1"
+    local log_file="$2"
+    local timeout
+    timeout=$(_dialog_timeout)
+    if [ "${timeout}" = "off" ];then
+        _run_dialog --backtitle "\"${text_message}\"" \
+            --textbox "${log_file}" 15 80
+    else
+        _run_dialog --timeout "${timeout}" --backtitle "\"${text_message}\"" \
+            --textbox "${log_file}" 15 80
+    fi
+    if getargbool 0 rd.debug; then
+        die "${text_message}"
+    else
+        reboot -f
+    fi
+}
+
 #=========================================
 # Methods considered private
 #-----------------------------------------
+function _is_xz_compressed {
+    local source_url=$1
+    [[ ${source_url} =~ .xz$ ]]
+}
+
+function _is_dolly {
+    local source_url=$1
+    [[ ${source_url} =~ ^dolly ]]
+}
+
 function _setup_interactive_service {
     local service=/run/systemd/system/dracut-run-interactive.service
     mkdir -p /run/systemd/system
@@ -312,9 +430,29 @@ function _run_interactive {
     systemctl start dracut-run-interactive.service
 }
 
+function _dialog_timeout {
+    local timeout=60
+    custom_timeout=$(getarg "rd.kiwi.dialog.timeout=")
+    [ -n "${custom_timeout}" ] && timeout="${custom_timeout}"
+    echo "${timeout}"
+}
+
 function _run_dialog {
-    echo "dialog $*" >/run/dracut-interactive
+    # """
+    # Run the dialog program via the systemd service either in a
+    # framebuffer terminal or on the console. The return code of
+    # the function is the return code of the dialog call. The
+    # output of the dialog call is stored in a file and can be
+    # one time read via the get_dialog_result function
+    # """
+    local dialog_result=/tmp/dialog_result
+    local dialog_exit_code=/tmp/dialog_code
+    {
+        echo "dialog $* 2>$dialog_result"
+        echo "echo -n \$? >$dialog_exit_code"
+    } >/run/dracut-interactive
     _run_interactive
+    return "$(cat $dialog_exit_code)"
 }
 
 function _partition_count {

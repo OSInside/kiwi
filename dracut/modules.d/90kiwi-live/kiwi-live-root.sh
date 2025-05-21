@@ -14,8 +14,11 @@ initialize
 # load required kernel modules
 loadKernelModules
 
+# provide ISO when remote
+root=$(ProvideIso "$1")
+
 # device nodes and types
-initGlobalDevices "$1"
+initGlobalDevices "$root"
 
 # live options and their default values
 initGlobalOptions
