@@ -146,7 +146,7 @@ class TestBootImageKiwi:
         assert self.boot_image.create_uki('some_cmdline') == ''
         mock_prepared.return_value = True
         assert self.boot_image.create_uki('some_cmdline') == \
-            'some-target-dir/vmlinuz-kernel_version.efi'
+            'some-target-dir/kiwi.efi'
         profile.create.assert_called_once_with(
             'system-directory/.profile'
         )
@@ -174,7 +174,7 @@ class TestBootImageKiwi:
             call(
                 [
                     'mv', 'system-directory/vmlinuz-kernel_version.efi',
-                    'some-target-dir'
+                    'some-target-dir/kiwi.efi'
                 ]
             )
         ]

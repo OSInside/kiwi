@@ -324,6 +324,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 ['bash', '-c', ' '.join(bash_command)], raise_on_error=False
             )
 
+        # Create UKI image if requested
+        dracut_setup = self.xml_state.get_dracut_config('setup')
+        if dracut_setup.uefi:
+            boot_image = boot_options.get('boot_image')
+            if boot_image:
+                efi_uki_path = \
+                    f'{self.root_mount.mountpoint}/boot/efi/EFI/Linux/'
+                Path.create(efi_uki_path)
+                uki_image = boot_image.create_uki(self.cmdline)
+                Command.run(
+                    ['mv', uki_image, efi_uki_path]
+                )
+
         # Patch the written grub config file to actually work:
         # Unfortunately the grub tooling has several bugs and issues
         # which prevents it to work in image build environments.
@@ -482,7 +495,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.boot_dir, self.early_boot_script_efi, 'iso'
             )
 
-    def setup_install_boot_images(self, mbrid: SystemIdentifier, lookup_path: str = None) -> None:
+    def setup_install_boot_images(
+        self, mbrid: SystemIdentifier, lookup_path: str = None
+    ) -> None:
         """
         Create/Provide grub2 boot images and metadata
 
@@ -519,7 +534,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._setup_EFI_path(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
-            self._setup_efi_image(mbrid=mbrid, lookup_path=lookup_path, target_type='iso')
+            self._setup_efi_image(
+                mbrid=mbrid, lookup_path=lookup_path, target_type='iso'
+            )
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
             self._setup_secure_boot_efi_image(
@@ -542,7 +559,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
         self.setup_install_boot_images(mbrid, lookup_path)
 
-    def setup_disk_boot_images(self, boot_uuid, lookup_path=None):
+    def setup_disk_boot_images(
+        self, boot_uuid, efi_uuid=None, lookup_path=None
+    ):
         """
         Create/Provide grub2 boot images and metadata
 
@@ -564,12 +583,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._copy_bios_modules_to_boot_directory(lookup_path)
 
         if self.firmware.efi_mode() == 'efi':
-            self._setup_efi_image(uuid=boot_uuid, lookup_path=lookup_path)
+            self._setup_efi_image(
+                uuid=boot_uuid, efi_uuid=efi_uuid, lookup_path=lookup_path
+            )
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
             if not self._get_shim_install():
                 self._setup_secure_boot_efi_image(
-                    lookup_path=lookup_path, uuid=boot_uuid
+                    lookup_path=lookup_path, uuid=boot_uuid, efi_uuid=efi_uuid
                 )
 
         if self.xen_guest:
@@ -875,7 +896,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 grub_default.write()
 
     def _setup_secure_boot_efi_image(
-        self, lookup_path, uuid=None, mbrid=None, target_type='disk'
+        self, lookup_path, uuid=None, efi_uuid=None,
+        mbrid=None, target_type='disk'
     ):
         """
         Provide the shim loader and the shim signed grub2 loader
@@ -946,10 +968,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 Command.run(
                     ['cp', grub_image.filename, target_efi_image_name]
                 )
-        self._create_efi_config_search(uuid, mbrid)
+        self._create_efi_config_search(uuid, efi_uuid, mbrid)
 
     def _setup_efi_image(
-        self, uuid=None, mbrid=None, lookup_path=None, target_type='disk'
+        self, uuid=None, efi_uuid=None, mbrid=None,
+        lookup_path=None, target_type='disk'
     ):
         """
         Provide the unsigned grub2 efi image in the required boot path
@@ -966,11 +989,11 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Command.run(
                 ['cp', grub_image, self._get_efi_image_name()]
             )
-            self._create_efi_config_search(uuid, mbrid)
+            self._create_efi_config_search(uuid, efi_uuid, mbrid)
         else:
             log.info('--> Creating unsigned efi image')
             self._create_efi_image(
-                uuid, mbrid, lookup_path
+                uuid, efi_uuid, mbrid, lookup_path
             )
 
     def _setup_chrp_config(self, mbrid):
@@ -1065,12 +1088,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
-    def _create_efi_image(self, uuid=None, mbrid=None, lookup_path=None):
+    def _create_efi_image(
+        self, uuid=None, efi_uuid=None, mbrid=None, lookup_path=None
+    ):
+        dracut_setup = self.xml_state.get_dracut_config('setup')
         early_boot_script = os.path.normpath(
             os.sep.join([self.efi_boot_path, 'earlyboot.cfg'])
         )
         self.early_boot_script_efi = early_boot_script
-        if uuid:
+        if dracut_setup.uefi and efi_uuid:
+            self._create_early_boot_script_for_uki_chainload(
+                early_boot_script, efi_uuid
+            )
+        elif uuid:
             self._create_early_boot_script_for_uuid_search(
                 early_boot_script, uuid
             )
@@ -1126,10 +1156,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             Path.create(os.path.dirname(efi_image_media_file))
             shutil.copy2(efi_image_root_file, efi_image_media_file)
 
-    def _create_efi_config_search(self, uuid=None, mbrid=None):
+    def _create_efi_config_search(self, uuid=None, efi_uuid=None, mbrid=None):
+        dracut_setup = self.xml_state.get_dracut_config('setup')
         efi_boot_config = self.efi_boot_path + '/grub.cfg'
         self.early_boot_script_efi = efi_boot_config
-        if uuid:
+        if dracut_setup.uefi and efi_uuid:
+            self._create_early_boot_script_for_uki_chainload(
+                efi_boot_config, efi_uuid
+            )
+        elif uuid:
             self._create_early_boot_script_for_uuid_search(
                 efi_boot_config, uuid
             )
@@ -1192,6 +1227,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
             Path.create(os.path.dirname(bios_image_media_file))
             shutil.copy2(bios_image_root_file, bios_image_media_file)
+
+    def _create_early_boot_script_for_uki_chainload(self, filename, uuid):
+        with open(filename, 'w') as early_boot:
+            early_boot.write(
+                f'search --no-floppy --set=root --fs-uuid {uuid}{os.linesep}'
+            )
+            early_boot.write(
+                f'chainloader ($root)/EFI/Linux/kiwi.efi{os.linesep}'
+            )
+            early_boot.write(f'boot{os.linesep}')
 
     def _create_early_boot_script_for_uuid_search(self, filename, uuid):
         with open(filename, 'w') as early_boot:

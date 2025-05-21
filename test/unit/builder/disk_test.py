@@ -334,7 +334,7 @@ class TestDiskBuilder:
         )
         disk.map_partitions.assert_called_once_with()
         bootloader_config.setup_disk_boot_images.assert_called_once_with(
-            '0815'
+            '0815', '0815'
         )
         bootloader_config.write_meta_data.assert_called_once_with(
             root_device='/dev/readonly-root-device',
@@ -843,7 +843,7 @@ class TestDiskBuilder:
         )
         disk.map_partitions.assert_called_once_with()
         bootloader_config.setup_disk_boot_images.assert_called_once_with(
-            '0815'
+            '0815', '0815'
         )
         bootloader_config.write_meta_data.assert_called_once_with(
             root_device='/dev/readonly-root-device',
@@ -1231,7 +1231,7 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         bootloader_config.setup_disk_boot_images.assert_called_once_with(
-            '0815'
+            '0815', '0815'
         )
 
     @patch('kiwi.builder.disk.Disk')
