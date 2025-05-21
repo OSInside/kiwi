@@ -96,6 +96,10 @@ BuildRequires:  python%{python3_pkgversion}-docopt >= 0.6.2
 %else
 BuildRequires:  python%{python3_pkgversion}-docopt-ng
 %endif
+%if 0%{?debian} || 0%{?ubuntu}
+# only because of debbuild
+BuildRequires:  python%{python3_pkgversion}-setuptools
+%endif
 BuildRequires:  python%{python3_pkgversion}-lxml
 BuildRequires:  python%{python3_pkgversion}-requests
 BuildRequires:  python%{python3_pkgversion}-simplejson
