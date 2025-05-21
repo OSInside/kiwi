@@ -24,17 +24,21 @@ Task plugin class
   implementation of the :file:`process` method.
 
 Task plugin entry point
-  Registration of the plugin must be done in :file:`setup.py`
-  using the ``entry_points`` concept from Python's setuptools.
+  Registration of the plugin must be done in :file:`pyproject.toml`
+  using the ``tool.poetry.plugins`` concept.
 
   .. code:: python
 
-      'packages': ['kiwi_plugin'],
-      'entry_points': {
-          'kiwi.tasks': [
-              'service_command=kiwi_plugin.tasks.service_command'
-          ]
-      }
+      [tool.poetry]
+      name = "kiwi_plugin"
+
+      packages = [
+          { include = "kiwi_plugin"},
+      ]
+
+      [tool.poetry.plugins]
+      [tool.poetry.plugins."kiwi.tasks"]
+      service_command = "kiwi_plugin.tasks.service_command"
 
 Example plugin
 --------------
@@ -42,26 +46,29 @@ Example plugin
 .. note::
 
    The following example assumes an existing Python project
-   which was set up according to the Python project rules
-   and standards.
+   which was set up using poetry and pyproject.toml.
 
 1. Assuming the project namespace is **kiwi_relax_plugin**, create the task
    plugin directory :file:`kiwi_relax_plugin/tasks`
 
-2. Create the entry point in :command:`setup.py`.
+2. Create the entry point in :command:`pyproject.toml`.
 
    Assuming we want to create the service named **relax** that has
-   the command **justdoit**, this is the following entry point
-   definition in :file:`setup.py`:
+   the command **justdoit**, this is the required plugin
+   definition in :file:`pyproject.toml`:
 
    .. code:: python
 
-      'packages': ['kiwi_relax_plugin'],
-      'entry_points': {
-          'kiwi.tasks': [
-              'relax_justdoit=kiwi_relax_plugin.tasks.relax_justdoit'
-          ]
-      }
+      [tool.poetry]
+      name = "kiwi_relax_plugin"
+
+      packages = [
+          { include = "kiwi_relax_plugin"},
+      ]
+
+      [tool.poetry.plugins]
+      [tool.poetry.plugins."kiwi.tasks"]
+      relax_justdoit = "kiwi_relax_plugin.tasks.relax_justdoit"
 
 3. Create the plugin code in the file
    :file:`kiwi_relax_plugin/tasks/relax_justdoit.py` with the following
@@ -106,5 +113,4 @@ Example plugin
 
    .. code:: bash
 
-       $ ./setup.py develop
-       $ kiwi-ng relax justdoit --now
+       $ poetry run kiwi-ng relax justdoit --now

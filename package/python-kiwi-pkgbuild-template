@@ -8,7 +8,7 @@ pkgrel=0
 pkgdesc="KIWI - Appliance Builder Next Generation"
 url="https://github.com/SUSE/kiwi/tarball/master"
 license=('GPL3')
-makedepends=(make gcc python-build python-docopt python-installer python-lxml python-poetry-core python-requests python-setuptools python-simplejson python-sphinx python-sphinx_rtd_theme python-wheel python-yaml shadow grep)
+makedepends=(make gcc python-build python-docopt python-installer python-lxml python-poetry-core python-requests python-simplejson python-sphinx python-sphinx_rtd_theme python-wheel python-yaml shadow grep)
 provides=(kiwi-ng kiwi)
 source=("${pkgname}.tar.gz")
 changelog="${pkgname}.changes"
@@ -27,7 +27,7 @@ build() {
 }
 
 package_python-kiwi(){
-  depends=(python-docopt python-simplejson python-lxml python-requests python-setuptools python-yaml grub qemu squashfs-tools gptfdisk pacman e2fsprogs xfsprogs btrfs-progs libisoburn lvm2 mtools parted multipath-tools rsync tar shadow screen kiwi-man-pages)
+  depends=(python-docopt python-simplejson python-lxml python-requests python-yaml grub qemu squashfs-tools gptfdisk pacman e2fsprogs xfsprogs btrfs-progs libisoburn lvm2 mtools parted multipath-tools rsync tar shadow screen kiwi-man-pages)
   optdepends=('gnupg: keyring creation for APT package manager')
   cd kiwi-${pkgver}
   python3 -m installer --destdir "${pkgdir}/" dist/*.whl
