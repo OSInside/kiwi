@@ -72,6 +72,22 @@ function preparePersistentOverlay {
     mkdir -m 0755 -p "${overlay_mount_point}/work"
 }
 
+function preparePersistentOverlayFromFstab {
+    local overlay_base
+    overlay_base=$(getOverlayBaseDirectory)
+    local root_mount_point="${overlay_base}/rootfsbase"
+    local overlay_mount_point="${overlay_base}/overlayfs"
+    while read -r overlay;do
+    if [[ "${overlay}" =~ ^overlay ]];then
+        for i in $(echo "${overlay}" | tr , " ");do
+            if [[ "$i" =~ ^upperdir|^workdir ]];then
+                mkdir -p "$(echo "$i" | cut -f2 -d=)"
+            fi
+        done
+    fi
+    done < "${root_mount_point}/etc/fstab"
+}
+
 #======================================
 # perform root access preparation
 #--------------------------------------
@@ -99,14 +115,11 @@ loadKernelModules
 # mount readonly root filesystem
 mountReadOnlyRootImage
 
-# prepare overlay for generated systemd OverlayOS_rootfs service
-if getargbool 0 rd.root.overlay.readonly; then
-    # no overlay requested, readonly system
-    :
-elif [ -z "${write_partition}" ] || getargbool 0 rd.root.overlay.temporary; then
+if [ -z "${write_partition}" ] || getargbool 0 rd.root.overlay.temporary; then
     prepareTemporaryOverlay
 else
     preparePersistentOverlay
+    preparePersistentOverlayFromFstab
 fi
 
 need_shutdown
