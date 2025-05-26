@@ -55,7 +55,6 @@ docopt-ng = ">=0.9.0"
 lxml = ">=4.6.0"
 requests = ">=2.25.0"
 PyYAML = ">=5.4.0"
-setuptools = ">=50"
 simplejson = ">=3.17.0"
 
 # Optional dependencies for markup extra
