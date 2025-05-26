@@ -926,6 +926,10 @@ class DiskBuilder:
                             ]
                         )
 
+                    # cleanup build metadata
+                    if os.access(f'{root}/', os.W_OK):
+                        disk_system.cleanup()
+
                     # set root filesystem properties
                     if system:
                         self._setup_property_root_is_readonly_snapshot(system)

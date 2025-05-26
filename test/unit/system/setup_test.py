@@ -373,9 +373,24 @@ class TestSystemSetup:
     @patch('kiwi.command.Command.run')
     def test_cleanup(self, mock_command):
         self.setup.cleanup()
-        mock_command.assert_called_once_with(
-            ['chroot', 'root_dir', 'rm', '-rf', '.kconfig', 'image']
-        )
+        assert mock_command.call_args_list == [
+            call(
+                [
+                    'chroot', 'root_dir', 'rm', '-f',
+                    '.kconfig',
+                    '.profile',
+                    'config.bootoptions',
+                    'config.partids'
+                ]
+            ),
+            call(
+                command=['mountpoint', '-q', 'root_dir/image'],
+                raise_on_error=False
+            ),
+            call(
+                ['rm', '-r', '-f', 'root_dir/image']
+            )
+        ]
 
     @patch('kiwi.system.setup.ArchiveTar')
     @patch('kiwi.system.setup.glob.iglob')
