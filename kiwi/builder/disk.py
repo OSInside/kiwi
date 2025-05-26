@@ -851,7 +851,7 @@ class DiskBuilder:
                 disk_system.call_pre_disk_script()
 
             # syncing system data to disk image
-            self._sync_system_to_image(
+            system = self._sync_system_to_image(
                 stack,
                 device_map,
                 system,
@@ -1604,7 +1604,7 @@ class DiskBuilder:
         system_spare: Optional[FileSystemBase],
         system_custom_parts: Dict[str, FileSystemBase],
         integrity_root: Optional[IntegrityDevice]
-    ) -> None:
+    ) -> Optional[Union[FileSystemBase, VolumeManagerBase]]:
         log.info('Syncing system to image')
         if system_spare:
             log.info('--> Syncing spare partition data')
@@ -1688,6 +1688,7 @@ class DiskBuilder:
                         filename=squashed_root_file.name,
                         exclude=exclude_list
                     )
+                    self.storage_map['system'] = squashed_root
 
                 if self.root_filesystem_verity_blocks:
                     squashed_root.create_verity_layer(
@@ -1754,6 +1755,7 @@ class DiskBuilder:
                         label=self.disk_setup.get_root_label(),
                         uuid=BlockID(root_target).get_uuid()
                     )
+                    self.storage_map['system'] = filesystem
                     filesystem.sync_data(
                         self._get_exclude_list_for_root_data_sync(device_map)
                     )
@@ -1817,6 +1819,8 @@ class DiskBuilder:
             log.info('--> Signing integrity metadata...')
             integrity_root.sign_integrity_metadata()
             integrity_root.write_integrity_metadata()
+
+        return self.storage_map['system']
 
     def _install_bootloader(
         self, device_map: Dict, disk,
