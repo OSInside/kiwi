@@ -870,6 +870,7 @@ class TestDiskBuilder:
         ]
         disk_system.call_pre_disk_script.assert_called_once_with()
         disk_system.call_disk_script.assert_called_once_with()
+        disk_system.cleanup.assert_called_once_with()
         self.setup.call_edit_boot_config_script.assert_called_once_with(
             'btrfs', 1
         )
