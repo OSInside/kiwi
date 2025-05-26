@@ -168,9 +168,20 @@ class SystemSetup:
         Command.run(
             [
                 'chroot', self.root_dir,
-                'rm', '-rf', '.kconfig', defaults.IMAGE_METADATA_DIR
+                'rm', '-f',
+                '.kconfig',
+                '.profile',
+                'config.bootoptions',
+                'config.partids'
             ]
         )
+        meta_dir = f'{self.root_dir}/{defaults.IMAGE_METADATA_DIR}'
+        if os.path.isdir(meta_dir):
+            image_meta = MountManager(
+                device='none', mountpoint=meta_dir
+            )
+            image_meta.umount()
+            Path.wipe(meta_dir)
 
     def import_repositories_marked_as_imageinclude(self) -> None:
         """
