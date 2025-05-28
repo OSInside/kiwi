@@ -44,10 +44,25 @@ function initGlobalDevices {
 
 function mountReadOnlyRootImage {
     local overlay_base
+    local unit_name
     overlay_base=$(getOverlayBaseDirectory)
     local root_mount_point="${overlay_base}/rootfsbase"
     mkdir -m 0755 -p "${root_mount_point}"
-    if ! mount -n "${read_only_partition}" "${root_mount_point}"; then
+    unit_name=$(echo "${root_mount_point}" | cut -c 2- | tr / -)
+    cat >/run/systemd/system/"${unit_name}".mount <<-EOF
+		[Unit]
+		Before=initrd-root-fs.target
+		DefaultDependencies=no
+		[Mount]
+		Where=$root_mount_point
+		What=$read_only_partition
+		Type=auto
+		DirectoryMode=0755
+		[Install]
+		WantedBy=multi-user.target
+	EOF
+    systemctl enable "${unit_name}".mount
+    if ! systemctl start "${unit_name}".mount;then
         die "Failed to mount overlay(ro) root filesystem"
     fi
     echo "${root_mount_point}"
@@ -62,30 +77,29 @@ function prepareTemporaryOverlay {
 
 function preparePersistentOverlay {
     local overlay_base
+    local unit_name
     overlay_base=$(getOverlayBaseDirectory)
     local overlay_mount_point="${overlay_base}/overlayfs"
     mkdir -m 0755 -p "${overlay_mount_point}"
-    if ! mount "${write_partition}" "${overlay_mount_point}"; then
+    unit_name=$(echo "${overlay_mount_point}" | cut -c 2- | tr / -)
+    cat >/run/systemd/system/"${unit_name}".mount <<-EOF
+		[Unit]
+		Before=initrd-root-fs.target
+		DefaultDependencies=no
+		[Mount]
+		Where=$overlay_mount_point
+		What=$write_partition
+		Type=auto
+		DirectoryMode=0755
+		[Install]
+		WantedBy=multi-user.target
+	EOF
+    systemctl enable "${unit_name}".mount
+    if ! systemctl start "${unit_name}".mount; then
         die "Failed to mount overlay(rw) filesystem"
     fi
     mkdir -m 0755 -p "${overlay_mount_point}/rw"
     mkdir -m 0755 -p "${overlay_mount_point}/work"
-}
-
-function preparePersistentOverlayFromFstab {
-    local overlay_base
-    overlay_base=$(getOverlayBaseDirectory)
-    local root_mount_point="${overlay_base}/rootfsbase"
-    local overlay_mount_point="${overlay_base}/overlayfs"
-    while read -r overlay;do
-    if [[ "${overlay}" =~ ^overlay ]];then
-        for i in $(echo "${overlay}" | tr , " ");do
-            if [[ "$i" =~ ^upperdir|^workdir ]];then
-                mkdir -p "$(echo "$i" | cut -f2 -d=)"
-            fi
-        done
-    fi
-    done < "${root_mount_point}/etc/fstab"
 }
 
 #======================================
@@ -119,7 +133,6 @@ if [ -z "${write_partition}" ] || getargbool 0 rd.root.overlay.temporary; then
     prepareTemporaryOverlay
 else
     preparePersistentOverlay
-    preparePersistentOverlayFromFstab
 fi
 
 need_shutdown
