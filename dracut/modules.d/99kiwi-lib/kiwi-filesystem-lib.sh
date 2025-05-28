@@ -25,7 +25,6 @@ function getOverlayBaseDirectory {
 		[Install]
 		WantedBy=multi-user.target
 		EOF
-        systemctl enable "${unit_name}".mount
         systemctl start "${unit_name}".mount
     fi
     echo "${overlay_base}"

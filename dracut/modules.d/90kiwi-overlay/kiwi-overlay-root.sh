@@ -62,7 +62,6 @@ function mountReadOnlyRootImage {
 		[Install]
 		WantedBy=multi-user.target
 	EOF
-    systemctl enable "${unit_name}".mount
     if ! systemctl start "${unit_name}".mount;then
         die "Failed to mount overlay(ro) root filesystem"
     fi
@@ -96,7 +95,6 @@ function preparePersistentOverlay {
 		[Install]
 		WantedBy=multi-user.target
 	EOF
-    systemctl enable "${unit_name}".mount
     if ! systemctl start "${unit_name}".mount; then
         die "Failed to mount overlay(rw) filesystem"
     fi
