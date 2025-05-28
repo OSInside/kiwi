@@ -6,12 +6,27 @@ function getOverlayBaseDirectory {
     # initialize and print overlay base directory below which
     # the overlayfs based mountpoints are managed
     local overlay_base=/run/overlay
+    local unit_name
     local overlay_size
     mkdir -p "${overlay_base}"
     if ! mountpoint -q "${overlay_base}";then
         overlay_size=$(getarg rd.root.overlay.size)
         [ -z "${overlay_size}" ] && overlay_size="50%"
-        mount -t tmpfs -o "size=${overlay_size}" tmpfs "${overlay_base}"
+        unit_name=$(echo "${overlay_base}" | cut -c 2- | tr / -)
+        cat >/run/systemd/system/"${unit_name}".mount <<-EOF
+		[Unit]
+		Before=initrd-root-fs.target
+		DefaultDependencies=no
+		[Mount]
+		Where=$overlay_base
+		What=tmpfs
+		Type=tmpfs
+		DirectoryMode=0755
+		[Install]
+		WantedBy=multi-user.target
+		EOF
+        systemctl enable "${unit_name}".mount
+        systemctl start "${unit_name}".mount
     fi
     echo "${overlay_base}"
 }
