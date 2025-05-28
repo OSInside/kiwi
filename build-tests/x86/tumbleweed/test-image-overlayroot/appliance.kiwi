@@ -71,7 +71,7 @@
         <type
             image="oem"
             filesystem="xfs"
-            kernelcmdline="console=ttyS0 rd.systemd.verity=1 security=selinux selinux=1 enforcing=1"
+            kernelcmdline="console=ttyS0 rd.systemd.verity=1 security=selinux selinux=1 enforcing=1 rd.root.overlay.readonly"
             firmware="efi"
             format="vmdk"
             overlayroot="true"

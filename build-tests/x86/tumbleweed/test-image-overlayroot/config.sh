@@ -43,6 +43,38 @@ for profile in ${kiwi_profiles//,/ }; do
             fi
         done
     fi
+    if [ "${profile}" = "sdboot_uki_verity_erofs" ];then
+        # systemd remount doesn't like overlays on read-only (/)
+        systemctl mask systemd-remount-fs.service
+
+        # following directories are created by services and must
+        # exist prior read-only
+        mkdir -p /var/lib/private/systemd/timesync
+        mkdir -p /var/lib/systemd/timesync
+        mkdir -p /var/lib/systemd/linger
+        mkdir -p /etc/lvm/devices
+
+        # ssh host keys must exist prior read-only
+        /usr/sbin/sshd-gen-keys-start
+
+		cat >/etc/fstab.append <<- EOF
+		# we want home on the persistent storage if present
+		overlay /home overlay defaults,lowerdir=/run/overlay/rootfsbase/home,upperdir=/run/overlay/overlayfs/home/rw,workdir=/run/overlay/overlayfs/home/work  0  0
+
+		# we want root home to be 128M in memory
+		tmpfs /run/overlay/overlayfs/root tmpfs defaults,size=128M 0 0
+		overlay /root overlay defaults,x-systemd.required-by=run-overlay-overlayfs-root.mount,lowerdir=/run/overlay/rootfsbase/root,upperdir=/run/overlay/overlayfs/root/rw,workdir=/run/overlay/overlayfs/root/work  0  0
+
+		# required write areas on a read-only (/)
+		tmpfs /etc/lvm/devices tmpfs defaults 0 0
+		tmpfs /tmp tmpfs defaults 0 0
+		tmpfs /var/tmp tmpfs defaults 0 0
+		tmpfs /var/log tmpfs defaults 0 0
+		tmpfs /var/lib/private/systemd/timesync tmpfs defaults 0 0
+		tmpfs /var/lib/systemd/timesync tmpfs defaults 0 0
+		tmpfs /var/lib/systemd/linger tmpfs defaults 0 0
+		EOF
+    fi
 done
 
 #======================================
