@@ -14,6 +14,10 @@ echo "Configure image: [$kiwi_iname]..."
 #--------------------------------------
 systemctl enable sshd
 
+# for some reason systemd automount unit wants to mount the
+# ESP to /efi instead of /boot/efi.
+mkdir -p /efi
+
 #======================================
 # kernel links
 #--------------------------------------
@@ -57,23 +61,75 @@ for profile in ${kiwi_profiles//,/ }; do
         # ssh host keys must exist prior read-only
         /usr/sbin/sshd-gen-keys-start
 
-		cat >/etc/fstab.append <<- EOF
-		# we want home on the persistent storage if present
-		overlay /home overlay defaults,lowerdir=/run/overlay/rootfsbase/home,upperdir=/run/overlay/overlayfs/home/rw,workdir=/run/overlay/overlayfs/home/work  0  0
-
-		# we want root home to be 128M in memory
-		tmpfs /run/overlay/overlayfs/root tmpfs defaults,size=128M 0 0
-		overlay /root overlay defaults,x-systemd.required-by=run-overlay-overlayfs-root.mount,lowerdir=/run/overlay/rootfsbase/root,upperdir=/run/overlay/overlayfs/root/rw,workdir=/run/overlay/overlayfs/root/work  0  0
-
-		# required write areas on a read-only (/)
-		tmpfs /etc/lvm/devices tmpfs defaults 0 0
-		tmpfs /tmp tmpfs defaults 0 0
-		tmpfs /var/tmp tmpfs defaults 0 0
-		tmpfs /var/log tmpfs defaults 0 0
-		tmpfs /var/lib/private/systemd/timesync tmpfs defaults 0 0
-		tmpfs /var/lib/systemd/timesync tmpfs defaults 0 0
-		tmpfs /var/lib/systemd/linger tmpfs defaults 0 0
+        # we want home on the persistent storage if present
+        cat >/usr/lib/systemd/system/home.mount <<-EOF
+		[Unit]
+		DefaultDependencies=no
+		[Mount]
+		Where=/home
+		Options=lowerdir=/run/overlay/rootfsbase/home,upperdir=/run/overlay/overlayfs/home/rw,workdir=/run/overlay/overlayfs/home/work
+		What=overlay
+		Type=overlay
+		DirectoryMode=0755
+		[Install]
+		WantedBy=multi-user.target
 		EOF
+        systemctl enable home.mount
+
+        # we want root home to be 128M in memory
+        cat >/usr/lib/systemd/system/run-overlay-overlayfs-root.mount <<-EOF
+		[Unit]
+		DefaultDependencies=no
+		[Mount]
+		Where=/run/overlay/overlayfs/root
+		What=tmpfs
+		Options=size=128M
+		Type=tmpfs
+		DirectoryMode=0755
+		[Install]
+		WantedBy=multi-user.target
+		EOF
+        cat >/usr/lib/systemd/system/root.mount <<-EOF
+		[Unit]
+		DefaultDependencies=no
+		Requires=run-overlay-overlayfs-root.mount
+        After=run-overlay-overlayfs-root.mount
+		[Mount]
+		Where=/root
+		Options=lowerdir=/run/overlay/rootfsbase/root,upperdir=/run/overlay/overlayfs/root/rw,workdir=/run/overlay/overlayfs/root/work
+		What=overlay
+		Type=overlay
+		DirectoryMode=0755
+		[Install]
+		WantedBy=multi-user.target
+		EOF
+        systemctl enable run-overlay-overlayfs-root.mount
+        systemctl enable root.mount
+
+        # required write areas on a read-only (/)
+        for target in \
+            etc/lvm/devices \
+            tmp \
+            var/tmp \
+            var/log \
+            var/lib/private/systemd/timesync \
+            var/lib/systemd/timesync \
+            var/lib/systemd/linger;
+        do
+            name=$(echo "${target}" | tr / -)
+            cat >/usr/lib/systemd/system/"${name}".mount <<-EOF
+			[Unit]
+			DefaultDependencies=no
+			[Mount]
+			Where=/${target}
+			What=tmpfs
+			Type=tmpfs
+			DirectoryMode=0755
+			[Install]
+			WantedBy=multi-user.target
+			EOF
+            systemctl enable "${name}".mount
+        done
     fi
 done
 
