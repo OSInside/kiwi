@@ -52,6 +52,7 @@ function mountReadOnlyRootImage {
     cat >/run/systemd/system/"${unit_name}".mount <<-EOF
 		[Unit]
 		Before=initrd-root-fs.target
+		After=run-overlay.mount
 		DefaultDependencies=no
 		[Mount]
 		Where=$root_mount_point
@@ -85,6 +86,7 @@ function preparePersistentOverlay {
     cat >/run/systemd/system/"${unit_name}".mount <<-EOF
 		[Unit]
 		Before=initrd-root-fs.target
+		After=run-overlay.mount
 		DefaultDependencies=no
 		[Mount]
 		Where=$overlay_mount_point
