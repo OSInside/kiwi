@@ -33,6 +33,7 @@ from kiwi.exceptions import (
     KiwiFormatSetupError
 )
 
+VagrantConfigDict = Dict['str', xml_parse.vagrantconfig]
 
 class DiskFormatVagrantBase(DiskFormatBase):
     """
@@ -74,7 +75,8 @@ class DiskFormatVagrantBase(DiskFormatBase):
     * :meth:`get_additional_vagrant_config_settings`
 
     """
-    def post_init(self, custom_args: Dict['str', xml_parse.vagrantconfig]):
+
+    def post_init(self, custom_args: VagrantConfigDict):
         """
         vagrant disk format post initialization method
 
@@ -96,10 +98,10 @@ class DiskFormatVagrantBase(DiskFormatBase):
             raise KiwiFormatSetupError(
                 'no vagrantconfig provided'
             )
-        self.vagrantconfig = custom_args['vagrantconfig']
-        self.vagrant_post_init()
+        self.vagrantconfig = custom_args.pop('vagrantconfig')
+        self.vagrant_post_init(custom_args)
 
-    def vagrant_post_init(self) -> None:
+    def vagrant_post_init(self, custom_args: Dict['str', xml_parse.vagrantconfig]) -> None:
         """
         Vagrant provider specific post initialization method
 
