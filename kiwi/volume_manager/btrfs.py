@@ -26,7 +26,6 @@ from typing import List
 
 # project
 from kiwi.command import Command
-from kiwi.chroot_manager import ChrootManager
 from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.mount_manager import MountManager
 from kiwi.storage.mapped_device import MappedDevice
@@ -37,6 +36,9 @@ from kiwi.utils.block import BlockID
 from kiwi.utils.sysconfig import SysConfig
 from kiwi.path import Path
 from kiwi.defaults import Defaults
+from kiwi.chroot_manager import (
+    ChrootManager, ChrootMount
+)
 
 from kiwi.exceptions import (
     KiwiVolumeRootIDError,
@@ -568,7 +570,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             'snapper', (0, 12, 1), root=self.root_dir
         ):
             with ChrootManager(
-                self.root_dir, binds=[self.mountpoint]
+                self.root_dir, binds=[ChrootMount(self.mountpoint)]
             ) as chroot:
                 chroot.run([
                     '/usr/lib/snapper/installation-helper', '--root-prefix',
@@ -598,7 +600,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         ):
             snapshots_prefix = os.sep.join([path, '.snapshots'])
             with ChrootManager(
-                self.root_dir, binds=[path, snapshots_prefix]
+                self.root_dir, binds=[
+                    ChrootMount(path), ChrootMount(snapshots_prefix)
+                ]
             ) as chroot:
                 chroot.run([
                     '/usr/lib/snapper/installation-helper', '--root-prefix',

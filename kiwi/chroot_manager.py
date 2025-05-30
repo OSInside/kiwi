@@ -18,7 +18,7 @@
 import os
 import logging
 from typing import (
-    List, Optional
+    List, Optional, NamedTuple
 )
 
 # project
@@ -31,6 +31,11 @@ from kiwi.exceptions import (
 )
 
 log = logging.getLogger('kiwi')
+
+
+class ChrootMount(NamedTuple):
+    target: str
+    source: Optional[str] = None
 
 
 class ChrootManager:
@@ -46,13 +51,14 @@ class ChrootManager:
     * :param string root_dir: path to change the root to
     * :param list binds: current root paths to bind to the chrooted path
     """
-    def __init__(self, root_dir: str, binds: List[str] = []):
+    def __init__(self, root_dir: str, binds: List[ChrootMount] = []):
         self.root_dir = root_dir
         self.mounts: List[MountManager] = []
         for bind in binds:
             self.mounts.append(MountManager(
-                device=bind, mountpoint=os.path.normpath(
-                    os.sep.join([root_dir, bind])
+                device=bind.source if bind.source else bind.target,
+                mountpoint=os.path.normpath(
+                    os.sep.join([root_dir, bind.target])
                 )
             ))
 
