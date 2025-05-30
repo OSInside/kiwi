@@ -146,7 +146,7 @@ class DiskFormatVmdk(DiskFormatBase):
         if disk_setup:
             disk_controller = disk_setup.get_controller() or disk_controller
             disk_id = disk_setup.get_id()
-            if not disk_controller == 'ide':
+            if disk_controller not in ['ide', 'sata']:
                 template_record['scsi_controller_name'] = disk_controller
             if disk_id:
                 template_record['disk_id'] = disk_id
