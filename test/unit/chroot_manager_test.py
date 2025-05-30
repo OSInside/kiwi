@@ -3,7 +3,9 @@ from unittest.mock import (
 )
 from pytest import raises
 
-from kiwi.chroot_manager import ChrootManager
+from kiwi.chroot_manager import (
+    ChrootManager, ChrootMount
+)
 
 from kiwi.exceptions import (
     KiwiCommandError,
@@ -18,7 +20,9 @@ class TestChrootManager:
         mock_mntMngr = Mock()
         mock_mount.return_value = mock_mntMngr
         with ChrootManager(
-            '/some/root', binds=['/dev', '/proc', '/sys']
+            '/some/root', binds=[
+                ChrootMount('/dev'), ChrootMount('/proc'), ChrootMount('/sys')
+            ]
         ) as chroot:
             chroot.run(['cmd', 'arg1', 'arg2'])
         assert mock_mount.call_args_list == [
@@ -40,7 +44,9 @@ class TestChrootManager:
         mock_mount.return_value = mock_mntMngr
         mock_run.side_effect = Exception
         with ChrootManager(
-            '/some/root', binds=['/dev', '/proc', '/sys']
+            '/some/root', binds=[
+                ChrootMount('/dev'), ChrootMount('/proc'), ChrootMount('/sys')
+            ]
         ) as chroot:
             with raises(Exception):
                 chroot.run(['cmd', 'arg1', 'arg2'])
@@ -64,7 +70,10 @@ class TestChrootManager:
         mock_mntMngr.bind_mount.side_effect = KiwiCommandError('mount error')
         with raises(KiwiCommandError):
             with ChrootManager(
-                '/some/root', binds=['/dev', '/proc', '/sys']
+                '/some/root', binds=[
+                    ChrootMount('/dev'), ChrootMount('/proc'),
+                    ChrootMount('/sys')
+                ]
             ) as chroot:
                 chroot.run(['cmd', 'arg1', 'arg2'])
         assert mock_mount.call_args_list == [
@@ -87,7 +96,10 @@ class TestChrootManager:
         mock_mntMngr.umount.side_effect = KiwiUmountBusyError('umount error')
         with raises(KiwiCommandError):
             with ChrootManager(
-                '/some/root', binds=['/dev', '/proc', '/sys']
+                '/some/root', binds=[
+                    ChrootMount('/dev'), ChrootMount('/proc'),
+                    ChrootMount('/sys')
+                ]
             ) as chroot:
                 chroot.run(['cmd', 'arg1', 'arg2'])
         assert mock_mount.call_args_list == [
@@ -109,7 +121,10 @@ class TestChrootManager:
         mock_mntMngr.umount.side_effect = KiwiUmountBusyError('umount error')
         with raises(KiwiUmountBusyError):
             with ChrootManager(
-                '/some/root', binds=['/dev', '/proc', '/sys']
+                '/some/root', binds=[
+                    ChrootMount('/dev'), ChrootMount('/proc'),
+                    ChrootMount('/sys')
+                ]
             ) as chroot:
                 chroot.run(['cmd', 'arg1', 'arg2'])
         assert mock_mount.call_args_list == [
