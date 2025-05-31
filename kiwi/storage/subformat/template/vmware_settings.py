@@ -153,11 +153,11 @@ class VmwareSettingsTemplate:
 
         controller_funcs = {
             'ide': self.ide_disk,
-            'scsi': self.scsi_disk,
             'sata': self.sata_disk,
         }
 
-        template_data += controller_funcs.get(disk_controller, self.ide_disk)
+        # All except ide and sata ontrollers are a form of scsi
+        template_data += controller_funcs.get(disk_controller, self.scsi_disk)
 
         if network_setup:
             for nic_id, nic_setup in list(network_setup.items()):

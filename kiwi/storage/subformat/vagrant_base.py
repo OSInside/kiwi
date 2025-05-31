@@ -18,6 +18,7 @@
 import json
 import os.path
 
+from pathlib import PurePath
 from kiwi.utils.temporary import Temporary
 from typing import (
     Dict, Optional, List
@@ -222,6 +223,18 @@ class DiskFormatVagrantBase(DiskFormatBase):
         :rtype: str
         """
         return ''
+
+    def _stage_box_file(self, temp_dir: str, format: str) -> str:
+        file_path = self.get_target_file_path_for_format(format)
+        file_name = PurePath(file_path).name
+        box_file = os.sep.join([temp_dir, file_name])
+        Command.run(
+            [
+                'mv', file_path,
+                box_file
+            ]
+        )
+        return box_file
 
     def _create_box_metadata(self):
         metadata = self.get_additional_metadata() or {}

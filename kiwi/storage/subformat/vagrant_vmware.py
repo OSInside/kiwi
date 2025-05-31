@@ -17,15 +17,21 @@
 #
 
 import os
-from textwrap import dedent
+# from textwrap import dedent
 from typing import (
     List, Dict
 )
+from pathlib import PurePath
 
 # project
-from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase, VagrantConfigDict
-from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 from kiwi.command import Command
+from kiwi.storage.subformat.vagrant_base import (DiskFormatVagrantBase,
+                                                 VagrantConfigDict)
+from kiwi.storage.subformat.vmdk import DiskFormatVmdk
+
+from kiwi.exceptions import (
+    KiwiTemplateError
+)
 
 
 class DiskFormatVagrantVMware(DiskFormatVagrantBase):
@@ -55,15 +61,15 @@ class DiskFormatVagrantVMware(DiskFormatVagrantBase):
             self.xml_state, self.root_dir, self.target_dir,
             custom_args=self.options
         )
-        vmdk.create_image_format()
-        box_image = os.sep.join([temp_image_dir, 'box.img'])
-        Command.run(
-            [
-                'mv', self.get_target_file_path_for_format(vmdk.image_format),
-                box_image
-            ]
-        )
-        return [box_image]
+        try:
+            vmdk.create_image_format()
+            box_image = self._stage_box_file(temp_image_dir, vmdk.image_format)
+            settings_file = self._stage_box_file(temp_image_dir, 'vmx')
+        except KiwiTemplateError as e:
+            # TODO: handle
+            raise e
+
+        return [box_image, settings_file]
 
     def get_additional_metadata(self) -> Dict:
         """
@@ -71,7 +77,6 @@ class DiskFormatVagrantVMware(DiskFormatVagrantBase):
 
         :return:
             Returns a dictionary containing the virtual image format
-            and the size of the image.
 
         :rtype: dict
         """
@@ -81,7 +86,7 @@ class DiskFormatVagrantVMware(DiskFormatVagrantBase):
 
     def get_additional_vagrant_config_settings(self) -> str:
         """
-        Returns settings for the libvirt provider telling vagrant to use kvm.
+        Returns settings for the vmware provider
 
         :return:
             ruby code to be evaluated as string
