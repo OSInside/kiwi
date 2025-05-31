@@ -8714,18 +8714,112 @@ class oemconfig(GeneratedsSuper):
 # end class oemconfig
 
 
+class info(GeneratedsSuper):
+    """The info.json is a freeform document with info to display with the
+    box when running `vagrant box list -i`"""
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, valueOf_=None, mixedclass_=None, content_=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, info)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if info.subclass:
+            return info.subclass(*args_, **kwargs_)
+        else:
+            return info(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def hasContent_(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='info', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('info')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='info')
+        outfile.write('>')
+        self.exportChildren(outfile, level + 1, namespaceprefix_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='info'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='info', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+        pass
+# end class info
+
+
 class vagrantconfig(GeneratedsSuper):
     """The vagrantconfig element specifies the Vagrant meta configuration
     options which are used inside a vagrant box"""
     subclass = None
     superclass = None
-    def __init__(self, provider=None, virtualsize=None, boxname=None, virtualbox_guest_additions_present=None, embedded_vagrantfile=None):
+    def __init__(self, provider=None, virtualsize=None, boxname=None, virtualbox_guest_additions_present=None, embedded_vagrantfile=None, info=None):
         self.original_tagname_ = None
         self.provider = _cast(None, provider)
         self.virtualsize = _cast(int, virtualsize)
         self.boxname = _cast(None, boxname)
         self.virtualbox_guest_additions_present = _cast(bool, virtualbox_guest_additions_present)
         self.embedded_vagrantfile = _cast(None, embedded_vagrantfile)
+        if info is None:
+            self.info = []
+        else:
+            self.info = info
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8737,6 +8831,11 @@ class vagrantconfig(GeneratedsSuper):
         else:
             return vagrantconfig(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_info(self): return self.info
+    def set_info(self, info): self.info = info
+    def add_info(self, value): self.info.append(value)
+    def insert_info_at(self, index, value): self.info.insert(index, value)
+    def replace_info_at(self, index, value): self.info[index] = value
     def get_provider(self): return self.provider
     def set_provider(self, provider): self.provider = provider
     def get_virtualsize(self): return self.virtualsize
@@ -8749,7 +8848,7 @@ class vagrantconfig(GeneratedsSuper):
     def set_embedded_vagrantfile(self, embedded_vagrantfile): self.embedded_vagrantfile = embedded_vagrantfile
     def hasContent_(self):
         if (
-
+            self.info
         ):
             return True
         else:
@@ -8771,6 +8870,7 @@ class vagrantconfig(GeneratedsSuper):
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
             self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='vagrantconfig', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
@@ -8791,7 +8891,12 @@ class vagrantconfig(GeneratedsSuper):
             already_processed.add('embedded_vagrantfile')
             outfile.write(' embedded_vagrantfile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.embedded_vagrantfile), input_name='embedded_vagrantfile')), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='vagrantconfig', fromsubclass_=False, pretty_print=True):
-        pass
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for info_ in self.info:
+            info_.export(outfile, level, namespaceprefix_, name_='info', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8832,7 +8937,11 @@ class vagrantconfig(GeneratedsSuper):
             already_processed.add('embedded_vagrantfile')
             self.embedded_vagrantfile = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        pass
+        if nodeName_ == 'info':
+            obj_ = info.factory()
+            obj_.build(child_)
+            self.info.append(obj_)
+            obj_.original_tagname_ = 'info'
 # end class vagrantconfig
 
 
@@ -10276,6 +10385,7 @@ __all__ = [
     "ignore",
     "image",
     "include",
+    "info",
     "initrd",
     "installmedia",
     "installoption",
