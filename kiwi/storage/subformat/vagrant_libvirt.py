@@ -22,7 +22,9 @@ from typing import (
 )
 
 # project
-from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
+from kiwi.storage.subformat.vagrant_base import (
+    DiskFormatVagrantBase, VagrantConfigDict
+)
 from kiwi.storage.subformat.qcow2 import DiskFormatQcow2
 from kiwi.command import Command
 
@@ -31,7 +33,7 @@ class DiskFormatVagrantLibVirt(DiskFormatVagrantBase):
     """
     **Create a vagrant box for the libvirt provider**
     """
-    def vagrant_post_init(self) -> None:
+    def vagrant_post_init(self, custom_args: VagrantConfigDict = None) -> None:
         self.image_format = 'vagrant.libvirt.box'
         self.provider = 'libvirt'
 

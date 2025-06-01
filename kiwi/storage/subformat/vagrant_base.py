@@ -36,6 +36,7 @@ from kiwi.exceptions import (
 
 VagrantConfigDict = Dict['str', xml_parse.vagrantconfig]
 
+
 class DiskFormatVagrantBase(DiskFormatBase):
     """
     Base class for creating vagrant boxes.
@@ -102,7 +103,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
         self.vagrantconfig = custom_args.pop('vagrantconfig')
         self.vagrant_post_init(custom_args)
 
-    def vagrant_post_init(self, custom_args: Dict['str', xml_parse.vagrantconfig]) -> None:
+    def vagrant_post_init(self, custom_args: VagrantConfigDict = None) -> None:
         """
         Vagrant provider specific post initialization method
 

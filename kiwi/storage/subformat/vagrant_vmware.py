@@ -16,15 +16,12 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 
-import os
 # from textwrap import dedent
 from typing import (
     List, Dict
 )
-from pathlib import PurePath
 
 # project
-from kiwi.command import Command
 from kiwi.storage.subformat.vagrant_base import (DiskFormatVagrantBase,
                                                  VagrantConfigDict)
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
@@ -39,10 +36,10 @@ class DiskFormatVagrantVMware(DiskFormatVagrantBase):
     **Create a vagrant box for the vmware provider**
     """
 
-    def vagrant_post_init(self, custom_args: VagrantConfigDict) -> None:
+    def vagrant_post_init(self, custom_args: VagrantConfigDict = None) -> None:
         self.image_format = 'vagrant.vmware_desktop.box'
         self.provider = 'vmware_desktop'
-        self.options = self.get_qemu_option_list(custom_args)
+        self.custom_args = custom_args
 
     def create_box_img(self, temp_image_dir: str) -> List[str]:
         """
@@ -59,7 +56,7 @@ class DiskFormatVagrantVMware(DiskFormatVagrantBase):
         """
         vmdk = DiskFormatVmdk(
             self.xml_state, self.root_dir, self.target_dir,
-            custom_args=self.options
+            custom_args=self.custom_args
         )
         try:
             vmdk.create_image_format()
