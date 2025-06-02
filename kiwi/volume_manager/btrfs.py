@@ -500,7 +500,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                     return
 
         raise KiwiVolumeRootIDError(
-            'Failed to find btrfs volume: %s' % default_volume
+            f'Failed to find btrfs volume: {default_volume}'
         )
 
     def _xml_pretty(self, toplevel_element):

@@ -34,7 +34,7 @@ class MappedDevice(DeviceProvider):
     def __init__(self, device: str, device_provider: DeviceProvider):
         if not os.path.exists(device):
             raise KiwiMappedDeviceError(
-                'Device %s does not exist' % device
+                f'Device {device} does not exist'
             )
         self.device_provider = device_provider
         self.device = device

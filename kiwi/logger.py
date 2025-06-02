@@ -177,7 +177,7 @@ class Logger(logging.Logger):
             self.log_handlers['file'] = handler
         except Exception as e:
             raise KiwiLogFileSetupFailed(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )
 
     def set_log_socket(self, filename: str) -> None:

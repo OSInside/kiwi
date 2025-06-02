@@ -297,7 +297,7 @@ class PackageManagerApt(PackageManagerBase):
             )
         except Exception as e:
             raise KiwiDebianBootstrapError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )
 
     def process_install_requests(self) -> CommandCallT:

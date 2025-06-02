@@ -373,4 +373,4 @@ class SolverRepositoryBase:
             )
 
     def _rand(self):
-        return '%02x' % random.randrange(1, 0xfe)
+        return f'{random.randrange(1, 254):02x}'

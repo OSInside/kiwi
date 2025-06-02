@@ -40,7 +40,7 @@ class Checksum:
     def __init__(self, source_filename):
         if not os.path.exists(source_filename):
             raise KiwiFileNotFound(
-                'checksum source file %s not found' % source_filename
+                f'checksum source file {source_filename} not found'
             )
         self.source_filename = source_filename
         self.checksum_filename = None
@@ -124,9 +124,7 @@ class Checksum:
                 )
             else:
                 checksum_file.write(
-                    '%s %s %s\n' % (
-                        checksum, blocks.blocks, blocks.blocksize
-                    )
+                    f'{checksum} {blocks.blocks} {blocks.blocksize}\n'
                 )
 
     def _calculate_hash_hexdigest(self, digest, filename, digest_blocks=128):

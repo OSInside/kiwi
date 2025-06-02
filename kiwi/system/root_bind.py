@@ -109,7 +109,7 @@ class RootBind:
         except Exception as e:
             self.cleanup()
             raise KiwiMountKernelFileSystemsError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )
 
     def umount_kernel_file_systems(self) -> None:
@@ -154,7 +154,7 @@ class RootBind:
         except Exception as e:
             self.cleanup()
             raise KiwiMountSharedDirectoryError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )
 
     def setup_intermediate_config(self) -> None:
@@ -187,7 +187,7 @@ class RootBind:
         except Exception as e:
             self.cleanup()
             raise KiwiSetupIntermediateConfigError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )
 
     def cleanup(self) -> None:

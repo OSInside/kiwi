@@ -172,7 +172,7 @@ class Uri:
                 )
         else:
             raise KiwiUriStyleUnknown(
-                'URI schema %s not supported' % self.uri
+                f'URI schema {self.uri} not supported'
             )
 
     @staticmethod
@@ -229,7 +229,7 @@ class Uri:
         uri = urlparse(self.uri)
         if not uri.scheme:
             raise KiwiUriStyleUnknown(
-                'URI scheme not detected %s' % self.uri
+                f'URI scheme not detected {self.uri}'
             )
         if uri.scheme == 'obs' and Defaults.is_buildservice_worker():
             return False
@@ -239,7 +239,7 @@ class Uri:
             return False
         else:
             raise KiwiUriTypeUnknown(
-                'URI type %s unknown' % uri.scheme
+                f'URI type {uri.scheme} unknown'
             )
 
     def is_public(self) -> bool:

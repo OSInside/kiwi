@@ -44,7 +44,7 @@ class ContainerSetupBase:
     def __init__(self, root_dir, custom_args=None):
         if not os.path.exists(root_dir):
             raise KiwiContainerSetupError(
-                'Container root directory %s does not exist' % root_dir
+                f'Container root directory {root_dir} does not exist'
             )
         self.root_dir = root_dir
         self.custom_args = custom_args or {}
@@ -123,8 +123,7 @@ class ContainerSetupBase:
                 )
             except Exception as e:
                 raise KiwiContainerSetupError(
-                    'Failed to deactivate service %s: %s' %
-                    (name, format(e))
+                    f'Failed to deactivate service {name}: {format(e)}'
                 )
 
     def setup_root_console(self):

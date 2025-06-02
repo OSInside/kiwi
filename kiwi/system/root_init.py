@@ -43,7 +43,7 @@ class RootInit:
     def __init__(self, root_dir: str, allow_existing: bool = False):
         if not allow_existing and os.path.exists(root_dir):
             raise KiwiRootDirExists(
-                'Root directory %s already exists' % root_dir
+                f'Root directory {root_dir} already exists'
             )
         self.root_dir = root_dir
 
@@ -89,7 +89,7 @@ class RootInit:
         except Exception as e:
             self.delete()
             raise KiwiRootInitCreationError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )
 
     def _create_base_directories(self, root):

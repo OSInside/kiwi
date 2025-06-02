@@ -88,7 +88,7 @@ class VolumeManagerBase(DeviceProvider):
 
         if not os.path.exists(root_dir):
             raise KiwiVolumeManagerSetupError(
-                'given root directory %s does not exist' % root_dir
+                f'given root directory {root_dir} does not exist'
             )
 
         #: custom arguments passed to setup the volumes

@@ -127,7 +127,7 @@ class Command:
             )
 
         if not cmd_abspath:
-            message = 'Command "%s" not found in the environment' % command[0]
+            message = f'Command "{command[0]}" not found in the environment'
             if raise_on_command_not_found:
                 raise KiwiCommandNotFound(message)
             log.debug('EXEC: %s', message)
@@ -143,7 +143,7 @@ class Command:
             )
         except (OSError, subprocess.SubprocessError) as e:
             raise KiwiCommandError(
-                '%s: %s: %s' % (command[0], type(e).__name__, format(e))
+                f'{command[0]}: {type(e).__name__}: {format(e)}'
             ) from e
 
         output, error = process.communicate()
@@ -209,7 +209,7 @@ class Command:
             command[0], custom_env=environment, access_mode=os.X_OK
         ):
             raise KiwiCommandNotFound(
-                'Command "%s" not found in the environment' % command[0]
+                f'Command "{command[0]}" not found in the environment'
             )
         try:
             process = subprocess.Popen(
@@ -220,7 +220,7 @@ class Command:
             )
         except Exception as e:
             raise KiwiCommandError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             ) from e
 
         # guaranteed to be true as stdout & stderr equal subprocess.PIPE

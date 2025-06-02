@@ -81,7 +81,7 @@ class ArchiveBuilder:
         supported_archives = Defaults.get_archive_image_types()
         if self.requested_archive_type not in supported_archives:
             raise KiwiArchiveSetupError(
-                'Unknown archive type: %s' % self.requested_archive_type
+                f'Unknown archive type: {self.requested_archive_type}'
             )
 
         if self.requested_archive_type == 'tbz':

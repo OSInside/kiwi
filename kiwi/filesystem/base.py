@@ -187,7 +187,7 @@ class FileSystemBase:
             )
         if not os.path.exists(self.root_dir):
             raise KiwiFileSystemSyncError(
-                'given root directory %s does not exist' % self.root_dir
+                f'given root directory {self.root_dir} does not exist'
             )
         self.filesystem_mount = MountManager(
             device=self.device_provider.get_device()

@@ -339,7 +339,7 @@ class InstallImageBuilder:
         if custom_cmdline:
             cmdline += ' ' + custom_cmdline
         with open(append_filename, 'w') as append:
-            append.write('%s\n' % cmdline)
+            append.write(f'{cmdline}\n')
 
         # create initrd for pxe install
         log.info('Creating pxe install boot image')
@@ -496,10 +496,10 @@ class InstallImageBuilder:
     def _write_install_image_info_to_iso_image(self) -> None:
         iso_trigger = self.media_dir.name + '/config.isoclient'
         with open(iso_trigger, 'w') as iso_system:
-            iso_system.write('IMAGE="%s"\n' % self.squashed_diskname)
+            iso_system.write(f'IMAGE="{self.squashed_diskname}\"\n')
 
     def _write_install_image_info_to_boot_image(self) -> None:
         initrd_trigger = \
             self.boot_image_task.boot_root_directory + '/config.vmxsystem'
         with open(initrd_trigger, 'w') as vmx_system:
-            vmx_system.write('IMAGE="%s"\n' % self.squashed_diskname)
+            vmx_system.write(f'IMAGE="{self.squashed_diskname}\"\n')
