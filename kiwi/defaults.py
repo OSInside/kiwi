@@ -48,7 +48,8 @@ shim_loader_type = NamedTuple(
 grub_loader_type = NamedTuple(
     'grub_loader_type', [
         ('filename', str),
-        ('binaryname', str)
+        ('binaryname', str),
+        ('targetname', str)
     ]
 )
 
@@ -828,7 +829,9 @@ class Defaults:
         return modules
 
     @staticmethod
-    def get_grub_path(root_path, filename, raise_on_error=True):
+    def get_grub_path(
+        root_path: str, filename: str, raise_on_error: bool = True
+    ) -> str:
         """
         Provides grub path to given search file
 
@@ -870,6 +873,7 @@ class Defaults:
             raise KiwiBootLoaderGrubDataError(
                 'grub path {0} not found in {1}'.format(filename, lookup_list)
             )
+        return ''
 
     @staticmethod
     def get_preparer():
@@ -894,7 +898,7 @@ class Defaults:
         return 'SUSE LINUX GmbH'
 
     @staticmethod
-    def get_shim_loader(root_path: str) -> Optional[shim_loader_type]:
+    def get_shim_loader(root_path: str) -> List[shim_loader_type]:
         """
         Provides shim loader file path
 
@@ -903,39 +907,69 @@ class Defaults:
 
         :param string root_path: image root path
 
-        :return: shim_loader_type | None
+        :return: list of shim_loader_type
 
-        :rtype: NamedTuple
+        :rtype: list
         """
-
+        result = []
         shim_pattern_type = namedtuple(
             'shim_pattern_type', ['pattern', 'binaryname']
         )
-
         shim_file_patterns = [
-            shim_pattern_type('/usr/lib/shim/shim*.efi.signed.latest', 'shimx64.efi'),
-            shim_pattern_type('/usr/lib/shim/shim*.efi.signed', 'shimx64.efi'),
-            shim_pattern_type('/usr/lib/grub/*-efi-signed', 'shimx64.efi'),
-            shim_pattern_type('/usr/share/efi/*/shim.efi', None),
-            shim_pattern_type('/usr/lib64/efi/shim.efi', None),
-            shim_pattern_type('/boot/efi/EFI/*/shim[a-z]*.efi', None),
-            shim_pattern_type('/boot/efi/EFI/*/shim.efi', None),
-            shim_pattern_type('/usr/lib/shim/shim*.efi', None)
+            shim_pattern_type(
+                '/usr/lib/shim/shim*.efi.signed.latest',
+                'bootx64.efi'
+            ),
+            shim_pattern_type(
+                '/usr/lib/shim/shim*.efi.signed',
+                'bootx64.efi'
+            ),
+            shim_pattern_type(
+                '/usr/lib/grub/*-efi-signed',
+                'bootx64.efi'
+            ),
+            shim_pattern_type(
+                '/usr/share/efi/x86_64/shim.efi',
+                'bootx64.efi'
+            ),
+            shim_pattern_type(
+                '/usr/lib64/efi/shim.efi',
+                'bootx64.efi'
+            ),
+            shim_pattern_type(
+                '/boot/efi/EFI/*/shimx64.efi',
+                'bootx64.efi'
+            ),
+            shim_pattern_type(
+                '/boot/efi/EFI/*/shimia32.efi',
+                'bootia32.efi'
+            ),
+            shim_pattern_type(
+                '/boot/efi/EFI/*/shimaa64.efi',
+                'bootaa64.efi'
+            ),
+            shim_pattern_type(
+                '/boot/efi/EFI/*/shim.efi',
+                'bootx64.efi'
+            ),
+            shim_pattern_type(
+                '/usr/lib/shim/shim*.efi',
+                'bootx64.efi'
+            )
         ]
         for shim_file_pattern in shim_file_patterns:
-            for shim_file in sorted(glob.iglob(root_path + shim_file_pattern.pattern), key=len):
-                if not shim_file_pattern.binaryname:
-                    binaryname = os.path.basename(shim_file)
-                else:
-                    binaryname = shim_file_pattern.binaryname
-                return shim_loader_type(
-                    shim_file, binaryname
+            for shim_file in sorted(
+                glob.iglob(root_path + shim_file_pattern.pattern), key=len
+            ):
+                result.append(
+                    shim_loader_type(shim_file, shim_file_pattern.binaryname)
                 )
-
-        return None
+                # one match only expected, per pattern
+                break
+        return result
 
     @staticmethod
-    def get_mok_manager(root_path: str) -> Optional[str]:
+    def get_mok_manager(root_path: str) -> List[str]:
         """
         Provides Mok Manager file path
 
@@ -948,6 +982,7 @@ class Defaults:
 
         :rtype: str
         """
+        result = []
         mok_manager_file_patterns = [
             '/usr/share/efi/*/MokManager.efi',
             '/usr/lib64/efi/MokManager.efi',
@@ -956,8 +991,8 @@ class Defaults:
         ]
         for mok_manager_file_pattern in mok_manager_file_patterns:
             for mm_file in glob.iglob(root_path + mok_manager_file_pattern):
-                return mm_file
-        return None
+                result.append(mm_file)
+        return result
 
     @staticmethod
     def get_grub_efi_font_directory(root_path):
@@ -980,7 +1015,7 @@ class Defaults:
     @staticmethod
     def get_unsigned_grub_loader(
         root_path: str, target_type: str = 'disk'
-    ) -> Optional[str]:
+    ) -> List[grub_loader_type]:
         """
         Provides unsigned grub efi loader file path
 
@@ -989,32 +1024,89 @@ class Defaults:
 
         :param string root_path: image root path
 
-        :return: file path or None
+        :return: list of grub_loader_type
 
-        :rtype: str
+        :rtype: list
         """
-        unsigned_grub_file = None
+        result = []
+        grub_pattern_type = namedtuple(
+            'grub_pattern_type', ['pattern', 'binaryname', 'targetname']
+        )
         unsigned_grub_file_patterns = {
             'disk': [
-                '/usr/share/grub*/*-efi/grub.efi',
-                '/usr/lib/grub*/*-efi/grub.efi',
-                '/boot/efi/EFI/*/grubx64.efi',
-                '/boot/efi/EFI/*/grubaa64.efi'
+                grub_pattern_type(
+                    '/usr/share/grub*/x86_64-efi/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
+                ),
+                grub_pattern_type(
+                    '/usr/lib/grub*/x86_64-efi/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubx64.efi',
+                    'grubx64.efi',
+                    'bootx64.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubia32.efi',
+                    'grubia32.efi',
+                    'bootia32.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubaa64.efi',
+                    'grubaa64.efi',
+                    'bootaa64.efi'
+                )
             ],
             'iso': [
-                '/boot/efi/EFI/*/gcdx64.efi',
-                '/usr/share/grub*/*-efi/grub.efi',
-                '/usr/lib/grub*/*-efi/grub.efi',
-                '/boot/efi/EFI/*/grubx64.efi',
-                '/boot/efi/EFI/*/grubaa64.efi'
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/gcdx64.efi',
+                    'grubx64.efi',
+                    'bootx64.efi'
+                ),
+                grub_pattern_type(
+                    '/usr/share/grub*/x86_64-efi/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
+                ),
+                grub_pattern_type(
+                    '/usr/lib/grub*/x86_64-efi/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubx64.efi',
+                    'grubx64.efi',
+                    'bootx64.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubia32.efi',
+                    'grubia32.efi',
+                    'bootia32.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubaa64.efi',
+                    'grubaa64.efi',
+                    'bootaa64.efi'
+                )
             ]
         }
         for unsigned_grub_file_pattern in unsigned_grub_file_patterns[target_type]:
             for unsigned_grub_file in glob.iglob(
-                root_path + unsigned_grub_file_pattern
+                root_path + unsigned_grub_file_pattern.pattern
             ):
-                return unsigned_grub_file
-        return None
+                result.append(
+                    grub_loader_type(
+                        unsigned_grub_file,
+                        unsigned_grub_file_pattern.binaryname,
+                        unsigned_grub_file_pattern.targetname
+                    )
+                )
+                # one match only expected, per pattern
+                break
+        return result
 
     @staticmethod
     def get_grub_chrp_loader(boot_path: str) -> str:
@@ -1094,7 +1186,7 @@ class Defaults:
     @staticmethod
     def get_signed_grub_loader(
         root_path: str, target_type: str = 'disk'
-    ) -> Optional[grub_loader_type]:
+    ) -> List[grub_loader_type]:
         """
         Provides shim signed grub loader file path
 
@@ -1103,70 +1195,112 @@ class Defaults:
 
         :param str root_path: image root path
 
-        :return: grub_loader_type | None
+        :return: list of grub_loader_type
 
-        :rtype: NamedTuple
+        :rtype: list
         """
+        result = []
         grub_pattern_type = namedtuple(
-            'grub_pattern_type', ['pattern', 'binaryname']
+            'grub_pattern_type', ['pattern', 'binaryname', 'targetname']
         )
         signed_grub_file_patterns = {
             'disk': [
                 grub_pattern_type(
-                    '/usr/share/efi/*/grub.efi', None
+                    '/usr/share/efi/*/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
                 ),
                 grub_pattern_type(
-                    '/usr/lib64/efi/grub.efi', None
+                    '/usr/lib64/efi/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
                 ),
                 grub_pattern_type(
-                    '/boot/efi/EFI/*/grub*.efi', None
+                    '/boot/efi/EFI/*/grubx64.efi',
+                    'grubx64.efi',
+                    'bootx64.efi'
                 ),
                 grub_pattern_type(
-                    '/usr/share/grub*/*-efi/grub.efi', None
+                    '/boot/efi/EFI/*/grubia32.efi',
+                    'grubia32.efi',
+                    'bootia32.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubaa64.efi',
+                    'grubaa64.efi',
+                    'bootaa64.efi'
+                ),
+                grub_pattern_type(
+                    '/usr/share/grub*/*-efi/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
-                    'grubx64.efi'
+                    'grubx64.efi',
+                    'bootx64.efi'
                 )
             ],
             'iso': [
                 grub_pattern_type(
                     '/boot/efi/EFI/*/gcdx64.efi',
-                    'grubx64.efi'
+                    'grubx64.efi',
+                    'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/boot/efi/EFI/*/gcdaa64.efi',
-                    'grubaa64.efi'
+                    'grubaa64.efi',
+                    'bootaa64.efi'
                 ),
                 grub_pattern_type(
-                    '/usr/share/efi/*/grub.efi', None
+                    '/usr/share/efi/x86_64/grub.efi',
+                    'grub.efi',
+                    'grubx64.efi'
                 ),
                 grub_pattern_type(
-                    '/usr/lib64/efi/grub.efi', None
+                    '/usr/lib64/efi/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
                 ),
                 grub_pattern_type(
-                    '/boot/efi/EFI/*/grub*.efi', None
+                    '/boot/efi/EFI/*/grubx64.efi',
+                    'grubx64.efi',
+                    'bootx64.efi'
                 ),
                 grub_pattern_type(
-                    '/usr/share/grub*/*-efi/grub.efi', None
+                    '/boot/efi/EFI/*/grubia32.efi',
+                    'grubia32.efi',
+                    'bootia32.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubaa64.efi',
+                    'grubaa64.efi',
+                    'bootaa64.efi'
+                ),
+                grub_pattern_type(
+                    '/usr/share/grub*/x86_64-efi/grub.efi',
+                    'grub.efi',
+                    'bootx64.efi'
                 ),
                 grub_pattern_type(
                     '/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
-                    'grubx64.efi'
+                    'grubx64.efi',
+                    'bootx64.efi'
                 )
-
             ]
         }
         for signed_grub in signed_grub_file_patterns[target_type]:
             for signed_grub_file in glob.iglob(root_path + signed_grub.pattern):
-                if not signed_grub.binaryname:
-                    binaryname = os.path.basename(signed_grub_file)
-                else:
-                    binaryname = signed_grub.binaryname
-                return grub_loader_type(
-                    signed_grub_file, binaryname
+                result.append(
+                    grub_loader_type(
+                        signed_grub_file,
+                        signed_grub.binaryname,
+                        signed_grub.targetname
+                    )
                 )
-        return None
+                # one match only expected, per pattern
+                break
+        return result
 
     @staticmethod
     def get_efi_vendor_directory(efi_path):
@@ -1463,6 +1597,7 @@ class Defaults:
         """
         default_module_directory_names = {
             'x86_64': 'x86_64-efi',
+            'i386': 'i386-efi',
 
             # There is no dedicated xen architecture but there are
             # modules provided for xen. Thus we treat it as an
@@ -1509,6 +1644,7 @@ class Defaults:
         """
         default_efi_image_names = {
             'x86_64': 'bootx64.efi',
+            'i386': 'bootia32.efi',
             'aarch64': 'bootaa64.efi',
             'arm64': 'bootaa64.efi',
             'armv5el': 'bootarm.efi',
