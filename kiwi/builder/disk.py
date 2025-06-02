@@ -1133,7 +1133,7 @@ class DiskBuilder:
             )
             partition_mbsize = self.disk_setup.boot_partition_size()
             disk.create_boot_partition(
-                partition_mbsize, self.boot_clone_count
+                format(partition_mbsize), self.boot_clone_count
             )
             disksize_used_mbytes += \
                 (self.boot_clone_count + 1) * partition_mbsize if \
