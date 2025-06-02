@@ -5352,6 +5352,20 @@ virtual disk when it creates the VM.</a:documentation>
 If not specified the image name is used</a:documentation>
       </attribute>
     </define>
+    <define name="k.vagrantconfig.info.element">
+      <element name="info">
+        <a:documentation>The info.json is a freeform document with info to display
+with the box when running `vagrant box list -i`</a:documentation>
+        <attribute name="name"/>
+        <text/>
+      </element>
+      <sch:pattern id="vagrant_info_structure">
+        <sch:rule context="info">
+          <sch:assert test="@name">vagrantconfig info element must have a name attribute</sch:assert>
+          <sch:assert test="normalize-space(.) != ''">vagrantconfig info element must contain a non-empty value</sch:assert>
+        </sch:rule>
+      </sch:pattern>
+    </define>
     <define name="k.vagrantconfig.attlist">
       <interleave>
         <ref name="k.vagrantconfig.provider.attribute"/>
@@ -5372,6 +5386,9 @@ If not specified the image name is used</a:documentation>
         <a:documentation>The vagrantconfig element specifies the Vagrant meta
 configuration options which are used inside a vagrant box</a:documentation>
         <ref name="k.vagrantconfig.attlist"/>
+        <zeroOrMore>
+          <ref name="k.vagrantconfig.info.element"/>
+        </zeroOrMore>
       </element>
     </define>
   </div>
