@@ -190,6 +190,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
         self, default_entry: str = ''
     ) -> Dict[str, str]:
         disk_type = self.disk_type or 'SCSI'
+        disk_type = disk_type if disk_type != 'GPT' else 'SCSI'
         blocksize = self.disk_blocksize or 512
         unsupported_for_target_geometry = ['FBA', 'SCSI']
         targetbase = f'targetbase={self.custom_args.get("targetbase")}'
@@ -204,7 +205,7 @@ class BootLoaderZipl(BootLoaderSpecBase):
             'boot_timeout': self.timeout,
             'bootpath': self.get_boot_path(),
             'targetbase': targetbase,
-            'targettype': disk_type if disk_type != 'GPT' else 'SCSI',
+            'targettype': disk_type,
             'targetblocksize': format(blocksize),
             'targetoffset': self._get_partition_start(),
             'targetgeometry': geometry,

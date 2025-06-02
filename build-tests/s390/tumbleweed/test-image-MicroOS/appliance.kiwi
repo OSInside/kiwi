@@ -36,7 +36,7 @@
                 <oem-unattended>true</oem-unattended>
                 <oem-resize>true</oem-resize>
             </oemconfig>
-            <bootloader name="zipl" timeout="10"/>
+            <bootloader name="zipl" timeout="10" targettype="GPT"/>
             <systemdisk>
                 <volume name="home"/>
                 <volume name="root"/>
@@ -165,17 +165,20 @@
         <package name="cloud-init"/>
         <package name="cloud-init-config-suse"/>
         <package name="systemd-network"/>
+        <package name="systemd-resolved"/>
     </packages>
     <packages type="image" profiles="IBM-Cloud-Standard">
         <package name="cloud-init"/>
         <package name="cloud-init-config-suse"/>
         <package name="systemd-network"/>
+        <package name="systemd-resolved"/>
     </packages>
     <packages type="image" profiles="SUSE-Infra">
         <package name="ibm-se-certificates"/>
         <package name="ibm-se-revocation-lists"/>
         <package name="suse-se-host-certificates"/>
         <package name="systemd-network"/>
+        <package name="systemd-resolved"/>
     </packages>
     <packages type="image">
         <package name="patterns-base-bootloader"/>
@@ -203,6 +206,7 @@
         <package name="curl"/>
         <package name="cryptsetup"/>
         <package name="procps"/>
+        <package name="zlib-devel"/>
     </packages>
     <packages type="bootstrap">
         <package name="gawk"/>
