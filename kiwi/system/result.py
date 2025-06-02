@@ -20,7 +20,7 @@ import simplejson
 import pickle
 import os
 from typing import (
-    Dict, NamedTuple, TypeVar, Any
+    Dict, NamedTuple, TypeVar, Any, Optional
 )
 
 # project
@@ -190,7 +190,7 @@ class Result:
             )
 
     @staticmethod
-    def verify_image_size(size_limit: int, filename: str) -> None:
+    def verify_image_size(size_limit: Optional[int], filename: str) -> None:
         """
         Verifies the given image file does not exceed the size limit.
         Throws an exception if the limit is exceeded. If the size limit
