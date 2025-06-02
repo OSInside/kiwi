@@ -537,6 +537,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._setup_efi_image(
                 mbrid=mbrid, lookup_path=lookup_path, target_type='iso'
             )
+            # TODO: allow this for 64bit and 32bit
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
             self._setup_secure_boot_efi_image(
@@ -586,6 +587,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._setup_efi_image(
                 uuid=boot_uuid, efi_uuid=efi_uuid, lookup_path=lookup_path
             )
+            # TODO: allow this for 64bit and 32bit
             self._copy_efi_modules_to_boot_directory(lookup_path)
         elif self.firmware.efi_mode() == 'uefi':
             if not self._get_shim_install():
@@ -913,6 +915,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         log.warning(
             'Running fallback setup for shim secure boot efi image'
         )
+        # TODO: allow 64bit and 32bit efi image to be copied
         if not lookup_path:
             lookup_path = self.boot_dir
         grub_image = Defaults.get_signed_grub_loader(lookup_path, target_type)
@@ -986,6 +989,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         grub_image = Defaults.get_unsigned_grub_loader(lookup_path, target_type)
         if grub_image and self.xml_state.build_type.get_overlayroot_write_partition() is not False:
             log.info(f'--> Using prebuilt unsigned efi image: {grub_image}')
+            # TODO: allow both 64bit and 32bit efi image to be copied
             Command.run(
                 ['cp', grub_image, self._get_efi_image_name()]
             )
