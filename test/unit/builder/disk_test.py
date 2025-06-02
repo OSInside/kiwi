@@ -321,7 +321,7 @@ class TestDiskBuilder:
             self.firmware.get_efi_partition_size()
         )
         disk.create_boot_partition.assert_called_once_with(
-            self.disk_setup.boot_partition_size(), 0
+            format(self.disk_setup.boot_partition_size()), 0
         )
         disk.create_swap_partition.assert_called_once_with(
             '128'
@@ -567,7 +567,7 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         disk.create_boot_partition.assert_called_once_with(
-            self.disk_setup.boot_partition_size(), 1
+            format(self.disk_setup.boot_partition_size()), 1
         )
         disk.create_root_partition.assert_called_once_with(
             'clone:458:458', 1
@@ -833,7 +833,7 @@ class TestDiskBuilder:
             self.firmware.get_efi_partition_size()
         )
         disk.create_boot_partition.assert_called_once_with(
-            self.disk_setup.boot_partition_size(), 0
+            format(self.disk_setup.boot_partition_size()), 0
         )
         disk.create_prep_partition.assert_called_once_with(
             self.firmware.get_prep_partition_size()
