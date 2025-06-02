@@ -91,18 +91,21 @@ class RuntimeChecker:
             ACLs or xattrs. The image build may fail or the resulting
             image misbehave.
         ''')
-        support_target_filesystem = [
-            'tmpfs', 'btrfs', 'xfs', 'ext2', 'ext3', 'ext4', 'ext2/ext3'
-        ]
-        stat = Command.run(
-            ['stat', '-f', '-c', '%T', target_dir]
-        )
+        stat = Command.run(['stat', '-f', '-c', '%T', target_dir])
         if stat:
             target_fs = stat.output.strip()
-            if target_fs not in support_target_filesystem:
-                raise KiwiRuntimeError(
-                    message.format(target_fs, target_dir)
-                )
+            supported_target_filesystem = (
+                'btrfs',
+                'ext2',
+                'ext2/ext3',
+                'ext3',
+                'ext4',
+                'overlayfs',
+                'tmpfs',
+                'xfs',
+            )
+            if target_fs not in supported_target_filesystem:
+                raise KiwiRuntimeError(message.format(target_fs, target_dir))
 
     def check_include_references_unresolvable(self) -> None:
         """
