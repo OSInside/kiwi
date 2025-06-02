@@ -63,8 +63,7 @@ class FileSystemBuilder:
             self.requested_filesystem = self.requested_image_type
         if not self.requested_filesystem:
             raise KiwiFileSystemSetupError(
-                'No filesystem configured in %s type' %
-                self.requested_image_type
+                f'No filesystem configured in {self.requested_image_type} type'
             )
         self.filesystem_custom_parameters = {
             'mount_options': xml_state.get_fs_mount_option_list(),
@@ -120,7 +119,7 @@ class FileSystemBuilder:
         supported_filesystems = Defaults.get_filesystem_image_types()
         if self.requested_filesystem not in supported_filesystems:
             raise KiwiFileSystemSetupError(
-                'Unknown filesystem: %s' % self.requested_filesystem
+                f'Unknown filesystem: {self.requested_filesystem}'
             )
         if self.requested_filesystem not in self.filesystems_no_device_node:
             self._operate_on_loop()

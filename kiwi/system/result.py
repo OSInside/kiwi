@@ -164,7 +164,7 @@ class Result:
                     )
         except Exception as e:
             raise KiwiResultError(
-                'Failed to pickle dump results: %s' % format(e)
+                f'Failed to pickle dump results: {format(e)}'
             )
 
     @staticmethod
@@ -179,14 +179,14 @@ class Result:
         """
         if not os.path.exists(filename):
             raise KiwiResultError(
-                'No result information %s found' % filename
+                f'No result information {filename} found'
             )
         try:
             with open(filename, 'rb') as result:
                 return pickle.load(result)
         except Exception as e:
             raise KiwiResultError(
-                'Failed to pickle load results: %s' % type(e).__name__
+                f'Failed to pickle load results: {type(e).__name__}'
             )
 
     @staticmethod

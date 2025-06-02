@@ -60,7 +60,7 @@ class SystemIdentifier:
         :param str filename: file path name
         """
         with open(filename, 'w') as identifier:
-            identifier.write('%s\n' % self.image_id)
+            identifier.write(f'{self.image_id}\n')
 
     def write_to_disk(self, device_provider: DeviceProvider) -> None:
         """

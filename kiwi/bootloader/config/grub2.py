@@ -104,7 +104,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.arch = arch
         else:
             raise KiwiBootLoaderGrubPlatformError(
-                'host architecture %s not supported for grub2 setup' % arch
+                f'host architecture {arch} not supported for grub2 setup'
             )
 
         if self.custom_args and 'grub_directory_name' in self.custom_args:
@@ -417,7 +417,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.config = template.substitute(parameters)
         except Exception as e:
             raise KiwiTemplateError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
@@ -488,7 +488,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.config = template.substitute(parameters)
         except Exception as e:
             raise KiwiTemplateError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )
         if self.firmware.efi_mode() and self.early_boot_script_efi:
             self._copy_grub_config_to_efi_path(
@@ -1511,7 +1511,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             )
         except Exception as e:
             raise KiwiBootLoaderGrubModulesError(
-                'Module synchronisation failed with: %s' % format(e)
+                f'Module synchronisation failed with: {format(e)}'
             )
 
     def _get_shim_install(self):
@@ -1656,7 +1656,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 start_track = int(fdasd_output.split(' ')[2].lstrip())
             except Exception:
                 raise KiwiDiskGeometryError(
-                    'unknown partition format: %s' % fdasd_output
+                    f'unknown partition format: {fdasd_output}'
                 )
             return '{0}'.format(start_track * blocks)
         else:
@@ -1699,7 +1699,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             return int(fdasd_output.split(':')[1].lstrip())
         except Exception:
             raise KiwiDiskGeometryError(
-                'unknown format for disk geometry: %s' % fdasd_output
+                f'unknown format for disk geometry: {fdasd_output}'
             )
 
     def _create_loopback_config(self, filename):
@@ -1720,6 +1720,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         template_path = os.path.join(os.path.abspath(self.xml_state.xml_data.description_dir),
                                      self.xml_state.build_type.bootloader[0].get_grub_template())
         if not os.path.exists(template_path):
-            raise KiwiFileNotFound('failed to locate custom GRUB template %s' % template_file)
+            raise KiwiFileNotFound(f'failed to locate custom GRUB template {template_file}')
 
         return template_path

@@ -47,7 +47,7 @@ class DiskFormatOva(DiskFormatBase):
         """
         ovftype = self.xml_state.get_build_type_machine_section().get_ovftype()
         if ovftype != 'vmware':
-            raise KiwiFormatSetupError('Unsupported ovftype %s' % ovftype)
+            raise KiwiFormatSetupError(f'Unsupported ovftype {ovftype}')
         self.image_format = 'ova'
         self.options = self.get_qemu_option_list(custom_args)
         self.vmdk = DiskFormatVmdk(

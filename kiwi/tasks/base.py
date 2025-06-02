@@ -175,7 +175,7 @@ class CliTask:
 
         if not os.path.exists(config_file):
             raise KiwiConfigFileNotFound(
-                'no XML description found in %s' % description_directory
+                f'no XML description found in {description_directory}'
             )
 
         self.description = XMLDescription(

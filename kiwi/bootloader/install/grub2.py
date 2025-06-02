@@ -176,8 +176,7 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
             self.install_arguments.append('--no-nvram')
         else:
             raise KiwiBootLoaderGrubPlatformError(
-                'host architecture %s not supported for grub2 installation' %
-                self.arch
+                f'host architecture {self.arch} not supported for grub2 installation'
             )
 
         with ExitStack() as stack:

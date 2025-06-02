@@ -89,7 +89,7 @@ class PartitionerMsDos(PartitionerBase):
         """
         if flag_name not in self.flag_map:
             raise KiwiPartitionerMsDosFlagError(
-                'Unknown partition flag %s' % flag_name
+                f'Unknown partition flag {flag_name}'
             )
         flag_val = self.flag_map[flag_name]
         if flag_val:

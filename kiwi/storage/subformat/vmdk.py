@@ -171,5 +171,5 @@ class DiskFormatVmdk(DiskFormatBase):
                     config.write(custom_entry + os.linesep)
         except Exception as e:
             raise KiwiTemplateError(
-                '%s: %s' % (type(e).__name__, format(e))
+                f'{type(e).__name__}: {format(e)}'
             )

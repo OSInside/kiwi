@@ -381,7 +381,7 @@ class BootLoaderConfigBase(ABC):
         """
         if target != 'disk' and target != 'iso':
             raise KiwiBootLoaderTargetError(
-                'Invalid boot loader target %s' % target
+                f'Invalid boot loader target {target}'
             )
         bootpath = '/boot'
         need_boot_partition = False
