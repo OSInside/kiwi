@@ -84,7 +84,7 @@ class BootImageBase:
 
         if not os.path.exists(target_dir):
             raise KiwiTargetDirectoryNotFound(
-                'target directory %s not found' % target_dir
+                f'target directory {target_dir} not found'
             )
 
         self.initrd_base_name = ''.join(
@@ -223,8 +223,7 @@ class BootImageBase:
                     kernel_version='none', kernel_filename='none'
                 )
             raise KiwiDiskBootImageError(
-                'No kernel in boot image tree %s found' %
-                self.boot_root_directory
+                f'No kernel in boot image tree {self.boot_root_directory} found'
             )
         dracut_output_format = self._get_boot_image_output_file_format(
             kernel_info.version
@@ -294,8 +293,7 @@ class BootImageBase:
         boot_config_file = boot_description_directory + '/config.xml'
         if not os.path.exists(boot_config_file):
             raise KiwiConfigFileNotFound(
-                'no Boot XML description found in %s' %
-                boot_description_directory
+                f'no Boot XML description found in {boot_description_directory}'
             )
         boot_description = XMLDescription(
             description=boot_config_file,

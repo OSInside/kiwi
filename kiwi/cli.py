@@ -297,5 +297,5 @@ class Cli:
             return docopt(self.command_loaded.__doc__, argv=argv)
         except Exception:
             raise KiwiCommandNotLoaded(
-                '%s command not loaded' % self.get_command()
+                f'{self.get_command()} command not loaded'
             )

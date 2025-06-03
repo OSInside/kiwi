@@ -118,7 +118,7 @@ class DiskFormatVhdFixed(DiskFormatBase):
         )
         if not tag_format:
             raise KiwiVhdTagError(
-                'disk tag %s does not match format' % tag
+                f'disk tag {tag} does not match format'
             )
 
         # pack first nibble into 4 byte unsigned long type

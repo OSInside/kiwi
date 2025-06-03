@@ -105,7 +105,7 @@ class LuksDevice(DeviceProvider):
                 options += self.option_map[osname]
             else:
                 raise KiwiLuksSetupError(
-                    'no custom option configuration found for OS %s' % osname
+                    f'no custom option configuration found for OS {osname}'
                 )
         extra_options = []
         storage_device = self.storage_provider.get_device()
@@ -130,7 +130,7 @@ class LuksDevice(DeviceProvider):
                 [
                     'dd', 'if=/dev/urandom', 'bs=1M',
                     'count=%d' % storage_size_mbytes,
-                    'of=%s' % storage_device
+                    f'of={storage_device}'
                 ]
             )
 

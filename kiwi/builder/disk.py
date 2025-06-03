@@ -1714,8 +1714,8 @@ class DiskBuilder:
                 Command.run(
                     [
                         'dd',
-                        'if=%s' % squashed_root_file.name,
-                        'of=%s' % readonly_target
+                        f'if={squashed_root_file.name}',
+                        f'of={readonly_target}'
                     ]
                 )
                 if self.root_filesystem_embed_verity_metadata:
@@ -1779,8 +1779,8 @@ class DiskBuilder:
             Command.run(
                 [
                     'dd',
-                    'if=%s' % verity_root_file.name,
-                    'of=%s' % root_target
+                    f'if={verity_root_file.name}',
+                    f'of={root_target}'
                 ]
             )
             if self.root_filesystem_embed_verity_metadata:

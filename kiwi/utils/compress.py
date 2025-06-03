@@ -49,7 +49,7 @@ class Compress:
     ) -> None:
         if not os.path.exists(source_filename):
             raise KiwiFileNotFound(
-                'compression source file %s not found' % source_filename
+                f'compression source file {source_filename} not found'
             )
         self.keep_source = keep_source_on_compress
         self.source_filename = source_filename
@@ -104,8 +104,7 @@ class Compress:
         zipper = self.get_format()
         if not zipper:
             raise KiwiCompressionFormatUnknown(
-                'could not detect compression format for %s' %
-                self.source_filename
+                f'could not detect compression format for {self.source_filename}'
             )
         if not temporary:
             Command.run([zipper, '-d', self.source_filename])

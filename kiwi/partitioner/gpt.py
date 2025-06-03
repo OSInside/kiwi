@@ -96,7 +96,7 @@ class PartitionerGpt(PartitionerBase):
         """
         if flag_name not in self.flag_map:
             raise KiwiPartitionerGptFlagError(
-                'Unknown partition flag %s' % flag_name
+                f'Unknown partition flag {flag_name}'
             )
         if self.flag_map[flag_name]:
             Command.run(

@@ -164,7 +164,7 @@ class DiskFormatBase:
         if format_name != 'raw':
             if format_name not in Defaults.get_disk_format_types():
                 raise KiwiFormatSetupError(
-                    'unsupported disk format %s' % format_name
+                    f'unsupported disk format {format_name}'
                 )
         return ''.join(
             [

@@ -109,8 +109,7 @@ class VolumeManagerLVM(VolumeManagerBase):
 
         if self._volume_group_in_use_on_host_system(volume_group_name):
             raise KiwiVolumeGroupConflict(
-                'Requested volume group %s is in use on this host' %
-                volume_group_name
+                f'Requested volume group {volume_group_name} is in use on this host'
             )
         log.info(
             'Creating volume group %s', volume_group_name
