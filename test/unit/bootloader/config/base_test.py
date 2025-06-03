@@ -249,24 +249,6 @@ class TestBootLoaderConfigBase:
 
     @patch('kiwi.bootloader.config.base.DiskSetup')
     @patch('kiwi.xml_parse.type_.get_filesystem')
-    @patch('kiwi.xml_state.XMLState.get_volumes')
-    def test_get_boot_path_btrfs_boot_is_a_volume_error(
-        self, mock_volumes, mock_fs, mock_disk_setup
-    ):
-        volume = Mock()
-        volume.name = 'boot'
-        mock_volumes.return_value = [volume]
-        mock_fs.return_value = 'btrfs'
-        disk_setup = Mock()
-        disk_setup.need_boot_partition = Mock(
-            return_value=False
-        )
-        mock_disk_setup.return_value = disk_setup
-        with raises(KiwiBootLoaderTargetError):
-            self.bootloader.get_boot_path()
-
-    @patch('kiwi.bootloader.config.base.DiskSetup')
-    @patch('kiwi.xml_parse.type_.get_filesystem')
     @patch('kiwi.xml_parse.type_.get_btrfs_root_is_snapper_snapshot')
     @patch('kiwi.xml_state.XMLState.get_volumes')
     def test_get_boot_path_btrfs_no_snapshot(

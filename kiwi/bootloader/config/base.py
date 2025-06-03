@@ -397,22 +397,6 @@ class BootLoaderConfigBase(ABC):
                     # according to the mount path.
                     bootpath = '/'
 
-        if target == 'disk':
-            if not need_boot_partition:
-                filesystem = self.xml_state.build_type.get_filesystem()
-                volumes = self.xml_state.get_volumes()
-                if filesystem == 'btrfs' and volumes:
-                    # grub boot data paths must not be in a subvolume
-                    # otherwise grub won't be able to find its config file
-                    grub2_boot_data_paths = ['boot', 'boot/grub', 'boot/grub2']
-                    for volume in volumes:
-                        if volume.name in grub2_boot_data_paths:
-                            raise KiwiBootLoaderTargetError(
-                                '{0} must not be a subvolume'.format(
-                                    volume.name
-                                )
-                            )
-
         if target == 'iso':
             bootpath = '/boot/' + self.arch + '/loader'
 
@@ -541,9 +525,6 @@ class BootLoaderConfigBase(ABC):
         if not self.root_mount.device == self.boot_mount.device:
             self.boot_mount.mount()
 
-        if efi_device:
-            self.efi_mount.mount()
-
         if volumes:
             for volume_path in Path.sort_by_hierarchy(
                 sorted(volumes.keys())
@@ -556,6 +537,9 @@ class BootLoaderConfigBase(ABC):
                 volume_mount.mount(
                     options=[volumes[volume_path]['volume_options']]
                 )
+
+        if efi_device:
+            self.efi_mount.mount()
 
         if self.root_filesystem_is_overlay:
             # In case of an overlay root system all parts of the rootfs
@@ -600,6 +584,10 @@ class BootLoaderConfigBase(ABC):
             setup = SystemSetup(self.xml_state, self.root_mount.mountpoint)
             setup.setup_selinux_file_contexts()
             # Umount system
+            if self.efi_mount:
+                self.efi_mount.umount()
+            if self.boot_mount:
+                self.boot_mount.umount()
             for volume_mount in reversed(self.volumes_mount):
                 volume_mount.umount()
             if self.device_mount:
@@ -608,14 +596,10 @@ class BootLoaderConfigBase(ABC):
                 self.proc_mount.umount()
             if self.sys_mount:
                 self.sys_mount.umount()
-            if self.efi_mount:
-                self.efi_mount.umount()
             if self.tmp_mount:
                 self.tmp_mount.umount()
             if self.etc_kernel_mount:
                 self.etc_kernel_mount.umount()
-            if self.boot_mount:
-                self.boot_mount.umount()
             if self.root_mount:
                 self.root_mount.umount()
             self.system_is_mounted = False
