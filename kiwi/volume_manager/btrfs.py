@@ -26,10 +26,12 @@ from typing import List
 
 # project
 from kiwi.command import Command
+from kiwi.chroot_manager import ChrootManager
 from kiwi.volume_manager.base import VolumeManagerBase
 from kiwi.mount_manager import MountManager
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.filesystem import FileSystem
+from kiwi.utils.command_capabilities import CommandCapabilities
 from kiwi.utils.sync import DataSync
 from kiwi.utils.block import BlockID
 from kiwi.utils.sysconfig import SysConfig
@@ -135,24 +137,11 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 ['btrfs', 'subvolume', 'create', root_volume]
             )
         if self.custom_args['root_is_snapper_snapshot']:
-            snapshot_volume = self.mountpoint + \
-                f'/{self.root_volume_name}/.snapshots'
-            Command.run(
-                ['btrfs', 'subvolume', 'create', snapshot_volume]
-            )
-            os.chmod(snapshot_volume, 0o700)
-            Path.create(snapshot_volume + '/1')
-            snapshot = self.mountpoint + \
-                f'/{self.root_volume_name}/.snapshots/1/snapshot'
-            Command.run(
-                ['btrfs', 'subvolume', 'create', snapshot]
-            )
-            self._set_default_volume(
-                f'{self.root_volume_name}/.snapshots/1/snapshot'
-            )
-            snapshot = self.mountpoint + \
-                f'/{self.root_volume_name}/.snapshots/1/snapshot'
+            self._create_first_snapper_snapshot_as_default()
+
             # Mount /{some-name}/.snapshots as /.snapshots inside the root
+            snapshot = self.mountpoint + \
+                f'/{self.root_volume_name}/.snapshots/1/snapshot'
             snapshots_mount = MountManager(
                 device=self.device,
                 attributes={
@@ -413,19 +402,17 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         """
         if self.toplevel_mount:
             sync_target = self.get_mountpoint()
-            if self.custom_args['root_is_snapper_snapshot']:
-                self._create_snapshot_info(
-                    ''.join(
-                        [
-                            self.mountpoint,
-                            f'/{self.root_volume_name}/.snapshots/1/info.xml'
-                        ]
-                    )
-                )
             data = DataSync(self.root_dir, sync_target)
             data.sync_data(
                 options=Defaults.get_sync_options(), exclude=exclude
             )
+            if self.custom_args['root_is_snapper_snapshot']:
+                self._create_snapshot_info(
+                    os.sep.join([
+                        self.mountpoint,
+                        f'{self.root_volume_name}/.snapshots/1'
+                    ])
+                )
             if self.custom_args['quota_groups'] and \
                self.custom_args['root_is_snapper_snapshot']:
                 self._create_snapper_quota_configuration()
@@ -528,10 +515,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             config_file = self._set_snapper_sysconfig_file(root_path)
             if not os.path.exists(config_file):
                 shutil.copyfile(snapper_default_conf, config_file)
-            Command.run([
-                'chroot', root_path, 'snapper', '--no-dbus', 'set-config',
-                'QGROUP=1/0'
-            ])
+            with ChrootManager(root_path) as chroot:
+                chroot.run([
+                    'snapper', '--no-dbus', 'set-config', 'QGROUP=1/0'
+                ])
 
     @staticmethod
     def _set_snapper_sysconfig_file(root_path):
@@ -554,24 +541,66 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             sysconf_file['SNAPPER_CONFIGS'].strip('\"')]
         )
 
-    def _create_snapshot_info(self, filename):
-        date_info = datetime.datetime.now()
-        snapshot = ElementTree.Element('snapshot')
+    def _create_first_snapper_snapshot_as_default(self):
+        if CommandCapabilities.check_version(
+            'snapper', (0, 12, 1), root=self.root_dir
+        ):
+            with ChrootManager(
+                self.root_dir, binds=[self.mountpoint]
+            ) as chroot:
+                chroot.run([
+                    '/usr/lib/snapper/installation-helper', '--root-prefix',
+                    os.sep.join([self.mountpoint, self.root_volume_name]),
+                    '--step', 'filesystem'
+                ])
+        else:
+            snapshot_volume = self.mountpoint + \
+                f'/{self.root_volume_name}/.snapshots'
+            Command.run(
+                ['btrfs', 'subvolume', 'create', snapshot_volume]
+            )
+            os.chmod(snapshot_volume, 0o700)
+            Path.create(snapshot_volume + '/1')
+            snapshot = self.mountpoint + \
+                f'/{self.root_volume_name}/.snapshots/1/snapshot'
+            Command.run(
+                ['btrfs', 'subvolume', 'create', snapshot]
+            )
+            self._set_default_volume(
+                f'{self.root_volume_name}/.snapshots/1/snapshot'
+            )
 
-        snapshot_type = ElementTree.SubElement(snapshot, 'type')
-        snapshot_type.text = 'single'
+    def _create_snapshot_info(self, path):
+        if CommandCapabilities.check_version(
+            'snapper', (0, 12, 1), root=self.mountpoint
+        ):
+            snapshots_prefix = os.sep.join([path, '.snapshots'])
+            with ChrootManager(
+                self.root_dir, binds=[path, snapshots_prefix]
+            ) as chroot:
+                chroot.run([
+                    '/usr/lib/snapper/installation-helper', '--root-prefix',
+                    path, '--step', 'config', '--description',
+                    'first root filesystem'
+                ])
+        else:
+            date_info = datetime.datetime.now()
+            snapshot = ElementTree.Element('snapshot')
 
-        snapshot_number = ElementTree.SubElement(snapshot, 'num')
-        snapshot_number.text = '1'
+            snapshot_type = ElementTree.SubElement(snapshot, 'type')
+            snapshot_type.text = 'single'
 
-        snapshot_description = ElementTree.SubElement(snapshot, 'description')
-        snapshot_description.text = 'first root filesystem'
+            snapshot_number = ElementTree.SubElement(snapshot, 'num')
+            snapshot_number.text = '1'
 
-        snapshot_date = ElementTree.SubElement(snapshot, 'date')
-        snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
+            snapshot_description = ElementTree.SubElement(snapshot, 'description')
+            snapshot_description.text = 'first root filesystem'
 
-        with open(filename, 'w') as snapshot_info_file:
-            snapshot_info_file.write(self._xml_pretty(snapshot))
+            snapshot_date = ElementTree.SubElement(snapshot, 'date')
+            snapshot_date.text = date_info.strftime("%Y-%m-%d %H:%M:%S")
+
+            with open(os.path.join(path, 'info.xml'), 'w') as snapshot_info_file:
+                snapshot_info_file.write(self._xml_pretty(snapshot))
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.toplevel_mount:
