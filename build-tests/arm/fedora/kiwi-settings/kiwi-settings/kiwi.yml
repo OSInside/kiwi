@@ -1,2 +1,4 @@
+iso:
+  - media_tag_tool: isomd5sum
 oci:
   - archive_tool: buildah
