@@ -83,6 +83,7 @@ volume_type = NamedTuple(
 class DracutT(NamedTuple):
     uefi: bool
     modules: List[str]
+    drivers: List[str]
 
 
 class FileT(NamedTuple):
@@ -1465,6 +1466,7 @@ class XMLState:
         """
         uefi = False
         modules = []
+        drivers = []
         initrd_sections = self.build_type.get_initrd()
         for initrd_section in initrd_sections:
             if initrd_section.get_action() == action:
@@ -1472,8 +1474,10 @@ class XMLState:
                     uefi = bool(dracut.get_uefi())
                     if dracut.get_module():
                         modules.append(dracut.get_module())
+                    if dracut.get_driver():
+                        drivers.append(dracut.get_driver())
         return DracutT(
-            uefi=uefi, modules=modules
+            uefi=uefi, modules=modules, drivers=drivers
         )
 
     def get_installmedia_initrd_modules(self, action: str) -> List[str]:
@@ -1492,8 +1496,29 @@ class XMLState:
         for initrd_section in initrd_sections:
             if initrd_section.get_action() == action:
                 for module in initrd_section.get_dracut():
-                    modules.append(module.get_module())
+                    if module.get_module():
+                        modules.append(module.get_module())
         return modules
+
+    def get_installmedia_initrd_drivers(self, action: str) -> List[str]:
+        """
+        Gets the list of drivers to append in installation initrds
+
+        :return: a list of dracut driver names
+
+        :rtype: list
+        """
+        drivers: List[str] = []
+        installmedia = self.build_type.get_installmedia()
+        if not installmedia:
+            return drivers
+        initrd_sections = installmedia[0].get_initrd()
+        for initrd_section in initrd_sections:
+            if initrd_section.get_action() == action:
+                for driver in initrd_section.get_dracut():
+                    if driver.get_driver():
+                        drivers.append(driver.get_driver())
+        return drivers
 
     def get_build_type_size(
         self, include_unpartitioned: bool = False

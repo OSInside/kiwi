@@ -66,6 +66,9 @@ class BootImageDracut(BootImageBase):
         self.add_modules: List[str] = []
         self.omit_modules: List[str] = []
         self.available_modules = self._get_modules()
+        self.add_drivers: List[str] = []
+        self.omit_drivers: List[str] = []
+        self.available_drivers = self._get_drivers()
 
     def include_file(
         self, filename: str, install_media: bool = False,
@@ -117,6 +120,30 @@ class BootImageDracut(BootImageBase):
         """
         self.modules = modules
 
+    def include_driver(self, driver: str, install_media: bool = False) -> None:
+        """
+        Include driver to dracut boot image
+
+        :param str driver: driver to include
+        :param bool install_media: unused
+        """
+        warn_msg = 'driver "{0}" not included in initrd'.format(driver)
+        if self._driver_available(driver):
+            if driver not in self.add_drivers:
+                self.add_drivers.append(driver)
+        else:
+            log.warning(warn_msg)
+
+    def omit_driver(self, driver: str, install_media: bool = False) -> None:
+        """
+        Omit driver to dracut boot image
+
+        :param str driver: driver to omit
+        :param bool install_media: unused
+        """
+        if driver not in self.omit_drivers:
+            self.omit_drivers.append(driver)
+
     def write_system_config_file(
         self, config: Dict, config_file: Optional[str] = None
     ) -> None:
@@ -149,6 +176,20 @@ class BootImageDracut(BootImageBase):
             dracut_config.append(
                 'install_items+=" {0} "\n'.format(
                     ' '.join(config['install_items'])
+                )
+            )
+        if config.get('drivers'):
+            drivers = [
+                driver for driver in config['drivers']
+                if self._driver_available(driver)
+            ]
+            dracut_config.append(
+                'add_drivers+=" {0} "\n'.format(' '.join(drivers))
+            )
+        if config.get('omit_drivers'):
+            dracut_config.append(
+                'omit_drivers+=" {0} "\n'.format(
+                    ' '.join(config['omit_drivers'])
                 )
             )
         if dracut_config and config_file:
@@ -204,7 +245,14 @@ class BootImageDracut(BootImageBase):
             modules_args += [
                 '--omit', ' {0} '.format(' '.join(self.omit_modules))
             ] if self.omit_modules else []
-            options = self.dracut_options + modules_args + included_files
+            drivers_arg = [
+                '--drivers', ' {0} '.format(' '.join(self.add_drivers))
+            ] if self.add_drivers else []
+            drivers_arg += [
+                '--omit-drivers', ' {0} '.format(' '.join(self.omit_drivers))
+            ] if self.omit_drivers else []
+
+            options = self.dracut_options + modules_args + drivers_arg + included_files
             if kernel_details:
                 with ExitStack() as stack:
                     device_mount = MountManager(
@@ -284,7 +332,13 @@ class BootImageDracut(BootImageBase):
             modules_args += [
                 '--omit', ' {0} '.format(' '.join(self.omit_modules))
             ] if self.omit_modules else []
-            options = self.dracut_options + modules_args + included_files
+            drivers_arg = [
+                '--drivers', ' {0} '.format(' '.join(self.add_drivers))
+            ] if self.add_drivers else []
+            drivers_arg += [
+                '--omit-drivers', ' {0} '.format(' '.join(self.omit_drivers))
+            ] if self.omit_drivers else []
+            options = self.dracut_options + modules_args + drivers_arg + included_files
             if kernel_details:
                 with ExitStack() as stack:
                     device_mount = MountManager(
@@ -340,11 +394,41 @@ class BootImageDracut(BootImageBase):
         )
         return cmd.output.splitlines()
 
+    def _get_drivers(self) -> List[str]:
+        try:
+            kernel_version = Command.run([
+                'chroot', self.boot_root_directory,
+                'uname', '-r'
+            ]).output.strip()
+            cmd = Command.run(
+                [
+                    'chroot', self.boot_root_directory,
+                    'cat', f'/lib/modules/{kernel_version}/modules.dep'
+                ]
+            )
+            drivers = []
+            for line in cmd.output.splitlines():
+                if line:
+                    driver_path = line.split(':')[0].strip()
+                    driver_name = os.path.basename(driver_path).split('.ko')[0]
+                    drivers.append(driver_name)
+            return drivers
+        except Exception as e:
+            log.warning(f"Error reading drivers: {str(e)}")
+            return []
+
     def _module_available(self, module: str) -> bool:
         warn_msg = 'dracut module "{0}" not found in the root tree'
         if module in self.available_modules:
             return True
         log.warning(warn_msg.format(module))
+        return False
+
+    def _driver_available(self, driver: str) -> bool:
+        warn_msg = 'dracut driver "{0}" not found in the root tree'
+        if driver in self.available_drivers:
+            return True
+        log.warning(warn_msg.format(driver))
         return False
 
     def _create_profile_environment(self) -> None:

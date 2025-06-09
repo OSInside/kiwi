@@ -158,6 +158,8 @@ class DiskBuilder:
         self.dracut_setup = xml_state.get_dracut_config('setup')
         self.dracut_add_modules = xml_state.get_dracut_config('add').modules
         self.dracut_omit_modules = xml_state.get_dracut_config('omit').modules
+        self.dracut_add_drivers = xml_state.get_dracut_config('add').drivers
+        self.dracut_omit_drivers = xml_state.get_dracut_config('omit').drivers
         self.mdraid = xml_state.build_type.get_mdraid()
         self.hybrid_mbr = xml_state.build_type.get_gpt_hybrid_mbr()
         self.force_mbr = xml_state.build_type.get_force_mbr()
@@ -803,6 +805,10 @@ class DiskBuilder:
                 self.boot_image.include_module(module)
             for module in self.dracut_omit_modules:
                 self.boot_image.omit_module(module)
+            for driver in self.dracut_add_drivers:
+                self.boot_image.include_driver(driver)
+            for driver in self.dracut_omit_drivers:
+                self.boot_image.omit_driver(driver)
             if self.root_filesystem_is_multipath is False:
                 self.boot_image.omit_module('multipath')
             if self.root_filesystem_is_overlay:

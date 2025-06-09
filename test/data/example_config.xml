@@ -81,6 +81,7 @@
             <installmedia>
                 <initrd action="add">
                     <dracut module="network-legacy"/>
+                    <dracut driver="erofs"/>
                 </initrd>
             </installmedia>
         </type>
@@ -141,6 +142,7 @@
             </initrd>
             <initrd action="add">
                 <dracut module="some"/>
+                <dracut driver="driver"/>
             </initrd>
         </type>
         <type image="iso" mediacheck="true"/>
