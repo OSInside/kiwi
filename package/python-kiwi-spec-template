@@ -233,6 +233,8 @@ Provides:       kiwi-image:iso
 %endif
 %if 0%{?suse_version}
 Requires:       checkmedia
+%else
+Requires:       isomd5sum
 %endif
 Requires:       xorriso
 Requires:       kiwi-systemdeps-core = %{version}-%{release}
