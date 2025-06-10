@@ -1189,9 +1189,19 @@ class DiskBuilder:
                 (self.root_clone_count + 1) * squashed_rootfs_mbsize if \
                 self.root_clone_count else squashed_rootfs_mbsize
 
+        root_clone_count = self.root_clone_count
+        if self.root_filesystem_is_overlay:
+            # in overlay mode an eventual root clone is created from
+            # the root readonly partition and not from the root (rw)
+            # partition. Thus no further action needed here in this
+            # case
+            root_clone_count = 0
+
         if self.spare_part_mbsize and self.spare_part_is_last:
             rootfs_mbsize = disksize_mbytes - disksize_used_mbytes - \
                 self.spare_part_mbsize - Defaults.get_min_partition_mbytes()
+            if root_clone_count:
+                rootfs_mbsize = int(rootfs_mbsize / (root_clone_count + 1))
         else:
             if self.oem_systemsize and not self.oem_resize:
                 rootfs_mbsize = self.oem_systemsize
@@ -1209,18 +1219,13 @@ class DiskBuilder:
                 '--> overlayroot explicitly requested no write partition'
             )
         else:
-            root_clone_count = self.root_clone_count
-            if self.root_filesystem_is_overlay:
-                # in overlay mode an eventual root clone is created from
-                # the root readonly partition and not from the root (rw)
-                # partition. Thus no further action needed here in this
-                # case
-                root_clone_count = 0
             if root_clone_count:
                 if rootfs_mbsize == 'all_free':
+                    clone_rootfs_mbsize = disksize_mbytes - \
+                        disksize_used_mbytes - Defaults.get_min_partition_mbytes()
                     clone_rootfs_mbsize = int(
-                        (disksize_mbytes - disksize_used_mbytes) / (root_clone_count + 1)
-                    ) + Defaults.get_min_partition_mbytes()
+                        clone_rootfs_mbsize / (root_clone_count + 1)
+                    )
                     rootfs_mbsize = \
                         f'clone:{clone_rootfs_mbsize}:{clone_rootfs_mbsize}'
                 else:
@@ -1247,7 +1252,7 @@ class DiskBuilder:
                 )
                 disk.create_root_partition(rootfs_mbsize, root_clone_count)
 
-        if self.spare_part_mbsize and self.spare_part_is_last:
+        if self.spare_part_is_last:
             log.info('--> creating spare partition')
             disk.create_spare_partition(
                 'all_free'

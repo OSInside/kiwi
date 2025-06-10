@@ -570,7 +570,7 @@ class TestDiskBuilder:
             format(self.disk_setup.boot_partition_size()), 1
         )
         disk.create_root_partition.assert_called_once_with(
-            'clone:458:458', 1
+            'clone:443:443', 1
         )
         disk.create_custom_partitions.assert_called_once_with(
             self.disk_builder.custom_partitions
@@ -581,10 +581,23 @@ class TestDiskBuilder:
             call([self.device_map['rootclone1']])
         ]
 
+        # Test in spare part mode
+        self.disk_builder.spare_part_mbsize = 42
+        self.disk_builder.spare_part_is_last = True
+        disk.create_root_partition.reset_mock()
+        with patch('builtins.open', m_open, create=True):
+            self.disk_builder.create_disk()
+
+        disk.create_root_partition.assert_called_once_with(
+            'clone:422:422', 1
+        )
+
         # Test in overlay mode a root clone is created from
         # the root readonly partition and not from the root (rw)
         # partition.
         self.disk_builder.root_filesystem_is_overlay = True
+        self.disk_builder.spare_part_mbsize = None
+        self.disk_builder.spare_part_is_last = False
         disk.create_root_partition.reset_mock()
         with patch('builtins.open', m_open, create=True):
             self.disk_builder.create_disk()
