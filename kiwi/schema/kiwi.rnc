@@ -3629,10 +3629,14 @@ div {
     k.dracut.module.attribute =
         ## A module name
         attribute module { text }
+    k.dracut.driver.attribute =
+        ## A kernel driver name
+        attribute driver { text }
     k.dracut.uefi.attribute =
         attribute uefi { xsd:boolean }
     k.dracut.attlist =
         k.dracut.module.attribute? &
+        k.dracut.driver.attribute? &
         k.dracut.uefi.attribute?
     k.dracut =
         ## A dracut module

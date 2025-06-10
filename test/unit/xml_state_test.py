@@ -1260,12 +1260,21 @@ class TestXMLState:
         state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
         assert state.get_installmedia_initrd_modules('add') == []
 
+    def test_get_installintrd_driver(self):
+        assert self.state.get_installmedia_initrd_drivers('add') == \
+            ['erofs']
+        assert self.state.get_installmedia_initrd_drivers('omit') == []
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
+        assert state.get_installmedia_initrd_drivers('add') == []
+
     def test_get_dracut_config(self):
         assert self.state.get_dracut_config('setup').uefi is False
         xml_data = self.description.load()
         state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
         assert state.get_dracut_config('setup').uefi is True
         assert state.get_dracut_config('add').modules == ['some']
+        assert state.get_dracut_config('add').drivers == ['driver']
 
     @patch('kiwi.system.uri.os.path.abspath')
     def test_get_repositories_signing_keys(self, mock_root_path):

@@ -5448,6 +5448,11 @@ for the installation media.</a:documentation>
         <a:documentation>A module name</a:documentation>
       </attribute>
     </define>
+    <define name="k.dracut.driver.attribute">
+      <attribute name="driver">
+        <a:documentation>A driver name</a:documentation>
+      </attribute>
+    </define>
     <define name="k.dracut.uefi.attribute">
       <attribute name="uefi">
         <data type="boolean"/>
@@ -5457,6 +5462,9 @@ for the installation media.</a:documentation>
       <interleave>
         <optional>
           <ref name="k.dracut.module.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.dracut.driver.attribute"/>
         </optional>
         <optional>
           <ref name="k.dracut.uefi.attribute"/>
