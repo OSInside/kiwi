@@ -940,7 +940,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     Command.run(
                         ['cp', grub_image.filename, target_grub_image_name]
                     )
-        for shim_image in shim_images
+        for shim_image in shim_images:
             if shim_image.filename:
                 # FIXME: the name is no longer unique to target
                 target_efi_image_name = self._get_efi_image_name()
