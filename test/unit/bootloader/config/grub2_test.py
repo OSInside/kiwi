@@ -66,7 +66,19 @@ class TestBootLoaderConfigGrub2:
             'root_dir/boot/efi/': True,
             'root_dir/usr/share/grub2/powerpc-ieee1275': True
         }
+        # FIXME: list entries needs to be fixed
         self.glob_iglob = [
+            ['root_dir/usr/share/efi/*/grub.efi'],
+            ['root_dir/usr/lib64/efi/grub.efi'],
+            ['root_dir/boot/efi/EFI/*/grub*.efi'],
+            ['root_dir/usr/share/grub*/*-efi/grub.efi'],
+            ['root_dir/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed'],
+            ['root_dir/usr/lib/shim/shim*.efi.signed.latest'],
+            ['root_dir/usr/lib/shim/shim*.efi.signed'],
+            ['root_dir/usr/lib/grub/*-efi-signed'],
+            ['root_dir/usr/share/efi/*/shim.efi'],
+            ['root_dir/usr/lib64/efi/shim.efi'],
+            ['root_dir/boot/efi/EFI/*/shim[a-z]*.efi'],
             ['root_dir/usr/lib64/efi/MokManager.efi'],
             ['root_dir/usr/lib64/efi/shim.efi'],
             ['root_dir/usr/lib64/efi/grub.efi'],
@@ -1671,6 +1683,8 @@ class TestBootLoaderConfigGrub2:
             return self.os_exists[arg]
 
         def side_effect_glob(arg):
+            print(arg)
+            # FIXME
             return self.glob_iglob.pop()
 
         mock_glob.side_effect = side_effect_glob
@@ -1695,6 +1709,8 @@ class TestBootLoaderConfigGrub2:
                     'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'
                 )
 
+                # FIXME
+                print(mock_command.call_args_list)
                 assert mock_command.call_args_list == [
                     call(
                         [
@@ -1711,19 +1727,85 @@ class TestBootLoaderConfigGrub2:
                     ),
                     call(
                         [
-                            'cp', 'root_dir/usr/lib64/efi/shim.efi',
-                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
-                        ]
-                    ),
-                    call(
-                        [
                             'cp', 'root_dir/usr/lib64/efi/grub.efi',
                             'root_dir/boot/efi/EFI/BOOT/grub.efi'
                         ]
                     ),
                     call(
                         [
+                            'cp', 'root_dir/usr/lib64/efi/shim.efi',
+                            'root_dir/boot/efi/EFI/BOOT/shim.efi'
+                        ]
+                    ),
+                    call(
+                        [
                             'cp', 'root_dir/usr/lib64/efi/MokManager.efi',
+                            'root_dir/boot/efi/EFI/BOOT'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/boot/efi/EFI/*/shim[a-z]*.efi',
+                            'root_dir/boot/efi/EFI/BOOT/shim[a-z]*.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/lib64/efi/shim.efi',
+                            'root_dir/boot/efi/EFI/BOOT/grubx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/share/efi/*/shim.efi',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/lib/grub/*-efi-signed',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/lib/shim/shim*.efi.signed',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/lib/shim/shim*.efi.signed.latest',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/lib/grub/x86_64-efi-signed/grubx64.efi.signed',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/share/grub*/*-efi/grub.efi',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/boot/efi/EFI/*/grub*.efi',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/lib64/efi/grub.efi',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                        ]
+                    ),
+                    call(
+                        [
+                            'cp', 'root_dir/usr/share/efi/*/grub.efi',
                             'root_dir/boot/efi/EFI/BOOT'
                         ]
                     )
