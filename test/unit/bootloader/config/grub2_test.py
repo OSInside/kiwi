@@ -1321,7 +1321,7 @@ class TestBootLoaderConfigGrub2:
         Defaults.set_platform_name('x86_64')
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
         mock_get_boot_path.return_value = '/boot'
-        mock_get_unsigned_grub_loader.return_value = None
+        mock_get_unsigned_grub_loader.return_value = []
         self.firmware.efi_mode = Mock(
             return_value='efi'
         )
@@ -1379,7 +1379,7 @@ class TestBootLoaderConfigGrub2:
     ):
         Defaults.set_platform_name('x86_64')
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
-        mock_get_unsigned_grub_loader.return_value = None
+        mock_get_unsigned_grub_loader.return_value = []
         data = Mock()
         mock_sync.return_value = data
         self.firmware.efi_mode = Mock(
@@ -1456,7 +1456,7 @@ class TestBootLoaderConfigGrub2:
             call(exclude=['*.module'], options=['-a'])
         ]
 
-        mock_get_unsigned_grub_loader.return_value = 'custom_grub_image'
+        mock_get_unsigned_grub_loader.return_value = ['custom_grub_image']
         mock_command.reset_mock()
 
         with patch('builtins.open', create=True) as mock_open:
@@ -1745,7 +1745,7 @@ class TestBootLoaderConfigGrub2:
     ):
         # we expect the copy of grub.efi from the fallback
         # code if no shim was found at all
-        mock_get_shim_loader.return_value = None
+        mock_get_shim_loader.return_value = []
 
         Defaults.set_platform_name('x86_64')
         mock_get_boot_path.return_value = '/boot'
@@ -1922,7 +1922,7 @@ class TestBootLoaderConfigGrub2:
         Defaults.set_platform_name('x86_64')
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
         mock_get_boot_path.return_value = '/boot'
-        mock_get_unsigned_grub_loader.return_value = None
+        mock_get_unsigned_grub_loader.return_value = []
         mock_get_grub_platform_core_loader.return_value = None
         data = Mock()
         mock_sync.return_value = data
@@ -2072,7 +2072,7 @@ class TestBootLoaderConfigGrub2:
                 'boot_dir/EFI/BOOT/bootx64.efi'
             )
         ]
-        mock_get_unsigned_grub_loader.return_value = 'custom_grub_image'
+        mock_get_unsigned_grub_loader.return_value = ['custom_grub_image']
         mock_get_grub_platform_core_loader.return_value = 'custom_bios_grub_image'
         mock_command.reset_mock()
 
@@ -2127,7 +2127,7 @@ class TestBootLoaderConfigGrub2:
                 call('source ($root)/boot/grub2/grub.cfg\n'),
             ]
 
-        mock_get_unsigned_grub_loader.return_value = None
+        mock_get_unsigned_grub_loader.return_value = []
         self.state.get_dracut_config = Mock(
             return_value=DracutT(uefi=True, modules=[])
         )
