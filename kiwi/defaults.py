@@ -894,7 +894,7 @@ class Defaults:
         return 'SUSE LINUX GmbH'
 
     @staticmethod
-    def get_shim_loader(root_path: str) -> Optional[shim_loader_type]:
+    def get_shim_loader(root_path: str) -> List[shim_loader_type]:
         """
         Provides shim loader file path
 
@@ -907,32 +907,48 @@ class Defaults:
 
         :rtype: NamedTuple
         """
-
+        result = []
         shim_pattern_type = namedtuple(
             'shim_pattern_type', ['pattern', 'binaryname']
         )
-
         shim_file_patterns = [
-            shim_pattern_type('/usr/lib/shim/shim*.efi.signed.latest', 'shimx64.efi'),
-            shim_pattern_type('/usr/lib/shim/shim*.efi.signed', 'shimx64.efi'),
-            shim_pattern_type('/usr/lib/grub/*-efi-signed', 'shimx64.efi'),
-            shim_pattern_type('/usr/share/efi/*/shim.efi', None),
-            shim_pattern_type('/usr/lib64/efi/shim.efi', None),
-            shim_pattern_type('/boot/efi/EFI/*/shim[a-z]*.efi', None),
-            shim_pattern_type('/boot/efi/EFI/*/shim.efi', None),
-            shim_pattern_type('/usr/lib/shim/shim*.efi', None)
+            shim_pattern_type(
+                '/usr/lib/shim/shim*.efi.signed.latest', 'shimx64.efi'
+            ),
+            shim_pattern_type(
+                '/usr/lib/shim/shim*.efi.signed', 'shimx64.efi'
+            ),
+            shim_pattern_type(
+                '/usr/lib/grub/*-efi-signed', 'shimx64.efi'
+            ),
+            shim_pattern_type(
+                '/usr/share/efi/*/shim.efi', None
+            ),
+            shim_pattern_type(
+                '/usr/lib64/efi/shim.efi', None
+            ),
+            shim_pattern_type(
+                '/boot/efi/EFI/*/shim[a-z]*.efi', None
+            ),
+            shim_pattern_type(
+                '/boot/efi/EFI/*/shim.efi', None
+            ),
+            shim_pattern_type(
+                '/usr/lib/shim/shim*.efi', None
+            )
         ]
         for shim_file_pattern in shim_file_patterns:
-            for shim_file in sorted(glob.iglob(root_path + shim_file_pattern.pattern), key=len):
+            for shim_file in sorted(
+                glob.iglob(root_path + shim_file_pattern.pattern), key=len
+            ):
                 if not shim_file_pattern.binaryname:
                     binaryname = os.path.basename(shim_file)
                 else:
                     binaryname = shim_file_pattern.binaryname
-                return shim_loader_type(
-                    shim_file, binaryname
+                result.append(
+                    shim_loader_type(shim_file, binaryname)
                 )
-
-        return None
+        return result
 
     @staticmethod
     def get_mok_manager(root_path: str) -> Optional[str]:
@@ -980,7 +996,7 @@ class Defaults:
     @staticmethod
     def get_unsigned_grub_loader(
         root_path: str, target_type: str = 'disk'
-    ) -> Optional[str]:
+    ) -> List[str]:
         """
         Provides unsigned grub efi loader file path
 
@@ -993,6 +1009,7 @@ class Defaults:
 
         :rtype: str
         """
+        result = []
         unsigned_grub_file = None
         unsigned_grub_file_patterns = {
             'disk': [
@@ -1013,8 +1030,8 @@ class Defaults:
             for unsigned_grub_file in glob.iglob(
                 root_path + unsigned_grub_file_pattern
             ):
-                return unsigned_grub_file
-        return None
+                result.append(unsigned_grub_file)
+        return result
 
     @staticmethod
     def get_grub_chrp_loader(boot_path: str) -> str:
@@ -1094,7 +1111,7 @@ class Defaults:
     @staticmethod
     def get_signed_grub_loader(
         root_path: str, target_type: str = 'disk'
-    ) -> Optional[grub_loader_type]:
+    ) -> List[grub_loader_type]:
         """
         Provides shim signed grub loader file path
 
@@ -1107,6 +1124,7 @@ class Defaults:
 
         :rtype: NamedTuple
         """
+        result = []
         grub_pattern_type = namedtuple(
             'grub_pattern_type', ['pattern', 'binaryname']
         )
@@ -1163,10 +1181,10 @@ class Defaults:
                     binaryname = os.path.basename(signed_grub_file)
                 else:
                     binaryname = signed_grub.binaryname
-                return grub_loader_type(
-                    signed_grub_file, binaryname
+                result.append(
+                    grub_loader_type(signed_grub_file, binaryname)
                 )
-        return None
+        return result
 
     @staticmethod
     def get_efi_vendor_directory(efi_path):

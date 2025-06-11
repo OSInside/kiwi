@@ -915,51 +915,56 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         log.warning(
             'Running fallback setup for shim secure boot efi image'
         )
-        # TODO: allow 64bit and 32bit efi image to be copied
         if not lookup_path:
             lookup_path = self.boot_dir
-        grub_image = Defaults.get_signed_grub_loader(lookup_path, target_type)
-        if not grub_image:
+        grub_images = Defaults.get_signed_grub_loader(lookup_path, target_type)
+        shim_images = Defaults.get_shim_loader(lookup_path)
+        if not grub_images or not shim_images:
             raise KiwiBootLoaderGrubSecureBootError(
-                'Signed grub2 efi loader not found'
+                'Signed shim and/or grub2 efi loader not found'
             )
-        shim_image = Defaults.get_shim_loader(lookup_path)
-        if shim_image and shim_image.filename:
-            # The shim concept is based on a two step system including a
-            # grub image(shim) that got signed by Microsoft followed by
-            # a grub image that got signed by the shim. The shim image
-            # is the one that gets loaded by the firmware which itself
-            # loads the second stage grub image
-            target_efi_image_name = self._get_efi_image_name()
-            target_grub_image_name = os.sep.join(
-                [self.efi_boot_path, grub_image.binaryname]
-            )
-            if not os.path.isfile(target_efi_image_name):
-                log.info(
-                    f'--> Using shim image: {shim_image.filename}'
+        # The shim concept is based on a two step system including a
+        # grub image(shim) that got signed by Microsoft followed by
+        # a grub image that got signed by the shim. The shim image
+        # is the one that gets loaded by the firmware which itself
+        # loads the second stage grub image
+        for grub_image in grub_images:
+            if grub_image.binaryname:
+                target_grub_image_name = os.sep.join(
+                    [self.efi_boot_path, grub_image.binaryname]
                 )
-                Command.run(
-                    ['cp', shim_image.filename, target_efi_image_name]
-                )
-            if not os.path.isfile(target_grub_image_name):
-                log.info(
-                    f'--> Using grub image: {grub_image.filename}'
-                )
-                Command.run(
-                    ['cp', grub_image.filename, target_grub_image_name]
-                )
-            mok_manager = Defaults.get_mok_manager(lookup_path)
-            if mok_manager:
-                target_mok_manager = os.sep.join(
-                    [self.efi_boot_path, os.path.basename(mok_manager)]
-                )
-                if not os.path.isfile(target_mok_manager):
+                if not os.path.isfile(target_grub_image_name):
                     log.info(
-                        f'--> Using mok image: {mok_manager}'
+                        f'--> Using grub image: {grub_image.filename}'
                     )
                     Command.run(
-                        ['cp', mok_manager, self.efi_boot_path]
+                        ['cp', grub_image.filename, target_grub_image_name]
                     )
+        for shim_image in shim_images
+            if shim_image.filename:
+                # FIXME: the name is no longer unique to target
+                target_efi_image_name = self._get_efi_image_name()
+
+                if not os.path.isfile(target_efi_image_name):
+                    log.info(
+                        f'--> Using shim image: {shim_image.filename}'
+                    )
+                    Command.run(
+                        ['cp', shim_image.filename, target_efi_image_name]
+                    )
+        # mok manager
+        mok_manager = Defaults.get_mok_manager(lookup_path)
+        if mok_manager:
+            target_mok_manager = os.sep.join(
+                [self.efi_boot_path, os.path.basename(mok_manager)]
+            )
+            if not os.path.isfile(target_mok_manager):
+                log.info(
+                    f'--> Using mok image: {mok_manager}'
+                )
+                Command.run(
+                    ['cp', mok_manager, self.efi_boot_path]
+                )
         else:
             # Without shim a self signed grub image is used that
             # gets loaded by the firmware
@@ -986,13 +991,16 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
         if not lookup_path:
             lookup_path = self.boot_dir
-        grub_image = Defaults.get_unsigned_grub_loader(lookup_path, target_type)
-        if grub_image and self.xml_state.build_type.get_overlayroot_write_partition() is not False:
-            log.info(f'--> Using prebuilt unsigned efi image: {grub_image}')
-            # TODO: allow both 64bit and 32bit efi image to be copied
-            Command.run(
-                ['cp', grub_image, self._get_efi_image_name()]
-            )
+        grub_images = Defaults.get_unsigned_grub_loader(
+            lookup_path, target_type
+        )
+        can_write = self.xml_state.build_type.get_overlayroot_write_partition()
+        if grub_images and can_write is not False:
+            for grub_image in grub_images:
+                log.info(f'--> Using prebuilt unsigned efi image: {grub_image}')
+                Command.run(
+                    ['cp', grub_image, self._get_efi_image_name()]
+                )
             self._create_efi_config_search(uuid, efi_uuid, mbrid)
         else:
             log.info('--> Creating unsigned efi image')
