@@ -5450,7 +5450,7 @@ for the installation media.</a:documentation>
     </define>
     <define name="k.dracut.driver.attribute">
       <attribute name="driver">
-        <a:documentation>A driver name</a:documentation>
+        <a:documentation>A kernel driver name</a:documentation>
       </attribute>
     </define>
     <define name="k.dracut.uefi.attribute">

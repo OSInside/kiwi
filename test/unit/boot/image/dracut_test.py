@@ -12,19 +12,22 @@ from kiwi.boot.image.base import boot_names_type
 
 class TestBootImageKiwi:
     @patch('kiwi.boot.image.dracut.Command.run')
+    @patch('kiwi.boot.image.dracut.Kernel')
     @patch('kiwi.boot.image.base.os.path.exists')
-    def setup(self, mock_exists, mock_cmd):
+    def setup(self, mock_exists, mock_kernel_class, mock_cmd):
         Defaults.set_platform_name('x86_64')
         mock_exists.return_value = True
+        kernel_type = namedtuple('kernel_type', ['version'])
+        mock_kernel_instance = mock_kernel_class.return_value
+        mock_kernel_instance.get_kernel.return_value = kernel_type(version='1.0.0-kernel')
         command_type = namedtuple('command', ['output'])
         mock_cmd.side_effect = [
             command_type(output='foo\nfoobar\nmodule'),  # for dracut --list-modules
-            command_type(output='1.0.0-kernel\n'),       # for uname -r
             command_type(output='''
             kernel/drivers/net/ethernet/intel/driver2/driver2.ko: kernel/drivers/net/driver1.ko
             kernel/drivers/gpu/drm/i915/driver3.ko: kernel/drivers/video/other_driver/core/other_driver.ko
             kernel/drivers/usb/host/driver1.ko:
-            '''.strip())                                 # for cat modules.dep
+            ''')                                         # for cat modules.dep
         ]
         description = XMLDescription('../data/example_config.xml')
         self.xml_state = XMLState(
@@ -35,7 +38,6 @@ class TestBootImageKiwi:
         )
         assert mock_cmd.call_args_list == [
             call(['chroot', 'system-directory', 'dracut', '--list-modules', '--no-kernel']),
-            call(['chroot', 'system-directory', 'uname', '-r']),
             call(['chroot', 'system-directory', 'cat', '/lib/modules/1.0.0-kernel/modules.dep'])
         ]
 
@@ -320,42 +322,67 @@ class TestBootImageKiwi:
         assert self.boot_image.dracut_options == ['option', 'value']
 
     @patch('kiwi.boot.image.dracut.Command.run')
-    def test_get_drivers(self, mock_command):
+    @patch('kiwi.boot.image.dracut.Kernel')
+    def test_get_drivers(self, mock_kernel_class, mock_command):
+        kernel_type = namedtuple('kernel_type', ['version'])
+        mock_kernel_instance = mock_kernel_class.return_value
+        mock_kernel_instance.get_kernel.return_value = kernel_type(version='1.0.0-kernel')
+
         mock_command.reset_mock()
         command_type = namedtuple('command', ['output'])
-        mock_command.side_effect = [
-            command_type(output='1.0.0-kernel\n'),      # for uname -r
-            command_type(output='''
+        mock_command.return_value = command_type(
+            output='''
             kernel/drivers/net/ethernet/intel/driver2/driver2.ko: kernel/drivers/net/driver1.ko
             kernel/drivers/gpu/drm/i915/driver3.ko: kernel/drivers/video/fbdev/core/fb.ko
             kernel/drivers/usb/host/driver1.ko:
-            '''.strip())                                # for cat modules.dep
-        ]
+            kernel/drivers/vhost/driver_4.ko:
+            '''
+        )
 
         drivers = self.boot_image._get_drivers()
-        assert mock_command.call_args_list == [
-            call([
-                'chroot', 'system-directory',
-                'uname', '-r'
-            ]),
-            call([
-                'chroot', 'system-directory',
-                'cat', '/lib/modules/1.0.0-kernel/modules.dep'
-            ])
-        ]
-        assert sorted(drivers) == sorted(['driver3', 'driver2', 'driver1'])
 
+        mock_kernel_class.assert_called_once_with('system-directory')
+        mock_kernel_instance.get_kernel.assert_called_once()
+        mock_command.assert_called_once_with([
+            'chroot', 'system-directory', 'cat',
+            '/lib/modules/1.0.0-kernel/modules.dep'
+        ])
+
+        assert sorted(drivers) == sorted(['driver_4', 'driver3', 'driver2', 'driver1'])
+
+    @patch('kiwi.boot.image.dracut.log.warning')
     @patch('kiwi.boot.image.dracut.Command.run')
-    def test_get_drivers_with_exception(self, mock_command):
-        """Test _get_drivers when an exception occurs"""
+    @patch('kiwi.boot.image.dracut.Kernel')
+    @patch('kiwi.boot.image.base.os.path.exists')
+    def test_get_drivers_no_kernel(self, mock_exists, mock_kernel_class, mock_command, mock_log_warning):
+        mock_exists.return_value = True
+        mock_kernel_instance = mock_kernel_class.return_value
+        mock_kernel_instance.get_kernel.return_value = None
+
+        drivers = self.boot_image._get_drivers()
+        assert drivers == []  # Should return empty list when no kernel found
+
+        mock_kernel_class.assert_called_once_with('system-directory')
+        mock_kernel_instance.get_kernel.assert_called_once()
+        mock_command.assert_not_called()
+        mock_log_warning.assert_called_once_with("No kernel found in boot directory")
+
+    @patch('kiwi.boot.image.dracut.log.warning')
+    @patch('kiwi.boot.image.dracut.Command.run')
+    @patch('kiwi.boot.image.dracut.Kernel')
+    def test_get_drivers_with_exception(self, mock_kernel_class, mock_command, mock_log_warning):
+        kernel_type = namedtuple('kernel_type', ['version'])
+        mock_kernel_instance = mock_kernel_class.return_value
+        mock_kernel_instance.get_kernel.return_value = kernel_type(version='1.0.0-kernel')
         mock_command.side_effect = Exception("Failed to read modules")
 
-        # Call the method
         drivers = self.boot_image._get_drivers()
-
-        # Assert results
         assert drivers == []  # Should return empty list on exception
+
+        mock_kernel_class.assert_called_once_with('system-directory')
+        mock_kernel_instance.get_kernel.assert_called_once()
         mock_command.assert_called_once_with([
-            'chroot', 'system-directory',
-            'uname', '-r'
+            'chroot', 'system-directory', 'cat',
+            '/lib/modules/1.0.0-kernel/modules.dep'
         ])
+        mock_log_warning.assert_called_once_with("Error reading drivers: Failed to read modules")

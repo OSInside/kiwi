@@ -396,22 +396,22 @@ class BootImageDracut(BootImageBase):
 
     def _get_drivers(self) -> List[str]:
         try:
-            kernel_version = Command.run([
-                'chroot', self.boot_root_directory,
-                'uname', '-r'
-            ]).output.strip()
+            kernel_info = Kernel(self.boot_root_directory).get_kernel()
+            if not kernel_info:
+                log.warning("No kernel found in boot directory")
+                return []
+
             cmd = Command.run(
                 [
                     'chroot', self.boot_root_directory,
-                    'cat', f'/lib/modules/{kernel_version}/modules.dep'
+                    'cat', f'/lib/modules/{kernel_info.version}/modules.dep'
                 ]
             )
-            drivers = []
-            for line in cmd.output.splitlines():
-                if line:
-                    driver_path = line.split(':')[0].strip()
-                    driver_name = os.path.basename(driver_path).split('.ko')[0]
-                    drivers.append(driver_name)
+            drivers = [
+                os.path.basename(line.split(':')[0].strip()).split('.ko')[0]
+                for line in cmd.output.splitlines()
+                if line.strip()
+            ]
             return drivers
         except Exception as e:
             log.warning(f"Error reading drivers: {str(e)}")
