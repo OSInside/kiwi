@@ -176,6 +176,30 @@ class BootImageBase:
         """
         pass
 
+    def include_driver(self, driver: str, install_media: bool = False) -> None:
+        """
+        Include driver to the boot image
+
+        For kiwi boot no drivers configuration is required. Thus in
+        such a case this method is a noop.
+
+        :param str driver: driver to include
+        :param bool install_media: include the driver for install initrds
+        """
+        pass
+
+    def omit_driver(self, driver: str, install_media: bool = False) -> None:
+        """
+        Omit driver to the boot image
+
+        For kiwi boot no drivers configuration is required. Thus in
+        such a case this method is a noop.
+
+        :param str driver: driver to omit
+        :param bool install_media: omit the driver for install initrds
+        """
+        pass
+
     def write_system_config_file(
         self, config: Dict, config_file: Optional[str] = None
     ) -> None:

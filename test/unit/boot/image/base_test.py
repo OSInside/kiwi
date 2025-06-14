@@ -207,6 +207,8 @@ class TestBootImageBase:
         self.boot_image.include_module('module')
         self.boot_image.omit_module('module')
         self.boot_image.set_static_modules(['module'])
+        self.boot_image.include_driver('driver')
+        self.boot_image.omit_driver('driver')
         self.boot_image.write_system_config_file({'config_key': 'value'})
         self.boot_image.cleanup()
 
