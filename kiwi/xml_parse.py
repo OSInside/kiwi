@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.11 (main, Dec 06 2024, 17:06:18) [GCC]
+# Python 3.11.12 (main, Apr 29 2025, 00:00:00) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-Btua-i95-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/al/.cache/pypoetry/virtualenvs/kiwi-7Qlgdzr3-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -9007,9 +9007,10 @@ class dracut(GeneratedsSuper):
     """A dracut module"""
     subclass = None
     superclass = None
-    def __init__(self, module=None, uefi=None):
+    def __init__(self, module=None, driver=None, uefi=None):
         self.original_tagname_ = None
         self.module = _cast(None, module)
+        self.driver = _cast(None, driver)
         self.uefi = _cast(bool, uefi)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -9024,6 +9025,8 @@ class dracut(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_module(self): return self.module
     def set_module(self, module): self.module = module
+    def get_driver(self): return self.driver
+    def set_driver(self, driver): self.driver = driver
     def get_uefi(self): return self.uefi
     def set_uefi(self, uefi): self.uefi = uefi
     def hasContent_(self):
@@ -9057,6 +9060,9 @@ class dracut(GeneratedsSuper):
         if self.module is not None and 'module' not in already_processed:
             already_processed.add('module')
             outfile.write(f" module={self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module'))}")
+        if self.driver is not None and 'driver' not in already_processed:
+            already_processed.add('driver')
+            outfile.write(f" driver={self.gds_encode(self.gds_format_string(quote_attrib(self.driver), input_name='driver'))}")
         if self.uefi is not None and 'uefi' not in already_processed:
             already_processed.add('uefi')
             outfile.write(f" uefi=\"{self.gds_format_boolean(self.uefi, input_name='uefi')}\"")
@@ -9074,6 +9080,10 @@ class dracut(GeneratedsSuper):
         if value is not None and 'module' not in already_processed:
             already_processed.add('module')
             self.module = value
+        value = find_attr_value_('driver', node)
+        if value is not None and 'driver' not in already_processed:
+            already_processed.add('driver')
+            self.driver = value
         value = find_attr_value_('uefi', node)
         if value is not None and 'uefi' not in already_processed:
             already_processed.add('uefi')

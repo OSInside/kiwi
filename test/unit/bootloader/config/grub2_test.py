@@ -1085,7 +1085,7 @@ class TestBootLoaderConfigGrub2:
         mock_mount_system
     ):
         self.state.get_dracut_config = Mock(
-            return_value=DracutT(uefi=False, modules=[])
+            return_value=DracutT(uefi=False, modules=[], drivers=[])
         )
         mock_iglob.return_value = ['some_entry.conf']
         mock_get_vendor_grubenv.return_value = 'grubenv'
@@ -1185,7 +1185,7 @@ class TestBootLoaderConfigGrub2:
 
             # test UKI setup
             self.state.get_dracut_config.return_value = DracutT(
-                uefi=True, modules=[]
+                uefi=True, modules=[], drivers=[]
             )
             boot_image = Mock()
             self.bootloader.setup_disk_image_config(
@@ -1494,7 +1494,7 @@ class TestBootLoaderConfigGrub2:
         ]
 
         self.state.get_dracut_config = Mock(
-            return_value=DracutT(uefi=True, modules=[])
+            return_value=DracutT(uefi=True, modules=[], drivers=[])
         )
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
@@ -2129,7 +2129,7 @@ class TestBootLoaderConfigGrub2:
 
         mock_get_unsigned_grub_loader.return_value = None
         self.state.get_dracut_config = Mock(
-            return_value=DracutT(uefi=True, modules=[])
+            return_value=DracutT(uefi=True, modules=[], drivers=[])
         )
         with patch('builtins.open', create=True) as mock_open:
             # Test UKI chainloader for earlyboot
