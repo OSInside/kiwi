@@ -413,6 +413,11 @@ class InstallImageBuilder:
             self.boot_image_task.set_static_modules(
                 self.xml_state.get_installmedia_initrd_modules('set')
             )
+            for drv in self.xml_state.get_installmedia_initrd_drivers('add'):
+                self.boot_image_task.include_driver(drv)
+            for drv in self.xml_state.get_installmedia_initrd_drivers('omit'):
+                self.boot_image_task.omit_driver(drv)
+
         self.boot_image_task.create_initrd(
             self.mbrid, 'initrd_kiwi_install',
             install_initrd=True
@@ -456,6 +461,12 @@ class InstallImageBuilder:
             self.boot_image_task.set_static_modules(
                 self.xml_state.get_installmedia_initrd_modules('set')
             )
+
+            for drv in self.xml_state.get_installmedia_initrd_drivers('add'):
+                self.boot_image_task.include_driver(drv)
+            for drv in self.xml_state.get_installmedia_initrd_drivers('omit'):
+                self.boot_image_task.omit_driver(drv)
+
             self._add_system_image_boot_options_to_boot_image()
             self._add_system_identifier_to_boot_image()
         self.boot_image_task.create_initrd(

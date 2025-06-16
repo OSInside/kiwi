@@ -1054,9 +1054,11 @@ class TestDiskBuilder:
         block_operation.get_filesystem.return_value = 'ext3'
         mock_BlockID.return_value = block_operation
         mock_rand.return_value = 15
-        self.disk_builder.dracut_setup = DracutT(uefi=True, modules=[])
+        self.disk_builder.dracut_setup = DracutT(uefi=True, modules=[], drivers=[])
         self.disk_builder.dracut_add_modules = ['some']
         self.disk_builder.dracut_omit_modules = ['some']
+        self.disk_builder.dracut_add_drivers = ['driver1']
+        self.disk_builder.dracut_omit_drivers = ['driver2']
         self.disk_builder.root_filesystem_is_overlay = True
         self.disk_builder.root_filesystem_has_write_partition = False
         self.disk_builder.root_filesystem_verity_blocks = 10
@@ -1137,6 +1139,8 @@ class TestDiskBuilder:
         assert self.boot_image_task.omit_module.call_args_list == [
             call('some'), call('multipath')
         ]
+        self.boot_image_task.include_driver.assert_called_once_with('driver1')
+        self.boot_image_task.omit_driver.assert_called_once_with('driver2')
         self.boot_image_task.write_system_config_file.assert_called_once_with(
             config={'modules': ['kiwi-overlay']}
         )

@@ -1331,6 +1331,7 @@ Used to specify custom arguments for the initrd tooling e.g. dracut
    <initrd action="add|omit">
        <dracut module="some_a"/>
        <dracut module="some_b"/>
+       <dracut driver="driver_name"/>
    </initrd>
 
 dracut.uefi.true:
@@ -1339,6 +1340,11 @@ dracut.uefi.true:
 dracut.module.NAME:
   As part of the `add` or `omit` action, adds or omits the given
   module name. The element can be specified multiple times
+
+dracut.driver.NAME:
+  As part of the `add` or `omit` action, adds or omits the given
+  kernel driver. The element can be specified multiple times and 
+  accepts kernel driver names without the .ko extension
 
 .. _sec.registry:
 

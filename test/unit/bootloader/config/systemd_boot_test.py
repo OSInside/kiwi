@@ -21,7 +21,7 @@ class TestBootLoaderSystemdBoot:
         self.state.xml_data.get_name.return_value = 'image-name'
         self.state.get_image_version.return_value = 'image-version'
         self.state.get_dracut_config.return_value = DracutT(
-            uefi=False, modules=[]
+            uefi=False, modules=[], drivers=[]
         )
         self.state.build_type.get_efifatimagesize.return_value = None
         self.bootloader = BootLoaderSystemdBoot(self.state, 'root_dir')
@@ -126,7 +126,7 @@ class TestBootLoaderSystemdBoot:
         ]
         mock_Command_run.reset_mock()
         self.state.get_dracut_config.return_value = DracutT(
-            uefi=True, modules=[]
+            uefi=True, modules=[], drivers=[]
         )
         self.bootloader.setup_loader('disk')
         assert mock_Command_run.call_args_list == [

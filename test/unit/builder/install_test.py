@@ -74,6 +74,9 @@ class TestInstallImageBuilder:
         self.xml_state.get_installmedia_initrd_modules = mock.Mock(
             return_value=['module1', 'module2']
         )
+        self.xml_state.get_installmedia_initrd_drivers = mock.Mock(
+            return_value=['driver1', 'driver2']
+        )
         self.boot_image_task = mock.Mock()
         self.boot_image_task.boot_root_directory = 'initrd_dir'
         self.boot_image_task.initrd_filename = 'initrd'
@@ -250,6 +253,8 @@ class TestInstallImageBuilder:
 
         self.boot_image_task.include_module.assert_any_call('kiwi-dump')
         self.boot_image_task.include_module.assert_any_call('kiwi-dump-reboot')
+        self.boot_image_task.include_driver.assert_any_call('driver1')
+        self.boot_image_task.include_driver.assert_any_call('driver2')
         assert self.boot_image_task.omit_module.call_args_list == [
             call('multipath'), call('module1'), call('module2')
         ]
@@ -442,6 +447,8 @@ class TestInstallImageBuilder:
 
         self.boot_image_task.include_module.assert_any_call('kiwi-dump')
         self.boot_image_task.include_module.assert_any_call('kiwi-dump-reboot')
+        self.boot_image_task.include_driver.assert_any_call('driver1')
+        self.boot_image_task.include_driver.assert_any_call('driver2')
         assert self.boot_image_task.omit_module.call_args_list == [
             call('multipath'), call('module1'), call('module2')
         ]
