@@ -607,26 +607,30 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             # have them in their encoded early boot script. Thus
             # the following code tries to look up the vendor string
             # from the signed grub binary
-            grub_image = Defaults.get_signed_grub_loader(self.root_dir, target_type)
-            if grub_image and grub_image.filename:
-                strings_abspath = Path.which(
-                    'strings', access_mode=os.X_OK
-                )
-                if not strings_abspath:
-                    raise KiwiCommandNotFound(
-                        'strings command not found on buildhost'
+            grub_images = Defaults.get_signed_grub_loader(
+                self.root_dir, target_type
+            )
+            for grub_image in grub_images:
+                if grub_image and grub_image.filename:
+                    strings_abspath = Path.which(
+                        'strings', access_mode=os.X_OK
                     )
-                bash_command = [
-                    strings_abspath, grub_image.filename, '|', 'grep', r'EFI\/'
-                ]
-                efi_boot_path = Command.run(
-                    ['bash', '-c', ' '.join(bash_command)],
-                    raise_on_error=False, raise_on_command_not_found=True
-                ).output
-                if efi_boot_path:
-                    efi_boot_path = os.path.normpath(
-                        os.sep.join([root_path, efi_boot_path.strip()])
-                    )
+                    if not strings_abspath:
+                        raise KiwiCommandNotFound(
+                            'strings command not found on buildhost'
+                        )
+                    bash_command = [
+                        strings_abspath,
+                        grub_image.filename, '|', 'grep', r'EFI\/'
+                    ]
+                    efi_boot_path = Command.run(
+                        ['bash', '-c', ' '.join(bash_command)],
+                        raise_on_error=False, raise_on_command_not_found=True
+                    ).output
+                    if efi_boot_path:
+                        efi_boot_path = os.path.normpath(
+                            os.sep.join([root_path, efi_boot_path.strip()])
+                        )
         if not efi_boot_path:
             efi_boot_path = os.path.normpath(
                 os.sep.join([root_path, 'EFI/BOOT'])
@@ -915,38 +919,52 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         if not lookup_path:
             lookup_path = self.boot_dir
-        grub_image = Defaults.get_signed_grub_loader(lookup_path, target_type)
-        if not grub_image:
+        grub_images = Defaults.get_signed_grub_loader(lookup_path, target_type)
+        shim_images = Defaults.get_shim_loader(lookup_path)
+        if not grub_images:
             raise KiwiBootLoaderGrubSecureBootError(
                 'Signed grub2 efi loader not found'
             )
-        shim_image = Defaults.get_shim_loader(lookup_path)
-        if shim_image and shim_image.filename:
-            # The shim concept is based on a two step system including a
-            # grub image(shim) that got signed by Microsoft followed by
-            # a grub image that got signed by the shim. The shim image
-            # is the one that gets loaded by the firmware which itself
-            # loads the second stage grub image
-            target_efi_image_name = self._get_efi_image_name()
-            target_grub_image_name = os.sep.join(
-                [self.efi_boot_path, grub_image.binaryname]
-            )
-            if not os.path.isfile(target_efi_image_name):
-                log.info(
-                    f'--> Using shim image: {shim_image.filename}'
+        # The shim concept is based on a two step system including a
+        # grub image(shim) that got signed by Microsoft followed by
+        # a grub image that got signed by the shim. The shim image
+        # is the one that gets loaded by the firmware which itself
+        # loads the second stage grub image
+        for grub_image in grub_images:
+            if grub_image.binaryname:
+                if shim_images:
+                    target_grub_image_name = os.sep.join(
+                        [self.efi_boot_path, grub_image.binaryname]
+                    )
+                else:
+                    # Without shim a self signed grub image is used that
+                    # gets loaded by the firmware
+                    target_grub_image_name = os.sep.join(
+                        [self.efi_boot_path, grub_image.targetname]
+                    )
+                if not os.path.isfile(target_grub_image_name):
+                    log.info(
+                        f'--> Using grub image: {grub_image.filename}'
+                    )
+                    Command.run(
+                        ['cp', grub_image.filename, target_grub_image_name]
+                    )
+        for shim_image in shim_images:
+            if shim_image.filename:
+                target_efi_image_name = os.sep.join(
+                    [self.efi_boot_path, shim_image.binaryname]
                 )
-                Command.run(
-                    ['cp', shim_image.filename, target_efi_image_name]
-                )
-            if not os.path.isfile(target_grub_image_name):
-                log.info(
-                    f'--> Using grub image: {grub_image.filename}'
-                )
-                Command.run(
-                    ['cp', grub_image.filename, target_grub_image_name]
-                )
-            mok_manager = Defaults.get_mok_manager(lookup_path)
-            if mok_manager:
+                if not os.path.isfile(target_efi_image_name):
+                    log.info(
+                        f'--> Using shim image: {shim_image.filename}'
+                    )
+                    Command.run(
+                        ['cp', shim_image.filename, target_efi_image_name]
+                    )
+        # mok manager
+        mok_managers = Defaults.get_mok_manager(lookup_path)
+        if mok_managers and shim_images:
+            for mok_manager in mok_managers:
                 target_mok_manager = os.sep.join(
                     [self.efi_boot_path, os.path.basename(mok_manager)]
                 )
@@ -957,17 +975,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     Command.run(
                         ['cp', mok_manager, self.efi_boot_path]
                     )
-        else:
-            # Without shim a self signed grub image is used that
-            # gets loaded by the firmware
-            target_efi_image_name = self._get_efi_image_name()
-            if not os.path.isfile(target_efi_image_name):
-                log.info(
-                    f'--> No shim image, using grub image: {grub_image.filename}'
-                )
-                Command.run(
-                    ['cp', grub_image.filename, target_efi_image_name]
-                )
         self._create_efi_config_search(uuid, efi_uuid, mbrid)
 
     def _setup_efi_image(
@@ -983,12 +990,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         """
         if not lookup_path:
             lookup_path = self.boot_dir
-        grub_image = Defaults.get_unsigned_grub_loader(lookup_path, target_type)
-        if grub_image and self.xml_state.build_type.get_overlayroot_write_partition() is not False:
-            log.info(f'--> Using prebuilt unsigned efi image: {grub_image}')
-            Command.run(
-                ['cp', grub_image, self._get_efi_image_name()]
-            )
+        grub_images = Defaults.get_unsigned_grub_loader(
+            lookup_path, target_type
+        )
+        can_write = self.xml_state.build_type.get_overlayroot_write_partition()
+        if grub_images and can_write is not False:
+            for grub_image in grub_images:
+                log.info(f'--> Using prebuilt unsigned efi image: {grub_image}')
+                target_grub_image_name = os.sep.join(
+                    [self.efi_boot_path, grub_image.targetname]
+                )
+                Command.run(
+                    ['cp', grub_image.filename, target_grub_image_name]
+                )
             self._create_efi_config_search(uuid, efi_uuid, mbrid)
         else:
             log.info('--> Creating unsigned efi image')
@@ -1322,14 +1336,6 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
     def _get_grub2_boot_path(self):
         return self.boot_dir + '/boot/' + self.boot_directory_name
 
-    def _get_efi_image_name(self):
-        return os.sep.join(
-            [
-                self.efi_boot_path,
-                Defaults.get_efi_image_name(self.arch)
-            ]
-        )
-
     def _get_grub_platform_image_name(self, lookup_path):
         return os.sep.join(
             [
@@ -1338,10 +1344,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
 
-    def _get_efi_modules_path(self, lookup_path=None):
+    def _get_efi_modules_path(
+        self, lookup_path: str = '', arch: str = '', raise_on_error: bool = True
+    ) -> str:
         return self._get_module_path(
-            Defaults.get_efi_module_directory_name(self.arch),
-            lookup_path
+            Defaults.get_efi_module_directory_name(arch or self.arch),
+            lookup_path,
+            raise_on_error
         )
 
     def _get_grub_platform_modules_path(self, lookup_path=None):
@@ -1355,10 +1364,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             lookup_path
         )
 
-    def _get_module_path(self, format_name, lookup_path=None):
+    def _get_module_path(
+        self, format_name, lookup_path: str = '', raise_on_error=True
+    ):
         if not lookup_path:
             lookup_path = self.boot_dir
-        return Defaults.get_grub_path(lookup_path, format_name)
+        return Defaults.get_grub_path(
+            lookup_path, format_name, raise_on_error
+        )
 
     def _find_theme_background_file(self, lookup_path):
         background_pattern = os.sep.join(
@@ -1488,6 +1501,13 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self._copy_modules_to_boot_directory_from(
             self._get_efi_modules_path(lookup_path)
         )
+        if self.arch == 'x86_64':
+            # Also copy the 32bit EFI modules if present
+            efi32_module_path = self._get_efi_modules_path(
+                lookup_path, 'i386', raise_on_error=False
+            )
+            if os.path.exists(efi32_module_path):
+                self._copy_modules_to_boot_directory_from(efi32_module_path)
 
     def _copy_bios_modules_to_boot_directory(self, lookup_path):
         self._copy_modules_to_boot_directory_from(

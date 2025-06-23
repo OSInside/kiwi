@@ -66,12 +66,82 @@ class TestBootLoaderConfigGrub2:
             'root_dir/boot/efi/': True,
             'root_dir/usr/share/grub2/powerpc-ieee1275': True
         }
-        self.glob_iglob = [
+        self.glob_iglob_shim_fallback = [
+            # get_mok_manager
+            [],
+            [],
+            [],
             ['root_dir/usr/lib64/efi/MokManager.efi'],
+            # get_shim_loader
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
             ['root_dir/usr/lib64/efi/shim.efi'],
+            # get_signed_grub_loader(disk)
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
             ['root_dir/usr/lib64/efi/grub.efi'],
+            # get_grub_efi_font_directory
             ['root_dir/boot/efi/EFI/DIST/fonts']
         ]
+        self.glob_iglob_noshim_fallback = [
+            # get_mok_manager
+            [],
+            [],
+            [],
+            ['root_dir/usr/lib64/efi/MokManager.efi'],
+            # get_signed_grub_loader(disk)
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['root_dir/usr/lib64/efi/grub.efi'],
+            # get_grub_efi_font_directory
+            ['root_dir/boot/efi/EFI/DIST/fonts']
+        ]
+        self.glob_iglob_shim_iso = [
+            # get_mok_manager
+            [],
+            [],
+            [],
+            ['root_dir/usr/lib64/efi/MokManager.efi'],
+            # get_shim_loader
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['root_dir/usr/lib64/efi/shim.efi'],
+            # get_signed_grub_loader(iso)
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['root_dir/usr/lib64/efi/grub.efi'],
+            # get_grub_efi_font_directory
+            ['root_dir/boot/efi/EFI/DIST/fonts']
+        ]
+
         mock_theme.return_value = None
         kiwi.bootloader.config.grub2.Path = Mock()
         kiwi.bootloader.config.base.Path = Mock()
@@ -373,21 +443,23 @@ class TestBootLoaderConfigGrub2:
         self, mock_Path_which, mock_get_signed_grub_loader, mock_Command,
         mock_Path_create, mock_shutil_copy2, mock_glob
     ):
-        mock_get_signed_grub_loader.return_value = None
+        mock_get_signed_grub_loader.return_value = []
         mock_glob.return_value = []
 
         # 1. run: check strings command not found
         mock_Path_which.return_value = ''
-        mock_get_signed_grub_loader.return_value = grub_loader_type(
-            'some-loader', None
-        )
+        mock_get_signed_grub_loader.return_value = [
+            grub_loader_type(
+                'some-loader', 'some-binaryname', 'some-targetname'
+            )
+        ]
         with raises(KiwiCommandNotFound):
             self.bootloader._copy_grub_config_to_efi_path(
                 'root_dir', 'config_file'
             )
 
         # 2. run: check default handling
-        mock_get_signed_grub_loader.return_value = None
+        mock_get_signed_grub_loader.return_value = []
         mock_Path_which.return_value = '/usr/bin/strings'
         self.bootloader._copy_grub_config_to_efi_path(
             'root_dir', 'config_file'
@@ -405,9 +477,11 @@ class TestBootLoaderConfigGrub2:
         mock_Path_create.reset_mock()
         strings_out = Mock()
         strings_out.output = '/EFI/ubuntu'
-        mock_get_signed_grub_loader.return_value = grub_loader_type(
-            'some-loader', None
-        )
+        mock_get_signed_grub_loader.return_value = [
+            grub_loader_type(
+                'some-loader', 'some-binaryname', 'some-targetname'
+            )
+        ]
         mock_Command.return_value = strings_out
         self.bootloader._copy_grub_config_to_efi_path(
             'root_dir', 'config_file'
@@ -423,7 +497,7 @@ class TestBootLoaderConfigGrub2:
         # 4. run: check with installed vendor directory
         mock_shutil_copy2.reset_mock()
         mock_Path_create.reset_mock()
-        mock_get_signed_grub_loader.return_value = None
+        mock_get_signed_grub_loader.return_value = []
         mock_glob.return_value = ['root_dir/EFI/fedora/shim.efi']
         self.bootloader._copy_grub_config_to_efi_path(
             'root_dir', 'config_file'
@@ -1321,7 +1395,7 @@ class TestBootLoaderConfigGrub2:
         Defaults.set_platform_name('x86_64')
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
         mock_get_boot_path.return_value = '/boot'
-        mock_get_unsigned_grub_loader.return_value = None
+        mock_get_unsigned_grub_loader.return_value = []
         self.firmware.efi_mode = Mock(
             return_value='efi'
         )
@@ -1329,6 +1403,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/i386-efi'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-xen'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi/linuxefi.mod'] = \
             True
@@ -1379,7 +1454,7 @@ class TestBootLoaderConfigGrub2:
     ):
         Defaults.set_platform_name('x86_64')
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
-        mock_get_unsigned_grub_loader.return_value = None
+        mock_get_unsigned_grub_loader.return_value = []
         data = Mock()
         mock_sync.return_value = data
         self.firmware.efi_mode = Mock(
@@ -1389,6 +1464,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['root_dir/usr/share/grub2/i386-efi'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi/linuxefi.mod'] = \
             True
 
@@ -1449,14 +1525,23 @@ class TestBootLoaderConfigGrub2:
             call(
                 'root_dir/usr/share/grub2/x86_64-efi/',
                 'root_dir/boot/grub2/x86_64-efi'
+            ),
+            call(
+                'root_dir/usr/share/grub2/i386-efi/',
+                'root_dir/boot/grub2/i386-efi'
             )
         ]
         assert data.sync_data.call_args_list == [
             call(exclude=['*.module'], options=['-a']),
+            call(exclude=['*.module'], options=['-a']),
             call(exclude=['*.module'], options=['-a'])
         ]
 
-        mock_get_unsigned_grub_loader.return_value = 'custom_grub_image'
+        mock_get_unsigned_grub_loader.return_value = [
+            grub_loader_type(
+                'custom_grub_image', 'some-binaryname', 'bootx64.efi'
+            )
+        ]
         mock_command.reset_mock()
 
         with patch('builtins.open', create=True) as mock_open:
@@ -1671,7 +1756,7 @@ class TestBootLoaderConfigGrub2:
             return self.os_exists[arg]
 
         def side_effect_glob(arg):
-            return self.glob_iglob.pop()
+            return self.glob_iglob_shim_fallback.pop()
 
         mock_glob.side_effect = side_effect_glob
         mock_exists.side_effect = side_effect
@@ -1694,7 +1779,6 @@ class TestBootLoaderConfigGrub2:
                 mock_open.assert_called_once_with(
                     'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'
                 )
-
                 assert mock_command.call_args_list == [
                     call(
                         [
@@ -1711,14 +1795,14 @@ class TestBootLoaderConfigGrub2:
                     ),
                     call(
                         [
-                            'cp', 'root_dir/usr/lib64/efi/shim.efi',
-                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
+                            'cp', 'root_dir/usr/lib64/efi/grub.efi',
+                            'root_dir/boot/efi/EFI/BOOT/grub.efi'
                         ]
                     ),
                     call(
                         [
-                            'cp', 'root_dir/usr/lib64/efi/grub.efi',
-                            'root_dir/boot/efi/EFI/BOOT/grub.efi'
+                            'cp', 'root_dir/usr/lib64/efi/shim.efi',
+                            'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
                         ]
                     ),
                     call(
@@ -1745,7 +1829,7 @@ class TestBootLoaderConfigGrub2:
     ):
         # we expect the copy of grub.efi from the fallback
         # code if no shim was found at all
-        mock_get_shim_loader.return_value = None
+        mock_get_shim_loader.return_value = []
 
         Defaults.set_platform_name('x86_64')
         mock_get_boot_path.return_value = '/boot'
@@ -1762,7 +1846,7 @@ class TestBootLoaderConfigGrub2:
             return self.os_exists[arg]
 
         def side_effect_glob(arg):
-            return self.glob_iglob.pop()
+            return self.glob_iglob_noshim_fallback.pop()
 
         mock_glob.side_effect = side_effect_glob
         mock_exists.side_effect = side_effect
@@ -1922,7 +2006,7 @@ class TestBootLoaderConfigGrub2:
         Defaults.set_platform_name('x86_64')
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
         mock_get_boot_path.return_value = '/boot'
-        mock_get_unsigned_grub_loader.return_value = None
+        mock_get_unsigned_grub_loader.return_value = []
         mock_get_grub_platform_core_loader.return_value = None
         data = Mock()
         mock_sync.return_value = data
@@ -1937,6 +2021,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['boot_dir/usr/share/grub2/unicode.pf2'] = True
         self.os_exists['root_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['boot_dir/usr/share/grub2/i386-pc'] = True
+        self.os_exists['boot_dir/usr/share/grub2/i386-efi'] = True
         self.os_exists['/usr/share/grub2/i386-pc'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi/linuxefi.mod'] = \
@@ -1945,6 +2030,7 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['boot_dir/boot/efi/'] = False
 
         self.os_exists['lookup_dir/usr/share/grub2/x86_64-efi'] = True
+        self.os_exists['lookup_dir/usr/share/grub2/i386-efi'] = True
         self.os_exists['lookup_dir/usr/share/grub2/i386-pc'] = True
         self.os_exists['lookup_dir/usr/share/grub2/unicode.pf2'] = True
         self.os_exists['lookup_dir/boot/efi/'] = False
@@ -2048,9 +2134,14 @@ class TestBootLoaderConfigGrub2:
             call(
                 'lookup_dir/usr/share/grub2/x86_64-efi/',
                 'boot_dir/boot/grub2/x86_64-efi'
+            ),
+            call(
+                'lookup_dir/usr/share/grub2/i386-efi/',
+                'boot_dir/boot/grub2/i386-efi'
             )
         ]
         assert data.sync_data.call_args_list == [
+            call(exclude=['*.module'], options=['-a']),
             call(exclude=['*.module'], options=['-a']),
             call(exclude=['*.module'], options=['-a'])
         ]
@@ -2072,8 +2163,13 @@ class TestBootLoaderConfigGrub2:
                 'boot_dir/EFI/BOOT/bootx64.efi'
             )
         ]
-        mock_get_unsigned_grub_loader.return_value = 'custom_grub_image'
-        mock_get_grub_platform_core_loader.return_value = 'custom_bios_grub_image'
+        mock_get_unsigned_grub_loader.return_value = [
+            grub_loader_type(
+                'custom_grub_image', 'some-binaryname', 'bootx64.efi'
+            )
+        ]
+        mock_get_grub_platform_core_loader.return_value = \
+            'custom_bios_grub_image'
         mock_command.reset_mock()
 
         with patch('builtins.open', create=True) as mock_open:
@@ -2127,7 +2223,7 @@ class TestBootLoaderConfigGrub2:
                 call('source ($root)/boot/grub2/grub.cfg\n'),
             ]
 
-        mock_get_unsigned_grub_loader.return_value = None
+        mock_get_unsigned_grub_loader.return_value = []
         self.state.get_dracut_config = Mock(
             return_value=DracutT(uefi=True, modules=[], drivers=[])
         )
@@ -2169,7 +2265,7 @@ class TestBootLoaderConfigGrub2:
             return self.os_exists[arg]
 
         def side_effect_glob(arg):
-            return self.glob_iglob.pop()
+            return self.glob_iglob_shim_iso.pop()
 
         mock_glob.side_effect = side_effect_glob
         mock_exists.side_effect = side_effect_exists
@@ -2205,14 +2301,14 @@ class TestBootLoaderConfigGrub2:
                     ),
                     call(
                         [
-                            'cp', 'root_dir/usr/lib64/efi/shim.efi',
-                            'root_dir/EFI/BOOT/bootx64.efi'
+                            'cp', 'root_dir/usr/lib64/efi/grub.efi',
+                            'root_dir/EFI/BOOT/grubx64.efi'
                         ]
                     ),
                     call(
                         [
-                            'cp', 'root_dir/usr/lib64/efi/grub.efi',
-                            'root_dir/EFI/BOOT/grubx64.efi'
+                            'cp', 'root_dir/usr/lib64/efi/shim.efi',
+                            'root_dir/EFI/BOOT/bootx64.efi'
                         ]
                     ),
                     call(
