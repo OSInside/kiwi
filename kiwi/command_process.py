@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import logging
 from collections import namedtuple
 from kiwi.command import CommandCallT
@@ -112,7 +113,8 @@ class CommandProcess:
         )
         if error_output:
             log.debug('--------------err start-------------')
-            log.debug(error_output)
+            for line in error_output.split(os.linesep):
+                log.debug(line)
             log.debug('--------------err stop--------------')
         return result(
             stderr=error_output, returncode=error_code
@@ -197,6 +199,7 @@ class CommandIterator:
             elif byte_read == bytes(b'\n'):
                 line_stderr = Codec.decode(self.command_error_line)
                 self.command_error_line = bytes(b'')
+                self.command_error_output += byte_read
             else:
                 self.command_error_line += byte_read
                 self.command_error_output += byte_read

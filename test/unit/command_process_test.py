@@ -140,7 +140,7 @@ class TestCommandProcess:
             assert '--------------out start-------------' in self._caplog.text
             assert 'data' in self._caplog.text
             assert '--------------out stop--------------' in self._caplog.text
-            assert result.stderr == 'error'
+            assert result.stderr == 'error\n'
 
     @patch('kiwi.command.Command')
     def test_create_match_method(self, mock_command):
