@@ -136,8 +136,8 @@
         <package name="coreutils"/>
         <package name="grep"/>
         <package name="gzip"/>
-        <package name="udev"/>
         <package name="xz"/>
+        <package name="libz1"/>
         <package name="shadow"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
