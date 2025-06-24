@@ -465,6 +465,7 @@ class TestXMLState:
         c1 = containers[0]
         c2 = containers[1]
         c3 = containers[2]
+        c4 = containers[3]
 
         c1.fetch_command('root_dir')
         assert c1.name == 'rmtserver_latest'
@@ -523,6 +524,27 @@ class TestXMLState:
                 '/usr/bin/skopeo', 'copy', 'docker://docker.io/foo:latest',
                 'oci-archive:/var/tmp/kiwi_containers/'
                 'foo_latest:docker.io/foo:latest'
+            ]
+        )
+        mock_Command_run.reset_mock()
+
+        c4.fetch_command('root_dir')
+        assert c4.name == 'test-app_v1.0'
+        assert c4.backend == 'container-snap'
+        assert c4.container_file == \
+            '/var/tmp/kiwi_containers/test-app_v1.0'
+        assert c4.fetch_only is False
+        assert c4.load_command == [
+            '/usr/bin/container-snap', 'load', '-i',
+            '/var/tmp/kiwi_containers/test-app_v1.0'
+        ]
+        mock_Command_run.assert_called_once_with(
+            [
+                'chroot', 'root_dir',
+                '/usr/bin/skopeo', 'copy',
+                'docker://registry.example.com/test-app:v1.0',
+                'oci-archive:/var/tmp/kiwi_containers/'
+                'test-app_v1.0:registry.example.com/test-app:v1.0'
             ]
         )
 

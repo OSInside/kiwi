@@ -1360,6 +1360,10 @@ of the supported container backends
        <container name="some"/>
    </containers>
 
+   <containers source="registry.opensuse.org" backend="container-snap">
+       <container name="opensuse/bootable" tag="slowroll"/>
+   </containers>
+
 The optional containers element specifies the location of one ore
 more containers on a registry `source` server. {kiwi} will take
 this information and fetch the containers as OCI archives to
@@ -1367,10 +1371,11 @@ the image. On first boot those container archives will be loaded
 into the local container backend store for the selected
 backend and the archive files get deleted.
 
-Supported `backend` values are `docker` and `podman`.
-The `backend` attribute is mandatory and specifies for which
-container backend the image should be available in the system.
-The `containers` element has the following optional attributes:
+Supported `backend` values are `docker`, `podman`, and
+`container-snap`.  The `backend` attribute is mandatory and specifies
+for which container backend the image should be available in the
+system.  The `containers` element has the following optional
+attributes:
 
 arch="arch"
   The containers section can be configured to apply only for a certain

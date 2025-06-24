@@ -1893,7 +1893,7 @@ class XMLState:
                         defaults.LOCAL_CONTAINERS, container.name, container_tag
                     )
                     container_backend = containers_section.get_backend() or ''
-                    if container_backend in ['podman', 'docker']:
+                    if container_backend in ['podman', 'docker', 'container-snap']:
                         if Defaults.is_buildservice_worker():
                             container_uri = Uri(
                                 'obsrepositories:/{0}'.format(
