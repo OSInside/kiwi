@@ -107,6 +107,8 @@ class SystemSetup:
                 container_execs_to_load.append(container.load_command)
                 if container.backend == 'docker':
                     after_services.add('docker.service')
+                elif container.backend == 'container-snap':
+                    after_services.add('container-snap.service')
 
         if container_files_to_load:
             log.info('--> Setup kiwi_containers.service import unit')
