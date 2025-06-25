@@ -155,6 +155,10 @@ class TestVolumeManagerBtrfs:
                     'subvol_name': '@/.snapshots'
                 },
                 mountpoint='tmpdir/@/.snapshots/1/snapshot/.snapshots'
+            ),
+            call(
+                device='tmpdir/@/.snapshots/1/snapshot',
+                mountpoint='tmpdir/@/.snapshots/1/snapshot'
             )
         ]
         toplevel_mount.mount.assert_called_once_with([])
@@ -377,6 +381,7 @@ class TestVolumeManagerBtrfs:
             return_value=False
         )
         mock_os_exists.return_value = False
+        self.volume_manager.snapshots_root_mount = Mock()
         volume_mount = Mock()
         volume_mount.mountpoint = \
             '/var/tmp/kiwi_volumes.xx/@/.snapshots/1/snapshot/var/tmp'
@@ -388,6 +393,7 @@ class TestVolumeManagerBtrfs:
 
         self.volume_manager.mount_volumes()
 
+        self.volume_manager.snapshots_root_mount.bind_mount.assert_called_once_with()
         self.volume_manager.toplevel_mount.mount.assert_called_once_with([])
         mock_path.assert_called_once_with(volume_mount.mountpoint)
         volume_mount.mount.assert_called_once_with(
@@ -403,10 +409,18 @@ class TestVolumeManagerBtrfs:
         self.volume_manager.toplevel_mount.is_mounted = Mock(
             return_value=True
         )
+        self.volume_manager.snapshots_root_mount = Mock()
+        self.volume_manager.snapshots_root_mount.is_mounted = Mock(
+            return_value=True
+        )
         self.volume_manager.subvol_mount_list = [volume_mount]
+
         self.volume_manager.umount_volumes()
+
         volume_mount.is_mounted.assert_called_once_with()
         volume_mount.umount.assert_called_once_with()
+        self.volume_manager.snapshots_root_mount.is_mounted.assert_called_once_with()
+        self.volume_manager.snapshots_root_mount.umount.assert_called_once_with()
         self.volume_manager.toplevel_mount.is_mounted.assert_called_once_with()
         self.volume_manager.toplevel_mount.umount.assert_called_once_with()
 

@@ -94,6 +94,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         self.subvol_mount_list = []
         self.toplevel_mount = None
+        self.snapshots_root_mount = None
 
     def setup(self, name=None):
         """
@@ -162,6 +163,10 @@ class VolumeManagerBtrfs(VolumeManagerBase):
                 mountpoint=snapshot + '/.snapshots'
             )
             self.subvol_mount_list.append(snapshots_mount)
+            # make sure the snapshot appears as proper (/) in the chroot
+            self.snapshots_root_mount = MountManager(
+                device=self.get_mountpoint(), mountpoint=self.get_mountpoint()
+            )
         elif self.root_volume_name != '/':
             self._set_default_volume(self.root_volume_name)
 
@@ -362,6 +367,8 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         for volume_mount in self.subvol_mount_list:
             if not os.path.exists(volume_mount.mountpoint):
                 Path.create(volume_mount.mountpoint)
+            if self.snapshots_root_mount:
+                self.snapshots_root_mount.bind_mount()
             subvol_path = volume_mount.get_attributes().get('subvol_path')
             subvol_options = ','.join(
                 [
@@ -379,6 +386,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         for volume_mount in reversed(self.subvol_mount_list):
             if volume_mount.is_mounted():
                 volume_mount.umount()
+
+        if self.snapshots_root_mount and self.snapshots_root_mount.is_mounted():
+            self.snapshots_root_mount.umount()
 
         if self.toplevel_mount.is_mounted():
             self.toplevel_mount.umount()
