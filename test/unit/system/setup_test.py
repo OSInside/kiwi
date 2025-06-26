@@ -1805,6 +1805,14 @@ class TestSystemSetup:
             ),
             call(
                 [
+                    'chroot', 'root_dir', '/usr/bin/skopeo', 'copy',
+                    'docker://registry.example.com/test-app:v1.0',
+                    'oci-archive:/var/tmp/kiwi_containers/'
+                    'test-app_v1.0:registry.example.com/test-app:v1.0'
+                ]
+            ),
+            call(
+                [
                     'chroot', 'root_dir', 'systemctl',
                     'enable', 'kiwi_containers'
                 ]

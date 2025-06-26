@@ -199,6 +199,9 @@
     <containers source="docker.io" backend="podman">
         <container name="foo" fetch_only="true"/>
     </containers>
+    <containers source="registry.example.com" backend="container-snap">
+        <container name="test-app" tag="v1.0"/>
+    </containers>
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso">
             <signing key="file:key_a"/>

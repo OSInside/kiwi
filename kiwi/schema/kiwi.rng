@@ -1651,6 +1651,7 @@ definition can be composed by other existing profiles.</a:documentation>
         <choice>
           <value>podman</value>
           <value>docker</value>
+          <value>container-snap</value>
         </choice>
       </attribute>
     </define>

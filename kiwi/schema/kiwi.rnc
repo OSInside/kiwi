@@ -1076,7 +1076,7 @@ div {
         attribute source { text }
     k.containers.backend.attribute =
         ## Use container with specified container backend
-        attribute backend { "podman" | "docker" }
+        attribute backend { "podman" | "docker" | "container-snap" }
     k.containers.attlist =
         k.containers.profiles.attribute? &
         k.containers.arch.attribute? &
