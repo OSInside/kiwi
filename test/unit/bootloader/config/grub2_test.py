@@ -82,6 +82,7 @@ class TestBootLoaderConfigGrub2:
             [],
             [],
             [],
+            [],
             ['root_dir/usr/lib64/efi/shim.efi'],
             # get_signed_grub_loader(disk)
             [],
@@ -127,8 +128,10 @@ class TestBootLoaderConfigGrub2:
             [],
             [],
             [],
+            [],
             ['root_dir/usr/lib64/efi/shim.efi'],
             # get_signed_grub_loader(iso)
+            [],
             [],
             [],
             [],
