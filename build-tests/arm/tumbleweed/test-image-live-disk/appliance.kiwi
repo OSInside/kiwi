@@ -24,7 +24,7 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
+        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true"/>
     </preferences>
     <preferences profiles="Disk">
         <type image="oem" firmware="efi" kernelcmdline="console=ttyS0" installiso="true" installboot="install" filesystem="ext4">
@@ -69,6 +69,7 @@
         <package name="timezone"/>
     </packages>
     <packages type="image" profiles="Live">
+        <package name="shim"/>
         <package name="dracut-kiwi-live"/>
     </packages>
     <packages type="image" profiles="Disk">

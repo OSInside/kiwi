@@ -933,6 +933,10 @@ class Defaults:
                 'bootx64.efi'
             ),
             shim_pattern_type(
+                '/usr/share/efi/aarch64/shim.efi',
+                'bootaa64.efi'
+            ),
+            shim_pattern_type(
                 '/usr/lib64/efi/shim.efi',
                 'bootx64.efi'
             ),
@@ -1256,6 +1260,11 @@ class Defaults:
                     '/usr/share/efi/x86_64/grub.efi',
                     'grub.efi',
                     'grubx64.efi'
+                ),
+                grub_pattern_type(
+                    '/usr/share/efi/aarch64/grub.efi',
+                    'grub.efi',
+                    'grubaa64.efi'
                 ),
                 grub_pattern_type(
                     '/usr/lib64/efi/grub.efi',
