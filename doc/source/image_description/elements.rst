@@ -801,6 +801,26 @@ embed_verity_metadata="true|false":
     * **root_hash**: root hash as returned by `veritysetup`
     * **salt**: salt hash as returned by `veritysetup`
 
+.. note:: dm-verity Runtime Options
+
+  Additional veritysetup options can be provided at boot time using the kernel
+  parameter `rd.kiwi.verity_options=option1,option2`. This allows runtime
+  customization.
+
+  KIWI automatically provides `hash-offset` and `hash-block-size` parameters
+  based on the image configuration. These should not be specified manually
+  via `rd.kiwi.verity_options=`.
+
+  **Common Options:**
+
+  * `panic-on-corruption`: System panics on corruption detection
+  * `restart-on-corruption`: System restarts on corruption (often default)
+  * `ignore-corruption`: Ignore corruption (debugging only)
+  * `ignore-zero-blocks`: Skip verification of zero blocks
+  * `check-at-most-once`: Verify each block only once
+
+  For complete options, see `veritysetup(8) <https://man7.org/linux/man-pages/man8/veritysetup.8.html>`_.
+
 overlayroot="true|false":
   For the `oem` type only, specifies to use an `overlayfs` based root
   filesystem consisting out of a squashfs compressed read-only root

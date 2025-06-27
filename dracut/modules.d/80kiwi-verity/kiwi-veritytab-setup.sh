@@ -30,6 +30,16 @@ if [ "$(echo "${hash_device}" | cut -f1 -d=)" = "UUID" ];then
     hash_device=/dev/disk/by-uuid/$(echo "${hash_device}" | cut -f2 -d=)
 fi
 
+# Read kernel command line verity options and merge the options
+kiwi_verity_options=$(getarg rd.kiwi.verity_options=)
+if [ -n "${kiwi_verity_options}" ]; then
+    if [ -n "${options}" ]; then
+        options="${options},${kiwi_verity_options}"
+    else
+        options="${kiwi_verity_options}"
+    fi
+fi
+
 veritysetup="veritysetup open "
 veritysetup="${veritysetup} ${data_device} ${name} ${hash_device} ${root_hash}"
 
