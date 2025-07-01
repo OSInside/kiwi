@@ -206,6 +206,7 @@ class TestBootImageKiwi:
                     '--no-hostonly-cmdline',
                     '--force',
                     '--verbose',
+                    '--reproducible',
                     '--kver', '1.2.3',
                     '--uefi',
                     '--kernel-cmdline', 'some_cmdline',
@@ -265,7 +266,10 @@ class TestBootImageKiwi:
             call(
                 [
                     'chroot', 'system-directory',
-                    'dracut', '--verbose', '--no-hostonly',
+                    'dracut',
+                    '--verbose',
+                    '--reproducible',
+                    '--no-hostonly',
                     '--no-hostonly-cmdline',
                     '--add', ' foo ', '--omit', ' bar ',
                     '--drivers', ' driver1 ',
@@ -294,7 +298,10 @@ class TestBootImageKiwi:
             call(
                 [
                     'chroot', 'system-directory',
-                    'dracut', '--verbose', '--no-hostonly',
+                    'dracut',
+                    '--verbose',
+                    '--reproducible',
+                    '--no-hostonly',
                     '--no-hostonly-cmdline',
                     '--add', ' foo ', '--omit', ' bar ',
                     '--drivers', ' driver1 ',
