@@ -2565,7 +2565,8 @@ div {
             "lsilogic"   |
             "lsisas1068" |
             "legacyESX"  |
-            "pvscsi"
+            "pvscsi"     |
+            "sata"
         }
     k.vmdisk.id.attribute =
         ## The disk ID / device for the VM disk (vmdk only)
@@ -3539,7 +3540,7 @@ div {
     ]
     k.vagrantconfig.provider.attribute =
         ## The vagrant provider for this box
-        attribute provider { "libvirt" | "virtualbox" }
+        attribute provider { "libvirt" | "virtualbox" | "vmware" }
     k.vagrantconfig.virtualbox_guest_additions_present.attribute =
         ## Guest additions are present in this box
         attribute virtualbox_guest_additions_present { xsd:boolean }
