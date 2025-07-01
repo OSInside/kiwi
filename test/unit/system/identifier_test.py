@@ -6,10 +6,14 @@ from kiwi.system.identifier import SystemIdentifier
 
 
 class TestSystemIdentifier:
-    def setup(self):
-        self.identifier = SystemIdentifier()
+    @patch('random.seed')
+    def setup(self, mock_random_seed):
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '123456'}):
+            self.identifier = SystemIdentifier()
+        mock_random_seed.assert_called_once_with(123456)
 
-    def setup_method(self, cls):
+    @patch('random.seed')
+    def setup_method(self, cls, mock_random_seed):
         self.setup()
 
     def test_get_id(self):
