@@ -275,6 +275,7 @@ class BootImageDracut(BootImageBase):
                             '--no-hostonly-cmdline',
                             '--force',
                             '--verbose',
+                            '--reproducible',
                             '--kver', kernel_details.version,
                             '--uefi',
                             '--kernel-cmdline', cmdline
@@ -357,6 +358,7 @@ class BootImageDracut(BootImageBase):
                         [
                             'chroot', self.boot_root_directory,
                             'dracut', '--verbose',
+                            '--reproducible',
                             '--no-hostonly',
                             '--no-hostonly-cmdline'
                         ] + options + [
