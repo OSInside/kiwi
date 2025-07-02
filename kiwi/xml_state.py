@@ -1820,7 +1820,8 @@ class XMLState:
                         partition_name=str,
                         partition_type=str,
                         mountpoint=str,
-                        filesystem=str
+                        filesystem=str,
+                        label=str
                     )
                 }
 
@@ -1839,7 +1840,8 @@ class XMLState:
                 partition_name=partition_name,
                 partition_type=partition.get_partition_type() or 't.linux',
                 mountpoint=partition.get_mountpoint(),
-                filesystem=partition.get_filesystem()
+                filesystem=partition.get_filesystem(),
+                label=partition.get_label() or ''
             )
         return partitions
 

@@ -43,27 +43,28 @@ class FileSystemSquashFs(FileSystemBase):
         self.filename = filename
         exclude_options = []
         compression = self.custom_args.get('compression')
+        call_args = self.custom_args['create_options'].copy()
         if compression is None or compression == 'xz':
             if '-comp' not in self.custom_args['create_options']:
-                self.custom_args['create_options'].append('-comp')
-                self.custom_args['create_options'].append('xz')
+                call_args.append('-comp')
+                call_args.append('xz')
 
             if '-Xbcj' not in self.custom_args['create_options']:
                 host_architecture = Defaults.get_platform_name()
                 if Defaults.is_x86_arch(host_architecture):
-                    self.custom_args['create_options'].append('-Xbcj')
-                    self.custom_args['create_options'].append('x86')
+                    call_args.append('-Xbcj')
+                    call_args.append('x86')
                 if 'ppc' in host_architecture:
-                    self.custom_args['create_options'].append('-Xbcj')
-                    self.custom_args['create_options'].append('powerpc')
+                    call_args.append('-Xbcj')
+                    call_args.append('powerpc')
         elif compression != 'uncompressed':
             if '-comp' not in self.custom_args['create_options']:
-                self.custom_args['create_options'].append('-comp')
-                self.custom_args['create_options'].append(compression)
+                call_args.append('-comp')
+                call_args.append(compression)
         else:
             for flag in ['-noI', '-noD', '-noF', '-noX']:
                 if flag not in self.custom_args['create_options']:
-                    self.custom_args['create_options'].append(flag)
+                    call_args.append(flag)
 
         if exclude:
             exclude_options.extend(['-wildcards', '-e'])
@@ -74,5 +75,5 @@ class FileSystemSquashFs(FileSystemBase):
             [
                 'mksquashfs', self.root_dir, self.filename,
                 '-noappend', '-b', '1M'
-            ] + self.custom_args['create_options'] + exclude_options
+            ] + call_args + exclude_options
         )

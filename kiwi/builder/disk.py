@@ -1008,6 +1008,7 @@ class DiskBuilder:
                             squashed_root_file = Temporary().new_file()
                             filesystem.create_on_file(
                                 filename=squashed_root_file.name,
+                                label=ptable_entry.label,
                                 exclude=[Defaults.get_shared_cache_location()]
                             )
                             readonly_target = device_map[map_name].get_device()
@@ -1034,7 +1035,7 @@ class DiskBuilder:
                             )
                         else:
                             filesystem.create_on_device(
-                                label=map_name.upper()
+                                label=ptable_entry.label or map_name.upper()
                             )
                         filesystem_dict[map_name] = filesystem
         return filesystem_dict

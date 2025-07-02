@@ -42,15 +42,18 @@ class FileSystemXfs(FileSystemBase):
         :param str uuid: UUID name
         """
         device = self.device_provider.get_device()
+        call_args = self.custom_args['create_options'].copy()
+        if not uuid and label:
+            uuid = self._generate_seed_uuid(label)
         if label:
-            self.custom_args['create_options'].append('-L')
-            self.custom_args['create_options'].append(label)
+            call_args.append('-L')
+            call_args.append(label)
         if uuid:
-            self.custom_args['create_options'].append('-m')
-            self.custom_args['create_options'].append(f'uuid={uuid}')
+            call_args.append('-m')
+            call_args.append(f'uuid={uuid}')
         if size:
-            self.custom_args['create_options'].append('-d')
-            self.custom_args['create_options'].append(
+            call_args.append('-d')
+            call_args.append(
                 'size={0}k'.format(
                     self._fs_size(
                         size=self._map_size(
@@ -60,7 +63,7 @@ class FileSystemXfs(FileSystemBase):
                 )
             )
         Command.run(
-            ['mkfs.xfs', '-f'] + self.custom_args['create_options'] + [device]
+            ['mkfs.xfs', '-f'] + call_args + [device]
         )
 
     def set_uuid(self):
