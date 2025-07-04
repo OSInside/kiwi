@@ -63,6 +63,8 @@
         <package name="timezone"/>
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
+        <package name="NetworkManager"/>
+        <package name="systemd-resolved"/>
     </packages>
     <packages type="bootstrap">
         <package name="gawk"/>
