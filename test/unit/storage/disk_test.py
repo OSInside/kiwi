@@ -170,7 +170,8 @@ class TestDisk:
                 partition_name='p.lxvar',
                 partition_type='t.linux',
                 mountpoint='/var',
-                filesystem='ext3'
+                filesystem='ext3',
+                label='var'
             )
         }
         self.disk.create_custom_partitions(table_entries)
@@ -191,7 +192,8 @@ class TestDisk:
                 partition_name='p.lxroot',
                 partition_type='t.linux',
                 mountpoint='/',
-                filesystem='ext3'
+                filesystem='ext3',
+                label='root'
             )
         }
         with raises(KiwiCustomPartitionConflictError):

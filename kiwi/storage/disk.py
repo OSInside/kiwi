@@ -42,7 +42,8 @@ ptable_entry_type = NamedTuple(
         ('partition_name', str),
         ('partition_type', str),
         ('mountpoint', str),
-        ('filesystem', str)
+        ('filesystem', str),
+        ('label', str)
     ]
 )
 

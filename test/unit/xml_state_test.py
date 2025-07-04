@@ -423,7 +423,8 @@ class TestXMLState:
                 partition_name='p.lxvar',
                 partition_type='t.linux',
                 mountpoint='/var',
-                filesystem='ext3'
+                filesystem='ext3',
+                label=''
             )
         }
 

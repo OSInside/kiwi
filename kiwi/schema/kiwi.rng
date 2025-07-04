@@ -4084,6 +4084,11 @@ Allowed values are: t.linux</a:documentation>
         <ref name="number-type"/>
       </attribute>
     </define>
+    <define name="k.partition.label.attribute">
+      <attribute name="label">
+        <a:documentation>filesystem label</a:documentation>
+      </attribute>
+    </define>
     <define name="k.partition.attlist">
       <interleave>
         <ref name="k.partition.name.attribute"/>
@@ -4099,6 +4104,9 @@ Allowed values are: t.linux</a:documentation>
         </optional>
         <optional>
           <ref name="k.partition.filesystem.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.label.attribute"/>
         </optional>
         <optional>
           <ref name="k.partition.clone.attribute"/>
