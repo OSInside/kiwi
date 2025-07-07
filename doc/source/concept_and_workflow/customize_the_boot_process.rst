@@ -200,6 +200,13 @@ the available kernel boot parameters for these modules:
   If set to the special value `off`, the dialog will never
   timeout.
 
+``rd.kiwi.install.devicepersistency=by-*``
+  Instructs an OEM installation image to present the list of
+  available disk devices using the device names as provided
+  by the specified `by-*` representation. For example
+  `rd.kiwi.install.devicepersistency=by-path` would show the
+  by-path device names in the list of available disks.
+
 ``rd.kiwi.install.pxe``
   Instructs an OEM installation image to lookup the system
   image on a remote location specified in `rd.kiwi.install.image`.

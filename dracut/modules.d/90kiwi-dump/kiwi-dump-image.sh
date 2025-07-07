@@ -15,6 +15,50 @@ function scan_multipath_devices {
     systemctl start multipathd
 }
 
+function find_disk_entry {
+    # """
+    # lookup disk entry by name and echo the
+    # associated entry parameter (size) when found
+    # """
+    local list_items=$1
+    local search=$2
+    local count=0
+    local found=
+    for entry in ${list_items};do
+        if [ -n "${found}" ];then
+            echo "${entry}"
+            return
+        fi
+        if [ $((count % 2)) -eq 0 ];then
+            if [ "${entry}" = "${search}" ];then
+                found=1
+            fi
+        fi
+        count=$((count + 1))
+    done
+}
+
+function sort_disk_entries {
+    # """
+    # sort the disk entry names
+    # """
+    local list_items=$1
+    local count=0
+    local device_index=0
+    local device_array
+    local list_items_sorted
+    for entry in ${list_items};do
+        if [ $((count % 2)) -eq 0 ];then
+            device_array[${device_index}]=${entry}
+            device_index=$((device_index + 1))
+        fi
+        count=$((count + 1))
+    done
+    readarray -td '' list_items_sorted \
+        < <(printf '%s\0' "${device_array[@]}" | sort -z)
+    echo "${list_items_sorted[*]}"
+}
+
 function get_disk_list {
     declare kiwi_oemdevicefilter=${kiwi_oemdevicefilter}
     declare kiwi_oemmultipath_scan=${kiwi_oemmultipath_scan}
@@ -29,6 +73,7 @@ function get_disk_list {
     local disk_device_by_id
     local disk_meta
     local list_items
+    local list_items_sorted
     local max_disk
     local kiwi_oem_maxdisk
     local blk_opts="-p -n -r --sort NAME -o NAME,SIZE,TYPE"
@@ -39,9 +84,13 @@ function get_disk_list {
         disk_id=${kiwi_devicepersistency}
     fi
     max_disk=0
+    kiwi_install_devicepersistency=$(getarg rd.kiwi.install.devicepersistency=)
     kiwi_oemmultipath_scan=$(bool "${kiwi_oemmultipath_scan}")
     kiwi_oem_maxdisk=$(getarg rd.kiwi.oem.maxdisk=)
     kiwi_oem_installdevice=$(getarg rd.kiwi.oem.installdevice=)
+    if [ -n "${kiwi_install_devicepersistency}" ];then
+        disk_id=${kiwi_install_devicepersistency}
+    fi
     if [ -n "${kiwi_oem_maxdisk}" ]; then
         max_disk=$(binsize_to_bytesize "${kiwi_oem_maxdisk}") || max_disk=0
     fi
@@ -154,7 +203,13 @@ function get_disk_list {
         local no_device_text="No device(s) for installation found"
         report_and_quit "${no_device_text}"
     fi
-    echo "${list_items}"
+
+    # apply final sorting for the used disk_device names
+    list_items_sorted=$(sort_disk_entries "${list_items}")
+    for entry in ${list_items_sorted[*]}; do
+        echo -n "${entry} $(find_disk_entry "${list_items}" "${entry}") "
+    done
+    echo
 }
 
 function validate_disk_selection {
@@ -207,7 +262,7 @@ function get_selected_disk {
                 # unattended mode requested with target specifier
                 # use this device if present
                 local device
-                for device in ${device_array[*]}; do
+                for device in "${device_array[@]}"; do
                     if [[ ${device} =~ ${kiwi_oemunattended_id} ]];then
                         echo "${device}"
                         return
@@ -217,8 +272,7 @@ function get_selected_disk {
         else
             # manually select from storage list
             if ! run_dialog \
-                --menu "\"Select Installation Disk\"" 20 75 15 \
-                "$(get_disk_list)"
+                --menu "\"Select Installation Disk\"" 20 75 15 "${disk_list}"
             then
                 report_and_quit "System installation canceled"
             fi
