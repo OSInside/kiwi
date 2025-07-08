@@ -65,11 +65,16 @@ size="size_string"
   specification mega-Byte is used.
 
 mountpoint="path"
-  Mandatory mountpoint to mount the partition in the system.
+  Optional mountpoint to mount the partition in the system.
 
 filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs
-  Mandatory filesystem configuration to create one of the supported
+  Optional filesystem configuration to create one of the supported
   filesystems on the partition.
+
+label="string"
+  Optional filesystem label if a filesystem is provided. If no
+  label is specified the `name` identifier is set as filesystem
+  label
 
 clone="number"
   Optional setting to indicate that this partition should be

@@ -470,7 +470,8 @@ class TestDiskBuilder:
                 partition_name='p.lxvar',
                 partition_type='t.linux',
                 mountpoint='/var',
-                filesystem='ext3'
+                filesystem='ext3',
+                label='var'
             )
         }
         volume_manager = Mock()
@@ -546,7 +547,8 @@ class TestDiskBuilder:
                 partition_name='p.lxvar',
                 partition_type='t.linux',
                 mountpoint='/var',
-                filesystem='ext3'
+                filesystem='ext3',
+                label='var'
             )
         }
         self.disk_builder.root_clone_count = 1
@@ -1457,7 +1459,8 @@ class TestDiskBuilder:
                 partition_name='p.lxvar',
                 partition_type='t.linux',
                 mountpoint='/var',
-                filesystem='ext3'
+                filesystem='ext3',
+                label='var'
             ),
             'spare': ptable_entry_type(
                 mbsize=100,
@@ -1465,7 +1468,8 @@ class TestDiskBuilder:
                 partition_name='p.lxtmp',
                 partition_type='t.linux',
                 mountpoint='/spare',
-                filesystem='squashfs'
+                filesystem='squashfs',
+                label=''
             )
         }
         self.disk_builder.volume_manager_name = None

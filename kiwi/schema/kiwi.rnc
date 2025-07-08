@@ -2698,6 +2698,9 @@ div {
     k.partition.clone.attribute =
         ## Clone this partition N times
         attribute clone { number-type }
+    k.partition.label.attribute =
+        ## filesystem label
+        attribute label { text }
     k.partition.attlist =
         k.partition.name.attribute &
         k.partition.size.attribute &
@@ -2705,6 +2708,7 @@ div {
         k.partition.partition_type.attribute? &
         k.partition.mountpoint.attribute? &
         k.partition.filesystem.attribute? &
+        k.partition.label.attribute? &
         k.partition.clone.attribute?
     k.partition =
         ## Specify custom partition in the partition table
