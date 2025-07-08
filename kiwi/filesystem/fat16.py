@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 
 # project
+from uuid import UUID
 import kiwi.defaults as defaults
 
 from kiwi.filesystem.base import FileSystemBase
@@ -42,12 +43,15 @@ class FileSystemFat16(FileSystemBase):
         :param str uuid: Volume Label, there is no real UUID on fat
         """
         device_args = [self.device_provider.get_device()]
+        call_args = self.custom_args['create_options'].copy()
+        if not uuid and label:
+            uuid = self._generate_seed_uuid(label)
         if label:
-            self.custom_args['create_options'].append('-n')
-            self.custom_args['create_options'].append(label)
+            call_args.append('-n')
+            call_args.append(label)
         if uuid:
-            self.custom_args['create_options'].append('-i')
-            self.custom_args['create_options'].append(uuid)
+            call_args.append('-i')
+            call_args.append(f'{UUID(uuid).time_low:08X}')
         if size:
             device_args.append(
                 self._fs_size(
@@ -59,7 +63,7 @@ class FileSystemFat16(FileSystemBase):
         Command.run(
             [
                 'mkdosfs', '-F16', '-I'
-            ] + self.custom_args['create_options'] + device_args
+            ] + call_args + device_args
         )
 
     def set_uuid(self):

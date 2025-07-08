@@ -26,10 +26,22 @@ class TestFileSystemExt2:
 
     @patch('kiwi.filesystem.ext2.Command.run')
     def test_create_on_device(self, mock_command):
-        self.ext2.create_on_device('label', 100, uuid='uuid')
-        call = mock_command.call_args_list[0]
-        assert mock_command.call_args_list[0] == \
-            call(['mkfs.ext2', '-L', 'label', '-U', 'uuid', '/dev/foo', '100'])
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '0'}):
+            self.ext2.create_on_device('label', 100, uuid='uuid')
+            call = mock_command.call_args_list[0]
+            assert mock_command.call_args_list[0] == \
+                call(['mkfs.ext2', '-L', 'label', '-U', 'uuid', '/dev/foo', '100'])
+            mock_command.reset_mock()
+            self.ext2.create_on_device('label', 100)
+            assert mock_command.call_args_list[0] == call(
+                [
+                    'mkfs.ext2',
+                    '-L', 'label',
+                    '-U', '2453562e-7073-2098-d091-fd7a04dc5434',
+                    '/dev/foo',
+                    '100'
+                ]
+            )
 
     @patch('kiwi.filesystem.ext2.Command.run')
     def test_set_uuid(self, mock_command):

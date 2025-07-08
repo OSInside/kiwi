@@ -168,3 +168,14 @@ class TestFileSystemBase:
         with FileSystemBase(Mock()) as fsbase:
             fsbase.filesystem_mount = mount_manager
         mount_manager.umount.assert_called_once_with()
+
+    def test_generate_seed_uuid(self):
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '123456'}):
+            assert self.fsbase._generate_seed_uuid('label') == \
+                'c0cbf4e3-10a7-86ea-9472-87aaca0074f2'
+
+    @patch('kiwi.filesystem.base.uuid')
+    def test_generate_seed_uuid_random(self, mock_uuid):
+        mock_uuid.uuid4.return_value = 'some'
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': ''}):
+            assert self.fsbase._generate_seed_uuid('label') == 'some'

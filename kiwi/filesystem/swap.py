@@ -39,9 +39,10 @@ class FileSystemSwap(FileSystemBase):
         :param str uuid: unused
         """
         device = self.device_provider.get_device()
+        call_args = self.custom_args['create_options'].copy()
         if label:
-            self.custom_args['create_options'].append('-L')
-            self.custom_args['create_options'].append(label)
+            call_args.append('-L')
+            call_args.append(label)
         Command.run(
-            ['mkswap'] + self.custom_args['create_options'] + [device]
+            ['mkswap'] + call_args + [device]
         )
