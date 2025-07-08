@@ -139,6 +139,12 @@ class CliTask:
             if self.global_args['--color-output']:
                 log.set_color_format()
 
+        if self.global_args['--setenv']:
+            for setenv in self.global_args['--setenv']:
+                (variable, value) = self.attr_token(setenv)
+                log.info(f'--> Set Env[{variable}]="{value}"')
+                os.environ[format(variable)] = format(value)
+
         # initialize runtime configuration
         # import RuntimeConfig late to make sure the logging setup applies
         from kiwi.runtime_config import RuntimeConfig
