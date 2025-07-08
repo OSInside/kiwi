@@ -45,6 +45,7 @@ class TestCliTask:
             '--loglevel': None,
             '--color-output': True,
             '--profile': ['vmxFlavour'],
+            '--setenv': ['SOURCE_DATE_EPOCH=42'],
             '--type': None
         }
         mock_command_args.return_value = {
@@ -78,6 +79,7 @@ class TestCliTask:
             '--loglevel': None,
             '--color-output': True,
             '--profile': ['vmxFlavour'],
+            '--setenv': [],
             '--type': None
         }
         self.task = CliTask()
@@ -120,6 +122,7 @@ class TestCliTask:
             '--debug-run-scripts-in-screen': None,
             '--color-output': None,
             '--loglevel': '10',
+            '--setenv': []
         }
         self.task = CliTask()
         mock_setLogLevel.assert_called_once_with(10)
@@ -141,6 +144,7 @@ class TestCliTask:
             '--debug-run-scripts-in-screen': None,
             '--color-output': None,
             '--loglevel': 'bogus',
+            '--setenv': []
         }
         self.task = CliTask()
         mock_setLogLevel.assert_called_once_with(20)
