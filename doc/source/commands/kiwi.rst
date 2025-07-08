@@ -12,6 +12,7 @@ SYNOPSIS
 
    kiwi-ng -h | --help
    kiwi-ng [--profile=<name>...]
+           [--setenv=<variable=value>...]
            [--temp-dir=<directory>]
            [--type=<build_type>]
            [--logfile=<filename>]
@@ -32,6 +33,7 @@ SYNOPSIS
            [--config=<configfile>]
        result <command> [<args>...]
    kiwi-ng [--profile=<name>...]
+           [--setenv=<variable=value>...]
            [--shared-cache-dir=<directory>]
            [--temp-dir=<directory>]
            [--target-arch=<name>]
@@ -142,6 +144,11 @@ GLOBAL OPTIONS
   Select profile to use. The specified profile must be part of the
   XML description. The option can be specified multiple times to
   allow a combination of profiles.
+
+--setenv=<variable=value>
+
+  export environment variable and its value into the caller
+  environment. This option can be specified multiple times
 
 --shared-cache-dir=<directory>
 

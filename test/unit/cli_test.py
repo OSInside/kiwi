@@ -38,6 +38,7 @@ class TestCli:
             '--debug-run-scripts-in-screen': False,
             'result': False,
             '--profile': [],
+            '--setenv': [],
             '--shared-cache-dir': '/var/cache/kiwi',
             '--temp-dir': '/var/tmp',
             '--target-arch': None,

@@ -42,15 +42,18 @@ class FileSystemBtrfs(FileSystemBase):
         :param str uuid: UUID name
         """
         device = self.device_provider.get_device()
+        call_args = self.custom_args['create_options'].copy()
+        if not uuid and label:
+            uuid = self._generate_seed_uuid(label)
         if label:
-            self.custom_args['create_options'].append('-L')
-            self.custom_args['create_options'].append(label)
+            call_args.append('-L')
+            call_args.append(label)
         if uuid:
-            self.custom_args['create_options'].append('-U')
-            self.custom_args['create_options'].append(uuid)
+            call_args.append('-U')
+            call_args.append(uuid)
         if size:
-            self.custom_args['create_options'].append('--byte-count')
-            self.custom_args['create_options'].append(
+            call_args.append('--byte-count')
+            call_args.append(
                 self._fs_size(
                     size=self._map_size(
                         size, from_unit=unit, to_unit=defaults.UNIT.byte
@@ -58,7 +61,7 @@ class FileSystemBtrfs(FileSystemBase):
                 )
             )
         Command.run(
-            ['mkfs.btrfs'] + self.custom_args['create_options'] + [device]
+            ['mkfs.btrfs'] + call_args + [device]
         )
 
     def set_uuid(self):

@@ -39,9 +39,10 @@ class FileSystemEroFs(FileSystemBase):
         self.filename = filename
         exclude_options = []
         compression = self.custom_args.get('compression')
+        call_args = self.custom_args['create_options'].copy()
         if compression:
-            self.custom_args['create_options'].append('-z')
-            self.custom_args['create_options'].append(compression)
+            call_args.append('-z')
+            call_args.append(compression)
 
         if exclude:
             for item in exclude:
@@ -53,13 +54,13 @@ class FileSystemEroFs(FileSystemBase):
                 exclude_options.append(f'--exclude-regex={as_regex}')
 
         if label:
-            self.custom_args['create_options'].append('-L')
-            self.custom_args['create_options'].append(label)
+            call_args.append('-L')
+            call_args.append(label)
 
         Command.run(
             [
                 'mkfs.erofs'
-            ] + self.custom_args['create_options'] + exclude_options + [
+            ] + call_args + exclude_options + [
                 self.filename, self.root_dir
             ]
         )

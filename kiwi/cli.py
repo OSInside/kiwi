@@ -18,6 +18,7 @@
 """
 usage: kiwi-ng -h | --help
        kiwi-ng [--profile=<name>...]
+               [--setenv=<variable=value>...]
                [--temp-dir=<directory>]
                [--target-arch=<name>]
                [--type=<build_type>]
@@ -39,6 +40,7 @@ usage: kiwi-ng -h | --help
                [--config=<configfile>]
            result <command> [<args>...]
        kiwi-ng [--profile=<name>...]
+               [--setenv=<variable=value>...]
                [--shared-cache-dir=<directory>]
                [--temp-dir=<directory>]
                [--target-arch=<name>]
@@ -89,6 +91,9 @@ global options for services: image, system
     --profile=<name>
         profile name, multiple profiles can be selected by passing
         this option multiple times
+    --setenv=<variable=value>
+        export environment variable and its value into the caller
+        environment. This option can be specified multiple times
     --shared-cache-dir=<directory>
         specify an alternative shared cache directory. The directory
         is shared via bind mount between the build host and image

@@ -42,12 +42,15 @@ class FileSystemExt4(FileSystemBase):
         :param str uuid: UUID name
         """
         device_args = [self.device_provider.get_device()]
+        call_args = self.custom_args['create_options'].copy()
+        if not uuid and label:
+            uuid = self._generate_seed_uuid(label)
         if label:
-            self.custom_args['create_options'].append('-L')
-            self.custom_args['create_options'].append(label)
+            call_args.append('-L')
+            call_args.append(label)
         if uuid:
-            self.custom_args['create_options'].append('-U')
-            self.custom_args['create_options'].append(uuid)
+            call_args.append('-U')
+            call_args.append(uuid)
         if size:
             device_args.append(
                 self._fs_size(
@@ -57,7 +60,7 @@ class FileSystemExt4(FileSystemBase):
                 )
             )
         Command.run(
-            ['mkfs.ext4'] + self.custom_args['create_options'] + device_args
+            ['mkfs.ext4'] + call_args + device_args
         )
 
     def set_uuid(self):
