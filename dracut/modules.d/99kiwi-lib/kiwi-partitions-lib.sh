@@ -191,6 +191,7 @@ function get_partition_node_name {
     local index=1
     local part
     udev_pending
+    # backwards compat for lsblk before 2.38: if START column not supported, fall back to default sort
     for partnode in $(
         { lsblk -p -l -o NAME,TYPE,START -x START "${disk}" 2>/dev/null ||\
         lsblk -p -l -o NAME,TYPE "${disk}"; } |\
