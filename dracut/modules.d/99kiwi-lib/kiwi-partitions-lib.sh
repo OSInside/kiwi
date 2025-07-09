@@ -328,7 +328,9 @@ function relocate_gpt_at_end_of_disk {
 
 function disk_has_unallocated_space {
     local disk_device=$1
+    local free_mbytes
     local pt_table_type
+    local flag="GPT PMBR size mismatch"
     pt_table_type=$(get_partition_table_type "${disk_device}")
     if [ "${pt_table_type}" = "gpt" ];then
         # GPT disks store a backup table at the end of the disk
@@ -337,13 +339,20 @@ function disk_has_unallocated_space {
         # checked and used to detect that there is space
         # unallocated due to a geometry change of the underlying
         # block device layer
-        sgdisk --verify "${disk_device}" 2>&1 | grep -q "end of the disk"
-    else
-        # There is currently no method we could come up with
-        # to detect a geometry change for non GPT based disks.
-        # Thus we assume it's not fully allocated and allow
-        # for resize
+        if sfdisk --list-free "${disk_device}" 2>&1 | grep -q "${flag}"; then
+            return
+        fi
+    fi
+    # lookup if there is free space on disk compared to
+    # the current geometry values in the partition table
+    free_mbytes=$(
+        sfdisk --list-free "${disk_device}" |\
+            grep -i Unpartitioned | cut -f2 -d, | grep -o -E '[0-9]+'
+    )
+    if [ "${free_mbytes}" != "0" ];then
         true
+    else
+        false
     fi
 }
 
