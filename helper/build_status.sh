@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pushd /run
+
 for project in \
     Virtualization:Appliances:SelfContained:fedora \
     Virtualization:Appliances:SelfContained:tumbleweed \
@@ -69,3 +71,5 @@ Legend:
  ? buildstatus not available
 EOF
 fi
+
+popd
