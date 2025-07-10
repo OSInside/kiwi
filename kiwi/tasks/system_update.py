@@ -15,29 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: kiwi-ng system update -h | --help
-       kiwi-ng system update --root=<directory>
-           [--add-package=<name>...]
-           [--delete-package=<name>...]
-       kiwi-ng system update help
-
-commands:
-    update
-        update root system with latest repository updates
-        and optionally allow to add or delete packages. the options
-        to add or delete packages can be used multiple times
-    update help
-        show manual page for update command
-
-options:
-    --add-package=<name>
-        install the given package name
-    --delete-package=<name>
-        delete the given package name
-    --root=<directory>
-        path to the root directory of the image
-"""
 import os
 import logging
 
