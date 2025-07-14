@@ -1,22 +1,10 @@
-#======================================
-# Functions...
-#--------------------------------------
-test -f /.kconfig && . /.kconfig
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
+#!/bin/bash
+set -ex
 
 #======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
-
-#======================================
-# Setup default target, multi-user
-#--------------------------------------
-baseSetRunlevel 3
+systemctl enable sshd
 
 # For image tests with an extra boot partition the
 # kernel must not be a symlink to another area of
@@ -34,10 +22,10 @@ baseSetRunlevel 3
 pushd /
 
 for file in /boot/* /boot/.*; do
-    if [ -L ${file} ];then
-        link_target=$(readlink ${file})
+    if [ -L "${file}" ];then
+        link_target=$(readlink "${file}")
         if [[ ${link_target} =~ usr/lib/modules ]];then
-            mv ${link_target} ${file}
+            mv "${link_target}" "${file}"
         fi
     fi
 done

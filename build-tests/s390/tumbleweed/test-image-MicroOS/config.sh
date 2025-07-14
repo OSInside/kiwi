@@ -1,12 +1,13 @@
 #!/bin/bash
-# shellcheck disable=SC1091
-test -f /.kconfig && . /.kconfig
 set -euxo pipefail
 
-declare kiwi_iname=${kiwi_iname}
-declare kiwi_profiles=${kiwi_profiles}
+# shellcheck disable=SC1091
+#======================================
+# Functions
+#--------------------------------------
+test -f /.kconfig && . /.kconfig
 
-echo "Configure image: [${kiwi_iname}]-[${kiwi_profiles}]..."
+declare kiwi_profiles=${kiwi_profiles}
 
 #======================================
 # Setup Core Services

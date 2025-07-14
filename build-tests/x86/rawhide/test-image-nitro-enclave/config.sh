@@ -1,10 +1,5 @@
 #!/bin/bash
-
 set -ex
-
-declare kiwi_iname=${kiwi_iname}
-
-echo "Configure image: [${kiwi_iname}]..."
 
 #======================================
 # Setup services

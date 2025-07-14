@@ -1,13 +1,7 @@
 #!/bin/bash
 set -ex
 
-declare kiwi_iname=${kiwi_iname}
 declare kiwi_profiles=${kiwi_profiles}
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
 
 #======================================
 # Activate services
@@ -39,10 +33,10 @@ for profile in ${kiwi_profiles//,/ }; do
         pushd /
 
         for file in /boot/* /boot/.*; do
-            if [ -L ${file} ];then
-                link_target=$(readlink ${file})
+            if [ -L "${file}" ];then
+                link_target=$(readlink "${file}")
                 if [[ ${link_target} =~ usr/lib/modules ]];then
-                    mv ${link_target} ${file}
+                    mv "${link_target}" "${file}"
                 fi
             fi
         done

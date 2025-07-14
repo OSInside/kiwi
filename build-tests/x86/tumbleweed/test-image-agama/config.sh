@@ -2,6 +2,9 @@
 
 set -ex
 
+declare kiwi_install_volid=${kiwi_install_volid}
+declare kiwi_iname=${kiwi_iname}
+
 label=${kiwi_install_volid:-$kiwi_iname}
 
 #======================================

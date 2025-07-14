@@ -1,12 +1,9 @@
 #!/bin/bash
 set -ex
 
-#======================================
-# Functions...
-#--------------------------------------
-test -f /.kconfig && . /.kconfig
-
-echo "Configure image: [$kiwi_iname]..."
+declare kiwi_language=${kiwi_language}
+declare kiwi_keytable=${kiwi_keytable}
+declare kiwi_timezone=${kiwi_timezone}
 
 #======================================
 # add missing fonts
@@ -18,11 +15,6 @@ CONSOLE_FONT="eurlatgr.psfu"
 #--------------------------------------
 dpkg -i /var/tmp/firmware/linux-firmware-raspi_6-0ubuntu3_arm64.deb
 dpkg -i /var/tmp/firmware/linux-firmware-raspi2_6-0ubuntu3_arm64.deb
-
-#======================================
-# Setup default target, multi-user
-#--------------------------------------
-baseSetRunlevel 3
 
 # On Debian based distributions the kiwi built in way
 # to setup locale, keyboard and timezone via systemd tools
@@ -39,15 +31,17 @@ echo "LANG=${kiwi_language}" > /etc/locale.conf
 # Setup system keymap
 #---------------------------------------
 echo "KEYMAP=${kiwi_keytable}" > /etc/vconsole.conf
-echo "FONT=eurlatgr.psfu" >> /etc/vconsole.conf
-echo "FONT_MAP=" >> /etc/vconsole.conf
-echo "FONT_UNIMAP=" >> /etc/vconsole.conf
+{
+    echo "FONT=eurlatgr.psfu"
+    echo "FONT_MAP="
+    echo "FONT_UNIMAP="
+} >> /etc/vconsole.conf
 
 #=======================================
 # Setup system timezone
 #---------------------------------------
 rm -f /etc/localtime
-ln -s /usr/share/zoneinfo/${kiwi_timezone} /etc/localtime
+ln -s /usr/share/zoneinfo/"${kiwi_timezone}" /etc/localtime
 
 #=======================================
 # Setup HW clock to UTC
@@ -59,11 +53,11 @@ echo "UTC" >> /etc/adjtime
 #======================================
 # Activate services
 #--------------------------------------
-baseInsertService ssh
-baseInsertService systemd-networkd
-baseInsertService symlink-resolvconf
-baseInsertService rpi-eeprom-update
-baseInsertService systemd-timesyncd
+systemctl enable ssh
+systemctl enable systemd-networkd
+systemctl enable symlink-resolvconf
+systemctl enable rpi-eeprom-update
+systemctl enable systemd-timesyncd
 
 #======================================
 # Sysconfig Update

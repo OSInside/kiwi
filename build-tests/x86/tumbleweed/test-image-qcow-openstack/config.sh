@@ -1,33 +1,11 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2019 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Robert Schweikert <ms@suse.de>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#----------------
+set -ex
+
+# shellcheck disable=SC1091
 #======================================
 # Functions...
 #--------------------------------------
 test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
-
-#======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
 
 #=========================================
 # Set sysconfig options
@@ -61,14 +39,9 @@ echo "datasource_list: [ NoCloud, ConfigDrive, OpenStack, None ]" \
 #======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
-suseInsertService cloud-init-local
-suseInsertService cloud-init
-suseInsertService cloud-config
-suseInsertService cloud-final
-suseInsertService haveged
-
-#======================================
-# Deactivate services
-#--------------------------------------
-suseRemoveService kbd
+systemctl enable sshd
+systemctl enable cloud-init-local
+systemctl enable cloud-init
+systemctl enable cloud-config
+systemctl enable cloud-final
+systemctl enable haveged
