@@ -32,6 +32,7 @@ class TestRootBind:
         assert self.bind_root.bind_locations == [
             '/proc',
             '/dev',
+            '/dev/pts',
             '/var/run/dbus',
             '/sys'
         ]
@@ -98,7 +99,10 @@ class TestRootBind:
 
     @patch('kiwi.system.root_bind.os.path.exists')
     @patch('kiwi.system.root_bind.MountManager')
-    def test_mount_kernel_file_systems(self, mock_mount, mock_exists):
+    @patch('kiwi.system.root_bind.pathlib.Path')
+    def test_mount_kernel_file_systems(
+        self, mock_pathlib_Path, mock_mount, mock_exists
+    ):
         mock_exists.return_value = True
         shared_mount = Mock()
         mock_mount.return_value = shared_mount

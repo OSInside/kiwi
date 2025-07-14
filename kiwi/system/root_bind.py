@@ -17,6 +17,7 @@
 #
 import os
 import logging
+import pathlib
 import shutil
 import textwrap
 from typing import List
@@ -68,6 +69,7 @@ class RootBind:
         self.bind_locations = [
             '/proc',
             '/dev',
+            '/dev/pts',
             '/var/run/dbus',
             '/sys'
         ]
@@ -95,12 +97,13 @@ class RootBind:
                 self.mount_stack.append(shared_mount)
 
             for location in self.bind_locations:
-                location_mount_target = os.path.normpath(os.sep.join([
-                    self.root_dir, location
-                ]))
-                if os.path.exists(location) and os.path.exists(
-                    location_mount_target
-                ):
+                if os.path.exists(location):
+                    location_mount_target = os.path.normpath(
+                        os.sep.join([self.root_dir, location])
+                    )
+                    pathlib.Path(location_mount_target).mkdir(
+                        parents=True, exist_ok=True
+                    )
                     shared_mount = MountManager(
                         device=location, mountpoint=location_mount_target
                     )
