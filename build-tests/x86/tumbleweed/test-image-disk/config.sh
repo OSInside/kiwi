@@ -1,44 +1,9 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Marcus Schaefer <ms@suse.de>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#               :
-# STATUS        : BETA
-#----------------
-#======================================
-# Functions...
-#--------------------------------------
-test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
-
-#======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
+set -ex
 
 #======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
-suseInsertService grub_config
-suseInsertService dracut_hostonly
-
-#======================================
-# Setup default target, multi-user
-#--------------------------------------
-baseSetRunlevel 3
+systemctl enable sshd
+systemctl enable grub_config
+systemctl enable dracut_hostonly

@@ -1,35 +1,11 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2018 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Marcus Schaefer <ms@suse.de>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#               :
-# STATUS        : BETA
-#----------------
+set -ex
+
+# shellcheck disable=SC1091
 #======================================
 # Functions...
 #--------------------------------------
 test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
-
-#======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
 
 #=========================================
 # Set sysconfig options
@@ -89,17 +65,17 @@ sed -i 's/# download.use_deltarpm = true/download.use_deltarpm = false/' \
 #======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
-suseInsertService google-accounts-daemon
-suseInsertService google-clock-skew-daemon
-suseInsertService google-instance-setup
-suseInsertService google-network-daemon
-suseInsertService google-shutdown-scripts
-suseInsertService google-startup-scripts
-suseInsertService haveged
-suseInsertService ntpd
-suseInsertService rootgrow
-suseRemoveService boot.lvm
-suseRemoveService boot.md
-suseRemoveService display-manager
-suseRemoveService kbd
+systemctl enable sshd
+systemctl enable google-accounts-daemon
+systemctl enable google-clock-skew-daemon
+systemctl enable google-instance-setup
+systemctl enable google-network-daemon
+systemctl enable google-shutdown-scripts
+systemctl enable google-startup-scripts
+systemctl enable haveged
+systemctl enable ntpd
+systemctl enable rootgrow
+systemctl enable boot.lvm
+systemctl enable boot.md
+systemctl enable display-manager
+systemctl enable kbd

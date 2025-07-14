@@ -1,14 +1,7 @@
 #!/bin/bash
-
 set -ex
 
 declare kiwi_profiles=${kiwi_profiles}
-declare kiwi_iname=${kiwi_iname}
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
 
 #======================================
 # Setup services

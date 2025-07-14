@@ -115,6 +115,7 @@ test_scripts: setup
 
 check: setup
 	# shell code checks
+	find build-tests -name config.sh | xargs shellcheck
 	bash -c 'shellcheck -e ${sc_disable} dracut/modules.d/*/*.sh -s bash'
 	bash -c 'shellcheck -e ${sc_disable} kiwi/config/functions.sh -s bash'
 	bash -c 'shellcheck build-tests.sh'

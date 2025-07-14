@@ -1,35 +1,11 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2013 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Robert Schweikert <rjschwei@suse.com>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#               :
-# STATUS        : BETA
-#----------------
+set -ex
+
+# shellcheck disable=SC1091
 #======================================
 # Functions...
 #--------------------------------------
 test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
-
-#======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
 
 #=========================================
 # Set sysconfig options
@@ -92,11 +68,11 @@ sed -i 's/# download.use_deltarpm = true/download.use_deltarpm = false/' /etc/zy
 #======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
-suseInsertService haveged
-suseInsertService waagent
-suseRemoveService boot.lvm
-suseRemoveService boot.md
-suseRemoveService display-manager
-suseRemoveService kbd
-suseRemoveService smartd
+systemctl enable sshd
+systemctl enable haveged
+systemctl enable waagent
+systemctl enable boot.lvm
+systemctl enable boot.md
+systemctl enable display-manager
+systemctl enable kbd
+systemctl enable smartd

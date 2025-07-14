@@ -1,38 +1,7 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : openSUSE KIWI Image System
-# COPYRIGHT     : (c) 2019 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Marcus Schaefer <ms@suse.de>
-#               : Dan Čermák <dcermak@suse.com>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#               :
-# STATUS        : BETA
-#----------------
-set -euo pipefail
+set -exuo pipefail
 
-#======================================
-# Functions...
-#--------------------------------------
-test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
-
-#======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
+declare kiwi_profiles=${kiwi_profiles}
 
 #======================================
 # Disable recommends
@@ -51,11 +20,6 @@ sed -i 's/.*rpm.install.excludedocs.*/rpm.install.excludedocs = yes/g' \
 #--------------------------------------
 sed -i 's/^multiversion/# multiversion/' \
     /etc/zypp/zypp.conf
-
-#======================================
-# Setup default target, multi-user
-#--------------------------------------
-baseSetRunlevel 3
 
 #==========================================
 # remove package docs
@@ -125,4 +89,4 @@ vagrantSetup
 #=================================================
 # enable haveged to get enough entropy in a VM
 #-------------------------------------------------
-baseInsertService haveged
+systemctl enable haveged

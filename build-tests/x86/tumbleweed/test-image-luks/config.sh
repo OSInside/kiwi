@@ -1,55 +1,18 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Marcus Schaefer <ms@suse.de>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#               :
-# STATUS        : BETA
-#----------------
-declare kiwi_iname=${kiwi_iname}
+set -ex
+
 declare kiwi_profiles=${kiwi_profiles}
-
-#======================================
-# Functions...
-#--------------------------------------
-# shellcheck disable=SC1091
-test -f /.kconfig && . /.kconfig
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
-
-#======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
 
 #======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
-
-#======================================
-# Setup default target, multi-user
-#--------------------------------------
-baseSetRunlevel 3
+systemctl enable sshd
 
 #==========================================
 # remove package docs
 #------------------------------------------
 rm -rf /usr/share/doc/packages/*
 rm -rf /usr/share/doc/manual/*
-
 
 # For image tests with an extra boot partition the
 # kernel must not be a symlink to another area of
