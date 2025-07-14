@@ -953,6 +953,10 @@ class Defaults:
                 'bootaa64.efi'
             ),
             shim_pattern_type(
+                '/boot/efi/EFI/*/shimriscv64.efi',
+                'bootriscv64.efi'
+            ),
+            shim_pattern_type(
                 '/boot/efi/EFI/*/shim.efi',
                 'bootx64.efi'
             ),
@@ -1062,6 +1066,11 @@ class Defaults:
                     '/boot/efi/EFI/*/grubaa64.efi',
                     'grubaa64.efi',
                     'bootaa64.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubriscv64.efi',
+                    'grubriscv64.efi',
+                    'bootriscv64.efi'
                 )
             ],
             'iso': [
@@ -1094,6 +1103,11 @@ class Defaults:
                     '/boot/efi/EFI/*/grubaa64.efi',
                     'grubaa64.efi',
                     'bootaa64.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubriscv64.efi',
+                    'grubriscv64.efi',
+                    'bootriscv64.efi'
                 )
             ]
         }
@@ -1235,6 +1249,11 @@ class Defaults:
                     'bootaa64.efi'
                 ),
                 grub_pattern_type(
+                    '/boot/efi/EFI/*/grubriscv64.efi',
+                    'grubriscv64.efi',
+                    'bootriscv64.efi'
+                ),
+                grub_pattern_type(
                     '/usr/share/grub*/*-efi/grub.efi',
                     'grub.efi',
                     'bootx64.efi'
@@ -1285,6 +1304,11 @@ class Defaults:
                     '/boot/efi/EFI/*/grubaa64.efi',
                     'grubaa64.efi',
                     'bootaa64.efi'
+                ),
+                grub_pattern_type(
+                    '/boot/efi/EFI/*/grubriscv64.efi',
+                    'grubriscv64.efi',
+                    'bootriscv64.efi'
                 ),
                 grub_pattern_type(
                     '/usr/share/grub*/x86_64-efi/grub.efi',
