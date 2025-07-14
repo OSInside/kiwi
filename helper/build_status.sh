@@ -12,6 +12,7 @@ for project in \
     Virtualization:Appliances:Images:Testing_x86:rawhide \
     Virtualization:Appliances:Images:Testing_ppc:rawhide \
     Virtualization:Appliances:Images:Testing_x86:leap \
+    Virtualization:Appliances:Images:Testing_x86:slfo \
     Virtualization:Appliances:Images:Testing_x86:centos \
     Virtualization:Appliances:Images:Testing_x86:fedora \
     Virtualization:Appliances:Images:Testing_x86:ubuntu \
