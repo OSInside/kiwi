@@ -1,34 +1,10 @@
 #!/bin/bash
-#======================================
-# Functions...
-#--------------------------------------
-test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]-[$kiwi_profiles]..."
-
-#======================================
-# Debug
-#--------------------------------------
-#systemctl enable debug-shell.service
-
-#======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
-
-#======================================
-# Specify default runlevel
-#--------------------------------------
-baseSetRunlevel 3
+set -ex
 
 #======================================
 # Activate services
 #--------------------------------------
-suseInsertService sshd
+systemctl enable sshd
 
 #======================================
 # SSL Certificates Configuration
@@ -40,7 +16,7 @@ update-ca-certificates
 # Enable ntpd if installed
 #-------------------------------------
 if [ -f /etc/ntp.conf ]; then
-	suseInsertService ntpd
+	systemctl enable ntpd
 	for i in 0 1 2 3; do
 	    echo "server $i.opensuse.pool.ntp.org iburst" >> /etc/ntp.conf
 	done

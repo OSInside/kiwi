@@ -1,35 +1,11 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2015 SUSE LLC. All rights reserved
-#               :
-# AUTHOR        : Robert Schweikert <rjschwei@suse.com>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#               :
-# STATUS        : BETA
-#----------------
+set -ex
+
+# shellcheck disable=SC1091
 #======================================
 # Functions...
 #--------------------------------------
 test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
-
-#======================================
-# Greeting...
-#--------------------------------------
-echo "Configure image: [$kiwi_iname]..."
-
-#======================================
-# Setup baseproduct link
-#--------------------------------------
-suseSetupProduct
 
 #=========================================
 # Set sysconfig options
@@ -49,7 +25,7 @@ echo 'DEFAULT_TIMEZONE="UTC"' >> /etc/sysconfig/clock
 [ -x /sbin/set_polkit_default_privs ] && /sbin/set_polkit_default_privs
 
 # Setup secure tty for Xen console log
-egrep -q '^xvc0$' /etc/securetty || echo xvc0 >> /etc/securetty
+grep -E -q '^xvc0$' /etc/securetty || echo xvc0 >> /etc/securetty
 
 # Setup loading of unsupported modules
 [ -f /etc/modprobe.d/unsupported-modules ] && sed -i -r -e 's/^(allow_unsupported_modules[[:space:]]*).*/\10/' /etc/modprobe.d/unsupported-modules
@@ -64,16 +40,16 @@ sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication n
 #======================================
 # Activate services
 #--------------------------------------
-suseInsertService boot.device-mapper
-suseInsertService cloud-init-local
-suseInsertService cloud-init
-suseInsertService cloud-config
-suseInsertService cloud-final
-suseInsertService haveged
-suseInsertService sshd
-suseRemoveService boot.efivars
-suseRemoveService boot.lvm
-suseRemoveService boot.md
-suseRemoveService boot.multipath
-suseRemoveService kbd
-suseRemoveService acpid 
+systemctl enable boot.device-mapper
+systemctl enable cloud-init-local
+systemctl enable cloud-init
+systemctl enable cloud-config
+systemctl enable cloud-final
+systemctl enable haveged
+systemctl enable sshd
+systemctl enable boot.efivars
+systemctl enable boot.lvm
+systemctl enable boot.md
+systemctl enable boot.multipath
+systemctl enable kbd
+systemctl enable acpid

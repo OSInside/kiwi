@@ -1,41 +1,26 @@
 #!/bin/bash
-#================
-# FILE          : config.sh
-#----------------
-# PROJECT       : OpenSuSE KIWI Image System
-# COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH. All rights reserved
-#               :
-# AUTHOR        : Marcus Schaefer <ms@suse.de>
-#               :
-# BELONGS TO    : Operating System images
-#               :
-# DESCRIPTION   : configuration script for SUSE based
-#               : operating systems
-#               :
-#               :
-# STATUS        : BETA
-#----------------
+set -euxo pipefail
+
+# shellcheck disable=SC1091
 #======================================
 # Functions...
 #--------------------------------------
 test -f /.kconfig && . /.kconfig
-test -f /.profile && . /.profile
 
-set -euxo pipefail
-
-echo "Configure image: [$kiwi_iname]-[$kiwi_profiles]..."
-
+#======================================
 # Systemd controls the console font now
+#--------------------------------------
 echo FONT="eurlatgr.psfu" >> /etc/vconsole.conf
 
 #======================================
 # prepare for setting root pw, timezone
 #--------------------------------------
 echo "** reset machine settings"
-rm -f /etc/machine-id \
-      /var/lib/zypp/AnonymousUniqueId \
-      /var/lib/systemd/random-seed \
-      /var/lib/dbus/machine-id
+rm -f \
+    /etc/machine-id \
+    /var/lib/zypp/AnonymousUniqueId \
+    /var/lib/systemd/random-seed \
+    /var/lib/dbus/machine-id
 
 #======================================
 # Specify default systemd target
