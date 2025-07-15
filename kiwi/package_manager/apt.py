@@ -227,10 +227,12 @@ class PackageManagerApt(PackageManagerBase):
             pathlib.Path(f'{self.root_dir}/var/lib/dpkg').mkdir(
                 parents=True, exist_ok=True
             )
-            # Older versions of apt look for the status file both within and without the tree, but do not create the
-            # status file within the tree.
+            # Older versions of apt look for the status file both within and
+            # without the tree, but do not create the status file within the
+            # tree.
             pathlib.Path(f'{self.root_dir}/var/lib/dpkg/status.kiwi').touch()
-            # Some versions of apt don't create the status file outside the tree, e.g. 2.4.14.
+            # Some versions of apt don't create the status file outside the
+            # tree, e.g. 2.4.14.
             pathlib.Path(f'/var/lib/dpkg/status.kiwi').touch()
             pathlib.Path(f'{self.root_dir}/var/lib/dpkg/available').touch()
 
