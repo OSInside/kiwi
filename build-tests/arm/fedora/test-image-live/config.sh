@@ -4,5 +4,6 @@ set -ex
 #======================================
 # Activate services
 #--------------------------------------
-systemctl enable network
+systemctl enable systemd-networkd
+systemctl enable systemd-resolved
 systemctl enable grub_config

@@ -63,7 +63,7 @@ function vagrantSetup {
     chown -R vagrant:vagrant /vagrant
 
     # SSH service
-    baseInsertService sshd
+    systemctl enable sshd
 
     # start vboxsf service only if the guest tools are present
     if rpm -q virtualbox-guest-tools 2> /dev/null; then

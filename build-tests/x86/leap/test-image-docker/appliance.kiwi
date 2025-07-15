@@ -55,6 +55,7 @@
         <package name="squashfs"/>
         <package name="kernel-default"/>
         <package name="fipscheck"/>
+        <package name="openssh-server"/>
     </packages>
     <packages type="bootstrap">
         <package name="udev"/>

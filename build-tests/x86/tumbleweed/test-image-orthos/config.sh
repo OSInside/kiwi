@@ -10,7 +10,6 @@ sed -i 's/DHCLIENT_SET_HOSTNAME="no"/DHCLIENT_SET_HOSTNAME="yes"/g' /etc/sysconf
 # Activate services
 #--------------------------------------
 systemctl enable sshd
-systemctl enable network
 
 #======================================
 # setup dracut for live system

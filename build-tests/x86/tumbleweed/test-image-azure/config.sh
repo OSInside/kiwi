@@ -37,7 +37,8 @@ echo 'DEFAULT_TIMEZONE="UTC"' >> /etc/sysconfig/clock
 [ -x /sbin/set_polkit_default_privs ] && /sbin/set_polkit_default_privs
 
 # Set the keep alive interval
-sed -i 's/#ClientAliveInterval 0/ClientAliveInterval 180/' /etc/ssh/sshd_config
+sed -i 's/#ClientAliveInterval 0/ClientAliveInterval 180/' \
+    /usr/etc/ssh/sshd_config
 
 # Disable default targetpw directive
 sed -i -e '/^Defaults targetpw/,/^$/ s/^/#/' /etc/sudoers

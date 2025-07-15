@@ -40,6 +40,8 @@
         <package name="tzdata"/>
         <package name="dracut-kiwi-live"/>
         <package name="fedora-logos"/>
+        <package name="systemd-resolved"/>
+        <package name="systemd-networkd"/>
     </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>

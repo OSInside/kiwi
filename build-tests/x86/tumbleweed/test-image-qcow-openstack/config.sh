@@ -25,7 +25,7 @@ if [ -f /etc/modprobe.d/unsupported-modules ];then
 fi
 
 # Disable password based login via ssh
-sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
+sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' /usr/etc/ssh/sshd_config
 
 # Remove the password for root
 # Note the string matches the password set in the config file
