@@ -86,11 +86,12 @@ class RuntimeChecker:
         message = dedent('''\n
             Target root/image directory is lacking filesystem features
 
-            The filesystem {0} for the given image target directory {1}
+            The filesystem {0} in the target path {1}
             does not support important features like extended permissions,
             ACLs or xattrs. The image build may fail or the resulting
             image misbehave.
         ''')
+        target_dir = Path.first_exists(target_dir)
         stat = Command.run(['stat', '-f', '-c', '%T', target_dir])
         if stat:
             target_fs = stat.output.strip()

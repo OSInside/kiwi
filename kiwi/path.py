@@ -227,3 +227,14 @@ class Path:
             lookup_paths = Path.rebase_to_root(root_dir, lookup_paths)
         log.debug(f"Looking for {filename} in {os.pathsep.join(lookup_paths)}")
         return shutil.which(filename, access_mode, path=os.pathsep.join(lookup_paths))
+
+    @staticmethod
+    def first_exists(path: str) -> str:
+        """
+        Lookup first path that exists in the given path hierarchy
+        """
+        p = pathlib.Path(path)
+        if p.exists():
+            return path
+        else:
+            return Path.first_exists(format(p.parent))
