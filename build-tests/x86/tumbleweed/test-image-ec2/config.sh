@@ -40,7 +40,6 @@ sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication n
 #======================================
 # Activate services
 #--------------------------------------
-systemctl enable boot.device-mapper
 systemctl enable cloud-init-local
 systemctl enable cloud-init
 systemctl enable cloud-config
