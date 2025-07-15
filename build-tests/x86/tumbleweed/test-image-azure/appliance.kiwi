@@ -37,6 +37,7 @@
         <package name="iputils"/>
         <package name="lvm2"/>
         <package name="openssh"/>
+        <package name="openssh-server"/>
         <package name="parted"/>
         <package name="psmisc"/>
         <package name="rsync"/>

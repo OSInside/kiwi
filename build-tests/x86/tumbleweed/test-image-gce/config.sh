@@ -27,7 +27,7 @@ sed -i 's/requestkey/#requestkey/' /etc/ntp.conf
 echo "server metadata.google.internal iburst" >> /etc/ntp.conf
 
 # replace HOSTNAME file with link to file being created by Google startup code
-rm /etc/HOSTNAME
+rm -f /etc/HOSTNAME
 ln -s /etc/hostname /etc/HOSTNAME
 
 # Setup policy kit
