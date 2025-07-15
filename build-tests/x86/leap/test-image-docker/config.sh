@@ -9,4 +9,4 @@ set -ex
 #======================================
 # Drop locales
 #--------------------------------------
-(cd /usr/share/locale && find . -print0 -name "*.mo" | xargs rm)
+find /usr/share/locale -name "*.mo" -delete

@@ -43,8 +43,8 @@ function vagrantSetup {
     chown -R vagrant:vagrant /home/vagrant/
 
     # recommended ssh settings for vagrant boxes
-    echo "UseDNS no" >> /etc/ssh/sshd_config
-    echo "GSSAPIAuthentication no" >> /etc/ssh/sshd_config
+    echo "UseDNS no" >> /usr/etc/ssh/sshd_config
+    echo "GSSAPIAuthentication no" >> /usr/etc/ssh/sshd_config
 
     # vagrant assumes that it can sudo without a password
     # => add the vagrant user to the sudoers list

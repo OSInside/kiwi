@@ -41,7 +41,7 @@ sed -i 's/#ClientAliveInterval 0/ClientAliveInterval 180/' \
     /usr/etc/ssh/sshd_config
 
 # Disable default targetpw directive
-sed -i -e '/^Defaults targetpw/,/^$/ s/^/#/' /etc/sudoers
+sed -i -e '/^Defaults targetpw/,/^$/ s/^/#/' /usr/etc/sudoers
 
 # WALinuxAgent configuration settings
 # Disable agent auto-update
