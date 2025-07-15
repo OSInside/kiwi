@@ -98,7 +98,8 @@ class TestDefaults:
             call('root/usr/lib/grub*/x86_64-efi/grub.efi'),
             call('root/boot/efi/EFI/*/grubx64.efi'),
             call('root/boot/efi/EFI/*/grubia32.efi'),
-            call('root/boot/efi/EFI/*/grubaa64.efi')
+            call('root/boot/efi/EFI/*/grubaa64.efi'),
+            call('root/boot/efi/EFI/*/grubriscv64.efi')
         ]
         mock_glob.reset_mock()
         mock_glob.return_value = []
