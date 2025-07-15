@@ -140,3 +140,10 @@ class TestPath:
 
         mock_stat.assert_called_once_with(fname)
         mock_access.assert_called_once_with(fname, mode, effective_ids=True)
+
+    def test_first_exists(self):
+        assert Path.first_exists('/') == '/'
+        assert Path.first_exists('/etc/foo/bar') == '/etc'
+        assert Path.first_exists('artificial') == '.'
+        assert Path.first_exists('foo/bar') == '.'
+        assert Path.first_exists('/x/y/z') == '/'
