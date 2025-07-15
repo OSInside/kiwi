@@ -114,6 +114,7 @@
         <package name="udev"/>
         <package name="hyper-v"/>
         <package name="python-azure-agent"/>
+        <package name="python-azure-agent-config-default"/>
         <package name="timezone"/>
     </packages>
     <packages type="bootstrap">
