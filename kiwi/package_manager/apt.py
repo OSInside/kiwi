@@ -233,7 +233,7 @@ class PackageManagerApt(PackageManagerBase):
             pathlib.Path(f'{self.root_dir}/var/lib/dpkg/status.kiwi').touch()
             # Some versions of apt don't create the status file outside the
             # tree, e.g. 2.4.14.
-            pathlib.Path(f'/var/lib/dpkg/status.kiwi').touch()
+            pathlib.Path('/var/lib/dpkg/status.kiwi').touch()
             pathlib.Path(f'{self.root_dir}/var/lib/dpkg/available').touch()
 
             if 'apt' not in self.package_requests:
