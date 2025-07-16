@@ -58,16 +58,13 @@
         <package name="gdisk"/>
         <package name="grub2"/>
         <package name="kernel"/>
-        <package name="plymouth-theme-charge"/>
         <package name="audit"/>
-        <package name="dhclient"/>
         <package name="e2fsprogs"/>
         <package name="firewalld"/>
         <package name="hostname"/>
         <package name="initscripts"/>
         <package name="iprutils"/>
         <package name="irqbalance"/>
-        <package name="kbd"/>
         <package name="kexec-tools"/>
         <package name="openssh-clients"/>
         <package name="openssh-server"/>
@@ -79,7 +76,6 @@
         <package name="selinux-policy-targeted"/>
         <package name="xfsprogs"/>
         <package name="NetworkManager"/>
-        <package name="iputils"/>
         <package name="glibc-all-langpacks"/>
     </packages>
     <packages type="image" profiles="Live">
