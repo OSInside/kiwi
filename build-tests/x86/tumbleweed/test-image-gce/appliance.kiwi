@@ -121,6 +121,10 @@
         <package name="growpart"/>
         <package name="python-gcemetadata"/>
         <package name="timezone"/>
+        <package name="google-guest-agent"/>
+        <package name="google-guest-configs"/>
+        <package name="google-guest-oslogin"/>
+        <package name="google-osconfig-agent"/>
     </packages>
     <packages type="bootstrap">
         <package name="dracut"/>
