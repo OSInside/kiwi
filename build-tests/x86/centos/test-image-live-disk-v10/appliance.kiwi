@@ -63,7 +63,6 @@
         <package name="firewalld"/>
         <package name="hostname"/>
         <package name="initscripts"/>
-        <package name="iprutils"/>
         <package name="irqbalance"/>
         <package name="kexec-tools"/>
         <package name="openssh-clients"/>
@@ -77,6 +76,7 @@
         <package name="xfsprogs"/>
         <package name="NetworkManager"/>
         <package name="glibc-all-langpacks"/>
+        <package name="iputils"/>
     </packages>
     <packages type="image" profiles="Live">
         <package name="dracut-kiwi-live"/>
