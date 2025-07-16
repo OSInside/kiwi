@@ -72,8 +72,3 @@ sed -i 's/# download.use_deltarpm = true/download.use_deltarpm = false/' /etc/zy
 systemctl enable sshd
 systemctl enable haveged
 systemctl enable waagent
-systemctl enable boot.lvm
-systemctl enable boot.md
-systemctl enable display-manager
-systemctl enable kbd
-systemctl enable smartd

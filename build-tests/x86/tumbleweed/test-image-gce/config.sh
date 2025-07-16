@@ -67,16 +67,10 @@ sed -i 's/# download.use_deltarpm = true/download.use_deltarpm = false/' \
 # Activate services
 #--------------------------------------
 systemctl enable sshd
-systemctl enable google-accounts-daemon
-systemctl enable google-clock-skew-daemon
-systemctl enable google-instance-setup
-systemctl enable google-network-daemon
+systemctl enable haveged
+systemctl enable rootgrow
+systemctl enable google-guest-agent
+systemctl enable google-osconfig-agent
+systemctl enable google-oslogin-cache.timer
 systemctl enable google-shutdown-scripts
 systemctl enable google-startup-scripts
-systemctl enable haveged
-systemctl enable ntpd
-systemctl enable rootgrow
-systemctl enable boot.lvm
-systemctl enable boot.md
-systemctl enable display-manager
-systemctl enable kbd

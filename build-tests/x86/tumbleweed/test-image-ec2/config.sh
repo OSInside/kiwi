@@ -46,9 +46,3 @@ systemctl enable cloud-config
 systemctl enable cloud-final
 systemctl enable haveged
 systemctl enable sshd
-systemctl enable boot.efivars
-systemctl enable boot.lvm
-systemctl enable boot.md
-systemctl enable boot.multipath
-systemctl enable kbd
-systemctl enable acpid
