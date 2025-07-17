@@ -191,7 +191,8 @@ function get_partition_node_name {
     local index=1
     local part
     udev_pending
-    # backwards compat for lsblk before 2.38: if START column not supported, fall back to default sort
+    # backwards compat for lsblk before 2.38:
+    # if START column not supported, fall back to default sort
     for partnode in $(
         { lsblk -p -l -o NAME,TYPE,START -x START "${disk}" 2>/dev/null ||\
         lsblk -p -l -o NAME,TYPE "${disk}"; } |\
@@ -204,6 +205,20 @@ function get_partition_node_name {
         index=$((index + 1))
     done
     return 1
+}
+
+function get_last_partition_id {
+    # """
+    # Get index of last partition from the current table
+    # """
+    local disk=$1
+    local index=0
+    for partnode in $(lsblk -p -l -o NAME,TYPE "${disk}" |\
+        grep -E "part|md$" | cut -f1 -d ' '
+    );do
+        index=$((index + 1))
+    done
+    echo "${index}"
 }
 
 function wait_for_storage_device {
