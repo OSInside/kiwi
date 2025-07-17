@@ -74,7 +74,7 @@ function reencrypt_luks {
         setup_progress_fifo ${progress}
         (
             # reencrypt, this will overwrite all key slots
-            cryptsetup reencrypt \
+            udevadm lock --device "${device}" cryptsetup reencrypt \
                 --progress-frequency 1 \
                 --key-file "${passphrase_file}" \
                 --key-slot "${keyslot}" \
@@ -102,7 +102,7 @@ function activate_luks {
         # but this requires to manually call luksOpen since
         # with systemd-cryptsetup we saw it still asking for
         # a passphrase
-        cryptsetup \
+        udevadm lock --device "${device}" cryptsetup \
             --key-file /dev/zero \
             --keyfile-size 32 \
         luksOpen "${device}" luks
