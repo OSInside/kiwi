@@ -336,7 +336,7 @@ function get_partition_uuid {
 }
 
 function relocate_gpt_at_end_of_disk {
-    if ! sgdisk -e "$1";then
+    if ! sfdisk --relocate gpt-bak-std "$1";then
         die "Failed to write backup GPT at end of disk"
     fi
 }
