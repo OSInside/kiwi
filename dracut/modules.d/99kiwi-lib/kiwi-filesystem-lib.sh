@@ -37,22 +37,23 @@ function resize_filesystem {
     local mpoint=/fs-resize
     local fstype
     fstype=$(probe_filesystem "${device}")
+    lock="udevadm lock --device ${device}"
     case ${fstype} in
     ext2|ext3|ext4)
-        resize_fs="resize2fs -f -p ${device}"
+        resize_fs="${lock} resize2fs -f -p ${device}"
     ;;
     btrfs)
         resize_fs="mkdir -p ${mpoint} && mount ${device} ${mpoint} &&"
-        resize_fs="${resize_fs} btrfs filesystem resize max ${mpoint}"
+        resize_fs="${resize_fs} ${lock} btrfs filesystem resize max ${mpoint}"
         resize_fs="${resize_fs};umount ${mpoint} && rmdir ${mpoint}"
     ;;
     xfs)
         resize_fs="mkdir -p ${mpoint} && mount ${device} ${mpoint} &&"
-        resize_fs="${resize_fs} xfs_growfs ${mpoint}"
+        resize_fs="${resize_fs} ${lock} xfs_growfs ${mpoint}"
         resize_fs="${resize_fs};umount ${mpoint} && rmdir ${mpoint}"
     ;;
     swap)
-        resize_fs="mkswap ${device} --label SWAP"
+        resize_fs="${lock} mkswap ${device} --label SWAP"
     ;;
     *)
         # don't know how to resize this filesystem
@@ -76,6 +77,7 @@ function check_filesystem {
     local check_fs_return_ok
     local fstype
     fstype=$(probe_filesystem "${device}")
+    lock="udevadm lock --device ${device}"
     case ${fstype} in
     ext2|ext3|ext4)
         # The exit code by e2fsck is the sum of the following conditions:
@@ -87,13 +89,13 @@ function check_filesystem {
         # 16   - Usage or syntax error
         # 32   - E2fsck canceled by user request
         # 128  - Shared library error
-        check_fs="e2fsck -p -f ${device}"
+        check_fs="${lock} e2fsck -p -f ${device}"
         check_fs_return_ok="test \$? -le 2"
     ;;
     btrfs)
         # btrfs check returns a zero exit status if it succeeds.
         # Non zero is returned in case of failure.
-        check_fs="btrfsck ${device}"
+        check_fs="${lock} btrfsck ${device}"
         check_fs_return_ok="test \$? -eq 0"
     ;;
     xfs)

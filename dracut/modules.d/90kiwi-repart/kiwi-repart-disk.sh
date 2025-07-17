@@ -226,38 +226,12 @@ function check_repart_possible {
     return 0
 }
 
-function mask_fsck_root_service {
-    info "disable systemd-fsck-root.service"
-    systemctl mask systemd-fsck-root.service
-}
-
-function unmask_fsck_root_service {
-    info "enabling systemd-fsck-root.service"
-    systemctl unmask systemd-fsck-root.service
-}
-
 #======================================
 # Perform repart/resize operations
 #--------------------------------------
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 setup_debug
-
-# when repartitioning disks, the used tools can trigger re-reads of
-# the partition table, in turn triggering systemd-fsck-root.service
-# repeatedly via udev events, which finally can cause booting to fail with
-# * start request repeated too quickly for systemd-fsck-root.service
-# * Failed to start File System Check on /dev/disk/by-uuid...
-# * Dependency failed for /sysroot.
-# To avoid this, disable the root fsck (is finished at this point anyway
-# *and* the filesystem is brand new ;) by masking it.
-# "systemctl disable" does not work here, because it is event driven
-# More details: https://github.com/SUSE/kiwi/issues/1034
-
-# make sure we unmask the fsck service
-trap unmask_fsck_root_service EXIT
-
-mask_fsck_root_service
 
 # initialize for disk repartition
 initialize
