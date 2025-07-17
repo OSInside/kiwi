@@ -173,8 +173,7 @@ class SystemSetup:
                 'rm', '-f',
                 '.kconfig',
                 '.profile',
-                'config.bootoptions',
-                'config.partids'
+                'config.bootoptions'
             ]
         )
         meta_dir = f'{self.root_dir}/{defaults.IMAGE_METADATA_DIR}'

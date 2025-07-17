@@ -379,8 +379,7 @@ class TestSystemSetup:
                     'chroot', 'root_dir', 'rm', '-f',
                     '.kconfig',
                     '.profile',
-                    'config.bootoptions',
-                    'config.partids'
+                    'config.bootoptions'
                 ]
             ),
             call(
