@@ -18,11 +18,8 @@ function initialize {
     test -f ${profile} || \
         warn "No profile setup found"
         warn "Settings from the kiwi description will be ignored"
-    test -f ${partition_ids} || \
-        die "No partition id setup found"
 
     test -f ${profile} && import_file ${profile}
-    import_file ${partition_ids}
 
     # Optional env TERM setup
     term=$(getarg "rd.kiwi.term=")
@@ -34,6 +31,15 @@ function initialize {
 
     disk=$(lookup_disk_device_from_root)
     export disk
+
+    if ! test -f ${partition_ids}; then
+        warn "No partition id setup found, rebuilding..."
+        {
+            echo "kiwi_RootPart=\"$(get_last_partition_id "${disk}")\""
+        } > ${partition_ids}
+    fi
+
+    import_file ${partition_ids}
 
     root_device=${root#block:}
     export root_device
