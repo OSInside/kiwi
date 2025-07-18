@@ -23,9 +23,11 @@ function create_partitions {
         ;;
     esac
     if type partprobe &> /dev/null;then
-        partprobe "${disk_device}"
+        udevadm lock --device "${disk_device}" \
+            partprobe "${disk_device}"
     else
-        partx -u "${disk_device}"
+        udevadm lock --device "${disk_device}" \
+            partx -u "${disk_device}"
     fi
 }
 
@@ -59,21 +61,23 @@ function create_msdos_partitions {
             start_sector_from[$partid]=$(
                 _get_msdos_partition_start_sector "${disk_device}" "${partid}"
             )
-            sfdisk --force --delete "${disk_device}" "${partid}"
+            udevadm lock --device "${disk_device}" \
+                sfdisk --force --delete "${disk_device}" "${partid}"
         ;;
         "n")
             # create a partition...
             partid=${cmd_list[$index + 2]}
             part_size_end=${cmd_list[$index + 4]}
             echo "${start_sector_from[$partid]},${part_size_end}" > /tmp/sfdisk.in
-            sfdisk --force -N "${partid}" "${disk_device}" <  /tmp/sfdisk.in
+            udevadm lock --device "${disk_device}" \
+                sfdisk --force -N "${partid}" "${disk_device}" < /tmp/sfdisk.in
         ;;
         "t")
             # change a partition type...
             part_type=${cmd_list[$index + 2]}
             partid=${cmd_list[$index + 1]}
-            sfdisk --force --change-id "${disk_device}" "${partid}" \
-                "${part_type}"
+            udevadm lock --device "${disk_device}" \
+                sfdisk --force --change-id "${disk_device}" "${partid}" "${part_type}"
         ;;
         esac
         index=$((index + 1))
@@ -108,7 +112,8 @@ function create_gpt_partitions {
         "d")
             # delete a partition...
             partid=${cmd_list[$index + 1]}
-            sgdisk --delete "${partid}" "${disk_device}"
+            udevadm lock --device "${disk_device}" \
+                sgdisk --delete "${partid}" "${disk_device}"
         ;;
         "n")
             # create a partition...
@@ -116,17 +121,17 @@ function create_gpt_partitions {
             partid=${cmd_list[$index + 2]}
             part_size_start=${cmd_list[$index + 3]}
             part_size_end=${cmd_list[$index + 4]}
-            sgdisk --new "${partid}:${part_size_start}:${part_size_end}" \
-                "${disk_device}"
-            sgdisk --change-name "${partid}:${part_name}" \
-                "${disk_device}"
+            udevadm lock --device "${disk_device}" \
+                sgdisk --new "${partid}:${part_size_start}:${part_size_end}" "${disk_device}"
+            udevadm lock --device "${disk_device}" \
+                sgdisk --change-name "${partid}:${part_name}" "${disk_device}"
         ;;
         "t")
             # change a partition type...
             part_type=${cmd_list[$index + 2]}
             partid=${cmd_list[$index + 1]}
-            sgdisk --typecode "${partid}:$(_to_guid "${part_type}")" \
-                "${disk_device}"
+            udevadm lock --device "${disk_device}" \
+                sgdisk --typecode "${partid}:$(_to_guid "${part_type}")" "${disk_device}"
         ;;
         esac
         index=$((index + 1))
@@ -148,7 +153,8 @@ function create_dasd_partitions {
     # partition table updated to the actual disk geometry. This is
     # to circumvent the fdasd limitation of not being capable to
     # expand the partition table up to the disk size bsc#1209247
-    parted --script --machine "${disk_device}" resizepart 1
+    udevadm lock --device "${disk_device}" \
+        parted --script --machine "${disk_device}" resizepart 1
 
     for cmd in ${partition_setup};do
         if [ "${ignore_cmd}" = 1 ] && echo "${cmd}" | grep -qE '[dntwq]';then
@@ -182,7 +188,8 @@ function create_dasd_partitions {
     done
     echo "w" >> ${partition_setup_file}
     echo "q" >> ${partition_setup_file}
-    fdasd "${disk_device}" < ${partition_setup_file} 1>&2
+    udevadm lock --device "${disk_device}" \
+        fdasd "${disk_device}" < ${partition_setup_file} 1>&2
 }
 
 function get_partition_node_name {
@@ -191,7 +198,8 @@ function get_partition_node_name {
     local index=1
     local part
     udev_pending
-    # backwards compat for lsblk before 2.38: if START column not supported, fall back to default sort
+    # backwards compat for lsblk before 2.38:
+    # if START column not supported, fall back to default sort
     for partnode in $(
         { lsblk -p -l -o NAME,TYPE,START -x START "${disk}" 2>/dev/null ||\
         lsblk -p -l -o NAME,TYPE "${disk}"; } |\
@@ -204,6 +212,20 @@ function get_partition_node_name {
         index=$((index + 1))
     done
     return 1
+}
+
+function get_last_partition_id {
+    # """
+    # Get index of last partition from the current table
+    # """
+    local disk=$1
+    local index=0
+    for partnode in $(lsblk -p -l -o NAME,TYPE "${disk}" |\
+        grep -E "part|md$" | cut -f1 -d ' '
+    );do
+        index=$((index + 1))
+    done
+    echo "${index}"
 }
 
 function wait_for_storage_device {
@@ -321,7 +343,7 @@ function get_partition_uuid {
 }
 
 function relocate_gpt_at_end_of_disk {
-    if ! sgdisk -e "$1";then
+    if ! udevadm lock --device "$1" sfdisk --relocate gpt-bak-std "$1";then
         die "Failed to write backup GPT at end of disk"
     fi
 }
@@ -363,7 +385,8 @@ function activate_boot_partition {
     pt_table_type=$(get_partition_table_type "${disk_device}")
     if [[ "$(uname -m)" =~ i.86|x86_64 ]];then
         if [ "${pt_table_type}" = "dos" ];then
-            sfdisk --activate "${disk_device}" "${boot_partition_id}"
+            udevadm lock --device "${disk_device}" \
+                sfdisk --activate "${disk_device}" "${boot_partition_id}"
         fi
     fi
 }
@@ -378,7 +401,9 @@ function create_hybrid_gpt {
         # see man sgdisk for details
         partition_count=3
     fi
-    if ! sgdisk -h "$(seq -s : 1 "${partition_count}")" "${disk_device}";then
+    if ! udevadm lock --device "${disk_device}" \
+        sgdisk -h "$(seq -s : 1 "${partition_count}")" "${disk_device}"
+    then
         die "Failed to create hybrid GPT/MBR !"
     fi
 }
