@@ -54,8 +54,8 @@ function sort_disk_entries {
         fi
         count=$((count + 1))
     done
-    readarray -td '' list_items_sorted \
-        < <(printf '%s\0' "${device_array[@]}" | sort -z)
+    printf '%s\0' "${device_array[@]}" | sort -z > list_items_sorted.txt
+    readarray -td '' list_items_sorted < list_items_sorted.txt
     echo "${list_items_sorted[*]}"
 }
 
