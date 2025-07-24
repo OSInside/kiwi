@@ -256,6 +256,9 @@ if [ "$(get_partition_table_type "${disk}")" = 'gpt' ];then
     relocate_gpt_at_end_of_disk "${disk}"
 fi
 
+# wait for the root device to appear
+wait_for_storage_device "${root_device}"
+
 # resize disk partition table
 if lvm_system;then
     repart_lvm_disk || return
@@ -283,3 +286,6 @@ if lvm_system; then
 else
     resize_filesystem "$(get_root_map)"
 fi
+
+# wait for the root device to appear
+wait_for_storage_device "${root_device}"
