@@ -108,7 +108,12 @@ class Path:
         :param string path: path name
         """
         log.debug("Creating directory %s", path)
-        pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+        try:
+            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+        except Exception as issue:
+            raise KiwiFileAccessError(
+                f'Cannot create directory: {path}: {issue}'
+            )
 
     @staticmethod
     def wipe(path: str) -> None:
