@@ -1,6 +1,7 @@
 import logging
-import pathlib
-from unittest.mock import patch, call
+from unittest.mock import (
+    patch, call, Mock
+)
 from pytest import (
     raises, fixture
 )
@@ -24,10 +25,17 @@ class TestPath:
         )
         assert ordered == ['usr', 'etc', 'usr/bin', 'usr/lib']
 
-    def test_create(self, tmp_path: pathlib.Path):
-        dest = tmp_path / "foo" / "bar" / "baz"
-        Path.create(str(dest))
-        assert pathlib.Path(dest).exists()
+    @patch('pathlib.Path')
+    def test_create(self, mock_Path):
+        path = Mock()
+        mock_Path.return_value = path
+        Path.create('foo')
+        path.mkdir.assert_called_once_with(
+            parents=True, exist_ok=True
+        )
+        mock_Path.return_value = Exception
+        with raises(KiwiFileAccessError):
+            Path.create('foo')
 
     @patch('kiwi.command.os.path.exists')
     @patch('kiwi.command.Command.run')
