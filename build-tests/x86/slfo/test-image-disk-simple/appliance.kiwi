@@ -19,10 +19,12 @@
                 <oem-resize>false</oem-resize>
             </oemconfig>
             <bootloader name="grub2" console="serial" timeout="10"/>
+            <size unit="G">4</size>
         </type>
     </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/home/ec2-user" name="ec2-user" groups="users,root"/>
     </users>
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
