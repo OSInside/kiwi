@@ -362,7 +362,7 @@ class Uri:
                     start_preference = preference
         except Exception as issue:
             raise KiwiUriOpenError(
-                f'Failed to resolve metalink URI: {issue}'
+                f'Failed to resolve metalink URI {uri}: {issue}'
             )
         selected_repo_source = selected_repo_source.replace(
             'repodata/repomd.xml', ''
