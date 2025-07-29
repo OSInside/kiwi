@@ -153,8 +153,7 @@ function create_dasd_partitions {
     # partition table updated to the actual disk geometry. This is
     # to circumvent the fdasd limitation of not being capable to
     # expand the partition table up to the disk size bsc#1209247
-    udevadm lock --device "${disk_device}" \
-        parted --script --machine "${disk_device}" resizepart 1
+    parted --script --machine "${disk_device}" resizepart 1
 
     for cmd in ${partition_setup};do
         if [ "${ignore_cmd}" = 1 ] && echo "${cmd}" | grep -qE '[dntwq]';then
