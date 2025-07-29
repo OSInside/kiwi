@@ -311,9 +311,10 @@ class SolverRepositoryBase:
             if tool == 'deb2solv':
                 tool_options.append('-r')
             for source in glob.iglob('/'.join([metadata_dir, '*'])):
-                bash_command = [
-                    'gzip', '-cd', '--force', source, '|', tool
-                ] + tool_options + [
+                bash_command = ['gzip', '-cd', '--force']
+                if source.endswith('.zst'):
+                    bash_command = ['zstd', '-dcf']
+                bash_command += [source, '|', tool] + tool_options + [
                     '>', self._get_random_solvable_name()
                 ]
                 Command.run(['bash', '-c', ' '.join(bash_command)])
