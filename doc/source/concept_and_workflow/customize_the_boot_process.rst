@@ -63,13 +63,13 @@ of {kiwi}, the following dracut modules are used:
 
       <type ... boot="{exc_netboot}"/>
     
-    While {kiwi} supports this approach, it is recommended using dracut instead.
-    Keep also in mind that although {kiwi} supports creation of custom boot
-    images, {kiwi} does not include any official boot image descriptions. You
-    can find an OEM boot description example at
-    https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-oem-boot-description
-    and an PXE boot description example at
-    https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-pxe-boot-description
+   While {kiwi} supports this approach, it is recommended using dracut instead.
+   Keep also in mind that although {kiwi} supports creation of custom boot
+   images, {kiwi} does not include any official boot image descriptions. You
+   can find an OEM boot description example at
+   https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-oem-boot-description
+   and an PXE boot description example at
+   https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-pxe-boot-description
 
    The custom boot image descriptions makes it possible to completely customize
    the behavior of the initrd. This concept is mostly used in PXE environments
