@@ -299,22 +299,32 @@ class TestSolverRepositoryBase:
     def test__create_solvables_rpmmd2_solv(
         self, mock_glob, mock_command, mock_rand, mock_Temporary
     ):
-        mock_glob.return_value = ['some-solv-data-file']
+        mock_glob.return_value = ['some-solv-data-file', 'some-solv-data-file.zst']
         mock_rand.return_value = 0xfe
         self.solver.repository_metadata_dirs = ['metadata_dir.XXXX']
         mock_Temporary.return_value.new_dir.return_value.name = 'solv_dir.XX'
         self.solver._create_solvables('meta_dir.XX', 'rpmmd2solv')
         mock_glob.assert_called_once_with('meta_dir.XX/*')
-        mock_command.assert_called_once_with(
-            [
-                'bash', '-c',
+        assert mock_command.mock_calls == [
+            call([
+                'bash',
+                '-c',
                 ' '.join([
                     'gzip -cd --force some-solv-data-file',
                     '|',
                     'rpmmd2solv > solv_dir.XX/solvable-fefefefe'
                 ])
-            ]
-        )
+            ]),
+            call([
+                'bash',
+                '-c',
+                ' '.join([
+                    'zstd -dcf some-solv-data-file.zst',
+                    '|',
+                    'rpmmd2solv > solv_dir.XX/solvable-fefefefe'
+                ])
+            ])
+        ]
 
     @patch('kiwi.solver.repository.base.Temporary')
     @patch('kiwi.solver.repository.base.random.randrange')
