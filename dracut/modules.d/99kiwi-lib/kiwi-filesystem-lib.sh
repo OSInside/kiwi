@@ -37,7 +37,7 @@ function resize_filesystem {
     local mpoint=/fs-resize
     local fstype
     fstype=$(probe_filesystem "${device}")
-    lock="udevadm lock --device ${device}"
+    lock="set_device_lock ${device}"
     case ${fstype} in
     ext2|ext3|ext4)
         resize_fs="${lock} resize2fs -f -p ${device}"
@@ -77,7 +77,7 @@ function check_filesystem {
     local check_fs_return_ok
     local fstype
     fstype=$(probe_filesystem "${device}")
-    lock="udevadm lock --device ${device}"
+    lock="set_device_lock ${device}"
     case ${fstype} in
     ext2|ext3|ext4)
         # The exit code by e2fsck is the sum of the following conditions:

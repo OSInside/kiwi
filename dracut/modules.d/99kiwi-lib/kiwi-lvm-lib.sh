@@ -63,7 +63,7 @@ function get_volume_path_for_volume {
 function resize_pyhiscal_volumes {
     local device
     device=$(get_root_map)
-    udevadm lock --device "${device}" pvresize "${device}"
+    set_device_lock "${device}" pvresize "${device}"
 }
 
 function resize_lvm_volumes_and_filesystems {
