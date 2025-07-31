@@ -23,10 +23,10 @@ function create_partitions {
         ;;
     esac
     if type partprobe &> /dev/null;then
-        udevadm lock --device "${disk_device}" \
+        set_device_lock "${disk_device}" \
             partprobe "${disk_device}"
     else
-        udevadm lock --device "${disk_device}" \
+        set_device_lock "${disk_device}" \
             partx -u "${disk_device}"
     fi
 }
@@ -61,7 +61,7 @@ function create_msdos_partitions {
             start_sector_from[$partid]=$(
                 _get_msdos_partition_start_sector "${disk_device}" "${partid}"
             )
-            udevadm lock --device "${disk_device}" \
+            set_device_lock "${disk_device}" \
                 sfdisk --force --delete "${disk_device}" "${partid}"
         ;;
         "n")
@@ -69,14 +69,14 @@ function create_msdos_partitions {
             partid=${cmd_list[$index + 2]}
             part_size_end=${cmd_list[$index + 4]}
             echo "${start_sector_from[$partid]},${part_size_end}" > /tmp/sfdisk.in
-            udevadm lock --device "${disk_device}" \
+            set_device_lock "${disk_device}" \
                 sfdisk --force -N "${partid}" "${disk_device}" < /tmp/sfdisk.in
         ;;
         "t")
             # change a partition type...
             part_type=${cmd_list[$index + 2]}
             partid=${cmd_list[$index + 1]}
-            udevadm lock --device "${disk_device}" \
+            set_device_lock "${disk_device}" \
                 sfdisk --force --change-id "${disk_device}" "${partid}" "${part_type}"
         ;;
         esac
@@ -112,7 +112,7 @@ function create_gpt_partitions {
         "d")
             # delete a partition...
             partid=${cmd_list[$index + 1]}
-            udevadm lock --device "${disk_device}" \
+            set_device_lock "${disk_device}" \
                 sgdisk --delete "${partid}" "${disk_device}"
         ;;
         "n")
@@ -121,16 +121,16 @@ function create_gpt_partitions {
             partid=${cmd_list[$index + 2]}
             part_size_start=${cmd_list[$index + 3]}
             part_size_end=${cmd_list[$index + 4]}
-            udevadm lock --device "${disk_device}" \
+            set_device_lock "${disk_device}" \
                 sgdisk --new "${partid}:${part_size_start}:${part_size_end}" "${disk_device}"
-            udevadm lock --device "${disk_device}" \
+            set_device_lock "${disk_device}" \
                 sgdisk --change-name "${partid}:${part_name}" "${disk_device}"
         ;;
         "t")
             # change a partition type...
             part_type=${cmd_list[$index + 2]}
             partid=${cmd_list[$index + 1]}
-            udevadm lock --device "${disk_device}" \
+            set_device_lock "${disk_device}" \
                 sgdisk --typecode "${partid}:$(_to_guid "${part_type}")" "${disk_device}"
         ;;
         esac
@@ -187,7 +187,7 @@ function create_dasd_partitions {
     done
     echo "w" >> ${partition_setup_file}
     echo "q" >> ${partition_setup_file}
-    udevadm lock --device "${disk_device}" \
+    set_device_lock "${disk_device}" \
         fdasd "${disk_device}" < ${partition_setup_file} 1>&2
 }
 
@@ -342,7 +342,7 @@ function get_partition_uuid {
 }
 
 function relocate_gpt_at_end_of_disk {
-    if ! udevadm lock --device "$1" sfdisk --relocate gpt-bak-std "$1";then
+    if ! set_device_lock "$1" sfdisk --relocate gpt-bak-std "$1";then
         die "Failed to write backup GPT at end of disk"
     fi
 }
@@ -384,7 +384,7 @@ function activate_boot_partition {
     pt_table_type=$(get_partition_table_type "${disk_device}")
     if [[ "$(uname -m)" =~ i.86|x86_64 ]];then
         if [ "${pt_table_type}" = "dos" ];then
-            udevadm lock --device "${disk_device}" \
+            set_device_lock "${disk_device}" \
                 sfdisk --activate "${disk_device}" "${boot_partition_id}"
         fi
     fi
@@ -400,7 +400,7 @@ function create_hybrid_gpt {
         # see man sgdisk for details
         partition_count=3
     fi
-    if ! udevadm lock --device "${disk_device}" \
+    if ! set_device_lock "${disk_device}" \
         sgdisk -h "$(seq -s : 1 "${partition_count}")" "${disk_device}"
     then
         die "Failed to create hybrid GPT/MBR !"

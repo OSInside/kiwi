@@ -17,6 +17,19 @@ function get_system_id {
     blkid -s PTUUID -o value "${disk_device}"
 }
 
+function set_device_lock {
+    # """
+    # Set device lock, preferrable via udevadm or via
+    # flock as fallback if systemd/udev does not provide
+    # the command
+    # """
+    if udevadm lock --help &>/dev/null;then
+        udevadm lock --device "$@"
+    else
+        flock -x "$@"
+    fi
+}
+
 function disk_matches_system_identifier {
     local disk_device=$1
     local system_identifier=/system_identifier

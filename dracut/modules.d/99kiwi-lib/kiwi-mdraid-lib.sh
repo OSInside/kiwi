@@ -19,7 +19,7 @@ function deactivate_mdraid {
 
 function activate_mdraid {
     declare kiwi_RaidDev=${kiwi_RaidDev}
-    udevadm lock --device "${kiwi_RaidDev}" \
+    set_device_lock "${kiwi_RaidDev}" \
         mdadm --assemble --scan "${kiwi_RaidDev}"
     wait_for_storage_device "${kiwi_RaidDev}"
     set_root_map "${kiwi_RaidDev}"
@@ -27,6 +27,6 @@ function activate_mdraid {
 
 function resize_mdraid {
     declare kiwi_RaidDev=${kiwi_RaidDev}
-    udevadm lock --device "${kiwi_RaidDev}" \
+    set_device_lock "${kiwi_RaidDev}" \
         mdadm --grow --size=max "${kiwi_RaidDev}"
 }
