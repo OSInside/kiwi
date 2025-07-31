@@ -15,9 +15,10 @@ function initialize {
     local profile=/.profile
     local partition_ids=/config.partids
 
-    test -f ${profile} || \
+    if test ! -f ${profile}; then
         warn "No profile setup found"
         warn "Settings from the kiwi description will be ignored"
+    fi
 
     test -f ${profile} && import_file ${profile}
 
