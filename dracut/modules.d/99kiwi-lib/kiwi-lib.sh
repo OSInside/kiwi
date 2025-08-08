@@ -203,7 +203,7 @@ function bool {
     fi
 }
 
-function initialize {
+function lib_initialize {
     # """
     # Source profile variables into runtime environment
     # The method will exit from the initrd if the profile
