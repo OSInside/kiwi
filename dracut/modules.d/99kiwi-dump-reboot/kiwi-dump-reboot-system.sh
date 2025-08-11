@@ -1,5 +1,5 @@
 #!/bin/bash
-type initialize >/dev/null 2>&1 || . /lib/kiwi-lib.sh
+type lib_initialize >/dev/null 2>&1 || . /lib/kiwi-lib.sh
 type report_and_quit >/dev/null 2>&1 || . /lib/kiwi-dump-image.sh
 type get_selected_disk >/dev/null 2>&1 || . /lib/kiwi-dump-image.sh
 type run_dialog >/dev/null 2>&1 || . /lib/kiwi-dialog-lib.sh
@@ -73,7 +73,7 @@ function boot_installed_system {
 #======================================
 # Reboot into system
 #--------------------------------------
-initialize
+lib_initialize
 
 if getargbool 0 rd.kiwi.ramdisk; then
     # For ramdisk deployment a kexec boot is not possible as it

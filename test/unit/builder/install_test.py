@@ -256,7 +256,8 @@ class TestInstallImageBuilder:
         self.boot_image_task.include_driver.assert_any_call('driver1')
         self.boot_image_task.include_driver.assert_any_call('driver2')
         assert self.boot_image_task.omit_module.call_args_list == [
-            call('multipath'), call('module1'), call('module2')
+            call('kiwi-repart'), call('multipath'),
+            call('module1'), call('module2')
         ]
         self.boot_image_task.set_static_modules.assert_called_once_with(
             ['module1', 'module2']
@@ -450,7 +451,7 @@ class TestInstallImageBuilder:
         self.boot_image_task.include_driver.assert_any_call('driver1')
         self.boot_image_task.include_driver.assert_any_call('driver2')
         assert self.boot_image_task.omit_module.call_args_list == [
-            call('multipath'), call('module1'), call('module2')
+            call('kiwi-repart'), call('multipath'), call('module1'), call('module2')
         ]
         self.boot_image_task.set_static_modules.assert_called_once_with(
             ['module1', 'module2']

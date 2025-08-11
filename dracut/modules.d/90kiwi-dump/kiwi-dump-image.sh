@@ -513,7 +513,7 @@ function get_remote_image_source_files {
 #--------------------------------------
 setup_debug
 
-initialize
+lib_initialize
 
 udev_pending
 

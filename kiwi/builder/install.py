@@ -404,6 +404,7 @@ class InstallImageBuilder:
         if self.initrd_system == 'dracut':
             self.boot_image_task.include_module('kiwi-dump')
             self.boot_image_task.include_module('kiwi-dump-reboot')
+            self.boot_image_task.omit_module('kiwi-repart')
             if self.root_filesystem_is_multipath is False:
                 self.boot_image_task.omit_module('multipath')
             for mod in self.xml_state.get_installmedia_initrd_modules('add'):
@@ -452,6 +453,7 @@ class InstallImageBuilder:
         if self.initrd_system == 'dracut':
             self.boot_image_task.include_module('kiwi-dump')
             self.boot_image_task.include_module('kiwi-dump-reboot')
+            self.boot_image_task.omit_module('kiwi-repart')
             if self.root_filesystem_is_multipath is False:
                 self.boot_image_task.omit_module('multipath')
             for mod in self.xml_state.get_installmedia_initrd_modules('add'):
