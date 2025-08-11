@@ -30,17 +30,22 @@ function initialize {
     # Used in the systemd dialog unit
     env >/dialog_profile
 
-    disk=$(lookup_disk_device_from_root)
-    export disk
-
     if ! test -f ${partition_ids}; then
         warn "No partition id setup found, rebuilding..."
         {
+            disk=$(lookup_disk_device_from_root)
+            export disk
+
             echo "kiwi_RootPart=\"$(get_last_partition_id "${disk}")\""
         } > ${partition_ids}
-    fi
 
-    import_file ${partition_ids}
+        import_file ${partition_ids}
+    else
+        import_file ${partition_ids}
+
+        disk=$(lookup_disk_device_from_root)
+        export disk
+    fi
 
     root_device=${root#block:}
     export root_device
