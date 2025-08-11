@@ -234,6 +234,13 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 setup_debug
 
+# abort for iso/live mode
+case "${root}" in
+    install:* | live:*)
+        return
+        ;;
+esac
+
 # initialize for disk repartition
 initialize
 
