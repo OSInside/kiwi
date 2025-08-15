@@ -267,7 +267,13 @@ class TestLiveImageBuilder:
                 )
             ]
 
-            filesystem.create_on_file.assert_called_once_with('kiwi-tmpfile')
+            filesystem.create_on_file.assert_called_once_with(
+                filename='kiwi-tmpfile',
+                exclude=[
+                    'image', '.kconfig', 'run/*', 'tmp/*',
+                    '.buildenv', 'var/cache/kiwi'
+                ]
+            )
 
             assert mock_shutil.copy.call_args_list == [
                 call('kiwi-tmpfile', 'temp_media_dir/LiveOS/squashfs.img')
