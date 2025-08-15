@@ -320,7 +320,10 @@ class LiveImageBuilder:
             ) as live_container_image:
                 container_image = Temporary().new_file()
                 live_container_image.create_on_file(
-                    container_image.name
+                    filename=container_image.name,
+                    exclude=Defaults.
+                    get_exclude_list_for_root_data_sync() + Defaults.
+                    get_exclude_list_from_custom_exclude_files(self.root_dir)
                 )
                 Path.create(self.media_dir.name + '/LiveOS')
                 os.chmod(container_image.name, 0o644)
