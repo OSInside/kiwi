@@ -52,6 +52,7 @@
         <package name="kernel-default"/>
         <package name="shim"/>
         <package name="timezone"/>
+        <package name="procps"/>
         <package name="NetworkManager"/>
         <package name="aws-cli-cmd"/>
     </packages>
