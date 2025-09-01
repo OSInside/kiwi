@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
 <image schemaversion="7.5" name="kiwi-test-image-tbz">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>Simple tar archive build, bootstrap only</specification>
     </description>
+    <profiles>
+        <profile name="A" description="Some profile A"/>
+        <profile name="B" description="Some profile B that requires A">
+            <requires profile="A"/>
+        </profile>
+    </profiles>
     <preferences>
         <version>1.15.1</version>
         <packagemanager>zypper</packagemanager>
