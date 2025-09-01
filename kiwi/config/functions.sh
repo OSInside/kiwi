@@ -25,6 +25,13 @@ export LC_ALL=C
 #======================================
 # Common Functions
 #--------------------------------------
+function mountProc {
+    if ! mountpoint -q /proc; then
+        mount -t proc proc /proc
+        trap "umount /proc" EXIT
+    fi
+}
+
 function mountCgroups {
     mount -t tmpfs cgroup_root /sys/fs/cgroup
     for group in devices blkio cpuset pids; do
@@ -737,6 +744,7 @@ function baseCreateKernelTree {
     # /kernel-tree/ for stripping operations
     # ----
     echo "Creating copy of kernel tree for strip operations"
+    mountProc
     mkdir -p /kernel-tree
     cp -a /lib/modules/* /kernel-tree/
 }
@@ -747,6 +755,7 @@ function baseSyncKernelTree {
     # version from /kernel-tree/.
     # ----
     echo "Replace kernel tree with downsized version"
+    mountProc
     rm -rf /lib/modules/*
     cp -a /kernel-tree/* /lib/modules/
     rm -rf /kernel-tree
@@ -764,6 +773,7 @@ function baseFixupKernelModuleDependencies {
     local module_info
     local dependency
     local module_files
+    mountProc
     for kernel_dir in /kernel-tree/*;do
         echo "Checking kernel dependencies for ${kernel_dir}"
         kernel_version=$(/usr/bin/basename "${kernel_dir}")
