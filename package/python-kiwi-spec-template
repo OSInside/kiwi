@@ -811,23 +811,23 @@ fi
 %doc %{_mandir}/man8/*
 
 %files -n dracut-kiwi-lib
-%{_usr}/lib/dracut/modules.d/99kiwi-lib
+%{_usr}/lib/dracut/modules.d/59kiwi-lib
 
 %files -n dracut-kiwi-oem-repart
-%{_usr}/lib/dracut/modules.d/90kiwi-repart
+%{_usr}/lib/dracut/modules.d/55kiwi-repart
 
 %files -n dracut-kiwi-oem-dump
-%{_usr}/lib/dracut/modules.d/90kiwi-dump
-%{_usr}/lib/dracut/modules.d/99kiwi-dump-reboot
+%{_usr}/lib/dracut/modules.d/55kiwi-dump
+%{_usr}/lib/dracut/modules.d/59kiwi-dump-reboot
 
 %files -n dracut-kiwi-live
-%{_usr}/lib/dracut/modules.d/90kiwi-live
+%{_usr}/lib/dracut/modules.d/55kiwi-live
 
 %files -n dracut-kiwi-overlay
-%{_usr}/lib/dracut/modules.d/90kiwi-overlay
+%{_usr}/lib/dracut/modules.d/55kiwi-overlay
 
 %files -n dracut-kiwi-verity
-%{_usr}/lib/dracut/modules.d/80kiwi-verity
+%{_usr}/lib/dracut/modules.d/50kiwi-verity
 %{_bindir}/kiwi-parse-verity
 
 %if "%{_vendor}" != "debbuild"
