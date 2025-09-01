@@ -107,7 +107,7 @@ class TestRuntimeChecker:
         command = Mock()
         command.output = '1.2.3-1.2'
         mock_Command_run.return_value = command
-        mock_os_listdir.return_value = ['90kiwi-dump']
+        mock_os_listdir.return_value = ['55kiwi-dump']
         package_manager = Mock()
         package_manager.return_value = 'zypper'
         self.xml_state.get_package_manager = package_manager

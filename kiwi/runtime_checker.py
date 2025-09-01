@@ -680,22 +680,22 @@ class RuntimeChecker:
             {1}
         ''')
         kiwi_dracut_modules = {
-            '90kiwi-dump': dracut_module_type(
+            '55kiwi-dump': dracut_module_type(
                 'dracut-kiwi-oem-dump', '9.20.1'
             ),
-            '90kiwi-live': dracut_module_type(
+            '55kiwi-live': dracut_module_type(
                 'dracut-kiwi-live', '9.20.1'
             ),
-            '90kiwi-overlay': dracut_module_type(
+            '55kiwi-overlay': dracut_module_type(
                 'dracut-kiwi-overlay', '9.20.1'
             ),
-            '90kiwi-repart': dracut_module_type(
+            '55kiwi-repart': dracut_module_type(
                 'dracut-kiwi-oem-repart', '9.20.1'
             ),
-            '99kiwi-dump-reboot': dracut_module_type(
+            '59kiwi-dump-reboot': dracut_module_type(
                 'dracut-kiwi-oem-dump', '9.20.1'
             ),
-            '99kiwi-lib': dracut_module_type(
+            '59kiwi-lib': dracut_module_type(
                 'dracut-kiwi-lib', '9.20.1'
             )
         }
