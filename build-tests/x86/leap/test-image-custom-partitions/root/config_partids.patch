@@ -1,5 +1,5 @@
---- /usr/lib/dracut/modules.d/90kiwi-repart/kiwi-repart-disk.sh
-+++ /usr/lib/dracut/modules.d/90kiwi-repart/kiwi-repart-disk.sh
+--- /usr/lib/dracut/modules.d/55kiwi-repart/kiwi-repart-disk.sh
++++ /usr/lib/dracut/modules.d/55kiwi-repart/kiwi-repart-disk.sh
 @@ -43,6 +43,8 @@ function initialize {
      else
          import_file ${partition_ids}
