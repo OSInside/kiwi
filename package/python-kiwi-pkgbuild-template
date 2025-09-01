@@ -43,35 +43,42 @@ package_kiwi-man-pages(){
 package_dracut-kiwi-lib(){
   depends=(cryptsetup btrfs-progs gptfdisk coreutils e2fsprogs grep lvm2 mdadm parted util-linux xfsprogs dialog curl xz device-mapper dracut pv bc)
   cd kiwi-${pkgver}
-  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/99kiwi-lib
-  cp -a dracut/modules.d/99kiwi-lib ${pkgdir}/usr/lib/dracut/modules.d/
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/59kiwi-lib
+  cp -a dracut/modules.d/59kiwi-lib ${pkgdir}/usr/lib/dracut/modules.d/
 }
 
 package_dracut-kiwi-oem-repart(){
   depends=(dracut-kiwi-lib=${pkgver})
   cd kiwi-${pkgver}
-  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-repart
-  cp -a dracut/modules.d/90kiwi-repart ${pkgdir}/usr/lib/dracut/modules.d/
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/55kiwi-repart
+  cp -a dracut/modules.d/55kiwi-repart ${pkgdir}/usr/lib/dracut/modules.d/
 }
 
 package_dracut-kiwi-oem-dump(){
   depends=(dracut-kiwi-lib=${pkgver} multipath-tools kexec-tools)
   cd kiwi-${pkgver}
-  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-dump
-  cp -a dracut/modules.d/90kiwi-dump ${pkgdir}/usr/lib/dracut/modules.d/
-  cp -a dracut/modules.d/99kiwi-dump-reboot ${pkgdir}/usr/lib/dracut/modules.d/
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/55kiwi-dump
+  cp -a dracut/modules.d/55kiwi-dump ${pkgdir}/usr/lib/dracut/modules.d/
+  cp -a dracut/modules.d/59kiwi-dump-reboot ${pkgdir}/usr/lib/dracut/modules.d/
 }
 
 package_dracut-kiwi-live(){
   depends=(dracut dialog xfsprogs e2fsprogs util-linux device-mapper libisoburn parted)
   cd kiwi-${pkgver}
-  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-live
-  cp -a dracut/modules.d/90kiwi-live ${pkgdir}/usr/lib/dracut/modules.d/
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/55kiwi-live
+  cp -a dracut/modules.d/55kiwi-live ${pkgdir}/usr/lib/dracut/modules.d/
 }
 
 package_dracut-kiwi-overlay(){
   depends=(dracut util-linux)
   cd kiwi-${pkgver}
-  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/90kiwi-overlay
-  cp -a dracut/modules.d/90kiwi-overlay ${pkgdir}/usr/lib/dracut/modules.d/
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/55kiwi-overlay
+  cp -a dracut/modules.d/55kiwi-overlay ${pkgdir}/usr/lib/dracut/modules.d/
+}
+
+package_dracut-kiwi-verity(){
+  depends=(dracut util-linux)
+  cd kiwi-${pkgver}
+  install -d -m 755 ${pkgdir}/usr/lib/dracut/modules.d/55kiwi-verity
+  cp -a dracut/modules.d/50kiwi-verity ${pkgdir}/usr/lib/dracut/modules.d/
 }
