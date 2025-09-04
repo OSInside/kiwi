@@ -30,7 +30,7 @@ function boot_installed_system {
         ask_and_shutdown "${ask_shutdown_text}"
     fi
     if [ "${kiwi_oemshutdown}" = "true" ];then
-        systemctl halt
+        systemctl poweroff
     fi
 
     # if rd.kiwi.install.pass.bootparam is given, pass on most
