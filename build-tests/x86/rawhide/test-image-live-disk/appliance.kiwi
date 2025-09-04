@@ -93,7 +93,6 @@
         <package name="grub2-efi-ia32-modules" arch="x86_64"/>
         <package name="grub2-efi-ia32" arch="x86_64"/>
         <package name="shim-x64" arch="x86_64"/>
-        <package name="shim-ia32" arch="x86_64"/>
         <package name="fedora-release"/>
     </packages>
 </image>
