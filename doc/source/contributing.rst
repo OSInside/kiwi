@@ -62,11 +62,19 @@ Create a Python Virtual Development Environment
 -----------------------------------------------
 
 The following commands initializes and activates a development
-environment for Python 3:
+environment for the current default Python version:
 
 .. code:: shell-session
 
    $ poetry install
+
+.. note::
+
+   To create the python virtual env for another version of
+   Python, e.g. 3.11, call the following prior the poetry install
+   ::
+
+       $ poetry env use python3.11
 
 The command above automatically creates the application script
 called :command:`kiwi-ng`, which allows you to run {kiwi} from the
@@ -75,7 +83,6 @@ Python sources inside the virtual environment using Poetry:
 .. code:: shell-session
 
     $ poetry run kiwi-ng --help
-
 
 Running the Unit Tests
 ----------------------
