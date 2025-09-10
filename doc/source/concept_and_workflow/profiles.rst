@@ -25,10 +25,10 @@ machine images of the `oem` type are configured: one for QEMU (using the
            <packagemanager>zypper</packagemanager>
        </preferences>
        <preferences profiles="QEMU">
-           <type image="oem" format="qcow2" filesystem="ext4">
+           <type image="oem" format="qcow2" filesystem="ext4"/>
        </preferences>
        <preferences profiles="VMWare">
-           <type image="oem" format="vmdk" filesystem="ext4">
+           <type image="oem" format="vmdk" filesystem="ext4"/>
        </preferences>
    </image>
 
