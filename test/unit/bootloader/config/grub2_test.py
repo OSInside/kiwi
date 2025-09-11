@@ -1219,12 +1219,13 @@ class TestBootLoaderConfigGrub2:
             mock_mount_system.assert_called_once_with(
                 'rootdev', 'bootdev', None, None, None
             )
+            os.environ.update({'GRUB_DISABLE_OS_PROBER': 'true'})
             assert mock_Command_run.call_args_list == [
                 call(
                     [
                         'chroot', self.bootloader.root_mount.mountpoint,
                         'grub2-mkconfig', '-o', '/boot/grub2/grub.cfg'
-                    ]
+                    ], os.environ
                 ),
                 call(
                     [

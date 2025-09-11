@@ -300,12 +300,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.boot_directory_name, 'grub.cfg'
             ]
         )
+        # Disable os-prober, it takes information from the host it
+        # runs on which is not necessarily matching with the image
+        os.environ.update({'GRUB_DISABLE_OS_PROBER': 'true'})
         Command.run(
             [
                 'chroot', self.root_mount.mountpoint,
                 os.path.basename(self._get_grub2_mkconfig_tool()), '-o',
                 config_file.replace(self.root_mount.mountpoint, '')
-            ]
+            ], os.environ
         )
         if boot_options.get('root_device') != boot_options.get('boot_device'):
             # Create a boot -> . link on the boot partition.
