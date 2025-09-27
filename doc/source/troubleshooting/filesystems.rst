@@ -46,6 +46,22 @@ XFS
 
       <type fscreateoptions="-i sparse=0"/>
 
+btrfs
+  btrfs and default page sizes (4k vs 64k). By default btrfs
+  autodetects the sectorsize according to the used kernel page
+  size. If the sectorsize differs from the page size, the
+  created filesystem can not be mounted by the image target
+  kernel. If there is a different kernel page size between the
+  kernel on the system the image is build on and the later
+  kernel used for the image, it's required to specify the
+  filesystem sector size to match with the kernel page size
+  of the kernel used for the image. This can be done like in
+  the following example:
+
+  .. code:: xml
+
+      <type fscreateoptions="--sectorsize 4k"/>
+
 .. note::
 
     There can be more inconsistencies in the area of filesystems
