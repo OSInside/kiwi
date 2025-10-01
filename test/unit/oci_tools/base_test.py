@@ -1,5 +1,5 @@
 from pytest import raises
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from kiwi.oci_tools.base import OCIBase
 
@@ -59,3 +59,20 @@ class TestOCIBase:
         assert self.oci._skopeo_provides_tmpdir_option() is True
         mock_Path_which.return_value = None
         assert self.oci._skopeo_provides_tmpdir_option() is False
+
+    @patch('kiwi.oci_tools.base.datetime')
+    def test_creation_date(self, mock_datetime):
+        strftime = Mock()
+        strftime.strftime = Mock(return_value='current_date')
+        mock_datetime.utcnow = Mock(
+            return_value=strftime
+        )
+
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': ''}):
+            oci = OCIBase()
+            assert oci.creation_date == 'current_date'
+
+    def test_creation_date_from_source_date_epoch(self):
+        with patch.dict('os.environ', {'SOURCE_DATE_EPOCH': '946729830'}):
+            oci = OCIBase()
+            assert oci.creation_date == '2000-01-01T12:30:30+00:00'
