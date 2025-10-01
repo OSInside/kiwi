@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 # project
 from kiwi.path import Path
@@ -38,9 +38,17 @@ class OCIBase:
     """
     def __init__(self):
         self.oci_root_dir = None
-        self.creation_date = datetime.utcnow().strftime(
-            '%Y-%m-%dT%H:%M:%S+00:00'
-        )
+        sde = os.environ.get('SOURCE_DATE_EPOCH')
+        if sde:
+            self.creation_date = datetime.fromtimestamp(
+                int(sde), tz=timezone.utc
+            ).strftime(
+                '%Y-%m-%dT%H:%M:%S+00:00'
+            )
+        else:
+            self.creation_date = datetime.utcnow().strftime(
+                '%Y-%m-%dT%H:%M:%S+00:00'
+            )
         self.post_init()
 
     def __enter__(self):
