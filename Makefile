@@ -110,8 +110,7 @@ docs_suse: setup
 	bash -c 'pushd doc/build && daps -d DC-kiwi html'
 
 test_scripts: setup
-	poetry run bash -c \
-		'pip install pytest-container && pushd test/scripts && pytest -s -vv'
+	poetry run bash -c 'pushd test/scripts && sudo pytest -s -vv'
 
 check: setup
 	# shell code checks
