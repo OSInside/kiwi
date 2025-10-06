@@ -124,8 +124,18 @@ function repart_standard_disk {
         d ${kiwi_RootPart}
         n p:lxroot ${kiwi_RootPart} . ${root_part_size}
     "
+    if mdraid_system; then
+       command_query="
+          d ${kiwi_RootPart}
+          n p:lxraid ${kiwi_RootPart} . ${root_part_size}
+          t ${kiwi_RootPart} fd
+       "
+    fi
     if ! create_partitions "${disk}" "${command_query}";then
         die "Failed to create partition table"
+    fi
+    if mdraid_system; then
+        update_devicesize_mdraid
     fi
     # finalize table changes
     finalize_disk_repart
