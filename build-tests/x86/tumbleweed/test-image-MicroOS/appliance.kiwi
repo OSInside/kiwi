@@ -9,6 +9,7 @@
     <profiles>
         <profile name="Standard" description="MicroOS"/>
         <profile name="Encrypted" description="MicroOS Encrypted"/>
+        <profile name="DataPart" description="MicroOS with data partition"/>
     </profiles>
     <preferences>
         <version>16.0.0</version>
@@ -53,6 +54,50 @@
                 <volume name="var" copy_on_write="false"/>
             </systemdisk>
             <size unit="G">2</size>
+            <installmedia>
+                <initrd action="omit">
+                    <dracut module="combustion"/>
+                    <dracut module="ignition"/>
+                </initrd>
+            </installmedia>
+        </type>
+    </preferences>
+    <preferences profiles="DataPart">
+        <type
+            image="oem"
+            filesystem="btrfs"
+            firmware="uefi"
+            installiso="true"
+            installboot="install"
+            kernelcmdline="quiet systemd.show_status=yes console=ttyS0,115200 console=tty0 net.ifnames=0 \$ignition_firstboot ignition.platform.id=qemu"
+            bootpartition="false"
+            devicepersistency="by-uuid"
+            btrfs_root_is_snapshot="true"
+            btrfs_root_is_readonly_snapshot="true"
+            btrfs_quota_groups="true"
+            format="qcow2"
+            spare_part="500M"
+            spare_part_mountpoint="/data"
+            spare_part_fs="xfs"
+            spare_part_is_last="true"
+        >
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" console="serial" timeout="10"/>
+            <systemdisk>
+                <volume name="home"/>
+                <volume name="root"/>
+                <volume name="opt"/>
+                <volume name="srv"/>
+                <volume name="boot/grub2/i386-pc"/>
+                <volume name="boot/grub2/x86_64-efi" mountpoint="boot/grub2/x86_64-efi"/>
+                <volume name="boot/writable"/>
+                <volume name="usr/local"/>
+                <volume name="var" copy_on_write="false"/>
+            </systemdisk>
+            <size unit="G">20</size>
             <installmedia>
                 <initrd action="omit">
                     <dracut module="combustion"/>
