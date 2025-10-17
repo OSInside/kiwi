@@ -213,10 +213,10 @@ Provides:       kiwi-image:appx
 Provides:       kiwi-image:wsl
 %endif
 %if 0%{?suse_version}
-Requires:       fb-util-for-appx
+Recommends:     fb-util-for-appx
 %endif
 %if 0%{?fedora} || 0%{?rhel}
-Requires:       appx-util
+Recommends:     appx-util
 %endif
 
 %description -n kiwi-systemdeps-containers-wsl
