@@ -55,6 +55,7 @@
         <package name="procps"/>
         <package name="NetworkManager"/>
         <package name="aws-cli-cmd"/>
+        <package name="az-cli-cmd"/>
     </packages>
     <packages type="bootstrap">
         <package name="udev"/>
