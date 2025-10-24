@@ -222,6 +222,17 @@ the available kernel boot parameters for these modules:
   Note that options starting with `rd.kiwi` are not passed to avoid
   side effects.
 
+``rd.kiwi.install.retain_last``
+  Instructs an OEM installation to retain the contents of the
+  last partition on the target disk. This setting is only useful
+  if the last partition does not belong to the main OS e.g. an
+  extra data partition added via the `spare_part` attribute in
+  the type setup of the image description. The implementation
+  also checks if the start address of the last partition on the
+  target disk matches with the start adress of the image to be
+  deployed. Only if they match the data on the last partition
+  can be retained.
+
 ``rd.kiwi.oem.luks.reencrypt``
   For OEM LUKS2 encrypted disk images. If set, reencrypts the disk
   prior an eventual resize and therefore creates a new key pool and
