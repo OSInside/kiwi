@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 <image schemaversion="7.5" name="kiwi-test-image-disk">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>Disk test build</specification>
     </description>
+    <profiles>
+        <profile name="Standard" description="Standard Disk"/>
+        <profile name="Retain" description="Retain Last Partition"/>
+    </profiles>
     <preferences>
         <version>1.42.1</version>
         <packagemanager>zypper</packagemanager>
@@ -16,10 +20,13 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences profiles="Standard">
         <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install">
             <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
+                <oem-swap>true</oem-swap>
                 <oem-swapsize>1024</oem-swapsize>
                 <oem-multipath-scan>false</oem-multipath-scan>
             </oemconfig>
@@ -28,8 +35,28 @@
             </systemdisk>
         </type>
     </preferences>
+    <preferences profiles="Retain">
+        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0 rd.kiwi.install.systemsize=all rd.kiwi.install.retain_last" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install" spare_part="0" spare_part_fs="ext4" spare_part_mountpoint="/home" spare_part_is_last="true">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>512</oem-swapsize>
+                <!-- set root partition to a fixed value to keep address consistent -->
+                <oem-systemsize>2048</oem-systemsize>
+                <oem-multipath-scan>false</oem-multipath-scan>
+                <oem-resize>true</oem-resize>
+            </oemconfig>
+            <systemdisk>
+                <volume name="root"/>
+            </systemdisk>
+            <!-- whole disk must be big enough for fixed root + other -->
+            <size unit="G">3</size>
+        </type>
+    </preferences>
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/home/test-user" name="test-user" groups="users"/>
     </users>
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
