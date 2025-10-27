@@ -80,6 +80,20 @@ function finalize_disk_repart {
         "$(get_partition_node_name "${disk}" "${kiwi_RootPart}")"
 }
 
+function get_target_rootpart_size {
+    declare kiwi_oemrootMB=${kiwi_oemrootMB}
+    local oemrootMB
+    oemrootMB=$(getarg rd.kiwi.install.install.systemsize=)
+    if [ -n "${oemrootMB}" ]; then
+        if [ "${oemrootMB}" = "all" ];then
+            kiwi_oemrootMB=""
+        else
+            kiwi_oemrootMB="${oemrootMB}"
+        fi
+    fi
+    echo "${kiwi_oemrootMB}"
+}
+
 function repart_standard_disk {
     # """
     # repartition disk with read/write root filesystem
@@ -89,8 +103,9 @@ function repart_standard_disk {
     # pX+1: ( root )  [+luks +raid]
     # -------------------------------------
     # """
-    declare kiwi_oemrootMB=${kiwi_oemrootMB}
     declare kiwi_RootPart=${kiwi_RootPart}
+    local kiwi_oemrootMB
+    kiwi_oemrootMB=$(get_target_rootpart_size)
     if [ -z "${kiwi_oemrootMB}" ];then
         local disk_have_root_system_mbytes=$((
             disk_root_mbytes + disk_free_mbytes
@@ -150,8 +165,9 @@ function repart_lvm_disk {
     # pX+1: ( LVM  )  [+luks +raid]
     # -------------------------------------
     # """
-    declare kiwi_oemrootMB=${kiwi_oemrootMB}
     declare kiwi_RootPart=${kiwi_RootPart}
+    local kiwi_oemrootMB
+    kiwi_oemrootMB=$(get_target_rootpart_size)
     if [ -z "${kiwi_oemrootMB}" ];then
         local disk_have_root_system_mbytes=$((
             disk_root_mbytes + disk_free_mbytes
@@ -198,10 +214,11 @@ function repart_lvm_disk {
 }
 
 function check_repart_possible {
-    declare kiwi_oemrootMB=${kiwi_oemrootMB}
     local disk_root_mbytes=$1
     local disk_free_mbytes=$2
     local min_additional_mbytes=$3
+    local kiwi_oemrootMB
+    kiwi_oemrootMB=$(get_target_rootpart_size)
     if [ -n "${kiwi_oemrootMB}" ];then
         if [ "${kiwi_oemrootMB}" -lt "${disk_root_mbytes}" ];then
             # specified oem-systemsize is smaller than root partition
