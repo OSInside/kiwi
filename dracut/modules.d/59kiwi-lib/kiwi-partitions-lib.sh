@@ -213,6 +213,51 @@ function get_partition_node_name {
     return 1
 }
 
+function get_partition_name {
+    local disk=$1
+    local part_id=$2
+    local part_name
+    local table_type
+    table_type=$(get_partition_table_type "${disk}")
+    if [ "${table_type}" = "gpt" ];then
+        part_name=$(sfdisk --part-label "${disk}" "${part_id}")
+    else
+        part_name=unsupported
+    fi
+    echo "${part_name}"
+}
+
+function recreate_last_partition {
+    local image_target=$1
+    local table_type
+    table_type=$(get_partition_table_type "${image_target}")
+    if [ "${table_type}" = "gpt" ];then
+        relocate_gpt_at_end_of_disk "${image_target}"
+    fi
+    sfdisk -d "${image_target}" > /tmp/parttable 2>/dev/null
+    head -n -1 /tmp/parttable > /tmp/parttable_1
+    tail -n 1 /tmp/parttable > /tmp/parttable_2
+    if [ "${table_type}" = "gpt" ];then
+        sed -ie "s@\(/dev/.* : start=.*\), size=.*, \(type=.*, uuid=.*, name=\".*\"\)@\1, \2@" \
+        /tmp/parttable_2
+    else
+        sed -ie "s@\(/dev/.* : start=.*\), size=.*, \(type=.*\)@\1, \2@" \
+        /tmp/parttable_2
+    fi
+    cat /tmp/parttable_1 /tmp/parttable_2 > /tmp/parttable
+    set_device_lock "${image_target}" \
+        sfdisk -f "${image_target}" < /tmp/parttable
+}
+
+function get_last_partition_device {
+    # """
+    # Get unix node of last partition in table
+    # """
+    local disk=$1
+    lsblk -p -n -r -o NAME,TYPE "${disk}" |\
+        grep -E "part|md$" | tail -n 1 | cut -f1 -d ' '
+}
+
 function get_last_partition_id {
     # """
     # Get index of last partition from the current table
