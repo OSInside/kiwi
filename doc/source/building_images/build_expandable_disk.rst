@@ -379,15 +379,19 @@ oemconfig.oem-swapsize
   This value is represented by the ``kiwi_oemswapMB`` variable in the initrd.
 
 oemconfig.oem-systemsize
-  Specifies the size the operating system is allowed to occupy on the target
+  Specifies the MB size the operating system is allowed to occupy on the target
   disk. The size limit does not include any swap space or recovery partition
   considerations. In a setup *without* the systemdisk element, this value
   specifies the size of the root partition. In a setup that *includes* the
-  systemdisk element, this value specifies the size of the LVM partition that
-  contains all specified volumes. This means that the sum of all specified
-  volume sizes plus the sum of the specified freespace for each volume must be
-  smaller than or equal to the size specified with the `oem-systemsize` element. This
-  value is represented by the variable ``kiwi_oemrootMB`` in the initrd.
+  systemdisk element when using LVM, this value specifies the size of the LVM
+  partition that contains all specified volumes. This means that the sum of all
+  specified volume sizes plus the sum of the specified freespace for each volume
+  must be smaller than or equal to the size specified with the `oem-systemsize`
+  element. This value is represented by the variable ``kiwi_oemrootMB`` in the
+  initrd. The specified value can be dynamically overwritten via the
+  `rd.kiwi.install.systemsize` kernel boot option. If `rd.kiwi.install.systemsize`
+  is set to `all` this will unset the size limit and the maximum possible
+  size applies.
 
 oemconfig.oem-unattended
   The installation of the image to the target system occurs
