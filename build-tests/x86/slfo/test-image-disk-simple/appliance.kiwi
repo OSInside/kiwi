@@ -14,7 +14,7 @@
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>false</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
-        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" format="vmdk">
+        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0 security=selinux selinux=1 enforcing=1" firmware="uefi" format="vmdk">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
@@ -30,6 +30,12 @@
         <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
+        <package name="restorecond"/>
+        <package name="policycoreutils"/>
+        <package name="setools-console"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="selinux-policy-devel"/>
+        <package name="selinux-autorelabel"/>
         <package name="bind-utils"/>
         <package name="systemd"/>
         <package name="iputils"/>
