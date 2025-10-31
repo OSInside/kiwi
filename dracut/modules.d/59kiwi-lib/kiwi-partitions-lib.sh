@@ -213,6 +213,29 @@ function get_partition_node_name {
     return 1
 }
 
+function get_partition_name {
+    local disk=$1
+    local part_id=$2
+    local part_name
+    local table_type
+    table_type=$(get_partition_table_type "${disk}")
+    if [ "${table_type}" = "gpt" ];then
+        part_name=$(sfdisk --part-label "${disk}" "${part_id}")
+    else
+        part_name=unsupported
+    fi
+    echo "${part_name}"
+}
+
+function get_last_partition_device {
+    # """
+    # Get unix node of last partition in table
+    # """
+    local disk=$1
+    lsblk -p -n -r -o NAME,TYPE "${disk}" |\
+        grep -E "part|md$" | tail -n 1 | cut -f1 -d ' '
+}
+
 function get_last_partition_id {
     # """
     # Get index of last partition from the current table

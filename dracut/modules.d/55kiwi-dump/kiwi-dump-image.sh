@@ -330,15 +330,50 @@ function dump_image {
     local load_text="Loading ${image_basename}..."
     local title_text="Installation..."
     local dump
+    local parttable
+    local count_32k
+    local image_size
+    local count=0
+    local block_size=32k
 
+    # can we dump this
+    check_image_fits_target "${image_target}"
+
+    # select dump method
     if [ -n "${image_from_remote}" ];then
         dump=dump_remote_image
     else
         dump=dump_local_image
     fi
 
-    check_image_fits_target "${image_target}"
+    # setup blocks and blocksize to retain last
+    if getargbool 0 rd.kiwi.install.retain_last; then
+        if [ -n "${image_from_remote}" ];then
+            image_size=$((blocks * blocksize))
+            parttable=$(
+                fetch_remote_partition_table "${image_source}" "${image_size}"
+            )
+        else
+            parttable=$(
+                fetch_local_partition_table "${image_source}"
+            )
+        fi
+        if compatible_to_retain "${parttable}" "${image_target}"; then
+            count=$(get_disk_offset_retain_last_partition "${parttable}")
+        fi
+        if [ "${count}" -gt 0 ];then
+            block_size=$(get_sector_size_from_table_dump "${parttable}")
+            count_32k=$(
+                optimize_count_for_32k_blocksize "${block_size}" "${count}"
+            )
+            if [ ! "${count}" = "${count_32k}" ];then
+                count="${count_32k}"
+                block_size=32k
+            fi
+        fi
+    fi
 
+    # last chance to stop us
     if [ "${kiwi_oemunattended}" = "false" ];then
         local ack_dump_text="Destroying ALL data on ${image_target}, continue ?"
         if ! run_dialog --yesno "\"${ack_dump_text}\"" 7 80; then
@@ -347,48 +382,157 @@ function dump_image {
         fi
     fi
 
+    # deploy
     echo "${load_text} [${image_target}]..."
     if command -v pv &>/dev/null && [ "${kiwi_oemsilentinstall}" = "false" ]
     then
         # dump with dialog based progress information
         setup_progress_fifo ${progress}
-        eval "${dump}" "${image_source}" "${image_target}" "${progress}" &
+        eval \
+            "${dump}" \
+            "${image_source}" \
+            "${image_target}" \
+            "${count}" \
+            "${block_size}" \
+            "${progress}" \
+        &
         run_progress_dialog "${load_text}" "${title_text}"
     else
         # dump with silently blocked console
-        if ! eval "${dump}" "${image_source}" "${image_target}"; then
+        if ! eval \
+            "${dump}" \
+            "${image_source}" \
+            "${image_target}" \
+            "${count}" \
+            "${block_size}"
+        then
             report_and_quit "Failed to install image"
         fi
     fi
 }
 
+function fetch_local_partition_table {
+    local image_source=$1
+    local parttable=/tmp/parttable
+    sfdisk -d "${image_source}" > "${parttable}" 2>/dev/null
+    echo "${parttable}"
+}
+
+function fetch_remote_partition_table {
+    local image_source=$1
+    local image_size=$2
+    local parttable=/tmp/parttable
+    dd if=/dev/zero of=/tmp/table bs=1 count=0 seek="${image_size}" &>/dev/null
+    fetch_file "${image_source}" 2>/dev/null | dd of=/tmp/table bs=512 count=1 conv=notrunc &>/dev/null
+    sfdisk -d /tmp/table > "${parttable}" 2>/dev/null
+    echo "${parttable}"
+}
+
+function get_sector_size_from_table_dump {
+    local parttable=$1
+    sector_size=$(grep sector-size: "${parttable}" | cut -f2 -d:)
+    echo "${sector_size}"
+}
+
+function compatible_to_retain {
+    local parttable=$1
+    local image_target=$2
+    local source_start
+    local target_start
+    source_start=$(
+        tail -n 1 "${parttable}" | cut -f2 -d= | cut -f1 -d,
+    )
+    target_start=$(
+        sfdisk -d "${image_target}" 2>/dev/null |\
+        tail -n 1 | cut -f2 -d= | cut -f1 -d,
+    )
+    if [ -z "${source_start}" ] || [ -z "${target_start}" ];then
+        # no partition information for either source or target
+        # broken or net new deployment on empty disk
+        touch /tmp/retain_not_applicable
+        return 1
+    fi
+    if [ ! "${source_start}" = "${target_start}" ];then
+        report_and_quit "Cannot retain partition, start address mismatch"
+    fi
+    return 0
+}
+
+function get_disk_offset_retain_last_partition {
+    local parttable=$1
+    local next_to_last
+    local start
+    local size
+    local offset
+    next_to_last=$(tail -n 2 "${parttable}" | head -n 1)
+    if [ -n "${next_to_last}" ];then
+        start=$(echo "${next_to_last}" | cut -f2 -d= | cut -f1 -d,)
+        size=$(echo "${next_to_last}" | cut -f3 -d= | cut -f1 -d,)
+        offset=$((start + size))
+        echo "${offset}"
+    else
+        echo 0
+    fi
+}
+
+function optimize_count_for_32k_blocksize {
+    local block_size=$1
+    local count=$2
+    local dump_bytes
+    dump_bytes=$((block_size * count))
+    if [ $((dump_bytes % 32768)) -eq 0 ];then
+        # dump_bytes is a multiple of 32k, use it for better I/O performance
+        count=$((dump_bytes / 32768))
+    fi
+    echo "${count}"
+}
+
 function dump_local_image {
     local image_source=$1
     local image_target=$2
-    local progress=$3
+    local count=$3
+    local block_size=$4
+    local progress=$5
+    if [ "${count}" -gt 0 ];then
+        count="count=${count}"
+    else
+        unset count
+    fi
+    # shellcheck disable=SC2086
     if [ -e "${progress}" ];then
         (
-            pv -n "${image_source}" | dd bs=32k of="${image_target}" &>/dev/null
+            pv -n "${image_source}" |\
+            dd bs="${block_size}" ${count} of="${image_target}" &>/dev/null
         ) 2>"${progress}"
     else
-        dd if="${image_source}" bs=32k of="${image_target}" &>/dev/null
+        dd \
+            if="${image_source}" bs="${block_size}" ${count} \
+            of="${image_target}" &>/dev/null
     fi
 }
 
 function dump_remote_image {
     local image_source=$1
     local image_target=$2
-    local progress=$3
+    local count=$3
+    local block_size=$4
+    local progress=$5
     local image_size
     image_size=$((blocks * blocksize))
+    if [ "${count}" -gt 0 ];then
+        count="count=${count}"
+    else
+        unset count
+    fi
+    # shellcheck disable=SC2086
     if [ -e "${progress}" ];then
         (
             fetch_file "${image_source}" "${image_size}" |\
-                dd bs=32k of="${image_target}" &>/dev/null
+                dd bs="${block_size}" ${count} of="${image_target}" &>/dev/null
         ) 2>"${progress}"
     else
         fetch_file "${image_source}" |\
-            dd bs=32k of="${image_target}" &>/dev/null
+            dd bs="${block_size}" ${count} of="${image_target}" &>/dev/null
     fi
 }
 
@@ -405,6 +549,13 @@ function check_image_integrity {
     if [ "${kiwi_oemskipverify}" = "true" ];then
         # no verification wanted
         return
+    fi
+    if getargbool 0 rd.kiwi.install.retain_last; then
+        if [ ! -e /tmp/retain_not_applicable ];then
+            # no verification possible as only a portion of
+            # the image got deployed intentionally
+            return
+        fi
     fi
     if command -v pv &>/dev/null && [ "${kiwi_oemsilentverify}" = "false" ]
     then

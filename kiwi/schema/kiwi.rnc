@@ -1454,19 +1454,6 @@ div {
     ]
     sch:pattern [
         abstract = "true"
-        id = "image_expandable"
-        sch:rule [
-            context = "type[@$attr='true']"
-            sch:assert [
-                test = "oemconfig/oem-resize[contains(text(), 'false')]"
-                "$attr attribute also needs the setting: "
-                "<oem-resize>false</oem-resize> in the "
-                "<oemconfig> section of the selected <type>"
-            ]
-        ]
-    ]
-    sch:pattern [
-        abstract = "true"
         id = "image_verity_requirement"
         sch:rule [
             context = "type[@embed_verity_metadata]"
@@ -1632,23 +1619,11 @@ div {
         ]
     k.type.spare_part_is_last.attribute =
         ## Specify if the spare partition should be the last one in
-        ## the partition table. Can only be configured for the oem
-        ## type with oem-resize switched off. By default the root
-        ## partition is the last one and the spare partition lives
-        ## before it. With this attribute that setup can be toggled.
-        ## However if the root partition is no longer the last one
-        ## the oem repart/resize code can no longer work because
-        ## the spare part would block it. Because of that moving
-        ## the spare part at the end of the disk is only applied
-        ## if oem-resize is switched off. There is a runtime
-        ## check in the kiwi code to check this condition
+        ## the partition table.
         attribute spare_part_is_last { xsd:boolean }
         >> sch:pattern [ id = "spare_part_is_last" is-a = "image_type"
             sch:param [ name = "attr" value = "spare_part_is_last" ]
             sch:param [ name = "types" value = "oem" ]
-        ]
-        >> sch:pattern [ id = "spare_part_is_last_valid" is-a = "image_expandable"
-            sch:param [ name = "attr" value = "spare_part_is_last" ]
         ]
     k.type.bootpartsize.attribute =
         ## For images with a separate boot partition this attribute

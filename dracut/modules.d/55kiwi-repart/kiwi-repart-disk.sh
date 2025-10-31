@@ -47,8 +47,8 @@ function initialize {
         export disk
     fi
 
-    root_device=${root#block:}
-    export root_device
+    last_device=$(get_last_partition_device "${disk}")
+    export last_device
 
     disk_free_mbytes=$((
         $(get_free_disk_bytes "${disk}") / 1048576
@@ -56,9 +56,31 @@ function initialize {
     export disk_free_mbytes
 
     disk_root_mbytes=$((
-        $(get_block_device_kbsize "${root_device}") / 1024
+        $(get_block_device_kbsize "${last_device}") / 1024
     ))
     export disk_root_mbytes
+}
+
+function get_last_partition_id_from_config_file {
+    # """
+    # Read the partition id with the biggest value from
+    # config.partids. This method will be replaced by
+    # get_last_partition_id() in the future. As of today
+    # there is still code in 59kiwi-lib which reads
+    # the imported variables from config.partids. This
+    # code needs to be refactored first before we can
+    # get rid of config.partids
+    # """
+    local partition_ids=/config.partids
+    local partid=1
+    local partid_cur
+    while read -r partname; do
+        partid_cur=$(echo "${partname}" | cut -f2 -d= | tr -d \")
+        if [ "${partid_cur}" -gt "${partid}" ];then
+            partid="${partid_cur}"
+        fi
+    done < "${partition_ids}"
+    echo "${partid}"
 }
 
 function deactivate_device_mappings {
@@ -74,10 +96,11 @@ function deactivate_device_mappings {
 }
 
 function finalize_disk_repart {
-    declare kiwi_RootPart=${kiwi_RootPart}
+    local kiwi_ResizePart
+    kiwi_ResizePart=$(get_last_partition_id_from_config_file)
     finalize_partition_table "${disk}"
     set_root_map \
-        "$(get_partition_node_name "${disk}" "${kiwi_RootPart}")"
+        "$(get_partition_node_name "${disk}" "${kiwi_ResizePart}")"
 }
 
 function get_target_rootpart_size {
@@ -103,9 +126,14 @@ function repart_standard_disk {
     # pX+1: ( root )  [+luks +raid]
     # -------------------------------------
     # """
-    declare kiwi_RootPart=${kiwi_RootPart}
     local kiwi_oemrootMB
+    local kiwi_ResizePart
+    local command_query
+    local root_part_size
+    local part_name
     kiwi_oemrootMB=$(get_target_rootpart_size)
+    kiwi_ResizePart=$(get_last_partition_id_from_config_file)
+    part_name=$(get_partition_name "${disk}" "${kiwi_ResizePart}")
     if [ -z "${kiwi_oemrootMB}" ];then
         local disk_have_root_system_mbytes=$((
             disk_root_mbytes + disk_free_mbytes
@@ -129,21 +157,20 @@ function repart_standard_disk {
     # deactivate all active device mappings
     deactivate_device_mappings
     # repart root partition
-    local command_query
-    local root_part_size=+${disk_have_root_system_mbytes}M
+    root_part_size=+${disk_have_root_system_mbytes}M
     if [ -z "${kiwi_oemrootMB}" ];then
         # no new parts and no rootsize limit, use rest disk space
         root_part_size=.
     fi
     command_query="
-        d ${kiwi_RootPart}
-        n p:lxroot ${kiwi_RootPart} . ${root_part_size}
+        d ${kiwi_ResizePart}
+        n ${part_name} ${kiwi_ResizePart} . ${root_part_size}
     "
     if mdraid_system; then
        command_query="
-          d ${kiwi_RootPart}
-          n p:lxraid ${kiwi_RootPart} . ${root_part_size}
-          t ${kiwi_RootPart} fd
+          d ${kiwi_ResizePart}
+          n ${part_name} ${kiwi_ResizePart} . ${root_part_size}
+          t ${kiwi_ResizePart} fd
        "
     fi
     if ! create_partitions "${disk}" "${command_query}";then
@@ -165,9 +192,14 @@ function repart_lvm_disk {
     # pX+1: ( LVM  )  [+luks +raid]
     # -------------------------------------
     # """
-    declare kiwi_RootPart=${kiwi_RootPart}
     local kiwi_oemrootMB
+    local kiwi_ResizePart
+    local command_query
+    local lvm_part_size
+    local part_name
     kiwi_oemrootMB=$(get_target_rootpart_size)
+    kiwi_ResizePart=$(get_last_partition_id_from_config_file)
+    part_name=$(get_partition_name "${disk}" "${kiwi_ResizePart}")
     if [ -z "${kiwi_oemrootMB}" ];then
         local disk_have_root_system_mbytes=$((
             disk_root_mbytes + disk_free_mbytes
@@ -195,16 +227,15 @@ function repart_lvm_disk {
     # create lvm.conf appropriate for resize
     setup_lvm_config
     # repart lvm partition
-    local command_query
-    local lvm_part_size=+${disk_have_root_system_mbytes}M
+    lvm_part_size=+${disk_have_root_system_mbytes}M
     if [ -z "${kiwi_oemrootMB}" ];then
         # no rootsize limit, use rest disk space
         lvm_part_size=.
     fi
     command_query="
-        d ${kiwi_RootPart}
-        n p:lxlvm ${kiwi_RootPart} . ${lvm_part_size}
-        t ${kiwi_RootPart} 8e
+        d ${kiwi_ResizePart}
+        n ${part_name} ${kiwi_ResizePart} . ${lvm_part_size}
+        t ${kiwi_ResizePart} 8e
     "
     if ! create_partitions "${disk}" "${command_query}";then
         die "Failed to create partition table"
@@ -284,10 +315,10 @@ if luks_system "${disk}";then
 fi
 
 # wait for the root device to appear
-wait_for_storage_device "${root_device}"
+wait_for_storage_device "${last_device}"
 
 # check if repart/resize is wanted
-if ! resize_wanted "${root_device}" "${disk}"; then
+if ! resize_wanted "${last_device}" "${disk}"; then
     return
 fi
 
@@ -297,7 +328,7 @@ if [ "$(get_partition_table_type "${disk}")" = 'gpt' ];then
 fi
 
 # wait for the root device to appear
-wait_for_storage_device "${root_device}"
+wait_for_storage_device "${last_device}"
 
 # resize disk partition table
 if lvm_system;then
@@ -328,4 +359,4 @@ else
 fi
 
 # wait for the root device to appear
-wait_for_storage_device "${root_device}"
+wait_for_storage_device "${last_device}"

@@ -1210,7 +1210,14 @@ class DiskBuilder:
             if root_clone_count:
                 rootfs_mbsize = int(rootfs_mbsize / (root_clone_count + 1))
         else:
-            if self.oem_systemsize and not self.oem_resize:
+            if self.oem_systemsize and (
+                not self.oem_resize or self.spare_part_is_last
+            ):
+                # if resize on boot is switched off, we have to take
+                # the given size into account at build time.
+                # if resize is active but the rootfs is not the last
+                # partition we also have to take the given size into
+                # account, because only the last can resize
                 rootfs_mbsize = self.oem_systemsize
             else:
                 rootfs_mbsize = 'all_free'
