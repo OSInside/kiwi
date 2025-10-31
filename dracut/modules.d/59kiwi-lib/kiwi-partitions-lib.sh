@@ -227,28 +227,6 @@ function get_partition_name {
     echo "${part_name}"
 }
 
-function recreate_last_partition {
-    local image_target=$1
-    local table_type
-    table_type=$(get_partition_table_type "${image_target}")
-    if [ "${table_type}" = "gpt" ];then
-        relocate_gpt_at_end_of_disk "${image_target}"
-    fi
-    sfdisk -d "${image_target}" > /tmp/parttable 2>/dev/null
-    head -n -1 /tmp/parttable > /tmp/parttable_1
-    tail -n 1 /tmp/parttable > /tmp/parttable_2
-    if [ "${table_type}" = "gpt" ];then
-        sed -ie "s@\(/dev/.* : start=.*\), size=.*, \(type=.*, uuid=.*, name=\".*\"\)@\1, \2@" \
-        /tmp/parttable_2
-    else
-        sed -ie "s@\(/dev/.* : start=.*\), size=.*, \(type=.*\)@\1, \2@" \
-        /tmp/parttable_2
-    fi
-    cat /tmp/parttable_1 /tmp/parttable_2 > /tmp/parttable
-    set_device_lock "${image_target}" \
-        sfdisk -f "${image_target}" < /tmp/parttable
-}
-
 function get_last_partition_device {
     # """
     # Get unix node of last partition in table
