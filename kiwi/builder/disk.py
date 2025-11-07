@@ -166,6 +166,7 @@ class DiskBuilder:
         self.luks = xml_state.get_luks_credentials()
         self.use_disk_password = \
             xml_state.get_build_type_bootloader_use_disk_password()
+        self.host_key_certificates = xml_state.get_host_key_certificates()
         self.integrity = xml_state.build_type.get_standalone_integrity()
         self.integrity_legacy_hmac = \
             xml_state.build_type.get_integrity_legacy_hmac()
@@ -419,7 +420,64 @@ class DiskBuilder:
             compress=compression,
             shasum=True
         )
-
+        if self.host_key_certificates and 's390' in self.arch:
+            self.result.add(
+                key='secure_execution_header',
+                filename=os.path.normpath(
+                    os.sep.join(
+                        [
+                            self.target_dir,
+                            '{0}.{1}-{2}.{3}'.format(
+                                self.xml_state.xml_data.get_name(),
+                                self.arch,
+                                self.xml_state.get_image_version(),
+                                'secure_execution_header.bin'
+                            )
+                        ]
+                    )
+                ),
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
+            )
+            self.result.add(
+                key='attestation_response_key',
+                filename=os.path.normpath(
+                    os.sep.join(
+                        [
+                            self.target_dir,
+                            '{0}.{1}-{2}.{3}'.format(
+                                self.xml_state.xml_data.get_name(),
+                                self.arch,
+                                self.xml_state.get_image_version(),
+                                'attestation_response.key'
+                            )
+                        ]
+                    )
+                ),
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
+            )
+            self.result.add(
+                key='attestation_request',
+                filename=os.path.normpath(
+                    os.sep.join(
+                        [
+                            self.target_dir,
+                            '{0}.{1}-{2}.{3}'.format(
+                                self.xml_state.xml_data.get_name(),
+                                self.arch,
+                                self.xml_state.get_image_version(),
+                                'attestation_request.bin'
+                            )
+                        ]
+                    )
+                ),
+                use_for_bundle=True,
+                compress=False,
+                shasum=False
+            )
         # create image root metadata
         self.result.add(
             key='image_packages',
@@ -557,7 +615,9 @@ class DiskBuilder:
             'boot_is_crypto':
                 self.boot_is_crypto,
             'config_options':
-                self.xml_state.get_bootloader_config_options()
+                self.xml_state.get_bootloader_config_options(),
+            'target_dir':
+                self.target_dir
         }
         if self.bootloader.startswith('grub'):
             custom_args.update(
