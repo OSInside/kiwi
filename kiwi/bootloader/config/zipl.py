@@ -18,6 +18,7 @@
 import os
 import copy
 import logging
+import shutil
 from string import Template
 from typing import Dict
 
@@ -123,7 +124,8 @@ class BootLoaderZipl(BootLoaderSpecBase):
                     )
                     Command.run(genprotimg_host_key_check)
                     os.unlink(f'{root_dir}/{cc_boot_image}')
-                # final call
+
+                # generate secure execution image
                 genprotimg = genprotimg_init
                 genprotimg.append('--no-verify')
                 for host_key_certificate in host_key_certificates:
@@ -134,6 +136,73 @@ class BootLoaderZipl(BootLoaderSpecBase):
                         genprotimg.append('--crl')
                         genprotimg.append(host_crl)
                 Command.run(genprotimg)
+
+                # extract secure execution header
+                secure_execution_header = 'secure_execution_header.bin'
+                Command.run(
+                    [
+                        'chroot', root_dir, 'pvextract-hdr',
+                        '-o', secure_execution_header,
+                        cc_boot_image
+                    ]
+                )
+                shutil.move(
+                    os.sep.join([root_dir, secure_execution_header]),
+                    os.sep.join(
+                        [
+                            self.custom_args['target_dir'],
+                            '{0}.{1}-{2}.{3}'.format(
+                                self.xml_state.xml_data.get_name(),
+                                self.arch,
+                                self.xml_state.get_image_version(),
+                                secure_execution_header
+                            )
+                        ]
+                    )
+                )
+
+                # generate attestation request binary and response key
+                attestation_request = 'attestation_request.bin'
+                attestation_response_key = 'attestation_response.key'
+                pvattest = [
+                    'chroot', root_dir, 'pvattest', 'create',
+                    '--no-verify', '--verbose',
+                    '-o', attestation_request,
+                    '--arpk', attestation_response_key
+                ]
+                for host_key_certificate in host_key_certificates:
+                    for host_key in host_key_certificate.get('hkd_cert'):
+                        pvattest.append('-k')
+                        pvattest.append(host_key)
+                Command.run(pvattest)
+                shutil.move(
+                    os.sep.join([root_dir, attestation_request]),
+                    os.sep.join(
+                        [
+                            self.custom_args['target_dir'],
+                            '{0}.{1}-{2}.{3}'.format(
+                                self.xml_state.xml_data.get_name(),
+                                self.arch,
+                                self.xml_state.get_image_version(),
+                                attestation_request
+                            )
+                        ]
+                    )
+                )
+                shutil.move(
+                    os.sep.join([root_dir, attestation_response_key]),
+                    os.sep.join(
+                        [
+                            self.custom_args['target_dir'],
+                            '{0}.{1}-{2}.{3}'.format(
+                                self.xml_state.xml_data.get_name(),
+                                self.arch,
+                                self.xml_state.get_image_version(),
+                                attestation_response_key
+                            )
+                        ]
+                    )
+                )
 
             self.custom_args['secure_linux'] = True
             self.custom_args['secure_image_file'] = cc_boot_image

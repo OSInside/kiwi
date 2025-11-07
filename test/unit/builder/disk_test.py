@@ -1205,6 +1205,7 @@ class TestDiskBuilder:
         mock_Disk.return_value.__enter__.return_value = \
             self._get_disk_instance()
         self.disk_builder.arch = 's390x'
+        self.disk_builder.host_key_certificates = Mock()
         bootloader_config = Mock()
         bootloader_config.get_boot_cmdline = Mock(
             return_value='boot_cmdline'
