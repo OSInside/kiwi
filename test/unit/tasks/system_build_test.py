@@ -368,7 +368,8 @@ class TestSystemBuildTask:
         self.task.command_args['--add-repo'] = [
             'http://example1.com,yast2,alias,99,false,true',
             'http://example2.com,yast2,alias,99,false,true',
-            'http://example3.com,yast2,alias,99,false,true'
+            'http://example3.com,yast2,alias,99,false,true',
+            'http://example4.com,,alias,99,false,true'
         ]
         self.task.process()
         assert mock_add_repo.call_args_list == [
@@ -382,6 +383,10 @@ class TestSystemBuildTask:
             ),
             call(
                 'http://example3.com', 'yast2', 'alias', '99',
+                False, True, [], None, None, None, None
+            ),
+            call(
+                'http://example4.com', None, 'alias', '99',
                 False, True, [], None, None, None, None
             )
         ]
@@ -402,6 +407,10 @@ class TestSystemBuildTask:
             ),
             call(
                 'http://example3.com', 'yast2', 'alias', '99',
+                False, True, [], None, None, None, None
+            ),
+            call(
+                'http://example4.com', None, 'alias', '99',
                 False, True, [], None, None, None, None
             )
         ]
