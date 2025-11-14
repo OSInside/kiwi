@@ -371,6 +371,13 @@ class SystemBuildTask(CliTask):
         parameters = self.eleventuple_token(tokens)
         signing_keys_index = 6
         repo_source_index = 0
+        repo_type_index = 1
+        if not parameters[repo_type_index]:
+            # make sure to pass a None value if an empty string
+            # is provided as repo type. This will cause no type
+            # attribute to be set instead of an empty type which
+            # is not allowed by the schema
+            parameters[repo_type_index] = None
         if not parameters[signing_keys_index]:
             # make sure to pass empty list for signing_keys param
             parameters[signing_keys_index] = []
