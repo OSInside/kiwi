@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from contextlib import ExitStack
 import os
 import logging
 from typing import Dict
@@ -29,6 +30,7 @@ from kiwi.filesystem.isofs import FileSystemIsoFs
 from kiwi.filesystem.setup import FileSystemSetup
 from kiwi.storage.loop_device import LoopDevice
 from kiwi.storage.device_provider import DeviceProvider
+from kiwi.storage.luks_device import LuksDevice
 from kiwi.boot.image.dracut import BootImageDracut
 from kiwi.system.size import SystemSize
 from kiwi.system.setup import SystemSetup
@@ -79,6 +81,11 @@ class LiveImageBuilder:
         self.publisher = xml_state.build_type.get_publisher() or \
             Defaults.get_publisher()
         self.custom_args = custom_args
+        self.luks = xml_state.get_luks_credentials()
+        self.luks_os = xml_state.build_type.get_luksOS()
+        self.luks_format_options = xml_state.get_luks_format_options()
+        self.luks_randomize = xml_state.build_type.get_luks_randomize() \
+            if xml_state.build_type.get_luks_randomize() is not None else True
 
         if not self.live_type:
             self.live_type = Defaults.get_default_live_iso_type()
@@ -248,31 +255,51 @@ class LiveImageBuilder:
         filesystem_setup = FileSystemSetup(
             self.xml_state, self.root_dir
         )
+
         if root_filesystem not in ['squashfs', 'erofs']:
             # Create a filesystem image of the specified type
             # and put it into a SquashFS container
             root_image = Temporary().new_file()
-            with LoopDevice(
-                root_image.name,
-                filesystem_setup.get_size_mbytes(root_filesystem),
-                self.xml_state.build_type.get_target_blocksize()
-            ) as loop_provider:
+            with ExitStack() as stack:
+                loop_provider = LoopDevice(
+                    root_image.name,
+                    filesystem_setup.get_size_mbytes(root_filesystem),
+                    self.xml_state.build_type.get_target_blocksize()
+                )
+                stack.push(loop_provider)
                 loop_provider.create()
-                with FileSystem.new(
+
+                luks_provider = None
+                if self.luks is not None:
+                    luks_provider = LuksDevice(loop_provider)
+                    stack.push(luks_provider)
+                    luks_provider.create_crypto_luks(
+                        passphrase=self.luks or '',
+                        osname=self.luks_os,
+                        options=self.luks_format_options,
+                        keyfile='',
+                        randomize=self.luks_randomize,
+                        root_dir=self.root_dir
+                    )
+
+                device_provider = luks_provider.get_device() or DeviceProvider() \
+                    if luks_provider else loop_provider
+                live_filesystem = FileSystem.new(
                     name=root_filesystem,
-                    device_provider=loop_provider,
+                    device_provider=device_provider,
                     root_dir=self.root_dir + os.sep,
                     custom_args=filesystem_custom_parameters
-                ) as live_filesystem:
-                    live_filesystem.create_on_device()
-                    log.info(
-                        '--> Syncing data to {0} root image'.format(root_filesystem)
-                    )
-                    live_filesystem.sync_data(
-                        Defaults.
-                        get_exclude_list_for_root_data_sync() + Defaults.
-                        get_exclude_list_from_custom_exclude_files(self.root_dir)
-                    )
+                )
+                stack.push(live_filesystem)
+                live_filesystem.create_on_device()
+                log.info(
+                    '--> Syncing data to {0} root image'.format(root_filesystem)
+                )
+                live_filesystem.sync_data(
+                    Defaults.
+                    get_exclude_list_for_root_data_sync() + Defaults.
+                    get_exclude_list_from_custom_exclude_files(self.root_dir)
+                )
 
             log.info('--> Creating squashfs container for root image')
             self.live_container_dir = Temporary(
@@ -302,7 +329,7 @@ class LiveImageBuilder:
                     self.media_dir.name + '/LiveOS/squashfs.img'
                 )
         else:
-            # Put the root filesystem into SquashFS directly
+            # Put the root filesystem into SquashFS/EroFS directly
             filesystem_custom_parameters.update(
                 {
                     'compression':
@@ -312,12 +339,14 @@ class LiveImageBuilder:
                         self.xml_state.build_type.get_erofscompression()
                 }
             )
-            with FileSystem.new(
-                name=root_filesystem,
-                device_provider=DeviceProvider(),
-                root_dir=self.root_dir + os.sep,
-                custom_args=filesystem_custom_parameters
-            ) as live_container_image:
+            with ExitStack() as stack:
+                live_container_image = FileSystem.new(
+                    name=root_filesystem,
+                    device_provider=DeviceProvider(),
+                    root_dir=self.root_dir + os.sep,
+                    custom_args=filesystem_custom_parameters
+                )
+                stack.push(live_container_image)
                 container_image = Temporary().new_file()
                 live_container_image.create_on_file(
                     filename=container_image.name,
@@ -325,6 +354,40 @@ class LiveImageBuilder:
                     get_exclude_list_for_root_data_sync() + Defaults.
                     get_exclude_list_from_custom_exclude_files(self.root_dir)
                 )
+                luks_image = None
+                if self.luks is not None:
+                    # dump root filesystem blob on top of a LUKS blob
+                    # we are adding 20MB LUKS overhead
+                    luks_size_mb = os.path.getsize(
+                        container_image.name
+                    ) / 1048576
+                    luks_image = Temporary().new_file()
+                    loop_provider = LoopDevice(
+                        luks_image.name,
+                        int(luks_size_mb) + 20,
+                        self.xml_state.build_type.get_target_blocksize()
+                    )
+                    stack.push(loop_provider)
+                    loop_provider.create()
+
+                    luks_provider = LuksDevice(loop_provider)
+                    stack.push(luks_provider)
+                    luks_provider.create_crypto_luks(
+                        passphrase=self.luks or '',
+                        osname=self.luks_os,
+                        options=self.luks_format_options,
+                        keyfile='',
+                        randomize=self.luks_randomize,
+                        root_dir=self.root_dir
+                    )
+                    luks_device = luks_provider.get_device() or DeviceProvider()
+                    Command.run(
+                        [
+                            'dd',
+                            f'if={container_image.name}',
+                            f'of={luks_device.get_device()}'
+                        ]
+                    )
                 Path.create(self.media_dir.name + '/LiveOS')
                 os.chmod(container_image.name, 0o644)
                 # Note: we keep the filename of the read-only image as it is
@@ -334,7 +397,7 @@ class LiveImageBuilder:
                 # dmsquash dracut modules. The name can be overwritten
                 # with the rd.live.squashimg boot option though.
                 shutil.copy(
-                    container_image.name,
+                    luks_image.name if luks_image else container_image.name,
                     self.media_dir.name + '/LiveOS/squashfs.img'
                 )
 

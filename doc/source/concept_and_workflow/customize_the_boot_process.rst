@@ -313,8 +313,12 @@ the available kernel boot parameters for these modules:
   available RAM space can be used for writing new data.
 
 ``rd.live.overlay.persistent``
-  Instructs a live ISO image to prepare a persistent
-  write partition.
+  Instructs a live ISO image to prepare a persistent write partition.
+
+``rd.live.encrypt``
+  Instructs a live ISO image to encrypt the persistent write partition.
+  The boot process becomes interactive in this case and the user has
+  to specify a passphrase at boot time.
 
 ``rd.live.overlay.cowfs``
   Specifies which filesystem of a live ISO image to use for storing data on the

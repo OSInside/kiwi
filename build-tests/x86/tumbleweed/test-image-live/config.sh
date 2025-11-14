@@ -18,7 +18,7 @@ done
 # Include erofs module
 #--------------------------------------
 for profile in ${kiwi_profiles//,/ }; do
-    if [ "${profile}" = "EroFS" ]; then
+    if [ "${profile}" = "EroFS" ] || [ "${profile}" = "Encrypted" ]; then
         # remove from blacklist
         rm -f /usr/lib/modprobe.d/60-blacklist_fs-erofs.conf
     fi

@@ -187,10 +187,31 @@ function mountCompressedContainerFromIso {
     local container_mount_point="${overlay_base}/squashfs_container"
     squashfs_container="${iso_mount_point}/${live_dir}/${squash_image}"
     mkdir -m 0755 -p "${container_mount_point}"
+
+    if activate_luks "${squashfs_container}" luks; then
+        squashfs_container=/dev/mapper/luks
+    fi
+
     if ! mount -n "${squashfs_container}" "${container_mount_point}";then
         die "Failed to mount live ISO squashfs container"
     fi
     echo "${container_mount_point}"
+}
+
+function activate_luks {
+    local rootfs_image=$1
+    local mapname=$2
+    declare kiwi_luks_empty_passphrase=${kiwi_luks_empty_passphrase}
+    if cryptsetup isLuks "${rootfs_image}" &>/dev/null;then
+        if [ "${kiwi_luks_empty_passphrase}" = "true" ];then
+            cryptsetup \
+                --key-file /dev/zero \
+                --keyfile-size 32 \
+            luksOpen "${rootfs_image}" "${mapname}"
+        else
+            systemd-cryptsetup attach "${mapname}" "${rootfs_image}"
+        fi
+    fi
 }
 
 function mountReadOnlyRootImageFromContainer {
@@ -200,6 +221,10 @@ function mountReadOnlyRootImageFromContainer {
     local rootfs_image="${container_mount_point}/LiveOS/rootfs.img"
     local root_mount_point="${overlay_base}/rootfsbase"
     mkdir -m 0755 -p "${root_mount_point}"
+
+    if activate_luks "${rootfs_image}" luks; then
+        rootfs_image=/dev/mapper/luks
+    fi
 
     if ! [ -e "${rootfs_image}" ] && [ -d "${container_mount_point}/proc" ]; then
         # It's the root filesystem directly, just do a bind mount
@@ -255,10 +280,18 @@ function preparePersistentOverlayLoopBoot {
     if ! mount -o "remount,rw" "${isoscan_loop_mount}"; then
         return 1
     fi
+    if activate_luks "${cow_file_name}" lukscow; then
+        cow_file_name=/dev/mapper/lukscow
+    fi
     if ! mount "${cow_file_name}" "${overlay_mount_point}"; then
         if ! dd if=/dev/zero of="${cow_file_name}" \
             count=0 bs=1M seek="${cow_file_mbsize}"; then
             return 1
+        fi
+        if getargbool 0 rd.live.encrypt; then
+            if prepareEncryptedOverlay "${cow_file_name}" lukscow; then
+                cow_file_name=/dev/mapper/lukscow
+            fi
         fi
         if ! mkfs."${cow_filesystem}" "${cow_file_name}"; then
             return 1
@@ -277,6 +310,7 @@ function preparePersistentOverlayDiskBoot {
     local overlay_mount_point=$1
     local partitions_before_cow_part
     mkdir -m 0755 -p "${overlay_mount_point}"
+    activate_luks /dev/disk/by-label/lukscow lukscow
     if ! mount -L cow "${overlay_mount_point}"; then
         partitions_before_cow_part=$(_partition_count)
         echo -e "n\np\n\n\n\nw\nq" | fdisk "${isodiskdev}"
@@ -295,6 +329,11 @@ function preparePersistentOverlayDiskBoot {
         fi
         local write_partition
         write_partition=$(lsblk "${isodiskdev}" -p -l -n -o NAME | tail -n1)
+        if getargbool 0 rd.live.encrypt; then
+            if prepareEncryptedOverlay "${write_partition}" lukscow; then
+                write_partition=/dev/mapper/lukscow
+            fi
+        fi
         if ! mkfs."${cow_filesystem}" -L cow "${write_partition}"; then
             return 1
         fi
@@ -302,6 +341,18 @@ function preparePersistentOverlayDiskBoot {
             return 1
         fi
     fi
+}
+
+function prepareEncryptedOverlay {
+    # Create LUKS on provided read-write overlay
+    local device=$1
+    local label=$2
+    cat >/run/dracut-interactive <<-EOF
+	cryptsetup -q luksFormat \\
+	    --force-password --type luks2 --label "${label}" "${device}"
+	EOF
+    _run_interactive
+    systemd-cryptsetup attach "${label}" "${device}"
 }
 
 function runMediaCheck {
