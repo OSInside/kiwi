@@ -39,6 +39,7 @@ class TestBootLoaderZipl:
         self.bootloader.custom_args['initrd'] = None
         self.bootloader.custom_args['boot_options'] = {}
         self.bootloader.custom_args['targetbase'] = '/dev/disk'
+        self.bootloader.custom_args['target_dir'] = 'target_dir'
         self.bootloader.sys_mount = Mock(
             mountpoint='sys_mount'
         )
@@ -63,6 +64,7 @@ class TestBootLoaderZipl:
         with raises(KiwiBootLoaderTargetError):
             self.bootloader.setup_loader('iso')
 
+    @patch('shutil.move')
     @patch('os.unlink')
     @patch('os.path.exists')
     @patch('kiwi.bootloader.config.zipl.BootImageBase.get_boot_names')
@@ -79,7 +81,7 @@ class TestBootLoaderZipl:
         mock_write_config_file, mock_Temporary_new_file,
         mock_BootLoaderTemplateZipl, mock_Command_run,
         mock_Path_create, mock_Path_wipe, mock_BootImageBase_get_boot_names,
-        mock_os_path_exists, mock_os_unlink
+        mock_os_path_exists, mock_os_unlink, mock_shutil_move
     ):
         temporary = Mock()
         temporary.name = 'system_root_mount/kiwi_zipl.conf_'
@@ -148,12 +150,45 @@ class TestBootLoaderZipl:
             ),
             call(
                 [
+                    'chroot', 'system_root_mount', 'pvextract-hdr',
+                    '-o', 'secure_execution_header.bin',
+                    'bootpath/kernel-filename.cc'
+                ]
+            ),
+            call(
+                [
+                    'chroot', 'system_root_mount', 'pvattest', 'create',
+                    '--no-verify', '--verbose',
+                    '-o', 'attestation_request.bin',
+                    '--arpk', 'attestation_response.key',
+                    '-k', '/path/to/host.crt'
+                ]
+            ),
+            call(
+                [
                     'chroot', 'system_root_mount', 'zipl',
                     '--noninteractive',
                     '--config', '/kiwi_zipl.conf_',
                     '--blsdir', '/boot/loader/entries',
                     '--verbose'
                 ]
+            )
+        ]
+        assert mock_shutil_move.call_args_list == [
+            call(
+                'system_root_mount/secure_execution_header.bin',
+                'target_dir/image-name.x86_64-image-version.'
+                'secure_execution_header.bin'
+            ),
+            call(
+                'system_root_mount/attestation_request.bin',
+                'target_dir/image-name.x86_64-image-version.'
+                'attestation_request.bin'
+            ),
+            call(
+                'system_root_mount/attestation_response.key',
+                'target_dir/image-name.x86_64-image-version.'
+                'attestation_response.key'
             )
         ]
         assert mock_os_unlink.call_args_list == [
