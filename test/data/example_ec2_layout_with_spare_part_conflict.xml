@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="8.3" name="LimeJeOS-ec2-layout-conflict-spare-part">
+    <description type="system">
+        <author>Test Author</author>
+        <contact>test@example.com</contact>
+        <specification>
+            Test image for EC2 layout conflict: ec2_layout="true" with spare_part_is_last="true"
+        </specification>
+    </description>
+    <preferences>
+        <version>1.0.0</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <bootsplash-theme>openSUSE</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+        <type image="oem" filesystem="btrfs" initrd_system="kiwi" boot="oemboot/example-distribution" installiso="true" kernelcmdline="splash" firmware="efi" ec2_layout="true" spare_part_is_last="true">
+            <oemconfig>
+                <oem-multipath-scan>false</oem-multipath-scan>
+                <oem-swap>true</oem-swap>
+            </oemconfig>
+        </type>
+    </preferences>
+    <repository>
+        <source path="obs://13.2/repo/oss"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+    </packages>
+</image>

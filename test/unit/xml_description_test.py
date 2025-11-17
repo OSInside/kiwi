@@ -362,3 +362,20 @@ class TestSchema:
         mock_command.return_value = command_output
         with raises(KiwiExtensionError):
             self.extension_invalid_description_from_data.load()
+
+    def test_ec2_layout_with_oem_resize_conflict(self):
+        """Test that ec2_layout cannot be used with oem_resize"""
+        description = XMLDescription('../data/example_ec2_layout_with_oem_resize_conflict.xml')
+        with raises(KiwiDescriptionInvalid):
+            description.load()
+
+    def test_ec2_layout_with_spare_part_is_last_conflict(self):
+        """Test that ec2_layout cannot be used with spare_part_is_last"""
+        description = XMLDescription('../data/example_ec2_layout_with_spare_part_conflict.xml')
+        with raises(KiwiDescriptionInvalid):
+            description.load()
+
+    def test_ec2_layout_valid(self):
+        """Test that ec2_layout attribute can be used without conflicts"""
+        description = XMLDescription('../data/example_ec2_layout.xml')
+        description.load()

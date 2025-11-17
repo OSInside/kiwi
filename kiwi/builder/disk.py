@@ -124,6 +124,7 @@ class DiskBuilder:
         self.spare_part_is_last = xml_state.build_type.get_spare_part_is_last()
         self.spare_part_mountpoint = \
             xml_state.build_type.get_spare_part_mountpoint()
+        self.ec2_layout = xml_state.get_ec2_layout()
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.root_filesystem_read_only_type = \
@@ -1287,50 +1288,70 @@ class DiskBuilder:
                 )
             )
 
-        if self.root_filesystem_is_overlay and \
-           self.root_filesystem_has_write_partition is False:
-            log.warning(
-                '--> overlayroot explicitly requested no write partition'
-            )
-        else:
-            if root_clone_count:
-                if rootfs_mbsize == 'all_free':
-                    clone_rootfs_mbsize = disksize_mbytes - \
-                        disksize_used_mbytes - Defaults.get_min_partition_mbytes()
-                    clone_rootfs_mbsize = int(
-                        clone_rootfs_mbsize / (root_clone_count + 1)
-                    )
-                    rootfs_mbsize = \
-                        f'clone:{clone_rootfs_mbsize}:{clone_rootfs_mbsize}'
-                else:
-                    rootfs_mbsize = f'clone:{rootfs_mbsize}:{rootfs_mbsize}'
-            if self.volume_manager_name and self.volume_manager_name == 'lvm':
-                log.info(
-                    '--> creating {0} partition [with {1} clone(s)]'.format(
-                        'root(LVM)', root_clone_count
-                    )
+        # Defer root partition creation if EC2 layout is enabled
+        if not self.ec2_layout:
+            if self.root_filesystem_is_overlay and \
+               self.root_filesystem_has_write_partition is False:
+                log.warning(
+                    '--> overlayroot explicitly requested no write partition'
                 )
-                disk.create_root_lvm_partition(rootfs_mbsize, root_clone_count)
-            elif self.mdraid:
-                log.info(
-                    '--> creating {0} partition [with {1} clone(s)]'.format(
-                        f'root(mdraid={self.mdraid})', root_clone_count
-                    )
-                )
-                disk.create_root_raid_partition(rootfs_mbsize, root_clone_count)
             else:
-                log.info(
-                    '--> creating root partition [with {0} clone(s)]'.format(
-                        root_clone_count
+                if root_clone_count:
+                    if rootfs_mbsize == 'all_free':
+                        clone_rootfs_mbsize = disksize_mbytes - \
+                            disksize_used_mbytes - Defaults.get_min_partition_mbytes()
+                        clone_rootfs_mbsize = int(
+                            clone_rootfs_mbsize / (root_clone_count + 1)
+                        )
+                        rootfs_mbsize = \
+                            f'clone:{clone_rootfs_mbsize}:{clone_rootfs_mbsize}'
+                    else:
+                        rootfs_mbsize = f'clone:{rootfs_mbsize}:{rootfs_mbsize}'
+                if self.volume_manager_name and self.volume_manager_name == 'lvm':
+                    log.info(
+                        '--> creating {0} partition [with {1} clone(s)]'.format(
+                            'root(LVM)', root_clone_count
+                        )
                     )
-                )
-                disk.create_root_partition(rootfs_mbsize, root_clone_count)
+                    disk.create_root_lvm_partition(rootfs_mbsize, root_clone_count)
+                elif self.mdraid:
+                    log.info(
+                        '--> creating {0} partition [with {1} clone(s)]'.format(
+                            f'root(mdraid={self.mdraid})', root_clone_count
+                        )
+                    )
+                    disk.create_root_raid_partition(rootfs_mbsize, root_clone_count)
+                else:
+                    log.info(
+                        '--> creating root partition [with {0} clone(s)]'.format(
+                            root_clone_count
+                        )
+                    )
+                    disk.create_root_partition(rootfs_mbsize, root_clone_count)
 
         if self.spare_part_is_last:
             log.info('--> creating spare partition')
             disk.create_spare_partition(
                 'all_free'
             )
+
+        # Create root partition last if EC2 layout is enabled
+        if self.ec2_layout:
+            log.info(
+                '--> creating root partition [EC2 layout, created last for expansion]'
+            )
+            if self.root_filesystem_is_overlay and \
+               self.root_filesystem_has_write_partition is False:
+                log.warning(
+                    '--> overlayroot explicitly requested no write partition'
+                )
+            else:
+                if self.volume_manager_name and self.volume_manager_name == 'lvm':
+                    disk.create_root_lvm_partition(rootfs_mbsize, root_clone_count)
+                elif self.mdraid:
+                    disk.create_root_raid_partition(rootfs_mbsize, root_clone_count)
+                else:
+                    disk.create_root_partition(rootfs_mbsize, root_clone_count)
 
         if self.firmware.bios_mode():
             log.info('--> setting active flag to primary boot partition')

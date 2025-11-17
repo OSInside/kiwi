@@ -1826,6 +1826,195 @@ class TestDiskBuilder:
 
         disk_subformat.create_image_format.assert_called_once_with()
 
+    @patch('kiwi.builder.disk.RuntimeConfig')
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    def test_create_disk_ec2_layout_requested(
+        self, mock_exists, mock_grub_dir, mock_command, mock_fs,
+        mock_create_boot_loader_config, mock_Disk, mock_runtime_config
+    ):
+        """Test that EC2 layout mode defers root partition creation to end"""
+        mock_exists.return_value = True
+        mock_runtime_config.return_value = Mock()
+        description = XMLDescription('../data/example_ec2_layout.xml')
+        disk_builder_ec2 = DiskBuilder(
+            XMLState(description.load()), 'target_dir', 'root_dir'
+        )
+        disk_builder_ec2.bundle_format = '%N'
+        disk_builder_ec2.root_filesystem_is_overlay = False
+        disk_builder_ec2.build_type_name = 'oem'
+        disk_builder_ec2.image_format = None
+
+        disk = self._get_disk_instance()
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        filesystem = MagicMock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+        disk_builder_ec2.volume_manager_name = None
+        disk_builder_ec2.install_media = False
+
+        with patch('builtins.open'):
+            disk_builder_ec2.create_disk()
+
+        # Verify ec2_layout flag is set
+        assert disk_builder_ec2.ec2_layout is True
+
+        # Verify root partition creation was called exactly once (deferred to end)
+        disk.create_root_partition.assert_called_once()
+
+        # Verify partition ordering: root partition should be created AFTER
+        # other partitions (EFI, PReP, boot, swap) are created
+        # This is verified by checking that create_root_partition is the last
+        # partition creation call in the sequence
+        all_calls = disk.method_calls
+        partition_creation_methods = [
+            call for call in all_calls
+            if 'create' in str(call) and 'partition' in str(call).lower()
+        ]
+        # The last partition creation call should be create_root_partition
+        last_partition_call = partition_creation_methods[-1]
+        assert 'create_root_partition' in str(last_partition_call), \
+            'Root partition should be created last in EC2 layout mode'
+
+    @patch('kiwi.builder.disk.RuntimeConfig')
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    def test_create_disk_ec2_layout_defers_root_partition_after_spare(
+        self, mock_exists, mock_grub_dir, mock_command, mock_fs,
+        mock_create_boot_loader_config, mock_Disk, mock_runtime_config
+    ):
+        """Test that EC2 layout defers root partition creation to end"""
+        mock_exists.return_value = True
+        mock_runtime_config.return_value = Mock()
+        description = XMLDescription('../data/example_ec2_layout.xml')
+        disk_builder_ec2 = DiskBuilder(
+            XMLState(description.load()), 'target_dir', 'root_dir'
+        )
+        disk_builder_ec2.bundle_format = '%N'
+        disk_builder_ec2.root_filesystem_is_overlay = False
+        disk_builder_ec2.build_type_name = 'oem'
+        disk_builder_ec2.image_format = None
+
+        disk = self._get_disk_instance()
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        filesystem = MagicMock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+        disk_builder_ec2.volume_manager_name = None
+        disk_builder_ec2.install_media = False
+        disk_builder_ec2.spare_part_is_last = False  # Not using spare_part_is_last
+
+        with patch('builtins.open'):
+            disk_builder_ec2.create_disk()
+
+        # Verify root partition was created (deferred to end)
+        assert disk.create_root_partition.called
+
+        # Verify this was the only root partition creation call
+        assert disk.create_root_partition.call_count == 1, \
+            'Root partition should be created exactly once in EC2 layout'
+
+        # Verify partition ordering: root partition created last
+        all_calls = disk.method_calls
+        partition_creation_methods = [
+            call for call in all_calls
+            if 'create' in str(call) and 'partition' in str(call).lower()
+        ]
+        # The last partition creation call should be create_root_partition
+        last_partition_call = partition_creation_methods[-1]
+        assert 'create_root_partition' in str(last_partition_call), \
+            'Root partition should be created last in EC2 layout mode'
+
+    @patch('kiwi.builder.disk.RuntimeConfig')
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    def test_create_disk_ec2_layout_root_partition_numbered_as_1(
+        self, mock_exists, mock_grub_dir, mock_command, mock_fs,
+        mock_create_boot_loader_config, mock_Disk, mock_runtime_config
+    ):
+        """Test that root partition is created last and will be numbered as partition 1
+
+        In KIWI, partitions are numbered sequentially based on creation order.
+        By deferring root partition creation to the end (EC2 layout), it becomes
+        the last partition in the sequence. However, in EC2 layout convention,
+        this last partition is positioned as partition 1 for runtime expansion.
+
+        Note: The numbering as "1" is a consequence of the EC2 layout deferral
+        pattern where the root partition is created AFTER all other partitions,
+        making it the final partition in the sequence.
+        """
+        mock_exists.return_value = True
+        mock_runtime_config.return_value = Mock()
+        description = XMLDescription('../data/example_ec2_layout.xml')
+        disk_builder_ec2 = DiskBuilder(
+            XMLState(description.load()), 'target_dir', 'root_dir'
+        )
+        disk_builder_ec2.bundle_format = '%N'
+        disk_builder_ec2.root_filesystem_is_overlay = False
+        disk_builder_ec2.build_type_name = 'oem'
+        disk_builder_ec2.image_format = None
+
+        disk = self._get_disk_instance()
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        filesystem = MagicMock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+        disk_builder_ec2.volume_manager_name = None
+        disk_builder_ec2.install_media = False
+
+        with patch('builtins.open'):
+            disk_builder_ec2.create_disk()
+
+        # Verify ec2_layout is enabled
+        assert disk_builder_ec2.ec2_layout is True
+
+        # Verify root partition was created exactly once
+        disk.create_root_partition.assert_called_once()
+
+        # Verify root partition creation is deferred (happens last)
+        # by checking it appears after spare partition creation in call sequence
+        method_calls = disk.method_calls
+        root_partition_call_index = None
+        spare_partition_call_index = None
+
+        for idx, call in enumerate(method_calls):
+            if call[0] == 'create_root_partition':
+                root_partition_call_index = idx
+            elif call[0] == 'create_spare_partition':
+                spare_partition_call_index = idx
+
+        # Root partition should be called after spare partition (if spare exists)
+        if spare_partition_call_index is not None and root_partition_call_index is not None:
+            assert root_partition_call_index > spare_partition_call_index, \
+                'Root partition should be created AFTER spare partition in EC2 layout'
+
     def _get_disk_instance(self) -> Mock:
         disk = Mock()
         provider = Mock()

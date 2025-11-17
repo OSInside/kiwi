@@ -3363,7 +3363,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, ec2_layout=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3436,6 +3436,7 @@ class type_(GeneratedsSuper):
         self.spare_part_fs = _cast(None, spare_part_fs)
         self.spare_part_fs_attributes = _cast(None, spare_part_fs_attributes)
         self.spare_part_is_last = _cast(bool, spare_part_is_last)
+        self.ec2_layout = _cast(bool, ec2_layout)
         self.target_blocksize = _cast(int, target_blocksize)
         self.target_removable = _cast(bool, target_removable)
         self.selinux_policy = _cast(None, selinux_policy)
@@ -3707,6 +3708,8 @@ class type_(GeneratedsSuper):
     def set_spare_part_fs_attributes(self, spare_part_fs_attributes): self.spare_part_fs_attributes = spare_part_fs_attributes
     def get_spare_part_is_last(self): return self.spare_part_is_last
     def set_spare_part_is_last(self, spare_part_is_last): self.spare_part_is_last = spare_part_is_last
+    def get_ec2_layout(self): return self.ec2_layout
+    def set_ec2_layout(self, ec2_layout): self.ec2_layout = ec2_layout
     def get_target_blocksize(self): return self.target_blocksize
     def set_target_blocksize(self, target_blocksize): self.target_blocksize = target_blocksize
     def get_target_removable(self): return self.target_removable
@@ -4605,6 +4608,15 @@ class type_(GeneratedsSuper):
                 self.spare_part_is_last = True
             elif value in ('false', '0'):
                 self.spare_part_is_last = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('ec2_layout', node)
+        if value is not None and 'ec2_layout' not in already_processed:
+            already_processed.add('ec2_layout')
+            if value in ('true', '1'):
+                self.ec2_layout = True
+            elif value in ('false', '0'):
+                self.ec2_layout = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('target_blocksize', node)
