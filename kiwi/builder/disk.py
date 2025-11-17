@@ -1376,6 +1376,10 @@ class DiskBuilder:
 
         disk.map_partitions()
 
+        # Renumber partitions for EC2 layout: root becomes partition 1
+        if self.ec2_layout:
+            disk.renumber_partitions_for_ec2()
+
         device_map = disk.get_device()
         device_map['origin_root'] = \
             device_map.get('readonly') or device_map['root']

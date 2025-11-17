@@ -464,6 +464,84 @@ class Disk(DeviceProvider):
                 ['partprobe', self.storage_provider.get_device()]
             )
 
+    def renumber_partitions_for_ec2(self) -> None:
+        """
+        Renumber partitions to place root partition as partition 1 for EC2 layout
+
+        For EC2 layout, the root partition must be numbered as partition 1 to allow
+        for expansion on boot. Since root is created last (after other partitions like
+        EFI, PReP, boot, swap, etc.), we need to renumber them:
+        - Root partition becomes partition 1
+        - All other partitions are shifted up by 1
+
+        This uses sgdisk with the -s flag to swap partition numbers.
+        """
+        if self.table_type != 'gpt':
+            # Partition renumbering is only supported for GPT tables with sgdisk
+            log.debug(
+                'Partition renumbering for EC2 layout only supported for GPT tables'
+            )
+            return
+
+        # Get root partition number from the public partition ID map
+        root_partition_id = self.public_partition_id_map.get('kiwi_RootPart')
+        if not root_partition_id:
+            log.warning(
+                'Root partition not found in partition map, skipping EC2 renumbering'
+            )
+            return
+
+        root_partition_id = int(root_partition_id)
+
+        # If root is already partition 1, no renumbering needed
+        if root_partition_id == 1:
+            return
+
+        # Get all partition numbers and build the renumbering sequence
+        # We need to swap root to position 1 and shift others up
+        partition_numbers = sorted([
+            int(pid) for pid in self.public_partition_id_map.values()
+        ])
+
+        log.info(
+            f'--> Renumbering partitions for EC2 layout: '
+            f'root partition {root_partition_id} -> 1'
+        )
+
+        # Use sgdisk to swap partition numbers
+        # sgdisk -s (or --sort) can be used to renumber partitions
+        # We need to move root to position 1
+        # The safest approach is to swap sequentially:
+        # Move root from position N to position 1 by swapping with each partition in between
+
+        for swap_pos in range(root_partition_id - 1, 0, -1):
+            # Swap root (currently at swap_pos + 1) with partition at swap_pos
+            Command.run(
+                [
+                    'sgdisk', '--swap-partitions',
+                    f'{swap_pos}:{swap_pos + 1}',
+                    self.storage_provider.get_device()
+                ]
+            )
+            log.debug(
+                f'Swapped partitions {swap_pos} and {swap_pos + 1}'
+            )
+
+        # Re-probe to recognize the new partition numbering
+        if self.storage_provider.is_loop():
+            if self.partition_mapper == 'kpartx':
+                Command.run(
+                    ['kpartx', '-s', '-u', self.storage_provider.get_device()]
+                )
+            else:
+                Command.run(
+                    ['partx', '--update', self.storage_provider.get_device()]
+                )
+        else:
+            Command.run(
+                ['partprobe', self.storage_provider.get_device()]
+            )
+
     def get_public_partition_id_map(self) -> Dict[str, str]:
         """
         Populated partition name to number map

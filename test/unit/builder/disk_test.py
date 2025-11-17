@@ -1954,16 +1954,14 @@ class TestDiskBuilder:
         self, mock_exists, mock_grub_dir, mock_command, mock_fs,
         mock_create_boot_loader_config, mock_Disk, mock_runtime_config
     ):
-        """Test that root partition is created last and will be numbered as partition 1
+        """Test that root partition is created last and renumbered to partition 1
 
-        In KIWI, partitions are numbered sequentially based on creation order.
-        By deferring root partition creation to the end (EC2 layout), it becomes
-        the last partition in the sequence. However, in EC2 layout convention,
-        this last partition is positioned as partition 1 for runtime expansion.
+        In EC2 layout, the root partition MUST be created LAST (for expansion)
+        but renumbered to partition 1 (for boot). This test verifies:
+        1. Root partition is created after all other partitions
+        2. renumber_partitions_for_ec2() is called to renumber root to partition 1
 
-        Note: The numbering as "1" is a consequence of the EC2 layout deferral
-        pattern where the root partition is created AFTER all other partitions,
-        making it the final partition in the sequence.
+        If root partition is NOT created last or renumbering is NOT called, test fails.
         """
         mock_exists.return_value = True
         mock_runtime_config.return_value = Mock()
@@ -1977,6 +1975,32 @@ class TestDiskBuilder:
         disk_builder_ec2.image_format = None
 
         disk = self._get_disk_instance()
+
+        # Track partition creation order
+        partition_creation_order = []
+
+        # Wrap create_root_partition to track when it's called
+        original_create_root_partition = disk.create_root_partition
+        def tracked_create_root_partition(*args, **kwargs):
+            partition_creation_order.append('root')
+            return original_create_root_partition(*args, **kwargs)
+        disk.create_root_partition = tracked_create_root_partition
+
+        # Wrap create_spare_partition to track when it's called
+        original_create_spare_partition = disk.create_spare_partition
+        def tracked_create_spare_partition(*args, **kwargs):
+            partition_creation_order.append('spare')
+            return original_create_spare_partition(*args, **kwargs)
+        disk.create_spare_partition = tracked_create_spare_partition
+
+        # Track if renumber_partitions_for_ec2 is called
+        renumber_called = [False]
+        original_renumber = disk.renumber_partitions_for_ec2
+        def tracked_renumber(*args, **kwargs):
+            renumber_called[0] = True
+            return original_renumber(*args, **kwargs)
+        disk.renumber_partitions_for_ec2 = tracked_renumber
+
         mock_Disk.return_value.__enter__.return_value = disk
         bootloader_config = Mock()
         bootloader_config.get_boot_cmdline = Mock(
@@ -1995,25 +2019,18 @@ class TestDiskBuilder:
         # Verify ec2_layout is enabled
         assert disk_builder_ec2.ec2_layout is True
 
-        # Verify root partition was created exactly once
-        disk.create_root_partition.assert_called_once()
+        # Verify root partition was created
+        assert len(partition_creation_order) > 0, \
+            'Root partition must be created in EC2 layout'
 
-        # Verify root partition creation is deferred (happens last)
-        # by checking it appears after spare partition creation in call sequence
-        method_calls = disk.method_calls
-        root_partition_call_index = None
-        spare_partition_call_index = None
+        # CRITICAL: Verify root partition is LAST in creation order
+        last_created_partition = partition_creation_order[-1]
+        assert last_created_partition == 'root', \
+            f'Root partition MUST be created last! Creation order: {partition_creation_order}'
 
-        for idx, call in enumerate(method_calls):
-            if call[0] == 'create_root_partition':
-                root_partition_call_index = idx
-            elif call[0] == 'create_spare_partition':
-                spare_partition_call_index = idx
-
-        # Root partition should be called after spare partition (if spare exists)
-        if spare_partition_call_index is not None and root_partition_call_index is not None:
-            assert root_partition_call_index > spare_partition_call_index, \
-                'Root partition should be created AFTER spare partition in EC2 layout'
+        # CRITICAL: Verify renumber_partitions_for_ec2 was called to renumber root to 1
+        assert renumber_called[0], \
+            'renumber_partitions_for_ec2() must be called to renumber root to partition 1'
 
     @patch('kiwi.builder.disk.RuntimeConfig')
     @patch('kiwi.builder.disk.Disk')
