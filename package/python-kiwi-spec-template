@@ -354,7 +354,7 @@ Provides:       kiwi-image:vmx
 Requires:       kiwi-systemdeps-filesystems = %{version}-%{release}
 Requires:       kiwi-systemdeps-bootloaders = %{version}-%{release}
 Requires:       kiwi-systemdeps-iso-media = %{version}-%{release}
-%if 0%{?suse_version} >= 1650
+%if 0%{?suse_version} >= 1600
 Requires:       binutils
 Requires:       glibc-gconv-modules-extra
 %endif
