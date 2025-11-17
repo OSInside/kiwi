@@ -2015,6 +2015,147 @@ class TestDiskBuilder:
             assert root_partition_call_index > spare_partition_call_index, \
                 'Root partition should be created AFTER spare partition in EC2 layout'
 
+    @patch('kiwi.builder.disk.RuntimeConfig')
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.VolumeManager.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('os.path.exists')
+    def test_create_disk_ec2_layout_with_lvm(
+        self, mock_exists, mock_ImageSystem, mock_grub_dir, mock_command,
+        mock_volume_manager, mock_fs, mock_create_boot_loader_config,
+        mock_Disk, mock_runtime_config
+    ):
+        """Test EC2 layout with LVM - covers create_root_lvm_partition path"""
+        disk = self._get_disk_instance()
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        mock_exists.return_value = True
+
+        volume_manager = Mock()
+        volume_manager.get_device = Mock(
+            return_value={
+                'root': MappedDevice('/dev/systemVG/LVRoot', Mock()),
+                'swap': MappedDevice('/dev/systemVG/LVSwap', Mock())
+            }
+        )
+        volume_manager.get_fstab = Mock(
+            return_value=['fstab_volume_entries']
+        )
+        mock_volume_manager.return_value = volume_manager
+        filesystem = Mock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+
+        description = XMLDescription('../data/example_ec2_layout.xml')
+        disk_builder_ec2 = DiskBuilder(
+            XMLState(description.load()), 'target_dir', 'root_dir'
+        )
+        disk_builder_ec2.volume_manager_name = 'lvm'
+
+        with patch('builtins.open'):
+            disk_builder_ec2.create_disk()
+
+        # Verify EC2 layout uses create_root_lvm_partition for deferred root
+        disk.create_root_lvm_partition.assert_called_once()
+        assert disk_builder_ec2.ec2_layout is True
+
+    @patch('kiwi.builder.disk.RuntimeConfig')
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('os.path.exists')
+    def test_create_disk_ec2_layout_with_raid(
+        self, mock_exists, mock_ImageSystem, mock_grub_dir, mock_command,
+        mock_fs, mock_create_boot_loader_config, mock_Disk, mock_runtime_config
+    ):
+        """Test EC2 layout with RAID - covers create_root_raid_partition path"""
+        disk = self._get_disk_instance()
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        mock_exists.return_value = True
+
+        filesystem = Mock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+
+        description = XMLDescription('../data/example_ec2_layout.xml')
+        disk_builder_ec2 = DiskBuilder(
+            XMLState(description.load()), 'target_dir', 'root_dir'
+        )
+        disk_builder_ec2.mdraid = True
+
+        with patch('builtins.open'):
+            disk_builder_ec2.create_disk()
+
+        # Verify EC2 layout uses create_root_raid_partition for deferred root with RAID
+        disk.create_root_raid_partition.assert_called_once()
+        assert disk_builder_ec2.ec2_layout is True
+
+    @patch('kiwi.builder.disk.RuntimeConfig')
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('os.path.exists')
+    def test_create_disk_ec2_layout_with_overlay_root(
+        self, mock_exists, mock_ImageSystem, mock_grub_dir, mock_command,
+        mock_fs, mock_create_boot_loader_config, mock_Disk, mock_runtime_config
+    ):
+        """Test EC2 layout with overlay root - covers overlay warning log path"""
+        disk = self._get_disk_instance()
+        # Setup public_partition_id_map as a dict to handle overlay root access
+        disk.public_partition_id_map = {
+            'kiwi_ROPart': 1
+        }
+        mock_Disk.return_value.__enter__.return_value = disk
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(
+            return_value='boot_cmdline'
+        )
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        mock_exists.return_value = True
+
+        filesystem = Mock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+
+        description = XMLDescription('../data/example_ec2_layout.xml')
+        disk_builder_ec2 = DiskBuilder(
+            XMLState(description.load()), 'target_dir', 'root_dir'
+        )
+        # Set overlay root with no write partition to trigger warning log
+        disk_builder_ec2.root_filesystem_is_overlay = True
+        disk_builder_ec2.root_filesystem_has_write_partition = False
+
+        with patch('builtins.open'):
+            with patch('kiwi.builder.disk.log') as mock_log:
+                disk_builder_ec2.create_disk()
+                # Verify warning was logged for overlay root with no write partition
+                warning_calls = [call for call in mock_log.warning.call_args_list
+                                 if 'overlayroot' in str(call)]
+                assert len(warning_calls) > 0, \
+                    'Warning for overlayroot with no write partition should be logged'
+
+        # Verify EC2 layout is enabled
+        assert disk_builder_ec2.ec2_layout is True
+
     def _get_disk_instance(self) -> Mock:
         disk = Mock()
         provider = Mock()

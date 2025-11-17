@@ -1396,3 +1396,22 @@ class TestXMLState:
         assert self.state.btrfs_default_volume_requested() is False
         mock_get_btrfs_set_default_volume.return_value = None
         assert self.state.btrfs_default_volume_requested() is True
+
+    def test_get_ec2_layout(self):
+        """Test EC2 layout detection with backward compatibility"""
+        # Test with EC2 layout enabled
+        description = XMLDescription('../data/example_ec2_layout.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.get_ec2_layout() is True
+
+    def test_get_ec2_layout_attribute_missing(self):
+        """Test EC2 layout backward compatibility when attribute missing"""
+        # Simulate older XML files without ec2_layout attribute
+        # by mocking the build_type.get_ec2_layout() method to raise AttributeError
+        mock_build_type = Mock()
+        mock_build_type.get_ec2_layout.side_effect = AttributeError(
+            'get_ec2_layout'
+        )
+        self.state.build_type = mock_build_type
+        assert self.state.get_ec2_layout() is False
