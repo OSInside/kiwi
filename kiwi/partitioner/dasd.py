@@ -57,7 +57,9 @@ class PartitionerDasd(PartitionerBase):
         :param string type_name: unused
         :param list flags: unused
         """
-        self.partition_id += 1
+        is_root = name in ['p.lxroot', 'p.lxlvm', 'p.lxraid']
+        partition_id = self.get_next_id(is_root)
+        
         fdasd_input = Temporary().new_file()
         with open(fdasd_input.name, 'w') as partition:
             log.debug(

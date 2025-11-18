@@ -47,6 +47,8 @@ class PartitionerBase:
         self.partition_id = 0
         self.start_sector = start_sector
         self.extended_layout = extended_layout
+        self.ec2_layout = False
+        self.reserved_ids = set()
 
         self.flag_map: Dict[str, Union[bool, str, None]] = {}
 
@@ -71,6 +73,38 @@ class PartitionerBase:
         :rtype: int
         """
         return self.partition_id
+
+    def set_ec2_layout(self, enabled: bool) -> None:
+        """
+        Enable EC2 layout mode where root partition gets ID 1
+
+        :param bool enabled: Enable EC2 layout
+        """
+        self.ec2_layout = enabled
+        if enabled:
+            self.reserved_ids.add(1)  # Reserve partition 1 for root
+
+    def get_next_id(self, is_root: bool = False) -> int:
+        """
+        Get next partition ID, handling EC2 layout special numbering
+
+        :param bool is_root: True if this is the root partition
+        :return: partition ID to use
+        :rtype: int
+        """
+        if self.ec2_layout and is_root:
+            # For EC2 root partition, use ID 1 but track the highest ID used
+            if self.partition_id == 0:
+                self.partition_id = 1
+            return 1
+        elif self.ec2_layout:
+            self.partition_id += 1
+            while self.partition_id in self.reserved_ids:
+                self.partition_id += 1
+            return self.partition_id
+        else:
+            self.partition_id += 1
+            return self.partition_id
 
     def create(
         self, name: str, mbsize: int, type_name: str, flags: List[str] = []

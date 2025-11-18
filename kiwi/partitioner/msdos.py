@@ -66,19 +66,22 @@ class PartitionerMsDos(PartitionerBase):
         :param string type_name: partition type
         :param list flags: additional flags
         """
+        is_root = name in ['p.lxroot', 'p.lxlvm', 'p.lxraid']
+        partition_id = self.get_next_id(is_root)
+        
         if self.extended_layout:
-            if self.partition_id < 3:
+            if partition_id < 3:
                 # in primary boundary
-                self._create_primary(name, mbsize, type_name, flags)
-            elif self.partition_id == 3:
+                self._create_primary(name, mbsize, type_name, flags, partition_id)
+            elif partition_id == 3:
                 # at primary boundary, create extended + logical
-                self._create_extended(name)
-                self._create_logical(name, mbsize, type_name, flags)
-            elif self.partition_id > 3:
+                self._create_extended(name, partition_id)
+                self._create_logical(name, mbsize, type_name, flags, partition_id)
+            elif partition_id > 3:
                 # in logical boundary
-                self._create_logical(name, mbsize, type_name, flags)
+                self._create_logical(name, mbsize, type_name, flags, partition_id)
         else:
-            self._create_primary(name, mbsize, type_name, flags)
+            self._create_primary(name, mbsize, type_name, flags, partition_id)
 
     def set_flag(self, partition_id: int, flag_name: str) -> None:
         """
@@ -161,14 +164,17 @@ class PartitionerMsDos(PartitionerBase):
         self._call_fdisk(fdisk_input.name)
 
     def _create_primary(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = []
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = [], partition_id: int = None
     ) -> None:
         """
         Create primary msdos partition
         """
-        self.partition_id += 1
+        if partition_id is None:
+            self.partition_id += 1
+            partition_id = self.partition_id
+            
         fdisk_input = Temporary().new_file()
-        if self.partition_id == 1 and self.start_sector:
+        if partition_id == 1 and self.start_sector:
             if self.start_sector > self.default_start and mbsize != 'all_free':
                 # fdisk default start sector is self.default_start, increase
                 # the partition size such that after set_start_sector()
@@ -179,63 +185,71 @@ class PartitionerMsDos(PartitionerBase):
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
                 '%s: fdisk: n p %d cur_position +%sM w q',
-                name, self.partition_id, format(mbsize)
+                name, partition_id, format(mbsize)
             )
             partition.write(
                 'n\np\n{0}\n\n{1}\nw\nq\n'.format(
-                    self.partition_id,
+                    partition_id,
                     '' if mbsize == 'all_free' else '+{0}M'.format(mbsize)
                 )
             )
         self._call_fdisk(fdisk_input.name)
-        self._set_all_flags(type_name, flags)
+        self._set_all_flags(type_name, flags, partition_id)
 
-    def _create_extended(self, name: str) -> None:
+    def _create_extended(self, name: str, partition_id: int = None) -> None:
         """
         Create extended msdos partition
         """
-        self.partition_id += 1
+        if partition_id is None:
+            self.partition_id += 1
+            partition_id = self.partition_id
+            
         fdisk_input = Temporary().new_file()
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
                 '%s: fdisk: n e %d cur_position +all_freeM w q',
-                name, self.partition_id
+                name, partition_id
             )
             partition.write(
                 'n\ne\n{0}\n{1}\n{2}\nw\nq\n'.format(
-                    self.partition_id, '', ''
+                    partition_id, '', ''
                 )
             )
         self._call_fdisk(fdisk_input.name)
 
     def _create_logical(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = []
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = [], partition_id: int = None
     ) -> None:
         """
         Create logical msdos partition
         """
-        self.partition_id += 1
+        if partition_id is None:
+            self.partition_id += 1
+            partition_id = self.partition_id
+            
         fdisk_input = Temporary().new_file()
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
                 '%s: fdisk: n %d cur_position +%sM w q',
-                name, self.partition_id, format(mbsize)
+                name, partition_id, format(mbsize)
             )
             partition.write(
                 'n\n{0}\n{1}\n{2}\nw\nq\n'.format(
-                    self.partition_id,
+                    partition_id,
                     '',
                     '' if mbsize == 'all_free' else '+{0}M'.format(mbsize)
                 )
             )
         self._call_fdisk(fdisk_input.name)
-        self._set_all_flags(type_name, flags)
+        self._set_all_flags(type_name, flags, partition_id)
 
-    def _set_all_flags(self, type_name: str, flags: List[str]) -> None:
-        self.set_flag(self.partition_id, type_name)
+    def _set_all_flags(self, type_name: str, flags: List[str], partition_id: int = None) -> None:
+        if partition_id is None:
+            partition_id = self.partition_id
+        self.set_flag(partition_id, type_name)
         if flags:
             for flag_name in flags:
-                self.set_flag(self.partition_id, flag_name)
+                self.set_flag(partition_id, flag_name)
 
     def _call_fdisk(self, fdisk_config_file_path: str) -> None:
         bash_command = ' '.join(

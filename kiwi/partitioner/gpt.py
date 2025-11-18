@@ -61,12 +61,14 @@ class PartitionerGpt(PartitionerBase):
         :param string type_name: partition type
         :param list flags: additional flags
         """
-        self.partition_id += 1
+        is_root = name in ['p.lxroot', 'p.lxlvm', 'p.lxraid']
+        partition_id = self.get_next_id(is_root)
+        
         if mbsize == 'all_free':
             partition_end = '0'
         else:
             partition_end = '+' + format(mbsize) + 'M'
-        if self.partition_id > 1 or not self.start_sector:
+        if partition_id > 1 or not self.start_sector:
             # A start  sector value of 0 specifies the default value
             # defined in sgdisk
             self.start_sector = 0
@@ -74,18 +76,18 @@ class PartitionerGpt(PartitionerBase):
             [
                 'sgdisk', '-n', ':'.join(
                     [
-                        format(self.partition_id),
+                        format(partition_id),
                         format(self.start_sector),
                         partition_end
                     ]
-                ), '-c', ':'.join([format(self.partition_id), name]),
+                ), '-c', ':'.join([format(partition_id), name]),
                 self.disk_device
             ]
         )
-        self.set_flag(self.partition_id, type_name)
+        self.set_flag(partition_id, type_name)
         if flags:
             for flag_name in flags:
-                self.set_flag(self.partition_id, flag_name)
+                self.set_flag(partition_id, flag_name)
 
     def set_flag(self, partition_id: int, flag_name: str) -> None:
         """

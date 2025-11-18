@@ -126,7 +126,6 @@ class DiskBuilder:
             xml_state.build_type.get_spare_part_mountpoint()
 
         self.ec2_layout = xml_state.get_ec2_layout()
-        breakpoint()
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.root_filesystem_read_only_type = \
@@ -606,7 +605,8 @@ class DiskBuilder:
             self.firmware.get_partition_table_type(),
             loop_provider,
             self.disk_start_sector,
-            extended_layout=bool(self.dosparttable_extended_layout)
+            extended_layout=bool(self.dosparttable_extended_layout),
+            ec2_layout=self.ec2_layout
         )
 
     def _bootloader_instance(self, disk: Disk) -> BootLoaderConfigBase:
@@ -1377,10 +1377,6 @@ class DiskBuilder:
                 disk.create_hybrid_mbr()
 
         disk.map_partitions()
-
-        # Renumber partitions for EC2 layout: root becomes partition 1
-        if self.ec2_layout:
-            disk.renumber_partitions_for_ec2()
 
         device_map = disk.get_device()
         device_map['origin_root'] = \
