@@ -31,7 +31,7 @@ class TestEC2Layout(unittest.TestCase):
 
     def test_normal_layout(self):
         """Test normal partition layout without EC2 mode"""
-        partitioner = TestPartitioner()
+        partitioner = MockPartitioner()
         
         # Create partitions in typical order
         partitioner.create('p.UEFI', 100, 't.efi')
@@ -43,7 +43,7 @@ class TestEC2Layout(unittest.TestCase):
 
     def test_ec2_layout_basic(self):
         """Test EC2 layout with root partition getting ID 1"""
-        partitioner = TestPartitioner()
+        partitioner = MockPartitioner()
         partitioner.set_ec2_layout(True)
         
         # Create partitions in EC2 order (root created last but should get ID 1)
@@ -56,7 +56,7 @@ class TestEC2Layout(unittest.TestCase):
 
     def test_ec2_layout_complex(self):
         """Test EC2 layout with multiple partitions"""
-        partitioner = TestPartitioner()
+        partitioner = MockPartitioner()
         partitioner.set_ec2_layout(True)
         
         # Create partitions: EFI, boot, swap, root
@@ -70,7 +70,7 @@ class TestEC2Layout(unittest.TestCase):
 
     def test_ec2_layout_lvm_root(self):
         """Test EC2 layout with LVM root partition"""
-        partitioner = TestPartitioner()
+        partitioner = MockPartitioner()
         partitioner.set_ec2_layout(True)
         
         partitioner.create('p.UEFI', 100, 't.efi')
@@ -81,7 +81,7 @@ class TestEC2Layout(unittest.TestCase):
 
     def test_ec2_layout_raid_root(self):
         """Test EC2 layout with RAID root partition"""
-        partitioner = TestPartitioner()
+        partitioner = MockPartitioner()
         partitioner.set_ec2_layout(True)
         
         partitioner.create('p.UEFI', 100, 't.efi')
@@ -92,7 +92,7 @@ class TestEC2Layout(unittest.TestCase):
 
     def test_reserved_ids_tracking(self):
         """Test that reserved IDs are properly tracked"""
-        partitioner = TestPartitioner()
+        partitioner = MockPartitioner()
         partitioner.set_ec2_layout(True)
         
         # Verify that ID 1 is reserved
