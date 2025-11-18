@@ -15,7 +15,7 @@ class MockDeviceProvider:
         return '/dev/loop0'
 
 
-class TestPartitioner(PartitionerBase):
+class MockPartitioner(PartitionerBase):
     def __init__(self):
         super().__init__(MockDeviceProvider())
         self.created_partitions = []
