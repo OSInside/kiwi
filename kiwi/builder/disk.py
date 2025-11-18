@@ -124,7 +124,9 @@ class DiskBuilder:
         self.spare_part_is_last = xml_state.build_type.get_spare_part_is_last()
         self.spare_part_mountpoint = \
             xml_state.build_type.get_spare_part_mountpoint()
+
         self.ec2_layout = xml_state.get_ec2_layout()
+        breakpoint()
         self.persistency_type = xml_state.build_type.get_devicepersistency()
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
         self.root_filesystem_read_only_type = \

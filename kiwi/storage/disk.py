@@ -465,6 +465,7 @@ class Disk(DeviceProvider):
             )
 
     def renumber_partitions_for_ec2(self) -> None:
+        breakpoint()
         """
         Renumber partitions to place root partition as partition 1 for EC2 layout
 
@@ -518,7 +519,7 @@ class Disk(DeviceProvider):
             # Swap root (currently at swap_pos + 1) with partition at swap_pos
             Command.run(
                 [
-                    'sgdisk', '--swap-partitions',
+                    'sgdisk', '--transpose',
                     f'{swap_pos}:{swap_pos + 1}',
                     self.storage_provider.get_device()
                 ]
