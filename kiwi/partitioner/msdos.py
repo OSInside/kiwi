@@ -57,7 +57,7 @@ class PartitionerMsDos(PartitionerBase):
 
     def create(
         self, name: str, mbsize: int, type_name: str, flags: List[str] = []
-    ) -> None:
+    ) -> int:
         """
         Create msdos partition
 
@@ -65,6 +65,8 @@ class PartitionerMsDos(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: partition type
         :param list flags: additional flags
+        :return: partition ID that was used
+        :rtype: int
         """
         is_root = name in ['p.lxroot', 'p.lxlvm', 'p.lxraid']
         partition_id = self.get_next_id(is_root)
@@ -82,6 +84,8 @@ class PartitionerMsDos(PartitionerBase):
                 self._create_logical(name, mbsize, type_name, flags, partition_id)
         else:
             self._create_primary(name, mbsize, type_name, flags, partition_id)
+        
+        return partition_id
 
     def set_flag(self, partition_id: int, flag_name: str) -> None:
         """

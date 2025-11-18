@@ -48,7 +48,7 @@ class PartitionerDasd(PartitionerBase):
 
     def create(
         self, name: str, mbsize: int, type_name: str, flags: List[str] = None
-    ) -> None:
+    ) -> int:
         """
         Create DASD partition
 
@@ -56,6 +56,8 @@ class PartitionerDasd(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: unused
         :param list flags: unused
+        :return: partition ID that was used
+        :rtype: int
         """
         is_root = name in ['p.lxroot', 'p.lxlvm', 'p.lxraid']
         partition_id = self.get_next_id(is_root)
@@ -84,6 +86,8 @@ class PartitionerDasd(PartitionerBase):
             # are not able to detect real errors with the fdasd operation at
             # that point.
             log.debug('potential fdasd errors were ignored')
+        
+        return partition_id
 
     def set_uuid(self, partition_id: int, uuid: str) -> None:
         """

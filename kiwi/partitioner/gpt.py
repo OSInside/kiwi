@@ -52,7 +52,7 @@ class PartitionerGpt(PartitionerBase):
 
     def create(
         self, name: str, mbsize: int, type_name: str, flags: List[str] = None
-    ) -> None:
+    ) -> int:
         """
         Create GPT partition
 
@@ -60,6 +60,8 @@ class PartitionerGpt(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: partition type
         :param list flags: additional flags
+        :return: partition ID that was used
+        :rtype: int
         """
         is_root = name in ['p.lxroot', 'p.lxlvm', 'p.lxraid']
         partition_id = self.get_next_id(is_root)
@@ -88,6 +90,8 @@ class PartitionerGpt(PartitionerBase):
         if flags:
             for flag_name in flags:
                 self.set_flag(partition_id, flag_name)
+        
+        return partition_id
 
     def set_flag(self, partition_id: int, flag_name: str) -> None:
         """

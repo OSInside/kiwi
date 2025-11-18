@@ -108,7 +108,7 @@ class PartitionerBase:
 
     def create(
         self, name: str, mbsize: int, type_name: str, flags: List[str] = []
-    ):
+    ) -> int:
         """
         Create partition
 
@@ -118,6 +118,8 @@ class PartitionerBase:
         :param int mbsize: unused
         :param string type_name: unused
         :param list flags: unused
+        :return: partition ID that was used
+        :rtype: int
         """
         raise NotImplementedError
 
