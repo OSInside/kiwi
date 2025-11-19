@@ -13,8 +13,17 @@ Deploy and Run System in a RamDisk
 
 If a machine should run the OS completely in memory without
 the need for any persistent storage, the approach to deploy
-the image into a ramdisk serves this purpose. {kiwi} allows
-to create a bootable ISO image which deploys the image
+the image into a ramdisk serves this purpose.
+
+.. note:: brd support
+
+    For this functionality to work, the brd driver must be supported. If brd is available as a kernel module (as opposed to being compiled in the kernel), you must include the driver into the initrd. To do this, create (or edit) the `config.sh` file and add the following command to it:
+    
+    .. code:: bash
+        
+        echo 'add_drivers+=" brd "' > /etc/dracut.conf.d/10-brd.conf
+
+{kiwi} allows to create a bootable ISO image which deploys the image
 into a ramdisk and activates that image with the following
 oem type definition:
 
