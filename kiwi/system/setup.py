@@ -22,6 +22,7 @@ import copy
 import pathlib
 from collections import OrderedDict
 from collections import namedtuple
+from textwrap import dedent
 from typing import (
     Any, List, Optional, Dict
 )
@@ -55,6 +56,7 @@ from kiwi.builder.template.container_import import BuilderTemplateSystemdUnit
 from kiwi.system.profile import Profile
 
 from kiwi.exceptions import (
+    KiwiCommandError,
     KiwiImportDescriptionError,
     KiwiScriptFailed,
     KiwiFileNotFound
@@ -385,10 +387,26 @@ class SystemSetup:
                 root=self.root_dir, raise_on_error=False
             ):
                 Path.wipe(self.root_dir + '/etc/vconsole.conf')
-                Command.run([
+                res = Command.run([
                     'chroot', self.root_dir, 'systemd-firstboot',
-                    '--keymap=' + self.preferences['keytable']
-                ])
+                    '--keymap=' + self.preferences['keytable'],
+                ], raise_on_error=False)
+                if res.returncode != 0:
+                    message = dedent(f'''\n
+                        keyboard setup skipped because `systemd-firstboot --keymap` failed (code {res.returncode}):
+                        {res.error}
+
+                        This can happen for example if the specified keytable ({self.preferences['keytable']}) is not available,
+                        or if your system does not support the systemd way of managing keymaps.
+                        Note that in both cases, systemd-firstboot's error message complains that the keymap is not installed.
+
+                        If the keytable is missing, you might be able to install it for example via an additional package.
+                        If your system doesn't support systemd's keymap management,
+                        then you can use a distribution-specific method to set the keymap in a config.sh script.
+
+                        You can try `localectl list-keymaps` to see if a particular distro supports systemd keymap management.
+                    ''')
+                    raise KiwiCommandError(message)
             elif os.path.exists(self.root_dir + '/etc/sysconfig/keyboard'):
                 Shell.run_common_function(
                     'baseUpdateSysConfig', [
