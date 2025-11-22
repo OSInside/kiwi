@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="8.3" name="apt-testing">
+<image schemaversion="8.4" name="apt-testing">
     <description type="system">
         <author>Bob</author>
         <contact>user@example.com</contact>

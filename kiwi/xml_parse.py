@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.11 (main, Dec 06 2024, 17:06:18) [GCC]
+# Python 3.11.13 (main, Jun 09 2025, 21:55:43) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -6038,11 +6038,12 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, bls=None, console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None, securelinux=None):
+    def __init__(self, name=None, bls=None, output_console=None, input_console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None, securelinux=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.bls = _cast(bool, bls)
-        self.console = _cast(None, console)
+        self.output_console = _cast(None, output_console)
+        self.input_console = _cast(None, input_console)
         self.serial_line = _cast(None, serial_line)
         self.timeout = _cast(int, timeout)
         self.timeout_style = _cast(None, timeout_style)
@@ -6082,8 +6083,10 @@ class bootloader(GeneratedsSuper):
     def set_name(self, name): self.name = name
     def get_bls(self): return self.bls
     def set_bls(self, bls): self.bls = bls
-    def get_console(self): return self.console
-    def set_console(self, console): self.console = console
+    def get_output_console(self): return self.output_console
+    def set_output_console(self, output_console): self.output_console = output_console
+    def get_input_console(self): return self.input_console
+    def set_input_console(self, input_console): self.input_console = input_console
     def get_serial_line(self): return self.serial_line
     def set_serial_line(self, serial_line): self.serial_line = serial_line
     def get_timeout(self): return self.timeout
@@ -6096,13 +6099,20 @@ class bootloader(GeneratedsSuper):
     def set_use_disk_password(self, use_disk_password): self.use_disk_password = use_disk_password
     def get_grub_template(self): return self.grub_template
     def set_grub_template(self, grub_template): self.grub_template = grub_template
-    def validate_grub_console(self, value):
-        # Validate type grub_console, a restriction on xs:token.
+    def validate_grub_console_output(self, value):
+        # Validate type grub_console_output, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
             if not self.gds_validate_simple_patterns(
-                    self.validate_grub_console_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_patterns_, ))
-    validate_grub_console_patterns_ = [['^(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (none|console|serial|at_keyboard|usb_keyboard))*$']]
+                    self.validate_grub_console_output_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_output_patterns_, ))
+    validate_grub_console_output_patterns_ = [['^(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (console|gfxterm|serial|vga_text|mda_text|morse|spkmodem))*$']]
+    def validate_grub_console_input(self, value):
+        # Validate type grub_console_input, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_grub_console_input_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_grub_console_input_patterns_, ))
+    validate_grub_console_input_patterns_ = [['^(none|console|serial|at_keyboard|usb_keyboard)( (console|serial|at_keyboard|usb_keyboard))*$']]
     def hasContent_(self):
         if (
             self.bootloadersettings or
@@ -6139,9 +6149,12 @@ class bootloader(GeneratedsSuper):
         if self.bls is not None and 'bls' not in already_processed:
             already_processed.add('bls')
             outfile.write(' bls="%s"' % self.gds_format_boolean(self.bls, input_name='bls'))
-        if self.console is not None and 'console' not in already_processed:
-            already_processed.add('console')
-            outfile.write(' console=%s' % (quote_attrib(self.console), ))
+        if self.output_console is not None and 'output_console' not in already_processed:
+            already_processed.add('output_console')
+            outfile.write(' output_console=%s' % (quote_attrib(self.output_console), ))
+        if self.input_console is not None and 'input_console' not in already_processed:
+            already_processed.add('input_console')
+            outfile.write(' input_console=%s' % (quote_attrib(self.input_console), ))
         if self.serial_line is not None and 'serial_line' not in already_processed:
             already_processed.add('serial_line')
             outfile.write(' serial_line=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.serial_line), input_name='serial_line')), ))
@@ -6191,12 +6204,18 @@ class bootloader(GeneratedsSuper):
                 self.bls = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
-        value = find_attr_value_('console', node)
-        if value is not None and 'console' not in already_processed:
-            already_processed.add('console')
-            self.console = value
-            self.console = ' '.join(self.console.split())
-            self.validate_grub_console(self.console)    # validate type grub_console
+        value = find_attr_value_('output_console', node)
+        if value is not None and 'output_console' not in already_processed:
+            already_processed.add('output_console')
+            self.output_console = value
+            self.output_console = ' '.join(self.output_console.split())
+            self.validate_grub_console_output(self.output_console)    # validate type grub_console_output
+        value = find_attr_value_('input_console', node)
+        if value is not None and 'input_console' not in already_processed:
+            already_processed.add('input_console')
+            self.input_console = value
+            self.input_console = ' '.join(self.input_console.split())
+            self.validate_grub_console_input(self.input_console)    # validate type grub_console_input
         value = find_attr_value_('serial_line', node)
         if value is not None and 'serial_line' not in already_processed:
             already_processed.add('serial_line')

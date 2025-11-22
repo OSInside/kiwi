@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="8.3" name="JeOS">
+<image schemaversion="8.4" name="JeOS">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
