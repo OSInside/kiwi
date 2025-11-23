@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- The line below is required in order to use the multibuild OBS features -->
+
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.5" name="kiwi-test-image-live-disk">
+<image schemaversion="8.4" name="kiwi-test-image-live-disk">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>ms@suse.com</contact>
@@ -16,7 +17,7 @@
     </profiles>
     <preferences>
         <version>2.0.0</version>
-        <packagemanager>dnf</packagemanager>
+        <packagemanager>dnf4</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
         <bootloader-theme>breeze</bootloader-theme>
         <locale>en_US</locale>
@@ -25,12 +26,12 @@
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <preferences profiles="Live">
-        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=ttyS0">
-            <bootloader name="grub2" console="serial" timeout="10"/>
+        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="console=tty1 console=ttyS0">
+            <bootloader name="grub2" timeout="10" output_console="console serial" input_console="serial"/>
         </type>
     </preferences>
     <preferences profiles="Virtual">
-        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2" btrfs_root_is_subvolume="true" btrfs_set_default_volume="false" rootfs_label="fedora" bootpartition="false">
+        <type image="oem" filesystem="btrfs" kernelcmdline="console=tty1 console=ttyS0" firmware="uefi" format="qcow2" btrfs_root_is_subvolume="true" btrfs_set_default_volume="false" rootfs_label="fedora" bootpartition="false">
             <systemdisk name="fedora">
                 <volume name="@root=root"/>
                 <volume name="boot" parent="/"/>
@@ -40,12 +41,12 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" console="serial" timeout="10"/>
+            <bootloader name="grub2" timeout="10" output_console="console serial" input_console="serial"/>
         </type>
     </preferences>
     <preferences profiles="Disk">
-        <type image="oem" filesystem="ext4" installiso="true" installboot="install" firmware="uefi" kernelcmdline="console=ttyS0">
-            <bootloader name="grub2" console="serial" timeout="10"/>
+        <type image="oem" filesystem="ext4" installiso="true" installboot="install" firmware="uefi" kernelcmdline="console=tty1 console=ttyS0">
+            <bootloader name="grub2" timeout="10" output_console="console serial" input_console="serial"/>
             <oemconfig>
                 <oem-systemsize>2048</oem-systemsize>
                 <oem-unattended>true</oem-unattended>
