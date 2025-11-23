@@ -107,6 +107,9 @@ class TestLiveImageBuilder:
         self.xml_state.build_type.get_publisher = Mock(
             return_value='Custom publisher'
         )
+        self.xml_state.get_luks_credentials = Mock(
+            return_value=None
+        )
 
         self.live_image = LiveImageBuilder(
             self.xml_state, 'target_dir', 'root_dir',
@@ -176,6 +179,148 @@ class TestLiveImageBuilder:
         self.live_image.create()
         mock_Command_run.assert_called_once_with(
             ['mv', 'kiwi_used_initrd_name', 'root_dir/boot/dracut_initrd_name']
+        )
+
+    @mark.parametrize('xml_filesystem', ['xfs'])
+    @patch('kiwi.builder.live.create_boot_loader_config')
+    @patch('kiwi.builder.live.LoopDevice')
+    @patch('kiwi.builder.live.DeviceProvider')
+    @patch('kiwi.builder.live.LuksDevice')
+    @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
+    @patch('kiwi.builder.live.Temporary')
+    @patch('kiwi.builder.live.shutil')
+    @patch('kiwi.builder.live.Iso.set_media_tag')
+    @patch('kiwi.builder.live.Iso')
+    @patch('kiwi.builder.live.FileSystemIsoFs')
+    @patch('kiwi.builder.live.FileSystem.new')
+    @patch('kiwi.builder.live.SystemSize')
+    @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
+    @patch('os.unlink')
+    @patch('os.path.exists')
+    @patch('os.chmod')
+    def test_create_overlay_structure_encrypted_embedded_root(
+        self,
+        mock_chmod,
+        mock_exists,
+        mock_unlink,
+        mock_grub_dir,
+        mock_size,
+        mock_filesystem,
+        mock_isofs,
+        mock_Iso,
+        mock_tag,
+        mock_shutil,
+        mock_Temporary,
+        mock_setup_media_loader_directory,
+        mock_LuksDevice,
+        mock_DeviceProvider,
+        mock_LoopDevice,
+        mock_create_boot_loader_config,
+        xml_filesystem
+    ):
+        temp_squashfs = Mock()
+        temp_squashfs.name = 'temp-squashfs'
+        temp_media_dir = Mock()
+        temp_media_dir.name = 'temp_media_dir'
+        tmpdir_name = [temp_squashfs, temp_media_dir]
+
+        def side_effect():
+            return tmpdir_name.pop()
+
+        mock_Temporary.return_value.new_dir.side_effect = side_effect
+        mock_size.return_value.accumulate_mbyte_file_sizes.return_value = 8192
+
+        self.live_image.live_type = 'overlay'
+        self.live_image.luks = 'encrypted'
+        self.xml_state.build_type.get_filesystem = Mock(
+            return_value=xml_filesystem
+        )
+
+        self.live_image.create()
+
+        mock_LuksDevice.return_value.create_crypto_luks.assert_called_once_with(
+            passphrase='encrypted',
+            osname=self.xml_state.build_type.get_luksOS.return_value,
+            options=self.xml_state.get_luks_format_options.return_value,
+            keyfile='',
+            randomize=self.xml_state.build_type.get_luks_randomize.return_value,
+            root_dir='root_dir'
+        )
+
+    @mark.parametrize('xml_filesystem', ['erofs'])
+    @patch('kiwi.builder.live.create_boot_loader_config')
+    @patch('kiwi.builder.live.LoopDevice')
+    @patch('kiwi.builder.live.DeviceProvider')
+    @patch('kiwi.builder.live.LuksDevice')
+    @patch('kiwi.builder.live.Command.run')
+    @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
+    @patch('kiwi.builder.live.Temporary')
+    @patch('kiwi.builder.live.shutil')
+    @patch('kiwi.builder.live.Iso.set_media_tag')
+    @patch('kiwi.builder.live.Iso')
+    @patch('kiwi.builder.live.FileSystemIsoFs')
+    @patch('kiwi.builder.live.FileSystem.new')
+    @patch('kiwi.builder.live.SystemSize')
+    @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
+    @patch('os.unlink')
+    @patch('os.path.exists')
+    @patch('os.chmod')
+    def test_create_overlay_structure_encrypted_direct_root(
+        self,
+        mock_chmod,
+        mock_exists,
+        mock_unlink,
+        mock_grub_dir,
+        mock_size,
+        mock_filesystem,
+        mock_isofs,
+        mock_Iso,
+        mock_tag,
+        mock_shutil,
+        mock_Temporary,
+        mock_setup_media_loader_directory,
+        mock_Command_run,
+        mock_LuksDevice,
+        mock_DeviceProvider,
+        mock_LoopDevice,
+        mock_create_boot_loader_config,
+        xml_filesystem
+    ):
+        temp_squashfs = Mock()
+        temp_squashfs.name = 'temp-squashfs'
+        temp_media_dir = Mock()
+        temp_media_dir.name = 'temp_media_dir'
+        tmpdir_name = [temp_squashfs, temp_media_dir]
+        luks_device = mock_LuksDevice.return_value.get_device.return_value
+
+        def side_effect():
+            return tmpdir_name.pop()
+
+        mock_Temporary.return_value.new_dir.side_effect = side_effect
+        mock_size.return_value.accumulate_mbyte_file_sizes.return_value = 8192
+
+        self.live_image.live_type = 'overlay'
+        self.live_image.luks = 'encrypted'
+        self.xml_state.build_type.get_filesystem = Mock(
+            return_value=xml_filesystem
+        )
+
+        self.live_image.create()
+
+        mock_LuksDevice.return_value.create_crypto_luks.assert_called_once_with(
+            passphrase='encrypted',
+            osname=self.xml_state.build_type.get_luksOS.return_value,
+            options=self.xml_state.get_luks_format_options.return_value,
+            keyfile='',
+            randomize=self.xml_state.build_type.get_luks_randomize.return_value,
+            root_dir='root_dir'
+        )
+        mock_Command_run.assert_called_once_with(
+            [
+                'dd',
+                f'if={mock_Temporary.return_value.new_file.return_value.name}',
+                f'of={luks_device.get_device.return_value}'
+            ]
         )
 
     @mark.parametrize('xml_filesystem', [None, 'squashfs'])
@@ -267,7 +412,7 @@ class TestLiveImageBuilder:
                 )
             ]
 
-            filesystem.create_on_file.assert_called_once_with(
+            mock_filesystem.return_value.create_on_file.assert_called_once_with(
                 filename='kiwi-tmpfile',
                 exclude=[
                     'image', '.kconfig', 'run/*', 'tmp/*',
@@ -281,7 +426,7 @@ class TestLiveImageBuilder:
         else:
             assert kiwi.builder.live.FileSystem.new.call_args_list == [
                 call(
-                    device_provider=loop_provider, name='ext4',
+                    device_provider=mock_LoopDevice.return_value, name='ext4',
                     root_dir='root_dir/',
                     custom_args={
                         'mount_options': ['async'],
@@ -296,8 +441,8 @@ class TestLiveImageBuilder:
                 )
             ]
 
-            filesystem.create_on_device.assert_called_once_with()
-            filesystem.sync_data.assert_called_once_with([
+            mock_filesystem.return_value.create_on_device.assert_called_once_with()
+            mock_filesystem.return_value.sync_data.assert_called_once_with([
                 'image', '.kconfig',
                 'run/*', 'tmp/*', '.buildenv', 'var/cache/kiwi'
             ])

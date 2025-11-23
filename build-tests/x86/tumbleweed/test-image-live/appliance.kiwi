@@ -11,6 +11,7 @@
         <specification>live iso test build</specification>
     </description>
     <profiles>
+        <profile name="Encrypted" description="Encrypted EFI/BIOS Live Boot"/>
         <profile name="Standard" description="Standard EFI/BIOS Live Boot"/>
         <profile name="Secure" description="SecureBoot EFI Live Boot"/>
         <profile name="SDBoot" description="EFI Boot via systemd-boot"/>
@@ -38,6 +39,11 @@
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
+    <preferences profiles="Encrypted">
+        <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0 rd.live.encrypt" hybridpersistent_filesystem="ext4" hybridpersistent="true" luks="linux" filesystem="erofs">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+        </type>
+    </preferences>
     <preferences profiles="Standard">
         <type image="iso" flags="overlay" firmware="efi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true">
             <bootloader name="grub2" console="serial" timeout="10"/>
@@ -62,12 +68,15 @@
     <packages type="image" profiles="SDBoot">
         <package name="systemd-boot"/>
     </packages>
-    <packages type="image" profiles="Standard,Secure,EroFS,BIOS">
+    <packages type="image" profiles="Standard,Secure,EroFS,BIOS,Encrypted">
         <package name="grub2-branding-openSUSE"/>
         <package name="grub2"/>
         <package name="grub2-x86_64-efi" arch="x86_64"/>
         <package name="grub2-i386-pc"/>
         <package name="shim"/>
+    </packages>
+    <packages type="image" profiles="Encrypted">
+        <package name="cryptsetup"/>
     </packages>
     <packages type="image">
         <package name="curl"/>
