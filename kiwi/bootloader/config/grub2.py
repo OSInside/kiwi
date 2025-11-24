@@ -120,28 +120,14 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.custom_args and 'config_options' in self.custom_args:
             self.config_options = self.custom_args['config_options']
 
-        terminal_output = self.xml_state.get_build_type_bootloader_console()[0]
-        terminal_input = self.xml_state.get_build_type_bootloader_console()[1]
-        terminal_input_grub = [
-            'console',
-            'serial',
-            'at_keyboard',
-            'usb_keyboard'
-        ]
-        terminal_output_grub = [
-            'console',
-            'serial',
-            'gfxterm',
-            'vga_text',
-            'mda_text',
-            'morse',
-            'spkmodem'
-        ]
-
+        # This default output terminal type will change to console
+        # with the next major kiwi version update. Also see:
+        # https://github.com/OSInside/kiwi/issues/2494
         self.terminal_output = \
-            terminal_output if terminal_output in terminal_output_grub else 'gfxterm'
+            self.xml_state.get_build_type_bootloader_console()[0] or 'gfxterm'
+
         self.terminal_input = \
-            terminal_input if terminal_input in terminal_input_grub else 'console'
+            self.xml_state.get_build_type_bootloader_console()[1] or 'console'
 
         self.gfxmode = self.get_gfxmode('grub2')
         self.theme = self.get_boot_theme()

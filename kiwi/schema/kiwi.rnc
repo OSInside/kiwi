@@ -38,7 +38,8 @@ vhd-tag-type = xsd:token {pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
 groups-list = xsd:token {pattern = "[a-zA-Z0-9_\-\.:]+(,[a-zA-Z0-9_\-\.:]+)*"}
 arch-name = xsd:token {pattern = "(x86_64|i586|i686|ix86|aarch64|arm64|amd64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64)(,(x86_64|i586|i686|ix86|aarch64|arm64|amd64|armv5el|armv5tel|armv6hl|armv6l|armv7hl|armv7l|ppc|ppc64|ppc64le|s390|s390x|riscv64))*"}
 portnum-type = xsd:token {pattern = "(\d+|\d+/(udp|tcp))"}
-grub_console = xsd:token {pattern = "(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (none|console|serial|at_keyboard|usb_keyboard))*"}
+grub_console_output = xsd:token {pattern = "(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (console|gfxterm|serial|vga_text|mda_text|morse|spkmodem))*"}
+grub_console_input = xsd:token {pattern = "(none|console|serial|at_keyboard|usb_keyboard)( (console|serial|at_keyboard|usb_keyboard))*"}
 fs_attributes = xsd:token {pattern = "(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*"}
 package-version-type =  xsd:token {pattern = "(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}"}
 simple-uri-type = xsd:token {pattern = "(file:|https:|http:|ftp:).*"}
@@ -66,7 +67,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "8.3" }
+        attribute schemaversion { "8.4" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -2916,11 +2917,18 @@ div {
             sch:param [ name = "attr" value = "bls" ]
             sch:param [ name = "types" value = "grub2" ]
         ]
-    k.bootloader.console.attribute =
-        ## Specifies the bootloader console.
-        attribute console { grub_console }
-        >> sch:pattern [ id = "loader_console" is-a = "bootloader_name_type"
-            sch:param [ name = "attr" value = "console" ]
+    k.bootloader.output_console.attribute =
+        ## Specifies the bootloader output console.
+        attribute output_console { grub_console_output }
+        >> sch:pattern [ id = "loader_output_console" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "output_console" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
+        ]
+    k.bootloader.input_console.attribute =
+        ## Specifies the bootloader input console.
+        attribute input_console { grub_console_input }
+        >> sch:pattern [ id = "loader_input_console" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "input_console" ]
             sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
         ]
     k.bootloader.serial_line.attribute =
@@ -2974,7 +2982,8 @@ div {
     k.bootloader.attlist =
         k.bootloader.name.attribute &
         k.bootloader.bls.attribute? &
-        k.bootloader.console.attribute? &
+        k.bootloader.output_console.attribute? &
+        k.bootloader.input_console.attribute? &
         k.bootloader.serial_line.attribute? &
         k.bootloader.timeout.attribute? &
         k.bootloader.timeout_style.attribute? &

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="8.3" name="LimeJeOS-openSUSE-13.2" displayname="schäfer">
+<image schemaversion="8.4" name="LimeJeOS-openSUSE-13.2" displayname="schäfer">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>

@@ -1119,24 +1119,17 @@ bls="true|false":
   module is not available. This option is only available for `grub`
   and defaults to true if not set.
 
-console="none|console|gfxterm|serial":
-  Specifies the bootloader console. The attribute is available for the
-  `grub` bootloader type. The behavior for setting up
-  the console is different per bootloader:
+output_console="none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem":
+  Specifies the bootloader output console. The attribute is available for the
+  `grub` bootloader type. Multiple console types can be provided separated
+  by a space
 
-  For `grub` the console setting is split into the setting for the
-  output and the input console:
-
-  * A single console value is provided. In this case the same value
-    is used for the output and input console and applied if possible.
-    Providing the `none` value will skip the console setup for both.
-
-  * Two values separated by a space are provided. In this case the
-    first value configures the output console and the second value
-    configures the input console. The `none` value can be used to skip
-    one or the other console setup. More than two space separated
-    values will be ignored.
-
+input_console="none|console|serial|at_keyboard|usb_keyboard":
+  Specifies the bootloader input console. The attribute is available for the
+  `grub` bootloader type. Multiple console types can be provided separated
+  by a space. If no input_console is provided, the value for the
+  output_console is used if specified.
+  
 grub_template="filename":
   Specifies a custom grub bootloader template file which will be used
   instead of the one provided with Kiwi. A static bootloader template to

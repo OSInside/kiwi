@@ -72,7 +72,8 @@ class TestXMLState:
         self.bootloader.get_timeout_style.return_value = 'some-style'
         self.bootloader.get_targettype.return_value = 'some-target'
         self.bootloader.get_bls.return_value = False
-        self.bootloader.get_console.return_value = 'some-console'
+        self.bootloader.get_output_console.return_value = 'some-console'
+        self.bootloader.get_input_console.return_value = None
         self.bootloader.get_serial_line.return_value = 'some-serial'
         self.bootloader.get_use_disk_password.return_value = True
 

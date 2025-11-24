@@ -91,9 +91,14 @@
       <param name="pattern">(\d+|\d+/(udp|tcp))</param>
     </data>
   </define>
-  <define name="grub_console">
+  <define name="grub_console_output">
     <data type="token">
-      <param name="pattern">(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (none|console|serial|at_keyboard|usb_keyboard))*</param>
+      <param name="pattern">(none|console|gfxterm|serial|vga_text|mda_text|morse|spkmodem)( (console|gfxterm|serial|vga_text|mda_text|morse|spkmodem))*</param>
+    </data>
+  </define>
+  <define name="grub_console_input">
+    <data type="token">
+      <param name="pattern">(none|console|serial|at_keyboard|usb_keyboard)( (console|serial|at_keyboard|usb_keyboard))*</param>
     </data>
   </define>
   <define name="fs_attributes">
@@ -150,7 +155,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>8.3</value>
+        <value>8.4</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -4420,13 +4425,23 @@ setting only affects the oem and iso image types.</a:documentation>
         <sch:param name="types" value="grub2"/>
       </sch:pattern>
     </define>
-    <define name="k.bootloader.console.attribute">
-      <attribute name="console">
-        <a:documentation>Specifies the bootloader console.</a:documentation>
-        <ref name="grub_console"/>
+    <define name="k.bootloader.output_console.attribute">
+      <attribute name="output_console">
+        <a:documentation>Specifies the bootloader output console.</a:documentation>
+        <ref name="grub_console_output"/>
       </attribute>
-      <sch:pattern id="loader_console" is-a="bootloader_name_type">
-        <sch:param name="attr" value="console"/>
+      <sch:pattern id="loader_output_console" is-a="bootloader_name_type">
+        <sch:param name="attr" value="output_console"/>
+        <sch:param name="types" value="grub2 grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
+    <define name="k.bootloader.input_console.attribute">
+      <attribute name="input_console">
+        <a:documentation>Specifies the bootloader input console.</a:documentation>
+        <ref name="grub_console_input"/>
+      </attribute>
+      <sch:pattern id="loader_input_console" is-a="bootloader_name_type">
+        <sch:param name="attr" value="input_console"/>
         <sch:param name="types" value="grub2 grub2_s390x_emu"/>
       </sch:pattern>
     </define>
@@ -4504,7 +4519,10 @@ is useful for full disk encryption images</a:documentation>
           <ref name="k.bootloader.bls.attribute"/>
         </optional>
         <optional>
-          <ref name="k.bootloader.console.attribute"/>
+          <ref name="k.bootloader.output_console.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.input_console.attribute"/>
         </optional>
         <optional>
           <ref name="k.bootloader.serial_line.attribute"/>
