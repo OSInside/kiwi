@@ -958,7 +958,7 @@ class RuntimeChecker:
             Conflicting image type setup detected
 
             The selected image type '{0}' in the {1} profile
-            selection is not unique. There are the followng type
+            selection is not unique. There are the following type
             settings which overrides each other:
             {2}
             To solve this conflict please move the image type
