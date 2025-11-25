@@ -17,7 +17,11 @@ the image into a ramdisk serves this purpose.
 
 .. note:: brd support
 
-    For this functionality to work, the brd driver must be supported. If brd is available as a kernel module (as opposed to being compiled in the kernel), you must include the driver into the initrd. To do this, create (or edit) the `config.sh` file and add the following command to it:
+    For this functionality to work, brd (Block Ramdisk Driver) must be
+    supported. If brd is available as a kernel module (as opposed to
+    being compiled in the kernel), you must include the driver into the
+    initrd. To do this, create (or edit) the `config.sh` file and add
+    the following command to it:
     
     .. code:: bash
         
