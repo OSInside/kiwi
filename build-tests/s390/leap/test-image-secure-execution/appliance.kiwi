@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+<image schemaversion="7.5" name="kiwi-test-image-secure-execution">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Example disk test build for IBM Secure Execution</specification>
+    </description>
+    <profiles>
+        <profile name="SUSE-Infra" description="IBM SEL image LinuxONE_III@SUSE"/>
+        <profile name="IBM-Cloud-Secure-Execution" description="IBM SEL image LinuxONE@IBM-Cloud-VPC-Region-eu-de(z16)/Region-eu-gb(z15)"/>
+    </profiles>
+    <preferences>
+        <version>16.0.0</version>
+        <packagemanager>zypper</packagemanager>
+        <bootloader-theme>openSUSE</bootloader-theme>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <locale>en_US</locale>
+    </preferences>
+    <preferences profiles="IBM-Cloud-Secure-Execution">
+        <type
+            image="oem"
+            luks="random"
+            luks_pbkdf="pbkdf2"
+            luks_version="luks2"
+            filesystem="xfs"
+            kernelcmdline="systemd.show_status=yes console=ttyS0,115200 console=tty0 net.ifnames=0 swiotlb=262144 rd.debug"
+            devicepersistency="by-uuid"
+            bootpartition="true"
+            bootfilesystem="ext3"
+            format="qcow2"
+        >
+            <luksformat>
+                <option name="--cipher" value="aes-xts-plain64"/>
+                <option name="--key-size" value="256"/>
+            </luksformat>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+                <oem-resize>true</oem-resize>
+            </oemconfig>
+            <bootloader name="zipl" timeout="10">
+                <!-- LinuxONE@IBM-Cloud-VPC-Region-eu-de(z16) -->
+                <securelinux hkd_sign_cert="/var/lib/se-certs/ibm-z-host-key-signing-gen2.crt" hkd_ca_cert="/var/lib/se-certs/DigiCertCA.crt">
+                    <hkd_cert name="/var/lib/se-certs/HKD-3932-02967D8.crt"/>
+                    <hkd_cert name="/var/lib/se-certs/HKD-3932-02967F8.crt"/>
+                    <hkd_cert name="/var/lib/se-certs/HKD-3932-0296878.crt"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/ibm-z-host-key-gen2.crl"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/DigiCertTrustedG4CodeSigningRSA4096SHA3842021CA1.crl"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/DigiCertTrustedRootG4.crl"/>
+                </securelinux>
+                <!-- LinuxONE@IBM-Cloud-VPC-Region-eu-gb(z15) -->
+                <securelinux hkd_sign_cert="/var/lib/se-certs/ibm-z-host-key-signing.crt" hkd_ca_cert="/var/lib/se-certs/DigiCertCA.crt">
+                    <hkd_cert name="/var/lib/se-certs/HKD-8562-024B858.crt"/>
+                    <hkd_cert name="/var/lib/se-certs/HKD-8562-024B868.crt"/>
+                    <hkd_cert name="/var/lib/se-certs/HKD-8562-024B878.crt"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/ibm-z-host-key.crl"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/DigiCertTrustedG4CodeSigningRSA4096SHA3842021CA1.crl"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/DigiCertTrustedRootG4.crl"/>
+                </securelinux>
+            </bootloader>
+            <size unit="G">2</size>
+        </type>
+    </preferences>
+    <preferences profiles="SUSE-Infra">
+        <type
+            image="oem"
+            luks="random"
+            luks_pbkdf="pbkdf2"
+            luks_version="luks2"
+            filesystem="xfs"
+            kernelcmdline="systemd.show_status=yes console=ttyS0,115200 console=tty0 net.ifnames=0 swiotlb=262144 rd.debug"
+            devicepersistency="by-uuid"
+            bootpartition="true"
+            bootfilesystem="ext3"
+            format="qcow2"
+        >
+            <luksformat>
+                <option name="--cipher" value="aes-xts-plain64"/>
+                <option name="--key-size" value="256"/>
+            </luksformat>
+            <oemconfig>
+                <oem-unattended>true</oem-unattended>
+                <oem-resize>true</oem-resize>
+            </oemconfig>
+            <bootloader name="zipl" timeout="10">
+                <securelinux hkd_sign_cert="/var/lib/se-certs/ibm-z-host-key-signing.crt" hkd_ca_cert="/var/lib/se-certs/DigiCertCA.crt">
+                    <!-- LinuxONE_III@SUSE -->
+                    <hkd_cert name="/var/lib/se-certs/HKD-8561-02688E8.crt.20241112"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/ibm-z-host-key.crl"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/DigiCertTrustedG4CodeSigningRSA4096SHA3842021CA1.crl"/>
+                    <hkd_revocation_list name="/var/lib/se-certs/DigiCertTrustedRootG4.crl"/>
+                </securelinux>
+            </bootloader>
+            <size unit="G">2</size>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image" profiles="IBM-Cloud-Secure-Execution">
+        <package name="ibm-se-certificates"/>
+        <package name="ibm-se-revocation-lists"/>
+        <package name="cloud-se-host-certificates"/>
+        <package name="cloud-init"/>
+        <package name="cloud-init-config-suse"/>
+        <package name="systemd-networkd"/>
+        <package name="systemd-resolved"/>
+    </packages>
+    <packages type="image" profiles="SUSE-Infra">
+        <package name="ibm-se-certificates"/>
+        <package name="ibm-se-revocation-lists"/>
+        <package name="suse-se-host-certificates"/>
+        <package name="systemd-networkd"/>
+        <package name="systemd-resolved"/>
+    </packages>
+    <packages type="image">
+        <package name="patterns-base-bootloader"/>
+        <package name="kernel-default"/>
+        <package name="xfsprogs"/>
+        <package name="sudo"/>
+        <package name="blog"/>
+        <package name="s390-tools"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="shadow"/>
+        <package name="snapper"/>
+        <package name="snapper-zypp-plugin"/>
+        <package name="firewalld"/>
+        <package name="squashfs"/>
+        <package name="openssh-server"/>
+        <package name="openssh"/>
+        <package name="iproute2"/>
+        <package name="less"/>
+        <package name="curl"/>
+        <package name="cryptsetup"/>
+        <package name="procps"/>
+        <package name="zlib-devel"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/> 
+        <package name="gzip"/>
+        <package name="udev"/>
+        <package name="xz"/>
+        <package name="shadow"/>
+        <package name="filesystem"/>
+        <package name="coreutils"/>
+        <package name="openssl"/>
+        <package name="glibc-locale-base"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="diffutils"/>
+    </packages>
+</image>

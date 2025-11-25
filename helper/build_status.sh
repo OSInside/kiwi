@@ -20,6 +20,7 @@ for project in \
     Virtualization:Appliances:Images:Testing_x86:debian \
     Virtualization:Appliances:Images:Testing_s390:tumbleweed \
     Virtualization:Appliances:Images:Testing_s390:rawhide \
+    Virtualization:Appliances:Images:Testing_s390:leap \
     Virtualization:Appliances:Images:Testing_arm:tumbleweed \
     Virtualization:Appliances:Images:Testing_arm:fedora \
     Virtualization:Appliances:Images:Testing_ppc:tumbleweed \
