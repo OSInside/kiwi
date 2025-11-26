@@ -137,6 +137,7 @@
         <package name="cryptsetup"/>
         <package name="procps"/>
         <package name="zlib-devel"/>
+        <package name="suseconnect-ng"/>
     </packages>
     <packages type="bootstrap">
         <package name="gawk"/>
