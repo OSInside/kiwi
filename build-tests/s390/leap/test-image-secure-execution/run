@@ -1,0 +1,21 @@
+#!/bin/bash
+
+qemu-system-s390x \
+    -cpu host \
+    -machine accel=kvm,usb=off \
+    -netdev user,id=user0 \
+    -device virtio-net-ccw,netdev=user0 \
+    -object s390-pv-guest,id=pv0 \
+    -machine confidential-guest-support=pv0 \
+    -enable-kvm \
+    -nodefaults \
+    -name suse-cc \
+    -nographic \
+    -drive id=disk0,file="$1",format=qcow2,if=none,cache=writeback \
+    -device virtio-blk,id=data0,drive=disk0,physical_block_size=512,logical_block_size=512 \
+    -device virtio-serial-ccw \
+    -device sclpconsole,chardev=console \
+    -chardev stdio,id=console \
+    -smp 4 \
+    -m 4096 \
+    -mem-prealloc
