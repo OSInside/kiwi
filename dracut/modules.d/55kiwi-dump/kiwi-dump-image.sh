@@ -366,7 +366,15 @@ function dump_image {
             )
         fi
         if compatible_to_retain "${parttable}" "${image_target}"; then
-            count=$(get_disk_offset_retain_last_partition "${parttable}")
+            if getargbool 0 rd.kiwi.install.retain_last; then
+                count=$(get_disk_offset_retain_last_partition "${parttable}")
+            else
+                # retain_past always dumps the complete image
+                # the compatible_to_retain check for this image blob
+                # has been done and the deployment can happen for
+                # all blocks
+                count=0
+            fi
         fi
         if [ "${count}" -gt 0 ];then
             block_size=$(get_sector_size_from_table_dump "${parttable}")
@@ -391,8 +399,7 @@ function dump_image {
 
     # deploy
     echo "${load_text} [${image_target}]..."
-    if command -v pv &>/dev/null && [ "${kiwi_oemsilentinstall}" = "false" ]
-    then
+    if with_progress && [ "${kiwi_oemsilentinstall}" = "false" ]; then
         # dump with dialog based progress information
         setup_progress_fifo ${progress}
         eval \
@@ -418,9 +425,18 @@ function dump_image {
     fi
 
     # recreate last partition from pre-dump table
-    if getargbool 0 rd.kiwi.install.retain_past; then
+    if getargbool 0 rd.kiwi.install.retain_past && \
+        [ ! -e /tmp/retain_not_applicable ]
+    then
         recreate_last_partition "${image_target}"
     fi
+}
+
+function with_progress {
+    if getargbool 0 rd.debug || ! command -v pv &>/dev/null; then
+        return 1
+    fi
+    return 0
 }
 
 function fetch_local_partition_table {
@@ -597,17 +613,14 @@ function check_image_integrity {
         # no verification wanted
         return
     fi
-    if getargbool 0 rd.kiwi.install.retain_last || \
-       getargbool 0 rd.kiwi.install.retain_past
-    then
+    if getargbool 0 rd.kiwi.install.retain_last; then
         if [ ! -e /tmp/retain_not_applicable ];then
             # no verification possible as only a portion of
             # the image got deployed intentionally
             return
         fi
     fi
-    if command -v pv &>/dev/null && [ "${kiwi_oemsilentverify}" = "false" ]
-    then
+    if with_progress && [ "${kiwi_oemsilentverify}" = "false" ]; then
         # verify with dialog based progress information
         setup_progress_fifo ${progress}
         (
