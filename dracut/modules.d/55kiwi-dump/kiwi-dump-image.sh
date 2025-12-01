@@ -613,7 +613,9 @@ function check_image_integrity {
         # no verification wanted
         return
     fi
-    if getargbool 0 rd.kiwi.install.retain_last; then
+    if getargbool 0 rd.kiwi.install.retain_last || \
+       getargbool 0 rd.kiwi.install.retain_past
+    then
         if [ ! -e /tmp/retain_not_applicable ];then
             # no verification possible as only a portion of
             # the image got deployed intentionally
