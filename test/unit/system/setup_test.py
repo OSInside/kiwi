@@ -3,7 +3,7 @@ import os
 import logging
 import io
 from unittest.mock import (
-    patch, call, Mock, MagicMock, mock_open
+    ANY, DEFAULT, patch, call, Mock, MagicMock, mock_open
 )
 from pytest import (
     raises, fixture
@@ -18,10 +18,13 @@ from kiwi.xml_state import XMLState
 from kiwi.defaults import Defaults
 
 from kiwi.exceptions import (
+    KiwiCommandError,
     KiwiScriptFailed,
     KiwiImportDescriptionError,
     KiwiFileNotFound
 )
+
+from kiwi.command import CommandT
 
 
 class TestSystemSetup:
@@ -543,6 +546,7 @@ class TestSystemSetup:
     ):
         mock_caps.return_value = True
         mock_path.return_value = True
+        mock_run.return_value = CommandT("", "", 0)
         self.setup.preferences['keytable'] = 'keytable'
         self.setup.setup_keyboard_map()
         mock_run.assert_has_calls([
@@ -550,7 +554,7 @@ class TestSystemSetup:
             call([
                 'chroot', 'root_dir', 'systemd-firstboot',
                 '--keymap=keytable'
-            ])
+            ], raise_on_error=False)
         ])
 
     @patch('os.path.exists')
@@ -561,6 +565,22 @@ class TestSystemSetup:
         self.setup.preferences['keytable'] = 'keytable'
         with self._caplog.at_level(logging.WARNING):
             self.setup.setup_keyboard_map()
+
+    @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.system.setup.Command.run')
+    def test_setup_keyboard_skipped_systemd_incompatible(self, mock_run, mock_caps):
+        mock_caps.return_value = True  # systemd-firstboot --keymap found in help
+        self.setup.preferences['keytable'] = 'keytable'
+
+        # mock the Command.run for `localectl list-keymaps`
+        def side_effect(args, **kwargs):
+            if args == ['chroot', ANY, 'systemd-firstboot', '--keymap=keytable']:
+                return CommandT("", "Keymap us is not installed.", 1)
+            return DEFAULT
+        mock_run.side_effect = side_effect
+        with raises(KiwiCommandError) as excinfo:
+            self.setup.setup_keyboard_map()
+        assert 'your system does not support the systemd way of managing keymaps' in str(excinfo.value)
 
     @patch('kiwi.system.setup.CommandCapabilities.has_option_in_help')
     @patch('kiwi.system.setup.Command.run')
