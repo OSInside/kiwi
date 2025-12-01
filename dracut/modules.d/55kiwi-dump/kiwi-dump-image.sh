@@ -618,7 +618,9 @@ function check_image_integrity {
     then
         if [ ! -e /tmp/retain_not_applicable ];then
             # no verification possible as only a portion of
-            # the image got deployed intentionally
+            # the image got deployed intentionally (retain_last)
+            # or parts of the former partition table got
+            # restored (retain_past)
             return
         fi
     fi
