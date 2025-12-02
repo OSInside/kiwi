@@ -31,6 +31,7 @@ SYNOPSIS
        [--set-type-attr=<attribute=value>...]
        [--set-release-version=<version>]
        [--signing-key=<key-file>...]
+       [--ca-certificates=<directory>]
    kiwi-ng system build help
 
 .. _db_kiwi_system_build_desc:
@@ -223,6 +224,17 @@ OPTIONS
   when an image build validates repository and package
   signatures during build time. This option can be specified multiple
   times.
+
+--ca-certificates=<directory>
+
+  Set the directory of additional local CA certificates to import during
+  the build process. The import will occur immediately after the bootstrap
+  process, where the required CA update tooling is expected to be installed.
+  This option is useful for situations where certificates are not packaged,
+  or the certificates are required during the build process, e.g. due to
+  proxy servers in the build environment that need certificates in chroot.
+  Supported certificate extensions are .pem, .crt, and .cer. All other
+  file types in the specified directory will be ignored.
 
 --target-dir=<directory>
 

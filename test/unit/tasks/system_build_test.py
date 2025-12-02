@@ -1,7 +1,7 @@
 import logging
 import sys
 import os
-from pytest import fixture
+from pytest import fixture, mark
 from unittest.mock import (
     patch, call, Mock, MagicMock
 )
@@ -93,6 +93,8 @@ class TestSystemBuildTask:
         self.task.command_args['--add-container-label'] = []
         self.task.command_args['--clear-cache'] = False
         self.task.command_args['--signing-key'] = []
+        self.task.command_args['--ca-certificates'] = None
+        self.task.runtime_config.get_ca_certificates_path.return_value = None
 
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
@@ -161,6 +163,9 @@ class TestSystemBuildTask:
         )
         system_prepare.install_bootstrap.assert_called_once_with(
             manager.__enter__.return_value, []
+        )
+        system_prepare.setup_ca_certificates.assert_called_once_with(
+            None
         )
         system_prepare.install_system.assert_called_once_with(
             manager.__enter__.return_value
@@ -445,3 +450,59 @@ class TestSystemBuildTask:
         self.task.command_args['--ignore-repos-used-for-build'] = True
         self.task.process()
         mock_delete_repos.assert_called_once_with()
+
+    @mark.parametrize(
+        "cli_path, config_path, expected_path",
+        [
+            # Custom CA Certificates Tests
+            # Case 1: CLI path overrides runtime config
+            ('/cli/certs', '/config/certs', '/cli/certs'),
+            # Case 2: Only CLI path is provided
+            ('/cli/certs', None, '/cli/certs'),
+            # Case 3: Only runtime config path is provided
+            (None, '/config/certs', '/config/certs'),
+        ]
+    )
+    @patch('kiwi.tasks.system_build.SystemPrepare')
+    def test_ca_certs_path_handling(
+        self, mock_SystemPrepare, cli_path, config_path, expected_path
+    ):
+        """
+        Verify that the CA certificates path is correctly determined
+        from CLI arguments and runtime configuration.
+        """
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
+            return_value=MagicMock()
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
+        self._init_command_args()
+        self.task.command_args['--ca-certificates'] = cli_path
+        self.task.runtime_config.get_ca_certificates_path.return_value = config_path
+        self.task.process()
+        system_prepare.setup_ca_certificates.assert_called_once_with(
+            expected_path
+        )
+
+    @patch('kiwi.tasks.system_build.SystemPrepare')
+    def test_ca_certs_cli_overrides_config(self, mock_SystemPrepare):
+        """
+        Verify --ca-certificates from CLI overrides the config file value.
+        """
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
+            return_value=MagicMock()
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
+
+        self._init_command_args()
+        self.task.command_args['--ca-certificates'] = '/cli/certs'
+        # Mock the config to return a different path
+        self.task.runtime_config.get_ca_certificates_path.return_value = '/config/certs'
+
+        self.task.process()
+
+        # Check that setup_ca_certificates was called with the CLI path
+        system_prepare.setup_ca_certificates.assert_called_once_with(
+            '/cli/certs'
+        )

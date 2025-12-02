@@ -2976,6 +2976,44 @@ class XMLState:
             self.get_packages_sections(['image', self.get_build_type_name()])
         )
 
+    def get_ca_update_info(self) -> Optional[Dict[str, str]]:
+        """
+        Provides a dictionary with distribution specific information
+        on how to update the system's CA certificates, specifically
+        with the location of the certificate directory and the tool
+        used to run the update command.
+
+        :return: dict with 'tool' and 'destination_path'
+
+        :rtype: dict
+        """
+        package_manager = self.get_package_manager()
+        if package_manager == 'zypper':
+            # SUSE family
+            return {
+                'tool': 'update-ca-certificates',
+                'destination_path': '/etc/pki/trust/anchors'
+            }
+        elif package_manager in ['dnf', 'dnf4', 'dnf5', 'yum']:
+            # Red Hat family
+            return {
+                'tool': 'update-ca-certificates',
+                'destination_path': '/etc/pki/ca-trust/source/anchors/'
+            }
+        elif package_manager == 'apt':
+            # Debian and Ubuntu families
+            return {
+                'tool': 'update-ca-certificates',
+                'destination_path': '/usr/local/share/ca-certificates/'
+            }
+        elif package_manager == 'pacman':
+            # ArchLinux family
+            return {
+                'tool': 'update-ca-trust',
+                'destination_path': '/etc/ca-certificates/trust-source/anchors/'
+            }
+        return None
+
     def _used_profiles(self, profiles=None):
         """
         return list of profiles to use. The method looks up the
