@@ -1398,3 +1398,21 @@ class TestXMLState:
         assert self.state.btrfs_default_volume_requested() is False
         mock_get_btrfs_set_default_volume.return_value = None
         assert self.state.btrfs_default_volume_requested() is True
+
+    def test_get_certificates(self):
+        assert self.state.get_certificates() == ['/some/ca/filename']
+        assert self.state.get_certificates_target_distribution() == 'suse'
+        self.state.add_certificate('/new/file', 'rhel')
+        assert self.state.get_certificates() == [
+            '/new/file', '/some/ca/filename'
+        ]
+        assert self.state.get_certificates_target_distribution() == 'rhel'
+        self.state.add_certificate('/new/file', 'rhel')
+        assert self.state.get_certificates() == [
+            '/new/file', '/some/ca/filename'
+        ]
+        assert self.apt_state.get_certificates() == []
+        assert self.apt_state.get_certificates_target_distribution() == ''
+        self.apt_state.add_certificate('/new/file', 'debian')
+        assert self.apt_state.get_certificates() == ['/new/file']
+        assert self.apt_state.get_certificates_target_distribution() == 'debian'

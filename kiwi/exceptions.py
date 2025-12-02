@@ -874,3 +874,10 @@ class KiwiEnclaveFormatError(KiwiError):
     Exception raised if no enclave_format attribute specified
     for the selected build type
     """
+
+
+class KiwiCATargetDistributionError(KiwiError):
+    """
+    Exception raised if no CA target distribution can be found
+    but the request to import custom CA certificates was issued
+    """

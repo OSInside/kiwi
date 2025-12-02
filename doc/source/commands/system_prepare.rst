@@ -22,6 +22,8 @@ SYNOPSIS
        [--add-repo-credentials=<user:pass_or_filename>...]
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
+       [--ca-cert=<cert-file>...]
+       [--ca-target-distribution=<suse|rhel|debian|archlinux>]
        [--delete-package=<name>...]
        [--set-container-derived-from=<uri>]
        [--set-container-tag=<name>]
@@ -94,6 +96,24 @@ OPTIONS
   cache data dedicated to one build. In case of {kiwi}, the cache
   is shared between multiple image builds on the host for performance
   reasons.
+
+--ca-cert=<cert-file>
+
+  Add a cert-file to the directory storing additional local CA certificates.
+  The import will occur immediately after the bootstrap process, where
+  the required CA update tooling is expected to be installed. This
+  option is useful for situations where certificates are not packaged,
+  or the certificates are required during the build process, e.g. due
+  to proxy servers in the build environment that need certificates
+  in chroot. The option can be specified multiple times.
+
+--ca-target-distribution=<suse|rhel|debian|archlinux>
+
+  Specify target distribution for the import of certificates
+  via the --ca-cert options(s) and/or the provided <certificates>
+  from the image description. The selected distribution is used
+  in KIWI to map the distribution specific CA storage path and
+  update tool for the import process.
 
 --delete-package=<name>
 

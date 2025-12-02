@@ -100,6 +100,26 @@ EFI_FAT_IMAGE_SIZE = 20
 # optional package manager environment variables
 PACKAGE_MANAGER_ENV_VARS = '/.kiwi.package_manager.env'
 
+# Distribution specific CA store and tooling
+CA_UPDATE_MAP = {
+    'suse': {
+        'tool': 'update-ca-certificates',
+        'destination_path': '/etc/pki/trust/anchors'
+    },
+    'rhel': {
+        'tool': 'update-ca-certificates',
+        'destination_path': '/etc/pki/ca-trust/source/anchors/'
+    },
+    'debian': {
+        'tool': 'update-ca-certificates',
+        'destination_path': '/usr/local/share/ca-certificates/'
+    },
+    'archlinux': {
+        'tool': 'update-ca-trust',
+        'destination_path': '/etc/ca-certificates/trust-source/anchors/'
+    }
+}
+
 log = logging.getLogger('kiwi')
 
 
@@ -2315,6 +2335,14 @@ class Defaults:
         :rtype: str
         """
         return '/etc/apk/repositories'
+
+    @staticmethod
+    def get_ca_update_map(target_distribution) -> Optional[Dict[str, str]]:
+        return CA_UPDATE_MAP.get(target_distribution)
+
+    @staticmethod
+    def get_ca_target_distributions() -> List[str]:
+        return sorted(CA_UPDATE_MAP.keys())
 
     def get(self, key):
         """

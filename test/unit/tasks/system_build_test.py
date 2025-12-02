@@ -1,12 +1,15 @@
 import logging
 import sys
 import os
-from pytest import fixture
+from pytest import (
+    fixture, raises
+)
 from unittest.mock import (
     patch, call, Mock, MagicMock
 )
 
 import kiwi
+from kiwi.exceptions import KiwiCATargetDistributionError
 
 from ..test_helper import argv_kiwi_tests
 
@@ -93,6 +96,8 @@ class TestSystemBuildTask:
         self.task.command_args['--add-container-label'] = []
         self.task.command_args['--clear-cache'] = False
         self.task.command_args['--signing-key'] = []
+        self.task.command_args['--ca-cert'] = []
+        self.task.command_args['--ca-target-distribution'] = None
 
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
@@ -162,6 +167,7 @@ class TestSystemBuildTask:
         system_prepare.install_bootstrap.assert_called_once_with(
             manager.__enter__.return_value, []
         )
+        system_prepare.setup_ca_certificates.assert_called_once_with()
         system_prepare.install_system.assert_called_once_with(
             manager.__enter__.return_value
         )
@@ -445,3 +451,25 @@ class TestSystemBuildTask:
         self.task.command_args['--ignore-repos-used-for-build'] = True
         self.task.process()
         mock_delete_repos.assert_called_once_with()
+
+    @patch('kiwi.xml_state.XMLState.add_certificate')
+    @patch('kiwi.tasks.system_build.SystemPrepare')
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_process_system_prepare_with_custom_ca_certs(
+        self, mock_log, mock_SystemPrepare, mock_add_certificate
+    ):
+        system_prepare = Mock()
+        system_prepare.setup_repositories = Mock(
+            return_value=MagicMock()
+        )
+        mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
+        self._init_command_args()
+        self.task.command_args['--ca-cert'] = ['/some/ca/filename']
+        with raises(KiwiCATargetDistributionError):
+            self.task.process()
+        self.task.command_args['--ca-target-distribution'] = 'suse'
+        self.task.process()
+        mock_add_certificate.assert_called_once_with(
+            '/some/ca/filename', 'suse'
+        )
+        system_prepare.setup_ca_certificates.assert_called_once_with()

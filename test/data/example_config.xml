@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <image schemaversion="8.4" name="LimeJeOS" displayname="Bob">
+    <certificates target_distribution="suse">
+        <certificate name="/some/ca/filename"/>
+    </certificates>
     <drivers>
         <file name="crypto/*"/>
         <file name="drivers/acpi/*"/>

@@ -2453,6 +2453,60 @@ class XMLState:
             )
         )
 
+    def add_certificate(self, cert_file: str, target_distribution: str) -> None:
+        """
+        Add <certificate name="cert_file"> to main <certificates> section
+        The main section will be created if it does not exist. Also
+        setup the target_distribution in the resulting main section.
+        """
+        certificates_section = self._profiled(
+            self.xml_data.get_certificates()
+        )
+        if not certificates_section:
+            self.xml_data.set_certificates(
+                [
+                    xml_parse.certificates(
+                        target_distribution=target_distribution,
+                        certificate=[xml_parse.certificate(name=cert_file)]
+                    )
+                ]
+            )
+        else:
+            certificates_section[0].set_target_distribution(
+                target_distribution
+            )
+            certificates_section[0].add_certificate(
+                xml_parse.certificate(
+                    name=cert_file
+                )
+            )
+
+    def get_certificates(self) -> List[str]:
+        """
+        Read list of certificates
+        """
+        cert_list = []
+        certificates_section = self._profiled(
+            self.xml_data.get_certificates()
+        )
+        if certificates_section:
+            for certificate in certificates_section[0].get_certificate():
+                cert_list.append(certificate.get_name())
+        return sorted(list(set(cert_list)))
+
+    def get_certificates_target_distribution(self) -> str:
+        """
+        Read CA target distribution
+        """
+        target_distribution = ''
+        certificates_section = self._profiled(
+            self.xml_data.get_certificates()
+        )
+        if certificates_section:
+            target_distribution = \
+                certificates_section[0].get_target_distribution()
+        return target_distribution
+
     def resolve_this_path(self) -> None:
         """
         Resolve any this:// repo source path into the path

@@ -84,6 +84,7 @@ div {
         element image {
             k.image.attlist &
             k.include* &
+            k.certificates? &
             k.description &
             k.preferences+ &
             k.profiles* &
@@ -1117,6 +1118,39 @@ div {
     k.container =
         element container {
             k.container.attlist,
+            empty
+        }
+}
+
+#==========================================
+# common element <certificates>
+#
+div {
+    k.certificates.profiles.attribute = k.profiles.attribute
+    k.certificates.target_distribution.attribute =
+        attribute target_distribution {
+            "suse" | "rhel" | "debian" | "archlinux"
+        }
+    k.certificates.attlist =
+        k.certificates.profiles.attribute? &
+        k.certificates.target_distribution.attribute
+    k.certificates =
+        element certificates {
+            k.certificates.attlist,
+            k.certificate+
+        }
+}
+
+#==========================================
+# common element <certificate>
+#
+div {
+    k.certificate.name.attribute = k.name.attribute
+    k.certificate.attlist = k.certificate.name.attribute
+    k.certificate =
+        # A pointer to a filename handled as a CA file
+        element certificate {
+            k.certificate.attlist,
             empty
         }
 }
