@@ -464,8 +464,9 @@ class TestSystemBuildTask:
         ]
     )
     @patch('kiwi.tasks.system_build.SystemPrepare')
+    @patch('kiwi.logger.Logger.set_logfile')
     def test_ca_certs_path_handling(
-        self, mock_SystemPrepare, cli_path, config_path, expected_path
+        self, mock_log, mock_SystemPrepare, cli_path, config_path, expected_path
     ):
         """
         Verify that the CA certificates path is correctly determined
@@ -485,7 +486,8 @@ class TestSystemBuildTask:
         )
 
     @patch('kiwi.tasks.system_build.SystemPrepare')
-    def test_ca_certs_cli_overrides_config(self, mock_SystemPrepare):
+    @patch('kiwi.logger.Logger.set_logfile')
+    def test_ca_certs_cli_overrides_config(self, mock_log, mock_SystemPrepare):
         """
         Verify --ca-certificates from CLI overrides the config file value.
         """

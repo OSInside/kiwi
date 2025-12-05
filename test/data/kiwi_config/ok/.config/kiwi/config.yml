@@ -28,3 +28,6 @@ runtime_checks:
   - disable:
       - check_dracut_module_for_oem_install_in_package_list
       - check_container_tool_chain_installed
+
+ca_certificates:
+  - path: /test/certs
