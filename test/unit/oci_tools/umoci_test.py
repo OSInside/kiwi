@@ -18,6 +18,9 @@ class TestOCIUmoci:
         mock_datetime.utcnow = Mock(
             return_value=strftime
         )
+        mock_datetime.fromtimestamp.return_value.strftime = Mock(
+            return_value=strftime
+        )
         self.oci = OCIUmoci()
 
     @patch('kiwi.oci_tools.umoci.CommandCapabilities.has_option_in_help')
