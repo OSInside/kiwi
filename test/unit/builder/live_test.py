@@ -198,8 +198,10 @@ class TestLiveImageBuilder:
     @patch('os.unlink')
     @patch('os.path.exists')
     @patch('os.chmod')
+    @patch('os.path.getsize')
     def test_create_overlay_structure_encrypted_embedded_root(
         self,
+        mock_os_path_getsize,
         mock_chmod,
         mock_exists,
         mock_unlink,
@@ -265,8 +267,10 @@ class TestLiveImageBuilder:
     @patch('os.unlink')
     @patch('os.path.exists')
     @patch('os.chmod')
+    @patch('os.path.getsize')
     def test_create_overlay_structure_encrypted_direct_root(
         self,
+        mock_os_path_getsize,
         mock_chmod,
         mock_exists,
         mock_unlink,
