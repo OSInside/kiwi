@@ -94,6 +94,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
 
         self.subvol_mount_list = []
         self.toplevel_mount = None
+        self.root_volume_mount = None
         self.snapshots_root_mount = None
 
     def setup(self, name=None):
@@ -169,6 +170,14 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             )
         elif self.root_volume_name != '/':
             self._set_default_volume(self.root_volume_name)
+            # make sure the root volume appears as proper (/) in the chroot
+            root_dir = os.path.normpath(
+                os.sep.join([self.mountpoint, self.get_root_volume_name()])
+            )
+            self.root_volume_mount = MountManager(
+                device=root_dir, mountpoint=root_dir
+            )
+            self.root_volume_mount.bind_mount()
 
     def get_root_volume_name(self) -> str:
         """
@@ -390,6 +399,9 @@ class VolumeManagerBtrfs(VolumeManagerBase):
         if self.snapshots_root_mount and self.snapshots_root_mount.is_mounted():
             self.snapshots_root_mount.umount()
 
+        if self.root_volume_mount:
+            self.root_volume_mount.umount()
+
         if self.toplevel_mount.is_mounted():
             self.toplevel_mount.umount()
 
@@ -584,5 +596,7 @@ class VolumeManagerBtrfs(VolumeManagerBase):
             snapshot_info_file.write(self._xml_pretty(snapshot))
 
     def __exit__(self, exc_type, exc_value, traceback):
+        if self.root_volume_mount:
+            self.root_volume_mount.umount()
         if self.toplevel_mount:
             self.umount_volumes()
