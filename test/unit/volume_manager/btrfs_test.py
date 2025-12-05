@@ -111,9 +111,10 @@ class TestVolumeManagerBtrfs:
 
         self.volume_manager.setup()
 
-        mock_mount.assert_called_once_with(
-            device='/dev/storage', mountpoint='tmpdir'
-        )
+        assert mock_mount.call_args_list == [
+            call(device='/dev/storage', mountpoint='tmpdir'),
+            call(device='tmpdir/@', mountpoint='tmpdir/@')
+        ]
         toplevel_mount.mount.assert_called_once_with([])
         assert mock_command.call_args_list == [
             call(['btrfs', 'subvolume', 'create', 'tmpdir/@']),
@@ -402,6 +403,7 @@ class TestVolumeManagerBtrfs:
 
     def test_umount_volumes(self):
         self.volume_manager.toplevel_mount = Mock()
+        self.volume_manager.root_volume_mount = Mock()
         volume_mount = Mock()
         volume_mount.is_mounted = Mock(
             return_value=True
@@ -422,6 +424,7 @@ class TestVolumeManagerBtrfs:
         self.volume_manager.snapshots_root_mount.is_mounted.assert_called_once_with()
         self.volume_manager.snapshots_root_mount.umount.assert_called_once_with()
         self.volume_manager.toplevel_mount.is_mounted.assert_called_once_with()
+        self.volume_manager.root_volume_mount.umount.assert_called_once_with()
         self.volume_manager.toplevel_mount.umount.assert_called_once_with()
 
     @patch('kiwi.volume_manager.btrfs.SysConfig')
@@ -609,5 +612,6 @@ class TestVolumeManagerBtrfs:
             self.device_map, 'root_dir', self.volumes
         ) as volume_manager:
             volume_manager.toplevel_mount = Mock()
+            volume_manager.root_volume_mount = Mock()
 
         mock_VolumeManagerBtrfs_umount_volumes.assert_called_once_with()
