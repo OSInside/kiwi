@@ -171,6 +171,25 @@ class RuntimeConfig:
             obs_public = True
         return bool(obs_public)
 
+    def get_ca_certificates_path(self) -> Optional[str]:
+        """
+        Return path to custom CA certificates directory for import as
+        specified in kiwi.yml:
+
+        ca_certificates:
+          - path: ...
+
+        There is no default value for this setting available
+
+        :return: file path name or None
+
+        :rtype: str
+        """
+        return self._get_attribute(
+            element='ca_certificates',
+            attribute='path'
+        )
+
     def get_package_changes(self, default: bool = True) -> bool:
         """
         Return boolean value to express if the image build and bundle

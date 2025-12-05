@@ -127,6 +127,26 @@ class TestRuntimeConfig:
             assert 'Skipping invalid iso media tag tool: foo' in \
                 self._caplog.text
 
+    def test_get_ca_certificates_path_present(self):
+        """
+        Verify get_ca_certificates_path returns the path when present in config.
+        """
+        with patch.dict('os.environ', {'HOME': '../data/kiwi_config/ok'}):
+            runtime_config = RuntimeConfig(reread=True)
+
+        assert runtime_config.get_ca_certificates_path() == '/test/certs'
+
+    @patch(
+        'kiwi.runtime_config.RUNTIME_CONFIG',
+        {'empty_config': [{'key': 'value'}]}
+    )
+    def test_get_ca_certificates_path_not_present(self):
+        """
+        Verify get_ca_certificates_path returns None when not present in config.
+        """
+        config = RuntimeConfig(reread=True)
+        assert config.get_ca_certificates_path() is None
+
     def test_config_sections_other_settings(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/other'}):
             runtime_config = RuntimeConfig(reread=True)
