@@ -583,13 +583,12 @@ class SystemPrepare:
 
         if not os.path.isdir(ca_certs_path):
             log.warning(
-                'Custom CA certificates path %s not found, skipping',
-                ca_certs_path
+                f'Custom CA certificates path {ca_certs_path} not found, skipping'
             )
             return
 
         log.info(
-            'Setting up custom CA certificates from: %s', ca_certs_path
+            f'Setting up custom CA certificates from: {ca_certs_path}'
         )
 
         # Determine the correct update tool and destination for the distribution
@@ -610,12 +609,12 @@ class SystemPrepare:
                     if os.path.isfile(cert_file):
                         if not cert_found:
                             Path.create(ca_chroot_path)
-                        log.info('--> Installing certificate: %s', os.path.basename(cert_file))
+                        log.info(f'--> Installing certificate: {os.path.basename(cert_file)}')
                         DataSync(cert_file, ca_chroot_path).sync_data()
                         cert_found = True
 
             if cert_found:
-                log.info('--> Updating CA certificate store with: %s', ca_update_info['tool'])
+                log.info(f"--> Updating CA certificate store with: {ca_update_info['tool']}")
                 Command.run(['chroot', self.root_dir, ca_update_info['tool']])
             else:
                 log.warning('--> CA certificates location specified, but no certificates found, skipping')
