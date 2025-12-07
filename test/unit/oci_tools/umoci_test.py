@@ -18,7 +18,7 @@ class TestOCIUmoci:
         mock_datetime.utcnow = Mock(
             return_value=strftime
         )
-        mock_datetime.fromtimestamp.return_value.strftime = Mock(
+        mock_datetime.fromtimestamp = Mock(
             return_value=strftime
         )
         self.oci = OCIUmoci()
@@ -165,6 +165,9 @@ class TestOCIUmoci:
         mock_datetime.utcnow = Mock(
             return_value=strftime
         )
+        mock_datetime.fromtimestamp = Mock(
+            return_value=strftime
+        )
         oci = OCIUmoci()
         oci.set_config(oci_config)
         mock_Command_run.assert_called_once_with(
@@ -182,7 +185,7 @@ class TestOCIUmoci:
         )
 
     @patch('kiwi.oci_tools.umoci.Command.run')
-    def test_set_config_dervied_image(self, mock_Command_run):
+    def test_set_config_derived_image(self, mock_Command_run):
         self.oci.set_config({'container_tag': 'tag'})
         mock_Command_run.assert_called_once_with([
             'umoci', 'config', '--no-history',
