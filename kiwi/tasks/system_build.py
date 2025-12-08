@@ -35,6 +35,7 @@ usage: kiwi-ng system build -h | --help
            [--set-type-attr=<attribute=value>...]
            [--set-release-version=<version>]
            [--signing-key=<key-file>...]
+           [--ca-certificates=<directory>]
        kiwi-ng system build help
 
 commands:
@@ -116,6 +117,9 @@ options:
         includes the key-file as a trusted key for package manager validations
     --target-dir=<directory>
         the target directory to store the system image file(s)
+    --ca-certificates=<directory>
+        includes additional CA certificates to import immediately after
+        bootstrap and make available during the build process.
 """
 import os
 import logging
@@ -254,6 +258,11 @@ class SystemBuildTask(CliTask):
 
         self.run_checks(self.checks_after_command_args)
 
+        # Prioritise CLI option over runtime configuration for CA certificates
+        ca_certs_path = self.command_args['--ca-certificates']
+        if not ca_certs_path:
+            ca_certs_path = self.runtime_config.get_ca_certificates_path()
+
         log.info('Preparing new root system')
         with SystemPrepare(
             self.xml_state,
@@ -278,6 +287,9 @@ class SystemBuildTask(CliTask):
 
                 # call post_bootstrap.sh script if present
                 setup.call_post_bootstrap_script()
+
+                # Setup custom CA certificates after bootstrap package install
+                system.setup_ca_certificates(ca_certs_path)
 
                 system.install_system(
                     manager

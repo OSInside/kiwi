@@ -110,6 +110,10 @@ global options for services: image, system
         Basename of kiwi file which contains the main image
         configuration elements. If not specified kiwi searches for
         a file named config.xml or a file matching *.kiwi
+    --ca-certificates=<directory>
+        Directory of additional CA certificates to be imported during
+        the build. Will be imported immediately after bootstrap, allowing
+        for certificate use during the build process itself (in chroot).
 
 global options for services: image, system
     --target-arch=<name>
