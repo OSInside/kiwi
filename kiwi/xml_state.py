@@ -1840,7 +1840,9 @@ class XMLState:
                 partition_type=partition.get_partition_type() or 't.linux',
                 mountpoint=partition.get_mountpoint(),
                 filesystem=partition.get_filesystem(),
-                label=partition.get_label() or ''
+                label=partition.get_label() or '',
+                partition_number=partition.get_partition_number(),
+                boot_flag=partition.get_boot_flag() or False
             )
         return partitions
 

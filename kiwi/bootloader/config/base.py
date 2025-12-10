@@ -63,6 +63,7 @@ class BootLoaderConfigBase(ABC):
         self.etc_kernel_mount = None
 
         self.root_filesystem_is_overlay = xml_state.build_type.get_overlayroot()
+        self.bootpartition = False
         self.post_init(custom_args)
 
     def __enter__(self):
@@ -522,8 +523,17 @@ class BootLoaderConfigBase(ABC):
             custom_root_mount_args += [f'subvol={root_volume_name}']
         self.root_mount.mount(options=custom_root_mount_args)
 
+        log.debug(f'_mount_system: root_mount.device={self.root_mount.device}, boot_mount.device={self.boot_mount.device}')
         if not self.root_mount.device == self.boot_mount.device:
+            log.debug(f'_mount_system: Mounting boot partition at {self.boot_mount.mountpoint}')
             self.boot_mount.mount()
+            # Update bootpartition flag when boot is on separate partition
+            # This handles custom_part_control where bootpartition attribute
+            # may not be set but a separate boot partition exists
+            log.debug(f'_mount_system: Setting bootpartition=True (was {self.bootpartition})')
+            self.bootpartition = True
+        else:
+            log.debug('_mount_system: Boot is on root partition (same device)')
 
         if volumes:
             for volume_path in Path.sort_by_hierarchy(

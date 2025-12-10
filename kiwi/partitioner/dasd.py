@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -47,7 +47,8 @@ class PartitionerDasd(PartitionerBase):
         }
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = None
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = None,
+        explicit_partition_id: Optional[int] = None
     ) -> None:
         """
         Create DASD partition
@@ -56,6 +57,7 @@ class PartitionerDasd(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: unused
         :param list flags: unused
+        :param int explicit_partition_id: unused for DASD
         """
         self.partition_id += 1
         fdasd_input = Temporary().new_file()

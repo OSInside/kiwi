@@ -2567,9 +2567,10 @@ structure</a:documentation>
         <sch:param name="attr" value="filesystem"/>
         <sch:param name="types" value="oem pxe kis iso"/>
       </sch:pattern>
-      <sch:pattern id="filesystem_mandatory" is-a="image_type_requirement">
-        <sch:param name="attr" value="filesystem"/>
-        <sch:param name="types" value="oem"/>
+      <sch:pattern id="filesystem_mandatory">
+        <sch:rule context="type[contains('oem', @image) and not(@custom_part_control='true')]">
+          <sch:assert test="@filesystem">filesystem attribute must be set for the following image types: oem</sch:assert>
+        </sch:rule>
       </sch:pattern>
     </define>
     <define name="k.type.erofscompression.attribute">
@@ -3392,6 +3393,17 @@ for all target image files at call time of:
 kiwi-ng result bundle ...</a:documentation>
       </attribute>
     </define>
+    <define name="k.type.custom_part_control.attribute">
+      <attribute name="custom_part_control">
+        <a:documentation>Enable custom partition control
+When set to "true", allows explicit partition numbering
+and ordering via partition_number and boot_flag attributes</a:documentation>
+        <choice>
+          <value>true</value>
+          <value>false</value>
+        </choice>
+      </attribute>
+    </define>
     <define name="k.type.attlist">
       <interleave>
         <optional>
@@ -3663,6 +3675,9 @@ kiwi-ng result bundle ...</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.bundle_format.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.custom_part_control.attribute"/>
         </optional>
       </interleave>
     </define>
@@ -4005,7 +4020,7 @@ scsi CD or an ide CD drive</a:documentation>
   <div>
     <sch:pattern abstract="true" id="partition_name_type">
       <sch:rule context="partition[@name]">
-        <sch:assert test="not(contains('$reserved', @name))">partition(name) is reserved Reserved names are '$reserved'</sch:assert>
+        <sch:assert test="not(contains('$reserved', @name)) or ../../@custom_part_control='true'">partition(name) is reserved Reserved names are '$reserved' (unless custom_part_control='true')</sch:assert>
       </sch:rule>
     </sch:pattern>
     <define name="k.partition.name.attribute">
@@ -4033,9 +4048,16 @@ add "M" and/or "G" as postfix</a:documentation>
     <define name="k.partition.partition_type.attribute">
       <attribute name="partition_type">
         <a:documentation>Partition type name in the context of kiwi
-Allowed values are: t.linux</a:documentation>
+Allowed values are: t.linux (default), t.efi (EFI System Partition),
+t.csm (BIOS boot), t.prep (PowerPC PReP boot), t.swap (Linux swap),
+t.lvm (Linux LVM), t.raid (Linux RAID)</a:documentation>
         <choice>
           <value>t.linux</value>
+          <value>t.efi</value>
+          <value>t.csm</value>
+          <value>t.prep</value>
+          <value>t.swap</value>
+          <value>t.lvm</value>
           <value>t.raid</value>
         </choice>
       </attribute>
@@ -4077,6 +4099,22 @@ Allowed values are: t.linux</a:documentation>
         <a:documentation>filesystem label</a:documentation>
       </attribute>
     </define>
+    <define name="k.partition.partition_number.attribute">
+      <attribute name="partition_number">
+        <a:documentation>Explicit partition number for custom partition control
+When custom_part_control="true" on the type element,
+this attribute specifies the partition number (1-128 for MBR, 1+ for GPT)</a:documentation>
+        <data type="positiveInteger"/>
+      </attribute>
+    </define>
+    <define name="k.partition.boot_flag.attribute">
+      <attribute name="boot_flag">
+        <a:documentation>Set partition as bootable when custom_part_control="true"
+Only one partition should have boot_flag="true"
+Only applicable to partition_type t.linux or t.prep</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+    </define>
     <define name="k.partition.attlist">
       <interleave>
         <ref name="k.partition.name.attribute"/>
@@ -4095,6 +4133,12 @@ Allowed values are: t.linux</a:documentation>
         </optional>
         <optional>
           <ref name="k.partition.label.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.partition_number.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.partition.boot_flag.attribute"/>
         </optional>
         <optional>
           <ref name="k.partition.clone.attribute"/>
