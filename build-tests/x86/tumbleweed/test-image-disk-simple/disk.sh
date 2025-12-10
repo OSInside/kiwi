@@ -2,6 +2,4 @@
 
 set -ex
 
-env | grep kiwi
-
 findmnt /

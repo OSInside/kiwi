@@ -893,11 +893,24 @@ class TestSystemSetup:
     @patch('os.stat')
     @patch('os.access')
     @patch('copy.deepcopy')
+    @patch('kiwi.system.setup.MountManager')
     def test_call_disk_script(
-        self, mock_copy_deepcopy, mock_access, mock_stat, mock_os_path,
-        mock_watch, mock_command, mock_Profile, mock_getLogFlags,
-        mock_is_buildservice_worker, mock_setup_selinux_file_contexts
+        self,
+        mock_MountManager,
+        mock_copy_deepcopy,
+        mock_access,
+        mock_stat,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile,
+        mock_getLogFlags,
+        mock_is_buildservice_worker,
+        mock_setup_selinux_file_contexts
     ):
+        chroot_mount = Mock()
+        chroot_mount.is_mounted.return_value = False
+        mock_MountManager.return_value = chroot_mount
         mock_is_buildservice_worker.return_value = False
         mock_getLogFlags.return_value = {
             'run-scripts-in-screen': True
@@ -923,6 +936,10 @@ class TestSystemSetup:
             ], {}
         )
         mock_setup_selinux_file_contexts.assert_called_once_with()
+        mock_MountManager.assert_called_once_with(
+            device='root_dir', mountpoint='root_dir'
+        )
+        chroot_mount.bind_mount.assert_called_once_with()
 
     @patch.object(SystemSetup, 'setup_selinux_file_contexts')
     @patch('kiwi.system.setup.Defaults.is_buildservice_worker')
