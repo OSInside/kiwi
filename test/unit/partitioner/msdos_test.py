@@ -217,3 +217,20 @@ class TestPartitionerMsDos:
         assert m_open.return_value.write.call_args_list == [
             call('d\n1\nn\np\n1\n4096\n\nw\nq\n')
         ]
+
+    @patch('kiwi.partitioner.msdos.Command.run')
+    @patch('kiwi.partitioner.msdos.PartitionerMsDos._create_primary')
+    def test_create_with_explicit_partition_id(self, mock_create_primary, mock_command):
+        """Test create with explicit_partition_id (custom_part_control)"""
+        device_provider = Mock()
+        device_provider.get_device.return_value = '/dev/loop0'
+        partitioner = PartitionerMsDos(device_provider)
+
+        # Create partition with explicit ID (lines 78, 87 exercised)
+        partitioner.create('test_part', 100, 't.linux', explicit_partition_id=3)
+
+        # Verify partition_id was set to explicit_partition_id - 1
+        assert partitioner.partition_id == 2
+
+        # Verify _create_primary was called directly (bypassing extended_layout logic)
+        mock_create_primary.assert_called_once_with('test_part', 100, 't.linux', [])

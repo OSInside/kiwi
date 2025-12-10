@@ -271,6 +271,66 @@ class DiskBuilder:
         if not self.boot_image.has_initrd_support():
             log.warning('Building without initrd support !')
 
+    def _has_custom_partition_control(self) -> bool:
+        """
+        Check if custom partition control is enabled
+
+        Custom partition control is enabled when the <type> element has
+        the custom_part_control="true" attribute.
+
+        :return: True if custom partition control is enabled
+
+        :rtype: bool
+        """
+        return self.xml_state.build_type.get_custom_part_control() is not None and \
+            str(self.xml_state.build_type.get_custom_part_control()).lower() == 'true'
+
+    def _validate_custom_partition_control_config(self) -> None:
+        """
+        Validate that auto-partition attributes are not mixed with custom control
+
+        KIWI supports two partition control modes:
+
+        1. Auto-partition mode (default): KIWI automatically creates partitions
+           based on attributes like bootpartition, bootpartsize, efipartsize, etc.
+
+        2. Custom partition control mode: When custom_part_control="true" is set,
+           users explicitly define all partitions via <partition> elements with
+           partition_number attributes.
+
+        These modes are mutually exclusive. When custom_part_control="true",
+        auto-partition attributes are not allowed as they would conflict with
+        the explicit partition definitions.
+
+        :raises KiwiDiskConfigError: If auto-partition attributes are found
+
+        :rtype: None
+        """
+        from kiwi.exceptions import KiwiDiskConfigError
+
+        build_type = self.xml_state.build_type
+
+        # Auto-partition attributes that conflict with custom_part_control
+        # These attributes instruct KIWI to automatically create partitions,
+        # which conflicts with explicit partition control via <partition> elements
+        auto_partition_attributes = {
+            'bootpartition': build_type.get_bootpartition(),
+            'bootpartsize': build_type.get_bootpartsize(),
+            'efipartsize': build_type.get_efipartsize(),
+            'spare_part': build_type.get_spare_part()
+        }
+
+        # Check for any auto-partition attributes that are set
+        for attr_name, attr_value in auto_partition_attributes.items():
+            if attr_value is not None:
+                raise KiwiDiskConfigError(
+                    f'custom_part_control="true" requires all partitions to be '
+                    f'defined via <partition> elements. The attribute "{attr_name}" '
+                    f'cannot be used with custom_part_control as it instructs KIWI '
+                    f'to auto-create partitions. Please define this partition '
+                    f'explicitly in <partitions> with a partition_number attribute.'
+                )
+
     def create(self) -> Result:
         """
         Build a bootable disk image and optional installation image
@@ -667,8 +727,14 @@ class DiskBuilder:
         )
 
         # create filesystems on boot partition(s) if any
-        self.storage_map['system_boot'], self.storage_map['system_efi'] = \
-            self._build_boot_filesystems(device_map)
+        # Skip when custom_part_control is enabled - filesystems already created per-partition
+        if not self._has_custom_partition_control():
+            self.storage_map['system_boot'], self.storage_map['system_efi'] = \
+                self._build_boot_filesystems(device_map)
+        else:
+            # Custom partitions already have filesystems created
+            self.storage_map['system_boot'] = None
+            self.storage_map['system_efi'] = None
 
         if self.volume_manager_name:
             volume_manager = VolumeManager.new(
@@ -681,7 +747,8 @@ class DiskBuilder:
             device_map = self._map_root_volume_manager(
                 device_map, volume_manager
             )
-        elif self.need_root_filesystem:
+        elif self.need_root_filesystem and not self._has_custom_partition_control():
+            # Skip when custom_part_control is enabled - root filesystem already created per-partition
             filesystem = FileSystem.new(
                 self.requested_filesystem, device_map['root'],
                 self.root_dir + '/',
@@ -689,6 +756,12 @@ class DiskBuilder:
             )
             stack.push(filesystem)
             self._map_root_filesystem(device_map, filesystem)
+        elif self._has_custom_partition_control():
+            # For custom partition control, get root filesystem from custom parts
+            # This is required for bootloader installation which checks 'if system:'
+            if 'root' in self.storage_map.get('system_custom_parts', {}):
+                self.storage_map['system'] = \
+                    self.storage_map['system_custom_parts']['root']
 
         return device_map
 
@@ -1168,6 +1241,31 @@ class DiskBuilder:
     ) -> Dict:
         disk.wipe()
         disksize_used_mbytes = 0
+
+        # Check if custom partition control is enabled
+        if self._has_custom_partition_control():
+            # Validate that auto-partition attributes are not mixed with custom control
+            self._validate_custom_partition_control_config()
+
+            # Use custom partition control
+            log.info('--> using custom partition control')
+            log.info(
+                '--> creating custom partition(s): {0}'.format(
+                    list(self.custom_partitions.keys())
+                )
+            )
+            disk.create_custom_partitions(
+                self.custom_partitions, custom_part_control=True
+            )
+            disk.map_partitions()
+
+            device_map = disk.get_device()
+            device_map['origin_root'] = \
+                device_map.get('readonly') or device_map['root']
+
+            return device_map
+
+        # Standard partition creation flow (backwards compatible)
         if self.firmware.get_legacy_bios_partition_size():
             log.info('--> creating EFI CSM(legacy bios) partition')
             partition_mbsize = self.firmware.get_legacy_bios_partition_size()
@@ -1918,8 +2016,12 @@ class DiskBuilder:
             readonly_device = device_map['readonly']
             boot_device = readonly_device
 
+        log.debug(f'_install_bootloader: device_map keys={list(device_map.keys())}')
         if 'boot' in device_map:
             boot_device = device_map['boot']
+            log.debug(f'_install_bootloader: Using separate boot device: {boot_device.get_device()}')
+        else:
+            log.debug(f'_install_bootloader: boot not in device_map, using root: {boot_device.get_device()}')
 
         custom_install_arguments = {
             'boot_image': boot_image,

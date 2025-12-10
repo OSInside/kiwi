@@ -1736,9 +1736,15 @@ div {
             sch:param [ name = "types" value = "oem pxe kis iso" ]
         ]
         >> sch:pattern [
-            id = "filesystem_mandatory" is-a = "image_type_requirement"
-            sch:param [ name = "attr" value = "filesystem" ]
-            sch:param [ name = "types" value = "oem" ]
+            id = "filesystem_mandatory"
+            sch:rule [
+                context = "type[contains('oem', @image) and not(@custom_part_control='true')]"
+                sch:assert [
+                    test = "@filesystem"
+                    "filesystem attribute must be set for the following "
+                    "image types: oem"
+                ]
+            ]
         ]
 	k.type.erofscompression.attribute =
         ## Specifies the compression type for erofs
@@ -2345,6 +2351,11 @@ div {
         ## for all target image files at call time of:
         ## kiwi-ng result bundle ...
         attribute bundle_format { text }
+    k.type.custom_part_control.attribute =
+        ## Enable custom partition control
+        ## When set to "true", allows explicit partition numbering
+        ## and ordering via partition_number and boot_flag attributes
+        attribute custom_part_control { "true" | "false" }
     k.type.attlist =
         ## Specifies the image type
         k.type.boot.attribute? &
@@ -2436,7 +2447,8 @@ div {
         k.type.disk_start_sector.attribute? &
         k.type.root_clone.attribute? &
         k.type.boot_clone.attribute? &
-        k.type.bundle_format.attribute?
+        k.type.bundle_format.attribute? &
+        k.type.custom_part_control.attribute?
     k.type =
         ## The Image Type of the Logical Extend
         element type {
@@ -2633,9 +2645,9 @@ div {
         sch:rule [
             context = "partition[@name]"
             sch:assert [
-                test = "not(contains('$reserved', @name))"
+                test = "not(contains('$reserved', @name)) or ../../@custom_part_control='true'"
                 "partition(name) is reserved "
-                "Reserved names are '$reserved'"
+                "Reserved names are '$reserved' (unless custom_part_control='true')"
             ]
         ]
     ]
@@ -2677,6 +2689,16 @@ div {
     k.partition.label.attribute =
         ## filesystem label
         attribute label { text }
+    k.partition.partition_number.attribute =
+        ## Explicit partition number for custom partition control
+        ## When custom_part_control="true" on the type element,
+        ## this attribute specifies the partition number (1-128 for MBR, 1+ for GPT)
+        attribute partition_number { xsd:positiveInteger }
+    k.partition.boot_flag.attribute =
+        ## Set partition as bootable when custom_part_control="true"
+        ## Only one partition should have boot_flag="true"
+        ## Only applicable to partition_type t.linux or t.prep
+        attribute boot_flag { xsd:boolean }
     k.partition.attlist =
         k.partition.name.attribute &
         k.partition.size.attribute &
@@ -2685,6 +2707,8 @@ div {
         k.partition.mountpoint.attribute? &
         k.partition.filesystem.attribute? &
         k.partition.label.attribute? &
+        k.partition.partition_number.attribute? &
+        k.partition.boot_flag.attribute? &
         k.partition.clone.attribute?
     k.partition =
         ## Specify custom partition in the partition table

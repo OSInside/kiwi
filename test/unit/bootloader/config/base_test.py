@@ -448,6 +448,55 @@ class TestBootLoaderConfigBase:
         boot_mount.umount.assert_called_once_with()
         root_mount.umount.assert_called_once_with()
 
+    @patch('kiwi.bootloader.config.base.MountManager')
+    def test_mount_system_sets_bootpartition_flag(self, mock_MountManager):
+        """Test that bootpartition flag is set when boot is on separate partition"""
+        root_mount = MagicMock()
+        root_mount.mountpoint = 'root_mount_point'
+        root_mount.device = 'rootdev'
+        boot_mount = MagicMock()
+        boot_mount.device = 'bootdev'  # Different from root
+        proc_mount = MagicMock()
+        sys_mount = MagicMock()
+        dev_mount = MagicMock()
+
+        mount_managers = [proc_mount, sys_mount, dev_mount, boot_mount, root_mount]
+
+        def mount_managers_effect(**args):
+            return mount_managers.pop()
+
+        mock_MountManager.side_effect = mount_managers_effect
+
+        with BootLoaderConfigTestImpl(self.state, 'root_dir') as bootloader:
+            bootloader.bootpartition = None  # Add attribute so hasattr returns True
+            bootloader._mount_system('rootdev', 'bootdev')
+            # bootpartition should be set to True when boot is separate
+            assert bootloader.bootpartition is True
+
+    @patch('kiwi.bootloader.config.base.MountManager')
+    def test_mount_system_boot_on_root(self, mock_MountManager):
+        """Test mount_system when boot is on root partition (same device)"""
+        root_mount = MagicMock()
+        root_mount.mountpoint = 'root_mount_point'
+        root_mount.device = 'rootdev'
+        boot_mount = MagicMock()
+        boot_mount.device = 'rootdev'  # Same as root - boot is on root partition
+        proc_mount = MagicMock()
+        sys_mount = MagicMock()
+        dev_mount = MagicMock()
+
+        mount_managers = [proc_mount, sys_mount, dev_mount, boot_mount, root_mount]
+
+        def mount_managers_effect(**args):
+            return mount_managers.pop()
+
+        mock_MountManager.side_effect = mount_managers_effect
+
+        with BootLoaderConfigTestImpl(self.state, 'root_dir') as bootloader:
+            bootloader._mount_system('rootdev', 'rootdev')
+            # boot_mount.mount should NOT be called when devices are same
+            boot_mount.mount.assert_not_called()
+
     def test_write_meta_data(self):
         # just pass
         self.bootloader.write_meta_data()

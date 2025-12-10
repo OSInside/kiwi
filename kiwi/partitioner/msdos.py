@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -56,7 +56,8 @@ class PartitionerMsDos(PartitionerBase):
         }
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = []
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
+        explicit_partition_id: Optional[int] = None
     ) -> None:
         """
         Create msdos partition
@@ -65,8 +66,25 @@ class PartitionerMsDos(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: partition type
         :param list flags: additional flags
+        :param int explicit_partition_id:
+            If provided, use this exact partition ID instead of auto-incrementing.
+            Presence of explicit_partition_id indicates custom_part_control is
+            enabled, which means user has explicit control over partition layout.
+            In this case, extended_layout logic is bypassed.
         """
-        if self.extended_layout:
+        # Set explicit partition ID if provided (used before incrementing in helpers)
+        if explicit_partition_id is not None:
+            self.partition_id = explicit_partition_id - 1
+
+        # IMPLICIT CONNECTION TO custom_part_control:
+        # When explicit_partition_id is not None, it means custom_part_control=true
+        # in the disk/builder layer. In this case, bypass extended_layout logic because
+        # the user has explicit control over all partition numbering and layout.
+        if explicit_partition_id is not None:
+            # Custom partition control mode: user has explicit control
+            # Bypass extended layout logic - create partition directly
+            self._create_primary(name, mbsize, type_name, flags)
+        elif self.extended_layout:
             if self.partition_id < 3:
                 # in primary boundary
                 self._create_primary(name, mbsize, type_name, flags)

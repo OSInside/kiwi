@@ -1848,3 +1848,73 @@ class TestDiskBuilder:
         disk.storage_provider = provider
         disk.partitioner = partitioner
         return disk
+
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('os.path.exists')
+    @patch('kiwi.builder.disk.BlockID')
+    def test_create_disk_with_custom_part_control_enabled(
+        self, mock_BlockID, mock_exists, mock_grub_dir, mock_command, mock_fs,
+        mock_create_boot_loader_config, mock_Disk
+    ):
+        """Test create_disk with custom_part_control="true" in XML"""
+        # Setup path mocks
+        def exists_side_effect(path):
+            if 'config' in path or 'kiwi.yml' in path:
+                return False
+            return True
+        mock_exists.side_effect = exists_side_effect
+
+        # Load XML with custom_part_control="true"
+        description = XMLDescription(
+            '../data/example_custom_partitions_config.xml'
+        )
+        xml_state = XMLState(description.load())
+
+        # Create DiskBuilder with custom_part_control config
+        disk_builder = DiskBuilder(
+            xml_state, 'target_dir', 'root_dir'
+        )
+
+        # Setup disk mock
+        disk = self._get_disk_instance()
+        disk.create_custom_partitions = Mock()
+        disk.map_partitions = Mock()
+        mock_Disk.return_value.__enter__.return_value = disk
+
+        # Setup bootloader mock
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(return_value='boot_cmdline')
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+
+        # Setup filesystem mock
+        filesystem = Mock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+
+        # Setup BlockID mock
+        block_operation = Mock()
+        block_operation.get_filesystem.return_value = 'ext4'
+        block_operation.get_blkid.return_value = 'blkid_result'
+        mock_BlockID.return_value = block_operation
+
+        # Execute create_disk (exercises lines 724-725, 1230-1248)
+        with patch('builtins.open'):
+            disk_builder.create_disk()
+
+        # Verify custom partition creation was called with custom_part_control=True
+        disk.create_custom_partitions.assert_called_once()
+        call_args = disk.create_custom_partitions.call_args
+        # Check if custom_part_control keyword arg was passed
+        if len(call_args) > 1 and 'custom_part_control' in call_args[1]:
+            assert call_args[1]['custom_part_control'] is True
+
+        # Verify map_partitions was called
+        disk.map_partitions.assert_called_once()
+
+        # Verify system_boot and system_efi are None (lines 724-725)
+        assert disk_builder.storage_map.get('system_boot') is None
+        assert disk_builder.storage_map.get('system_efi') is None

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<image schemaversion="8.4" name="custom-partition-example">
+    <description type="system">
+        <author>Kiwi Team</author>
+        <contact>https://github.com/OSInside/kiwi</contact>
+        <specification>
+            Example configuration demonstrating custom partition control feature.
+
+            This example shows how to use the custom_part_control="true" attribute
+            to gain explicit control over partition numbering and ordering.
+
+            Key features demonstrated:
+            - Root partition physically last on disk but numbered as partition 1
+            - EFI partition numbered 127
+            - Boot partition numbered 128
+            - Custom partitions with explicit ordering based on XML element sequence
+            - Boot flag assignment via explicit boot_flag attribute
+        </specification>
+    </description>
+    <preferences>
+        <type image="vmx" kernelcmdline="quiet"
+              custom_part_control="true" firmware="efi">
+            <oemconfig>
+                <oem-systemsize>2048</oem-systemsize>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <machine memory="512" guestcpus="1">
+                <vmdisk>
+                    <controller type="scsi" number="0"/>
+                </vmdisk>
+                <vmnic driver="virtio" interface=""/>
+            </machine>
+            <partitions>
+                <!--
+                    Custom Partition Control Example
+
+                    When custom_part_control="true" is set on the <type> element,
+                    the system allows you to:
+
+                    1. Use reserved partition names (root, boot, efi, etc.)
+                    2. Specify explicit partition numbers via partition_number attribute
+                    3. Control disk order via XML element sequence (first element = created first)
+                    4. Set boot flags via explicit boot_flag="true" attribute
+
+                    NOTE: With custom_part_control="true", the following auto-partition
+                    attributes cannot be used (they instruct KIWI to auto-create
+                    partitions which conflicts with explicit partition control):
+                    - bootpartition
+                    - bootpartsize
+                    - efipartsize
+                    - spare_part
+                -->
+
+                <!--
+                    EFI Partition - created first on disk, numbered as partition 127
+                    Standard EFI system partition for UEFI firmware
+                -->
+                <partition name="efi" size="100" partition_number="127"
+                           partition_type="t.efi" boot_flag="false" label="EFI"/>
+
+                <!--
+                    Boot Partition - created second on disk, numbered as partition 128
+                    Standard linux boot partition with boot flag set
+                -->
+                <partition name="boot" size="1024" partition_number="128"
+                           partition_type="t.linux" boot_flag="true" label="Boot"/>
+
+                <!--
+                    Custom /var Partition - created third on disk, numbered as partition 2
+                    Example of a custom partition with explicit numbering and ordering
+                -->
+                <partition name="var" size="2000" partition_number="2"
+                           partition_type="t.linux" boot_flag="false" label="Var"/>
+
+                <!--
+                    Root Partition - created LAST on disk, but numbered as partition 1
+
+                    This demonstrates the main feature of custom partition control:
+                    we can have the root partition physically last on the disk while
+                    still numbering it as partition 1. This is useful for backup and
+                    recovery scenarios where you want the root partition to be at a
+                    fixed partition number.
+
+                    Note the order in the XML: this element is last, so it will be
+                    created last on disk. But partition_number="1" ensures it is
+                    numbered as partition 1.
+                -->
+                <partition name="root" size="10000" partition_number="1"
+                           partition_type="t.linux" boot_flag="false" label="Root"/>
+            </partitions>
+        </type>
+    </preferences>
+    <repository type="apt-deb">
+        <source path="obs://Debian:Testing/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="grub2"/>
+        <package name="grub2-x86_64-efi"/>
+        <package name="kernel-image-generic"/>
+        <package name="initramfs-tools"/>
+    </packages>
+</image>

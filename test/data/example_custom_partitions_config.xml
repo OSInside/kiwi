@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="8.4" name="TestCustomPartitions">
+    <description type="system">
+        <author>Kiwi Team</author>
+        <contact>https://github.com/OSInside/kiwi</contact>
+        <specification>
+            Test custom partition control with partition_number and boot_flag attributes
+        </specification>
+    </description>
+    <preferences>
+        <version>1.0.0</version>
+        <packagemanager>zypper</packagemanager>
+        <type image="oem" filesystem="ext3" installiso="true" kernelcmdline="splash" firmware="efi" custom_part_control="true">
+            <partitions>
+                <partition name="custom_efi" size="100" mountpoint="/boot/efi" filesystem="fat32" partition_number="127" partition_type="t.efi" boot_flag="false" label="EFI"/>
+                <partition name="custom_boot" size="1024" mountpoint="/boot" filesystem="ext4" partition_number="128" partition_type="t.linux" boot_flag="true" label="Boot"/>
+                <partition name="custom_var" size="2000" mountpoint="/var" filesystem="ext4" partition_number="2" partition_type="t.linux" label="Var"/>
+                <partition name="custom_root" size="10000" mountpoint="/" filesystem="ext4" partition_number="1" partition_type="t.linux" label="Root"/>
+            </partitions>
+        </type>
+    </preferences>
+    <repository>
+        <source path="obs://13.2/repo/oss"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-openSUSE-base"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+    </packages>
+</image>

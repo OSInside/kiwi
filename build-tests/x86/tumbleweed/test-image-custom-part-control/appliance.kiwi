@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="8.4" name="kiwi-test-image-custom-part-control" displayname="Custom Partition Control">
+    <description type="system">
+        <author>KIWI Team</author>
+        <contact>kiwi-images@googlegroups.com</contact>
+        <specification>
+            Test image for custom_part_control feature.
+            Validates custom partition ordering and numbering:
+            - EFI partition: partition_number=42 (first on disk)
+            - Var partition: partition_number=7 (second on disk)
+            - Root partition: partition_number=1 (last on disk)
+        </specification>
+    </description>
+    <preferences>
+        <version>1.0.0</version>
+        <packagemanager>zypper</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>Europe/Berlin</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <bootsplash-theme>breeze</bootsplash-theme>
+        <bootloader-theme>openSUSE</bootloader-theme>
+        <type image="oem" filesystem="ext4" kernelcmdline="console=ttyS0" firmware="uefi" eficsm="false" custom_part_control="true">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" timeout="10"/>
+            <size unit="G">16</size>
+            <partitions>
+                <!-- EFI partition: first on disk, numbered 42 -->
+                <partition name="efi" size="100" filesystem="fat32" mountpoint="/boot/efi" partition_number="42" partition_type="t.efi"/>
+                <!-- Var partition: second on disk, numbered 7 -->
+                <partition name="var" size="2000" filesystem="ext4" mountpoint="/var" partition_number="7" partition_type="t.linux"/>
+                <!-- Root partition: last on disk, numbered 1 -->
+                <partition name="root" size="10000" filesystem="ext4" mountpoint="/" partition_number="1" partition_type="t.linux"/>
+            </partitions>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" alias="Tumbleweed-OSS" priority="1">
+        <source path="https://download.opensuse.org/tumbleweed/repo/oss/"/>
+    </repository>
+    <repository type="rpm-md" alias="Tumbleweed-Update" priority="2">
+        <source path="https://download.opensuse.org/update/tumbleweed/"/>
+    </repository>
+    <packages type="image">
+        <package name="patterns-base-minimal_base"/>
+        <package name="bind-utils"/>
+        <package name="systemd"/>
+        <package name="plymouth-theme-breeze"/>
+        <package name="plymouth-plugin-script"/>
+        <package name="grub2-branding-openSUSE"/>
+        <package name="iputils"/>
+        <package name="vim"/>
+        <package name="grub2"/>
+        <package name="grub2-x86_64-efi" arch="x86_64"/>
+        <package name="grub2-i386-pc"/>
+        <package name="lvm2"/>
+        <package name="plymouth"/>
+        <package name="fontconfig"/>
+        <package name="fonts-config"/>
+        <package name="tar"/>
+        <package name="parted"/>
+        <package name="openssh"/>
+        <package name="iproute2"/>
+        <package name="less"/>
+        <package name="bash-completion"/>
+        <package name="dhcp-client"/>
+        <package name="which"/>
+        <package name="kernel-default"/>
+        <package name="shim"/>
+        <package name="timezone"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
+        <package name="udev"/>
+        <package name="xz"/>
+        <package name="shadow"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="openSUSE-release"/>
+    </packages>
+</image>

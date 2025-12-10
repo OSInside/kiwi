@@ -1575,6 +1575,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                         vendor_grubenv.write(grubenv)
 
     def _fix_grub_loader_entries_boot_cmdline(self):
+        log.debug(f'_fix_grub_loader_entries_boot_cmdline: cmdline={self.cmdline!r}')
         if self.cmdline:
             # For distributions that follows the bootloader spec here:
             # https://www.freedesktop.org/wiki/Specifications/BootLoaderSpec
@@ -1595,7 +1596,10 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                     'boot', 'loader', 'entries', '*.conf'
                 ]
             )
-            for menu_entry_file in glob.iglob(loader_entries_pattern):
+            log.debug(f'BLS entries pattern: {loader_entries_pattern}')
+            entries_found = list(glob.iglob(loader_entries_pattern))
+            log.debug(f'BLS entries found: {entries_found}')
+            for menu_entry_file in entries_found:
                 with open(menu_entry_file) as grub_menu_entry_file:
                     menu_entry = grub_menu_entry_file.read()
                     menu_entry = re.sub(
@@ -1614,13 +1618,17 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         # For the same reasons encoded in _fix_grub_loader_entries_boot_cmdline
         # this method exists. In this method the wrong paths to the linux
         # kernel and initrd gets fixed
+        log.debug(f'_fix_grub_loader_entries_linux_and_initrd_paths: bootpartition={self.bootpartition}')
         loader_entries_pattern = os.sep.join(
             [
                 self.root_mount.mountpoint,
                 'boot', 'loader', 'entries', '*.conf'
             ]
         )
-        for menu_entry_file in glob.iglob(loader_entries_pattern):
+        log.debug(f'BLS path fix pattern: {loader_entries_pattern}')
+        entries_found = list(glob.iglob(loader_entries_pattern))
+        log.debug(f'BLS path fix entries found: {entries_found}')
+        for menu_entry_file in entries_found:
             with open(menu_entry_file) as grub_menu_entry_file:
                 menu_entry = grub_menu_entry_file.read().split(os.linesep)
 

@@ -251,6 +251,14 @@ class KiwiDiskGeometryError(KiwiError):
     """
 
 
+class KiwiDiskConfigError(KiwiError):
+    """
+    Exception raised if the disk configuration is invalid,
+    such as when auto-partition control attributes are mixed
+    with custom_part_control mode.
+    """
+
+
 class KiwiDistributionNameError(KiwiError):
     """
     Exception raised if the distribution name could not be found.

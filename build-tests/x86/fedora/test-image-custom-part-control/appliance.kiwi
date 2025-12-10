@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="8.4" name="kiwi-test-image-custom-part-control-fedora">
+    <description type="system">
+        <author>KIWI Team</author>
+        <contact>kiwi-images@googlegroups.com</contact>
+        <specification>
+            Test image for custom_part_control feature on Fedora.
+            Validates custom partition ordering and numbering with non-sequential numbers:
+            - EFI partition: partition_number=55 (first on disk)
+            - Boot partition: partition_number=101 (second on disk, boot_flag=true)
+            - Var partition: partition_number=13 (third on disk)
+            - Root partition: partition_number=1 (last on disk)
+        </specification>
+    </description>
+    <preferences>
+        <version>1.0.0</version>
+        <packagemanager>dnf4</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <bootsplash-theme>charge</bootsplash-theme>
+        <bootloader-theme>breeze</bootloader-theme>
+        <type image="oem" kernelcmdline="console=ttyS0" firmware="uefi" eficsm="false" custom_part_control="true">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" timeout="10"/>
+            <size unit="G">18</size>
+            <partitions>
+                <!-- EFI partition: first on disk, numbered 55 -->
+                <partition name="efi" size="100" filesystem="fat32" mountpoint="/boot/efi" partition_number="55" partition_type="t.efi" boot_flag="false"/>
+                <!-- Boot partition: second on disk, numbered 101, bootable -->
+                <partition name="boot" size="1024" filesystem="ext4" mountpoint="/boot" partition_number="101" partition_type="t.linux" boot_flag="true"/>
+                <!-- Var partition: third on disk, numbered 13 -->
+                <partition name="var" size="2000" filesystem="ext4" mountpoint="/var" partition_number="13" partition_type="t.linux"/>
+                <!-- Root partition: last on disk, numbered 1 -->
+                <partition name="root" size="10000" filesystem="ext4" mountpoint="/" partition_number="1" partition_type="t.linux"/>
+            </partitions>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md" alias="Fedora39" sourcetype="metalink">
+        <source path="https://mirrors.fedoraproject.org/metalink?repo=fedora-39&amp;arch=x86_64"/>
+    </repository>
+    <repository type="rpm-md" alias="Fedora39-updates" sourcetype="metalink">
+        <source path="https://mirrors.fedoraproject.org/metalink?repo=updates-released-f39&amp;arch=x86_64"/>
+    </repository>
+    <packages type="image">
+        <package name="grub2"/>
+        <package name="grubby"/>
+        <package name="kernel"/>
+        <package name="plymouth-theme-charge"/>
+        <package name="grub2-breeze-theme"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+        <package name="NetworkManager"/>
+        <package name="openssh-server"/>
+        <package name="parted"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="grub2-efi-x64-modules"/>
+        <package name="grub2-efi-x64"/>
+        <package name="shim" arch="x86_64"/>
+        <package name="fedora-release"/>
+    </packages>
+</image>

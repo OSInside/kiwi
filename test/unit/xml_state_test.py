@@ -1397,3 +1397,70 @@ class TestXMLState:
         assert self.state.btrfs_default_volume_requested() is False
         mock_get_btrfs_set_default_volume.return_value = None
         assert self.state.btrfs_default_volume_requested() is True
+
+    def test_get_partitions_with_custom_part_control(self):
+        """Test get_partitions with custom partition control attributes"""
+        description = XMLDescription(
+            '../data/example_custom_partitions_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        partitions = state.get_partitions()
+
+        # Verify all custom partitions are parsed
+        assert 'custom_efi' in partitions
+        assert 'custom_boot' in partitions
+        assert 'custom_var' in partitions
+        assert 'custom_root' in partitions
+
+        # Verify partition_number attributes are parsed correctly
+        assert partitions['custom_efi'].partition_number == 127
+        assert partitions['custom_boot'].partition_number == 128
+        assert partitions['custom_var'].partition_number == 2
+        assert partitions['custom_root'].partition_number == 1
+
+        # Verify boot_flag attributes are parsed correctly
+        assert partitions['custom_efi'].boot_flag is False
+        assert partitions['custom_boot'].boot_flag is True
+        assert partitions['custom_var'].boot_flag is False
+        assert partitions['custom_root'].boot_flag is False
+
+        # Verify partition_type attributes are parsed correctly
+        assert partitions['custom_efi'].partition_type == 't.efi'
+        assert partitions['custom_boot'].partition_type == 't.linux'
+        assert partitions['custom_var'].partition_type == 't.linux'
+        assert partitions['custom_root'].partition_type == 't.linux'
+
+    def test_get_partitions_with_partition_number_as_string(self):
+        """Test that partition_number is converted to int"""
+        description = XMLDescription(
+            '../data/example_custom_partitions_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        partitions = state.get_partitions()
+
+        # Verify partition numbers are integers
+        assert isinstance(partitions['custom_efi'].partition_number, int)
+        assert isinstance(partitions['custom_boot'].partition_number, int)
+        assert isinstance(partitions['custom_var'].partition_number, int)
+        assert isinstance(partitions['custom_root'].partition_number, int)
+
+    def test_get_partitions_with_boot_flag_parsing(self):
+        """Test boot_flag string parsing (true/false)"""
+        description = XMLDescription(
+            '../data/example_custom_partitions_config.xml'
+        )
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        partitions = state.get_partitions()
+
+        # Verify boot_flag is boolean type
+        assert isinstance(partitions['custom_efi'].boot_flag, bool)
+        assert isinstance(partitions['custom_boot'].boot_flag, bool)
+
+        # Verify only boot partition has boot_flag=True
+        boot_flag_count = sum(
+            1 for p in partitions.values() if p.boot_flag is True
+        )
+        assert boot_flag_count == 1
