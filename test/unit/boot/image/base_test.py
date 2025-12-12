@@ -203,6 +203,40 @@ class TestBootImageBase:
                 kernel_filename='kernel_filename'
             )
 
+    @patch('kiwi.boot.image.base.Kernel')
+    @patch.object(
+        BootImageBase,
+        '_get_boot_image_output_file_format_from_existing_file'
+    )
+    @patch.object(
+        BootImageBase,
+        '_get_boot_image_output_file_format_from_dracut_code'
+    )
+    def test_get_boot_names_from_dracut_dist_config(
+        self,
+        mock_get_boot_image_output_file_format_from_dracut_code,
+        mock_get_boot_image_output_file_format_from_existing_file,
+        mock_Kernel
+    ):
+        mock_Kernel.return_value = self.kernel
+        mock_get_boot_image_output_file_format_from_existing_file.return_value = None
+        mock_get_boot_image_output_file_format_from_dracut_code.return_value = None
+        self.xml_state.get_initrd_system.return_value = 'dracut'
+        self.boot_image.boot_root_directory = 'dist_config_not_existing'
+        assert self.boot_image.get_boot_names() == self.boot_names_type(
+            kernel_name='kernel_name',
+            initrd_name='initramfs-kernel_version.img',
+            kernel_version='kernel_version',
+            kernel_filename='kernel_filename'
+        )
+        self.boot_image.boot_root_directory = '../data'
+        assert self.boot_image.get_boot_names() == self.boot_names_type(
+            kernel_name='kernel_name',
+            initrd_name='initrd-kernel_version',
+            kernel_version='kernel_version',
+            kernel_filename='kernel_filename'
+        )
+
     def test_noop_methods(self):
         self.boot_image.include_module('module')
         self.boot_image.omit_module('module')
