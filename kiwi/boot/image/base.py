@@ -30,6 +30,7 @@ from kiwi.system.identifier import SystemIdentifier
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.path import Path
+from kiwi.utils.sysconfig import SysConfig
 from kiwi.system.kernel import Kernel
 
 from kiwi.exceptions import (
@@ -491,6 +492,10 @@ class BootImageBase:
             outfile_format = \
                 self._get_boot_image_output_file_format_from_dracut_code()
 
+        if not outfile_format:
+            outfile_format = \
+                self._get_boot_image_output_file_format_from_dist_config()
+
         if outfile_format:
             return outfile_format
         else:
@@ -527,5 +532,28 @@ class BootImageBase:
             if not os.path.islink(initrd_file):
                 return os.path.basename(initrd_file).replace(
                     kernel_version, '{kernel_version}'
+                )
+        return None
+
+    def _get_boot_image_output_file_format_from_dist_config(
+        self
+    ) -> Optional[str]:
+        dist_config = SysConfig(
+            os.path.normpath(
+                os.sep.join(
+                    [
+                        self.boot_root_directory,
+                        'usr/lib/dracut/dracut.conf.d/01-dist.conf'
+                    ]
+                )
+            )
+        )
+        initrdname = dist_config.get('initrdname')
+        if initrdname:
+            initrdname_expression = r'"(init.*kernel.*)"'
+            matches = re.findall(initrdname_expression, initrdname)
+            if matches:
+                return matches[0].replace(
+                    '$kernel', '{kernel_version}'
                 )
         return None
