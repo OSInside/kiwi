@@ -30,7 +30,11 @@ from kiwi.system.identifier import SystemIdentifier
 from kiwi.xml_description import XMLDescription
 from kiwi.xml_state import XMLState
 from kiwi.path import Path
+from kiwi.utils.sysconfig import SysConfig
 from kiwi.system.kernel import Kernel
+from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.utils.temporary import Temporary
+from kiwi.command import Command
 
 from kiwi.exceptions import (
     KiwiTargetDirectoryNotFound,
@@ -491,6 +495,12 @@ class BootImageBase:
             outfile_format = \
                 self._get_boot_image_output_file_format_from_dracut_code()
 
+        if not outfile_format:
+            outfile_format = \
+                self._get_boot_image_output_file_format_from_config(
+                    kernel_version
+                )
+
         if outfile_format:
             return outfile_format
         else:
@@ -526,6 +536,27 @@ class BootImageBase:
         for initrd_file in glob.iglob(self.boot_root_directory + '/boot/init*'):
             if not os.path.islink(initrd_file):
                 return os.path.basename(initrd_file).replace(
+                    kernel_version, '{kernel_version}'
+                )
+        return None
+
+    def _get_boot_image_output_file_format_from_config(
+        self, kernel_version: str
+    ) -> Optional[str]:
+        if CommandCapabilities.has_option_in_help(
+            'dracut', '--printconfig', ['--help'],
+            root=self.boot_root_directory, raise_on_error=True
+        ):
+            dracut_call = Command.run(
+                ['chroot', self.boot_root_directory, 'dracut', '--printconfig']
+            )
+            temp_file = Temporary().new_file()
+            with open(temp_file.name, 'w') as config:
+                config.write(dracut_call.output.replace(' ', ''))
+            dracut_config = SysConfig(temp_file.name)
+            initrdname = dracut_config.get('dracutconfig:initrdname')
+            if initrdname:
+                return initrdname.replace(
                     kernel_version, '{kernel_version}'
                 )
         return None
