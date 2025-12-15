@@ -74,6 +74,7 @@ class RootInit:
         """
         root = Temporary(prefix='kiwi_root.').new_dir()
         Path.create(self.root_dir)
+        os.chmod(self.root_dir, 0o755)
         try:
             self._create_base_directories(root.name)
             self._create_base_links(root.name)
