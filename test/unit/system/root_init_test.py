@@ -44,6 +44,7 @@ class TestRootInit:
     @patch('os.chown')
     @patch('os.symlink')
     @patch('os.makedev')
+    @patch('os.chmod')
     @patch('kiwi.path.Path.create')
     @patch('kiwi.system.root_init.copy')
     @patch('kiwi.system.root_init.DataSync')
@@ -51,7 +52,7 @@ class TestRootInit:
     @patch('kiwi.system.root_init.Path.create')
     def test_create(
         self, mock_Path_create, mock_Temporary, mock_data_sync,
-        mock_copy, mock_create, mock_makedev,
+        mock_copy, mock_create, mock_chmod, mock_makedev,
         mock_symlink, mock_chwon, mock_makedirs,
         mock_path
     ):
@@ -107,6 +108,7 @@ class TestRootInit:
             '/.buildenv', 'root_dir'
         )
         mock_create.assert_called_once_with('root_dir')
+        mock_chmod.assert_called_once_with('root_dir', 0o755)
 
     @patch('kiwi.path.Path.wipe')
     @patch('os.path.exists')
