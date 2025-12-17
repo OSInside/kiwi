@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.utils.temporary import Temporary
@@ -56,7 +56,8 @@ class PartitionerMsDos(PartitionerBase):
         }
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = []
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
+        partition_id: Optional[int] = None
     ) -> None:
         """
         Create msdos partition
@@ -65,20 +66,31 @@ class PartitionerMsDos(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: partition type
         :param list flags: additional flags
+        :param int partition_id:
+            If provided, use this exact partition ID instead
+            of auto-incrementing.
         """
         if self.extended_layout:
-            if self.partition_id < 3:
+            if self.partition_count < 3:
                 # in primary boundary
-                self._create_primary(name, mbsize, type_name, flags)
-            elif self.partition_id == 3:
+                self._create_primary(
+                    name, mbsize, type_name, flags, partition_id
+                )
+            elif self.partition_count == 3:
                 # at primary boundary, create extended + logical
                 self._create_extended(name)
-                self._create_logical(name, mbsize, type_name, flags)
-            elif self.partition_id > 3:
+                self._create_logical(
+                    name, mbsize, type_name, flags, partition_id
+                )
+            elif self.partition_count > 3:
                 # in logical boundary
-                self._create_logical(name, mbsize, type_name, flags)
+                self._create_logical(
+                    name, mbsize, type_name, flags, partition_id
+                )
         else:
-            self._create_primary(name, mbsize, type_name, flags)
+            self._create_primary(
+                name, mbsize, type_name, flags, partition_id
+            )
 
     def set_flag(self, partition_id: int, flag_name: str) -> None:
         """
@@ -161,12 +173,15 @@ class PartitionerMsDos(PartitionerBase):
         self._call_fdisk(fdisk_input.name)
 
     def _create_primary(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = []
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
+        partition_id: Optional[int] = None
     ) -> None:
         """
         Create primary msdos partition
         """
-        self.partition_id += 1
+        self.partition_id = \
+            partition_id if partition_id else self.partition_id + 1
+        self.partition_count += 1
         fdisk_input = Temporary().new_file()
         if self.partition_id == 1 and self.start_sector:
             if self.start_sector > self.default_start and mbsize != 'all_free':
@@ -190,11 +205,15 @@ class PartitionerMsDos(PartitionerBase):
         self._call_fdisk(fdisk_input.name)
         self._set_all_flags(type_name, flags)
 
-    def _create_extended(self, name: str) -> None:
+    def _create_extended(
+        self, name: str, partition_id: Optional[int] = None
+    ) -> None:
         """
         Create extended msdos partition
         """
-        self.partition_id += 1
+        self.partition_id = \
+            partition_id if partition_id else self.partition_id + 1
+        self.partition_count += 1
         fdisk_input = Temporary().new_file()
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
@@ -209,12 +228,15 @@ class PartitionerMsDos(PartitionerBase):
         self._call_fdisk(fdisk_input.name)
 
     def _create_logical(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = []
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
+        partition_id: Optional[int] = None
     ) -> None:
         """
         Create logical msdos partition
         """
-        self.partition_id += 1
+        self.partition_id = \
+            partition_id if partition_id else self.partition_id + 1
+        self.partition_count += 1
         fdisk_input = Temporary().new_file()
         with open(fdisk_input.name, 'w') as partition:
             log.debug(
