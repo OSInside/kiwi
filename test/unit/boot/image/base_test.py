@@ -130,9 +130,16 @@ class TestBootImageBase:
     @patch('kiwi.boot.image.base.Path.which')
     @patch('kiwi.boot.image.base.log.warning')
     @patch('glob.iglob')
+    @patch('kiwi.boot.image.base.CommandCapabilities.has_option_in_help')
     def test_get_boot_names_default(
-        self, mock_iglob, mock_warning, mock_Path_which, mock_Kernel
+        self,
+        mock_CommandCapabilities_has_option_in_help,
+        mock_iglob,
+        mock_warning,
+        mock_Path_which,
+        mock_Kernel
     ):
+        mock_CommandCapabilities_has_option_in_help.return_value = False
         mock_iglob.return_value = []
         mock_Path_which.return_value = None
         mock_Kernel.return_value = self.kernel
@@ -201,6 +208,49 @@ class TestBootImageBase:
                 initrd_name='initrd-kernel_version',
                 kernel_version='kernel_version',
                 kernel_filename='kernel_filename'
+            )
+
+    @patch('kiwi.boot.image.base.Kernel')
+    @patch.object(
+        BootImageBase,
+        '_get_boot_image_output_file_format_from_existing_file'
+    )
+    @patch.object(
+        BootImageBase,
+        '_get_boot_image_output_file_format_from_dracut_code'
+    )
+    @patch('kiwi.boot.image.base.CommandCapabilities.has_option_in_help')
+    @patch('kiwi.boot.image.base.Command.run')
+    def test_get_boot_names_from_dracut_config(
+        self,
+        mock_Command_run,
+        mock_CommandCapabilities_has_option_in_help,
+        mock_get_boot_image_output_file_format_from_dracut_code,
+        mock_get_boot_image_output_file_format_from_existing_file,
+        mock_Kernel
+    ):
+        mock_Kernel.return_value = self.kernel
+        mock_get_boot_image_output_file_format_from_existing_file.return_value = None
+        mock_get_boot_image_output_file_format_from_dracut_code.return_value = None
+        self.xml_state.get_initrd_system.return_value = 'dracut'
+        mock_CommandCapabilities_has_option_in_help.return_value = True
+        with open('../data/dracut_config') as config:
+            dracut_config = config.read()
+            dracut_call = Mock()
+            dracut_call.output = dracut_config
+            mock_Command_run.return_value = dracut_call
+            assert self.boot_image.get_boot_names() == self.boot_names_type(
+                kernel_name='kernel_name',
+                initrd_name='initrd-kernel_version',
+                kernel_version='kernel_version',
+                kernel_filename='kernel_filename'
+            )
+            mock_CommandCapabilities_has_option_in_help.assert_called_once_with(
+                'dracut', '--printconfig', ['--help'],
+                root='system-directory', raise_on_error=True
+            )
+            mock_Command_run.assert_called_once_with(
+                ['chroot', 'system-directory', 'dracut', '--printconfig']
             )
 
     def test_noop_methods(self):

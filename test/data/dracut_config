@@ -1,0 +1,8 @@
+dracutconfig: dracutmodules=all
+dracutconfig: fileloglvl=0
+dracutconfig: fw_dir=/lib/firmware/updates/6.18.0-2-default /lib/firmware/updates /lib/firmware/6.18.0-2-default /lib/firmware
+dracutconfig: hostonly_cmdline=yes
+dracutconfig: initrdname=initrd-kernel_version
+dracutconfig: kmsgloglvl=0
+dracutconfig: libdirs= /lib64 /usr/lib64 /lib /usr/lib
+dracutconfig: omit_drivers=^i2o_scsi$
