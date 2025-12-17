@@ -19,7 +19,7 @@ import os
 import logging
 from collections import OrderedDict
 from typing import (
-    Dict, NamedTuple, Tuple
+    Dict, NamedTuple, Tuple, Optional
 )
 
 # project
@@ -35,17 +35,17 @@ from kiwi.exceptions import (
     KiwiError
 )
 
-ptable_entry_type = NamedTuple(
-    'ptable_entry_type', [
-        ('mbsize', int),
-        ('clone', int),
-        ('partition_name', str),
-        ('partition_type', str),
-        ('mountpoint', str),
-        ('filesystem', str),
-        ('label', str)
-    ]
-)
+
+class ptable_entry_type(NamedTuple):
+    mbsize: int
+    clone: int
+    partition_name: str
+    partition_type: str
+    partition_id: Optional[int]
+    mountpoint: str
+    filesystem: str
+    label: str
+
 
 log = logging.getLogger('kiwi')
 
@@ -161,11 +161,14 @@ class Disk(DeviceProvider):
             if entry.clone:
                 self._create_clones(
                     map_name, entry.clone, entry.partition_type,
-                    format(entry.mbsize)
+                    format(entry.mbsize), entry.partition_id
                 )
             id_name = f'kiwi_{map_name.title()}Part'
             self.partitioner.create(
-                entry.partition_name, entry.mbsize, entry.partition_type
+                name=entry.partition_name,
+                mbsize=entry.mbsize,
+                type_name=entry.partition_type,
+                partition_id=entry.partition_id
             )
             self._add_to_map(map_name)
             self._add_to_public_id_map(id_name)
@@ -175,7 +178,9 @@ class Disk(DeviceProvider):
                     self.partition_id_map[map_name], part_uuid
                 )
 
-    def create_root_partition(self, mbsize: str, clone: int = 0):
+    def create_root_partition(
+        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
+    ):
         """
         Create root partition
 
@@ -184,11 +189,22 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the root partition
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing. When cloned, the clone
+            ID is calculated from the given partition_id
         """
         (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
-            self._create_clones('root', clone, 't.linux', mbsize_clone)
-        self.partitioner.create('p.lxroot', mbsize, 't.linux')
+            self._create_clones(
+                'root', clone, 't.linux', mbsize_clone, partition_id
+            )
+        self.partitioner.create(
+            name='p.lxroot',
+            mbsize=mbsize,
+            type_name='t.linux',
+            partition_id=partition_id
+        )
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
         if 'kiwi_ROPart' in self.public_partition_id_map:
@@ -201,7 +217,9 @@ class Disk(DeviceProvider):
                 self.partition_id_map['root'], root_uuid
             )
 
-    def create_root_lvm_partition(self, mbsize: str, clone: int = 0):
+    def create_root_lvm_partition(
+        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
+    ):
         """
         Create root partition for use with LVM
 
@@ -209,11 +227,22 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the lvm roo partition
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing. When cloned, the clone
+            ID is calculated from the given partition_id
         """
         (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
-            self._create_clones('root', clone, 't.lvm', mbsize_clone)
-        self.partitioner.create('p.lxlvm', mbsize, 't.lvm')
+            self._create_clones(
+                'root', clone, 't.lvm', mbsize_clone, partition_id
+            )
+        self.partitioner.create(
+            name='p.lxlvm',
+            mbsize=mbsize,
+            type_name='t.lvm',
+            partition_id=partition_id
+        )
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
         root_uuid = self.gUID.get('root')
@@ -222,7 +251,9 @@ class Disk(DeviceProvider):
                 self.partition_id_map['root'], root_uuid
             )
 
-    def create_root_raid_partition(self, mbsize: str, clone: int = 0):
+    def create_root_raid_partition(
+        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
+    ):
         """
         Create root partition for use with MD Raid
 
@@ -232,11 +263,22 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the raid root partition
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing. When cloned, the clone
+            ID is calculated from the given partition_id
         """
         (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
-            self._create_clones('root', clone, 't.raid', mbsize_clone)
-        self.partitioner.create('p.lxraid', mbsize, 't.raid')
+            self._create_clones(
+                'root', clone, 't.raid', mbsize_clone, partition_id
+            )
+        self.partitioner.create(
+            name='p.lxraid',
+            mbsize=mbsize,
+            type_name='t.raid',
+            partition_id=partition_id
+        )
         self._add_to_map('root')
         self._add_to_public_id_map('kiwi_RootPart')
         self._add_to_public_id_map('kiwi_RaidPart')
@@ -246,7 +288,9 @@ class Disk(DeviceProvider):
                 self.partition_id_map['root'], root_uuid
             )
 
-    def create_root_readonly_partition(self, mbsize: str, clone: int = 0):
+    def create_root_readonly_partition(
+        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
+    ):
         """
         Create root readonly partition for use with overlayfs
 
@@ -257,11 +301,22 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the ro root partition
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing. When cloned, the clone
+            ID is calculated from the given partition_id
         """
         (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
-            self._create_clones('root', clone, 't.linux', mbsize_clone)
-        self.partitioner.create('p.lxreadonly', mbsize, 't.linux')
+            self._create_clones(
+                'root', clone, 't.linux', mbsize_clone, partition_id
+            )
+        self.partitioner.create(
+            name='p.lxreadonly',
+            mbsize=mbsize,
+            type_name='t.linux',
+            partition_id=partition_id
+        )
         self._add_to_map('readonly')
         self._add_to_public_id_map('kiwi_ROPart')
         root_uuid = self.gUID.get('root')
@@ -270,7 +325,9 @@ class Disk(DeviceProvider):
                 self.partition_id_map['readonly'], root_uuid
             )
 
-    def create_boot_partition(self, mbsize: str, clone: int = 0):
+    def create_boot_partition(
+        self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
+    ):
         """
         Create boot partition
 
@@ -278,11 +335,22 @@ class Disk(DeviceProvider):
 
         :param str mbsize: partition size string
         :param int clone: create [clone] cop(y/ies) of the boot partition
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing. When cloned, the clone
+            ID is calculated from the given partition_id
         """
         (mbsize, mbsize_clone) = Disk._parse_size(mbsize)
         if clone:
-            self._create_clones('boot', clone, 't.linux', mbsize_clone)
-        self.partitioner.create('p.lxboot', mbsize, 't.linux')
+            self._create_clones(
+                'boot', clone, 't.linux', mbsize_clone, partition_id
+            )
+        self.partitioner.create(
+            name='p.lxboot',
+            mbsize=mbsize,
+            type_name='t.linux',
+            partition_id=partition_id
+        )
         self._add_to_map('boot')
         self._add_to_public_id_map('kiwi_BootPart')
         boot_uuid = self.gUID.get('xbootldr')
@@ -291,42 +359,72 @@ class Disk(DeviceProvider):
                 self.partition_id_map['boot'], boot_uuid
             )
 
-    def create_prep_partition(self, mbsize: str):
+    def create_prep_partition(
+        self, mbsize: str, partition_id: Optional[int] = None
+    ):
         """
         Create prep partition
 
         Populates kiwi_PrepPart(id)
 
         :param str mbsize: partition size string
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing.
         """
         (mbsize, _) = Disk._parse_size(mbsize)
-        self.partitioner.create('p.prep', mbsize, 't.prep')
+        self.partitioner.create(
+            name='p.prep',
+            mbsize=mbsize,
+            type_name='t.prep',
+            partition_id=partition_id
+        )
         self._add_to_map('prep')
         self._add_to_public_id_map('kiwi_PrepPart')
 
-    def create_spare_partition(self, mbsize: str):
+    def create_spare_partition(
+        self, mbsize: str, partition_id: Optional[int] = None
+    ):
         """
         Create spare partition for custom use
 
         Populates kiwi_SparePart(id)
 
         :param str mbsize: partition size string
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing.
         """
         (mbsize, _) = Disk._parse_size(mbsize)
-        self.partitioner.create('p.spare', mbsize, 't.linux')
+        self.partitioner.create(
+            name='p.spare',
+            mbsize=mbsize,
+            type_name='t.linux',
+            partition_id=partition_id
+        )
         self._add_to_map('spare')
         self._add_to_public_id_map('kiwi_SparePart')
 
-    def create_swap_partition(self, mbsize: str):
+    def create_swap_partition(
+        self, mbsize: str, partition_id: Optional[int] = None
+    ):
         """
         Create swap partition
 
         Populates kiwi_SwapPart(id)
 
         :param str mbsize: partition size string
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing.
         """
         (mbsize, _) = Disk._parse_size(mbsize)
-        self.partitioner.create('p.swap', mbsize, 't.swap')
+        self.partitioner.create(
+            name='p.swap',
+            mbsize=mbsize,
+            type_name='t.swap',
+            partition_id=partition_id
+        )
         self._add_to_map('swap')
         self._add_to_public_id_map('kiwi_SwapPart')
         swap_uuid = self.gUID.get('swap')
@@ -335,29 +433,49 @@ class Disk(DeviceProvider):
                 self.partition_id_map['swap'], swap_uuid
             )
 
-    def create_efi_csm_partition(self, mbsize: str):
+    def create_efi_csm_partition(
+        self, mbsize: str, partition_id: Optional[int] = None
+    ):
         """
         Create EFI bios grub partition
 
         Populates kiwi_BiosGrub(id)
 
         :param str mbsize: partition size string
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing.
         """
         (mbsize, _) = Disk._parse_size(mbsize)
-        self.partitioner.create('p.legacy', mbsize, 't.csm')
+        self.partitioner.create(
+            name='p.legacy',
+            mbsize=mbsize,
+            type_name='t.csm',
+            partition_id=partition_id
+        )
         self._add_to_map('efi_csm')
         self._add_to_public_id_map('kiwi_BiosGrub')
 
-    def create_efi_partition(self, mbsize: str):
+    def create_efi_partition(
+        self, mbsize: str, partition_id: Optional[int] = None
+    ):
         """
         Create EFI partition
 
         Populates kiwi_EfiPart(id)
 
         :param str mbsize: partition size string
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing.
         """
         (mbsize, _) = Disk._parse_size(mbsize)
-        self.partitioner.create('p.UEFI', mbsize, 't.efi')
+        self.partitioner.create(
+            name='p.UEFI',
+            mbsize=mbsize,
+            type_name='t.efi',
+            partition_id=partition_id
+        )
         self._add_to_map('efi')
         self._add_to_public_id_map('kiwi_EfiPart')
         esp_uuid = self.gUID.get('esp')
@@ -504,7 +622,8 @@ class Disk(DeviceProvider):
         return discoverable_ids
 
     def _create_clones(
-        self, name: str, clone: int, type_flag: str, mbsize: str
+        self, name: str, clone: int, type_flag: str, mbsize: str,
+        partition_id: Optional[int] = None
     ) -> None:
         """
         Create [clone] cop(y/ies) of the given partition name
@@ -518,13 +637,23 @@ class Disk(DeviceProvider):
         :param int clone: number of clones, >= 1
         :param str type_flag: partition type name
         :param str mbsize: partition size string
+        :param int partition_id:
+            If provided, use this exact partition ID to
+            calculate the clone ID with.
         """
         for clone_id in range(1, clone + 1):
+            if partition_id:
+                partition_id += 1
             self.partitioner.create(
-                f'p.lx{name}clone{clone_id}', mbsize, type_flag
+                name=f'p.lx{name}clone{partition_id or clone_id}',
+                mbsize=mbsize,
+                type_name=type_flag,
+                partition_id=partition_id
             )
-            self._add_to_map(f'{name}clone{clone_id}')
-            self._add_to_public_id_map(f'kiwi_{name}PartClone{clone_id}')
+            self._add_to_map(f'{name}clone{partition_id or clone_id}')
+            self._add_to_public_id_map(
+                f'kiwi_{name}PartClone{partition_id or clone_id}'
+            )
 
     @staticmethod
     def _parse_size(value: str) -> Tuple[str, str]:

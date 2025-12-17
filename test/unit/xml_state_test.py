@@ -423,6 +423,7 @@ class TestXMLState:
                 clone=0,
                 partition_name='p.lxvar',
                 partition_type='t.linux',
+                partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
                 label=''
