@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 from typing import (
-    List, Dict, Union
+    List, Dict, Union, Optional
 )
 
 # project
@@ -73,7 +73,8 @@ class PartitionerBase:
         return self.partition_id
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = []
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = [],
+        explicit_partition_id: Optional[int] = None
     ):
         """
         Create partition
@@ -84,6 +85,10 @@ class PartitionerBase:
         :param int mbsize: unused
         :param string type_name: unused
         :param list flags: unused
+        :param int explicit_partition_id:
+            If provided, use this exact partition ID instead of
+            auto-incrementing. Used for custom partition control.
+            When None, auto-increment is used (backwards compatible).
         """
         raise NotImplementedError
 

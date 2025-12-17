@@ -16,7 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import List
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
@@ -51,7 +51,8 @@ class PartitionerGpt(PartitionerBase):
         }
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = None
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = None,
+        explicit_partition_id: Optional[int] = None
     ) -> None:
         """
         Create GPT partition
@@ -60,16 +61,27 @@ class PartitionerGpt(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: partition type
         :param list flags: additional flags
+        :param int explicit_partition_id:
+            If provided, use this exact partition ID instead of auto-incrementing
         """
-        self.partition_id += 1
+        # Remember if this is the first partition (partition_id starts at 0)
+        is_first_partition = (self.partition_id == 0)
+
+        if explicit_partition_id is not None:
+            self.partition_id = explicit_partition_id
+        else:
+            self.partition_id += 1
         if mbsize == 'all_free':
             partition_end = '0'
         else:
             partition_end = '+' + format(mbsize) + 'M'
-        if self.partition_id > 1 or not self.start_sector:
-            # A start  sector value of 0 specifies the default value
-            # defined in sgdisk
+
+        # Set start_sector=0 to let sgdisk find the next available sector
+        # For the first partition, honor any custom start_sector passed to constructor
+        # For subsequent partitions, always use 0 (sgdisk finds next available space)
+        if not is_first_partition or not self.start_sector:
             self.start_sector = 0
+
         Command.run(
             [
                 'sgdisk', '-n', ':'.join(

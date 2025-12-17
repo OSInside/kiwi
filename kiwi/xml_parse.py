@@ -3363,7 +3363,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
+    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, custom_part_control=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
         self.original_tagname_ = None
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
@@ -3455,6 +3455,7 @@ class type_(GeneratedsSuper):
         self.root_clone = _cast(None, root_clone)
         self.boot_clone = _cast(None, boot_clone)
         self.bundle_format = _cast(None, bundle_format)
+        self.custom_part_control = _cast(bool, custom_part_control)
         if bootloader is None:
             self.bootloader = []
         else:
@@ -3745,6 +3746,8 @@ class type_(GeneratedsSuper):
     def set_boot_clone(self, boot_clone): self.boot_clone = boot_clone
     def get_bundle_format(self): return self.bundle_format
     def set_bundle_format(self, bundle_format): self.bundle_format = bundle_format
+    def get_custom_part_control(self): return self.custom_part_control
+    def set_custom_part_control(self, custom_part_control): self.custom_part_control = custom_part_control
     def validate_blocks_type(self, value):
         # Validate type blocks-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -4739,6 +4742,15 @@ class type_(GeneratedsSuper):
         if value is not None and 'bundle_format' not in already_processed:
             already_processed.add('bundle_format')
             self.bundle_format = value
+        value = find_attr_value_('custom_part_control', node)
+        if value is not None and 'custom_part_control' not in already_processed:
+            already_processed.add('custom_part_control')
+            if value in ('true', '1'):
+                self.custom_part_control = True
+            elif value in ('false', '0'):
+                self.custom_part_control = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'bootloader':
             obj_ = bootloader.factory()
@@ -5270,7 +5282,7 @@ class partition(GeneratedsSuper):
     """Specify custom partition in the partition table"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, size=None, partition_name=None, partition_type=None, mountpoint=None, filesystem=None, label=None, clone=None):
+    def __init__(self, name=None, size=None, partition_name=None, partition_type=None, mountpoint=None, filesystem=None, label=None, clone=None, partition_number=None, boot_flag=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.size = _cast(None, size)
@@ -5280,6 +5292,8 @@ class partition(GeneratedsSuper):
         self.filesystem = _cast(None, filesystem)
         self.label = _cast(None, label)
         self.clone = _cast(None, clone)
+        self.partition_number = _cast(int, partition_number)
+        self.boot_flag = _cast(bool, boot_flag)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5307,6 +5321,10 @@ class partition(GeneratedsSuper):
     def set_label(self, label): self.label = label
     def get_clone(self): return self.clone
     def set_clone(self, clone): self.clone = clone
+    def get_partition_number(self): return self.partition_number
+    def set_partition_number(self, partition_number): self.partition_number = partition_number
+    def get_boot_flag(self): return self.boot_flag
+    def set_boot_flag(self, boot_flag): self.boot_flag = boot_flag
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -5380,6 +5398,12 @@ class partition(GeneratedsSuper):
         if self.clone is not None and 'clone' not in already_processed:
             already_processed.add('clone')
             outfile.write(' clone=%s' % (quote_attrib(self.clone), ))
+        if self.partition_number is not None and 'partition_number' not in already_processed:
+            already_processed.add('partition_number')
+            outfile.write(' partition_number="%s"' % self.gds_format_integer(self.partition_number, input_name='partition_number'))
+        if self.boot_flag is not None and 'boot_flag' not in already_processed:
+            already_processed.add('boot_flag')
+            outfile.write(' boot_flag="%s"' % self.gds_format_boolean(self.boot_flag, input_name='boot_flag'))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='partition', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -5430,6 +5454,22 @@ class partition(GeneratedsSuper):
             self.clone = value
             self.clone = ' '.join(self.clone.split())
             self.validate_number_type(self.clone)    # validate type number-type
+        value = find_attr_value_('partition_number', node)
+        if value is not None and 'partition_number' not in already_processed:
+            already_processed.add('partition_number')
+            try:
+                self.partition_number = int(value)
+            except ValueError as exp:
+                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
+        value = find_attr_value_('boot_flag', node)
+        if value is not None and 'boot_flag' not in already_processed:
+            already_processed.add('boot_flag')
+            if value in ('true', '1'):
+                self.boot_flag = True
+            elif value in ('false', '0'):
+                self.boot_flag = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class partition
