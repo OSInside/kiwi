@@ -67,14 +67,27 @@ class TestDisk:
     def test_create_root_partition(self):
         self.disk.create_root_partition('100', 1)
         assert self.partitioner.create.call_args_list == [
-            call('p.lxrootclone1', '100', 't.linux'),
-            call('p.lxroot', '100', 't.linux')
+            call(
+                name='p.lxrootclone1',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            ),
+            call(
+                name='p.lxroot',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            )
         ]
 
     def test_create_root_which_is_also_boot_partition(self):
         self.disk.create_root_partition('200')
         self.partitioner.create.assert_called_once_with(
-            'p.lxroot', '200', 't.linux'
+            name='p.lxroot',
+            mbsize='200',
+            type_name='t.linux',
+            partition_id=None
         )
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
         assert self.disk.public_partition_id_map['kiwi_BootPart'] == 1
@@ -83,7 +96,10 @@ class TestDisk:
         self.disk.public_partition_id_map['kiwi_ROPart'] = 1
         self.disk.create_root_partition('200')
         self.partitioner.create.assert_called_once_with(
-            'p.lxroot', '200', 't.linux'
+            name='p.lxroot',
+            mbsize='200',
+            type_name='t.linux',
+            partition_id=None
         )
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
         assert self.disk.public_partition_id_map['kiwi_RWPart'] == 1
@@ -91,8 +107,18 @@ class TestDisk:
     def test_create_root_lvm_partition(self):
         self.disk.create_root_lvm_partition('100', 1)
         assert self.partitioner.create.call_args_list == [
-            call('p.lxrootclone1', '100', 't.lvm'),
-            call('p.lxlvm', '100', 't.lvm')
+            call(
+                name='p.lxrootclone1',
+                mbsize='100',
+                type_name='t.lvm',
+                partition_id=None
+            ),
+            call(
+                name='p.lxlvm',
+                mbsize='100',
+                type_name='t.lvm',
+                partition_id=None
+            )
         ]
         assert self.disk.public_partition_id_map['kiwi_rootPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
@@ -100,8 +126,18 @@ class TestDisk:
     def test_create_root_raid_partition(self):
         self.disk.create_root_raid_partition('100', 1)
         assert self.partitioner.create.call_args_list == [
-            call('p.lxrootclone1', '100', 't.raid'),
-            call('p.lxraid', '100', 't.raid')
+            call(
+                name='p.lxrootclone1',
+                mbsize='100',
+                type_name='t.raid',
+                partition_id=None
+            ),
+            call(
+                name='p.lxraid',
+                mbsize='100',
+                type_name='t.raid',
+                partition_id=None
+            )
         ]
         assert self.disk.public_partition_id_map['kiwi_rootPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_RootPart'] == 1
@@ -110,8 +146,18 @@ class TestDisk:
     def test_create_root_readonly_partition(self):
         self.disk.create_root_readonly_partition('100', 1)
         assert self.partitioner.create.call_args_list == [
-            call('p.lxrootclone1', '100', 't.linux'),
-            call('p.lxreadonly', '100', 't.linux')
+            call(
+                name='p.lxrootclone1',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            ),
+            call(
+                name='p.lxreadonly',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            )
         ]
         assert self.disk.public_partition_id_map['kiwi_rootPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_ROPart'] == 1
@@ -119,8 +165,18 @@ class TestDisk:
     def test_create_boot_partition(self):
         self.disk.create_boot_partition('100', 1)
         assert self.partitioner.create.call_args_list == [
-            call('p.lxbootclone1', '100', 't.linux'),
-            call('p.lxboot', '100', 't.linux')
+            call(
+                name='p.lxbootclone1',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            ),
+            call(
+                name='p.lxboot',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            )
         ]
         assert self.disk.public_partition_id_map['kiwi_bootPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_BootPart'] == 1
@@ -128,28 +184,28 @@ class TestDisk:
     def test_create_efi_csm_partition(self):
         self.disk.create_efi_csm_partition('100')
         self.partitioner.create.assert_called_once_with(
-            'p.legacy', '100', 't.csm'
+            name='p.legacy', mbsize='100', type_name='t.csm', partition_id=None
         )
         assert self.disk.public_partition_id_map['kiwi_BiosGrub'] == 1
 
     def test_create_efi_partition(self):
         self.disk.create_efi_partition('100')
         self.partitioner.create.assert_called_once_with(
-            'p.UEFI', '100', 't.efi'
+            name='p.UEFI', mbsize='100', type_name='t.efi', partition_id=None
         )
         assert self.disk.public_partition_id_map['kiwi_EfiPart'] == 1
 
     def test_create_spare_partition(self):
         self.disk.create_spare_partition('42')
         self.partitioner.create.assert_called_once_with(
-            'p.spare', '42', 't.linux'
+            name='p.spare', mbsize='42', type_name='t.linux', partition_id=None
         )
         assert self.disk.public_partition_id_map['kiwi_SparePart'] == 1
 
     def test_create_swap_partition(self):
         self.disk.create_swap_partition('42')
         self.partitioner.create.assert_called_once_with(
-            'p.swap', '42', 't.swap'
+            name='p.swap', mbsize='42', type_name='t.swap', partition_id=None
         )
         assert self.disk.public_partition_id_map['kiwi_SwapPart'] == 1
 
@@ -157,7 +213,7 @@ class TestDisk:
     def test_create_prep_partition(self, mock_command):
         self.disk.create_prep_partition('8')
         self.partitioner.create.assert_called_once_with(
-            'p.prep', '8', 't.prep'
+            name='p.prep', mbsize='8', type_name='t.prep', partition_id=None
         )
         assert self.disk.public_partition_id_map['kiwi_PrepPart'] == 1
 
@@ -169,6 +225,7 @@ class TestDisk:
                 clone=2,
                 partition_name='p.lxvar',
                 partition_type='t.linux',
+                partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
                 label='var'
@@ -176,12 +233,66 @@ class TestDisk:
         }
         self.disk.create_custom_partitions(table_entries)
         assert self.partitioner.create.call_args_list == [
-            call('p.lxvarclone1', '100', 't.linux'),
-            call('p.lxvarclone2', '100', 't.linux'),
-            call('p.lxvar', '100', 't.linux')
+            call(
+                name='p.lxvarclone1',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            ),
+            call(
+                name='p.lxvarclone2',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            ),
+            call(
+                name='p.lxvar',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=None
+            )
         ]
         assert self.disk.public_partition_id_map['kiwi_varPartClone1'] == 1
         assert self.disk.public_partition_id_map['kiwi_varPartClone2'] == 1
+        assert self.disk.public_partition_id_map['kiwi_VarPart'] == 1
+
+    @patch('kiwi.storage.disk.Command.run')
+    def test_create_custom_partitions_with_custom_ID(self, mock_command):
+        table_entries = {
+            'var': ptable_entry_type(
+                mbsize='100',
+                clone=2,
+                partition_name='p.lxvar',
+                partition_type='t.linux',
+                partition_id=42,
+                mountpoint='/var',
+                filesystem='ext3',
+                label='var'
+            )
+        }
+        self.disk.create_custom_partitions(table_entries)
+        assert self.partitioner.create.call_args_list == [
+            call(
+                name='p.lxvarclone43',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=43
+            ),
+            call(
+                name='p.lxvarclone44',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=44
+            ),
+            call(
+                name='p.lxvar',
+                mbsize='100',
+                type_name='t.linux',
+                partition_id=42
+            )
+        ]
+        assert self.disk.public_partition_id_map['kiwi_varPartClone43'] == 1
+        assert self.disk.public_partition_id_map['kiwi_varPartClone44'] == 1
         assert self.disk.public_partition_id_map['kiwi_VarPart'] == 1
 
     def test_create_custom_partitions_reserved_name(self):
@@ -191,6 +302,7 @@ class TestDisk:
                 clone=0,
                 partition_name='p.lxroot',
                 partition_type='t.linux',
+                partition_id=None,
                 mountpoint='/',
                 filesystem='ext3',
                 label='root'

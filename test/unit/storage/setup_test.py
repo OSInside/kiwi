@@ -227,6 +227,7 @@ class TestDiskSetup:
             clone=1,
             partition_name='var',
             partition_type='t.linux',
+            partition_id=None,
             mountpoint='/var',
             filesystem='ext3',
             label='var'

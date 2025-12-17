@@ -469,6 +469,7 @@ class TestDiskBuilder:
                 clone=1,
                 partition_name='p.lxvar',
                 partition_type='t.linux',
+                partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
                 label='var'
@@ -546,6 +547,7 @@ class TestDiskBuilder:
                 clone=1,
                 partition_name='p.lxvar',
                 partition_type='t.linux',
+                partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
                 label='var'
@@ -1459,6 +1461,7 @@ class TestDiskBuilder:
                 clone=0,
                 partition_name='p.lxvar',
                 partition_type='t.linux',
+                partition_id=None,
                 mountpoint='/var',
                 filesystem='ext3',
                 label='var'
@@ -1468,6 +1471,7 @@ class TestDiskBuilder:
                 clone=0,
                 partition_name='p.lxtmp',
                 partition_type='t.linux',
+                partition_id=None,
                 mountpoint='/spare',
                 filesystem='squashfs',
                 label=''

@@ -89,6 +89,14 @@ class TestPartitionerGpt:
     @patch('kiwi.partitioner.gpt.Command.run')
     def test_set_hybrid_mbr(self, mock_command):
         self.partitioner.partition_id = 5
+        self.partitioner.partition_count = 5
+        self.partitioner.partition_map = {
+            1: 1,
+            2: 2,
+            3: 3,
+            4: 4,
+            5: 5
+        }
         self.partitioner.set_hybrid_mbr()
         mock_command.assert_called_once_with(
             ['sgdisk', '-h', '1:2:3', '/dev/loop0']
@@ -99,6 +107,13 @@ class TestPartitionerGpt:
         command_output = Mock()
         command_output.output = '...(EFI System)'
         self.partitioner.partition_id = 4
+        self.partitioner.partition_count = 4
+        self.partitioner.partition_map = {
+            1: 1,
+            2: 2,
+            3: 3,
+            4: 4
+        }
         mock_command.return_value = command_output
         self.partitioner.set_mbr()
         assert mock_command.call_args_list == [

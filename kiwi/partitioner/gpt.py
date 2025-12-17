@@ -16,7 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
-from typing import List
+from typing import (
+    List, Optional
+)
 
 # project
 from kiwi.command import Command
@@ -49,9 +51,11 @@ class PartitionerGpt(PartitionerBase):
             't.efi': 'EF00',
             't.prep': '4100'
         }
+        self.partition_map: dict[int, int] = {}
 
     def create(
-        self, name: str, mbsize: int, type_name: str, flags: List[str] = None
+        self, name: str, mbsize: int, type_name: str, flags: List[str] = None,
+        partition_id: Optional[int] = None
     ) -> None:
         """
         Create GPT partition
@@ -60,13 +64,19 @@ class PartitionerGpt(PartitionerBase):
         :param int mbsize: partition size
         :param string type_name: partition type
         :param list flags: additional flags
+        :param int partition_id:
+            If provided, use this exact partition ID
+            instead of auto-incrementing
         """
-        self.partition_id += 1
+        self.partition_id = \
+            partition_id if partition_id else self.partition_id + 1
+        self.partition_count += 1
+        self.partition_map[self.partition_count] = self.partition_id
         if mbsize == 'all_free':
             partition_end = '0'
         else:
             partition_end = '+' + format(mbsize) + 'M'
-        if self.partition_id > 1 or not self.start_sector:
+        if self.partition_count > 1 or not self.start_sector:
             # A start  sector value of 0 specifies the default value
             # defined in sgdisk
             self.start_sector = 0
@@ -134,7 +144,7 @@ class PartitionerGpt(PartitionerBase):
         Turn partition table into hybrid GPT/MBR table
         """
         partition_ids = []
-        partition_number_to_embed = self.partition_id
+        partition_number_to_embed = self.partition_count
         if partition_number_to_embed > 3:
             # the max number of partitions to embed is 3
             # for details see man sgdisk
@@ -148,7 +158,8 @@ class PartitionerGpt(PartitionerBase):
                 partition_number_to_embed
             )
         for number in range(1, partition_number_to_embed + 1):
-            partition_ids.append(format(number))
+            if self.partition_map.get(number):
+                partition_ids.append(format(self.partition_map[number]))
         Command.run(
             ['sgdisk', '-h', ':'.join(partition_ids), self.disk_device]
         )
@@ -160,12 +171,16 @@ class PartitionerGpt(PartitionerBase):
         partition_ids = []
         efi_partition_number = None
         for number in range(1, self.partition_id + 1):
-            partition_info = Command.run(
-                ['sgdisk', '-i={0}'.format(number), self.disk_device]
-            )
-            if '(EFI System)' in partition_info.output:
-                efi_partition_number = number
-            partition_ids.append(format(number))
+            if self.partition_map.get(number):
+                partition_info = Command.run(
+                    [
+                        'sgdisk', '-i={0}'.format(self.partition_map[number]),
+                        self.disk_device
+                    ]
+                )
+                if '(EFI System)' in partition_info.output:
+                    efi_partition_number = self.partition_map[number]
+                partition_ids.append(format(self.partition_map[number]))
         if efi_partition_number:
             # turn former EFI partition into standard linux partition
             self.set_flag(efi_partition_number, 't.linux')
