@@ -20,6 +20,7 @@ import os
 import logging
 import copy
 import pathlib
+from contextlib import ExitStack
 from collections import OrderedDict
 from collections import namedtuple
 from textwrap import dedent
@@ -771,7 +772,8 @@ class SystemSetup:
         Call disk.sh script chrooted
         """
         self._call_script(
-            defaults.POST_DISK_SYNC_SCRIPT
+            defaults.POST_DISK_SYNC_SCRIPT,
+            root_is_mountpoint=True
         )
 
     def call_pre_disk_script(self) -> None:
@@ -1278,38 +1280,54 @@ class SystemSetup:
             )
 
     def _call_script(
-        self, name, option_list=None, path_prefix=defaults.IMAGE_METADATA_DIR
+        self,
+        name: str,
+        option_list: List[str] = [],
+        path_prefix: str = defaults.IMAGE_METADATA_DIR,
+        root_is_mountpoint: bool = False
     ):
-        script_path = os.path.join(self.root_dir, path_prefix, name)
-        if os.path.exists(script_path):
-            options = option_list or []
-            if log.getLogFlags().get('run-scripts-in-screen'):
-                # Run scripts in a screen session if requested
-                command = ['screen', '-t', '-X', 'chroot', self.root_dir]
-            else:
-                # In standard mode run scripts without a terminal
-                # associated to them
-                command = ['chroot', self.root_dir]
-            if not Path.access(script_path, os.X_OK):
-                command.append('bash')
-            command.append(
-                os.path.join(os.sep, path_prefix, name)
-            )
-            command.extend(options)
-            profile = Profile(self.xml_state)
-            caller_environment = copy.deepcopy(os.environ)
-            caller_environment.update(profile.get_settings())
-            config_script = Command.call(command, caller_environment)
-            process = CommandProcess(
-                command=config_script, log_topic='Calling ' + name + ' script'
-            )
-            result = process.poll_and_watch()
-            if result.returncode != 0:
-                raise KiwiScriptFailed(
-                    '{0} failed: {1}'.format(name, result.stderr)
+        with ExitStack() as stack:
+            script_path = os.path.join(self.root_dir, path_prefix, name)
+            if os.path.exists(script_path):
+                if root_is_mountpoint:
+                    chroot_mount = MountManager(
+                        device=self.root_dir, mountpoint=self.root_dir
+                    )
+                    if not chroot_mount.is_mounted():
+                        log.debug(
+                            f'Self bind mount {self.root_dir} for (/) in chroot'
+                        )
+                        chroot_mount.bind_mount()
+                        stack.push(chroot_mount)
+                options = option_list or []
+                if log.getLogFlags().get('run-scripts-in-screen'):
+                    # Run scripts in a screen session if requested
+                    command = ['screen', '-t', '-X', 'chroot', self.root_dir]
+                else:
+                    # In standard mode run scripts without a terminal
+                    # associated to them
+                    command = ['chroot', self.root_dir]
+                if not Path.access(script_path, os.X_OK):
+                    command.append('bash')
+                command.append(
+                    os.path.join(os.sep, path_prefix, name)
                 )
-            # if configured, assign SELinux labels
-            self.setup_selinux_file_contexts()
+                command.extend(options)
+                profile = Profile(self.xml_state)
+                caller_environment = copy.deepcopy(os.environ)
+                caller_environment.update(profile.get_settings())
+                config_script = Command.call(command, caller_environment)
+                process = CommandProcess(
+                    command=config_script,
+                    log_topic='Calling ' + name + ' script'
+                )
+                result = process.poll_and_watch()
+                if result.returncode != 0:
+                    raise KiwiScriptFailed(
+                        f'{name} failed with: {result.stderr}'
+                    )
+                # if configured, assign SELinux labels
+                self.setup_selinux_file_contexts()
 
     def _call_script_no_chroot(
         self, name: str, option_list: List[str], working_directory: Optional[str]
