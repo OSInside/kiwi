@@ -45,6 +45,7 @@
         <package name="npm-default"/>
         <package name="python3"/>
         <package name="rust"/>
+        <package name="cargo"/>
     </packages>
     <packages type="bootstrap">
         <package name="gawk"/>
