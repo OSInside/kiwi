@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-docker">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>gemini cli</specification>
+    </description>
+    <preferences>
+        <version>2.1.0</version>
+        <packagemanager>zypper</packagemanager>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <type image="docker">
+            <containerconfig name="gemini"/>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="libcap-progs"/>
+        <package name="ncurses-utils"/>
+        <package name="patterns-openSUSE-base"/>
+        <package name="systemd"/>
+        <package name="bash"/>
+        <package name="acl"/>
+        <package name="coreutils"/>
+        <package name="cpio"/>
+        <package name="findutils"/>
+        <package name="pigz"/>
+        <package name="iputils"/>
+        <package name="tar"/>
+        <package name="psmisc"/>
+        <package name="fontconfig"/>
+        <package name="fonts-config"/>
+        <package name="sudo"/>
+        <package name="rsync"/>
+        <package name="openssh-server"/>
+        <package name="npm-default"/>
+        <package name="python3"/>
+        <package name="rust"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
+        <package name="udev"/>
+        <package name="xz"/>
+        <package name="shadow"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+        <package name="openSUSE-release"/>
+    </packages>
+</image>
