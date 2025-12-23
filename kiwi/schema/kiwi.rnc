@@ -2345,8 +2345,32 @@ div {
         ## for all target image files at call time of:
         ## kiwi-ng result bundle ...
         attribute bundle_format { text }
+    k.type.efipart_id.attribute =
+        ## Set custom partition number for the EFI partition if present
+        attribute efipart_id { number-type }
+        >> sch:pattern [ id = "efipart_id" is-a = "image_type"
+            sch:param [ name = "attr" value = "efipart_id" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+    k.type.rootpart_id.attribute =
+        ## Set custom partition number for the root partition
+        attribute rootpart_id { number-type }
+        >> sch:pattern [ id = "rootpart_id" is-a = "image_type"
+            sch:param [ name = "attr" value = "rootpart_id" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
+    k.type.bootpart_id.attribute =
+        ## Set custom partition number for the boot partition if present
+        attribute bootpart_id { number-type }
+        >> sch:pattern [ id = "bootpart_id" is-a = "image_type"
+            sch:param [ name = "attr" value = "bootpart_id" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.attlist =
         ## Specifies the image type
+        k.type.efipart_id.attribute? &
+        k.type.rootpart_id.attribute? &
+        k.type.bootpart_id.attribute? &
         k.type.boot.attribute? &
         k.type.bootfilesystem.attribute? &
         k.type.firmware.attribute? &
@@ -2677,7 +2701,11 @@ div {
     k.partition.label.attribute =
         ## filesystem label
         attribute label { text }
+    k.partition.part_id =
+        ## custom partition number
+        attribute part_id { number-type }
     k.partition.attlist =
+        k.partition.part_id? &
         k.partition.name.attribute &
         k.partition.size.attribute &
         k.partition.partition_name.attribute? &
