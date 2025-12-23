@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="8.4" name="kiwi-test-image-amazon-linux-layout">
+    <description type="system">
+        <author>Marcus Schaefer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>
+            Fedora Appliance building as Amazon Linux compatible layout
+            - EFI partition: partition_number=55 (first on disk)
+            - Boot partition: partition_number=101 (second on disk, boot_flag=true)
+            - Var partition: partition_number=13 (third on disk)
+            - Root partition: partition_number=1 (last on disk)
+        </specification>
+    </description>
+    <preferences>
+        <version>2.0.0</version>
+        <packagemanager>dnf4</packagemanager>
+        <bootsplash-theme>charge</bootsplash-theme>
+        <bootloader-theme>breeze</bootloader-theme>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences>
+        <type
+            image="oem"
+            filesystem="ext4"
+            firmware="uefi"
+            eficsm="false"
+            kernelcmdline="console=tty1 console=ttyS0"
+            bootpartition="true"
+            efipart_id="55"
+            rootpart_id="1"
+            bootpart_id="101"
+            bootfilesystem="ext4"
+            efipartsize="100"
+            bootpartsize="1024"
+        >
+            <bootloader name="grub2" timeout="10" output_console="console serial" input_console="serial"/>
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+                <oem-unattended>true</oem-unattended>
+                <oem-swap>false</oem-swap>
+            </oemconfig>
+            <size unit="G">10</size>
+            <partitions>
+                <partition name="var" size="2000" filesystem="ext4" mountpoint="/var" part_id="13" partition_type="t.linux"/>
+            </partitions>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="grub2"/>
+        <package name="grubby"/>
+        <package name="kernel"/>
+        <package name="plymouth-theme-charge"/>
+        <package name="grub2-breeze-theme"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="vim"/>
+        <package name="tzdata"/>
+        <package name="NetworkManager"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="grub2-efi-x64-modules"/>
+        <package name="grub2-efi-x64"/>
+        <package name="shim" arch="x86_64"/>
+        <package name="fedora-release"/>
+    </packages>
+</image>
