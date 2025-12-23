@@ -318,10 +318,10 @@ class TestDiskBuilder:
             self.firmware.get_legacy_bios_partition_size()
         )
         disk.create_efi_partition.assert_called_once_with(
-            self.firmware.get_efi_partition_size()
+            self.firmware.get_efi_partition_size(), None
         )
         disk.create_boot_partition.assert_called_once_with(
-            format(self.disk_setup.boot_partition_size()), 0
+            format(self.disk_setup.boot_partition_size()), 0, None
         )
         disk.create_swap_partition.assert_called_once_with(
             '128'
@@ -330,7 +330,7 @@ class TestDiskBuilder:
             self.firmware.get_prep_partition_size()
         )
         disk.create_root_partition.assert_called_once_with(
-            'all_free', 0
+            'all_free', 0, None
         )
         disk.map_partitions.assert_called_once_with()
         bootloader_config.setup_disk_boot_images.assert_called_once_with(
@@ -571,10 +571,10 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         disk.create_boot_partition.assert_called_once_with(
-            format(self.disk_setup.boot_partition_size()), 1
+            format(self.disk_setup.boot_partition_size()), 1, None
         )
         disk.create_root_partition.assert_called_once_with(
-            'clone:443:443', 1
+            'clone:443:443', 1, None
         )
         disk.create_custom_partitions.assert_called_once_with(
             self.disk_builder.custom_partitions
@@ -593,7 +593,7 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         disk.create_root_partition.assert_called_once_with(
-            'clone:422:422', 1
+            'clone:422:422', 1, None
         )
 
         # Test in overlay mode a root clone is created from
@@ -610,7 +610,7 @@ class TestDiskBuilder:
             10, 1
         )
         disk.create_root_partition.assert_called_once_with(
-            'all_free', 0
+            'all_free', 0, None
         )
 
         # Test in verity mode
@@ -847,16 +847,16 @@ class TestDiskBuilder:
             self.firmware.get_legacy_bios_partition_size()
         )
         disk.create_efi_partition.assert_called_once_with(
-            self.firmware.get_efi_partition_size()
+            self.firmware.get_efi_partition_size(), None
         )
         disk.create_boot_partition.assert_called_once_with(
-            format(self.disk_setup.boot_partition_size()), 0
+            format(self.disk_setup.boot_partition_size()), 0, None
         )
         disk.create_prep_partition.assert_called_once_with(
             self.firmware.get_prep_partition_size()
         )
         disk.create_root_partition.assert_called_once_with(
-            'all_free', 0
+            'all_free', 0, None
         )
         disk.map_partitions.assert_called_once_with()
         bootloader_config.setup_disk_boot_images.assert_called_once_with(
@@ -1019,7 +1019,7 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         disk.create_root_partition.assert_called_once_with(
-            'clone:1024:1024', 1
+            'clone:1024:1024', 1, None
         )
 
     @patch('kiwi.builder.disk.Path')
