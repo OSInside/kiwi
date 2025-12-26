@@ -28,6 +28,7 @@ usage: kiwi-ng system build -h | --help
            [--add-repo-credentials=<user:pass_or_filename>...]
            [--add-package=<name>...]
            [--add-bootstrap-package=<name>...]
+           [--ca-cert-path=<directory>...]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
@@ -71,6 +72,9 @@ options:
     --clear-cache
         delete repository cache for each of the used repositories
         before installing any package
+    --ca-cert-path=<directory>
+        includes additional CA certificates to import immediately after
+        bootstrap and make available during the build process.
     --delete-package=<name>
         delete the given package name
     --description=<directory>
@@ -252,6 +256,10 @@ class SystemBuildTask(CliTask):
                 self.command_args['--set-container-derived-from']
             )
 
+        if self.command_args['--ca-cert-path']:
+            for certificate in self.command_args['--ca-cert-path']:
+                self.xml_state.add_certificate(certificate)
+
         self.run_checks(self.checks_after_command_args)
 
         log.info('Preparing new root system')
@@ -278,6 +286,9 @@ class SystemBuildTask(CliTask):
 
                 # call post_bootstrap.sh script if present
                 setup.call_post_bootstrap_script()
+
+                # Setup custom CA certificates after bootstrap package install
+                system.setup_ca_certificates()
 
                 system.install_system(
                     manager

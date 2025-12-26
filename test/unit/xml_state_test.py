@@ -6,7 +6,7 @@ from unittest.mock import (
     patch, Mock, MagicMock
 )
 from pytest import (
-    raises, fixture
+    raises, fixture, mark
 )
 
 from kiwi.defaults import Defaults
@@ -1397,3 +1397,63 @@ class TestXMLState:
         assert self.state.btrfs_default_volume_requested() is False
         mock_get_btrfs_set_default_volume.return_value = None
         assert self.state.btrfs_default_volume_requested() is True
+
+    @mark.parametrize(
+        "package_manager, expected_info",
+        [
+            # What we *should* expect to see for CA Certificate tools across
+            # distributions, along with the location of the certificates.
+            (
+                'zypper', {
+                    'tool': 'update-ca-certificates',
+                    'destination_path': '/etc/pki/trust/anchors'
+                }
+            ),
+            (
+                'dnf', {
+                    'tool': 'update-ca-certificates',
+                    'destination_path': '/etc/pki/ca-trust/source/anchors/'
+                }
+            ),
+            (
+                'yum', {
+                    'tool': 'update-ca-certificates',
+                    'destination_path': '/etc/pki/ca-trust/source/anchors/'
+                }
+            ),
+            (
+                'apt', {
+                    'tool': 'update-ca-certificates',
+                    'destination_path': '/usr/local/share/ca-certificates/'
+                }
+            ),
+            (
+                'pacman', {
+                    'tool': 'update-ca-trust',
+                    'destination_path': '/etc/ca-certificates/trust-source/anchors/'
+                }
+            ),
+            ('unknown_pm', None)
+        ]
+    )
+    def test_get_ca_update_info(self, package_manager, expected_info):
+        """
+        Verify get_ca_update_info returns correct data for the various
+        supported distributions based on package manager (tool and location).
+        """
+        self.state.get_package_manager = Mock(return_value=package_manager)
+        assert self.state.get_ca_update_info() == expected_info
+
+    def test_get_certificates(self):
+        assert self.state.get_certificates() == ['/some/path']
+        self.state.add_certificate('/new/path')
+        assert self.state.get_certificates() == [
+            '/new/path', '/some/path'
+        ]
+        self.state.add_certificate('/new/path')
+        assert self.state.get_certificates() == [
+            '/new/path', '/some/path'
+        ]
+        assert self.apt_state.get_certificates() == []
+        self.apt_state.add_certificate('/new/path')
+        assert self.apt_state.get_certificates() == ['/new/path']
