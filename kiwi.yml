@@ -25,14 +25,6 @@
 #  - public: true
 
 
-# Setup custom CA certificates
-#ca_certificates:
-#  # Specify a directory containing custom CA certificates. All files
-#  # in this directory will be copied into the chroot environment
-#  # and the certificate store will be updated post bootstrap.
-#  - path: /path/to/custom/ca/certs
-
-
 # Setup behaviour of the kiwi result bundle command
 #bundle:
 #  # Specify if the bundle tarball should contain compressed results.

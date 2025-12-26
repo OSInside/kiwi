@@ -260,8 +260,6 @@ class SystemBuildTask(CliTask):
 
         # Prioritise CLI option over runtime configuration for CA certificates
         ca_certs_path = self.command_args['--ca-certificates']
-        if not ca_certs_path:
-            ca_certs_path = self.runtime_config.get_ca_certificates_path()
 
         log.info('Preparing new root system')
         with SystemPrepare(
