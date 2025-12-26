@@ -86,6 +86,7 @@ class TestSystemPrepareTask:
         self.task.command_args['--set-container-tag'] = None
         self.task.command_args['--add-container-label'] = []
         self.task.command_args['--signing-key'] = []
+        self.task.command_args['--ca-cert-path'] = []
 
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
     @patch('kiwi.tasks.system_prepare.SystemPrepare')
