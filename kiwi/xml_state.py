@@ -2453,6 +2453,43 @@ class XMLState:
             )
         )
 
+    def add_certificate(self, cert_path: str) -> None:
+        """
+        Add <certificate> to main <certificates> section
+        The main section will be created if it does not
+        exist
+        """
+        certificates_section = self._profiled(
+            self.xml_data.get_certificates()
+        )
+        if not certificates_section:
+            self.xml_data.set_certificates(
+                [
+                    xml_parse.certificates(
+                        certificate=[xml_parse.certificate(path=cert_path)]
+                    )
+                ]
+            )
+        else:
+            certificates_section[0].add_certificate(
+                xml_parse.certificate(
+                    path=cert_path
+                )
+            )
+
+    def get_certificates(self) -> List[str]:
+        """
+        Read list of certificates
+        """
+        cert_list = []
+        certificates_section = self._profiled(
+            self.xml_data.get_certificates()
+        )
+        if certificates_section:
+            for certificate in certificates_section[0].get_certificate():
+                cert_list.append(certificate.get_path())
+        return sorted(list(set(cert_list)))
+
     def resolve_this_path(self) -> None:
         """
         Resolve any this:// repo source path into the path

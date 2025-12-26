@@ -1,7 +1,7 @@
 import logging
 import sys
 import os
-from pytest import fixture, mark
+from pytest import fixture
 from unittest.mock import (
     patch, call, Mock, MagicMock
 )
@@ -163,9 +163,7 @@ class TestSystemBuildTask:
         system_prepare.install_bootstrap.assert_called_once_with(
             manager.__enter__.return_value, []
         )
-        system_prepare.setup_ca_certificates.assert_called_once_with(
-            []
-        )
+        system_prepare.setup_ca_certificates.assert_called_once_with()
         system_prepare.install_system.assert_called_once_with(
             manager.__enter__.return_value
         )
@@ -450,30 +448,19 @@ class TestSystemBuildTask:
         self.task.process()
         mock_delete_repos.assert_called_once_with()
 
-    @mark.parametrize(
-        "cli_path, expected_path",
-        [
-            # Custom CA Certificates Tests
-            ('/config/certs', '/config/certs'),
-        ]
-    )
+    @patch('kiwi.xml_state.XMLState.add_certificate')
     @patch('kiwi.tasks.system_build.SystemPrepare')
     @patch('kiwi.logger.Logger.set_logfile')
     def test_ca_certs_path_handling(
-        self, mock_log, mock_SystemPrepare, cli_path, expected_path
+        self, mock_log, mock_SystemPrepare, mock_add_certificate
     ):
-        """
-        Verify that the CA certificates path is correctly determined
-        from CLI arguments and runtime configuration.
-        """
         system_prepare = Mock()
         system_prepare.setup_repositories = Mock(
             return_value=MagicMock()
         )
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
-        self.task.command_args['--ca-cert-path'] = [cli_path]
+        self.task.command_args['--ca-cert-path'] = ['/some/path']
         self.task.process()
-        system_prepare.setup_ca_certificates.assert_called_once_with(
-            [expected_path]
-        )
+        mock_add_certificate.assert_called_once_with('/some/path')
+        system_prepare.setup_ca_certificates.assert_called_once_with()
