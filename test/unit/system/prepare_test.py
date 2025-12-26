@@ -532,12 +532,12 @@ class TestSystemPrepare:
         manager.clean_leftovers.assert_called_once_with()
 
     def test_setup_ca_certificates_no_path(self):
-        self.system.setup_ca_certificates(None)
+        self.system.setup_ca_certificates([])
 
     @patch('os.path.isdir', return_value=False)
     def test_setup_ca_certificates_path_not_a_dir(self, mock_isdir):
         with self._caplog.at_level(logging.WARNING):
-            self.system.setup_ca_certificates('/fake/path')
+            self.system.setup_ca_certificates(['/fake/path'])
 
         mock_isdir.assert_called_once_with('/fake/path')
         assert 'Custom CA certificates path /fake/path not found' in self._caplog.text
@@ -547,7 +547,7 @@ class TestSystemPrepare:
         self.state.get_ca_update_info = Mock(return_value=None)
 
         with self._caplog.at_level(logging.WARNING):
-            self.system.setup_ca_certificates('/fake/path')
+            self.system.setup_ca_certificates(['/fake/path'])
 
         mock_isdir.assert_called_once_with('/fake/path')
         self.state.get_ca_update_info.assert_called_once_with()
@@ -578,7 +578,7 @@ class TestSystemPrepare:
         mock_datasync_instance = Mock()
         mock_datasync.return_value = mock_datasync_instance
 
-        self.system.setup_ca_certificates('/fake/path')
+        self.system.setup_ca_certificates(['/fake/path'])
 
         mock_isdir.assert_called_once_with('/fake/path')
         self.state.get_ca_update_info.assert_called_once_with()
@@ -629,7 +629,7 @@ class TestSystemPrepare:
         self.state.get_ca_update_info = Mock(return_value=ca_update_info)
 
         with self._caplog.at_level(logging.WARNING):
-            self.system.setup_ca_certificates('/fake/path')
+            self.system.setup_ca_certificates(['/fake/path'])
 
         assert 'CA certificates location specified, but no certificates found, skipping' in self._caplog.text
 
@@ -655,7 +655,7 @@ class TestSystemPrepare:
         mock_datasync.return_value = mock_datasync_instance
 
         with raises(KiwiBootStrapPhaseFailed) as excinfo:
-            self.system.setup_ca_certificates('/fake/path')
+            self.system.setup_ca_certificates(['/fake/path'])
 
         assert 'Failed to setup custom CA certificates' in str(excinfo.value)
         assert 'command failed' in str(excinfo.value)

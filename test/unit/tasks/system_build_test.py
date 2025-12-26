@@ -93,7 +93,7 @@ class TestSystemBuildTask:
         self.task.command_args['--add-container-label'] = []
         self.task.command_args['--clear-cache'] = False
         self.task.command_args['--signing-key'] = []
-        self.task.command_args['--ca-certificates'] = None
+        self.task.command_args['--ca-cert-path'] = []
 
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
@@ -164,7 +164,7 @@ class TestSystemBuildTask:
             manager.__enter__.return_value, []
         )
         system_prepare.setup_ca_certificates.assert_called_once_with(
-            None
+            []
         )
         system_prepare.install_system.assert_called_once_with(
             manager.__enter__.return_value
@@ -451,21 +451,16 @@ class TestSystemBuildTask:
         mock_delete_repos.assert_called_once_with()
 
     @mark.parametrize(
-        "cli_path, config_path, expected_path",
+        "cli_path, expected_path",
         [
             # Custom CA Certificates Tests
-            # Case 1: CLI path overrides runtime config
-            ('/cli/certs', '/config/certs', '/cli/certs'),
-            # Case 2: Only CLI path is provided
-            ('/cli/certs', None, '/cli/certs'),
-            # Case 3: Only runtime config path is provided
-            (None, '/config/certs', '/config/certs'),
+            ('/config/certs', '/config/certs'),
         ]
     )
     @patch('kiwi.tasks.system_build.SystemPrepare')
     @patch('kiwi.logger.Logger.set_logfile')
     def test_ca_certs_path_handling(
-        self, mock_log, mock_SystemPrepare, cli_path, config_path, expected_path
+        self, mock_log, mock_SystemPrepare, cli_path, expected_path
     ):
         """
         Verify that the CA certificates path is correctly determined
@@ -477,8 +472,8 @@ class TestSystemBuildTask:
         )
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
-        self.task.command_args['--ca-certificates'] = cli_path
+        self.task.command_args['--ca-cert-path'] = [cli_path]
         self.task.process()
         system_prepare.setup_ca_certificates.assert_called_once_with(
-            expected_path
+            [expected_path]
         )
