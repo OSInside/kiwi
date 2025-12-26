@@ -84,6 +84,7 @@ div {
         element image {
             k.image.attlist &
             k.include* &
+            k.certificates? &
             k.description &
             k.preferences+ &
             k.profiles* &
@@ -1117,6 +1118,34 @@ div {
     k.container =
         element container {
             k.container.attlist,
+            empty
+        }
+}
+
+#==========================================
+# common element <certificates>
+#
+div {
+    k.certificates.profiles.attribute = k.profiles.attribute
+    k.certificates.attlist =
+        k.certificates.profiles.attribute?
+    k.certificates =
+        element certificates {
+            k.certificates.attlist,
+            k.certificate+
+        }
+}
+
+#==========================================
+# common element <certificate>
+#
+div {
+    k.certificate.path.attribute = k.path.attribute
+    k.certificate.attlist = k.certificate.path.attribute
+    k.certificate =
+        # A pointer to a path with certificates
+        element certificate {
+            k.certificate.attlist,
             empty
         }
 }
