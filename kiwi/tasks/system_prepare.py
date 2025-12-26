@@ -239,6 +239,10 @@ class SystemPrepareTask(CliTask):
                 self.command_args['--set-container-derived-from']
             )
 
+        if self.command_args['--ca-cert-path']:
+            for certificate in self.command_args['--ca-cert-path']:
+                self.xml_state.add_certificate(certificate)
+
         self.run_checks(self.checks_after_command_args)
 
         log.info('Preparing system')
@@ -267,9 +271,7 @@ class SystemPrepareTask(CliTask):
                 setup.call_post_bootstrap_script()
 
                 # Setup custom CA certificates after bootstrap package install
-                system.setup_ca_certificates(
-                    self.command_args['--ca-cert-path']
-                )
+                system.setup_ca_certificates()
 
                 system.install_system(
                     manager

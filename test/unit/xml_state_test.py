@@ -1443,3 +1443,17 @@ class TestXMLState:
         """
         self.state.get_package_manager = Mock(return_value=package_manager)
         assert self.state.get_ca_update_info() == expected_info
+
+    def test_get_certificates(self):
+        assert self.state.get_certificates() == ['/some/path']
+        self.state.add_certificate('/new/path')
+        assert self.state.get_certificates() == [
+            '/new/path', '/some/path'
+        ]
+        self.state.add_certificate('/new/path')
+        assert self.state.get_certificates() == [
+            '/new/path', '/some/path'
+        ]
+        assert self.apt_state.get_certificates() == []
+        self.apt_state.add_certificate('/new/path')
+        assert self.apt_state.get_certificates() == ['/new/path']

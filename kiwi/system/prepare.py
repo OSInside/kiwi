@@ -562,15 +562,14 @@ class SystemPrepare:
             ) as manager:
                 manager.clean_leftovers()
 
-    def setup_ca_certificates(self, ca_certs_paths: List[str]) -> None:
+    def setup_ca_certificates(self) -> None:
         """
         Setup custom CA certificates in the chroot environment. This is
-        done by copying certificates from a location specified on the
-        command-line (via --ca-certificates), or specified in the runtime
-        configuration (via ca_certificates in kiwi.yml). If both are
-        specified, the CLI option is favoured.
-
-        :param ca_certs_paths: List of custom CA certificates paths
+        done by copying certificates from a location specified in
+        the image description <certificates> section and/or via the
+        command-line. When specified on the command-line, this will
+        add, create or overwrite <certificates> information from the
+        image description.
 
         :raises KiwiBootStrapPhaseFailed:
             The CA certificates are added immediately post bootstrap
@@ -578,7 +577,7 @@ class SystemPrepare:
             installed, therefore it makes sense to exit with a bootstrap
             failure if we catch any exception here.
         """
-        for ca_certs_path in ca_certs_paths:
+        for ca_certs_path in self.xml_state.get_certificates():
             if not os.path.isdir(ca_certs_path):
                 log.warning(
                     'Custom CA certificates path {} not found, skipping'.format(
