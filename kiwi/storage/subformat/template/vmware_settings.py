@@ -37,10 +37,23 @@ class VmwareSettingsTemplate:
             guestOS = "${guest_os}"
         ''').strip() + self.cr
 
+        self.pcie_bridge = dedent('''
+            pciBridge0.functions = "8"
+            pciBridge0.pciSlotNumber = "17"
+            pciBridge0.present = "true"
+            pciBridge0.virtualDev = "pcieRootPort"
+        ''').strip() + self.cr
+
         self.ide_disk = dedent('''
             ide${disk_id}:0.present = "true"
             ide${disk_id}:0.fileName= "${vmdk_file}"
             ide${disk_id}:0.redo = ""
+        ''').strip() + self.cr
+
+        self.sata_disk = dedent('''
+            sata${disk_id}.present = "true"
+            sata${disk_id}:0.present = "true"
+            sata${disk_id}:0.fileName = "${vmdk_file}"
         ''').strip() + self.cr
 
         self.scsi_disk = dedent('''
@@ -130,6 +143,7 @@ class VmwareSettingsTemplate:
         """
         template_data = self.header
         template_data += self.defaults
+        template_data += self.pcie_bridge
 
         if memory_setup:
             template_data += self.memory
@@ -137,10 +151,13 @@ class VmwareSettingsTemplate:
         if cpu_setup:
             template_data += self.number_of_cpus
 
-        if disk_controller == 'ide':
-            template_data += self.ide_disk
-        else:
-            template_data += self.scsi_disk
+        controller_funcs = {
+            'ide': self.ide_disk,
+            'sata': self.sata_disk,
+        }
+
+        # All except ide and sata ontrollers are a form of scsi
+        template_data += controller_funcs.get(disk_controller, self.scsi_disk)
 
         if network_setup:
             for nic_id, nic_setup in list(network_setup.items()):
