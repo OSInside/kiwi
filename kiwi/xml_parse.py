@@ -3,7 +3,7 @@
 
 #
 # Generated  by generateDS.py version 2.29.24.
-# Python 3.11.13 (main, Jun 09 2025, 21:55:43) [GCC]
+# Python 3.11.14 (main, Nov 20 2025, 22:16:35) [GCC]
 #
 # Command line options:
 #   ('-f', '')
@@ -3363,8 +3363,11 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
+    def __init__(self, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
         self.original_tagname_ = None
+        self.efipart_id = _cast(None, efipart_id)
+        self.rootpart_id = _cast(None, rootpart_id)
+        self.bootpart_id = _cast(None, bootpart_id)
         self.boot = _cast(None, boot)
         self.bootfilesystem = _cast(None, bootfilesystem)
         self.firmware = _cast(None, firmware)
@@ -3565,6 +3568,12 @@ class type_(GeneratedsSuper):
     def add_luksformat(self, value): self.luksformat.append(value)
     def insert_luksformat_at(self, index, value): self.luksformat.insert(index, value)
     def replace_luksformat_at(self, index, value): self.luksformat[index] = value
+    def get_efipart_id(self): return self.efipart_id
+    def set_efipart_id(self, efipart_id): self.efipart_id = efipart_id
+    def get_rootpart_id(self): return self.rootpart_id
+    def set_rootpart_id(self, rootpart_id): self.rootpart_id = rootpart_id
+    def get_bootpart_id(self): return self.bootpart_id
+    def set_bootpart_id(self, bootpart_id): self.bootpart_id = bootpart_id
     def get_boot(self): return self.boot
     def set_boot(self, boot): self.boot = boot
     def get_bootfilesystem(self): return self.bootfilesystem
@@ -3745,6 +3754,13 @@ class type_(GeneratedsSuper):
     def set_boot_clone(self, boot_clone): self.boot_clone = boot_clone
     def get_bundle_format(self): return self.bundle_format
     def set_bundle_format(self, bundle_format): self.bundle_format = bundle_format
+    def validate_number_type(self, value):
+        # Validate type number-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_number_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_number_type_patterns_, ))
+    validate_number_type_patterns_ = [['^\\d+$']]
     def validate_blocks_type(self, value):
         # Validate type blocks-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -3787,13 +3803,6 @@ class type_(GeneratedsSuper):
                     self.validate_ecma_119_achar_128_text_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_ecma_119_achar_128_text_patterns_, ))
     validate_ecma_119_achar_128_text_patterns_ = [['^[a-zA-Z0-9!-/:-?_ ]{1,128}$']]
-    def validate_number_type(self, value):
-        # Validate type number-type, a restriction on xs:token.
-        if value is not None and Validate_simpletypes_:
-            if not self.gds_validate_simple_patterns(
-                    self.validate_number_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_number_type_patterns_, ))
-    validate_number_type_patterns_ = [['^\\d+$']]
     def hasContent_(self):
         if (
             self.bootloader or
@@ -3833,6 +3842,15 @@ class type_(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='type'):
+        if self.efipart_id is not None and 'efipart_id' not in already_processed:
+            already_processed.add('efipart_id')
+            outfile.write(' efipart_id=%s' % (quote_attrib(self.efipart_id), ))
+        if self.rootpart_id is not None and 'rootpart_id' not in already_processed:
+            already_processed.add('rootpart_id')
+            outfile.write(' rootpart_id=%s' % (quote_attrib(self.rootpart_id), ))
+        if self.bootpart_id is not None and 'bootpart_id' not in already_processed:
+            already_processed.add('bootpart_id')
+            outfile.write(' bootpart_id=%s' % (quote_attrib(self.bootpart_id), ))
         if self.boot is not None and 'boot' not in already_processed:
             already_processed.add('boot')
             outfile.write(' boot=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.boot), input_name='boot')), ))
@@ -4138,6 +4156,24 @@ class type_(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('efipart_id', node)
+        if value is not None and 'efipart_id' not in already_processed:
+            already_processed.add('efipart_id')
+            self.efipart_id = value
+            self.efipart_id = ' '.join(self.efipart_id.split())
+            self.validate_number_type(self.efipart_id)    # validate type number-type
+        value = find_attr_value_('rootpart_id', node)
+        if value is not None and 'rootpart_id' not in already_processed:
+            already_processed.add('rootpart_id')
+            self.rootpart_id = value
+            self.rootpart_id = ' '.join(self.rootpart_id.split())
+            self.validate_number_type(self.rootpart_id)    # validate type number-type
+        value = find_attr_value_('bootpart_id', node)
+        if value is not None and 'bootpart_id' not in already_processed:
+            already_processed.add('bootpart_id')
+            self.bootpart_id = value
+            self.bootpart_id = ' '.join(self.bootpart_id.split())
+            self.validate_number_type(self.bootpart_id)    # validate type number-type
         value = find_attr_value_('boot', node)
         if value is not None and 'boot' not in already_processed:
             already_processed.add('boot')
@@ -5270,8 +5306,9 @@ class partition(GeneratedsSuper):
     """Specify custom partition in the partition table"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, size=None, partition_name=None, partition_type=None, mountpoint=None, filesystem=None, label=None, clone=None):
+    def __init__(self, part_id=None, name=None, size=None, partition_name=None, partition_type=None, mountpoint=None, filesystem=None, label=None, clone=None):
         self.original_tagname_ = None
+        self.part_id = _cast(None, part_id)
         self.name = _cast(None, name)
         self.size = _cast(None, size)
         self.partition_name = _cast(None, partition_name)
@@ -5291,6 +5328,8 @@ class partition(GeneratedsSuper):
         else:
             return partition(*args_, **kwargs_)
     factory = staticmethod(factory)
+    def get_part_id(self): return self.part_id
+    def set_part_id(self, part_id): self.part_id = part_id
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
     def get_size(self): return self.size
@@ -5307,6 +5346,13 @@ class partition(GeneratedsSuper):
     def set_label(self, label): self.label = label
     def get_clone(self): return self.clone
     def set_clone(self, clone): self.clone = clone
+    def validate_number_type(self, value):
+        # Validate type number-type, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_number_type_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_number_type_patterns_, ))
+    validate_number_type_patterns_ = [['^\\d+$']]
     def validate_partition_size_type(self, value):
         # Validate type partition-size-type, a restriction on xs:token.
         if value is not None and Validate_simpletypes_:
@@ -5321,13 +5367,6 @@ class partition(GeneratedsSuper):
                     self.validate_safe_posix_short_name_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_safe_posix_short_name_patterns_, ))
     validate_safe_posix_short_name_patterns_ = [['^[a-zA-Z0-9_\\-\\.]{1,32}$']]
-    def validate_number_type(self, value):
-        # Validate type number-type, a restriction on xs:token.
-        if value is not None and Validate_simpletypes_:
-            if not self.gds_validate_simple_patterns(
-                    self.validate_number_type_patterns_, value):
-                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_number_type_patterns_, ))
-    validate_number_type_patterns_ = [['^\\d+$']]
     def hasContent_(self):
         if (
 
@@ -5356,6 +5395,9 @@ class partition(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='partition'):
+        if self.part_id is not None and 'part_id' not in already_processed:
+            already_processed.add('part_id')
+            outfile.write(' part_id=%s' % (quote_attrib(self.part_id), ))
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
@@ -5390,6 +5432,12 @@ class partition(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('part_id', node)
+        if value is not None and 'part_id' not in already_processed:
+            already_processed.add('part_id')
+            self.part_id = value
+            self.part_id = ' '.join(self.part_id.split())
+            self.validate_number_type(self.part_id)    # validate type number-type
         value = find_attr_value_('name', node)
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
