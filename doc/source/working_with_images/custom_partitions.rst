@@ -86,6 +86,24 @@ clone="number"
   partition is the one that will be referenced and used by the
   system
 
+part_id="number"
+  Specify the partition number for this partition. This is the number
+  used for the partition in the partition table. The value impacts the
+  name of the unix device node associated with the partition. This means
+  if the disk name is e.g. `/dev/sda` and `part_id="42"` is set the
+  unix node for this partition will be `/dev/sda42`. Please note that
+  the number has no impact on the geometry or order of partitions as
+  they get created. The partitions in the `<partitions>` section still
+  gets created in the order as they are listed. Please also note if
+  custom partition ids are used it is strongly recommended that they
+  are used across all partitions created by kiwi. The reason for this
+  is that kiwi uses an incremental counter which by default matches
+  with the number of the partition in the table. If custom partition
+  id's are not used for all partitions this results in a mix of
+  numbers, which works but is not obviously visible by reading the
+  image description. Because of that also see the information about
+  the `<type>` attributes `efipart_id`, `rootpart_id` and `bootpart_id`
+
 Despite the customization options of the partition table shown above
 there are the following limitations:
 
