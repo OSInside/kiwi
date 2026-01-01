@@ -3392,12 +3392,65 @@ for all target image files at call time of:
 kiwi-ng result bundle ...</a:documentation>
       </attribute>
     </define>
+    <define name="k.type.eficsmpart_id.attribute">
+      <attribute name="eficsmpart_id">
+        <a:documentation>Set custom partition number for the EFI CSM (legacy BIOS)
+partition if present</a:documentation>
+        <ref name="number-type"/>
+      </attribute>
+      <sch:pattern id="eficsmpart_id" is-a="image_type">
+        <sch:param name="attr" value="eficsmpart_id"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.efipart_id.attribute">
+      <attribute name="efipart_id">
+        <a:documentation>Set custom partition number for the EFI partition if present</a:documentation>
+        <ref name="number-type"/>
+      </attribute>
+      <sch:pattern id="efipart_id" is-a="image_type">
+        <sch:param name="attr" value="efipart_id"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.rootpart_id.attribute">
+      <attribute name="rootpart_id">
+        <a:documentation>Set custom partition number for the root partition</a:documentation>
+        <ref name="number-type"/>
+      </attribute>
+      <sch:pattern id="rootpart_id" is-a="image_type">
+        <sch:param name="attr" value="rootpart_id"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
+    <define name="k.type.bootpart_id.attribute">
+      <attribute name="bootpart_id">
+        <a:documentation>Set custom partition number for the boot partition if present</a:documentation>
+        <ref name="number-type"/>
+      </attribute>
+      <sch:pattern id="bootpart_id" is-a="image_type">
+        <sch:param name="attr" value="bootpart_id"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.attlist">
       <interleave>
         <optional>
-          <ref name="k.type.boot.attribute">
+          <ref name="k.type.eficsmpart_id.attribute">
             <a:documentation>Specifies the image type</a:documentation>
           </ref>
+        </optional>
+        <optional>
+          <ref name="k.type.efipart_id.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.rootpart_id.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.bootpart_id.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.boot.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.bootfilesystem.attribute"/>
@@ -4077,8 +4130,17 @@ Allowed values are: t.linux</a:documentation>
         <a:documentation>filesystem label</a:documentation>
       </attribute>
     </define>
+    <define name="k.partition.part_id">
+      <attribute name="part_id">
+        <a:documentation>custom partition number</a:documentation>
+        <ref name="number-type"/>
+      </attribute>
+    </define>
     <define name="k.partition.attlist">
       <interleave>
+        <optional>
+          <ref name="k.partition.part_id"/>
+        </optional>
         <ref name="k.partition.name.attribute"/>
         <ref name="k.partition.size.attribute"/>
         <optional>

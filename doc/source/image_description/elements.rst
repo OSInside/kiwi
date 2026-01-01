@@ -1045,6 +1045,26 @@ ensure_empty_tmpdirs="true|false":
 publisher="string":
   For ISO images, specifies the publisher name of the ISO.
 
+eficsmpart_id="number":
+  For OEM images, specifies the partition number for the EFI CSM
+  (legacy BIOS) partition. For details about the evaluation and impact
+  of custom partition ids please see: :ref:`custom_partitions`
+
+efipart_id="number":
+  For OEM images, specifies the partition number for the EFI partition.
+  For details about the evaluation and impact of custom partition ids
+  please see: :ref:`custom_partitions`
+
+rootpart_id="number":
+  For OEM images, specifies the partition number for the ROOT partition.
+  For details about the evaluation and impact of custom partition ids
+  please see: :ref:`custom_partitions`
+
+bootpart_id="number":
+  For OEM images, specifies the partition number for the BOOT partition.
+  For details about the evaluation and impact of custom partition ids
+  please see: :ref:`custom_partitions`
+
 The following sections shows the supported child elements of the `type`
 element including references to their usage in a detailed type setup:
 

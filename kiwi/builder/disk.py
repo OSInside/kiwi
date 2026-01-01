@@ -1172,7 +1172,8 @@ class DiskBuilder:
             log.info('--> creating EFI CSM(legacy bios) partition')
             partition_mbsize = self.firmware.get_legacy_bios_partition_size()
             disk.create_efi_csm_partition(
-                partition_mbsize
+                partition_mbsize,
+                self.xml_state.build_type.get_eficsmpart_id()
             )
             disksize_used_mbytes += partition_mbsize
 
@@ -1180,7 +1181,8 @@ class DiskBuilder:
             log.info('--> creating EFI partition')
             partition_mbsize = self.firmware.get_efi_partition_size()
             disk.create_efi_partition(
-                partition_mbsize
+                partition_mbsize,
+                self.xml_state.build_type.get_efipart_id()
             )
             disksize_used_mbytes += partition_mbsize
 
@@ -1200,7 +1202,8 @@ class DiskBuilder:
             )
             partition_mbsize = self.disk_setup.boot_partition_size()
             disk.create_boot_partition(
-                format(partition_mbsize), self.boot_clone_count
+                format(partition_mbsize), self.boot_clone_count,
+                self.xml_state.build_type.get_bootpart_id()
             )
             disksize_used_mbytes += \
                 (self.boot_clone_count + 1) * partition_mbsize if \
@@ -1324,7 +1327,10 @@ class DiskBuilder:
                         root_clone_count
                     )
                 )
-                disk.create_root_partition(rootfs_mbsize, root_clone_count)
+                disk.create_root_partition(
+                    rootfs_mbsize, root_clone_count,
+                    self.xml_state.build_type.get_rootpart_id()
+                )
 
         if self.spare_part_is_last:
             log.info('--> creating spare partition')
