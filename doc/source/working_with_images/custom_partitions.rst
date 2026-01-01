@@ -102,7 +102,8 @@ part_id="number"
   id's are not used for all partitions this results in a mix of
   numbers, which works but is not obviously visible by reading the
   image description. Because of that also see the information about
-  the `<type>` attributes `efipart_id`, `rootpart_id` and `bootpart_id`
+  the `<type>` attributes `eficsmpart_id`, `efipart_id`,
+  `rootpart_id` and `bootpart_id`
 
 Despite the customization options of the partition table shown above
 there are the following limitations:

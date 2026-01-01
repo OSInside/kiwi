@@ -1045,6 +1045,11 @@ ensure_empty_tmpdirs="true|false":
 publisher="string":
   For ISO images, specifies the publisher name of the ISO.
 
+eficsmpart_id="number":
+  For OEM images, specifies the partition number for the EFI CSM
+  (legacy BIOS) partition. For details about the evaluation and impact
+  of custom partition ids please see: :ref:`custom_partitions`
+
 efipart_id="number":
   For OEM images, specifies the partition number for the EFI partition.
   For details about the evaluation and impact of custom partition ids
