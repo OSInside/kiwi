@@ -3392,6 +3392,17 @@ for all target image files at call time of:
 kiwi-ng result bundle ...</a:documentation>
       </attribute>
     </define>
+    <define name="k.type.eficsmpart_id.attribute">
+      <attribute name="eficsmpart_id">
+        <a:documentation>Set custom partition number for the EFI CSM (legacy BIOS)
+partition if present</a:documentation>
+        <ref name="number-type"/>
+      </attribute>
+      <sch:pattern id="eficsmpart_id" is-a="image_type">
+        <sch:param name="attr" value="eficsmpart_id"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.efipart_id.attribute">
       <attribute name="efipart_id">
         <a:documentation>Set custom partition number for the EFI partition if present</a:documentation>
@@ -3425,9 +3436,12 @@ kiwi-ng result bundle ...</a:documentation>
     <define name="k.type.attlist">
       <interleave>
         <optional>
-          <ref name="k.type.efipart_id.attribute">
+          <ref name="k.type.eficsmpart_id.attribute">
             <a:documentation>Specifies the image type</a:documentation>
           </ref>
+        </optional>
+        <optional>
+          <ref name="k.type.efipart_id.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.rootpart_id.attribute"/>

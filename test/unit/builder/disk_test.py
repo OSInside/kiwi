@@ -315,7 +315,7 @@ class TestDiskBuilder:
         loop_provider.create.assert_called_once_with()
         disk.wipe.assert_called_once_with()
         disk.create_efi_csm_partition.assert_called_once_with(
-            self.firmware.get_legacy_bios_partition_size()
+            self.firmware.get_legacy_bios_partition_size(), None
         )
         disk.create_efi_partition.assert_called_once_with(
             self.firmware.get_efi_partition_size(), None
@@ -844,7 +844,7 @@ class TestDiskBuilder:
         ]
         disk.wipe.assert_called_once_with()
         disk.create_efi_csm_partition.assert_called_once_with(
-            self.firmware.get_legacy_bios_partition_size()
+            self.firmware.get_legacy_bios_partition_size(), None
         )
         disk.create_efi_partition.assert_called_once_with(
             self.firmware.get_efi_partition_size(), None

@@ -1172,7 +1172,8 @@ class DiskBuilder:
             log.info('--> creating EFI CSM(legacy bios) partition')
             partition_mbsize = self.firmware.get_legacy_bios_partition_size()
             disk.create_efi_csm_partition(
-                partition_mbsize
+                partition_mbsize,
+                self.xml_state.build_type.get_eficsmpart_id()
             )
             disksize_used_mbytes += partition_mbsize
 
