@@ -530,3 +530,76 @@ class TestSystemPrepare:
         mock_manager.return_value.__enter__.return_value = manager
         self.system.clean_package_manager_leftovers()
         manager.clean_leftovers.assert_called_once_with()
+
+    @patch('os.path.isdir', return_value=True)
+    @patch('os.path.exists', return_value=True)
+    def test_setup_ca_certificates_name_exists_but_is_dir(
+        self, mock_os_path_exists, mock_os_path_isdir
+    ):
+        with self._caplog.at_level(logging.WARNING):
+            self.system.setup_ca_certificates()
+        assert '/some/ca/filename: does not exist or is directory' in \
+            self._caplog.text
+
+    def test_setup_ca_certificates_no_update_info(self):
+        self.state.get_ca_update_info = Mock(return_value=None)
+        with self._caplog.at_level(logging.WARNING):
+            self.system.setup_ca_certificates()
+        assert 'Could not determine CA update tool, skipping setup' in \
+            self._caplog.text
+
+    @patch('kiwi.system.prepare.Command.run')
+    @patch('kiwi.system.prepare.DataSync')
+    @patch('os.path.exists', return_value=True)
+    @patch('kiwi.system.prepare.Path')
+    @patch('os.path.isdir', return_value=False)
+    def test_setup_ca_certificates_success(
+        self,
+        mock_os_path_isdir,
+        mock_Path,
+        mock_os_path_exists,
+        mock_DataSync,
+        mock_Command_run
+    ):
+        ca_update_info = {
+            'destination_path': '/etc/pki/trust/anchors',
+            'tool': 'update-ca-certificates'
+        }
+        self.state.get_ca_update_info = Mock(return_value=ca_update_info)
+        mock_DataSync_instance = Mock()
+        mock_DataSync.return_value = mock_DataSync_instance
+
+        self.system.setup_ca_certificates()
+
+        self.state.get_ca_update_info.assert_called_once_with()
+        ca_chroot_path = 'root_dir/etc/pki/trust/anchors'
+        mock_Path.create.assert_called_once_with(ca_chroot_path)
+        mock_DataSync.assert_called_once_with(
+            '/some/ca/filename', ca_chroot_path
+        )
+        mock_Command_run.assert_called_once_with(
+            ['chroot', 'root_dir', 'update-ca-certificates']
+        )
+
+    @patch('kiwi.system.prepare.Command.run')
+    @patch('kiwi.system.prepare.DataSync')
+    @patch('os.path.exists', return_value=True)
+    @patch('kiwi.system.prepare.Path')
+    @patch('os.path.isdir', return_value=False)
+    def test_setup_ca_certificates_raises(
+        self,
+        mock_os_path_isdir,
+        mock_Path,
+        mock_os_path_exists,
+        mock_DataSync,
+        mock_Command_run
+    ):
+        ca_update_info = {
+            'destination_path': '/etc/pki/trust/anchors',
+            'tool': 'update-ca-certificates'
+        }
+        self.state.get_ca_update_info = Mock(return_value=ca_update_info)
+        mock_DataSync.side_effect = Exception
+
+        with raises(KiwiBootStrapPhaseFailed):
+            self.system.setup_ca_certificates()

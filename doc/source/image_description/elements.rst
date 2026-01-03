@@ -120,6 +120,26 @@ The following optional sub sections can be inserted below the description tag:
 license
   Specifies the license name which applies to this image description.
 
+.. _sec.certificates:
+
+<certificates>
+--------------
+
+Add a cert-file to the directory storing additional local CA certificates.
+The import will occur immediately after the bootstrap process, where
+the required CA update tooling is expected to be installed. This
+setting is useful for situations where certificates are not packaged,
+or the certificates are required during the build process, e.g. due
+to proxy servers in the build environment that need certificates
+in chroot.
+
+.. code:: xml
+
+   <certificates>
+     <certificate name="/some/ca/filename1"/>
+     <certificate name="/some/ca/filename2"/>
+   </certificates>
+
 .. _sec.preferences:
 
 <preferences>

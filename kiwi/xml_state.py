@@ -2453,6 +2453,43 @@ class XMLState:
             )
         )
 
+    def add_certificate(self, cert_file: str) -> None:
+        """
+        Add <certificate name="cert_file"> to main <certificates> section
+        The main section will be created if it does not
+        exist
+        """
+        certificates_section = self._profiled(
+            self.xml_data.get_certificates()
+        )
+        if not certificates_section:
+            self.xml_data.set_certificates(
+                [
+                    xml_parse.certificates(
+                        certificate=[xml_parse.certificate(name=cert_file)]
+                    )
+                ]
+            )
+        else:
+            certificates_section[0].add_certificate(
+                xml_parse.certificate(
+                    name=cert_file
+                )
+            )
+
+    def get_certificates(self) -> List[str]:
+        """
+        Read list of certificates
+        """
+        cert_list = []
+        certificates_section = self._profiled(
+            self.xml_data.get_certificates()
+        )
+        if certificates_section:
+            for certificate in certificates_section[0].get_certificate():
+                cert_list.append(certificate.get_name())
+        return sorted(list(set(cert_list)))
+
     def resolve_this_path(self) -> None:
         """
         Resolve any this:// repo source path into the path
@@ -2975,6 +3012,44 @@ class XMLState:
         return self.get_archives_target_dirs(
             self.get_packages_sections(['image', self.get_build_type_name()])
         )
+
+    def get_ca_update_info(self) -> Optional[Dict[str, str]]:
+        """
+        Provides a dictionary with distribution specific information
+        on how to update the system's CA certificates, specifically
+        with the location of the certificate directory and the tool
+        used to run the update command.
+
+        :return: dict with 'tool' and 'destination_path'
+
+        :rtype: dict
+        """
+        package_manager = self.get_package_manager()
+        if package_manager == 'zypper':
+            # SUSE family
+            return {
+                'tool': 'update-ca-certificates',
+                'destination_path': '/etc/pki/trust/anchors'
+            }
+        elif package_manager in ['dnf', 'dnf4', 'dnf5', 'yum']:
+            # Red Hat family
+            return {
+                'tool': 'update-ca-certificates',
+                'destination_path': '/etc/pki/ca-trust/source/anchors/'
+            }
+        elif package_manager == 'apt':
+            # Debian and Ubuntu families
+            return {
+                'tool': 'update-ca-certificates',
+                'destination_path': '/usr/local/share/ca-certificates/'
+            }
+        elif package_manager == 'pacman':
+            # ArchLinux family
+            return {
+                'tool': 'update-ca-trust',
+                'destination_path': '/etc/ca-certificates/trust-source/anchors/'
+            }
+        return None
 
     def _used_profiles(self, profiles=None):
         """
