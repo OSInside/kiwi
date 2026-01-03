@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import glob
 import logging
 from contextlib import ExitStack
 from typing import (
@@ -565,80 +564,62 @@ class SystemPrepare:
     def setup_ca_certificates(self) -> None:
         """
         Setup custom CA certificates in the chroot environment. This is
-        done by copying certificates from a location specified in
-        the image description <certificates> section and/or via the
-        command-line. When specified on the command-line, this will
-        add, create or overwrite <certificates> information from the
-        image description.
+        done by copying the certificate list from get_certificates()
+        to the distribution specific certificate store followed by
+        calling the distribution specific update tool.
 
         :raises KiwiBootStrapPhaseFailed:
-            The CA certificates are added immediately post bootstrap
+            The CA certificates are added immediately after the bootstrap
             package installation, yet before the system packages are
-            installed, therefore it makes sense to exit with a bootstrap
-            failure if we catch any exception here.
+            installed, therefore a bootstrap failure is raised if we
+            catch any exception here.
         """
-        for ca_certs_path in self.xml_state.get_certificates():
-            if not os.path.isdir(ca_certs_path):
-                log.warning(
-                    'Custom CA certificates path {} not found, skipping'.format(
-                        ca_certs_path
+        ca_certs = self.xml_state.get_certificates()
+        if ca_certs:
+            # Determine the correct distro specific update tool and cert store
+            log.info('Updating CA certificate store')
+            ca_update_info = self.xml_state.get_ca_update_info()
+            if ca_update_info:
+                ca_chroot_path = os.path.normpath(
+                    os.sep.join(
+                        [self.root_dir, ca_update_info['destination_path']]
                     )
                 )
-                return
-
-            log.info(
-                f'Setting up custom CA certificates from: {ca_certs_path}'
-            )
-
-            # Determine the correct update tool and destination
-            # for the distribution
-            ca_update_info = self.xml_state.get_ca_update_info()
-            if not ca_update_info:
-                log.warning('Could not determine CA update tool, skipping setup')
-                return
-
-            ca_chroot_path = os.path.join(
-                self.root_dir, ca_update_info['destination_path'].lstrip('/')
-            )
-
-            try:
-                cert_found = False
-                cert_extensions = ['.pem', '.crt', '.cer']
-                for ext in cert_extensions:
-                    for cert_file in glob.glob(
-                        os.path.join(ca_certs_path, f'*{ext}')
-                    ):
-                        if os.path.isfile(cert_file):
-                            if not cert_found:
-                                Path.create(ca_chroot_path)
+                # sync certificates, we accept no errors on this operation
+                try:
+                    Path.create(ca_chroot_path)
+                    has_new_certs = False
+                    for cert_file in ca_certs:
+                        if os.path.exists(cert_file) \
+                           and not os.path.isdir(cert_file):
                             log.info(
-                                '--> Installing certificate: {}'.format(
-                                    os.path.basename(cert_file)
-                                )
+                                f'--> Syncing: {cert_file} to {ca_chroot_path}'
                             )
                             DataSync(cert_file, ca_chroot_path).sync_data()
-                            cert_found = True
-
-                if cert_found:
-                    log.info(
-                        '--> Updating CA certificate store with: {}'.format(
-                            ca_update_info.get('tool')
+                            has_new_certs = True
+                        else:
+                            log.warning(
+                                f'--> Skipping: {cert_file}: '
+                                'does not exist or is directory'
+                            )
+                    if has_new_certs:
+                        ca_tool = ca_update_info['tool']
+                        log.info(
+                            f'--> Updating CA certificate store with: {ca_tool}'
+                        )
+                        Command.run(
+                            ['chroot', self.root_dir, ca_tool]
+                        )
+                except Exception as issue:
+                    raise KiwiBootStrapPhaseFailed(
+                        self.issue_message.format(
+                            headline='Failed to setup custom CA certificates',
+                            reason=issue
                         )
                     )
-                    Command.run(
-                        ['chroot', self.root_dir, ca_update_info['tool']]
-                    )
-                else:
-                    log.warning(
-                        '--> CA certificates location specified, '
-                        'but no certificates found, skipping'
-                    )
-            except Exception as issue:
-                raise KiwiBootStrapPhaseFailed(
-                    self.issue_message.format(
-                        headline='Failed to setup custom CA certificates',
-                        reason=issue
-                    )
+            else:
+                log.warning(
+                    'Could not determine CA update tool, skipping setup'
                 )
 
     def _install_archives(self, archive_list, archive_target_dir_dict):

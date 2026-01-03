@@ -531,133 +531,75 @@ class TestSystemPrepare:
         self.system.clean_package_manager_leftovers()
         manager.clean_leftovers.assert_called_once_with()
 
-    def test_setup_ca_certificates_no_path(self):
-        self.system.setup_ca_certificates()
-
-    @patch('os.path.isdir', return_value=False)
-    def test_setup_ca_certificates_path_not_a_dir(self, mock_isdir):
+    @patch('os.path.isdir', return_value=True)
+    @patch('os.path.exists', return_value=True)
+    def test_setup_ca_certificates_name_exists_but_is_dir(
+        self, mock_os_path_exists, mock_os_path_isdir
+    ):
         with self._caplog.at_level(logging.WARNING):
             self.system.setup_ca_certificates()
-
-        mock_isdir.assert_called_once_with('/some/path')
-        assert 'Custom CA certificates path /some/path not found' in \
+        assert '/some/ca/filename: does not exist or is directory' in \
             self._caplog.text
 
-    @patch('os.path.isdir', return_value=True)
-    def test_setup_ca_certificates_no_update_info(self, mock_isdir):
+    def test_setup_ca_certificates_no_update_info(self):
         self.state.get_ca_update_info = Mock(return_value=None)
-
         with self._caplog.at_level(logging.WARNING):
             self.system.setup_ca_certificates()
-
-        mock_isdir.assert_called_once_with('/some/path')
-        self.state.get_ca_update_info.assert_called_once_with()
         assert 'Could not determine CA update tool, skipping setup' in \
             self._caplog.text
 
     @patch('kiwi.system.prepare.Command.run')
     @patch('kiwi.system.prepare.DataSync')
-    @patch('os.path.isfile', return_value=True)
-    @patch('glob.glob')
+    @patch('os.path.exists', return_value=True)
     @patch('kiwi.system.prepare.Path')
-    @patch('os.path.isdir', return_value=True)
+    @patch('os.path.isdir', return_value=False)
     def test_setup_ca_certificates_success(
-        self, mock_isdir, mock_path, mock_glob, mock_isfile, mock_datasync,
-        mock_command_run
+        self,
+        mock_os_path_isdir,
+        mock_Path,
+        mock_os_path_exists,
+        mock_DataSync,
+        mock_Command_run
     ):
-        def glob_side_effect(path):
-            if path.endswith('*.pem'):
-                return ['/some/path/cert1.pem', '/some/path/cert2.pem']
-            return []
-
-        mock_glob.side_effect = glob_side_effect
-
         ca_update_info = {
             'destination_path': '/etc/pki/trust/anchors',
             'tool': 'update-ca-certificates'
         }
         self.state.get_ca_update_info = Mock(return_value=ca_update_info)
-        mock_datasync_instance = Mock()
-        mock_datasync.return_value = mock_datasync_instance
+        mock_DataSync_instance = Mock()
+        mock_DataSync.return_value = mock_DataSync_instance
 
         self.system.setup_ca_certificates()
 
-        mock_isdir.assert_called_once_with('/some/path')
         self.state.get_ca_update_info.assert_called_once_with()
-
         ca_chroot_path = 'root_dir/etc/pki/trust/anchors'
-        mock_path.create.assert_called_once_with(ca_chroot_path)
-        mock_glob.assert_has_calls([
-            call('/some/path/*.pem'),
-            call('/some/path/*.crt'),
-            call('/some/path/*.cer')
-        ])
-
-        assert mock_isfile.call_count == 2
-        mock_isfile.assert_has_calls([
-            call('/some/path/cert1.pem'),
-            call('/some/path/cert2.pem')
-        ])
-
-        assert mock_datasync.call_count == 2
-        mock_datasync.assert_has_calls([
-            call('/some/path/cert1.pem', ca_chroot_path),
-            call('/some/path/cert2.pem', ca_chroot_path)
-        ], any_order=True)
-        assert mock_datasync_instance.sync_data.call_count == 2
-
-        mock_command_run.assert_called_once_with(
+        mock_Path.create.assert_called_once_with(ca_chroot_path)
+        mock_DataSync.assert_called_once_with(
+            '/some/ca/filename', ca_chroot_path
+        )
+        mock_Command_run.assert_called_once_with(
             ['chroot', 'root_dir', 'update-ca-certificates']
         )
-
-        assert 'Updating CA certificate store with: update-ca-certificates' \
-            in self._caplog.text
 
     @patch('kiwi.system.prepare.Command.run')
-    @patch('glob.glob', return_value=[])
-    @patch('kiwi.system.prepare.Path')
-    @patch('os.path.isdir', return_value=True)
-    def test_setup_ca_certificates_no_certs_found(
-        self, mock_isdir, mock_path, mock_glob, mock_command_run
-    ):
-        ca_update_info = {
-            'destination_path': '/etc/pki/trust/anchors',
-            'tool': 'update-ca-certificates'
-        }
-        self.state.get_ca_update_info = Mock(return_value=ca_update_info)
-
-        with self._caplog.at_level(logging.WARNING):
-            self.system.setup_ca_certificates()
-
-        assert 'but no certificates found, skipping' in self._caplog.text
-
-        mock_path.create.assert_not_called()
-        mock_command_run.assert_not_called()
-
-    @patch('kiwi.system.prepare.Command.run', side_effect=Exception('command failed'))
     @patch('kiwi.system.prepare.DataSync')
-    @patch('os.path.isfile', return_value=True)
-    @patch('glob.glob', return_value=['/fake/path/cert1.pem'])
+    @patch('os.path.exists', return_value=True)
     @patch('kiwi.system.prepare.Path')
-    @patch('os.path.isdir', return_value=True)
-    def test_setup_ca_certificates_raises_exception(
-        self, mock_isdir, mock_path, mock_glob, mock_isfile,
-        mock_datasync, mock_command_run
+    @patch('os.path.isdir', return_value=False)
+    def test_setup_ca_certificates_raises(
+        self,
+        mock_os_path_isdir,
+        mock_Path,
+        mock_os_path_exists,
+        mock_DataSync,
+        mock_Command_run
     ):
         ca_update_info = {
             'destination_path': '/etc/pki/trust/anchors',
             'tool': 'update-ca-certificates'
         }
         self.state.get_ca_update_info = Mock(return_value=ca_update_info)
-        mock_datasync_instance = Mock()
-        mock_datasync.return_value = mock_datasync_instance
+        mock_DataSync.side_effect = Exception
 
-        with raises(KiwiBootStrapPhaseFailed) as excinfo:
+        with raises(KiwiBootStrapPhaseFailed):
             self.system.setup_ca_certificates()
-
-        assert 'Failed to setup custom CA certificates' in str(excinfo.value)
-        assert 'command failed' in str(excinfo.value)
-
-        mock_command_run.assert_called_once_with(
-            ['chroot', 'root_dir', 'update-ca-certificates']
-        )

@@ -2815,9 +2815,9 @@ class certificates(GeneratedsSuper):
 class certificate(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, path=None):
+    def __init__(self, name=None):
         self.original_tagname_ = None
-        self.path = _cast(None, path)
+        self.name = _cast(None, name)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2829,8 +2829,8 @@ class certificate(GeneratedsSuper):
         else:
             return certificate(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_path(self): return self.path
-    def set_path(self, path): self.path = path
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
     def hasContent_(self):
         if (
 
@@ -2859,9 +2859,9 @@ class certificate(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='certificate'):
-        if self.path is not None and 'path' not in already_processed:
-            already_processed.add('path')
-            outfile.write(' path=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.path), input_name='path')), ))
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='certificate', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -2872,10 +2872,10 @@ class certificate(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('path', node)
-        if value is not None and 'path' not in already_processed:
-            already_processed.add('path')
-            self.path = value
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class certificate

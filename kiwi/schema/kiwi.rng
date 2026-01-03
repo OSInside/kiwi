@@ -1768,14 +1768,14 @@ loading of the container at first boot</a:documentation>
     
   -->
   <div>
-    <define name="k.certificate.path.attribute">
-      <ref name="k.path.attribute"/>
+    <define name="k.certificate.name.attribute">
+      <ref name="k.name.attribute"/>
     </define>
     <define name="k.certificate.attlist">
-      <ref name="k.certificate.path.attribute"/>
+      <ref name="k.certificate.name.attribute"/>
     </define>
     <define name="k.certificate">
-      <!-- A pointer to a path with certificates -->
+      <!-- A pointer to a filename handled as a CA file -->
       <element name="certificate">
         <ref name="k.certificate.attlist"/>
         <empty/>

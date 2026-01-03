@@ -2453,9 +2453,9 @@ class XMLState:
             )
         )
 
-    def add_certificate(self, cert_path: str) -> None:
+    def add_certificate(self, cert_file: str) -> None:
         """
-        Add <certificate> to main <certificates> section
+        Add <certificate name="cert_file"> to main <certificates> section
         The main section will be created if it does not
         exist
         """
@@ -2466,14 +2466,14 @@ class XMLState:
             self.xml_data.set_certificates(
                 [
                     xml_parse.certificates(
-                        certificate=[xml_parse.certificate(path=cert_path)]
+                        certificate=[xml_parse.certificate(name=cert_file)]
                     )
                 ]
             )
         else:
             certificates_section[0].add_certificate(
                 xml_parse.certificate(
-                    path=cert_path
+                    name=cert_file
                 )
             )
 
@@ -2487,7 +2487,7 @@ class XMLState:
         )
         if certificates_section:
             for certificate in certificates_section[0].get_certificate():
-                cert_list.append(certificate.get_path())
+                cert_list.append(certificate.get_name())
         return sorted(list(set(cert_list)))
 
     def resolve_this_path(self) -> None:

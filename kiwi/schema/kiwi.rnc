@@ -1140,10 +1140,10 @@ div {
 # common element <certificate>
 #
 div {
-    k.certificate.path.attribute = k.path.attribute
-    k.certificate.attlist = k.certificate.path.attribute
+    k.certificate.name.attribute = k.name.attribute
+    k.certificate.attlist = k.certificate.name.attribute
     k.certificate =
-        # A pointer to a path with certificates
+        # A pointer to a filename handled as a CA file
         element certificate {
             k.certificate.attlist,
             empty

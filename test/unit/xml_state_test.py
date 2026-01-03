@@ -1446,15 +1446,15 @@ class TestXMLState:
         assert self.state.get_ca_update_info() == expected_info
 
     def test_get_certificates(self):
-        assert self.state.get_certificates() == ['/some/path']
-        self.state.add_certificate('/new/path')
+        assert self.state.get_certificates() == ['/some/ca/filename']
+        self.state.add_certificate('/new/file')
         assert self.state.get_certificates() == [
-            '/new/path', '/some/path'
+            '/new/file', '/some/ca/filename'
         ]
-        self.state.add_certificate('/new/path')
+        self.state.add_certificate('/new/file')
         assert self.state.get_certificates() == [
-            '/new/path', '/some/path'
+            '/new/file', '/some/ca/filename'
         ]
         assert self.apt_state.get_certificates() == []
-        self.apt_state.add_certificate('/new/path')
-        assert self.apt_state.get_certificates() == ['/new/path']
+        self.apt_state.add_certificate('/new/file')
+        assert self.apt_state.get_certificates() == ['/new/file']

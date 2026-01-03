@@ -28,7 +28,7 @@ usage: kiwi-ng system prepare -h | --help
            [--add-repo-credentials=<user:pass_or_filename>...]
            [--add-package=<name>...]
            [--add-bootstrap-package=<name>...]
-           [--ca-cert-path=<directory>...]
+           [--ca-cert=<cert-file>...]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
@@ -70,8 +70,8 @@ options:
     --clear-cache
         delete repository cache for each of the used repositories
         before installing any package
-    --ca-cert-path=<directory>
-        includes additional CA certificates to import immediately after
+    --ca-cert=<cert-file>
+        include additional CA certificate to import immediately after
         bootstrap and make available during the build process.
     --delete-package=<name>
         delete the given package name
@@ -239,8 +239,8 @@ class SystemPrepareTask(CliTask):
                 self.command_args['--set-container-derived-from']
             )
 
-        if self.command_args['--ca-cert-path']:
-            for certificate in self.command_args['--ca-cert-path']:
+        if self.command_args['--ca-cert']:
+            for certificate in self.command_args['--ca-cert']:
                 self.xml_state.add_certificate(certificate)
 
         self.run_checks(self.checks_after_command_args)

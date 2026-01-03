@@ -93,7 +93,7 @@ class TestSystemBuildTask:
         self.task.command_args['--add-container-label'] = []
         self.task.command_args['--clear-cache'] = False
         self.task.command_args['--signing-key'] = []
-        self.task.command_args['--ca-cert-path'] = []
+        self.task.command_args['--ca-cert'] = []
 
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('kiwi.xml_state.XMLState.get_repositories_signing_keys')
@@ -460,7 +460,7 @@ class TestSystemBuildTask:
         )
         mock_SystemPrepare.return_value.__enter__.return_value = system_prepare
         self._init_command_args()
-        self.task.command_args['--ca-cert-path'] = ['/some/path']
+        self.task.command_args['--ca-cert'] = ['/some/ca/filename']
         self.task.process()
-        mock_add_certificate.assert_called_once_with('/some/path')
+        mock_add_certificate.assert_called_once_with('/some/ca/filename')
         system_prepare.setup_ca_certificates.assert_called_once_with()

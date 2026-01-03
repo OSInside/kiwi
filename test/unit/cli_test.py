@@ -62,7 +62,7 @@ class TestCli:
             '--set-repo-credentials': None,
             '--add-package': [],
             '--add-bootstrap-package': [],
-            '--ca-cert-path': [],
+            '--ca-cert': [],
             '--delete-package': [],
             '--set-container-derived-from': None,
             '--set-container-tag': None,

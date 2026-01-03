@@ -24,7 +24,7 @@ SYNOPSIS
        [--add-repo-credentials=<user:pass_or_filename>...]
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
-       [--ca-cert-path=<directory>...]
+       [--ca-cert=<cert-file>...]
        [--delete-package=<name>...]
        [--set-container-derived-from=<uri>]
        [--set-container-tag=<name>]
@@ -99,16 +99,15 @@ OPTIONS
   is shared between multiple image builds on that host for performance
   reasons.
 
---ca-cert-path=<directory>
+--ca-cert=<cert-file>
 
-  Set the directory of additional local CA certificates to import during
-  the build process. The import will occur immediately after the bootstrap
-  process, where the required CA update tooling is expected to be installed.
-  This option is useful for situations where certificates are not packaged,
-  or the certificates are required during the build process, e.g. due to
-  proxy servers in the build environment that need certificates in chroot.
-  Supported certificate extensions are .pem, .crt, and .cer. All other
-  file types in the specified directory will be ignored.
+  Add a cert-file to the directory storing additional local CA certificates.
+  The import will occur immediately after the bootstrap process, where
+  the required CA update tooling is expected to be installed. This
+  option is useful for situations where certificates are not packaged,
+  or the certificates are required during the build process, e.g. due
+  to proxy servers in the build environment that need certificates
+  in chroot. The option can be specified multiple times.
 
 --delete-package=<name>
 
