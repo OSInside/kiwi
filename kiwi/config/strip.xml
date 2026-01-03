@@ -114,6 +114,7 @@
         <file name="dmesg"/>
         <file name="dmevent_tool"/>
         <file name="dmsetup"/>
+        <file name="dracut"/>
         <file name="dropbear"/>
         <file name="dropbearkey"/>
         <file name="du"/>
