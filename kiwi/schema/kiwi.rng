@@ -1752,7 +1752,7 @@ loading of the container at first boot</a:documentation>
       <attribute name="target_distribution">
         <choice>
           <value>suse</value>
-          <value>rhel</value>
+          <value>redhat</value>
           <value>debian</value>
           <value>archlinux</value>
         </choice>

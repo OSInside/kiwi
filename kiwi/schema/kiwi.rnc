@@ -1129,7 +1129,7 @@ div {
     k.certificates.profiles.attribute = k.profiles.attribute
     k.certificates.target_distribution.attribute =
         attribute target_distribution {
-            "suse" | "rhel" | "debian" | "archlinux"
+            "suse" | "redhat" | "debian" | "archlinux"
         }
     k.certificates.attlist =
         k.certificates.profiles.attribute? &
