@@ -106,7 +106,7 @@ CA_UPDATE_MAP = {
         'tool': 'update-ca-certificates',
         'destination_path': '/etc/pki/trust/anchors'
     },
-    'rhel': {
+    'redhat': {
         'tool': 'update-ca-certificates',
         'destination_path': '/etc/pki/ca-trust/source/anchors/'
     },

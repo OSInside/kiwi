@@ -25,7 +25,7 @@ SYNOPSIS
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
        [--ca-cert=<cert-file>...]
-       [--ca-target-distribution=<suse|rhel|debian|archlinux>]
+       [--ca-target-distribution=<suse|redhat|debian|archlinux>]
        [--delete-package=<name>...]
        [--set-container-derived-from=<uri>]
        [--set-container-tag=<name>]
@@ -110,7 +110,7 @@ OPTIONS
   to proxy servers in the build environment that need certificates
   in chroot. The option can be specified multiple times.
 
---ca-target-distribution=<suse|rhel|debian|archlinux>
+--ca-target-distribution=<suse|redhat|debian|archlinux>
 
   Specify target distribution for the import of certificates
   via the --ca-cert options(s) and/or the provided <certificates>

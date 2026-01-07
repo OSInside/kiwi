@@ -150,7 +150,7 @@ settings apply:
 
 .. code:: xml
 
-   <certificates target_distribution="suse|rhel|debian|archlinux">
+   <certificates target_distribution="suse|redhat|debian|archlinux">
      <certificate name="/some/ca/filename1"/>
      <certificate name="/some/ca/filename2"/>
    </certificates>
