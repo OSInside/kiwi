@@ -28,6 +28,8 @@ usage: kiwi-ng system build -h | --help
            [--add-repo-credentials=<user:pass_or_filename>...]
            [--add-package=<name>...]
            [--add-bootstrap-package=<name>...]
+           [--ca-cert=<cert-file>...]
+           [--ca-target-distribution=<suse|rhel|debian|archlinux>]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
@@ -71,6 +73,15 @@ options:
     --clear-cache
         delete repository cache for each of the used repositories
         before installing any package
+    --ca-cert=<cert-file>
+        include additional CA certificate to import immediately after
+        bootstrap and make available during the build process.
+    --ca-target-distribution=<suse|rhel|debian|archlinux>
+        Specify target distribution for the import of certificates
+        via the --ca-cert options(s) and/or the provided <certificates>
+        from the image description. The selected distribution is used
+        in KIWI to map the distribution specific CA storage path and
+        update tool for the import process.
     --delete-package=<name>
         delete the given package name
     --description=<directory>
@@ -132,6 +143,10 @@ from kiwi.system.profile import Profile
 from kiwi.defaults import Defaults
 from kiwi.privileges import Privileges
 from kiwi.path import Path
+
+from kiwi.exceptions import (
+    KiwiCATargetDistributionError
+)
 
 log = logging.getLogger('kiwi')
 
@@ -252,6 +267,28 @@ class SystemBuildTask(CliTask):
                 self.command_args['--set-container-derived-from']
             )
 
+        if self.command_args['--ca-cert']:
+            ca_certs = self.command_args['--ca-cert']
+            if ca_certs:
+                target_distribution = \
+                    self.command_args['--ca-target-distribution'] or \
+                    self.xml_state.get_certificates_target_distribution()
+                if not target_distribution or not Defaults.get_ca_update_map(
+                    target_distribution
+                ):
+                    raise KiwiCATargetDistributionError(
+                        'No or invalid CA target distribution, {} {}'.format(
+                            'set via --ca-target-distribution.',
+                            'allowed values are {}'.format(
+                                Defaults.get_ca_target_distributions()
+                            )
+                        )
+                    )
+                for certificate in ca_certs:
+                    self.xml_state.add_certificate(
+                        certificate, target_distribution
+                    )
+
         self.run_checks(self.checks_after_command_args)
 
         log.info('Preparing new root system')
@@ -278,6 +315,9 @@ class SystemBuildTask(CliTask):
 
                 # call post_bootstrap.sh script if present
                 setup.call_post_bootstrap_script()
+
+                # Setup custom CA certificates after bootstrap package install
+                system.setup_ca_certificates()
 
                 system.install_system(
                     manager

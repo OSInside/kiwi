@@ -120,6 +120,41 @@ The following optional sub sections can be inserted below the description tag:
 license
   Specifies the license name which applies to this image description.
 
+.. _sec.certificates:
+
+<certificates>
+--------------
+
+Add a cert-file to the directory storing additional local CA certificates.
+The import will occur immediately after the bootstrap process, where
+the required CA update tooling is expected to be installed. This
+setting is useful for situations where certificates are not packaged,
+or the certificates are required during the build process, e.g. due
+to proxy servers in the build environment that need certificates
+in chroot. The required `target_distribution` attribute must be set
+to allow kiwi a correct matching for the CA store path and the update
+tool with regards to the image target distribution. The following
+settings apply:
+
++--------------+-------------------------------------------+------------------------+
+| Distributor  | CA Store                                  | Update Tool            |
++==============+===========================================+========================+
+| SUSE         | /etc/pki/trust/anchors                    | update-ca-certificates |
++--------------+-------------------------------------------+------------------------+
+| Red Hat      | /etc/pki/ca-trust/source/anchors          | update-ca-certificates |
++--------------+-------------------------------------------+------------------------+
+| Debian Based | /usr/local/share/ca-certificates          | update-ca-certificates |
++--------------+-------------------------------------------+------------------------+
+| Arch Linux   | /etc/ca-certificates/trust-source/anchors | update-ca-trust        |
++--------------+-------------------------------------------+------------------------+
+
+.. code:: xml
+
+   <certificates target_distribution="suse|rhel|debian|archlinux">
+     <certificate name="/some/ca/filename1"/>
+     <certificate name="/some/ca/filename2"/>
+   </certificates>
+
 .. _sec.preferences:
 
 <preferences>
@@ -170,7 +205,7 @@ table shows which package manager is connected to which distributor:
 +==============+=================+
 | SUSE         | zypper          |
 +--------------+-----------------+
-| RedHat       | dnf4 / dnf5     |
+| Red Hat      | dnf4 / dnf5     |
 +--------------+-----------------+
 | Debian Based | apt             |
 +--------------+-----------------+ 
@@ -1706,7 +1741,7 @@ The namedCollection element is used to install a number of packages
 grouped together under a name. This is a feature of the individual
 distribution and used in the implementation of the {kiwi} package
 manager backend. At the moment collections are only supported for
-SUSE and RedHat based distributions. The optional `patternType` attribute
+SUSE and Red Hat based distributions. The optional `patternType` attribute
 is used to control the behavior of the dependency resolution of
 the package collection. `onlyRequired` installs only the collection
 and its required packages. `plusRecommended` installs the collection,
@@ -1724,9 +1759,9 @@ any of its required packages and any recommended packages.
    `$ zypper search patterns`. By convention all packages that starts
    with the name "patterns-" are representing a pattern package.
 
-.. note:: Collections on RedHat
+.. note:: Collections on Red Hat
 
-   On RedHat based distributions collections are called `groups` and are
+   On Red Hat based distributions collections are called `groups` and are
    extra metadata. To get the names of these groups type the following
    command: `$ dnf group list -v`. Please note that since {kiwi} v9.23.39,
    group IDs are allowed only, e.g.: 

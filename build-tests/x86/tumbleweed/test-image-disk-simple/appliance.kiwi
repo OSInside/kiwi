@@ -30,6 +30,9 @@
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
     </repository>
+    <certificates target_distribution="suse">
+        <certificate name="/var/lib/ca-certificates/ca-bundle.pem"/>
+    </certificates>
     <packages type="image">
         <package name="patterns-base-minimal_base"/>
         <package name="bind-utils"/>

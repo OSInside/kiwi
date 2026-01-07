@@ -194,6 +194,9 @@ named /etc/ImageID</a:documentation>
           <zeroOrMore>
             <ref name="k.include"/>
           </zeroOrMore>
+          <optional>
+            <ref name="k.certificates"/>
+          </optional>
           <ref name="k.description"/>
           <oneOrMore>
             <ref name="k.preferences"/>
@@ -1732,6 +1735,62 @@ loading of the container at first boot</a:documentation>
     <define name="k.container">
       <element name="container">
         <ref name="k.container.attlist"/>
+        <empty/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <certificates>
+    
+  -->
+  <div>
+    <define name="k.certificates.profiles.attribute">
+      <ref name="k.profiles.attribute"/>
+    </define>
+    <define name="k.certificates.target_distribution.attribute">
+      <attribute name="target_distribution">
+        <choice>
+          <value>suse</value>
+          <value>rhel</value>
+          <value>debian</value>
+          <value>archlinux</value>
+        </choice>
+      </attribute>
+    </define>
+    <define name="k.certificates.attlist">
+      <interleave>
+        <optional>
+          <ref name="k.certificates.profiles.attribute"/>
+        </optional>
+        <ref name="k.certificates.target_distribution.attribute"/>
+      </interleave>
+    </define>
+    <define name="k.certificates">
+      <element name="certificates">
+        <ref name="k.certificates.attlist"/>
+        <oneOrMore>
+          <ref name="k.certificate"/>
+        </oneOrMore>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
+    common element <certificate>
+    
+  -->
+  <div>
+    <define name="k.certificate.name.attribute">
+      <ref name="k.name.attribute"/>
+    </define>
+    <define name="k.certificate.attlist">
+      <ref name="k.certificate.name.attribute"/>
+    </define>
+    <define name="k.certificate">
+      <!-- A pointer to a filename handled as a CA file -->
+      <element name="certificate">
+        <ref name="k.certificate.attlist"/>
         <empty/>
       </element>
     </define>

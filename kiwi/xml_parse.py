@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-Btua-i95-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-ZjQOFkNX-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -813,7 +813,7 @@ class image(GeneratedsSuper):
     """The root element of the configuration file"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, containers=None, packages=None, extension=None):
+    def __init__(self, name=None, displayname=None, id=None, schemaversion=None, noNamespaceSchemaLocation=None, schemaLocation=None, include=None, certificates=None, description=None, preferences=None, profiles=None, users=None, drivers=None, strip=None, repository=None, containers=None, packages=None, extension=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.displayname = _cast(None, displayname)
@@ -825,6 +825,10 @@ class image(GeneratedsSuper):
             self.include = []
         else:
             self.include = include
+        if certificates is None:
+            self.certificates = []
+        else:
+            self.certificates = certificates
         if description is None:
             self.description = []
         else:
@@ -881,6 +885,11 @@ class image(GeneratedsSuper):
     def add_include(self, value): self.include.append(value)
     def insert_include_at(self, index, value): self.include.insert(index, value)
     def replace_include_at(self, index, value): self.include[index] = value
+    def get_certificates(self): return self.certificates
+    def set_certificates(self, certificates): self.certificates = certificates
+    def add_certificates(self, value): self.certificates.append(value)
+    def insert_certificates_at(self, index, value): self.certificates.insert(index, value)
+    def replace_certificates_at(self, index, value): self.certificates[index] = value
     def get_description(self): return self.description
     def set_description(self, description): self.description = description
     def add_description(self, value): self.description.append(value)
@@ -953,6 +962,7 @@ class image(GeneratedsSuper):
     def hasContent_(self):
         if (
             self.include or
+            self.certificates or
             self.description or
             self.preferences or
             self.profiles or
@@ -1014,6 +1024,8 @@ class image(GeneratedsSuper):
             eol_ = ''
         for include_ in self.include:
             include_.export(outfile, level, namespaceprefix_, name_='include', pretty_print=pretty_print)
+        for certificates_ in self.certificates:
+            certificates_.export(outfile, level, namespaceprefix_, name_='certificates', pretty_print=pretty_print)
         for description_ in self.description:
             description_.export(outfile, level, namespaceprefix_, name_='description', pretty_print=pretty_print)
         for preferences_ in self.preferences:
@@ -1075,6 +1087,11 @@ class image(GeneratedsSuper):
             obj_.build(child_)
             self.include.append(obj_)
             obj_.original_tagname_ = 'include'
+        elif nodeName_ == 'certificates':
+            obj_ = certificates.factory()
+            obj_.build(child_)
+            self.certificates.append(obj_)
+            obj_.original_tagname_ = 'certificates'
         elif nodeName_ == 'description':
             obj_ = description.factory()
             obj_.build(child_)
@@ -2705,6 +2722,174 @@ class container(GeneratedsSuper):
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class container
+
+
+class certificates(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, profiles=None, target_distribution=None, certificate=None):
+        self.original_tagname_ = None
+        self.profiles = _cast(None, profiles)
+        self.target_distribution = _cast(None, target_distribution)
+        if certificate is None:
+            self.certificate = []
+        else:
+            self.certificate = certificate
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, certificates)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if certificates.subclass:
+            return certificates.subclass(*args_, **kwargs_)
+        else:
+            return certificates(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_certificate(self): return self.certificate
+    def set_certificate(self, certificate): self.certificate = certificate
+    def add_certificate(self, value): self.certificate.append(value)
+    def insert_certificate_at(self, index, value): self.certificate.insert(index, value)
+    def replace_certificate_at(self, index, value): self.certificate[index] = value
+    def get_profiles(self): return self.profiles
+    def set_profiles(self, profiles): self.profiles = profiles
+    def get_target_distribution(self): return self.target_distribution
+    def set_target_distribution(self, target_distribution): self.target_distribution = target_distribution
+    def hasContent_(self):
+        if (
+            self.certificate
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='certificates', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('certificates')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='certificates')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='certificates', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='certificates'):
+        if self.profiles is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            outfile.write(' profiles=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profiles), input_name='profiles')), ))
+        if self.target_distribution is not None and 'target_distribution' not in already_processed:
+            already_processed.add('target_distribution')
+            outfile.write(' target_distribution=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.target_distribution), input_name='target_distribution')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='certificates', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for certificate_ in self.certificate:
+            certificate_.export(outfile, level, namespaceprefix_, name_='certificate', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('profiles', node)
+        if value is not None and 'profiles' not in already_processed:
+            already_processed.add('profiles')
+            self.profiles = value
+        value = find_attr_value_('target_distribution', node)
+        if value is not None and 'target_distribution' not in already_processed:
+            already_processed.add('target_distribution')
+            self.target_distribution = value
+            self.target_distribution = ' '.join(self.target_distribution.split())
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'certificate':
+            obj_ = certificate.factory()
+            obj_.build(child_)
+            self.certificate.append(obj_)
+            obj_.original_tagname_ = 'certificate'
+# end class certificates
+
+
+class certificate(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, name=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, certificate)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if certificate.subclass:
+            return certificate.subclass(*args_, **kwargs_)
+        else:
+            return certificate(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', name_='certificate', namespacedef_='', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('certificate')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='certificate')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespaceprefix_='', name_='certificate', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='certificate'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespaceprefix_='', name_='certificate', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class certificate
 
 
 class repository(k_source):
@@ -10355,6 +10540,8 @@ __all__ = [
     "argument",
     "bootloader",
     "bootloadersettings",
+    "certificate",
+    "certificates",
     "collectionModule",
     "configoption",
     "container",
