@@ -211,18 +211,18 @@ class TestCli:
                 f'KIWI (next generation) version {__version__}'
             )
 
-    @patch('kiwi.cli.Help')
-    def test_help(self, mock_Help):
-        manual = Mock()
-        mock_Help.return_value = manual
-        with patch(
-            'sys.argv', [
-                sys.argv[0], 'help'
-            ]
-        ):
-            with patch('sys.exit'):
-                Cli()
-            manual.show.assert_called_once_with('kiwi')
+    # @patch('kiwi.cli.Help')
+    # def test_help(self, mock_Help):
+    #     manual = Mock()
+    #     mock_Help.return_value = manual
+    #     with patch(
+    #         'sys.argv', [
+    #             sys.argv[0], 'help'
+    #         ]
+    #     ):
+    #         with patch('sys.exit'):
+    #             Cli()
+    #         manual.show.assert_called_once_with('kiwi')
 
     @patch.object(Cli, '_get_module_entries')
     @patch('kiwi.cli.EntryPoint')

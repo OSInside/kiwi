@@ -36,7 +36,7 @@ from kiwi.exceptions import (
     KiwiLoadPluginError
 )
 from kiwi.version import __version__
-from kiwi.help import Help
+# from kiwi.help import Help
 from kiwi.defaults import Defaults
 
 log = logging.getLogger('kiwi')
@@ -253,11 +253,20 @@ class Cli:
         Cli.global_args['result'] = False
         Cli.global_args['system'] = False
 
-    @staticmethod
-    @cli.command(help='[kiwi::COMMAND:SUBCOMMAND]')
-    def help(command: Annotated[str, typer.Argument()] = 'kiwi'):
-        manual = Help()
-        manual.show(command)
+    # The following allows to show the kiwi main man page by
+    # calling "kiwi-ng help". However I was not able to code typer
+    # in a way that the other command specific man pages can be
+    # called as e.g. "kiwi image info help". That's because
+    # in "kiwi-ng [OPTIONS] COMMAND [ARGS]..." the COMMAND: help
+    # can be added. But in "kiwi-ng image info [OPTIONS]", help
+    # would be an OPTION and not a COMMAND. I could not come
+    # up with a solution to this issue. As such disable calling
+    # man pages from calling kiwi completely for now.
+    # @staticmethod
+    # @cli.command(help='[kiwi::COMMAND:SUBCOMMAND]')
+    # def help(command: Annotated[str, typer.Argument()] = 'kiwi'):
+    #     manual = Help()
+    #     manual.show(command)
 
     @staticmethod
     @image.command()
