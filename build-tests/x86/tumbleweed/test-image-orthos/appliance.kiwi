@@ -45,6 +45,7 @@
         <package name="wicked"/>
         <package name="iproute2"/>
         <package name="openssh"/>
+        <package name="snapper"/>
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
