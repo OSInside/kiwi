@@ -756,6 +756,14 @@ class KiwiVolumeManagerSetupError(KiwiError):
     """
 
 
+class KiwiSnapshotManagerSetupError(KiwiError):
+    """
+    Exception raised if an attempt was made to create an
+    instance of a snapshot manager for an unsupported snapshot
+    management system.
+    """
+
+
 class KiwiVolumeRootIDError(KiwiError):
     """
     Exception raised if the root volume can not be found. This
