@@ -40,7 +40,7 @@ root_uuid=$(
     echo "[Mount]"
     echo "Where=/sysroot"
     echo "What=${root_uuid}"
-    _dev=RamDisk_rootfs
+    _dev=$(systemd-escape -p /dev/disk/by-uuid/"${root_uuid#UUID=}")
 } > "$GENERATOR_DIR"/sysroot.mount
 
 if [ ! -e "$GENERATOR_DIR/initrd-root-fs.target.requires/sysroot.mount" ]; then
@@ -52,5 +52,5 @@ fi
 mkdir -p "$GENERATOR_DIR/$_dev.device.d"
 {
     echo "[Unit]"
-    echo "JobTimeoutSec=60"
+    echo "JobTimeoutSec=infinity"
 } > "$GENERATOR_DIR/$_dev.device.d/timeout.conf"
