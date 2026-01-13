@@ -1528,7 +1528,8 @@ class Defaults:
         """
         return [
             'gce', 'qcow2', 'vmdk', 'ova', 'vmx', 'vhd', 'vhdx',
-            'vhdfixed', 'vdi', 'vagrant.libvirt.box', 'vagrant.virtualbox.box'
+            'vhdfixed', 'vdi', 'vagrant.libvirt.box', 'vagrant.virtualbox.box',
+            'vagrant.vmware_desktop.box'
         ]
 
     @staticmethod

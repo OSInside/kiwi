@@ -3965,6 +3965,7 @@ by the VM (ova only)</a:documentation>
           <value>lsisas1068</value>
           <value>legacyESX</value>
           <value>pvscsi</value>
+          <value>sata</value>
         </choice>
       </attribute>
     </define>
@@ -5447,6 +5448,7 @@ and setup the system disk.</a:documentation>
         <choice>
           <value>libvirt</value>
           <value>virtualbox</value>
+          <value>vmware</value>
         </choice>
       </attribute>
     </define>
