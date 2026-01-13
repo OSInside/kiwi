@@ -27,8 +27,6 @@ class BootLoaderTemplateGrub2:
     def __init__(self):
         self.header = dedent('''
             # kiwi generated one time grub2 config file
-            set btrfs_relative_path="y"
-            export btrfs_relative_path
             search ${search_params}
             set default=${default_boot}
             if [ -n "$$extra_cmdline" ]; then
@@ -39,6 +37,11 @@ class BootLoaderTemplateGrub2:
             if [ -n "$${iso_path}" ]; then
                 isoboot="iso-scan/filename=$${iso_path}"
             fi
+        ''').strip() + os.linesep
+
+        self.header_btrfs_relative_path = dedent('''
+            set btrfs_relative_path="y"
+            export btrfs_relative_path
         ''').strip() + os.linesep
 
         self.timeout = dedent('''
@@ -248,8 +251,9 @@ class BootLoaderTemplateGrub2:
         ''').strip() + os.linesep
 
     def get_iso_template(
-        self, failsafe=True,
-        has_graphics=True, has_serial=False, checkiso=False
+        self, failsafe: bool = True,
+        has_graphics: bool = True, has_serial: bool = False,
+        checkiso: bool = False, has_btrfs_relative_path: bool = False
     ):
         """
         Bootloader configuration template for live ISO media
@@ -262,7 +266,11 @@ class BootLoaderTemplateGrub2:
 
         :rtype: Template
         """
-        template_data = self.header
+        if has_btrfs_relative_path:
+            template_data = self.header_btrfs_relative_path
+            template_data += self.header
+        else:
+            template_data = self.header
         template_data += self.timeout
         template_data += self.timeout_style
         if has_graphics:
@@ -283,8 +291,9 @@ class BootLoaderTemplateGrub2:
         return Template(template_data)
 
     def get_multiboot_iso_template(
-        self, failsafe=True,
-        has_graphics=True, has_serial=False, checkiso=False
+        self, failsafe: bool = True,
+        has_graphics: bool = True, has_serial: bool = False,
+        checkiso: bool = False, has_btrfs_relative_path: bool = False
     ):
         """
         Bootloader configuration template for live ISO media with
@@ -298,7 +307,11 @@ class BootLoaderTemplateGrub2:
 
         :rtype: Template
         """
-        template_data = self.header
+        if has_btrfs_relative_path:
+            template_data = self.header_btrfs_relative_path
+            template_data += self.header
+        else:
+            template_data = self.header
         template_data += self.timeout
         template_data += self.timeout_style
         if has_graphics:
@@ -319,8 +332,9 @@ class BootLoaderTemplateGrub2:
         return Template(template_data)
 
     def get_install_template(
-        self, failsafe=True,
-        has_graphics=True, has_serial=False, with_timeout=True
+        self, failsafe: bool = True,
+        has_graphics: bool = True, has_serial: bool = False,
+        with_timeout: bool = True, has_btrfs_relative_path: bool = False
     ):
         """
         Bootloader configuration template for install media
@@ -333,7 +347,11 @@ class BootLoaderTemplateGrub2:
 
         :rtype: Template
         """
-        template_data = self.header
+        if has_btrfs_relative_path:
+            template_data = self.header_btrfs_relative_path
+            template_data += self.header
+        else:
+            template_data = self.header
         if with_timeout:
             template_data += self.timeout
             template_data += self.timeout_style
@@ -353,8 +371,9 @@ class BootLoaderTemplateGrub2:
         return Template(template_data)
 
     def get_multiboot_install_template(
-        self, failsafe=True,
-        has_graphics=True, has_serial=False, with_timeout=True
+        self, failsafe: bool = True,
+        has_graphics: bool = True, has_serial: bool = False,
+        with_timeout: bool = True, has_btrfs_relative_path: bool = False
     ):
         """
         Bootloader configuration template for install media with
@@ -368,7 +387,11 @@ class BootLoaderTemplateGrub2:
 
         :rtype: Template
         """
-        template_data = self.header
+        if has_btrfs_relative_path:
+            template_data = self.header_btrfs_relative_path
+            template_data += self.header
+        else:
+            template_data = self.header
         if with_timeout:
             template_data += self.timeout
             template_data += self.timeout_style
