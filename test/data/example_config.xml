@@ -127,6 +127,9 @@
                     <installoption name="B"/>
                     <configoption name="--joe"/>
                     <configoption name="-x"/>
+                    <environment>
+                        <env name="menu_auto_hide" value="1"/>
+                    </environment>
                 </bootloadersettings>
             </bootloader>
             <oemconfig>

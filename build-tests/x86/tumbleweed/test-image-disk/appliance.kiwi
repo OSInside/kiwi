@@ -23,7 +23,13 @@
     </preferences>
     <preferences profiles="Standard">
         <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install">
-            <bootloader name="grub2" console="serial" timeout="10"/>
+            <bootloader name="grub2" console="serial" timeout="10">
+                <bootloadersettings>
+                    <environment>
+                        <env name="menu_auto_hide" value="1"/>
+                    </environment>
+                </bootloadersettings>
+            </bootloader>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
                 <oem-swap>true</oem-swap>
@@ -100,6 +106,7 @@
         <package name="gzip"/>
         <package name="udev"/>
         <package name="xz"/>
+        <package name="diffutils"/>
         <package name="shadow"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>

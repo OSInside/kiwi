@@ -40,7 +40,13 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" console="serial" timeout="10"/>
+            <bootloader name="grub2" console="serial" timeout="10">
+                <bootloadersettings>
+                    <environment>
+                        <env name="menu_auto_hide" value="1"/>
+                    </environment>
+                </bootloadersettings>
+            </bootloader>
         </type>
     </preferences>
     <preferences profiles="Disk">

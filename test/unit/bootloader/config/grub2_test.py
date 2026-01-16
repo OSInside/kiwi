@@ -1216,7 +1216,10 @@ class TestBootLoaderConfigGrub2:
             file_handle_grubenv.read.return_value = 'root=rootdev'
             file_handle_menu.read.return_value = \
                 'options foo\nlinux unexpected/boot/vmlinuz\ninitrd /boot/initrd'
-
+            self.bootloader.xml_state.\
+                get_build_type_bootloader_environment_variables = Mock(
+                    return_value=['menu_auto_hide=1']
+                )
             self.bootloader.setup_disk_image_config(
                 boot_options={
                     'root_device': 'rootdev', 'boot_device': 'bootdev'
@@ -1227,6 +1230,12 @@ class TestBootLoaderConfigGrub2:
             )
             os.environ.update({'GRUB_DISABLE_OS_PROBER': 'true'})
             assert mock_Command_run.call_args_list == [
+                call(
+                    [
+                        'chroot', self.bootloader.root_mount.mountpoint,
+                        'grub2-editenv', '-', 'set', 'menu_auto_hide=1'
+                    ]
+                ),
                 call(
                     [
                         'chroot', self.bootloader.root_mount.mountpoint,

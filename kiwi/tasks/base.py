@@ -91,7 +91,8 @@ class CliTask:
             'check_include_references_unresolvable': [],
             'check_luksformat_options_valid': [],
             'check_partuuid_persistency_type_used_with_mbr': [],
-            'check_efi_fat_image_has_correct_size': []
+            'check_efi_fat_image_has_correct_size': [],
+            'check_bootloader_env_compatible_with_loader': []
         }
         self.checks_after_command_args: Dict[str, List[str]] = {
             'check_repositories_configured': [],

@@ -1293,6 +1293,26 @@ class XMLState:
                 bootloader_section.get_securelinux()
         return bootloader_securelinux_section
 
+    def get_build_type_bootloader_environment_variables(self) -> List[str]:
+        """
+        List of bootloader variables from the build
+        type > bootloader > bootloadersettings section
+        """
+        variable_list = []
+        bootloader_settings_section = \
+            self.get_build_type_bootloader_settings_section()
+        if bootloader_settings_section:
+            environment = bootloader_settings_section.get_environment()
+            if environment and environment[0].get_env():
+                for env in environment[0].get_env():
+                    variable_list.append(
+                        '{}{}'.format(
+                            env.get_name(),
+                            f'={env.get_value()}' if env.get_value() else ''
+                        )
+                    )
+        return variable_list
+
     def get_bootloader_options(self, option_type: str) -> List[str]:
         """
         List of custom options used in the process to

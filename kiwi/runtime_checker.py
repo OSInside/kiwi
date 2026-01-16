@@ -1010,6 +1010,32 @@ class RuntimeChecker:
                 message.format(fat_image_mbsize)
             )
 
+    def check_bootloader_env_compatible_with_loader(self) -> None:
+        """
+        If there is an environment section as part of the bootloader
+        section, check if the selected loader supports custom
+        environment blobs
+        """
+        message = dedent('''\n
+            Selected loader does not support custom environments
+
+            The selected bootloader {} does not support custom
+            environment settings. Please drop the <environment>
+            setting from <bootloadersettings> for this loader
+        ''')
+        env_supported_loaders = [
+            'grub2',
+            'grub2_s390x_emu',
+            'custom'
+        ]
+        bootloader = self.xml_state.get_build_type_bootloader_name()
+        variable_list = self.xml_state.\
+            get_build_type_bootloader_environment_variables()
+        if variable_list and bootloader not in env_supported_loaders:
+            raise KiwiRuntimeError(
+                message.format(bootloader)
+            )
+
     @staticmethod
     def _package_in_list(
         package_list: List[str], search_list: List[str]
