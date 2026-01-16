@@ -69,3 +69,11 @@ class BootLoaderInstallBase:
         Implementation in specialized bootloader install class required
         """
         raise NotImplementedError
+
+    def set_disk_password(self, password: str):
+        """
+        Include crypto mount credentials
+
+        Implementation in specialized bootloader install class optional
+        """
+        pass

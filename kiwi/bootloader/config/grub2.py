@@ -286,6 +286,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 self.boot_directory_name, 'grub.cfg'
             ]
         )
+        # Setup/Update loader environment
+        self._setup_loader_variables()
+
         # Disable os-prober, it takes information from the host it
         # runs on which is not necessarily matching with the image
         os.environ.update({'GRUB_DISABLE_OS_PROBER': 'true'})
@@ -1745,3 +1748,19 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
            self.xml_state.build_type.get_btrfs_root_is_snapper_snapshot():
             return True
         return False
+
+    def _setup_loader_variables(self):
+        """
+        Run grub2-editenv for writing an updated environment blob
+        """
+        if self.root_mount:
+            variable_list = \
+                self.xml_state.get_build_type_bootloader_environment_variables()
+            if variable_list:
+                log.info(f'Set grub environment variables: {variable_list}')
+                Command.run(
+                    [
+                        'chroot', self.root_mount.mountpoint,
+                        'grub2-editenv', '-', 'set'
+                    ] + variable_list
+                )

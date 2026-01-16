@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-ZjQOFkNX-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-Btua-i95-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -7467,7 +7467,7 @@ class bootloadersettings(GeneratedsSuper):
     """Additional bootloader settings"""
     subclass = None
     superclass = None
-    def __init__(self, shimoption=None, installoption=None, configoption=None):
+    def __init__(self, shimoption=None, installoption=None, environment=None, configoption=None):
         self.original_tagname_ = None
         if shimoption is None:
             self.shimoption = []
@@ -7477,6 +7477,10 @@ class bootloadersettings(GeneratedsSuper):
             self.installoption = []
         else:
             self.installoption = installoption
+        if environment is None:
+            self.environment = []
+        else:
+            self.environment = environment
         if configoption is None:
             self.configoption = []
         else:
@@ -7502,6 +7506,11 @@ class bootloadersettings(GeneratedsSuper):
     def add_installoption(self, value): self.installoption.append(value)
     def insert_installoption_at(self, index, value): self.installoption.insert(index, value)
     def replace_installoption_at(self, index, value): self.installoption[index] = value
+    def get_environment(self): return self.environment
+    def set_environment(self, environment): self.environment = environment
+    def add_environment(self, value): self.environment.append(value)
+    def insert_environment_at(self, index, value): self.environment.insert(index, value)
+    def replace_environment_at(self, index, value): self.environment[index] = value
     def get_configoption(self): return self.configoption
     def set_configoption(self, configoption): self.configoption = configoption
     def add_configoption(self, value): self.configoption.append(value)
@@ -7511,6 +7520,7 @@ class bootloadersettings(GeneratedsSuper):
         if (
             self.shimoption or
             self.installoption or
+            self.environment or
             self.configoption
         ):
             return True
@@ -7548,6 +7558,8 @@ class bootloadersettings(GeneratedsSuper):
             shimoption_.export(outfile, level, namespaceprefix_, name_='shimoption', pretty_print=pretty_print)
         for installoption_ in self.installoption:
             installoption_.export(outfile, level, namespaceprefix_, name_='installoption', pretty_print=pretty_print)
+        for environment_ in self.environment:
+            environment_.export(outfile, level, namespaceprefix_, name_='environment', pretty_print=pretty_print)
         for configoption_ in self.configoption:
             configoption_.export(outfile, level, namespaceprefix_, name_='configoption', pretty_print=pretty_print)
     def build(self, node):
@@ -7570,6 +7582,11 @@ class bootloadersettings(GeneratedsSuper):
             obj_.build(child_)
             self.installoption.append(obj_)
             obj_.original_tagname_ = 'installoption'
+        elif nodeName_ == 'environment':
+            obj_ = environment.factory()
+            obj_.build(child_)
+            self.environment.append(obj_)
+            obj_.original_tagname_ = 'environment'
         elif nodeName_ == 'configoption':
             obj_ = configoption.factory()
             obj_.build(child_)
@@ -7835,8 +7852,8 @@ class hkd_revocation_list(GeneratedsSuper):
 
 
 class environment(GeneratedsSuper):
-    """Provides details about the container environment variables At least
-    one environment variable must be configured"""
+    """Provides details about the container/bootloader environment
+    variables At least one environment variable must be configured"""
     subclass = None
     superclass = None
     def __init__(self, env=None):
