@@ -3345,6 +3345,7 @@ div {
             k.bootloadersettings.attlist &
             k.shimoption* &
             k.installoption* &
+            k.environment? &
             k.configoption*
         }
 }
@@ -3423,8 +3424,8 @@ div {
 div {
     k.environment.attlist = empty
     k.environment =
-        ## Provides details about the container environment variables
-        ## At least one environment variable must be configured
+        ## Provides details about the container/bootloader environment
+        ## variables. At least one environment variable must be configured
         element environment {
             k.environment.attlist &
             k.env+

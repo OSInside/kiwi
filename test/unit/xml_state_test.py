@@ -1365,6 +1365,13 @@ class TestXMLState:
             '--joe', '-x'
         ]
 
+    def test_bootloader_environment_variables(self):
+        xml_data = self.description.load()
+        state = XMLState(xml_data, ['vmxSimpleFlavour'], 'oem')
+        assert state.get_build_type_bootloader_environment_variables() == [
+            'menu_auto_hide=1'
+        ]
+
     def test_get_host_key_certificates(self):
         description = XMLDescription('../data/example_hkd_config.xml')
         xml_data = description.load()

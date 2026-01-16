@@ -441,6 +441,16 @@ class TestRuntimeChecker:
         with raises(KiwiRuntimeError):
             runtime_checker.check_include_references_unresolvable()
 
+    def test_check_bootloader_env_compatible_with_loader(self):
+        self.xml_state.get_build_type_bootloader_name = Mock(
+            return_value='systemd_boot'
+        )
+        self.xml_state.get_build_type_bootloader_environment_variables = Mock(
+            return_value=['some']
+        )
+        with raises(KiwiRuntimeError):
+            self.runtime_checker.check_bootloader_env_compatible_with_loader()
+
     def test_check_package_in_list(self):
         assert RuntimeChecker._package_in_list(['a', 'b'], ['b']) == 'b'
         assert RuntimeChecker._package_in_list(['a', 'b'], ['c']) == ''

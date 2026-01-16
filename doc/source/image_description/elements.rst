@@ -1315,8 +1315,11 @@ hkd_revocation_list:
 <preferences><type><bootloader><bootloadersettings>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to specify custom arguments for the tools called to setup
-secure boot e.g `shiminstall`, installation of the bootloader
-e.g `grub-install` or configuration of the bootloader e.g `grub-mkconfig`.
+the bootloader:
+* secure boot via `<shimoption>` e.g `shiminstall`
+* installation of the bootloader via `<installoption>` e.g `grub-install`
+* configuration of the bootloader via `<configoption>` e.g `grub-mkconfig`
+* setup of bootloader environment variables via `<environment>` e.g `grub2-editenv`
 
 .. code:: xml
 
@@ -1325,6 +1328,9 @@ e.g `grub-install` or configuration of the bootloader e.g `grub-mkconfig`.
        <shimoption name="--bootloader-id" value="some-id"/>
        <installoption name="--suse-enable-tpm"/>
        <configoption name="--debug"/>
+       <environment>
+           <env name="menu_auto_hide" value="1"/>
+       </environment>
    </bootloadersettings>
 
 .. note::

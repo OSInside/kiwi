@@ -5064,6 +5064,9 @@ of the storage device</a:documentation>
           <zeroOrMore>
             <ref name="k.installoption"/>
           </zeroOrMore>
+          <optional>
+            <ref name="k.environment"/>
+          </optional>
           <zeroOrMore>
             <ref name="k.configoption"/>
           </zeroOrMore>
@@ -5162,8 +5165,8 @@ of the bootloader process</a:documentation>
     </define>
     <define name="k.environment">
       <element name="environment">
-        <a:documentation>Provides details about the container environment variables
-At least one environment variable must be configured</a:documentation>
+        <a:documentation>Provides details about the container/bootloader environment
+variables. At least one environment variable must be configured</a:documentation>
         <interleave>
           <ref name="k.environment.attlist"/>
           <oneOrMore>
