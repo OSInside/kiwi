@@ -24,7 +24,9 @@ from typing import List
 from kiwi.storage.subformat.template.virtualbox_ovf import (
     VirtualboxOvfTemplate
 )
-from kiwi.storage.subformat.vagrant_base import DiskFormatVagrantBase
+from kiwi.storage.subformat.vagrant_base import (
+    DiskFormatVagrantBase, VagrantConfigDict
+)
 from kiwi.storage.subformat.vmdk import DiskFormatVmdk
 from kiwi.command import Command
 
@@ -34,7 +36,7 @@ class DiskFormatVagrantVirtualBox(DiskFormatVagrantBase):
     **Create a vagrant box for the virtualbox provider**
     """
 
-    def vagrant_post_init(self) -> None:
+    def vagrant_post_init(self, custom_args: VagrantConfigDict = None) -> None:
         self.provider = 'virtualbox'
         self.image_format = 'vagrant.virtualbox.box'
 

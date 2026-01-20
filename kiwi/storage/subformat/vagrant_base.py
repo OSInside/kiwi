@@ -18,6 +18,7 @@
 import json
 import os.path
 
+from pathlib import PurePath
 from kiwi.utils.temporary import Temporary
 from typing import (
     Dict, Optional, List
@@ -32,6 +33,8 @@ from kiwi.command import Command
 from kiwi.exceptions import (
     KiwiFormatSetupError
 )
+
+VagrantConfigDict = Dict['str', xml_parse.vagrantconfig]
 
 
 class DiskFormatVagrantBase(DiskFormatBase):
@@ -74,7 +77,8 @@ class DiskFormatVagrantBase(DiskFormatBase):
     * :meth:`get_additional_vagrant_config_settings`
 
     """
-    def post_init(self, custom_args: Dict['str', xml_parse.vagrantconfig]):
+
+    def post_init(self, custom_args: VagrantConfigDict):
         """
         vagrant disk format post initialization method
 
@@ -96,10 +100,10 @@ class DiskFormatVagrantBase(DiskFormatBase):
             raise KiwiFormatSetupError(
                 'no vagrantconfig provided'
             )
-        self.vagrantconfig = custom_args['vagrantconfig']
-        self.vagrant_post_init()
+        self.vagrantconfig = custom_args.pop('vagrantconfig')
+        self.vagrant_post_init(custom_args)
 
-    def vagrant_post_init(self) -> None:
+    def vagrant_post_init(self, custom_args: VagrantConfigDict = None) -> None:
         """
         Vagrant provider specific post initialization method
 
@@ -220,6 +224,18 @@ class DiskFormatVagrantBase(DiskFormatBase):
         :rtype: str
         """
         return ''
+
+    def _stage_box_file(self, temp_dir: str, format: str) -> str:
+        file_path = self.get_target_file_path_for_format(format)
+        file_name = PurePath(file_path).name
+        box_file = os.sep.join([temp_dir, file_name])
+        Command.run(
+            [
+                'mv', file_path,
+                box_file
+            ]
+        )
+        return box_file
 
     def _create_box_metadata(self):
         metadata = self.get_additional_metadata() or {}

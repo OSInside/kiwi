@@ -49,6 +49,7 @@ class DiskFormat:
             'ova': 'Ova',
             'vagrant_libvirt': 'VagrantLibVirt',
             'vagrant_virtualbox': 'VagrantVirtualBox',
+            'vagrant_vmware': 'VagrantVMware',
             'base': 'Base'
         }
         module_namespace: Optional[str] = None
