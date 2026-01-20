@@ -369,6 +369,9 @@ Requires:       kpartx
 Requires:       cryptsetup
 Requires:       mdadm
 Requires:       util-linux
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version}
+Requires:       open-vmdk
+%endif
 # lsblk is part of util-linux-systemd on openSUSE
 %if 0%{?suse_version}
 Requires:       util-linux-systemd

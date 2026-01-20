@@ -16,10 +16,11 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" eficsm="false" format="vmdk">
+        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" eficsm="false" format="ova">
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
+            <machine memory="4096"/>
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>

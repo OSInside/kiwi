@@ -1527,7 +1527,7 @@ class Defaults:
         :rtype: list
         """
         return [
-            'gce', 'qcow2', 'vmdk', 'ova', 'vmx', 'vhd', 'vhdx',
+            'gce', 'qcow2', 'vmdk', 'ova', 'meta', 'vmx', 'vhd', 'vhdx',
             'vhdfixed', 'vdi', 'vagrant.libvirt.box', 'vagrant.virtualbox.box'
         ]
 
