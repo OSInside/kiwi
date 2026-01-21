@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="7.5" name="kiwi-test-image-gemini">
+<image schemaversion="7.5" name="kiwi-test-image-opencode">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>marcus.schaefer@suse.com</contact>
-        <specification>gemini cli</specification>
+        <specification>opencode cli</specification>
     </description>
     <preferences>
         <version>2.1.0</version>
@@ -14,7 +14,7 @@
         <locale>en_US</locale>
         <keytable>us</keytable>
         <type image="docker">
-            <containerconfig name="gemini"/>
+            <containerconfig name="opencode"/>
         </type>
     </preferences>
     <users>
@@ -24,6 +24,7 @@
         <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
+        <package name="curl"/>
         <package name="libcap-progs"/>
         <package name="ncurses-utils"/>
         <package name="patterns-openSUSE-base"/>
