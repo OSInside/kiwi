@@ -3,4 +3,6 @@ set -ex
 
 mkdir -p /root/ai
 
-npm install -g @google/gemini-cli@latest
+npm install -g @google/gemini-cli@nightly
+
+#npm install -g @google/gemini-cli@latest
