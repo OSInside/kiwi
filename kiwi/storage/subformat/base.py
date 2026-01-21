@@ -46,8 +46,8 @@ class DiskFormatBase:
     :param dict custom_args: custom format options dictionary
     """
     def __init__(
-            self, xml_state: XMLState, root_dir: str, target_dir: str,
-            custom_args: dict = None
+        self, xml_state: XMLState, root_dir: str, target_dir: str,
+        custom_args: dict = None
     ):
         self.xml_state = xml_state
         self.root_dir = root_dir
