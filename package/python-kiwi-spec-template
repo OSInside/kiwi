@@ -146,21 +146,20 @@ Recommends:     dnf
 %endif
 %endif
 # package managers required by distro
-%if 0%{?fedora} || 0%{?rhel} >= 8 || 0%{?suse_version} >= 1650
-Provides:       kiwi-packagemanager:microdnf
-Requires:       microdnf
-%endif
-%if 0%{?fedora} >= 41
+%if 0%{?fedora} >= 41 || 0%{?rhel} >= 11 || 0%{?suse_version} >= 1650
 Requires:       dnf5
 Requires:       dnf5-plugins
 Provides:       kiwi-packagemanager:dnf5
-%else
-%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} >= 1650
-Requires:       dnf
+%endif
+%if (0%{?fedora} && 0%{?fedora} < 41) || (0%{?rhel} && 0%{?rhel} < 11)
+Requires:       dnf4
 Provides:       kiwi-packagemanager:dnf
 Provides:       kiwi-packagemanager:dnf4
 Provides:       kiwi-packagemanager:yum
 %endif
+%if (0%{?fedora} && 0%{?fedora} < 41) || (0%{?rhel} >= 8 && 0%{?rhel} < 11)
+Provides:       kiwi-packagemanager:microdnf
+Requires:       microdnf
 %endif
 %if 0%{?fedora} >= 26 || 0%{?suse_version}
 Requires:       zypper
