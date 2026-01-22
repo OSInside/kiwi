@@ -133,5 +133,6 @@
         <package name="grub2-efi-x64"/>
         <package name="shim" arch="x86_64"/>
         <package name="fedora-release"/>
+        <package name="shadow"/>
     </packages>
 </image>
