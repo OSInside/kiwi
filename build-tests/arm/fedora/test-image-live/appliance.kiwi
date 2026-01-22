@@ -51,5 +51,6 @@
         <package name="grub2-efi-aa64-modules"/>
         <package name="grub2-efi-aa64-cdboot"/>
         <package name="fedora-release"/>
+        <package name="shadow"/>
     </packages>
 </image>
