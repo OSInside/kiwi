@@ -3,20 +3,20 @@
 <!-- The line below is required in order to use the multibuild OBS features -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
-<image schemaversion="7.5" name="kiwi-test-image-live-disk-v9">
+<image schemaversion="7.5" name="kiwi-test-image-live-disk-v10">
     <description type="system">
         <author>Marcus Schaefer</author>
         <contact>marcus.schaefer@gmail.com</contact>
-        <specification>CentOS Stream 9 Appliance</specification>
+        <specification>CentOS Stream 10 Appliance</specification>
     </description>
     <profiles>
-        <profile name="Live" description="Live image of CentOS 9"/>
-        <profile name="Virtual" description="Virtual image of CentOS 9"/>
-        <profile name="Disk" description="OEM image of CentOS 9"/>
+        <profile name="Live" description="Live image of CentOS 10"/>
+        <profile name="Virtual" description="Virtual image of CentOS 10"/>
+        <profile name="Disk" description="OEM image of CentOS 10"/>
     </profiles>
     <preferences>
         <version>1.3.0</version>
-        <packagemanager>dnf</packagemanager>
+        <packagemanager>dnf4</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
         <locale>en_US</locale>
         <keytable>us</keytable>
