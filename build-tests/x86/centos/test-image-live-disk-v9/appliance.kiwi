@@ -16,7 +16,7 @@
     </profiles>
     <preferences>
         <version>1.3.0</version>
-        <packagemanager>dnf4</packagemanager>
+        <packagemanager>dnf</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
         <locale>en_US</locale>
         <keytable>us</keytable>
