@@ -54,6 +54,7 @@ class TestBootLoaderZipl:
         self.bootloader.get_menu_entry_title = Mock(
             return_value='title'
         )
+        self.bootloader.arch = 's390x'
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.FirmWare')
     def setup_method(self, cls, mock_FirmWare):
@@ -177,17 +178,17 @@ class TestBootLoaderZipl:
         assert mock_shutil_move.call_args_list == [
             call(
                 'system_root_mount/secure_execution_header.bin',
-                'target_dir/image-name.x86_64-image-version.'
+                'target_dir/image-name.s390x-image-version.'
                 'secure_execution_header.bin'
             ),
             call(
                 'system_root_mount/attestation_request.bin',
-                'target_dir/image-name.x86_64-image-version.'
+                'target_dir/image-name.s390x-image-version.'
                 'attestation_request.bin'
             ),
             call(
                 'system_root_mount/attestation_response.key',
-                'target_dir/image-name.x86_64-image-version.'
+                'target_dir/image-name.s390x-image-version.'
                 'attestation_response.key'
             )
         ]

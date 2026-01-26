@@ -19,7 +19,9 @@ class TestKisBuilder:
 
     @patch('kiwi.builder.kis.FileSystemBuilder')
     @patch('kiwi.builder.kis.BootImage')
-    def setup(self, mock_boot, mock_filesystem):
+    @patch('kiwi.builder.kis.Defaults.get_platform_name')
+    def setup(self, mock_get_platform_name, mock_boot, mock_filesystem):
+        mock_get_platform_name.return_value = 'x86_64'
         self.setup = Mock()
         self.runtime_config = Mock()
         self.runtime_config.get_max_size_constraint = Mock(
