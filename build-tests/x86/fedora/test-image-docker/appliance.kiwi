@@ -8,7 +8,7 @@
     </description>
     <preferences>
         <version>1.34.0</version>
-        <packagemanager>dnf</packagemanager>
+        <packagemanager>dnf5</packagemanager>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
         <locale>en_US</locale>
