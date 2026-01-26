@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import re
 from typing import (
     List, Dict
@@ -88,6 +89,31 @@ class PackageManagerDnf4(PackageManagerBase):
         """
         self.exclude_requests.append(name)
 
+    def _get_dnf4_binary_name(self, root=None):
+        """
+        Identify whether dnf is 'dnf4' or 'dnf-3'
+
+        :param str root: lookup binary name below this root directory
+
+        :return: name of dnf4 command
+
+        :rtype: str
+        """
+        dnf4_binary = 'dnf-3'
+        dnf4_search_env = {
+            'PATH': os.sep.join([root, 'usr', 'bin'])
+        } if root else None
+
+        # Python interpreter specific path
+        if Path.which(
+            filename='dnf4',
+            custom_env=dnf4_search_env,
+            access_mode=os.X_OK
+        ):
+            dnf4_binary = 'dnf4'
+
+        return dnf4_binary
+
     def setup_repository_modules(
         self, collection_modules: Dict[str, List[str]]
     ) -> None:
@@ -109,7 +135,7 @@ class PackageManagerDnf4(PackageManagerBase):
                 }
         """
         dnf_module_command = [
-            'dnf'
+            self._get_dnf4_binary_name()
         ] + self.dnf_args + [
             '--installroot', self.root_dir,
             f'--releasever={self.release_version}'
@@ -147,6 +173,7 @@ class PackageManagerDnf4(PackageManagerBase):
 
         :rtype: namedtuple
         """
+        dnf4 = self._get_dnf4_binary_name()
         exclude_args = []
         if self.exclude_requests:
             # For DNF, excluding a package means removing it from
@@ -156,12 +183,12 @@ class PackageManagerDnf4(PackageManagerBase):
             for package in self.exclude_requests:
                 exclude_args.append('--exclude=' + package)
         Command.run(
-            ['dnf'] + self.dnf_args + [
+            [dnf4] + self.dnf_args + [
                 f'--releasever={self.release_version}'
             ] + ['makecache']
         )
         dnf_command = [
-            'dnf'
+            dnf4
         ] + self.dnf_args + [
             '--installroot', self.root_dir,
             f'--releasever={self.release_version}'
@@ -181,6 +208,7 @@ class PackageManagerDnf4(PackageManagerBase):
 
         :rtype: namedtuple
         """
+        dnf4 = self._get_dnf4_binary_name(self.root_dir)
         exclude_args = []
         if self.exclude_requests:
             # For DNF, excluding a package means removing it from
@@ -193,7 +221,7 @@ class PackageManagerDnf4(PackageManagerBase):
             self.root_dir, self.dnf_args
         )
         dnf_command = [
-            'chroot', self.root_dir, 'dnf'
+            'chroot', self.root_dir, dnf4
         ] + chroot_dnf_args + [
             f'--releasever={self.release_version}'
         ] + self.custom_args + exclude_args + [
@@ -240,9 +268,10 @@ class PackageManagerDnf4(PackageManagerBase):
                 self.command_env
             )
         else:
+            dnf4 = self._get_dnf4_binary_name(self.root_dir)
             chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
             dnf_command = [
-                'chroot', self.root_dir, 'dnf'
+                'chroot', self.root_dir, dnf4
             ] + chroot_dnf_args + [
                 f'--releasever={self.release_version}'
             ] + self.custom_args + [
@@ -261,10 +290,11 @@ class PackageManagerDnf4(PackageManagerBase):
 
         :rtype: namedtuple
         """
+        dnf4 = self._get_dnf4_binary_name(self.root_dir)
         chroot_dnf_args = Path.move_to_root(self.root_dir, self.dnf_args)
         return Command.call(
             [
-                'chroot', self.root_dir, 'dnf'
+                'chroot', self.root_dir, dnf4
             ] + chroot_dnf_args + [
                 f'--releasever={self.release_version}'
             ] + self.custom_args + [

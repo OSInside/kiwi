@@ -41,8 +41,26 @@ class TestPackageManagerDnf4:
         self.manager.request_package_exclusion('name')
         assert self.manager.exclude_requests == ['name']
 
+    @patch('kiwi.path.Path.which')
+    def test_get_dnf4_binary_name(self, mock_which):
+        mock_which.return_value = '/usr/bin/dnf4'
+        assert self.manager._get_dnf4_binary_name() == 'dnf4'
+        mock_which.assert_called_once_with(
+            access_mode=1, custom_env=None,
+            filename='dnf4'
+        )
+        mock_which.return_value = None
+        mock_which.reset_mock()
+        assert self.manager._get_dnf4_binary_name(root='/some/root') == 'dnf-3'
+        mock_which.assert_called_once_with(
+            access_mode=1, custom_env={'PATH': '/some/root/usr/bin'},
+            filename='dnf4'
+        )
+
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.run')
-    def test_setup_repository_modules(self, mock_run):
+    def test_setup_repository_modules(self, mock_run, mock_exists):
+        mock_exists.return_value = None
         self.manager.setup_repository_modules(
             {
                 'disable': ['mod_c'],
@@ -50,7 +68,7 @@ class TestPackageManagerDnf4:
             }
         )
         dnf_call_args = [
-            'dnf', '--config', '/root-dir/dnf.conf',
+            'dnf-3', '--config', '/root-dir/dnf.conf',
             '-y', '--installroot', '/root-dir', '--releasever=0'
         ]
         assert mock_run.call_args_list == [
@@ -81,37 +99,41 @@ class TestPackageManagerDnf4:
             )
         ]
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
-    def test_process_install_requests_bootstrap(self, mock_run, mock_call):
+    def test_process_install_requests_bootstrap(self, mock_run, mock_call, mock_exists):
+        mock_exists.return_value = None
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.request_package_exclusion('skipme')
         self.manager.process_install_requests_bootstrap()
         mock_run.assert_called_once_with(
             [
-                'dnf', '--config', '/root-dir/dnf.conf', '-y',
+                'dnf-3', '--config', '/root-dir/dnf.conf', '-y',
                 '--releasever=0', 'makecache'
             ]
         )
         mock_call.assert_called_once_with(
             [
-                'dnf', '--config', '/root-dir/dnf.conf', '-y',
+                'dnf-3', '--config', '/root-dir/dnf.conf', '-y',
                 '--installroot', '/root-dir', '--releasever=0',
                 '--exclude=skipme',
                 'install', 'vim', '@collection'
             ], ['env']
         )
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.call')
-    def test_process_install_requests(self, mock_call):
+    def test_process_install_requests(self, mock_call, mock_exists):
+        mock_exists.return_value = None
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.request_package_exclusion('skipme')
         self.manager.process_install_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'dnf', '--config', '/dnf.conf', '-y',
+                'chroot', '/root-dir', 'dnf-3', '--config', '/dnf.conf', '-y',
                 '--releasever=0', '--exclude=skipme',
                 'install', 'vim', '@collection'
             ], ['env']
@@ -132,14 +154,16 @@ class TestPackageManagerDnf4:
             ]
         )
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command.Command.run')
-    def test_process_delete_requests_no_force(self, mock_run, mock_call):
+    def test_process_delete_requests_no_force(self, mock_run, mock_call, mock_exists):
+        mock_exists.return_value = None
         self.manager.request_package('vim')
         self.manager.process_delete_requests()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'dnf',
+                'chroot', '/root-dir', 'dnf-3',
                 '--config', '/dnf.conf', '-y',
                 '--releasever=0', 'autoremove', 'vim'
             ],
@@ -159,12 +183,14 @@ class TestPackageManagerDnf4:
             ['chroot', '/root-dir', 'rpm', '-q', 'vim']
         )
 
+    @patch('kiwi.path.Path.which')
     @patch('kiwi.command.Command.call')
-    def test_update(self, mock_call):
+    def test_update(self, mock_call, mock_exists):
+        mock_exists.return_value = None
         self.manager.update()
         mock_call.assert_called_once_with(
             [
-                'chroot', '/root-dir', 'dnf',
+                'chroot', '/root-dir', 'dnf-3',
                 '--config', '/dnf.conf', '-y',
                 '--releasever=0', 'upgrade'
             ], ['env']
