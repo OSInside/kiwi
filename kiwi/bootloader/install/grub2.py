@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import glob
 import os
 import re
 import shutil
@@ -196,14 +195,6 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 self.root_mount.mountpoint, ''
             )
             boot_directory = '/boot'
-
-            # wipe existing grubenv to allow the grub installer
-            # to create a new one
-            grubenv_glob = os.sep.join(
-                [self.root_mount.mountpoint, 'boot', '*', 'grubenv']
-            )
-            for grubenv in glob.glob(grubenv_glob):
-                Path.wipe(grubenv)
 
             # install grub2 boot code
             if self.firmware.get_partition_table_type() == 'dasd':

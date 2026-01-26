@@ -100,6 +100,7 @@
         <package name="gzip"/>
         <package name="udev"/>
         <package name="xz"/>
+        <package name="diffutils"/>
         <package name="shadow"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>

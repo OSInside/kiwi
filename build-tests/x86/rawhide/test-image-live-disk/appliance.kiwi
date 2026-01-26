@@ -13,6 +13,7 @@
         <profile name="Live" description="Live image of Fedora Rawhide"/>
         <profile name="LiveEroFS" description="Live Root via EroFS"/>
         <profile name="Virtual" description="Virtual image of Fedora Rawhide"/>
+        <profile name="Virtual_btrfs" description="Virtual image of Fedora Rawhide with btrfs layout"/>
         <profile name="Disk" description="OEM image of Fedora Rawhide"/>
     </profiles>
     <preferences>
@@ -40,7 +41,48 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" console="serial" timeout="10"/>
+            <bootloader name="grub2" console="serial" timeout="10" timeout_style="hidden">
+                <bootloadersettings>
+                    <environment>
+                        <env name="menu_auto_hide" value="1"/>
+                        <env name="boot_success" value="1"/>
+                    </environment>
+                </bootloadersettings>
+            </bootloader>
+        </type>
+    </preferences>
+    <preferences profiles="Virtual_btrfs">
+        <type
+            image="oem"
+            filesystem="btrfs"
+            kernelcmdline="console=tty1 console=ttyS0"
+            firmware="uefi"
+            format="qcow2"
+            btrfs_root_is_subvolume="true"
+            btrfs_set_default_volume="false"
+            rootfs_label="fedora"
+            bootpartition="false"
+            eficsmpart_id="54"
+            efipart_id="55"
+            rootpart_id="1"
+        >
+            <systemdisk name="fedora">
+                <volume name="@root=root"/>
+                <volume name="boot" parent="/"/>
+                <volume name="home" parent="/"/>
+                <volume name="var" parent="/"/>
+            </systemdisk>
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2" timeout="10" output_console="console serial" input_console="serial" timeout_style="hidden">
+                <bootloadersettings>
+                    <environment>
+                        <env name="menu_auto_hide" value="1"/>
+                        <env name="boot_success" value="1"/>
+                    </environment>
+                </bootloadersettings>
+            </bootloader>
         </type>
     </preferences>
     <preferences profiles="Disk">

@@ -24,3 +24,7 @@ class TestBootLoaderInstallBase:
     def test_secure_boot_install(self):
         with raises(NotImplementedError):
             self.bootloader.secure_boot_install()
+
+    def test_set_disk_password(self):
+        # just pass
+        self.bootloader.set_disk_password('some')
