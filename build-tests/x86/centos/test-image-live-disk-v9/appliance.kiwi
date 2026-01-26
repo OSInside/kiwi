@@ -96,5 +96,6 @@
         <package name="grub2-efi-x64" arch="x86_64"/>
         <package name="shim-x64" arch="x86_64"/>
         <package name="libdb-utils"/>
+        <package name="dnf"/>
     </packages>
 </image>
