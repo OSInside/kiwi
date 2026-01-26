@@ -8,7 +8,7 @@
     </description>
     <preferences>
         <version>1.33.2</version>
-        <packagemanager>dnf</packagemanager>
+        <packagemanager>dnf5</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
         <bootloader-theme>breeze</bootloader-theme>
         <locale>en_US</locale>
