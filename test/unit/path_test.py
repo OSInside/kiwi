@@ -99,19 +99,22 @@ class TestPath:
         mock_env.return_value = '/usr/local/bin:/usr/bin:/bin'
         assert Path.which('some-file', access_mode=os.X_OK) is None
 
-    def test_which_with_real_data(self, pytestconfig: pytest.Config):
+    def test_which_with_real_data(self, pytestconfig: 'pytest.Config'):
+        rootpath = getattr(
+            pytestconfig, 'rootpath', getattr(pytestconfig, 'rootdir')
+        )
         assert Path.which(
             'pyproject.toml',
-            custom_env={'PATH': str(pytestconfig.rootpath)},
+            custom_env={'PATH': str(rootpath)},
             access_mode=os.F_OK
-        ) == str(pytestconfig.rootpath / "pyproject.toml")
+        ) == str(rootpath / "pyproject.toml")
 
         assert Path.which(
             '__init__.py',
             custom_env={'PATH': "/kiwi/"},
             access_mode=os.F_OK,
-            root_dir=str(pytestconfig.rootpath)
-        ) == str(pytestconfig.rootpath / "kiwi" / "__init__.py")
+            root_dir=str(rootpath)
+        ) == str(rootpath / "kiwi" / "__init__.py")
 
     @patch('os.access')
     @patch('os.environ.get')
