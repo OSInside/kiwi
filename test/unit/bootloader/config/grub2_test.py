@@ -369,26 +369,21 @@ class TestBootLoaderConfigGrub2:
         assert self.bootloader.xen_guest is True
 
     @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
-    @patch.object(BootLoaderConfigGrub2, '_setup_sysconfig_bootloader')
     def test_write_meta_data(
-        self, mock_setup_sysconfig_bootloader,
-        mock_setup_default_grub
+        self, mock_setup_default_grub
     ):
         self.bootloader.write_meta_data()
         mock_setup_default_grub.assert_called_once_with()
-        mock_setup_sysconfig_bootloader.assert_called_once_with()
 
     @patch.object(BootLoaderConfigGrub2, '_setup_default_grub')
-    @patch.object(BootLoaderConfigGrub2, '_setup_sysconfig_bootloader')
     @patch.object(BootLoaderConfigGrub2, '_setup_zipl2grub_conf')
     def test_write_meta_data_s390(
-        self, mock_setup_zipl2grub_conf, mock_setup_sysconfig_bootloader,
+        self, mock_setup_zipl2grub_conf,
         mock_setup_default_grub
     ):
         self.bootloader.arch = 's390x'
         self.bootloader.write_meta_data()
         mock_setup_default_grub.assert_called_once_with()
-        mock_setup_sysconfig_bootloader.assert_called_once_with()
         mock_setup_zipl2grub_conf.assert_called_once_with()
 
     @patch('os.path.exists')
@@ -959,100 +954,6 @@ class TestBootLoaderConfigGrub2:
             'SUSE_BTRFS_SNAPSHOT_BOOTING': 'true',
             'GRUB_DEFAULT': 'saved'
         }
-
-    @patch('os.path.exists')
-    @patch('kiwi.bootloader.config.grub2.SysConfig')
-    def test_setup_sysconfig_bootloader(self, mock_sysconfig, mock_exists):
-        sysconfig_bootloader = MagicMock()
-        mock_sysconfig.return_value = sysconfig_bootloader
-        mock_exists.return_value = True
-        self.bootloader.bls = False
-        self.bootloader._setup_sysconfig_bootloader()
-        mock_sysconfig.assert_called_once_with(
-            'root_dir/etc/sysconfig/bootloader'
-        )
-        sysconfig_bootloader.write.assert_called_once_with()
-        assert sysconfig_bootloader.__setitem__.call_args_list == [
-            call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
-            call(
-                'FAILSAFE_APPEND',
-                '"some-cmdline root=UUID=foo failsafe-options"'
-            ),
-            call('LOADER_LOCATION', 'mbr'),
-            call('LOADER_TYPE', 'grub2'),
-            call('TRUSTED_BOOT', 'yes')
-        ]
-        self.firmware.efi_mode = Mock(
-            return_value='uefi'
-        )
-        sysconfig_bootloader.__setitem__.reset_mock()
-        self.bootloader._setup_sysconfig_bootloader()
-        assert sysconfig_bootloader.__setitem__.call_args_list == [
-            call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
-            call(
-                'FAILSAFE_APPEND',
-                '"some-cmdline root=UUID=foo failsafe-options"'
-            ),
-            call('LOADER_LOCATION', 'none'),
-            call('LOADER_TYPE', 'grub2-efi'),
-            call('SECURE_BOOT', 'yes'),
-            call('TRUSTED_BOOT', 'yes')
-        ]
-
-    @patch('os.path.exists')
-    @patch('kiwi.bootloader.config.grub2.SysConfig')
-    def test_setup_sysconfig_bootloader_no_secure(
-        self, mock_sysconfig, mock_exists
-    ):
-        sysconfig_bootloader = MagicMock()
-        mock_sysconfig.return_value = sysconfig_bootloader
-        mock_exists.return_value = True
-        self.bootloader.bls = False
-        self.bootloader._setup_sysconfig_bootloader()
-        mock_sysconfig.assert_called_once_with(
-            'root_dir/etc/sysconfig/bootloader'
-        )
-        sysconfig_bootloader.write.assert_called_once_with()
-        assert sysconfig_bootloader.__setitem__.call_args_list == [
-            call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
-            call(
-                'FAILSAFE_APPEND',
-                '"some-cmdline root=UUID=foo failsafe-options"'
-            ),
-            call('LOADER_LOCATION', 'mbr'),
-            call('LOADER_TYPE', 'grub2'),
-            call('TRUSTED_BOOT', 'yes')
-        ]
-        self.firmware.efi_mode = Mock(
-            return_value='efi'
-        )
-        sysconfig_bootloader.__setitem__.reset_mock()
-        self.bootloader._setup_sysconfig_bootloader()
-        assert sysconfig_bootloader.__setitem__.call_args_list == [
-            call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
-            call(
-                'FAILSAFE_APPEND',
-                '"some-cmdline root=UUID=foo failsafe-options"'
-            ),
-            call('LOADER_LOCATION', 'none'),
-            call('LOADER_TYPE', 'grub2-efi'),
-            call('SECURE_BOOT', 'no'),
-            call('TRUSTED_BOOT', 'yes')
-        ]
-        sysconfig_bootloader.__setitem__.reset_mock()
-        self.bootloader.bls = True
-        self.bootloader._setup_sysconfig_bootloader()
-        assert sysconfig_bootloader.__setitem__.call_args_list == [
-            call('DEFAULT_APPEND', '"some-cmdline root=UUID=foo"'),
-            call(
-                'FAILSAFE_APPEND',
-                '"some-cmdline root=UUID=foo failsafe-options"'
-            ),
-            call('LOADER_LOCATION', 'none'),
-            call('LOADER_TYPE', 'grub2-bls'),
-            call('SECURE_BOOT', 'no'),
-            call('TRUSTED_BOOT', 'yes')
-        ]
 
     @patch('os.path.exists')
     def test_setup_live_image_config_custom_template(self, mock_exists):
