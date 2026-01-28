@@ -15,52 +15,87 @@ In {kiwi}, all generated ISO images are created to be hybrid. This means,
 the image can be used as a CD/DVD or as a disk. This works because
 the ISO image also has a partition table embedded. With more and more
 computers delivered without a CD/DVD drive this becomes important.
-The deployment of such an image onto a disk like an USB stick normally 
-destroys all existing data on this device. It is also not possible to use 
-USB stick as a data storage device. Most USB sticks are pre-formatted 
-with a FAT32 or exFAT Windows File System and to keep the existing data 
-on the stick untouched a different deployment needs to be used.
 
-Fortunately Grub2 supports booting directly from ISO files. It does not matter 
+Writing this image to a USB stick will permanently erase all existing
+data on the device. Additionally, the stick will no longer be usable for
+general data storage. Most USB sticks are pre-formatted with a
+FAT32 or exFAT Windows file system and to keep the existing data
+
+Fortunately Grub2 supports booting directly from ISO files. It does not matter
 whether it is installed on your computer's hard drive or on a USB stick.
-The following deployment process copies the ISO image as an additional file 
-to the USB stick or hard drive. The ability to boot from the disk is configured 
+The following deployment process copies the ISO image as an additional file
+to the USB stick or hard drive. The ability to boot from the disk is configured
 through a Grub2 feature which allows to loopback mount an ISO file and boot the
 kernel and initrd directly from the ISO file.
 
 The initrd loaded in this process must also be able to loopback
 mount the ISO file to access the root filesystem and boot the
-live system. Almost every Linux distribution supports fat32, 
-and more and more of them also support exFAT. For hard drives, 
-Linux filesystems are also supported.
+live system. FAT32 is widely supported on USB sticks.
+For hard drives any filesystem supported by grub is apropriate
+too.
 
 The dracut initrd system used by {kiwi} provides this
 feature upstream called as "iso-scan/filename". Therefore all {kiwi} generated
 live ISO images supports this deployment mode.
 
-The following procedure shows how to setup Grub2 on your hard drive:
+The following procedure expects an existing Grub2 installation on your
+hard drive or USB stick.
 
 1. Copy the ISO image to a folder of your choice on your hard drive.
-
-2. Add the following code to the "grub.cfg" file:
-
-   Be sure to set the path to the ISO image, you can set your own menu name.
-   The drive identification for Grub2 can be checked at boot time 
-   by pressing the 'c' key and typing 'ls'.
+   For example, create a folder called "iso" in the
+   root of your hard drive and copy the ISO image there:
 
    .. code:: bash
 
-      submenu "Boot from openSUSE ISO" {
-	   iso_path="(hd0,gpt2)/path/to/openSUSE.iso"
-	   export iso_path
-	   loopback loop "$iso_path"
-	   root=(loop)
-	   source /boot/grub2/loopback.cfg
-	   loopback --delete loop
+      sudo mkdir /iso
+      sudo cp some-kiwi-live.iso /iso/
+
+2. Lookup the root filesystem UUID of your current operating system.
+   Get this information by running the command:
+
+   .. code:: bash
+
+      findmnt -n -o UUID /
+
+2. Add the following submenu setup to the :file:`grub.cfg` file:
+
+   .. note::
+
+      Verify that the path to the ISO image is correct. Set
+      your own menu name. The drive identification for Grub2 can be
+      checked at boot time by pressing the 'c' key and typing 'ls'.
+      The following example assumes a live ISO image for the x86_64
+      architecture. Adjust the paths to kernel and initrd if you
+      have a different architecture.
+
+   .. code:: bash
+
+      menuentry "Boot from Live ISO" {
+          load_video
+          set gfxpayload=keep
+          insmod gzio
+          insmod part_gpt
+          insmod iso9660
+          insmod btrfs
+          insmod ext2
+          insmod xfs
+          insmod lvm
+          insmod loopback
+          search --no-floppy --fs-uuid --set=root UUID_FROM_STEP_2
+          set isofile="/iso/some-kiwi-live.iso"
+          set kernel="(loop)/boot/x86_64/loader/linux"
+          set initrd="(loop)/boot/x86_64/loader/initrd"
+          set options="rd.live.image root=live:CDLABEL=CDROM"
+          loopback loop $isofile
+          linux $kernel iso-scan/filename=$isofile $options
+          initrd $initrd
       }
 
-3. Restart your computer and select the added menu.
+3. Restart your computer and select the added menuentry.
 
-For USB sticks, the procedure is identical. You would then install 
-Grub2 on the USB drive and follow the steps above. 
-The use of scripts such as "MultiOS-USB" is strongly recommended.
+.. note::
+
+   For USB sticks, the procedure is identical. You would install
+   Grub2 on the USB drive and follow the steps above. However, it is
+   uncommon to have Grub2 already installed on a USB stick. To simplify
+   the setup, there are good helper tools such as `MultiOS-USB`.
