@@ -202,15 +202,17 @@ function activate_luks {
     local rootfs_image=$1
     local mapname=$2
     declare kiwi_luks_empty_passphrase=${kiwi_luks_empty_passphrase}
-    if cryptsetup isLuks "${rootfs_image}" &>/dev/null;then
-        if [ "${kiwi_luks_empty_passphrase}" = "true" ];then
-            cryptsetup \
-                --key-file /dev/zero \
-                --keyfile-size 32 \
-            luksOpen "${rootfs_image}" "${mapname}"
-        else
-            systemd-cryptsetup attach "${mapname}" "${rootfs_image}"
-        fi
+    if ! cryptsetup isLuks "${rootfs_image}" &>/dev/null;then
+        return 1
+    fi
+
+    if [ "${kiwi_luks_empty_passphrase}" = "true" ];then
+        cryptsetup \
+            --key-file /dev/zero \
+            --keyfile-size 32 \
+        luksOpen "${rootfs_image}" "${mapname}"
+    else
+        systemd-cryptsetup attach "${mapname}" "${rootfs_image}"
     fi
 }
 
