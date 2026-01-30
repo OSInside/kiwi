@@ -91,15 +91,11 @@ BuildRequires:  python%{python3_pkgversion}-installer
 BuildRequires:  python%{python3_pkgversion}-poetry-core >= 1.2.0
 BuildRequires:  python%{python3_pkgversion}-wheel
 # doc build requirements
-%if ! (0%{?fedora} >= 41 || 0%{?rhel} >= 10)
-BuildRequires:  python%{python3_pkgversion}-docopt >= 0.6.2
-%else
-BuildRequires:  python%{python3_pkgversion}-docopt-ng
-%endif
 %if 0%{?debian} || 0%{?ubuntu}
 # only because of debbuild
 BuildRequires:  python%{python3_pkgversion}-setuptools
 %endif
+BuildRequires:  python%{python3_pkgversion}-typer >= 0.9.0
 BuildRequires:  python%{python3_pkgversion}-lxml
 BuildRequires:  python%{python3_pkgversion}-requests
 BuildRequires:  python%{python3_pkgversion}-simplejson
@@ -445,11 +441,7 @@ Requires:       python%{python3_pkgversion}-yaml
 Requires:       python%{python3_pkgversion}-PyYAML
 %endif
 Requires:       python%{python3_pkgversion}-simplejson
-%if ! (0%{?fedora} >= 41 || 0%{?rhel} >= 10)
-Requires:       python%{python3_pkgversion}-docopt
-%else
-Requires:       python%{python3_pkgversion}-docopt-ng
-%endif
+Requires:       python%{python3_pkgversion}-typer >= 0.9.0
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-xmltodict
@@ -698,12 +690,6 @@ of subcommands, parameters and keywords for the kiwi-ng command.
 %if 0%{?suse_version}
 # Temporarily revert grub-bls default to false for SUSE distributions
 %patch -P 1001 -p1
-%endif
-
-# Temporarily switch things back to docopt for everything but Fedora 41+
-# FIXME: Drop this hack as soon as we can...
-%if ! (0%{?fedora} >= 41 || 0%{?rhel} >= 10)
-sed -e 's/docopt-ng.*/docopt = ">=0.6.2"/' -i pyproject.toml
 %endif
 
 # Drop shebang for kiwi/xml_parse.py, as we don't intend to use it
