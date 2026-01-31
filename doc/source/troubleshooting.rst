@@ -5,10 +5,10 @@ Troubleshooting
 
 .. note:: **Abstract**
 
-   This document describes situations which leads to issues
-   during build or boot time of the image build with {kiwi}.
+   This document describes situations that lead to issues
+   during build or boot time of the image built with {kiwi}.
    The suggested solutions are considered best practice but
-   are just one out of other possible solution candidates.
+   are just one of many possible solutions.
 
 .. toctree::
    :maxdepth: 1

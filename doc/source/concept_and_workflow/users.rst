@@ -22,10 +22,10 @@ supports a list of multiple `user` child elements:
        </users>
    </image>
 
-Each `user` element represents a specific added or modified user.
+Each `user` element represents a specific user to be added or modified.
 The following attributes are mandatory:
 
-- `name`: the UNIX username
+- `name`: the UNIX username.
 
 - `password`: The password for the user account. It can be provided either
   in clear-text form (`pwdformat="plain"`) or in encrypted form
@@ -40,12 +40,12 @@ The following attributes are mandatory:
 
 Additionally, the following optional attributes can be specified:
 
-- `home`: the path to the user's home directory
+- `home`: The path to the user's home directory.
 
 - `groups`: A comma-separated list of UNIX groups. The first element of the
   list is used as the user's primary group. The remaining elements are
   appended to the user's supplementary groups. When no groups are assigned,
-  the system's default primary group is be used.
+  the system's default primary group will be used.
 
 - `id`: The numeric user ID of the account.
 

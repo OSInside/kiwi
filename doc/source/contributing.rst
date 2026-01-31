@@ -18,17 +18,17 @@ Contributing
 The Basics
 ----------
 
-The core appliance builder is developed in Python and follows the test
+The core appliance builder is developed in Python and follows the test-
 driven development rules.
 
 If you want to implement a bigger feature, consider opening an issue on
-GitHub first to discuss the changes. Or join the discussion in the
-``#kiwi`` channel on `Riot.im <https://about.riot.im>`_.
+GitHub first to discuss the changes. Or, join the discussion in the
+`#kiwi` channel on `Riot.im <https://about.riot.im>`_.
 
 Fork the upstream repository
 ----------------------------
 
-1. On GitHub, navigate to: https://github.com/OSInside/kiwi
+1. On GitHub, navigate to: https://github.com/OSInside/kiwi.
 
 2. In the top-right corner of the page, click :command:`Fork`.
 
@@ -44,8 +44,8 @@ Create a local clone of the forked repository
 Install Required Operating System Packages
 ------------------------------------------
 
-{kiwi} requires additional packages at runtime which are not
-provided by :command:`pip`. Those will be pulled in by installing
+{kiwi} requires additional packages at runtime that are not
+provided by `pip`. Those will be pulled in by installing
 the following package:
 
 * kiwi-systemdeps
@@ -54,14 +54,14 @@ The package is provided on the Open Build Service in the
 `Virtualization:Appliances:Builder
 <https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
 project. For manual inspection of the packages
-that are pulled in from the above kiwi-systemdeps package, please refer
-to the `package/python-kiwi-spec-template` spec file from the checked
+that are pulled in from the above `kiwi-systemdeps` package, please refer
+to the `package/python-kiwi-spec-template` spec file from the checked-
 out Git repository.
 
 Create a Python Virtual Development Environment
 -----------------------------------------------
 
-The following commands initializes and activates a development
+The following commands initialize and activate a development
 environment for Python 3:
 
 .. code:: shell-session
@@ -94,7 +94,7 @@ Create a Branch for each Feature or Bugfix
 Code changes should be done in an extra Git branch. This allows for
 creating GitHub pull requests in a clean way. See also: `Collaborating with
 issues and pull requests
-<https://help.github.com/en/categories/collaborating-with-issues-and-pull-requests>`_
+<https://help.github.com/en/categories/collaborating-with-issues-and-pull-requests>`_.
 
 .. code:: shell-session
 
@@ -104,14 +104,14 @@ Make and commit your changes.
 
 .. note::
 
-    You can make multiple commits which is generally useful to
+    You can make multiple commits, which is generally useful to
     give your changes a clear structure and to allow us to better
     review your work.
 
 .. note::
 
     Your work is important and must be signed to ensure the integrity of
-    the repository and the code. Thus we recommend to setup a signing key
+    the repository and the code. Thus, we recommend setting up a signing key
     as documented in :ref:`Signing_Git_Patches`.
 
 .. code:: shell-session
@@ -125,7 +125,7 @@ create a pull request into the upstream repository.
 
     $ git push origin my-topic-branch
 
-Thank you much for contributing to {kiwi}. Your time and work effort is very
+Thank you much for contributing to {kiwi}. Your time and work effort are very
 much appreciated!
 
 
@@ -135,10 +135,10 @@ Coding Style
 {kiwi} follows the general PEP8 guidelines with the following exceptions:
 
 - We do not use free functions at all. Even utility functions must be part
-  of a class, but should be either prefixed with the `@classmethod` or
+  of a class but should be either prefixed with the `@classmethod` or
   `@staticmethod` decorators (whichever is more appropriate).
 
-- Do not set module and class level variables, put these into the classes'
+- Do not set module and class-level variables; put these into the class's
   `__init__` method.
 
 - The names of constants are not written in all capital letters.
@@ -147,16 +147,16 @@ Documentation
 ~~~~~~~~~~~~~
 
 {kiwi} uses `Sphinx <https://www.sphinx-doc.org/en/master/>`_ for the API,
-user documentation and manual pages
+user documentation, and man pages.
 
 .. code:: shell-session
 
     $ make docs
 
-Document all your classes, methods, their parameters and their types using
+Document all your classes, methods, their parameters, and their types using
 the standard `reStructuredText
 <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-syntax as supported by Sphinx, an example class is documented as follows:
+syntax as supported by Sphinx. An example class is documented as follows:
 
 .. code:: python
 
@@ -165,7 +165,7 @@ syntax as supported by Sphinx, an example class is documented as follows:
        **Example class**
 
        :param str param: A parameter
-       :param bool : Source file name to compress
+       :param bool: Source file name to compress
        :param list supported_zipper: List of supported compression tools
        :attr Optional[str] attr: A class attribute
        """
@@ -188,36 +188,36 @@ Try to stick to the following guidelines when documenting source code:
 - Classes should be documented directly in their main docstring and not in
   `__init__`.
 
-- Document **every** function parameter and every public attribute
+- Document **every** function parameter and every public attribute,
   including their types.
 
-- Only public methods should be documented, private methods don't have to,
+- Only public methods should be documented; private methods don't have to be,
   unless they are complex and it is not easy to grasp what they do (which
   should be avoided anyway).
 
 
-Please also document any user-facing changes that you implementing
-(e.g. adding a new build type) in the user documentation, which can be
+Please also document any user-facing changes that you are implementing
+(e.g., adding a new build type) in the user documentation, which can be
 found in `doc/source`. General documentation should be put into the
 `working_with_kiwi/` subfolder, whereas documentation about more
-specialized topics would belong into the `building/` subfolder.
+specialized topics would belong in the `building/` subfolder.
 
-Adhere to a line limit of 75 characters when writing the user facing
+Adhere to a line limit of 75 characters when writing the user-facing
 documentation [#f1]_.
 
 
 Additional Information
 ----------------------
 
-The following sections provides further information about the repository
-integrity, version, package and documentation management.
+The following sections provide further information about the repository
+integrity, version, package, and documentation management.
 
 .. _Signing_Git_Patches:
 
 Signing Git Patches
 ~~~~~~~~~~~~~~~~~~~
 
-To ensure the integrity of the repository and the code base, patches sent
+To ensure the integrity of the repository and the codebase, patches sent
 for inclusion should be signed with a GPG key.
 
 To prepare Git to sign commits, follow these instructions:
@@ -229,14 +229,14 @@ To prepare Git to sign commits, follow these instructions:
 
     $ gpg2 --expert --full-gen-key
 
-#. Either choose a RSA key for signing (option `(4)`) or an ECC key for
-   signing (option `(10)`). For a RSA key choose a key size of 4096 bits
-   and for a ECC key choose Curve 25519 (option `(1)`). Enter a reasonable
+#. Either choose an RSA key for signing (option `(4)`) or an ECC key for
+   signing (option `(10)`). For an RSA key, choose a key size of 4096 bits,
+   and for an ECC key, choose Curve 25519 (option `(1)`). Enter a reasonable
    validity period (we recommend 2 to 5 years). Complete the key generation
    by entering your name and email address.
 
 
-#. Add the key ID to your git configuration, by running the following
+#. Add the key ID to your git configuration by running the following
    :command:`git config` commands:
 
    .. code:: shell-session
@@ -244,7 +244,7 @@ To prepare Git to sign commits, follow these instructions:
       $ git config --local user.signingkey $YOUR_SIGN_KEY_ID
       $ git config --local commit.gpgSign true
 
-   Omitting the flag `--local` will make these settings global for all
+   Omitting the `--local` flag will make these settings global for all
    repositories (they will be added to :file:`~/.gitconfig`). You can find
    your signkey's ID via:
 
@@ -256,7 +256,7 @@ To prepare Git to sign commits, follow these instructions:
       uid                 [ultimate] YOU <$YOUR_EMAIL>
 
    The key's ID in this case would be `AABBCCDDEEFF0011`. Note that your
-   signkey will have only a `[S]` after the creation date, not a `[SC]`
+   sign key will have only a `[S]` after the creation date, not a `[SC]`
    (then you are looking at your ordinary GPG key that can also encrypt).
 
 
@@ -267,16 +267,16 @@ The {kiwi} project follows the `Semantic Versioning <https://semver.org>`_
 scheme. We use the :command:`bumpversion` tool for consistent versioning.
 
 Follow these instructions to bump the major, minor, or patch part of the
-{kiwi} version. Ensure that your repository is clean (i.e. no modified and
-unknown files exist) beforehand running :command:`bumpversion`.
+{kiwi} version. Ensure that your repository is clean (i.e., no modified and
+unknown files exist) before running :command:`bumpversion`.
 
-*  For backwards-compatible bug fixes:
+*  For backward-compatible bug fixes:
 
    .. code:: shell-session
 
     $ bumpversion patch
 
-*  For additional functionality in a backwards-compatible manner. When
+*  For additional functionality in a backward-compatible manner. When
    changed, the patch level is reset to zero:
 
    .. code:: shell-session
@@ -290,31 +290,31 @@ unknown files exist) beforehand running :command:`bumpversion`.
 
     $ bumpversion major
 
-Creating a RPM Package
-~~~~~~~~~~~~~~~~~~~~~~
+Creating an RPM Package
+~~~~~~~~~~~~~~~~~~~~~~~
 
-We provide a template for a RPM spec file in
-:file:`package/python-kiwi-spec-template` alongside with a rpmlint
+We provide a template for an RPM spec file in
+:file:`package/python-kiwi-spec-template` alongside a `rpmlint`
 configuration file and an automatically updated
 :file:`python-kiwi.changes`.
 
-To create the necessary files to build a RPM package via `rpmbuild`, run:
+To create the necessary files to build an RPM package via `rpmbuild`, run:
 
 .. code:: shell-session
 
    $ make build
 
 The sources are collected in the :file:`dist/` directory. These can be
-directly build it with :command:`rpmbuild`, :command:`fedpkg`, or submitted
+directly built with :command:`rpmbuild`, :command:`fedpkg`, or submitted
 to the Open Build Service using :command:`osc`.
 
 
 .. [#f1] Configure your editor to automatically break lines and/or reformat
-         paragraphs. For Emacs you can use `M-x set-fill-column RET 75` and
+         paragraphs. For Emacs, you can use `M-x set-fill-column RET 75` and
          `M-x auto-fill-mode RET` for automatic filling of paragraphs in
          conjunction with `M-x fill-paragraph` (usually bound to `M-q`) to
          reformat a paragraph to adhere to the current column width. For
-         editing reStructuredText we recommend `rst-mode` (built-in to
+         editing reStructuredText, we recommend `rst-mode` (built into
          Emacs since version `23.1`).
          Vim users can set the text width via `:tw 75` and then use the
          commands `gwip` or `gq`.

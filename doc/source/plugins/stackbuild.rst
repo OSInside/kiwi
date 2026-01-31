@@ -5,8 +5,8 @@ Building based on Containers
 
 .. note:: **Abstract**
 
-   When building images exposes one of the following
-   requirements the stackbuild plugin provides an opportunity
+   When building images, one of the following
+   requirements of the stackbuild plugin provides an opportunity
    to address it:
 
    * Preserve the image rootfs for a later rebuild without
@@ -16,12 +16,12 @@ Building based on Containers
 
    * Build an image based on a container stack.
 
-   * Transform a container into a {kiwi} image type
+   * Transform a container into a {kiwi} image type.
 
 Installation
 ------------
 
-Add the {kiwi} repo from the Open Build Service. For details see
+Add the {kiwi} repo from the Open Build Service. For details, see
 :ref:`installation-from-obs`. The following {kiwi} plugin needs to be
 installed on the build system:
 
@@ -32,29 +32,29 @@ installed on the build system:
 Concept
 -------
 
-The design of the stackbuild plugin is two fold:
+The design of the stackbuild plugin is twofold:
 
-First the plugin comes with a command called `stash` which allows
-to store a kiwi built root tree as an OCI container. OCI stands for
-*Open Container Interface* and is a defacto standard format in the
-container world. Once the container got created it can be managed
+First, the plugin comes with a command called `stash` that allows
+you to store a kiwi-built root tree as an OCI container. OCI stands for
+*Open Container Interface* and is a de facto standard format in the
+container world. Once the container has been created, it can be managed
 using the preferred container toolchain. The plugin code itself
 uses `podman` to work with containers.
 
-As a next step and with the root tree as a container the plugin offers
-the opportunity to build images based on one ore more containers.
-That's also the reason why the plugin is called *stackbuild* as it
+As a next step, and with the root tree as a container, the plugin offers
+the opportunity to build images based on one or more containers.
+That's also the reason why the plugin is called *stackbuild*, as it
 allows you to stack different root containers together.
-Consequently the other command provided is named `stackbuild`.
+Consequently, the other command provided is named `stackbuild`.
 
 The `stash` and `stackbuild` commands can be used independently
 from each other. If there is already a registry with containers
 that should be used to build images from, `stackbuild` can
 directly consume them.
 
-This concept leads to a number of use cases and a few of them were
+This concept leads to a number of use cases, and a few of them were
 picked and put into the abstract of this article. For the purpose
-of documenting the functionality of the plugin only a part of the
+of documenting the functionality of the plugin, only a part of the
 possibilities are taken into account as follows:
 
 .. _stash:
@@ -62,9 +62,9 @@ possibilities are taken into account as follows:
 Create a stash
 --------------
 
-The `stash` command creates an OCI compliant container from a given
+The `stash` command creates an OCI-compliant container from a given
 {kiwi-product} image root tree and registers it in the local
-container registry. From there a user can push it to any registry
+container registry. From there, a user can push it to any registry
 of choice.
 
 The following example creates a stash of a Tumbleweed build
@@ -91,16 +91,16 @@ registry:
         docker://docker.io/.../twmos-snapshot:2021-10-08
 
 If the `stash` command is called multiple times with the same
-container-name this leads to a new layer in the container for
+container name, this leads to a new layer in the container for
 each call. To inspect the number of layers added to the
-container the following command can be used:
+container, the following command can be used:
 
 .. code:: bash
 
     $ podman inspect twmos-snapshot
 
-To list all stashes created by the `stash` command the following
-command can be used
+To list all stashes created by the `stash` command, the following
+command can be used:
 
 .. code:: bash
 
@@ -112,21 +112,21 @@ Rebuild from a stash
 The `stackbuild` command takes the given container(s) from the local or
 remote registry and uses it/them to either rebuild an image from that
 data or build a new image on top of that data. If multiple containers
-are given the `stackbuild` command stacks them together in the order
-as they were provided.
+are given, the `stackbuild` command stacks them together in the order
+in which they were provided.
 
 .. note:: 
 
-   When using multiple containers the result stack root tree is
+   When using multiple containers, the result stack root tree is
    created from a sequence of rsync commands into the same target
    directory. The stackbuild plugin does this with any container
-   content given and does not check, validate or guarantee that
-   the selection of containers are actually stackable or leads to
-   an usable root tree. This means it's in the responsibility of
-   the caller to make sure the provided containers can actually
+   content given and does not check, validate, or guarantee that
+   the selection of containers is actually stackable or leads to a
+   usable root tree. This means it's the caller's responsibility
+   to make sure the provided containers can actually
    be stacked together in the given order.
    
-To simply rebuild the image from the stash created in :ref:`stash`
+To simply rebuild the image from the stash created in :ref:`stash`,
 call `stackbuild` as follows:
 
 .. code:: bash
@@ -151,16 +151,16 @@ of container images into another image type that is supported by {kiwi}.
 The following example demonstrates how an existing container image
 from the openSUSE registry can be turned into a virtual machine image.
 
-When moving a container into a virtual machine image the following
-aspects has to be taken into account:
+When moving a container into a virtual machine image, the following
+aspects have to be taken into account:
 
 1. A container image usually has no kernel installed.
 2. A container image usually has no bootloader installed.
 3. A container image usually has no user configured.
 
-For a VM image the mentioned aspects are mandatory. Therefore
+For a VM image, the mentioned aspects are mandatory. Therefore,
 the following {kiwi} image description contains this additional
-information which the container cannot provide: Create the
+information that the container cannot provide: Create the
 {kiwi} description as follows:
 
 .. code:: bash

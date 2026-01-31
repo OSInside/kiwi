@@ -22,7 +22,7 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-For disk based images, allow to resize the image to a new disk geometry. The
+For disk-based images, this allows you to resize the image to a new disk geometry. The
 additional space is free and not in use by the image. The OEM boot code in
 {kiwi} offers a resizing procedure that can be used to make use of the
 additional free space. For OEM image builds, it is advisable to run the resizing
@@ -36,14 +36,14 @@ OPTIONS
 --root=<directory>
 
   The path to the root directory. If not specified, kiwi
-  searches the root directory in build/image-root under
+  searches for the root directory in `build/image-root` under
   the specified target directory.
 
 --size=<size>
 
-  New size of the image. The value is either a size in bytes,
+  The new size of the image. The value is either a size in bytes,
   or it can be specified with m (MB) or g (GB). Example: 20g
 
 --target-dir=<directory>
 
-  Directory containing the kiwi build results.
+  The directory containing the kiwi build results.

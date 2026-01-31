@@ -11,21 +11,21 @@ Naming conventions
 Task plugin file name
   The file name of a task plugin must follow the pattern
   :file:`<service>_<command>.py`. This allows you to invoke the task
-  with :command:`kiwi-ng service command ...`
+  with :command:`kiwi-ng service command ...`.
 
 Task plugin option handling
-  {kiwi} uses the docopt module to handle options. Each task plugin
-  must use docopt to allow option handling.
+  {kiwi} uses the `docopt` module to handle options. Each task plugin
+  must use `docopt` to allow option handling.
 
 Task plugin class
   The implementation of the plugin must be a class that matches the naming
-  convention :class:`<Service><Command>Task`. The class must inherit from the
-  :class:`CliTask` base class. On the plugin startup, {kiwi} expects an
-  implementation of the :file:`process` method.
+  convention `<Service><Command>Task`. The class must inherit from the
+  :class:`CliTask` base class. On plugin startup, {kiwi} expects an
+  implementation of the `process` method.
 
 Task plugin entry point
   Registration of the plugin must be done in :file:`pyproject.toml`
-  using the ``tool.poetry.plugins`` concept.
+  using the `tool.poetry.plugins` concept.
 
   .. code:: python
 
@@ -49,7 +49,7 @@ Example plugin
    which was set up using poetry and pyproject.toml.
 
 1. Assuming the project namespace is **kiwi_relax_plugin**, create the task
-   plugin directory :file:`kiwi_relax_plugin/tasks`
+   plugin directory :file:`kiwi_relax_plugin/tasks`.
 
 2. Create the entry point in :command:`pyproject.toml`.
 
@@ -86,12 +86,12 @@ Example plugin
 
        options:
            --now
-               right now. For more details about docopt
+               right now. For more details about docopt,
                see: http://docopt.org
        """
-       # These imports requires kiwi to be part of your environment
+       # These imports require kiwi to be part of your environment.
        # It can be either installed from pip into a virtual development
-       # environment or from the distribution package manager
+       # environment or from the distribution package manager.
        from kiwi.tasks.base import CliTask
        from kiwi.help import Help
 
@@ -100,16 +100,16 @@ Example plugin
                self.manual = Help()
                if self.command_args.get('help') is True:
                    # The following will invoke man to show the man page
-                   # for the requested command. Thus for the call to
-                   # succeed a manual page needs to be written and
-                   # installed by the plugin
+                   # for the requested command. Thus, for the call to
+                   # succeed, a man page needs to be written and
+                   # installed by the plugin.
                    return self.manual.show('kiwi::relax::justdoit')
 
                print(
                    'https://genius.com/Frankie-goes-to-hollywood-relax-lyrics'
                )
 
-4. Test the plugin
+4. Test the plugin.
 
    .. code:: bash
 

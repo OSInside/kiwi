@@ -6,7 +6,7 @@ Build a WSL Container Image
 .. sidebar:: Abstract
 
    This page explains how to build a WSL/Appx container image. WSL stands for
-   Windows Subsystem Linux, and it is a zip-based container format consumable by
+   Windows Subsystem for Linux, and it is a zip-based container format consumable by
    Windows 10 with WSL enabled.
 
 
@@ -14,8 +14,8 @@ Build a WSL Container Image
 utility. Make sure you have installed the package that provides
 the command on your build host.
 
-Once the build host has the :command:`appx` installed, the
-following image type setup is required in the XML description
+Once the build host has the `appx` command installed, the
+following image type setup is required in the XML description,
 :file:`config.xml`:
 
 .. code:: xml
@@ -23,19 +23,19 @@ following image type setup is required in the XML description
    <type image="appx" metadata_path="/meta/data"/>
 
 The :file:`/meta/data` path specifies a path that provides
-additional information required for the :command:`WSL-DistroLauncher`.
-This component consists out of a Windows(`exe`) executable file and
+additional information required for the `WSL-DistroLauncher`.
+This component consists of a Windows (`exe`) executable file and
 an :file:`AppxManifest.xml` file that references other files,
 like icons and resource configurations for the startup of the
 container under Windows.
 
 .. note:: **/meta/data**
 
-   Except for the root filesystem tarball {kiwi} is not
-   responsible for providing the meta data required for
-   the :command:`WSL-DistroLauncher`. It is expected that
+   Except for the root filesystem tarball, {kiwi} is not
+   responsible for providing the metadata required for
+   the `WSL-DistroLauncher`. It is expected that
    the given metadata path contains all the needed information.
-   Typically this information is delivered in a package
+   Typically, this information is delivered in a package
    provided by the distribution, and it is installed on the
    build host.
 
@@ -43,7 +43,7 @@ container under Windows.
 Setup of the WSL-DistroLauncher
 -------------------------------
 
-The contents of the :file:`AppxManifest.xml` is changed by {kiwi}
+The contents of the :file:`AppxManifest.xml` are changed by {kiwi}
 if the :file:`containerconfig` section is provided in the XML description.
 In the context of a WSL image, the following container configuration
 parameters are taken into account:
@@ -65,10 +65,10 @@ information is not specified, the existing :file:`AppxManifest.xml` is left
 untouched.
 
 created_by
-  Specifies the name of a publisher organization. An appx container
-  must to be signed off with a digital signature. If the image is
-  build in the Open Build Service (OBS), this is done automatically.
-  Outside of OBS, you must o make sure that the given publisher organization
+  Specifies the name of a publisher organization. An `appx` container
+  must be signed off with a digital signature. If the image is
+  built in the Open Build Service (OBS), this is done automatically.
+  Outside of OBS, you must make sure that the given publisher organization
   name matches the certificate used for signing.
 
 author
@@ -76,9 +76,9 @@ author
 
 application_id
   Specifies an ID name for the container. The name must start with
-  a letter, and only alphanumeric characters are allowed. {kiwi} doesn not
-  validate the specified name string, because there is no common criteria
-  for various the container architectures.
+  a letter, and only alphanumeric characters are allowed. {kiwi} does not
+  validate the specified name string because there are no common criteria
+  for the various container architectures.
 
 package_version
   Specifies the version identification for the container. {kiwi}
@@ -91,23 +91,23 @@ launcher
 .. warning::
 
    {kiwi} does not check the configuration in :file:`AppxManifest.xml`
-   ifor validity or completeness.
+   for validity or completeness.
 
 The following example shows how to build a WSL image based on
 openSUSE Tumbleweed:
 
-1. Check the example image descriptions,
+1. Check the example image descriptions;
    see :ref:`example-descriptions`.
 
-#. Include the ``Virtualization/WSL`` repository to the list ((replace `<DIST>`
-   with the desired distribution)):
+#. Include the `Virtualization/WSL` repository in the list (replace `<DIST>`
+   with the desired distribution):
 
    .. code:: bash
 
       $ zypper addrepo http://download.opensuse.org/repositories/Virtualization:/WSL/<DIST> WSL
 
-#. Install :command:`fb-util-for-appx` utility and the package that
-   provides the :command:`WSL-DistroLauncher` metadata. See the
+#. Install the `fb-util-for-appx` utility and the package that
+   provides the `WSL-DistroLauncher` metadata. See the
    previous note on :file:`/meta/data`.
 
    .. code:: bash
@@ -116,10 +116,10 @@ openSUSE Tumbleweed:
 
    .. note::
 
-      When building images with the Open Build Servic,e make sure
-      to add the packages from the zypper command above to the
-      project configuration via :command:`osc meta -e prjconf` along with
-      the line :file:`support: PACKAGE_NAME` for
+      When building images with the Open Build Service, make sure
+      to add the packages from the `zypper` command above to the
+      project configuration via `osc meta -e prjconf` along with
+      the line `support: PACKAGE_NAME` for
       each package that needs to be installed on the Open Build
       Service worker that runs the {kiwi} build process.
 
@@ -146,7 +146,7 @@ openSUSE Tumbleweed:
 
       If the configured metadata path does not exist, the build will fail.
       Furthermore, {kiwi} does not check whether the metadata is complete or is
-      valid according to the requirements of the :command:`WSL-DistroLauncher`
+      valid according to the requirements of the `WSL-DistroLauncher`.
 
 #. Build the image with {kiwi}:
 
@@ -162,5 +162,5 @@ Testing the WSL image
 
 For testing the image, you need a Windows 10 system. Before you proceed, enable
 the optional feature named :file:`Microsoft-Windows-Subsystem-Linux`. For
-further details on how to setup the Windows machine, see: `Windows Subsystem for Linux
-<https://docs.microsoft.com/en-us/windows/wsl/about>`__
+further details on how to set up the Windows machine, see `Windows Subsystem for Linux
+<https://docs.microsoft.com/en-us/windows/wsl/about>`__.

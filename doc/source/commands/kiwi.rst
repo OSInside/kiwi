@@ -61,8 +61,8 @@ may also include additional files, such as scripts or configuration data.
 
 A collection of example image descriptions can be found in the following GitHub
 repository: https://github.com/OSInside/kiwi-descriptions. Most of the
-descriptions provide a so-called appliance image. Appliance is a
-small, text-based image including a predefined remote source setup to allow
+descriptions provide a so-called appliance image. An appliance is a
+small, text-based image, including a predefined remote source setup to allow the
 installation of missing software components.
 
 Although {kiwi} operates in two steps, the system build command combines both
@@ -75,9 +75,9 @@ the prepared contents of the new image root tree to create an output image.
 {kiwi} supports the creation of the following image types:
 
 - ISO Live Systems
-- virtual disk for e.g cloud frameworks
+- virtual disk for, e.g., cloud frameworks
 - OEM expandable disk for system deployment from ISO or the network
-- file system images for deployment in a PXE boot environment
+- filesystem images for deployment in a PXE boot environment
 
 Depending on the image type, different disk formats and
 architectures are supported.
@@ -89,41 +89,41 @@ GLOBAL OPTIONS
 
 --color-output
 
-  Use escape sequences to print different types of information in colored
+  Uses escape sequences to print different types of information in colored
   output. for this option to work, the underlying terminal must support those
   escape characters. Error messages appear in red, warning messages in yellow,
   and debugging information is printed in light grey.
 
 --config=<configfile>
 
-  Use specified runtime configuration file. If not specified, the
+  Use the specified runtime configuration file. If not specified, the
   runtime configuration is expected to be in the :file:`~/.config/kiwi/config.yml`
   or :file:`/etc/kiwi.yml` files.
 
 --debug
 
-  Print debug information on the command line. Same as: `--loglevel 10`.
+  Prints debug information on the command line. Same as: `--loglevel 10`.
 
 --debug-run-scripts-in-screen
 
-  Run scripts called by {kiwi} in a screen session.
+  Runs scripts called by {kiwi} in a screen session.
 
 --logfile=<filename>
 
-  Specify log file. The logfile contains detailed information about
-  the process. The special call: `--logfile stdout` sends all
+  Specifies the log file. The logfile contains detailed information about
+  the process. The special call `--logfile stdout` sends all
   information to standard out instead of writing to a file.
 
 --logsocket=<socketfile>
 
-  Send log data to the specified Unix Domain socket in the same
+  Sends log data to the specified Unix Domain socket in the same
   format as with `--logfile`.
 
 --loglevel=<number>
 
-  Specify logging level as a number. Further info about the
+  Specifies the logging level as a number. Further info about the
   available log levels can be found at:
-  https://docs.python.org/3/library/logging.html#logging-levels
+  https://docs.python.org/3/library/logging.html#logging-levels.
   Setting a log level displays all messages above the specified level.
 
   .. code:: bash
@@ -141,51 +141,51 @@ GLOBAL OPTIONS
 
 --profile=<name>
 
-  Select profile to use. The specified profile must be part of the
+  Selects a profile to use. The specified profile must be part of the
   XML description. The option can be specified multiple times to
   allow a combination of profiles.
 
 --setenv=<variable=value>
 
-  export environment variable and its value into the caller
-  environment. This option can be specified multiple times
+  exports an environment variable and its value into the caller's
+  environment. This option can be specified multiple times.
 
 --shared-cache-dir=<directory>
 
-  Specify an alternative shared cache directory. The directory
+  Specifies an alternative shared cache directory. The directory
   is shared via bind mount between the build host and image
   root system, and it contains information about package repositories
-  and their cache and meta data. The default location is `/var/cache/kiwi`.
+  and their cache and metadata. The default location is `/var/cache/kiwi`.
 
 --temp-dir=<directory>
 
-  Specify an alternative base temporary directory. The
-  provided path is used as base directory to store temporary
-  files and directories. Default is `/var/tmp`.
+  Specifies an alternative base temporary directory. The
+  provided path is used as a base directory to store temporary
+  files and directories. The default is `/var/tmp`.
 
 --target-arch=<name>
 
-  Specify an image architecture. By default, the host architecture is used as
+  Specifies an image architecture. By default, the host architecture is used as
   the image architecture. If the specified architecture name does not match the
-  host architecture (thus requesting a cross architecture image build), you must
+  host architecture (thus requesting a cross-architecture image build), you must
   configure the support for the image architecture and binary format on the
   building host. This must be done during the preparation stage, and it is
   beyond the scope of {kiwi}.
 
 --type=<build_type>
 
-  Select an image build type. The specified build type must be configured
+  Selects an image build type. The specified build type must be configured
   as part of the XML description.
 
 --kiwi-file=<kiwifile>
 
-  Basename of kiwi file that contains the main image
+  The basename of the kiwi file that contains the main image
   configuration elements. If not specified, kiwi uses
-  a file named `config.xml` or a file matching `*.kiwi`
+  a file named `config.xml` or a file matching `*.kiwi`.
 
 --version
 
-  Show program version
+  Show the program version.
 
 .. _db_commands_kiwi_example:
 

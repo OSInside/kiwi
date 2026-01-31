@@ -34,7 +34,7 @@ machine images of the `oem` type are configured: one for QEMU (using the
 
 Each profile is declared via the element `profile` that must be a
 child of `profiles`, and it must contain the `name` and `description`
-attributes. The `description` is only present for documentation purposes,
+attributes. The `description` is only present for documentation purposes;
 `name`, on the other hand, is used to instruct {kiwi} which profile to build
 via the command line. Additionally, you can provide the boolean attribute
 `import`, which defines whether this profile should be used by default when
@@ -57,7 +57,7 @@ Profiles can furthermore inherit settings from another profile via the
        </profile>
    </profiles>
 
-In the above example, the profile `QEMU` inherit the settings from `VM`.
+In the above example, the profile `QEMU` inherits the settings from `VM`.
 
 For further details on the usage of *profiles*, see
-:ref:`building-build-with-profiles`
+:ref:`building-build-with-profiles`.

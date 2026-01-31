@@ -4,7 +4,7 @@ Building Linux System Appliances
 ================================
 
 .. note::
-   This documentation covers {kiwi-product} |version|- the command line
+   This documentation covers {kiwi-product} |version| - the command-line
    utility to build Linux system appliances. If you are using a {kiwi}
    schema version older than v74, upgrade the kiwi file as follows:
 
@@ -60,19 +60,19 @@ Building Linux System Appliances
 The Appliance Concept
 ---------------------
 
-An appliance is a ready to use image of an operating system including
+An appliance is a ready-to-use image of an operating system, including
 a pre-configured application for a specific use case. The appliance is
-provided as an image file and needs to be deployed to, or activated in
+provided as an image file and needs to be deployed to or activated in
 the target system or service.
 
-{kiwi} can create appliances in various forms: beside classical installation
-ISOs and images for virtual machines it can also build images that boot via
+{kiwi} can create appliances in various forms: besides classical installation
+ISOs and images for virtual machines, it can also build images that boot via
 PXE or Vagrant boxes.
 
-In {kiwi}, the appliance is specified via a collection of human readable files
-in a directory, also called the `image description`. At least one XML file
-:file:`config.xml` or :file:`.kiwi` is required. In addition there may as
-well be other files like scripts or configuration data.
+In {kiwi}, the appliance is specified via a collection of human-readable files
+in a directory, also called the `image description`. At least one XML file,
+:file:`config.xml` or :file:`.kiwi`, is required. In addition, there may as
+well be other files, like scripts or configuration data.
 
 Use Cases
 ---------
@@ -89,30 +89,30 @@ Private and Public Clouds
 
 Custom Linux Distribution
   Linux distributors provide their distribution based on a collection
-  of packages and release them on an install media like a DVD or an USB
-  stick. Typically a lot more software components exists for the
-  distribution which are not part of the default installation media
+  of packages and release them on an install medium like a DVD or a USB
+  stick. Typically, a lot more software components exist for the
+  distribution that are not part of the default installation media,
   or the installation media comes with software and installation
-  routines that are not matching your target audience. With an
-  appliance made by {kiwi} you can create an installation
-  media that matches custom criteria as needed by the customer
-  and does not require extra post processing steps after the
+  routines that do not match your target audience. With an
+  appliance made by {kiwi}, you can create an installation
+  medium that matches custom criteria as needed by the customer
+  and does not require extra post-processing steps after the
   default installation method provided by the distributor.
 
 Live Systems
   The ability to have a Linux OS that runs from a small storage
-  device like a USB stick or a SD card is the swiss army knife of many
-  system administrators. The creation of such a live system includes
+  device like a USB stick or an SD card is the Swiss army knife of many
+  system administrators. The creation of such a live system includes the
   use of technologies that are not part of a standard installation
   process. An appliance builder is needed to create this sort of
   system.
 
 Embedded Systems
-  Embedded Systems like the Raspberry Pi come with limited hardware
+  Embedded systems like the Raspberry Pi come with limited hardware
   components. Their boot sequences often do not allow for classic
-  installation methods through USB or DVD devices. Instead they boot
+  installation methods through USB or DVD devices. Instead, they boot
   through SD card slots or via the network. SoC (System on Chip) devices
-  also tend to implement non standard boot methods which can only
+  also tend to implement non-standard boot methods that can only
   be implemented through custom OS appliances.
 
 And More
@@ -125,7 +125,7 @@ Contact
 
 * `Mailing list <https://groups.google.com/forum/#!forum/kiwi-images>`__
 
-  The `kiwi-images` group is an open group and anyone can
+  The `kiwi-images` group is an open group, and anyone can
   `subscribe <mailto:kiwi-images+subscribe@googlegroups.com>`__,
   even if you do not have a Google account.
 

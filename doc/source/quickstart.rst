@@ -6,7 +6,7 @@ Quick Start
 .. note:: **Abstract**
 
    This document describes how to start working with {kiwi},
-   an OS appliance builder. This description applies for
+   an OS appliance builder. This description applies to
    version |version|.
 
 Before you start
@@ -28,7 +28,7 @@ Before you start
 
 .. note:: 
 
-   In case the following procedure causes any trouble
+   If the following procedure causes any trouble
    please take a look at the :ref:`troubleshooting` chapter
    and/or reach out at: :ref:`contact`
 
@@ -42,14 +42,14 @@ as follows:
 
        $ tree -L 3 kiwi/build-tests
 
-Take a look which images are available in the example appliances repository
-and select one that matches your desired image as close as possible. Or
+Take a look at which images are available in the example appliances repository
+and select one that matches your desired image as closely as possible. Or
 just use the one given in the examples below.
 
 Build your First Image
 ----------------------
 
-Your first image will be a simple system disk image which can run
+Your first image will be a simple system disk image that can run
 in any full virtualization system like QEMU. Invoke the following {kiwi}
 command in order to build it:
 
@@ -70,8 +70,8 @@ folder that contains the image description which you selected.
 Run your Image
 --------------
 
-Running an image actually means booting the operating system. In order to
-do that attach the disk image to a virtual system. In this example we use
+Running an image actually means booting the operating system. To
+do that, attach the disk image to a virtual system. In this example, we use
 QEMU and boot it as follows:
 
 .. code:: bash

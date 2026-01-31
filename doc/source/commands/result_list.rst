@@ -19,7 +19,7 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-List build results from a previous build or create command. During multiple
+Lists build results from a previous build or create command. During multiple
 image builds with the same target directory, the build result information is
 overwritten every time you build an image. This means that the build result list
 is valid for the last build only.

@@ -14,10 +14,10 @@ Extending {kiwi} with Custom Operations
    is no other plugin interface except for providing additional {kiwi} commands.
 
    Depending on the demand for custom plugins, the interface
-   to hook in code into other parts of the {kiwi} processing
+   to hook into code in other parts of the {kiwi} processing
    needs to be extended.
 
-   This description applies for version |version|.
+   This description applies to version |version|.
 
 The <extension> Section
 -----------------------
@@ -25,7 +25,7 @@ The <extension> Section
 The main {kiwi} schema supports an extension section that allows you
 to specify any XML structure and attributes, as long as they are
 attached to a namespace. This means that any custom XML
-structure can be implemented similar to the the example below:
+structure can be implemented similar to the example below:
 
 .. code:: bash
 
@@ -38,20 +38,20 @@ structure can be implemented similar to the the example below:
         </extension>
     </image>
 
-* Any toplevel namespace must be unique
-* Multiple different toplevel namespaces are allowed,
-  for example: my_plugin_a, my_plugin_b
+* Any top-level namespace must be unique.
+* Multiple different top-level namespaces are allowed,
+  for example, `my_plugin_a`, `my_plugin_b`.
 
 RELAX NG Schema for the Extension
 ---------------------------------
 
 If an extension section is found, {kiwi} looks up its namespace and uses
 the main XML catalog for the schema file to validate the extension data.
-The schema file must be a RELAX NG schema in the .rng format. We recommend
-to save the schema as :file:`/usr/share/xml/kiwi/my_plugin.rng`
+The schema file must be a RELAX NG schema in the `.rng` format. We recommend
+saving the schema as :file:`/usr/share/xml/kiwi/my_plugin.rng`.
 
-For the example above, the RELAX NG Schema in the compressed format
-:file:`my_plugin.rnc` looks as follows:
+For the example above, the RELAX NG Schema in the compressed format,
+:file:`my_plugin.rnc`, looks as follows:
 
 .. there is no rnc syntax highlighting, try cpp
 .. code:: cpp
@@ -80,7 +80,7 @@ For the example above, the RELAX NG Schema in the compressed format
             }
     }
 
-In order to convert this schema to the .rng format just call:
+To convert this schema to the `.rng` format, just call:
 
 .. code:: bash
 
@@ -90,7 +90,7 @@ Extension schema in XML catalog
 -------------------------------
 
 As mentioned above, the mapping from the extension namespace to the
-correct RELAX NG schema file is handled by a XML catalog file. The
+correct RELAX NG schema file is handled by an XML catalog file. The
 XML catalog for the example is as follows:
 
 .. code:: bash
@@ -102,8 +102,8 @@ XML catalog for the example is as follows:
             uri="file:////usr/share/xml/kiwi/my_plugin.rng"/>
     </catalog>
 
-For resolving the catalog, {kiwi} uses the :command:`xmlcatalog` command
-and the main XML catalog from the system :file:`/etc/xml/catalog`.
+For resolving the catalog, {kiwi} uses the `xmlcatalog` command
+and the main XML catalog from the system, :file:`/etc/xml/catalog`.
 
 .. note::
 
@@ -111,7 +111,7 @@ and the main XML catalog from the system :file:`/etc/xml/catalog`.
     catalog file depends on the distribution and its version. Refer to the
     distribution documentation for information on adding XML catalogs.
 
-If the following command provides the information to the correct
+If the following command provides the information for the correct
 RELAX NG schema file, you are ready for a first test:
 
 .. code:: bash
@@ -121,11 +121,11 @@ RELAX NG schema file, you are ready for a first test:
 Using the extension
 -------------------
 
-In order to test the extension, insert the example extension into one of your
+To test the extension, insert the example extension into one of your
 image description's :file:`config.xml` file.
 
 The following example reads the name attribute from the title
-section of the my_feature root element and prints it:
+section of the `my_feature` root element and prints it:
 
 .. code:: python
 

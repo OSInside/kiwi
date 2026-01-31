@@ -23,7 +23,7 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Create a result bundle from the image build in the specified target directory.
+Creates a result bundle from the image build in the specified target directory.
 Each resulting image contains the specified bundle identifier as part of its
 filename. Uncompressed image files are also compressed as an XZ archive. An SHA
 checksum is generated for each resulting image.
@@ -35,12 +35,12 @@ OPTIONS
 
 --bundle-dir=<directory>
 
-  Directory containing the bundle results, compressed versions of
+  The directory containing the bundle results, compressed versions of
   image results, and SHA checksum files.
 
 --bundle-format=<format>
 
-  Specify the bundle format to create the bundle. If provided,
+  Specifies the bundle format to create the bundle. If provided,
   this setting will overwrite an eventually provided `bundle_format`
   attribute from the main image description. The format string
   can contain placeholders for the following elements:
@@ -58,15 +58,15 @@ OPTIONS
 --id=<bundle_id>
 
   Bundle ID. It is a free-form text appended to the image
-  version information as part of the result image filename.
+  version information as part of the resulting image filename.
 
 --target-dir=<directory>
 
-  Directory containing the {kiwi} build results.
+  The directory containing the {kiwi} build results.
 
 --zsync_source=<download_location>
 
-  Download location of the bundle file or files. Only relevant if `zsync` is
+  The download location of the bundle file or files. Only relevant if `zsync` is
   used to sync the bundle.
 
   * The zsync control file is created for the bundle files marked for compression.
@@ -80,4 +80,4 @@ OPTIONS
 --no-compress
 
   Do not compress the result image file(s). Note: Image files that
-  were already produced as compressed variants stays compressed.
+  were already produced as compressed variants stay compressed.

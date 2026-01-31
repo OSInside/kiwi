@@ -1,7 +1,7 @@
 .. _ramdisk_deployment:
 
-Deploy and Run System in a RamDisk
-==================================
+Deploy and Run a System in a Ramdisk
+====================================
 
 .. sidebar:: Abstract
 
@@ -27,7 +27,7 @@ the image into a ramdisk serves this purpose.
         
         echo 'add_drivers+=" brd "' > /etc/dracut.conf.d/10-brd.conf
 
-{kiwi} allows to create a bootable ISO image which deploys the image
+{kiwi} allows you to create a bootable ISO image that deploys the image
 into a ramdisk and activates that image with the following
 oem type definition:
 
@@ -46,15 +46,15 @@ oem type definition:
      </type>
 
 The type specification above builds an installation ISO image
-which deploys the System Image into the specified ramdisk
-device (/dev/ram1). The setup of the ISO image boots with a
-short boot timeout of 1sec and just runs through the process
-without asking any questions. In a ramdisk deployment the
-optional target verification, swap space and multipath targets
+that deploys the System Image into the specified ramdisk
+device (`/dev/ram1`). The setup of the ISO image boots with a
+short boot timeout of 1 second and just runs through the process
+without asking any questions. In a ramdisk deployment, the
+optional target verification, swap space, and multipath targets
 are out of scope and therefore disabled.
 
 The configured size of the ramdisk via `oem-ramdisk-size` specifies
-the kB size of the OS disk and it must be at least of the size of the
+the kB size of the OS disk, and it must be at least of the size of the
 System Image. The disk size can be configured dynamically with the
 following value in the kernelcmdline attribute:
 
@@ -75,27 +75,27 @@ follows:
     or a real machine, must provide enough RAM to hold the image
     in the ramdisk as well as have enough RAM available to operate
     the OS and its applications. The {kiwi} build image with the
-    extension .raw provides the System Image which gets deployed
-    into the RAM space. Substract the size of the System Image
+    extension .raw provides the System Image that gets deployed
+    into the RAM space. Subtract the size of the System Image
     from the RAM space the machine offers and make sure the result
     is still big enough for the use case of the appliance. In
-    case of a virtual machine, attach enough main memory to fit
-    this calculation. In case of QEMU this can be done with
-    the `-m` option
+    the case of a virtual machine, attach enough main memory to fit
+    this calculation. In the case of QEMU, this can be done with
+    the `-m` option.
 
-Like all other oem {kiwi} images, also the ramdisk setup supports
-all the deployments methods as explained in :ref:`deployment_methods`
+Like all other oem {kiwi} images, the ramdisk setup also supports
+all the deployment methods as explained in :ref:`deployment_methods`.
 This means it's also possible to dump the ISO image on a USB
-stick let the system boot from it and unplug the stick from
-the machine because the system was deployed into RAM
+stick, let the system boot from it, and unplug the stick from
+the machine because the system was deployed into RAM.
 
-.. note:: Limitations Of RamDisk Deployments
+.. note:: Limitations Of Ramdisk Deployments
 
-    Only standard images which can be booted by a simple root mount
-    and root switch can be used. Usually {kiwi} calls kexec after deployment
-    such that the correct, for the image created dracut initrd, will boot
-    the image. In case of a RAM only system kexec does not work because
-    it would loose the ramdisk contents. Thus the dracut initrd driving
+    Only standard images that can be booted by a simple root mount
+    and root switch can be used. Usually, {kiwi} calls kexec after deployment
+    such that the correct dracut initrd created for the image will boot
+    the image. In the case of a RAM-only system, kexec does not work because
+    it would lose the ramdisk contents. Thus, the dracut initrd driving
     the deployment is also the environment to boot the system.
     There are cases where this environment is not suitable to boot
     the system.

@@ -10,16 +10,16 @@ This boot image is a compressed cpio initial RAM disk, and it's called the
 executes :command:`init` or, if present, :command:`linuxrc`.
 
 Depending on the image type, {kiwi} creates the boot image automatically during
-the ``create`` step. To create the :file:`initrd`, {kiwi} uses a tool called
+the `create` step. To create the :file:`initrd`, {kiwi} uses a tool called
 `dracut`. dracut-generated initrd archives can be extended with custom modules to
-add functionality which is not natively provided by dracut itself. In the scope
+add functionality that is not natively provided by dracut itself. In the scope
 of {kiwi}, the following dracut modules are used:
 
 ``kiwi-dump``
   Serves as an image installer. It provides the required implementation to
   install a {kiwi} image on a selectable target. This module is required if one
-  of the attributes in the image type definition `installiso`, `installstick` or
-  `installpxe` is set to `true`.
+  of the attributes in the image type definition, `installiso`, `installstick`, or
+  `installpxe`, is set to `true`.
 
 ``kiwi-dump-reboot``
   Serves to boot the system into the installed image after installation is
@@ -30,8 +30,8 @@ of {kiwi}, the following dracut modules are used:
   if the `iso` image type is selected.
 
 ``kiwi-overlay``
-  Allows to boot disk images with the attribute `overlayroot` set to `true`. A
-  disk like that has its root partition compressed and readonly. The disk boots up
+  Allows you to boot disk images with the attribute `overlayroot` set to `true`. A
+  disk like that has its root partition compressed and read-only. The disk boots up
   using overlayfs for the root filesystem with a separate partition on the same
   disk for persistent data.
 
@@ -39,7 +39,7 @@ of {kiwi}, the following dracut modules are used:
   Resizes an OEM disk image after installation on
   the target disk to meet the size limits configured in the `oemconfig`
   section of the image description. The module takes over the tasks of
-  repartitioning the disk, resizing RAID, LVM, LUKS and other layers as well as
+  repartitioning the disk, resizing RAID, LVM, LUKS, and other layers, as well as
   resizing the system filesystems.
 
 ``kiwi-lib``
@@ -48,8 +48,8 @@ of {kiwi}, the following dracut modules are used:
 .. note:: Using Custom Boot Image Support
 
    In addition to the standard dracut-based creation of the boot image, {kiwi}
-   supports the use of custom boot images for the image types ``oem``
-   and ``pxe``. The use of a custom boot image is enabled by setting the
+   supports the use of custom boot images for the image types `oem`
+   and `pxe`. The use of a custom boot image is enabled by setting the
    following attribute in the image description:
 
    .. code:: none
@@ -57,21 +57,21 @@ of {kiwi}, the following dracut modules are used:
       <type ... initrd_system="kiwi"/>
 
    Along with this setting, you must provide a reference to
-   a boot image description in the ``boot`` attribute as follows:
+   a boot image description in the `boot` attribute as follows:
 
    .. code:: none
 
       <type ... boot="{exc_netboot}"/>
     
-   While {kiwi} supports this approach, it is recommended using dracut instead.
-   Keep also in mind that although {kiwi} supports creation of custom boot
+   While {kiwi} supports this approach, it is recommended to use dracut instead.
+   Keep also in mind that although {kiwi} supports the creation of custom boot
    images, {kiwi} does not include any official boot image descriptions. You
    can find an OEM boot description example at
    https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-oem-boot-description
-   and an PXE boot description example at
-   https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-pxe-boot-description
+   and a PXE boot description example at
+   https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:tumbleweed/custom-pxe-boot-description.
 
-   The custom boot image descriptions makes it possible to completely customize
+   The custom boot image descriptions make it possible to completely customize
    the behavior of the initrd. This concept is mostly used in PXE environments
    that are usually heavily customized and require a specific boot and
    deployment workflow.
@@ -80,7 +80,7 @@ of {kiwi}, the following dracut modules are used:
 Boot Image Hook-Scripts
 .......................
 
-The dracut initrd system uses ``systemd`` to implement a predefined workflow
+The dracut initrd system uses `systemd` to implement a predefined workflow
 of services documented in the bootup man page:
 
 http://man7.org/linux/man-pages/man7/dracut.bootup.7.html
@@ -155,13 +155,13 @@ before the system rootfs is mounted.
    and libraries required by the hook script.
 
    * Each file must be included in the {kiwi} description either in a
-     package, archive, or in the root tree of the image description
+     package, an archive, or in the root tree of the image description
      directory.
 
-   * The parameters of the `inst_multiple` command are space separated.
+   * The parameters of the `inst_multiple` command are space-separated.
 
-   * Each parameter can be a single executable name if it exists in `/bin`,
-     `/sbin`, `/usr/bin`, or `/usr/sbin`` directories.
+   * Each parameter can be a single executable name if it exists in the `/bin`,
+     `/sbin`, `/usr/bin`, or `/usr/sbin` directories.
 
    * Otherwise, a full path to the file is required. This normally applies for
      libraries and other special files.
@@ -178,17 +178,17 @@ the `dracut project page <https://dracut.wiki.kernel.org/index.php/Main_Page>`_.
 Boot Image Parameters
 .....................
 
-A dracut generated initrd in a {kiwi} image build process includes one or
-more of the {kiwi} provided dracut modules. The following list documents
+A dracut-generated initrd in a {kiwi} image build process includes one or
+more of the {kiwi}-provided dracut modules. The following list documents
 the available kernel boot parameters for these modules:
 
 ``rd.kiwi.term``
-  Exports the TERM variable into the initrd environment. If
+  Exports the `TERM` variable into the initrd environment. If
   the default value for the terminal emulation is not correct,
   `rd.kiwi.term` can be used to overwrite the default. The
   environment is also passed to the systemd unit that calls
-  dialog based programs in {kiwi} dracut code, which means that the
-  TERM setting applies there too.
+  dialog-based programs in {kiwi} dracut code, which means that the
+  `TERM` setting applies there too.
 
 ``rd.kiwi.debug``
   Activates the debug log file for the {kiwi} part of
@@ -196,81 +196,81 @@ the available kernel boot parameters for these modules:
 
 ``rd.kiwi.dialog.timeout=seconds|off``
   Sets a timeout value for dialogs invoked by kiwi dracut
-  modules. By default the timeout is set to 60 seconds.
+  modules. By default, the timeout is set to 60 seconds.
   If set to the special value `off`, the dialog will never
-  timeout.
+  time out.
 
 ``rd.kiwi.install.devicepersistency=by-*``
   Instructs an OEM installation image to present the list of
   available disk devices using the device names as provided
-  by the specified `by-*` representation. For example
+  by the specified `by-*` representation. For example,
   `rd.kiwi.install.devicepersistency=by-path` would show the
   by-path device names in the list of available disks.
 
 ``rd.kiwi.install.pxe``
-  Instructs an OEM installation image to lookup the system
+  Instructs an OEM installation image to look up the system
   image on a remote location specified in `rd.kiwi.install.image`.
 
 ``rd.kiwi.install.image=URI``
   Specifies the remote location of the system image in
-  a PXE based OEM installation.
+  a PXE-based OEM installation.
 
 ``rd.kiwi.install.pass.bootparam``
-  Instructs an OEM installation image to pass an additional
+  Instructs an OEM installation image to pass additional
   boot parameters to the kernel used to boot the installed image. This
-  can be used, for example, to pass on first boot configuration for a PXE image.
+  can be used, for example, to pass on first-boot configuration for a PXE image.
   Note that options starting with `rd.kiwi` are not passed to avoid
   side effects.
 
 ``rd.kiwi.install.retain_last``
   Instructs an OEM installation to retain the contents of the
   last partition on the target disk. This setting is only useful
-  if the last partition does not belong to the main OS e.g. an
+  if the last partition does not belong to the main OS, e.g., an
   extra data partition added via the `spare_part` attribute in
   the type setup of the image description. The implementation
   also checks if the start address of the last partition on the
-  target disk matches with the start adress of the image to be
-  deployed. Only if they match the data on the last partition
-  can be retained.
+  target disk matches the start address of the image to be
+  deployed. Only if they match can the data on the last partition
+  be retained.
 
 ``rd.kiwi.oem.luks.reencrypt``
-  For OEM LUKS2 encrypted disk images. If set, reencrypts the disk
-  prior an eventual resize and therefore creates a new key pool and
-  master key. The reencryption is advisable if the image binary is
-  not protected. With access to the image binary it's possible to
-  extract the luks header which then allows to decrypt the data
-  unless it was reencrypted. The reencryption process only runs if
-  the checksum of the luks header still matches the one from the
-  original disk image. Be aware that the reencryption will ask
+  For OEM LUKS2-encrypted disk images. If set, it re-encrypts the disk
+  prior to an eventual resize and therefore creates a new key pool and
+  master key. The re-encryption is advisable if the image binary is
+  not protected. With access to the image binary, it's possible to
+  extract the LUKS header, which then allows you to decrypt the data
+  unless it was re-encrypted. The re-encryption process only runs if
+  the checksum of the LUKS header still matches the one from the
+  original disk image. Be aware that the re-encryption will ask
   for the passphrase if the image has been built with an initial
-  luks passphrase.
+  LUKS passphrase.
 
 ``rd.kiwi.oem.luks.reencrypt_randompass``
-  For OEM LUKS2 encrypted disk images in combination
-  with `rd.kiwi.oem.luks.reencrypt`. Reset insecure built time
+  For OEM LUKS2-encrypted disk images in combination
+  with `rd.kiwi.oem.luks.reencrypt`. Resets the insecure built-time
   passphrase, set via the `luks=` attribute, with a random
-  onetime passphrase that will be stored in memory at
+  one-time passphrase that will be stored in memory at
   `/run/.kiwi_reencrypt.keyfile`.
 
   .. warning::
 
      The passphrase will only persist as long as the system
      does not reboot. Using this option usually requires that
-     the boot process implements code to set a retrievable keyfile
-     information for subsequent boot processes of this system, e.g
+     the boot process implements code to set retrievable keyfile
+     information for subsequent boot processes of this system, e.g.,
      TPM setup or similar.
 
 ``rd.kiwi.oem.disk.consistency``
   For OEM disk images providing an installation image. If set,
   the installation image will check against all disks that are
-  not the selected target disk if there is any disk in the system
+  not the selected target disk to see if there is any disk in the system
   that has the same PTUUID compared to the image that is about
-  to be installed. If such a disk is found this indicates that
+  to be installed. If such a disk is found, this indicates that
   the same image was already installed to another storage disk
-  on the same system which will cause device id inconsistencies
-  for the entire system. In such a case an error message is
-  displayed providing information about the conflicting device
-  and the installation will be cancelled.
+  on the same system, which will cause device ID inconsistencies
+  for the entire system. In such a case, an error message is
+  displayed, providing information about the conflicting device,
+  and the installation will be canceled.
 
 ``rd.kiwi.oem.maxdisk=size[KMGT]``
   Specifies the maximum disk size an unattended OEM installation uses for image
@@ -282,25 +282,25 @@ the available kernel boot parameters for these modules:
 
 ``rd.kiwi.oem.force_resize``
   Forces the disk resize process on an OEM disk image. If set, no sanity
-  check for unpartitioned/free space is performed and also an eventually
+  check for unpartitioned/free space is performed, and also an eventually
   configured `<oem-resize-once>` configuration from the image description
-  will not be taken into account. The disk resize will be started which
-  includes re-partition as well as all steps to resize the block layers
+  will not be taken into account. The disk resize will be started, which
+  includes re-partitioning as well as all steps to resize the block layers
   up to the filesystem holding the data. As `rd.kiwi.oem.force_resize`
   bypasses all sanity checks to detect if such a resize process is
   needed or not, it can happen that all program calls of the resize
-  process ends without any effect if the disk is already properly
+  process end without any effect if the disk is already properly
   resized. It's also important to understand that the partition UUIDs
-  will change on every resize which might be an unwanted side effect
+  will change on every resize, which might be an unwanted side effect
   of a forced resize.
 
 ``rd.kiwi.oem.installdevice``
   Configures the disk device to use in an OEM installation. This overwrites or
   resets any other OEM device-specific settings, such as `oem-device-filter`,
-  `oem-unattended-id` or `rd.kiwi.oem.maxdisk`, and continues the installation on
+  `oem-unattended-id`, or `rd.kiwi.oem.maxdisk`, and continues the installation on
   the given device. The device must exist and must be a block special.
 
-.. note:: Non interactive mode activated by rd.kiwi.oem.installdevice
+.. note:: Non-interactive mode activated by rd.kiwi.oem.installdevice
 
    When setting `rd.kiwi.oem.installdevice` explicitly through the kernel command line,
    {kiwi} uses the device without prompting for confirmation.
@@ -308,7 +308,7 @@ the available kernel boot parameters for these modules:
 ``rd.live.overlay.size``
   Specifies the size for the `tmpfs` filesystem of a live ISO image that is used
   for the `overlayfs` mount process. If the write area of the overlayfs mount
-  uses this tmpfs, any new data written during the runtime of the system is
+  uses this `tmpfs`, any new data written during the runtime of the system is
   written in this space. The default value is `50%`, meaning half of the
   available RAM space can be used for writing new data.
 
@@ -317,7 +317,7 @@ the available kernel boot parameters for these modules:
 
 ``rd.live.encrypt``
   Instructs a live ISO image to encrypt the persistent write partition.
-  The boot process becomes interactive in this case and the user has
+  The boot process becomes interactive in this case, and the user has
   to specify a passphrase at boot time.
 
 ``rd.live.overlay.cowfs``
@@ -329,38 +329,38 @@ the available kernel boot parameters for these modules:
   `live-grub-stick`, the live ISO image is copied as a file on the target device,
   and a GRUB loopback setup is created there to boot the live system from the
   file. In this case, the persistent write setup that normally creates an extra
-  write partition on the target will fail in most situations, because the target
+  write partition on the target will fail in most situations because the target
   has no free and unpartitioned space available. To prevent this from happening,
   a COW file (live_system.cow) of a partition is created alongside the live ISO
   image file. The default size of the COW file is 500MB.
 
 ``rd.live.cowfile.path``
-  Effectively used in isoscan loop mounted live systems. For details on this
-  type of live system refer to :ref:`iso_as_file_to_usb_stick`.
+  Effectively used in isoscan loop-mounted live systems. For details on this
+  type of live system, refer to :ref:`iso_as_file_to_usb_stick`.
   Specifies the path of the COW file below the `/run/initramfs/isoscan` loop
-  mount point. If not specified the cowfile is placed at
+  mount point. If not specified, the cowfile is placed at
   `/run/initramfs/isoscan/live_system.cow`.
 
 ``rd.live.dir``
-  Specifies a directory that contains the live OS root directory. Default is
+  Specifies a directory that contains the live OS root directory. The default is
   `LiveOS`.
 
 ``rd.live.squashimg``
-  Specifies the name of the squashfs image file which contains the OS root.
-  Default is `squashfs.img`.
+  Specifies the name of the squashfs image file that contains the OS root.
+  The default is `squashfs.img`.
 
 ``rd.kiwi.allow_plymouth``
-  By default kiwi stops plymouth if present and active in the
-  initrd. Setting rd.kiwi.allow_plymouth will keep plymouth
-  active in the initrd including all effects that might have
-  to the available consoles.
+  By default, kiwi stops plymouth if it is present and active in the
+  initrd. Setting `rd.kiwi.allow_plymouth` will keep plymouth
+  active in the initrd, including all effects that might have
+  on the available consoles.
 
 Boot Debugging
 ''''''''''''''
 
 If the boot process encounters a fatal error, the default behavior is to
 stop the boot process without any possibility to interact with the system.
-To prevent this, activate dracut's builtin debug mode in combination
+To prevent this, activate dracut's built-in debug mode in combination
 with the {kiwi} debug mode as follows:
 
 .. code:: bash

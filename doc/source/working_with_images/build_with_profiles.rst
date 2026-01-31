@@ -28,7 +28,7 @@ Consult the manual page of :file:`kiwi` for further details:
 Building with the Open Build Service
 ------------------------------------
 
-The Open Build Service (OBS) support profiles via the `multibuild
+The Open Build Service (OBS) supports profiles via the `multibuild
 <https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.multibuild.html>`_
 feature.
 
@@ -65,10 +65,10 @@ To enable and use the profiles, follow these steps:
    you want OBS to build.
 
 
-Note, by default, OBS excludes the build **without** any profile
+Note that, by default, OBS excludes the build **without** any profile
 enabled.
 
-Running a build of a multibuild enabled repository via :file:`osc` can be
+Running a build of a multibuild-enabled repository via :file:`osc` can be
 achieved via the `-M $PROFILE` flag:
 
 .. code:: shell-session

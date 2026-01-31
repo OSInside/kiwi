@@ -6,23 +6,23 @@ Partition Clones
 .. sidebar:: Abstract
 
    This page provides details about the partition clone feature
-   and its use cases
+   and its use cases.
 
-{kiwi} allows to create block level clones of certain partitions
-used in the image. Clones can be created from the `root`, `boot`
+{kiwi} allows you to create block-level clones of certain partitions
+used in the image. Clones can be created from the `root`, `boot`,
 and any other partition listed in the `<partitions>` element.
 
 A partition clone is a simple byte dump from one
 block storage device to another. However, this would cause conflicts
-during boot of the system because all unique identifiers like
-the UUID of a filesystem will no longer be unique. The clone
+during boot of the system because all unique identifiers, like
+the UUID of a filesystem, will no longer be unique. The clone
 feature of {kiwi} takes care of this part and re-creates the
 relevant unique identifiers per cloned partition. {kiwi} allows
-this also for complex partitions like LVM, LUKS or RAID.
+this also for complex partitions like LVM, LUKS, or RAID.
 
 The partition clone(s) will always appear first in the partition table,
 followed by the origin partition. The origin partition is the one
-whose identifier will be referenced and used by the system. By default
+whose identifier will be referenced and used by the system. By default,
 no cloned partition will be mounted or used by the system at boot time.
 
 Let's take a look at the following example:
@@ -40,7 +40,7 @@ Let's take a look at the following example:
        <size unit="G">100</size>
    </type>
 
-With the above setup {kiwi} will create a disk image that
+With the above setup, {kiwi} will create a disk image that
 contains the following partition table:
 
 .. code::
@@ -56,64 +56,64 @@ contains the following partition table:
       8         1337344         3864575   2 GiB       8300  p.lxrootclone1
       9         3864576         6287326   2 GiB       8300  p.lxroot
 
-When booting the system only the origin partitions `p.lxboot`, `p.lxroot`
-and `p.lxhome` will be mounted and visible in e.g. :file:`/etc/fstab`,
-the bootloader or the initrd. Thus partition clones are present as a data
+When booting the system, only the origin partitions `p.lxboot`, `p.lxroot`,
+and `p.lxhome` will be mounted and visible in, e.g., :file:`/etc/fstab`,
+the bootloader, or the initrd. Thus, partition clones are present as a data
 source but are not relevant for the operating system from a functional
 perspective.
 
-As shown in the above example there is one clone request for root and boot
-and a two clone requests for the home partition. {kiwi} does not sanity-
-check the provided number of clones (e.g. whether your partition table
+As shown in the above example, there is one clone request for root and boot
+and two clone requests for the home partition. {kiwi} does not sanity-
+check the provided number of clones (e.g., whether your partition table
 can hold that many partitions).
 
 .. warning::
 
-   There is a limit how many partitions a partition table can hold.
+   There is a limit to how many partitions a partition table can hold.
    This also limits how many clones can be created.
 
 It's important when using the `root_clone` attribute to specify a size for
-the part of the system that represents the root partition. As of today {kiwi}
+the part of the system that represents the root partition. As of today, {kiwi}
 does not automatically divide the root partition into two identical pieces.
-In order to create a clone of the partition a size specification is required.
-In the above example the size for root is provided via the `oem-systemsize`
+To create a clone of the partition, a size specification is required.
+In the above example, the size for root is provided via the `oem-systemsize`
 element. Using a root clone and fixed size values has the following consequences:
 
-1. The resize capability must be disabled. This is done via `oem-resize`
+1. The resize capability must be disabled. This is done via the `oem-resize`
    element. The reason is that only the last partition in the partition
    table can be resized without destroying data. If there is a clone of
-   the root partition it should never be resized because then the two
-   partitions will be different in size and no longer clones of each other
+   the root partition, it should never be resized because then the two
+   partitions will be different in size and no longer be clones of each other.
 
-2. There can be unpartitioned space left. In the above example the overall
+2. There can be unpartitioned space left. In the above example, the overall
    disk size is set to 100G. The sum of all partition sizes will be smaller
-   than this value and there is no resize available anymore. Depending
-   on the overall size setup for the disk this will leave unpartitioned
+   than this value, and there is no resize available anymore. Depending
+   on the overall size setup for the disk, this will leave unpartitioned
    space free on the disk.
 
 Use Case
 --------
 
 Potential use cases for which a clone of one or more partitions
-is useful include among others:
+is useful include, among others:
 
 Factory Resets:
-  Creating an image with the option to rollback to the
+  Creating an image with the option to roll back to the
   state of the system at deployment time can be very helpful
-  for disaster recovery
+  for disaster recovery.
 
 System Updates with Rollbacks e.g A/B:
-  Creating an image which holds extra space allowing to rollback
-  modified data can make a system more robust. For example
-  in a simple A/B update concept, partition A would get updated
+  Creating an image that holds extra space allowing to roll back
+  modified data can make a system more robust. For example,
+  in a simple A/B update concept, partition A would be updated
   but would flip to B if A is considered broken after applying the
   update.
 
 .. note::
 
-   Most probably any use case based on partition clones requires
+   Most probably, any use case based on partition clones requires
    additional software to manage them. {kiwi} provides the
-   option to create the clone layout but it does not provide
+   option to create the clone layout, but it does not provide
    the software to implement the actual use case for which the
    partition clones are needed.
 
@@ -128,7 +128,7 @@ table. For partition clones, the following naming convention applies:
    kiwi_(name)PartClone(id)="(partition_number)"
 
 The `(name)` is either taken from the `name` attribute
-of the `<partition>` element or it is a fixed name assigned by {kiwi}.
+of the `<partition>` element, or it is a fixed name assigned by {kiwi}.
 There are the following reserved partition names for which cloning
 is supported:
 
@@ -136,7 +136,7 @@ is supported:
 * readonly
 * boot
 
-For the mentioned example this will result in the
+For the mentioned example, this will result in the
 following :file:`/config.partids`:
 
 .. code::

@@ -5,9 +5,9 @@ Building Images for Supported Types
 
 .. note::
 
-   This document provides an overview how to build and use
-   the {kiwi} supported image types. All images that we provide
-   for testing uses the root password: `linux`
+   This document provides an overview of how to build and use
+   the {kiwi}-supported image types. All images that we provide
+   for testing use the root password: `linux`.
 
 .. toctree::
    :maxdepth: 1

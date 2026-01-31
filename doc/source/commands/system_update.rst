@@ -21,7 +21,7 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Update a previously prepare image root tree. The update command refreshes the
+Update a previously prepared image root tree. The update command refreshes the
 contents of the root directory according to the repository setup of the image
 XML description. The update command can also be used to add or remove
 packages from the image root tree.

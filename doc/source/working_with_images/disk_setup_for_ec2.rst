@@ -11,27 +11,27 @@ Image Description for Amazon EC2
 
    * :ref:`simple_disk`
 
-A virtual disk image which is able to boot in the Amazon EC2
-cloud framework has to comply the following constraints:
+A virtual disk image that is able to boot in the Amazon EC2
+cloud framework has to comply with the following constraints:
 
-* Xen tools and libraries must be installed
-* cloud-init package must be installed
-* cloud-init configuration for Amazon must be provided
-* Grub bootloader modules for Xen must be installed
-* AWS tools must be installed
-* Disk size must be set to 10G
-* Kernel parameters must allow for xen console
+* Xen tools and libraries must be installed.
+* The cloud-init package must be installed.
+* A cloud-init configuration for Amazon must be provided.
+* Grub bootloader modules for Xen must be installed.
+* AWS tools must be installed.
+* The disk size must be set to 10G.
+* Kernel parameters must allow for a Xen console.
 
-To meet this requirements add or update the {kiwi} image
+To meet these requirements, add or update the {kiwi} image
 description as follows:
 
 1. Software packages
 
-   Make sure to add the following packages to the package list
+   Make sure to add the following packages to the package list:
 
    .. note::
 
-      Package names used in the following list matches the
+      Package names used in the following list match the
       package names of the SUSE distribution and might be different
       on other distributions.
 
@@ -45,7 +45,7 @@ description as follows:
 
 2. Image Type definition
 
-   Update the oem image type setup as follows
+   Update the oem image type setup as follows:
 
    .. code:: xml
 
@@ -62,13 +62,13 @@ description as follows:
         </oemconfig>
       </type>
 
-3. Cloud Init setup
+3. Cloud-Init setup
 
-   Cloud init is a service which runs at boot time and allows
-   to customize the system by activating one ore more cloud init
-   modules. For Amazon EC2 the following configuration file
-   :file:`/etc/cloud/cloud.cfg` needs to be provided as part of the
-   overlay files in your {kiwi} image description
+   Cloud-init is a service that runs at boot time and allows
+   you to customize the system by activating one or more cloud-init
+   modules. For Amazon EC2, the following configuration file,
+   :file:`/etc/cloud/cloud.cfg`, needs to be provided as part of the
+   overlay files in your {kiwi} image description:
 
    .. code:: yaml
 
@@ -127,5 +127,5 @@ description as follows:
         ssh_svcname: sshd
 
 An image built with the above setup can be uploaded into the
-Amazon EC2 cloud and registered as image. For further information
-on how to upload to EC2 see: `ec2uploadimg <https://github.com/SUSE-Enceladus/ec2imgutils>`_
+Amazon EC2 cloud and registered as an image. For further information
+on how to upload to EC2, see: `ec2uploadimg <https://github.com/SUSE-Enceladus/ec2imgutils>`_.

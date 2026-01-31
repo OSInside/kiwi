@@ -3,8 +3,8 @@
 The Runtime Configuration File
 ------------------------------
 
-{kiwi} supports an additional configuration file for runtime specific
-settings which do not belong in the image description but which are
+{kiwi} supports an additional configuration file for runtime-specific
+settings that do not belong in the image description but which are
 persistent and are unsuitable for command-line parameters.
 
 The runtime configuration file must adhere to the `YAML <https://yaml.org/>`_
@@ -17,5 +17,5 @@ configuration file in the following locations:
 2. :file:`/etc/kiwi.yml`
 
 A default runtime config file in :file:`/etc/kiwi.yml` is provided with
-the python3-kiwi package. The file contains all settings as comments
+the `python3-kiwi` package. The file contains all settings as comments,
 including a short description of each setting.

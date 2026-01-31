@@ -5,8 +5,8 @@ Image Description
 
 .. note::
 
-   This document explains the toplevel structure of the
-   {kiwi} image description document for version |version|
+   This document explains the top-level structure of the
+   {kiwi} image description document for version |version|.
 
 .. toctree::
    :maxdepth: 1
@@ -33,9 +33,9 @@ Image Identity
    <description/>
 
 The mandatory :ref:`sec.description` element contains information about the author,
-contact, license and the specification about the use case of this
+contact, license, and the specification about the use case of this
 image. All data together forms the identity card of the image.
-There can be only one `description` element
+There can be only one `description` element.
 
 Image Preferences
 -----------------
@@ -46,8 +46,8 @@ Image Preferences
 
 The mandatory :ref:`sec.preferences` element contains information to classify
 the image and to describe the layout. All data about the image type, its
-version, the partition layout and much more is specified here. There can be
-multiple `preferences` elements
+version, the partition layout, and much more is specified here. There can be
+multiple `preferences` elements.
 
 Image Software Sources
 ----------------------
@@ -56,9 +56,9 @@ Image Software Sources
 
    <repository/>
 
-The mandatory :ref:`sec.repository` element contains information where to find the
+The mandatory :ref:`sec.repository` element contains information on where to find the
 software packages that are used to build the image. There can be
-multiple `repository` elements
+multiple `repository` elements.
 
 Image Content Setup
 -------------------
@@ -70,8 +70,8 @@ Image Content Setup
 The mandatory :ref:`sec.packages` element contains information to list which
 software should be installed from the configured repositories
 into the image. Software can be defined as names for packages,
-collections, archives or products. There can be multiple
-`packages` elements
+collections, archives, or products. There can be multiple
+`packages` elements.
 
 Image Users
 -----------
@@ -81,8 +81,8 @@ Image Users
    <users/>
 
 The optional :ref:`sec.users` element contains information about system users
-to be created inside of the image. There can be multiple `users`
-elements
+to be created inside the image. There can be multiple `users`
+elements.
 
 Image Namespace
 ---------------
@@ -92,9 +92,9 @@ Image Namespace
    <profiles/>
 
 The optional :ref:`sec.profiles` element contains information to create one
-or more namespaces to an image description. The namespace can be
+or more namespaces for an image description. The namespace can be
 used with any of the above elements and therefore tie them into
-a namespace which can be selected at call time of {kiwi}
+a namespace that can be selected at call time of {kiwi}.
 
 Image Includes
 --------------
@@ -103,8 +103,8 @@ Image Includes
 
    <include from="file://filename.xml"/>
 
-The optional :ref:`sec.include` element allows to drop in the contents
-of the specified :file:`filename.xml` file at the place were the `include`
+The optional :ref:`sec.include` element allows you to drop in the contents
+of the specified :file:`filename.xml` file at the place where the `include`
 statement was specified in the document. The `include` statement is
-only allowed as descendant of the root (top-level element) of the
+only allowed as a descendant of the root (top-level element) of the
 image description.

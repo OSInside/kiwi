@@ -5,14 +5,14 @@ Custom Disk Volumes
 
 .. sidebar:: Abstract
 
-   This chapter provides high level explanations on how to handle volumes
-   or subvolumes definitions for disk images using {kiwi}.
+   This chapter provides high-level explanations on how to handle volume
+   or subvolume definitions for disk images using {kiwi}.
 
 {kiwi} supports defining custom volumes by using the logical volume manager
-(LVM) for the Linux kernel or by setting volumes at filesystem level when
-filesystem supports it (e.g. btrfs).
+(LVM) for the Linux kernel or by setting volumes at the filesystem level when
+the filesystem supports it (e.g., btrfs).
 
-Volumes are defined in the {kiwi} description file :file:`config.xml`,
+Volumes are defined in the {kiwi} description file, :file:`config.xml`,
 using `systemdisk`. This element is a child of the `type`.
 Volumes themselves are added via (multiple) `volume` child
 elements of the `systemdisk` element:
@@ -46,7 +46,7 @@ attributes:
 
   .. note:: Special name for the root volume
 
-     One can use the `@root` name to refer to the volume mounted at `/`, in
+     You can use the `@root` name to refer to the volume mounted at `/` in
      case some specific size attributes for the root volume have to be
      defined. For instance:
 
@@ -54,39 +54,39 @@ attributes:
 
         <volume name="@root" size="4G"/>
 
-     In addition to the custom size of the root volume it's also possible
-     to setup the name of the root volume as follows:
+     In addition to the custom size of the root volume, it's also possible
+     to set up the name of the root volume as follows:
 
      .. code:: xml
 
         <volume name="@root=rootlv" size="4G"/>
 
-     If no name for the root volume is specified the
-     default name: **LVRoot** applies.
+     If no name for the root volume is specified, the
+     default name, **LVRoot**, applies.
 
 - `freespace`: Optional attribute defining the additional free space added
   to the volume. If no suffix (`M` or `G`) is used, the value is considered
   to be in megabytes.
 
-- `label`: Optional attribute to set filesystem label of the volume.
+- `label`: Optional attribute to set the filesystem label of the volume.
 
 - `copy_on_write`: Optional attribute to set the filesystem copy-on-write
   attribute for this volume.
 
 - `quota`: Optional attribute for the `btrfs` filesystem only. Allows
-  to specify a quota size for the generated volume.
+  you to specify a quota size for the generated volume.
 
 - `filesystem_check`: Optional attribute to indicate that this
-  filesystem should perform the validation to become filesystem checked.
-  The actual constraints if the check is performed or not depends on
-  systemd and filesystem specific components. If not set or set to
-  `false` no system component will be triggered to run an eventual
-  filesystem check, which results in this filesystem to be never checked.
+  filesystem should perform the validation to become filesystem-checked.
+  The actual constraints of whether the check is performed or not depends on
+  systemd and filesystem-specific components. If not set or set to
+  `false`, no system component will be triggered to run an eventual
+  filesystem check, which results in this filesystem never being checked.
   The latter is the default.
 
 - `arch`: Optional attribute to create the volume only if it matches
   the specified host architecture. Multiple architecture names can
-  be specified as comma separated list.
+  be specified as a comma-separated list.
 
 .. warning::
    The size attributes for filesystem volumes, as for btrfs, are
@@ -95,8 +95,8 @@ attributes:
 The `systemdisk` element additionally supports the following optional
 attributes:
 
-- `name`: The volume group name, by default `kiwiVG` is used. This setting
+- `name`: The volume group name, by default, `kiwiVG` is used. This setting
   is only relevant for LVM volumes.
 
-- `preferlvm`: Boolean value instructing {kiwi} to prefer LVM even if the
+- `preferlvm`: A boolean value instructing {kiwi} to prefer LVM even if the
   used filesystem has its own volume management system.

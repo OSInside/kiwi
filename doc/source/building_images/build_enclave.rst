@@ -15,10 +15,10 @@ to further protect and securely process highly sensitive data such as personally
 identifiable information (PII), healthcare, financial, and intellectual property
 data within their Amazon EC2 instances. Nitro Enclaves uses the same Nitro
 Hypervisor technology that provides CPU and memory isolation for EC2 instances.
-For further details please visit https://aws.amazon.com/ec2/nitro/nitro-enclaves
+For further details, please visit https://aws.amazon.com/ec2/nitro/nitro-enclaves.
 
 To add an enclave build to your appliance, create a `type` element with
-`image` set to `enclave` in the :file:`config.xml` file as shown below:
+`image` set to `enclave` in the :file:`config.xml` file, as shown below:
 
 .. code:: xml
 
@@ -41,16 +41,16 @@ To add an enclave build to your appliance, create a `type` element with
 
 The following attributes of the `type` element are relevant:
 
-- `enclave_format`: Specifies the enclave target
+- `enclave_format`: Specifies the enclave target.
 
-  As of today only the `aws-nitro` enclave target is supported
+  As of today, only the `aws-nitro` enclave target is supported.
 
 
-- `kernelcmdline`: Specifies the kernel commandline suitable for the enclave
+- `kernelcmdline`: Specifies the kernel commandline suitable for the enclave.
 
-  An enclave is a system that runs completely in RAM loaded from
-  an enclave binary format which includes the kernel, initrd and
-  the kernel commandline suitable for the target system.
+  An enclave is a system that runs completely in RAM, loaded from
+  an enclave binary format that includes the kernel, initrd, and
+  the kernel command line suitable for the target system.
 
 With the appropriate settings specified in :file:`config.xml`, you can build an
 image using {kiwi}:
@@ -76,9 +76,9 @@ be tested with QEMU:
 
 The image is now complete and ready to use. Access to the system is
 possible via ssh through a vsock connection into the guest. To establish
-a vsock connection it's required to forward the connection through the
-guest AF_VSOCK socket. This can be done via a ProxyCommand setup of the
-host ssh as follows:
+a vsock connection, it's required to forward the connection through the
+guest's `AF_VSOCK` socket. This can be done via a `ProxyCommand` setup of the
+host's ssh as follows:
 
 .. code:: bash
 
@@ -95,7 +95,7 @@ host ssh as follows:
    host *.vsock
      ProxyCommand ~/bin/vsock-ssh.sh %h
 
-After the ssh proxy setup login to the enclave with a custom vsock port
+After the ssh proxy setup, log in to the enclave with a custom vsock port
 as follows:
 
 .. code:: bash

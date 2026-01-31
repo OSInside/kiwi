@@ -4,13 +4,13 @@ Boxbuild Tweaks
 .. note:: Abstract
 
    This document describes a few ways to modify
-   box build VMs for testing/debugging.
+   box-build VMs for testing and debugging.
 
 Increase Box Build Image Size
 -----------------------------
 
 In particularly large builds, you may find that the 
-upstream build boxes aren't quite large enough, and
+upstream build boxes are not quite large enough and
 fail to build during the final few steps. While it 
 is a bit of a kludge, it is possible to increase the
 size of the build box.
@@ -18,10 +18,10 @@ size of the build box.
 To do so, follow these steps:
 
 .. note:: For this example, we will assume the box increase
-   question is an Ubuntu box, located in ~/.kiwi_boxes/ubuntu
+   in question is an Ubuntu box, located in `~/.kiwi_boxes/ubuntu`.
 
 1. While the VM is offline, locate the VM you want to modify
-   and resize with `qemu-img`. Here we will increase the size 
+   and resize with `qemu-img`. Here, we will increase the size 
    by 20G. The VM will have to be told to utilize this space in
    the following steps.
    
@@ -29,7 +29,7 @@ To do so, follow these steps:
   
   $ qemu-img resize Ubuntu-Box.x86_64-1.22.04-System-BuildBox.qcow2 +20G
 
-2. When relaunching your `kiwi-ng` box build, make sure you use `--no-snapshot`
+2. When relaunching your `kiwi-ng` box build, make sure you use the `--no-snapshot`
    and `--box-debug` options within your build command/script. Example:
    
 .. code:: bash
@@ -39,14 +39,14 @@ To do so, follow these steps:
    --description ./ubuntu-jammy --target-dir /build/kiwi/outputs/
   
 3. When the build fails and drops you into the VM console, you will
-   need to extend the partition of the VM rootfs, then resize with
-   `resize2fs`. In this example, `parted` was used and the partition
-   in question was /dev/vda3.
+   need to extend the partition of the VM's rootfs, then resize it with
+   `resize2fs`. In this example, `parted` was used, and the partition
+   in question was `/dev/vda3`.
    
 .. code:: bash
 
    $ parted
-   # Can run parted print to check for relevant partitions if needed.
+   # You can run parted print to check for relevant partitions if needed.
    (parted) $ print
    (parted) $ resizepart 3 100%
    # Exit from parted
@@ -55,10 +55,10 @@ To do so, follow these steps:
    $ resize2fs /dev/vda3
 
 4. From this point, depending on where your build failed, it may be
-   possible to continue your build from inside the box, using the 
+   possible to continue your build from inside the box using the 
    existing 9p mount points defined by your build command. Using the
-   command above as an example, `/result` within the box maps up to 
-   `/build/kiwi/outputs` on the host, and it's possible to run 
+   command above as an example, `/result` within the box maps to 
+   `/build/kiwi/outputs` on the host, and it's possible to run: 
    
 .. code:: bash
 
@@ -66,6 +66,5 @@ To do so, follow these steps:
    --root=/result/build/image-root/ --target-dir=/result
 
 5. If the rebuild from within was successful, you can copy the files
-   from `/result` to `/bundle`, from within the VM, where `/bundle`
+   from `/result` to `/bundle` from within the VM, where `/bundle`
    maps to your `target-dir` on the host.
-

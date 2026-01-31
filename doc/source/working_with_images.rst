@@ -3,7 +3,7 @@ Working with Images
 
 .. note::
 
-   This document provides a collection of worksheets which
+   This document provides a collection of worksheets that
    describes the creation and setup of appliances to work
    within a number of different target environments.
    

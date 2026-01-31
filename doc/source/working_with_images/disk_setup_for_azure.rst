@@ -11,24 +11,24 @@ Image Description for Microsoft Azure
 
    * :ref:`simple_disk`
 
-A virtual disk image which is able to boot in the Microsoft Azure
-cloud framework has to comply the following constraints:
+A virtual disk image that is able to boot in the Microsoft Azure
+cloud framework has to comply with the following constraints:
 
-* Hyper-V tools must be installed
-* Microsoft Azure Agent must be installed
-* Disk size must be set to 30G
-* Kernel parameters must allow for serial console
+* Hyper-V tools must be installed.
+* The Microsoft Azure Agent must be installed.
+* The disk size must be set to 30G.
+* Kernel parameters must allow for a serial console.
 
-To meet this requirements update the {kiwi} image
+To meet these requirements, update the {kiwi} image
 description as follows:
 
 1. Software packages
 
-   Make sure to add the following packages to the package list
+   Make sure to add the following packages to the package list:
 
    .. note::
  
-      Package names used in the following list matches the
+      Package names used in the following list match the
       package names of the SUSE distribution and might be different
       on other distributions.
 
@@ -39,7 +39,7 @@ description as follows:
 
 2. Image Type definition
 
-   Update the oem image type setup as follows
+   Update the oem image type setup as follows:
 
    .. code:: xml
 
@@ -59,6 +59,6 @@ description as follows:
       </type>
 
 An image built with the above setup can be uploaded into the
-Microsoft Azure cloud and registered as image. For further
-information on how to upload to Azure see:
-`azurectl <https://github.com/SUSE-Enceladus/azurectl>`_
+Microsoft Azure cloud and registered as an image. For further
+information on how to upload to Azure, see:
+`azurectl <https://github.com/SUSE-Enceladus/azurectl>`_.
