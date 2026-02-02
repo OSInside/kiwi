@@ -71,3 +71,6 @@ class TestDataSync:
         effect.errno = errno.ENOTSUP
         mock_getxattr.side_effect = effect
         assert self.sync.target_supports_extended_attributes() is False
+        effect = NotImplemented
+        mock_getxattr.side_effect = effect
+        assert self.sync.target_supports_extended_attributes() is True

@@ -97,8 +97,9 @@ class DataSync:
                 warn_me = True
             if warn_me:
                 log.warning(
-                    'Extended attributes not supported for target: %s',
-                    self.target_dir
+                    'Extended attributes not supported for target: {}'.format(
+                        self.target_dir
+                    )
                 )
         if exclude:
             for item in exclude:
@@ -135,10 +136,10 @@ class DataSync:
         """
         try:
             os.getxattr(self.target_dir, 'user.mime_type')
-        except OSError as e:
-            log.debug(
-                f'Check for extended attributes on {self.target_dir} said: {e}'
-            )
-            if e.errno == errno.ENOTSUP:
+        except OSError as issue:
+            if issue.errno == errno.ENOTSUP:
                 return False
+        except Exception:
+            # ignore any other exception here
+            pass
         return True
