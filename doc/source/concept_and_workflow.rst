@@ -79,6 +79,12 @@ CD root user data:
 Image Building Process
 ----------------------
 
+.. figure:: .images/flow-diagram.svg
+    :align: center
+    :alt: Kiwi NG Build Process Flow Diagram
+
+    Kiwi NG Build Process Flow Diagram
+
 {kiwi} creates images in a two-step process: The first step, the *prepare*
 operation, generates a so-called *unpacked image tree* (directory) using
 the information provided in the :file:`config.xml` configuration file
@@ -87,13 +93,6 @@ the information provided in the :file:`config.xml` configuration file
 The second step, the *create* operation, creates the *packed image* or
 *image* in the specified format based on the unpacked image tree and the
 information provided in the :file:`config.xml` configuration file.
-
-.. figure:: .images/intro.png
-    :align: center
-    :alt: Image Creation Architecture
-
-    Image Creation Architecture
-
 
 .. _prepare-step:
 
@@ -236,4 +235,6 @@ During the *create step*, the following operations are performed by {kiwi}:
 #. **Create the Requested Image Type**
 
    {kiwi} converts the unpacked root into an output format appropriate for
-   the requested build type.
+   the requested build type. During this process further image type
+   specific user defined scripts may be executed
+   (see :ref:`working-with-kiwi-user-defined-scripts`).
