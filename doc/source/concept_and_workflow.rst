@@ -47,7 +47,9 @@ to find in the *description directory*:
      The filename :file:`config.xml` is not mandatory; the image description
      file can also have an arbitrary name plus the :file:`*.kiwi` extension.
      {kiwi} first looks for a :file:`config.xml` file. If it cannot be found,
-     it picks the first :file:`*.kiwi` file.
+     it picks the first :file:`*.kiwi` file. When using a file with the
+     :file:`.kiwi` extension, multiple markup options are supported,
+     including `XML`, `YAML`, and `TOML`.
 
 :ref:`working-with-kiwi-user-defined-scripts`:
    If present, custom configuration shell scripts run at different
