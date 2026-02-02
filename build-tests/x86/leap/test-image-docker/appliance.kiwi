@@ -64,7 +64,6 @@
         <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
         <package name="ca-certificates-mozilla"/>
-        <package name="openSUSE-release"/>
     </packages>
     <packages type="delete">
         <package name="kernel-default"/>

@@ -17,6 +17,5 @@
     <packages type="bootstrap">
         <package name="vim"/>
         <package name="bash"/>
-        <package name="openSUSE-release"/>
     </packages>
 </image>
