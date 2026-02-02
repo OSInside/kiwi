@@ -67,6 +67,7 @@
     </packages>
     <packages type="delete">
         <package name="kernel-default"/>
+        <package name="zypper"/>
         <package name="aaa_base"/>
         <package name="dbus-1"/>
         <package name="fipscheck"/>

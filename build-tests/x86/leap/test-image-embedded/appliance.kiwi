@@ -75,6 +75,7 @@
     </packages>
     <packages type="bootstrap">
         <package name="patterns-openSUSE-base"/>
+        <package name="dracut"/>
         <package name="systemd"/>
         <package name="iputils"/>
         <package name="vim"/>
