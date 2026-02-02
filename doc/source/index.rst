@@ -1,19 +1,27 @@
 .. kiwi documentation master file
 
-Building Linux System Appliances
-================================
+Welcome to KIWI NG
+==================
+
+**Your flexible operating system image and appliance builder**
+
+KIWI NG is a powerful, command-line-driven tool that allows you to create customized Linux operating system images for a variety of platforms and use cases. Whether you're building for bare metal, virtual machines, containers, or cloud environments, KIWI provides the flexibility and control you need to craft the perfect OS image.
 
 .. note::
-   This documentation covers {kiwi-product} |version| - the command-line
-   utility to build Linux system appliances. If you are using a {kiwi}
-   schema version older than v74, upgrade the kiwi file as follows:
+   This documentation covers {kiwi-product} |version|.
 
-   .. code:: shell-session
+Why KIWI?
+---------
 
-      $ xsltproc /usr/share/kiwi/xsl_to_v74/update.xsl config.xml|*.kiwi
+* **Versatile Image Types**: Build everything from traditional ISOs and virtual machine images (VMware, KVM, Hyper-V) to container images (Docker, OCI), live systems for USB sticks, and images for cloud platforms (AWS, Azure, GCP).
+* **Declarative by Design**: Define your entire image using a simple set of human-readable XML files. This allows for easy versioning, sharing, and reproducibility.
+* **Cross-Distribution Support**: While born in the SUSE world, {kiwi} supports a wide range of Linux distributions, including openSUSE, SUSE Linux Enterprise, Red Hat Enterprise Linux, Fedora, CentOS, and Ubuntu.
+* **Extensible and Customizable**: A flexible plugin architecture and the ability to include custom scripts and configuration files give you full control over the image-building process.
+* **Battle-Tested**: {kiwi} is used by enterprises and open-source projects alike, and builds official images in the build service of SUSE and Fedora.
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
 
    overview
    installation
@@ -57,66 +65,11 @@ Building Linux System Appliances
 
    * `Build Tests ArchLinux(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:archlinux>`__
 
-The Appliance Concept
----------------------
 
-An appliance is a ready-to-use image of an operating system, including
-a pre-configured application for a specific use case. The appliance is
-provided as an image file and needs to be deployed to or activated in
-the target system or service.
+Get Started
+-----------
 
-{kiwi} can create appliances in various forms: besides classical installation
-ISOs and images for virtual machines, it can also build images that boot via
-PXE or Vagrant boxes.
-
-In {kiwi}, the appliance is specified via a collection of human-readable files
-in a directory, also called the `image description`. At least one XML file,
-:file:`config.xml` or :file:`.kiwi`, is required. In addition, there may as
-well be other files, like scripts or configuration data.
-
-Use Cases
----------
-
-The following list shows a selection of use cases for which an
-appliance is needed:
-
-Private and Public Clouds
-  Cloud environments are managed through an API provided by the cloud
-  service provider. The classic way to install a machine is not
-  possible in such an environment because there is no physical access
-  to the machine. An appliance is needed to be registered with the
-  cloud.
-
-Custom Linux Distribution
-  Linux distributors provide their distribution based on a collection
-  of packages and release them on an install medium like a DVD or a USB
-  stick. Typically, a lot more software components exist for the
-  distribution that are not part of the default installation media,
-  or the installation media comes with software and installation
-  routines that do not match your target audience. With an
-  appliance made by {kiwi}, you can create an installation
-  medium that matches custom criteria as needed by the customer
-  and does not require extra post-processing steps after the
-  default installation method provided by the distributor.
-
-Live Systems
-  The ability to have a Linux OS that runs from a small storage
-  device like a USB stick or an SD card is the Swiss army knife of many
-  system administrators. The creation of such a live system includes the
-  use of technologies that are not part of a standard installation
-  process. An appliance builder is needed to create this sort of
-  system.
-
-Embedded Systems
-  Embedded systems like the Raspberry Pi come with limited hardware
-  components. Their boot sequences often do not allow for classic
-  installation methods through USB or DVD devices. Instead, they boot
-  through SD card slots or via the network. SoC (System on Chip) devices
-  also tend to implement non-standard boot methods that can only
-  be implemented through custom OS appliances.
-
-And More
-  ...
+Ready to build your first image? Jump into the :doc:`quickstart` or explore the :doc:`concept_and_workflow` to get a deeper understanding of how {kiwi} works.
 
 .. _contact:
 
