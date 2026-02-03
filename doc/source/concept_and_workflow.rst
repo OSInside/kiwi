@@ -63,8 +63,8 @@ Overlay tree directory:
    will be copied into the *unpacked image tree* during the *Prepare
    operation*.
    The copying is executed after all the packages included in
-   :file:`config.xml` have been installed. Any already present files are
-   overwritten.
+   :file:`config.xml` have been installed. Any files that are already
+   present will be overwritten.
 
 CD root user data:
    For live ISO images and install ISO images, an optional archive
@@ -204,13 +204,13 @@ The prepare step consists of the following substeps:
 
    .. warning:: Modifications of the unpacked root tree
 
-      Do not make any changes to the system, since they are lost when
-      re-running the `prepare` step again. Additionally, you may
-      introduce errors that occur during the `create` step, which are
-      difficult to track. The recommended way to apply changes to the
-      unpacked image directory is to change the configuration and re-run
-      the `prepare` step.
-
+      When performing manual modifications of the unpacked image tree,
+      be aware that these changes might be lost when calling the prepare
+      step again. Therefore, avoid making changes that should be
+      persistent across multiple runs of the `prepare` step. The recommended
+      way to apply persistent changes to the unpacked image directory
+      is to change the original image description and re-run the `prepare`
+      step.
 
 .. _create-step:
 
