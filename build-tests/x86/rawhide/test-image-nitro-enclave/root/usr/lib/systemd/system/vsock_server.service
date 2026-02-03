@@ -1,0 +1,10 @@
+[Unit]
+Description=Vsock Server for Nitro Enclaves
+After=network-online.target nitro-enclave-alive.service
+
+[Service]
+ExecStart=/usr/bin/vsock_server
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
