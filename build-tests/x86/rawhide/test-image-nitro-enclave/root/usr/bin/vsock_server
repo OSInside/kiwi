@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+
+import socket
+import re
+import subprocess
+
+VSOCK_PORT = 5000
+ANY_CID = socket.VMADDR_CID_ANY
+
+
+def to_hex_string(pcr_has_value_string, title):
+    out = pcr_has_value_string
+    out = out.replace(title, '')
+    out = out.replace('[', '')
+    out = out.replace(']', '')
+    f = ''
+    for i in out.split(','):
+        x = int(i.strip())
+        f = f + '%02x' % x
+    n = bytes(f, 'utf-8')
+    return f'{title}:{n.decode()}'
+
+
+def main():
+    server = socket.socket(socket.AF_VSOCK, socket.SOCK_STREAM)
+    server.bind((ANY_CID, VSOCK_PORT))
+    server.listen(5)
+    print(f'[Enclave] vsock server listening on port {VSOCK_PORT}...')
+    while True:
+        conn, client_addr = server.accept()
+        print(f'[Enclave] Connection from CID {client_addr[0]}')
+        data = conn.recv(4096)
+        if not data:
+            conn.close()
+            continue
+        print(f'[Enclave] Received: {data.decode()}')
+        try:
+            process = subprocess.Popen(
+                ['/usr/bin/nsm-check'],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+            pcrs, error = process.communicate()
+            pcrs = pcrs.decode()
+            pcrs = re.sub(r'\n\s*\n', '\n', pcrs)
+            pcrs_hex = []
+            for line in pcrs.splitlines():
+                if line.startswith('PCR 0 has value'):
+                    pcrs_hex.append(to_hex_string(line, 'PCR 0 has value'))
+                elif line.startswith('PCR 1 has value'):
+                    pcrs_hex.append(to_hex_string(line, 'PCR 1 has value'))
+                elif line.startswith('PCR 2 has value'):
+                    pcrs_hex.append(to_hex_string(line, 'PCR 2 has value'))
+            pcrs = f'{pcrs}\n{"\n".join(pcrs_hex)}'
+            pcrs = re.sub(r'\n\s*\n', '\n', pcrs)
+            print(f'[Enclave] PCRs: {pcrs}')
+        except Exception as issue:
+            pcrs = issue
+            print(f'[Enclave] Error retrieving PCRs: {issue}')
+        response = f'Enclave received: {data.decode()}\nPCRs: {pcrs}'
+        conn.sendall(response.encode())
+        conn.close()
+
+
+if __name__ == '__main__':
+    main()
