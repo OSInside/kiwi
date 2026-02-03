@@ -1452,15 +1452,25 @@ class DiskBuilder:
     ) -> None:
         log.info('Creating generic boot image etc/veritytab')
         veritytab_filename = ''.join([self.root_dir, '/etc/veritytab'])
-        uuid = device_map['readonly'].get_uuid(
+        block_operation = BlockID(
             device_map['readonly'].get_device()
-        ) if device_map.get('readonly') else device_map['root'].get_uuid(
-            device_map['root'].get_device()
+            if device_map.get('readonly') else device_map['root'].get_device()
         )
+        filesystem = block_operation.get_filesystem()
+        if filesystem == 'squashfs':
+            # squashfs does not provide a label or uuid
+            # veritytab does not support PARTUUID=... syntax
+            device_id = '/dev/disk/by-partuuid/{}'.format(
+                block_operation.get_blkid('PARTUUID')
+            )
+        else:
+            device_id = 'UUID={}'.format(
+                block_operation.get_blkid('UUID')
+            )
         with open(veritytab_filename, 'w') as veritytab:
             veritytab.write(
-                'verityroot UUID={0} UUID={0} {1} {2},{3}{4}'.format(
-                    uuid, veritysetup.verity_dict.get('Roothash'),
+                'verityroot {0} {0} {1} {2},{3}{4}'.format(
+                    device_id, veritysetup.verity_dict.get('Roothash'),
                     f'hash-offset={veritysetup.verity_hash_offset}',
                     f'hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}',
                     os.linesep
