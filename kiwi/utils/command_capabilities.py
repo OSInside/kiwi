@@ -15,12 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import re
 import logging
 from typing import List
 
 # project
 from kiwi.command import Command
+from kiwi.path import Path
 from kiwi.exceptions import KiwiCommandCapabilitiesError
 
 log = logging.getLogger('kiwi')
@@ -43,7 +45,7 @@ class CommandCapabilities:
         Checks if the given flag is present in the help output
         of the given command.
 
-        :param str call: the command the check
+        :param str call: the command to check
         :param str flag: the flag or substring to find in stdout
         :param list help_flags: a list with the required command arguments.
         :param str root: root directory of the env to validate
@@ -62,6 +64,12 @@ class CommandCapabilities:
             arguments = ['chroot', root, call] + help_args
         else:
             arguments = [call] + help_args
+        if raise_on_error and not Path.which(
+            filename=call, access_mode=os.X_OK, root_dir=root or None
+        ):
+            raise KiwiCommandCapabilitiesError(
+                f'Attempting to call "{arguments}" but {call} was not found'
+            )
         command = Command.run(arguments, raise_on_error=False)
         for line in command.output.splitlines():
             if flag in line:

@@ -18,7 +18,8 @@ class TestCommandCapabilities:
         self._caplog = caplog
 
     @patch('kiwi.command.Command.run')
-    def test_has_option_in_help(self, mock_run):
+    @patch('kiwi.utils.command_capabilities.Path.which')
+    def test_has_option_in_help(self, mock_Path_which, mock_run):
         command_type = namedtuple('command', ['output', 'error'])
         mock_run.return_value = command_type(
             output="Dummy line\n\t--some-flag\n\t--some-other-flag",
@@ -54,7 +55,10 @@ class TestCommandCapabilities:
         )
 
     @patch('kiwi.command.Command.run')
-    def test_has_option_in_help_command_failure_warning(self, mock_run):
+    @patch('kiwi.utils.command_capabilities.Path.which')
+    def test_has_option_in_help_command_failure_warning(
+        self, mock_Path_which, mock_run
+    ):
         mock_run.return_value.output = ''
         mock_run.return_value.error = ''
         with self._caplog.at_level(logging.WARNING):
@@ -64,12 +68,26 @@ class TestCommandCapabilities:
             )
 
     @patch('kiwi.command.Command.run')
-    def test_has_option_in_help_command_failure_exception(self, mock_run):
+    @patch('kiwi.utils.command_capabilities.Path.which')
+    def test_has_option_in_help_command_failure_exception(
+        self, mock_Path_which, mock_run
+    ):
         mock_run.return_value.output = ''
         mock_run.return_value.error = ''
         with raises(KiwiCommandCapabilitiesError):
             CommandCapabilities.has_option_in_help(
                 'command_that_fails', '--non-existing-flag'
+            )
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.utils.command_capabilities.Path.which')
+    def test_has_option_in_help_command_failure_command_not_found_exception(
+        self, mock_Path_which, mock_run
+    ):
+        mock_Path_which.return_value = False
+        with raises(KiwiCommandCapabilitiesError):
+            CommandCapabilities.has_option_in_help(
+                'command_that_does_not_exist', '--help'
             )
 
     @patch('kiwi.command.Command.run')
