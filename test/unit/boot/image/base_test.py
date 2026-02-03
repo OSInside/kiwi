@@ -247,7 +247,7 @@ class TestBootImageBase:
             )
             mock_CommandCapabilities_has_option_in_help.assert_called_once_with(
                 'dracut', '--printconfig', ['--help'],
-                root='system-directory', raise_on_error=True
+                root='system-directory', raise_on_error=False
             )
             mock_Command_run.assert_called_once_with(
                 ['chroot', 'system-directory', 'dracut', '--printconfig']

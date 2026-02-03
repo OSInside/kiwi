@@ -545,7 +545,7 @@ class BootImageBase:
     ) -> Optional[str]:
         if CommandCapabilities.has_option_in_help(
             'dracut', '--printconfig', ['--help'],
-            root=self.boot_root_directory, raise_on_error=True
+            root=self.boot_root_directory, raise_on_error=False
         ):
             dracut_call = Command.run(
                 ['chroot', self.boot_root_directory, 'dracut', '--printconfig']
