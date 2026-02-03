@@ -69,7 +69,7 @@ class CommandCapabilities:
         for line in command.error.splitlines():
             if flag in line:
                 return True
-        message = 'Could not parse {} output'.format(call)
+        message = 'Could not find flag {} in {} output'.format(flag, call)
         if raise_on_error:
             raise KiwiCommandCapabilitiesError(message)
         if not silent:
