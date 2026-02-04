@@ -71,15 +71,17 @@ function get_disk_list {
     local disk_size
     local disk_device
     local disk_device_by_id
+    local disk_trans
     local disk_meta
     local list_items
     local list_items_sorted
     local max_disk
     local kiwi_oem_maxdisk
-    local blk_opts="-p -n -r --sort NAME -o NAME,SIZE,TYPE"
+    local blk_opts="-p -n -r --sort NAME -o NAME,SIZE,TYPE,TRAN"
     local message
     local blk_opts_plus_label="${blk_opts},LABEL"
     local kiwi_install_disk_part
+
     if [ -n "${kiwi_devicepersistency}" ];then
         disk_id=${kiwi_devicepersistency}
     fi
@@ -88,6 +90,15 @@ function get_disk_list {
     kiwi_oemmultipath_scan=$(bool "${kiwi_oemmultipath_scan}")
     kiwi_oem_maxdisk=$(getarg rd.kiwi.oem.maxdisk=)
     kiwi_oem_installdevice=$(getarg rd.kiwi.oem.installdevice=)
+
+    # Check for smallest disk parameter
+    # - Configure lsblk options based on the selection mode
+    if getargbool 0 rd.kiwi.oem.smallest_disk; then
+        # Sort by SIZE (ascending), include TRAN to identify USBs
+        blk_opts="-p -n -r --sort SIZE -o NAME,SIZE,TYPE,TRAN"
+        blk_opts_plus_label="${blk_opts},LABEL"
+    fi
+
     if [ -n "${kiwi_install_devicepersistency}" ];then
         disk_id=${kiwi_install_devicepersistency}
     fi
@@ -140,6 +151,15 @@ function get_disk_list {
           # use mpath device instead of parent device for multipath
           disk_device="$(echo "${disk_mpath_child}" | cut -f1 -d:)"
         fi
+
+        # Filter USBs if smallest disk is requested
+        disk_trans=$(echo "${disk_meta}" | cut -f4 -d:)
+        if getargbool 0 rd.kiwi.oem.smallest_disk; then
+            if [[ "${disk_trans}" == "usb" ]]; then
+                continue
+            fi
+        fi
+
         disk_size=$(echo "${disk_meta}" | cut -f2 -d:)
         if [ "${max_disk}" -gt 0 ]; then
             local disk_size_bytes
@@ -204,13 +224,21 @@ function get_disk_list {
         report_and_quit "${no_device_text}"
     fi
 
-    # apply final sorting for the used disk_device names
-    list_items_sorted=$(sort_disk_entries "${list_items}")
-    for entry in ${list_items_sorted[*]}; do
-        echo -n "${entry} $(find_disk_entry "${list_items}" "${entry}") "
-    done
-    echo
+    # Conditional Sorting
+    if getargbool 0 rd.kiwi.oem.smallest_disk; then
+        # If looking for smallest disk, preserve the lsblk size-sort order
+        echo "${list_items}"
+    else
+        # Default behavior:
+        # apply final alphabetical sorting for the used disk_device names
+        list_items_sorted=$(sort_disk_entries "${list_items}")
+        for entry in ${list_items_sorted[*]}; do
+            echo -n "${entry} $(find_disk_entry "${list_items}" "${entry}") "
+        done
+        echo
+    fi
 }
+
 
 function validate_disk_selection {
     local selected=$1
