@@ -64,6 +64,7 @@ def setup(app):
 
 
 prolog_replacements = {
+    '{exc_image_base_name}': 'kiwi-test-image-some',
     '{exc_image_base_name_pxe}': 'kiwi-test-image-pxe',
     '{exc_image_base_name_vagrant}': 'kiwi-test-image-vagrant',
     '{exc_image_base_name_disk}': 'kiwi-test-image-disk',
