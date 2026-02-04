@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User-Defined Scripts &mdash; KIWI NG 10.2.42 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=222806a2"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="The Runtime Configuration File" href="runtime_configuration.html" />
+    <link rel="prev" title="Adding Users" href="users.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            KIWI NG
+              <img src="../_static/kiwi-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../overview/workflow.html">Basic Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../overview/workflow.html#components-of-an-image-description">Components of an Image Description</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#conceptual-overview">Conceptual Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#terminology">Terminology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../overview.html#system-requirements">System Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installation-from-obs">Installation from OBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installation-from-distribution-repositories">Installation from Distribution Repositories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#example-appliance-descriptions">Example Appliance Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#choose-a-first-image">Choose a First Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#build-your-first-image">Build your First Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#run-your-image">Run your Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#tweak-and-customize-your-image">Tweak and Customize your Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">Working from the Command Line</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../commands/kiwi.html">kiwi-ng</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#global-options">GLOBAL OPTIONS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/kiwi.html#example">EXAMPLE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/result_list.html">kiwi-ng result list</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_list.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/result_bundle.html">kiwi-ng result bundle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/result_bundle.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_prepare.html">kiwi-ng system prepare</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_prepare.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_update.html">kiwi-ng system update</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_update.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_build.html">kiwi-ng system build</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#options">OPTIONS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_build.html#uri-types">URI_TYPES</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/system_create.html">kiwi-ng system create</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/system_create.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/image_resize.html">kiwi-ng image resize</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_resize.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../commands/image_info.html">kiwi-ng image info</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../commands/image_info.html#options">OPTIONS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../troubleshooting/buildhost_constraints.html#zypper-modalias-matching">zypper: modalias matching</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/architectures.html">Architectures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../plugins.html">KIWI Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/self_contained.html">Building in a Self-Contained Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/self_contained.html#building-in-container">Building in Container</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/stackbuild.html">Building based on Containers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/stackbuild.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/stackbuild.html#concept">Concept</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/stackbuild.html#create-a-stash">Create a stash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/stackbuild.html#rebuild-from-a-stash">Rebuild from a stash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/stackbuild.html#turn-a-container-into-a-vm-image">Turn a container into a VM image</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../concept_and_workflow.html">Concept and Workflow</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="systemdeps.html">Host Requirements To Build Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="repository_setup.html">Setting up Repositories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="repository_setup.html#adding-repositories">Adding repositories</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="repository_setup.html#supported-repository-paths">Supported repository paths</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">Adding and Removing Packages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#the-package-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">package</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#the-archive-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">archive</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#uninstall-system-packages">Uninstall System Packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#the-product-and-namedcollection-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">namedCollection</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packages.html#the-ignore-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">ignore</span></code> element</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="profiles.html">Image Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="users.html">Adding Users</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">User-Defined Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#developing-debugging-scripts">Developing/Debugging Scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#script-template-for-config-sh-images-sh">Script Template for config.sh / images.sh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions-and-variables-provided-by-kiwi-ng">Functions and Variables Provided by KIWI NG</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-tips">Configuration Tips</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_configuration.html">The Runtime Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customize_the_boot_process.html">Customizing the Boot Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customize_the_boot_process.html#boot-image-hook-scripts">Boot Image Hook-Scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customize_the_boot_process.html#boot-image-parameters">Boot Image Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="customize_the_boot_process.html#boot-debugging">Boot Debugging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concept_and_workflow.html#image-building-process">Image Building Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow.html#the-prepare-step">The Prepare Step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../concept_and_workflow.html#the-create-step">The Create Step</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../image_description.html">Image Description</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../image_description/elements.html">Image Description Elements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#image">&lt;image&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#include">&lt;include&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#description">&lt;description&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#certificates">&lt;certificates&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#preferences">&lt;preferences&gt;</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-version">&lt;preferences&gt;&lt;version&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-packagemanager">&lt;preferences&gt;&lt;packagemanager&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-rpm-locale-filtering">&lt;preferences&gt;&lt;rpm-locale-filtering&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-rpm-check-signatures">&lt;preferences&gt;&lt;rpm-check-signatures&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-rpm-excludedocs">&lt;preferences&gt;&lt;rpm-excludedocs&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-keytable">&lt;preferences&gt;&lt;keytable&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-timezone">&lt;preferences&gt;&lt;timezone&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-locale">&lt;preferences&gt;&lt;locale&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-bootsplash-theme">&lt;preferences&gt;&lt;bootsplash-theme&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-bootloader-theme">&lt;preferences&gt;&lt;bootloader-theme&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-release-version">&lt;preferences&gt;&lt;release-version&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type">&lt;preferences&gt;&lt;type&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-luksformat">&lt;preferences&gt;&lt;type&gt;&lt;luksformat&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-bootloader">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-bootloader-securelinux">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;securelinux&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-bootloader-bootloadersettings">&lt;preferences&gt;&lt;type&gt;&lt;bootloader&gt;&lt;bootloadersettings&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-containerconfig">&lt;preferences&gt;&lt;type&gt;&lt;containerconfig&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-vagrantconfig">&lt;preferences&gt;&lt;type&gt;&lt;vagrantconfig&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-systemdisk">&lt;preferences&gt;&lt;type&gt;&lt;systemdisk&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-partitions">&lt;preferences&gt;&lt;type&gt;&lt;partitions&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-oemconfig">&lt;preferences&gt;&lt;type&gt;&lt;oemconfig&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-size">&lt;preferences&gt;&lt;type&gt;&lt;size&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-machine">&lt;preferences&gt;&lt;type&gt;&lt;machine&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-installmedia">&lt;preferences&gt;&lt;type&gt;&lt;installmedia&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#preferences-type-initrd">&lt;preferences&gt;&lt;type&gt;&lt;initrd&gt;</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#containers">&lt;containers&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#containers-container">&lt;containers&gt;&lt;container&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#repository">&lt;repository&gt;</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#repository-source">&lt;repository&gt;&lt;source&gt;</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#packages">&lt;packages&gt;</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#packages-package">&lt;packages&gt;&lt;package&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#packages-namedcollection">&lt;packages&gt;&lt;namedCollection&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#packages-collectionmodule">&lt;packages&gt;&lt;collectionModule&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#packages-file">&lt;packages&gt;&lt;file&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#packages-archive">&lt;packages&gt;&lt;archive&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#packages-ignore">&lt;packages&gt;&lt;ignore&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_description/elements.html#packages-product">&lt;packages&gt;&lt;product&gt;</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#users">&lt;users&gt;</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_description/elements.html#profiles">&lt;profiles&gt;</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#main-root">Main Root</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#image-identity">Image Identity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#image-preferences">Image Preferences</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#image-software-sources">Image Software Sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#image-content-setup">Image Content Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#image-users">Image Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#image-namespace">Image Namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_description.html#image-includes">Image Includes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../image_types_and_results.html">Image Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../image_types_and_results.html#image-results">Image Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../image_types_and_results.html#image-bundle-format">Image Bundle Format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../building_images.html">Building Images for Supported Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_live_iso.html">Build an ISO Hybrid Live Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_live_iso.html#overlay-or-dmsquash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">dmsquash</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_simple_disk.html">Build a Virtual Disk Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_simple_disk.html#setting-up-the-bootloader-in-the-image">Setting up the Bootloader in the Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_simple_disk.html#modifying-the-size-of-the-image">Modifying the Size of the Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_simple_disk.html#customizing-the-virtual-machine">Customizing the Virtual Machine</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../building_images/build_simple_disk.html#modifying-the-vm-configuration-directly">Modifying the VM Configuration Directly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../building_images/build_simple_disk.html#adding-network-interfaces-to-the-vm">Adding Network Interfaces to the VM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../building_images/build_simple_disk.html#specifying-disks-and-disk-controllers">Specifying Disks and Disk Controllers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../building_images/build_simple_disk.html#adding-cd-dvd-drives">Adding CD/DVD Drives</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_expandable_disk.html">Build an Expandable Disk Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#deployment-methods">Deployment Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#manual-deployment">Manual Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#cd-dvd-deployment">CD/DVD Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#network-deployment">Network Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#oem-customization">OEM Customization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_expandable_disk.html#installation-media-customization">Installation Media Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_container_image.html">Build a Container Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_wsl_container.html">Build a WSL Container Image</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_wsl_container.html#setup-of-the-wsl-distrolauncher">Setup of the WSL-DistroLauncher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../building_images/build_wsl_container.html#testing-the-wsl-image">Testing the WSL image</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_kis.html">Build KIS Image (Kernel, Initrd, System)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../building_images/build_enclave.html">Build an AWS Nitro Enclave</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../working_with_images.html">Working with Images</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/iso_to_usb_stick_deployment.html">Deploy ISO Image on a USB Stick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/iso_to_usb_stick_file_based_deployment.html">Deploy ISO Image as a File on a FAT32 Formatted USB Stick</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/iso_to_usb_stick_grub2_boot_from_iso.html">Booting Live ISO Images from Grub2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/disk_setup_for_ec2.html">Image Description for Amazon EC2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/disk_setup_for_azure.html">Image Description for Microsoft Azure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/disk_setup_for_google.html">Image Description for Google Compute Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/disk_setup_for_vagrant.html">Image Description for Vagrant</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/disk_setup_for_vagrant.html#customizing-the-embedded-vagrantfile">Customizing the embedded Vagrantfile</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/disk_setup_for_luks.html">Image Description for an Encrypted Disk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/disk_ramdisk_deployment.html">Deploy and Run a System in a Ramdisk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/custom_partitions.html">Custom Disk Partitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/custom_volumes.html">Custom Disk Volumes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/clone_partitions.html">Partition Clones</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/clone_partitions.html#use-case">Use Case</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/setup_network_bootserver.html">Setting Up a Network Boot Server</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/setup_network_bootserver.html#installing-and-configuring-dhcp-and-tftp-with-dnsmasq">Installing and Configuring DHCP and TFTP with dnsmasq</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html">Build PXE Root Filesystem Image for the legacy netboot infrastructure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#pxe-client-setup-configuration">PXE Client Setup Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-client-with-remote-root">Setup Client with Remote Root</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-client-with-system-on-local-disk">Setup Client with System on Local Disk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-client-with-system-on-local-md-raid-disk">Setup Client with System on Local MD RAID Disk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-loading-of-custom-configuration-file-s">Setup Loading of Custom Configuration File(s)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-client-to-force-reload-image">Setup Client to Force Reload Image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-client-to-force-reload-configuration-files">Setup Client to Force Reload Configuration Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-client-for-reboot-after-deployment">Setup Client for Reboot After Deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-custom-kernel-boot-options">Setup custom kernel boot options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-a-custom-boot-timeout">Setup a Custom Boot Timeout</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/legacy_netboot_root_filesystem.html#setup-a-different-download-protocol-and-server">Setup a Different Download Protocol and Server</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/network_overlay_boot.html">Booting a Root Filesystem from Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/network_live_iso_boot.html">Booting a Live ISO Image from Network</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/network_live_iso_boot.html#available-remote-boot-options">Available Remote Boot Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/network_live_iso_boot.html#persistent-live-system">Persistent Live System</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/custom_fstab_extension.html">Add or Update the Fstab File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/build_with_profiles.html">Building Images with Profiles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/build_with_profiles.html#local-builds">Local Builds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/build_with_profiles.html#building-with-the-open-build-service">Building with the Open Build Service</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/build_in_buildservice.html">Building in the Open Build Service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/build_in_buildservice.html#advantages-of-using-the-open-build-service-obs">Advantages of using the Open Build Service (OBS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/build_in_buildservice.html#differences-between-building-locally-and-on-obs">Differences Between Building Locally and on OBS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/build_in_buildservice.html#recommendations">Recommendations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/build_in_buildservice.html#working-with-obs">Working with OBS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/build_in_buildservice.html#repository-configuration">Repository Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../working_with_images/build_in_buildservice.html#project-configuration">Project Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/use_suse_media.html">Using SUSE Product ISO To Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images/build_without_debianbootstrap.html">Circumvent Debian Bootstrap</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../working_with_images/build_without_debianbootstrap.html#how-to-create-a-bootstrap-package">How to Create a bootstrap_package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/kiwi_from_python.html">Using KIWI NG in a Python Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html">Plugin Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html#naming-conventions">Naming conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/kiwi_plugin_architecture.html#example-plugin">Example plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/scripts_testing.html">Write Integration Tests for the Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/scripts_testing.html#test-setup">Test setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/schema_extensions.html">Extending KIWI NG with Custom Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#the-extension-section">The &lt;extension&gt; Section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#relax-ng-schema-for-the-extension">RELAX NG Schema for the Extension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#extension-schema-in-xml-catalog">Extension schema in XML catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing/schema_extensions.html#using-the-extension">Using the extension</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#fork-the-upstream-repository">Fork the upstream repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#create-a-local-clone-of-the-forked-repository">Create a local clone of the forked repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#install-required-operating-system-packages">Install Required Operating System Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#create-a-python-virtual-development-environment">Create a Python Virtual Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#running-the-unit-tests">Running the Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#create-a-branch-for-each-feature-or-bugfix">Create a Branch for each Feature or Bugfix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#coding-style">Coding Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#additional-information">Additional Information</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#signing-git-patches">Signing Git Patches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#bumping-the-version">Bumping the Version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#creating-an-rpm-package">Creating an RPM Package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../integration_testing.html">Building Build Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Python API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/kiwi.html">kiwi Package</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">KIWI NG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../concept_and_workflow.html">Concept and Workflow</a></li>
+      <li class="breadcrumb-item active">User-Defined Scripts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/concept_and_workflow/shell_scripts.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="user-defined-scripts">
+<span id="working-with-kiwi-user-defined-scripts"></span><h1>User-Defined Scripts<a class="headerlink" href="#user-defined-scripts" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Abstract</strong></p>
+<p>This chapter describes the purpose of the user-defined scripts
+<code class="file docutils literal notranslate"><span class="pre">config.sh</span></code>, <code class="file docutils literal notranslate"><span class="pre">image.sh</span></code>, <code class="file docutils literal notranslate"><span class="pre">pre_disk_sync.sh</span></code>, and
+<code class="file docutils literal notranslate"><span class="pre">disk.sh</span></code>. These scripts can be used to further customize an image in
+ways that are not possible via the image description alone.</p>
+</div>
+<p>KIWI NG supports the following optional scripts that it runs in a
+root environment (chroot) containing an appliance:</p>
+<dl class="simple">
+<dt>post_bootstrap.sh</dt><dd><p>Runs at the end of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">bootstrap</span></code> phase as part of the <a class="reference internal" href="../concept_and_workflow.html#prepare-step"><span class="std std-ref">prepare step</span></a>. The script can be used to configure the package manager with
+additional settings that apply in the following chroot-based installation step,
+which completes the installation. The script can also be used for other tasks.</p>
+</dd>
+<dt>config.sh</dt><dd><p>Runs at the end of the <a class="reference internal" href="../concept_and_workflow.html#prepare-step"><span class="std std-ref">prepare step</span></a>
+and after users have been set and the <em>overlay tree directory</em>
+has been applied. It is usually used to apply a permanent and final
+change of data in the root tree, such as modifying a package-specific
+config file.</p>
+</dd>
+<dt>config-overlay.sh</dt><dd><p>Available only if <code class="xref py py-obj docutils literal notranslate"><span class="pre">delta_root=&quot;true&quot;</span></code> is set. In this case, the script runs at
+the end of the <a class="reference internal" href="../concept_and_workflow.html#prepare-step"><span class="std std-ref">prepare step</span></a> prior to the <code class="xref py py-obj docutils literal notranslate"><span class="pre">umount</span></code> of the
+overlay root tree. It runs after <code class="xref py py-obj docutils literal notranslate"><span class="pre">config.sh</span></code> (if specified), and it is the
+last entry point to change the delta root tree.</p>
+</dd>
+<dt>config-host-overlay.sh</dt><dd><p>Available only if <code class="xref py py-obj docutils literal notranslate"><span class="pre">delta_root=&quot;true&quot;</span></code> is set. In this case, the script runs at
+the end of the <a class="reference internal" href="../concept_and_workflow.html#prepare-step"><span class="std std-ref">prepare step</span></a> prior to the <code class="xref py py-obj docutils literal notranslate"><span class="pre">umount</span></code> of the
+overlay root tree. The script is called <strong>NOT CHROOTED</strong> from the host with
+the image root directory as its working directory. It runs after <code class="xref py py-obj docutils literal notranslate"><span class="pre">config.sh</span></code>
+and <code class="xref py py-obj docutils literal notranslate"><span class="pre">config-overlay.sh</span></code> (if any or both are specified), and it is the last
+entry point to change the delta root tree.</p>
+</dd>
+<dt>images.sh</dt><dd><p>Executed at the beginning of the <a class="reference internal" href="../concept_and_workflow.html#create-step"><span class="std std-ref">image creation process</span></a>.
+It runs in the same image root tree created by the prepare step,
+but it is invoked whenever an image needs to be created from that root tree.
+It is normally used to apply image-type-specific changes to the root tree, such
+as a modification to a config file that must be done when building a live
+ISO but not when building a virtual disk image.</p>
+</dd>
+<dt>pre_disk_sync.sh</dt><dd><p>Executed for the disk image type <code class="xref py py-obj docutils literal notranslate"><span class="pre">oem</span></code> only, and it runs
+right before the synchronization of the root tree into the disk image
+loop file. The <code class="file docutils literal notranslate"><span class="pre">pre_disk_sync.sh</span></code> can be used to change the
+content of the root tree as a last action before the sync to
+the disk image is performed. This is useful, for example, for deleting
+components from the system that were needed earlier or cannot
+be modified afterward when syncing into a read-only filesystem.</p>
+</dd>
+<dt>disk.sh</dt><dd><p>Executed for the disk image type <code class="xref py py-obj docutils literal notranslate"><span class="pre">oem</span></code> only, and it runs after the
+synchronization of the root tree to the disk image loop file. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">chroot</span></code>
+environment for this script call is the virtual disk itself and not the root
+tree. The script <code class="file docutils literal notranslate"><span class="pre">disk.sh</span></code> is normally used to apply changes to parts of
+the system that are not an element of the file-based root tree, such as the
+partition table, the contents of the final initrd, the bootloader, filesystem
+attributes, etc.</p>
+</dd>
+</dl>
+<p>KIWI NG executes scripts via the operating system if their executable
+bit is set (in that case, a shebang is mandatory); otherwise, they are
+invoked via the Bash shell. If a script exits with a non-zero exit code,
+KIWI NG reports the failure and aborts the image creation.</p>
+<section id="developing-debugging-scripts">
+<h2>Developing/Debugging Scripts<a class="headerlink" href="#developing-debugging-scripts" title="Link to this heading"></a></h2>
+<p>Creating a custom script may require some experimenting and testing. To help
+developers with this task, KIWI NG calls scripts associated with a <code class="xref py py-obj docutils literal notranslate"><span class="pre">screen</span></code>
+session. The connection to <code class="xref py py-obj docutils literal notranslate"><span class="pre">screen</span></code> is only done if KIWI NG is called with the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">--debug</span></code> option.</p>
+<p>In this mode, a script can be started using the following template:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The magic bits are still not set</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;break&quot;</span>
+/bin/bash
+</pre></div>
+</div>
+<p>Calling the script executes a <code class="xref py py-obj docutils literal notranslate"><span class="pre">screen</span></code> session, which gives you access
+to the break-in shell. You can then implement the desired script code in this
+environment. Once the shell is closed, the KIWI NG process continues.</p>
+<p>In addition to providing a fully featured terminal throughout the execution of
+the script code, you also have control of the session during the process of
+the image creation. Listing the active sessions for script execution can be done
+as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>sudo<span class="w"> </span>screen<span class="w"> </span>-list
+
+There<span class="w"> </span>is<span class="w"> </span>a<span class="w"> </span>screen<span class="w"> </span>on:
+<span class="w">     </span><span class="m">19699</span>.pts-4.asterix<span class="w">     </span><span class="o">(</span>Attached<span class="o">)</span>
+<span class="m">1</span><span class="w"> </span>Socket<span class="w"> </span><span class="k">in</span><span class="w"> </span>/run/screens/S-root.
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As shown above, the screen session for executing the script code provides
+extended control, which can be considered a security risk. Because of that,
+KIWI NG only runs scripts through <code class="xref py py-obj docutils literal notranslate"><span class="pre">screen</span></code> when explicitly enabled via the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">--debug</span></code> switch. In production, all scripts must run natively and
+must not require a terminal to operate correctly.</p>
+</div>
+<section id="script-template-for-config-sh-images-sh">
+<h3>Script Template for config.sh / images.sh<a class="headerlink" href="#script-template-for-config-sh-images-sh" title="Link to this heading"></a></h3>
+<p>KIWI NG provides a collection of methods and variables that offer custom
+actions. For details, see <a class="reference internal" href="#image-customization-methods"><span class="std std-ref">Functions and Variables Provided by KIWI NG</span></a>. The following
+template shows how to import this information into a script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#======================================</span>
+<span class="c1"># Include functions &amp; variables</span>
+<span class="c1">#--------------------------------------</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>/.kconfig<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>.<span class="w"> </span>/.kconfig
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>/.profile<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>.<span class="w"> </span>/.profile
+
+...
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Modifications of the unpacked root tree</p>
+<p>Keep in mind that there is only one unpacked root tree the
+script operates in. This means that all changes are permanent
+and are not automatically restored.</p>
+</div>
+</section>
+<section id="functions-and-variables-provided-by-kiwi-ng">
+<span id="image-customization-methods"></span><h3>Functions and Variables Provided by KIWI NG<a class="headerlink" href="#functions-and-variables-provided-by-kiwi-ng" title="Link to this heading"></a></h3>
+<p>KIWI NG creates the <code class="file docutils literal notranslate"><span class="pre">.kconfig</span></code> and <code class="file docutils literal notranslate"><span class="pre">.profile</span></code> files to be sourced
+by the shell scripts <code class="file docutils literal notranslate"><span class="pre">config.sh</span></code> and <code class="file docutils literal notranslate"><span class="pre">images.sh</span></code>.
+<code class="file docutils literal notranslate"><span class="pre">.kconfig</span></code> contains several helper functions that can be used to
+simplify image configuration, while <code class="file docutils literal notranslate"><span class="pre">.profile</span></code> contains environment
+variables populated from the settings provided in the image
+description.</p>
+<section id="functions">
+<h4>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h4>
+<p>The <code class="file docutils literal notranslate"><span class="pre">.kconfig</span></code> file provides a common set of functions.  Functions
+specific to SUSE Linux Enterprise and openSUSE start with <code class="xref py py-obj docutils literal notranslate"><span class="pre">suse</span></code>; functions
+applicable to all Linux distributions start with <code class="xref py py-obj docutils literal notranslate"><span class="pre">base</span></code>.</p>
+<p>The following list describes all functions provided by <code class="file docutils literal notranslate"><span class="pre">.kconfig</span></code>:</p>
+<dl>
+<dt>baseSetRunlevel {value}</dt><dd><p>Set the default run level.</p>
+</dd>
+<dt>baseStripAndKeep {list of info-files to keep}</dt><dd><p>A helper function for the <code class="xref py py-obj docutils literal notranslate"><span class="pre">baseStrip*</span></code> functions that reads a list of files to
+check from stdin for removing params: files that should be kept.</p>
+</dd>
+<dt>baseStripLocales {list of locales}</dt><dd><p>Removes all locales except for the ones given as the parameter.</p>
+</dd>
+<dt>baseStripTranslations {list of translations}</dt><dd><p>Removes all translations except those given as the parameter.</p>
+</dd>
+<dt>baseStripUnusedLibs</dt><dd><p>Removes libraries that are not directly linked against applications
+in the bin directories.</p>
+</dd>
+<dt>baseUpdateSysConfig {filename} {variable} {value}</dt><dd><p>Updates the contents of a sysconfig variable.</p>
+</dd>
+<dt>baseSystemdServiceInstalled {service}</dt><dd><p>Prints the path of the first found systemd unit or mount with the name passed
+as the first parameter.</p>
+</dd>
+<dt>baseSysVServiceInstalled {service}</dt><dd><p>Prints the name <code class="xref py py-obj docutils literal notranslate"><span class="pre">${service}</span></code> if a SysV init service with the same name is
+found; otherwise, it prints nothing.</p>
+</dd>
+<dt>baseSystemdCall {service_name} {args}</dt><dd><p>Calls <code class="xref py py-obj docutils literal notranslate"><span class="pre">systemctl</span> <span class="pre">${args}</span> <span class="pre">${service_name}</span></code> if a systemd unit, a systemd
+mount, or a SysV init service with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">${service_name}</span></code> exists.</p>
+</dd>
+<dt>baseInsertService {servicename}</dt><dd><p>Activates the specified service via <strong class="command">systemctl</strong>.</p>
+</dd>
+<dt>baseRemoveService {servicename}</dt><dd><p>Deactivates the specified service via <strong class="command">systemctl</strong>.</p>
+</dd>
+<dt>baseService {servicename} {on|off}</dt><dd><p>Activates or deactivates a service via <strong class="command">systemctl</strong>.
+The function requires the service name and the value <code class="xref py py-obj docutils literal notranslate"><span class="pre">on</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">off</span></code> as
+parameters.</p>
+<p>The following example enables the sshd service on boot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>baseService<span class="w"> </span>sshd<span class="w"> </span>on
+</pre></div>
+</div>
+</dd>
+<dt>suseInsertService {servicename}</dt><dd><p>Calls <code class="xref py py-obj docutils literal notranslate"><span class="pre">baseInsertService</span></code>. It exists only for
+compatibility reasons.</p>
+</dd>
+<dt>suseRemoveService {servicename}</dt><dd><p>Calls <code class="xref py py-obj docutils literal notranslate"><span class="pre">baseRemoveService</span></code>. It exists only for
+compatibility reasons.</p>
+</dd>
+<dt>suseService {servicename} {on|off}</dt><dd><p>Calls <code class="xref py py-obj docutils literal notranslate"><span class="pre">baseService</span></code>. It exists only for compatibility
+reasons.</p>
+</dd>
+<dt>suseSetupProduct</dt><dd><p>Creates the <code class="file docutils literal notranslate"><span class="pre">/etc/products.d/baseproduct</span></code> link
+pointing to the product referenced either by <code class="file docutils literal notranslate"><span class="pre">/etc/SuSE-brand</span></code> or
+<code class="file docutils literal notranslate"><span class="pre">/etc/os-release</span></code> or the latest <code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code> file available in
+<code class="file docutils literal notranslate"><span class="pre">/etc/products.d</span></code>.</p>
+</dd>
+<dt>baseVagrantSetup</dt><dd><p>Configures the image to work as a vagrant box by performing the following
+changes:</p>
+<ul class="simple">
+<li><p>add the <code class="xref py py-obj docutils literal notranslate"><span class="pre">vagrant</span></code> user to <code class="file docutils literal notranslate"><span class="pre">/etc/sudoers</span></code>
+or <code class="file docutils literal notranslate"><span class="pre">/etc/sudoers.d/vagrant</span></code>.</p></li>
+<li><p>insert the insecure vagrant ssh key, apply recommended
+ssh settings, and start the ssh daemon.</p></li>
+<li><p>create the default shared folder <code class="file docutils literal notranslate"><span class="pre">/vagrant</span></code>.</p></li>
+</ul>
+</dd>
+<dt>Debug {message}</dt><dd><p>A helper function to print the supplied message if the variable DEBUG is
+set to 1 (disabled by default).</p>
+</dd>
+<dt>Echo {echo commandline}</dt><dd><p>A helper function to print a message to the controlling terminal.</p>
+</dd>
+<dt>Rm {list of files}</dt><dd><p>A helper function to delete files and log the deletion.</p>
+</dd>
+</dl>
+</section>
+<section id="profile-environment-variables">
+<h4>Profile Environment Variables<a class="headerlink" href="#profile-environment-variables" title="Link to this heading"></a></h4>
+<p>The <code class="file docutils literal notranslate"><span class="pre">.profile</span></code> environment file is created by KIWI NG and contains a
+specific set of variables listed below.</p>
+<dl class="simple">
+<dt>$kiwi_compressed</dt><dd><p>A value of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">compressed</span></code> attribute set in the <code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code> element in
+<code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>.</p>
+</dd>
+<dt>$kiwi_delete</dt><dd><p>A list of all packages which are children of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">packages</span></code> element
+with <code class="xref py py-obj docutils literal notranslate"><span class="pre">type=&quot;delete&quot;</span></code> in <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>.</p>
+</dd>
+<dt>$kiwi_drivers</dt><dd><p>A comma-separated list of driver entries as listed in the
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">drivers</span></code> section of <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>.</p>
+</dd>
+<dt>$kiwi_iname</dt><dd><p>The name of the image as listed in <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>.</p>
+</dd>
+<dt>$kiwi_iversion</dt><dd><p>The image version as a string.</p>
+</dd>
+<dt>$kiwi_keytable</dt><dd><p>The contents of the keytable setup as specified in <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>.</p>
+</dd>
+<dt>$kiwi_language</dt><dd><p>The contents of the locale setup as specified in <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>.</p>
+</dd>
+<dt>$kiwi_profiles</dt><dd><p>A comma-separated list of profiles used to build this image.</p>
+</dd>
+<dt>$kiwi_timezone</dt><dd><p>The contents of the timezone setup as specified in <code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>.</p>
+</dd>
+<dt>$kiwi_type</dt><dd><p>The image type as extracted from the <code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code> element in
+<code class="file docutils literal notranslate"><span class="pre">config.xml</span></code>.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>.profile.extra</strong></p>
+<p>If the file <code class="file docutils literal notranslate"><span class="pre">/.profile.extra</span></code> is available in the initrd, KIWI NG
+imports the file importing <code class="file docutils literal notranslate"><span class="pre">/.profile</span></code>.</p>
+</div>
+</section>
+</section>
+<section id="configuration-tips">
+<h3>Configuration Tips<a class="headerlink" href="#configuration-tips" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Locale configuration:</strong></p>
+<p>To set the locale, KIWI NG relies on <code class="xref py py-obj docutils literal notranslate"><span class="pre">systemd-firstboot</span></code>, which writes the
+locale configuration file, <code class="file docutils literal notranslate"><span class="pre">/etc/locale.conf</span></code>. The values for the locale
+settings are taken from the description XML file in the <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;locale&gt;</span></code> element
+under <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;preferences&gt;</span></code>.</p>
+<p>Keep in mind that if the build distribution does not use <code class="xref py py-obj docutils literal notranslate"><span class="pre">/etc/locale.conf</span></code>,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">systemd-firstboot</span></code> does not have any effect on the locale
+settings. For example, in the SLE12 distribution,
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">systemd-firstboot</span></code> is only effective when locales in
+<code class="file docutils literal notranslate"><span class="pre">/etc/sysconfig/language</span></code> are not set or when the file does not exist
+at all. For compatibility reasons, the file <code class="file docutils literal notranslate"><span class="pre">/etc/sysconfig/language</span></code>
+in SLE12 has precedence over <code class="file docutils literal notranslate"><span class="pre">/etc/locale.conf</span></code>, and management tools
+can still use <code class="xref py py-obj docutils literal notranslate"><span class="pre">sysconfig</span></code> files for locale settings.</p>
+<p>In any case, it is possible to configure the locale setting inside the
+<code class="file docutils literal notranslate"><span class="pre">config.sh</span></code> script in KIWI NG in a distribution-specific way or by
+adding any additional configuration file as part of the overlay root tree.</p>
+</li>
+<li><p><strong>Stateless systemd UUIDs:</strong></p>
+<p>Machine ID files (<code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code>, <code class="file docutils literal notranslate"><span class="pre">/var/lib/dbus/machine-id</span></code>)
+may be created and set during the image package installation, depending on
+the distribution. Those UUIDs must be unique and must be set only once
+in each deployment.</p>
+<p>If <code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code> does not exist or contains the string
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">uninitialized</span></code> (systemd v249 and later), this triggers a firstboot action
+in systemd, and the services are run with <code class="xref py py-obj docutils literal notranslate"><span class="pre">ConditionFirstBoot=yes</span></code>. Unless the
+file already contains a valid machine ID, systemd generates a machine ID and
+writes it into the file, creating it if necessary. See the <a class="reference external" href="https://www.freedesktop.org/software/systemd/man/machine-id.html">machine-id man
+page</a>
+for more details.</p>
+<p>Depending on whether the firstboot action should be triggered or not,
+<code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code> can be created, removed, or set to
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">uninitialized</span></code> by <code class="file docutils literal notranslate"><span class="pre">config.sh</span></code>.</p>
+<p>To prevent images from including a generated machine ID, KIWI NG clears
+<code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code> if it exists and does not contain the string
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">uninitialized</span></code>. This only applies to images based on a dracut initrd.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rw</span></code> is necessary if <code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code> does not exist.</p>
+<p>For systemd to be able to write <code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code> on boot,
+either the file must exist (so that a bind mount can be created) or
+<code class="file docutils literal notranslate"><span class="pre">/etc</span></code> must be writable.</p>
+<p>By default, the root filesystem is mounted read-only by dracut/systemd,
+so a missing <code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code> will lead to an error on boot.
+To force the initial mount to be read-write, add the <code class="xref py py-obj docutils literal notranslate"><span class="pre">rw</span></code> option to the kernel command line.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Avoid inconsistent <code class="file docutils literal notranslate"><span class="pre">/var/lib/dbus/machine-id</span></code>.</p>
+<p><code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code> and <code class="file docutils literal notranslate"><span class="pre">/var/lib/dbus/machine-id</span></code>
+<strong>must</strong> contain the same unique ID. On modern systems,
+<code class="file docutils literal notranslate"><span class="pre">/var/lib/dbus/machine-id</span></code> is already a symlink to
+<code class="file docutils literal notranslate"><span class="pre">/etc/machine-id</span></code>. However, on older systems, there might be two
+different files. This is the case for SLE-12-based images. If you are
+targeting older operating systems, it is recommended to add the
+symlink creation into <code class="file docutils literal notranslate"><span class="pre">config.sh</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#======================================</span>
+<span class="c1"># Make machine-id consistent with dbus</span>
+<span class="c1">#--------------------------------------</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-e<span class="w"> </span>/var/lib/dbus/machine-id<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>rm<span class="w"> </span>/var/lib/dbus/machine-id
+<span class="k">fi</span>
+ln<span class="w"> </span>-s<span class="w"> </span>/etc/machine-id<span class="w"> </span>/var/lib/dbus/machine-id
+</pre></div>
+</div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="users.html" class="btn btn-neutral float-left" title="Adding Users" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="runtime_configuration.html" class="btn btn-neutral float-right" title="The Runtime Configuration File" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2026, Marcus Schäfer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
