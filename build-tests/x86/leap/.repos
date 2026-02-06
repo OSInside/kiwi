@@ -1,6 +1,2 @@
-obs://Virtualization:Appliances:Staging/openSUSE_Leap_15.6
-https://download.opensuse.org/update/leap/15.6/sle
-https://download.opensuse.org/update/leap/15.6/backports
-https://download.opensuse.org/update/leap/15.6/oss
-https://download.opensuse.org/distribution/leap/15.6/repo/oss
-obs://security:SELinux/15.6
+obs://Virtualization:Appliances:Staging/openSUSE_Leap_16.0
+https://download.opensuse.org/distribution/leap/16.0/repo/oss
