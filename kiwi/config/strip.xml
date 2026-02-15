@@ -319,6 +319,7 @@
         <file name="zpool"/>
         <file name="getopt"/>
         <file name="chzdev"/>
+        <file name="realpath"/>
     </strip>
 <!--
     check with ldd and remove all those libraries with
