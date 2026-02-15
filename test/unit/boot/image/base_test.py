@@ -221,8 +221,10 @@ class TestBootImageBase:
     )
     @patch('kiwi.boot.image.base.CommandCapabilities.has_option_in_help')
     @patch('kiwi.boot.image.base.Command.run')
+    @patch('kiwi.boot.image.base.MountManager')
     def test_get_boot_names_from_dracut_config(
         self,
+        mock_MountManager,
         mock_Command_run,
         mock_CommandCapabilities_has_option_in_help,
         mock_get_boot_image_output_file_format_from_dracut_code,
@@ -244,6 +246,9 @@ class TestBootImageBase:
                 initrd_name='initrd-kernel_version',
                 kernel_version='kernel_version',
                 kernel_filename='kernel_filename'
+            )
+            mock_MountManager.assert_called_once_with(
+                device='tmpfs', mountpoint='system-directory/var/tmp'
             )
             mock_CommandCapabilities_has_option_in_help.assert_called_once_with(
                 'dracut', '--printconfig', ['--help'],

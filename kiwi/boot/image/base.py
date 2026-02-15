@@ -24,6 +24,7 @@ from typing import (
 )
 
 # project
+from kiwi.mount_manager import MountManager
 from kiwi.defaults import Defaults
 from kiwi.system.setup import SystemSetup
 from kiwi.system.identifier import SystemIdentifier
@@ -547,16 +548,25 @@ class BootImageBase:
             'dracut', '--printconfig', ['--help'],
             root=self.boot_root_directory, raise_on_error=False
         ):
-            dracut_call = Command.run(
-                ['chroot', self.boot_root_directory, 'dracut', '--printconfig']
-            )
-            temp_file = Temporary().new_file()
-            with open(temp_file.name, 'w') as config:
-                config.write(dracut_call.output.replace(' ', ''))
-            dracut_config = SysConfig(temp_file.name)
-            initrdname = dracut_config.get('dracutconfig:initrdname')
-            if initrdname:
-                return initrdname.replace(
-                    kernel_version, '{kernel_version}'
+            with MountManager(
+                device='tmpfs', mountpoint=os.path.join(
+                    self.boot_root_directory, 'var/tmp'
                 )
+            ) as var_tmp_mount:
+                var_tmp_mount.tmpfs_mount()
+                dracut_call = Command.run(
+                    [
+                        'chroot', self.boot_root_directory,
+                        'dracut', '--printconfig'
+                    ]
+                )
+                temp_file = Temporary().new_file()
+                with open(temp_file.name, 'w') as config:
+                    config.write(dracut_call.output.replace(' ', ''))
+                dracut_config = SysConfig(temp_file.name)
+                initrdname = dracut_config.get('dracutconfig:initrdname')
+                if initrdname:
+                    return initrdname.replace(
+                        kernel_version, '{kernel_version}'
+                    )
         return None
