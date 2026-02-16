@@ -84,6 +84,7 @@
         <package name="linux-firmware"/>
         <package name="netctl"/>
         <package name="dracut-hooks"/>
+        <package name="cpio"/>
     <!--
         dracut-hooks provide some packman hooks
         to ensure dracut recreates the initrd on kernel
