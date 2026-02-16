@@ -28,9 +28,9 @@ Before you start
 
 .. note:: 
 
-   If the following procedure causes any trouble
-   please take a look at the :ref:`troubleshooting` chapter
-   and/or reach out at: :ref:`contact`
+   Please see the :ref:`troubleshooting` chapter and/or our
+   :ref:`contact` info page if the following procedure causes
+   any trouble.
 
 Choose a First Image
 --------------------
