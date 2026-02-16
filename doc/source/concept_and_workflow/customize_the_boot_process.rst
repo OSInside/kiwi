@@ -305,6 +305,12 @@ the available kernel boot parameters for these modules:
    When setting `rd.kiwi.oem.installdevice` explicitly through the kernel command line,
    {kiwi} uses the device without prompting for confirmation.
 
+``rd.kiwi.oem.smallest_disk``
+  Alters the logic that chooses the destination device during non-interactive mode 
+  deployments. The device with the smallest capacity gets selected instead of the drive
+  with the alphabetical first device name. USB flash drives are filtered out.
+  For big JBOD setups this parameter is an alternative to `rd.kiwi.oem.maxdisk`.
+
 ``rd.live.overlay.size``
   Specifies the size for the `tmpfs` filesystem of a live ISO image that is used
   for the `overlayfs` mount process. If the write area of the overlayfs mount
