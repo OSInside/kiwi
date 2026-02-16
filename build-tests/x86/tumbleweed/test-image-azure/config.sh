@@ -57,9 +57,6 @@ sed -i -e 's/AutoUpdate.Enabled=y/AutoUpdate.Enabled=n/' /etc/waagent.conf
 #   - a special character
 sed -i 's/pam_cracklib.so/pam_cracklib.so minlen=6 dcredit=1 ucredit=1 lcredit=1 ocredit=1 minclass=3/' /etc/pam.d/common-password-pc
 
-# Do not use delta rpms in the cloud
-sed -i 's/# download.use_deltarpm = true/download.use_deltarpm = false/' /etc/zypp/zypp.conf
-
 #======================================
 # Activate services
 #--------------------------------------

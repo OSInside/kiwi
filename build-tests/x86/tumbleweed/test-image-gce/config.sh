@@ -59,10 +59,6 @@ echo '169.254.169.254 metadata.google.internal metadata.google.internal' \
     >> /etc/hosts
 echo '' >> /etc/hosts
 
-# Do not use delta rpms in the cloud
-sed -i 's/# download.use_deltarpm = true/download.use_deltarpm = false/' \
-    /etc/zypp/zypp.conf
-
 #======================================
 # Activate services
 #--------------------------------------

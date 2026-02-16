@@ -46,9 +46,6 @@ if [ -x /usr/sbin/add-yast-repos ]; then
 	zypper --non-interactive rm -u live-add-yast-repos
 fi
 
-# Adjust zypp conf
-sed -i 's/^multiversion =.*/multiversion =/g' /etc/zypp/zypp.conf
-
 #=====================================
 # Configure snapper
 #-------------------------------------
@@ -75,13 +72,3 @@ fi
 cat >/etc/dracut.conf.d/50-microos-growfs.conf <<"EOF"
 install_items+=" /usr/lib/systemd/systemd-growfs "
 EOF
-
-#======================================
-# Disable recommends on virtual images
-#--------------------------------------
-sed -i 's/.*solver.onlyRequires.*/solver.onlyRequires = true/g' /etc/zypp/zypp.conf
-
-#======================================
-# Disable installing documentation
-#--------------------------------------
-sed -i 's/.*rpm.install.excludedocs.*/rpm.install.excludedocs = yes/g' /etc/zypp/zypp.conf
