@@ -17,11 +17,8 @@
     <users>
         <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
     </users>
-    <repository type="rpm-md" alias="kiwi-next-generation" priority="1">
-        <source path="obs://Virtualization:Appliances:Staging/Fedora_Rawhide"/>
-    </repository>
-    <repository type="rpm-md" alias="Fedora_Rawhide">
-        <source path="obs://Fedora:Rawhide/standard"/>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
     </repository>
     <packages type="image">
         <package name="kernel"/>
