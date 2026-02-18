@@ -67,7 +67,6 @@
     </packages>
     <packages type="bootstrap" profiles="SystemFeatures">
         <package name="dracut-kiwi-overlay"/>
-        <package name="dkms"/>
         <package name="grub2"/>
         <package name="grub2-i386-pc"/>
         <package name="grub2-x86_64-efi"/>
