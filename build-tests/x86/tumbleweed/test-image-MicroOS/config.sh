@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euxo pipefail
 
+declare kiwi_profiles=${kiwi_profiles}
+
 # shellcheck disable=SC1091
 #======================================
 # Functions...
