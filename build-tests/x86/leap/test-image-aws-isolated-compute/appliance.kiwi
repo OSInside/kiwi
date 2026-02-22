@@ -40,7 +40,19 @@
         </type>
     </preferences>
     <users>
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+        <user
+            password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0"
+            home="/root"
+            name="root"
+            groups="root"
+            shell="/bin/bash"/>
+    </users>
+    <users>
+        <user
+            password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0"
+            home="/home/ec2-user"
+            name="ec2-user"
+            groups="users,root"/>
     </users>
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
@@ -75,6 +87,12 @@
         <package name="tpm2-tss-engine"/>
         <package name="python313-cbor2"/>
         <package name="socat"/>
+        <package name="flake-pilot"/>
+        <package name="flake-pilot-podman"/>
+        <package name="amazon-ssm-agent"/>
+        <package name="cloud-init"/>
+        <package name="cloud-init-config-suse"/>
+        <package name="openssh-server"/>
         <package name="openssh-clients"/>
         <file
             name="kiwi-test-image-nitro-enclave.x86_64-1.1.1.eif"
