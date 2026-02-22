@@ -1,0 +1,1 @@
+KERNEL=="nvme[0-9]*n[0-9]*", ENV{DEVTYPE}=="disk", ATTRS{model}=="Amazon EC2 NVMe Instance Storage", ATTR{queue/io_timeout}="30000"

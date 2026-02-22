@@ -3,13 +3,21 @@
 set -ex
 
 #======================================
-# PROD: Remove the password for root
+# Disable password based login for ssh
 #--------------------------------------
-# Note the string matches the password set in the config file
-# sed -i 's/$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0/*/' /etc/shadow
+ssh_conf=/etc/ssh/sshd_config
+if [ ! -e "${ssh_conf}" ];then
+    ssh_conf=/usr/etc/ssh/sshd_config
+fi
+sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' "${ssh_conf}"
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' "${ssh_conf}"
+# Remove the password for root
+sed -i 's/^root:[^:]*:/root:*:/' /etc/shadow
+# Allow root access on serial console
+grep -E -q '^ttyS0$' /etc/securetty || echo ttyS0 >> /etc/securetty
 
 #======================================
-# PROD: Remove serial autologin
+# PROD: Remove serial autologin !
 #--------------------------------------
 mkdir -p /etc/systemd/system/serial-getty@ttyS0.service.d
 cat << EOF > /etc/systemd/system/serial-getty@ttyS0.service.d/override.conf
@@ -136,6 +144,38 @@ cmdport 0
 EOF
 
 #======================================
+# Setup services
+#--------------------------------------
+for service in \
+    sshd \
+    chronyd \
+    cloud-init-local \
+    cloud-init \
+    cloud-config \
+    cloud-final \
+    amazon-ssm-agent \
+    systemd-networkd \
+    systemd-resolved
+do
+    systemctl enable "${service}"
+done
+
+#======================================
 # Masked services
 #--------------------------------------
 systemctl mask systemd-boot-random-seed.service
+
+#======================================
+# Register aws
+#--------------------------------------
+mkdir -p /usr/share/flakes
+chmod 777 /usr/share/flakes
+flake-ctl podman register \
+    --app /usr/bin/aws \
+    --container docker.io/amazon/aws-cli \
+    --target / \
+    --opt "\--interactive" \
+    --opt "\--security-opt label=disable" \
+    --opt "\--volume %HOME:/root" \
+    --opt "\--volume /var/lib/ca-certificates:/var/lib/ca-certificates" \
+    --opt "\-e HOME=/root"
