@@ -38,7 +38,7 @@
         <profile name="derivedContainer" description="Container from a base"/>
         <profile name="composedProfile" description="Composed profile">
             <requires profile="vmxSimpleFlavour"/>
-            <requires profile="xenDomUFlavour"/>
+            <requires profile="xenDomUFlavour" arch="x86_64"/>
         </profile>
     </profiles>
     <preferences>

@@ -405,10 +405,17 @@ class TestXMLState:
             XMLState(xml_data, ['foo'])
 
     def test_profile_requires(self):
+        Defaults.set_platform_name('x86_64')
         xml_data = self.description.load()
         xml_state = XMLState(xml_data, ['composedProfile'])
         assert xml_state.profiles == [
             'composedProfile', 'vmxSimpleFlavour', 'xenDomUFlavour'
+        ]
+        Defaults.set_platform_name('aarch64')
+        xml_data = self.description.load()
+        xml_state = XMLState(xml_data, ['composedProfile'])
+        assert xml_state.profiles == [
+            'composedProfile', 'vmxSimpleFlavour'
         ]
 
     def test_get_partitions(self):

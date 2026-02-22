@@ -1052,12 +1052,14 @@ div {
 # common element <requires>
 #
 div {
+    k.requires.arch.attribute = k.arch.attribute
     k.requires.profile.attribute =
         ## The profile name required as part of the current profile
         ## definition.
         attribute profile {text}
     k.requires.attlist =
-        k.requires.profile.attribute
+        k.requires.profile.attribute &
+        k.requires.arch.attribute?
     k.requires =
         ## Requires is used to set profiles dependencies, with it a profile
         ## definition can be composed by other existing profiles.

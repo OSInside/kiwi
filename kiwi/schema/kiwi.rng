@@ -1618,6 +1618,9 @@ packages.</a:documentation>
     
   -->
   <div>
+    <define name="k.requires.arch.attribute">
+      <ref name="k.arch.attribute"/>
+    </define>
     <define name="k.requires.profile.attribute">
       <attribute name="profile">
         <a:documentation>The profile name required as part of the current profile
@@ -1625,7 +1628,12 @@ definition.</a:documentation>
       </attribute>
     </define>
     <define name="k.requires.attlist">
-      <ref name="k.requires.profile.attribute"/>
+      <interleave>
+        <ref name="k.requires.profile.attribute"/>
+        <optional>
+          <ref name="k.requires.arch.attribute"/>
+        </optional>
+      </interleave>
     </define>
     <define name="k.requires">
       <element name="requires">
