@@ -41,7 +41,7 @@ class TestRepositoryApt:
                 }
             )
             repo = RepositoryApt(
-                root_bind, custom_args=['check_signatures']
+                root_bind, custom_args=['check_signatures', '_target_arch%amd64']
             )
             assert repo.custom_args == []
             assert repo.unauthenticated == 'false'

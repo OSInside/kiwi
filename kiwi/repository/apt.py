@@ -61,6 +61,14 @@ class RepositoryApt(RepositoryBase):
         self.exclude_docs = False
         self.signing_keys: List = []
 
+        # delete custom arguments not used for apt
+        for argument in self.custom_args:
+            if '_install_langs' in argument or '_target_arch' in argument:
+                log.warning(
+                    f'Custom argument {argument} will be ignored for apt'
+                )
+                self.custom_args.remove(argument)
+
         # extract custom arguments used for apt config only
         if 'exclude_docs' in self.custom_args:
             self.custom_args.remove('exclude_docs')
