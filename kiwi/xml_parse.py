@@ -2407,9 +2407,10 @@ class requires(GeneratedsSuper):
     definition can be composed by other existing profiles."""
     subclass = None
     superclass = None
-    def __init__(self, profile=None):
+    def __init__(self, profile=None, arch=None):
         self.original_tagname_ = None
         self.profile = _cast(None, profile)
+        self.arch = _cast(None, arch)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2423,6 +2424,15 @@ class requires(GeneratedsSuper):
     factory = staticmethod(factory)
     def get_profile(self): return self.profile
     def set_profile(self, profile): self.profile = profile
+    def get_arch(self): return self.arch
+    def set_arch(self, arch): self.arch = arch
+    def validate_arch_name(self, value):
+        # Validate type arch-name, a restriction on xs:token.
+        if value is not None and Validate_simpletypes_:
+            if not self.gds_validate_simple_patterns(
+                    self.validate_arch_name_patterns_, value):
+                warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_arch_name_patterns_, ))
+    validate_arch_name_patterns_ = [['^.*$']]
     def hasContent_(self):
         if (
 
@@ -2454,6 +2464,9 @@ class requires(GeneratedsSuper):
         if self.profile is not None and 'profile' not in already_processed:
             already_processed.add('profile')
             outfile.write(' profile=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.profile), input_name='profile')), ))
+        if self.arch is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            outfile.write(' arch=%s' % (quote_attrib(self.arch), ))
     def exportChildren(self, outfile, level, namespaceprefix_='', name_='requires', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
@@ -2468,6 +2481,12 @@ class requires(GeneratedsSuper):
         if value is not None and 'profile' not in already_processed:
             already_processed.add('profile')
             self.profile = value
+        value = find_attr_value_('arch', node)
+        if value is not None and 'arch' not in already_processed:
+            already_processed.add('arch')
+            self.arch = value
+            self.arch = ' '.join(self.arch.split())
+            self.validate_arch_name(self.arch)    # validate type arch-name
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class requires
@@ -7853,7 +7872,7 @@ class hkd_revocation_list(GeneratedsSuper):
 
 class environment(GeneratedsSuper):
     """Provides details about the container/bootloader environment
-    variables At least one environment variable must be configured"""
+    variables. At least one environment variable must be configured"""
     subclass = None
     superclass = None
     def __init__(self, env=None):

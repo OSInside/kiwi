@@ -383,6 +383,22 @@ class XMLState:
                 result.append(packages)
         return result
 
+    def requires_matches_host_architecture(self, requires: Any) -> bool:
+        """
+        Tests if the given profile requires section is applicable for
+        the current host architecture. If no architecture is specified
+        within the section it is considered as a match returning True.
+
+        Note: The XML section pointer must provide an arch attribute
+
+        :param section: XML section object
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return self._section_matches_host_architecture(requires)
+
     def volume_matches_host_architecture(self, volume: Any) -> bool:
         """
         Tests if the given volume section is applicable for the current host
@@ -3256,11 +3272,12 @@ class XMLState:
         if profile not in current_profiles:
             profiles_to_add.append(profile)
             for required in available_profiles[profile].get_requires():
-                if required.get_profile() not in current_profiles:
-                    profiles_to_add += self._solve_profile_dependencies(
-                        required.get_profile(), available_profiles,
-                        current_profiles + profiles_to_add
-                    )
+                if self.requires_matches_host_architecture(required):
+                    if required.get_profile() not in current_profiles:
+                        profiles_to_add += self._solve_profile_dependencies(
+                            required.get_profile(), available_profiles,
+                            current_profiles + profiles_to_add
+                        )
         return profiles_to_add
 
     def _build_type_section(self, build_type=None):

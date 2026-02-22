@@ -1980,15 +1980,27 @@ Manage image namespace(s).
 .. code:: xml
 
    <profiles>
-     <profile name="name" description="text"/>
+     <profile name="profile_name" description="text" arch="arch_name"/>
    </profiles>
 
 The optional profiles section lets you maintain one image description
 while allowing for variation of other sections that are included. A
 separate profile element must be specified for each variation. The
-profile child element, which has name and description attributes,
+profile child element, which has name, description and arch attributes,
 specifies an alias name used to mark sections as belonging to a profile
 and a short description explaining what this profile does.
+
+A profile can require other profiles, and the required profiles will
+be evaluated in the order of their declaration. The optional arch
+attribute can be used to limit the profile and required profiles
+it to a certain architecture. For example:
+
+.. code:: xml
+
+   <profile name="A" description="Some A" arch="x86_64,s390x">
+     <requires profile="B"/>
+     <requires profile="C" arch="s390x"/>
+   </profile>
 
 For example, to mark a set of packages as belonging to a profile, simply
 annotate them with the profiles attribute, as shown below:
