@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import logging
 from configparser import ConfigParser
 from typing import (
     List, Dict
@@ -30,6 +31,8 @@ from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.utils.toenv import ToEnv
+
+log = logging.getLogger('kiwi')
 
 
 class RepositoryPacman(RepositoryBase):
@@ -56,6 +59,16 @@ class RepositoryPacman(RepositoryBase):
         self.custom_args = custom_args
         self.check_signatures = False
         self.repo_names: List = []
+
+        # delete custom arguments not used for pacman
+        for argument in self.custom_args:
+            if '_install_langs' in argument or \
+               '_target_arch' in argument or \
+               'exclude_docs' in argument:
+                log.warning(
+                    f'Custom argument {argument} will be ignored for pacman'
+                )
+                self.custom_args.remove(argument)
 
         self.runtime_pacman_config_file = Temporary(
             path=self.root_dir, prefix='kiwi_pacman.config'

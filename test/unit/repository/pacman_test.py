@@ -38,7 +38,7 @@ class TestRepositorPacman(object):
             runtime_pacman_config.reset_mock()
 
             RepositoryPacman(
-                root_bind, custom_args=['check_signatures']
+                root_bind, custom_args=['check_signatures', '_target_arch%x86_64']
             )
 
             assert runtime_pacman_config.set.call_args_list == [
