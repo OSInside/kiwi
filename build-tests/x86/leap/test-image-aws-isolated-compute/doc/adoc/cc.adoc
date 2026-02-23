@@ -1,0 +1,192 @@
+include::generic-attributes.adoc[]
+// defining article ID
+[#art-suse-migration-services]
+= Confidential Computing on AWS: Nitro Attestation and Enclaves
+Marcus Schäfer
+:docinfo:
+
+:toc:
+:icons: font
+:numbered:
+
+:Latest_Version: {version}
+:Repo: https://github.com/OSInside/kiwi[KIWI]
+
+ifdef::env-github[]
+//Admonitions
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+* Latest Version: {Latest_Version}
+* Code available: {Repo}
+
+== Introduction to Confidential Computing
+
+Confidential computing is a security technology that protects sensitive data
+while it is actively being processed, or in use. It addresses the "data in use"
+gap in traditional security models, which typically focus on "data at rest"
+(encryption on disk) and "data in transit" (encryption over the network).
+
+In conventional environments, data in use can be exposed to threats
+from privileged insiders, compromised hypervisors, or advanced malware
+capable of reading system memory. Confidential computing addressed this
+attack vector by placing workloads inside a hardware-protected Trusted
+Execution Environment (TEE). The memory part of the TEE is encrypted
+and strictly access controled ensuring that neither cloud providers,
+system administrators, or system-level software can view or modify
+data in use.
+
+== Trusted Execution Environment (TEE)
+
+At the heart of confidential computing is the Trusted Execution
+Environment (TEE). A TEE is defined by three core technological pillars:
+
+Isolation::
+A hardware-based, isolated area within a processor. It ensures that only
+authorized code can access the data inside, protecting it from other
+processes, the operating system, and the hypervisor.
+
+Invisibility::
+Data remains encrypted in memory and is only decrypted inside the
+CPU's TEE. Even with physical access to the memory, the data is
+unreadable.
+
+Attestation::
+A cryptographic proof that verifies the hardware and software are genuine
+and correctly configured before any data is released to the environment.
+
+== Key Concepts on AWS
+
+AWS implements the TEE concepts through a combination of Nitro
+Trusted Platform Module (TPM) technology, specialized OS images,
+and Nitro Enclaves.
+
+=== Isolation on AWS
+Isolation is achieved using images that provide an overlay-based
+read-only system. This system is verified at boot time by `dm-verity`, which
+checks all rootfs blocks. In production, instances from these images are
+not expected to be remotely accessible to minimize the attack surface.
+
+=== Attestation on AWS
+The image boots via a PCR-measured Unified Kernel Image (UKI) containing
+the kernel, initrd, and bootloader. The Platform Configuration Register
+(PCR) values can be:
+
+* Checked against an attestation document.
+* Used as an AWS KMS key policy to block operations if there is a key
+  mismatch, ensuring only "known good" software can run.
+
+=== Memory Encryption and Nitro Enclaves
+While the base instance runs in overlayfs mode (writing to memory only),
+this memory area is not encrypted. To ensure true memory cannot be accessed
+the workload must run as a **Nitro Enclave**.
+
+Nitro Enclaves protect and encrypt the memory area, making it invisible
+to the host OS and hypervisor. Communication with the enclave is
+strictly limited to a local `vsock` connection.
+
+== Practical Guide: Deploying Attestable Images
+
+=== 1. Fetch and Register the Image
+To start, you need an attestable image. For example, a
+SUSE Linux Enterprise Server (SLES) image built by KIWI for
+AWS with the necessary configurations for Nitro TPM and
+Enclaves. You can find such an image as follows:
+
+* **Image:** link:https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/leap/images_sles/kiwi-test-image-aws-isolated-compute.x86_64.raw.xz[kiwi-test-image-aws-isolated-compute.x86_64.raw.xz]
+* **Upload:** Use tools like `ec2uploadimg` as utilized in link:https://build.opensuse.org/projects/Virtualization:Appliances:Images:Testing_x86:leap/packages/test-image-aws-isolated-compute/files/ec2-upload?expand=1[ec2-upload] or an alternative custom upload script.
+
+[IMPORTANT]
+When uploading the AMI, you must enable **TPM support v2.0** and
+set the **EFI boot mode to uefi**.
+
+=== 2. PCR Measurements
+Before launching, download the precomputed PCR measurements:
+link:https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/leap/images_sles/pcr_measurements.json[pcr_measurements.json]
+
+These values represent the expected NitroTPM PCR 4, 7, and 12
+values based on the UKI. They serve as the baseline for verifying
+the integrity of your instance.
+
+=== 3. Launching the Instance
+Select an instance type that supports Nitro TPM and Enclaves
+(e.g., `m5.xlarge`). In the **Advanced Details** section of the EC2
+launch wizard, ensure that **Enclave support** is explicitly enabled.
+
+=== 4. Verifying the TEE
+Once logged into the instance, you can generate an attestation
+document and check the PCRs:
+
+[source,bash]
+----
+# Generate attestation document
+$ nitro-tpm-attest > /tmp/nitro.attest.cbor
+
+# Show current PCR values
+$ show-nitrotpm-pcrs
+----
+
+If the values match `pcr_measurements.json`, you have verified that:
+
+* The TEE matches the expected image uploaded to EC2.
+* The rootfs is clean, immutable, and verified by `dm-verity`.
+
+== Managing the Enclave Workload
+
+The workload itself is packaged as an AWS Enclave Image (`.eif`)
+built by KIWI and stored in the TEE's `/data` directory. For details about
+the example enclave see: link:https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:rawhide/test-image-nitro-enclave[test-image-nitro-enclaves].
+
+[IMPORTANT]
+The example enclave was build against Fedora Rawhide because the native
+`eif_build` tool from AWS has already been integrated to Fedora and is
+currently missing on SUSE. As such the decision was made to start with
+a Fedora image and then eventually migrate to SUSE on demand
+
+The example workload is designed to return the PCR values from the
+attestation document when queried via `vsock`. This allows you to
+verify that the enclave's integrity matches the expected values.
+This workload in itself is not meant to be a real-world application
+but serves as a demonstration of how to build and run an enclave that
+can attest its integrity.
+
+=== Running the Enclave
+Use the `nitro-cli` to launch your workload:
+
+[source,bash]
+----
+$ pushd /data
+$ nitro-cli run-enclave \
+    --eif-path kiwi-test-image-nitro-enclave.x86_64-1.1.1.eif \
+    --cpu-count 2 \
+    --memory 2048
+
+$ nitro-cli describe-enclaves
+----
+
+=== Enclave Attestation
+To verify the enclave's integrity, connect to it via `vsock`:
+
+[source,bash]
+----
+# Instruct the enclave to return the PCRs from the enclave's attestation document
+$ vsock_client <Enclave-CID>
+----
+
+Matching the enclave's PCRs with the output of `describe-enclaves` confirms:
+
+* The enclave integrity matches the image.
+* All memory used by the enclave is encrypted and isolated.
+
+== Future Directions for SUSE
+Efforts are underway to deepen SUSE support for AWS Confidential
+Computing, including:
+
+* Integrating the AWS `eif_build` tool directly into SUSE.
+* Providing native packages for `aws-nitro-enclaves-cli` and `aws-nitro-enclaves-nsm-api`.
+* Supporting `aws-nitro-tpm-tools`.
+* Developing standardized build pipelines for TEE images and Enclaves.
