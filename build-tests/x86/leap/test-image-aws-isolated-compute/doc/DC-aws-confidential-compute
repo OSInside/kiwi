@@ -1,0 +1,13 @@
+## ----------------------------
+## Doc Config File for DAPS
+## DAPS User Guide
+## ----------------------------
+##
+## Basics
+
+MAIN=cc.adoc
+ADOC_POST=yes
+ADOC_TYPE=article
+
+DOCBOOK5_RNG_URI="http://docbook.org/xml/5.2/rng/docbookxi.rnc"
+STYLEROOT="/usr/share/xml/docbook/stylesheet/suse2022-ns"
