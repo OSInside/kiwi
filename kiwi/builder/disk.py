@@ -1595,8 +1595,12 @@ class DiskBuilder:
         self.fstab.add_entry(fstab_entry)
 
     def _preserve_root_partition_uuid(self, device_map: Dict) -> None:
+        root_part_device = device_map.get('raid_root') or \
+            device_map.get('luks_root') or \
+            device_map.get('integrity_root') or \
+            device_map['root']
         block_operation = BlockID(
-            device_map['root'].get_device()
+            root_part_device.get_device()
         )
         partition_uuid = block_operation.get_blkid('PARTUUID')
         if partition_uuid:
