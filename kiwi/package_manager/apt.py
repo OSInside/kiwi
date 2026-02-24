@@ -586,6 +586,7 @@ class PackageManagerApt(PackageManagerBase):
                 Command.run(
                     [
                         'chroot', self.root_dir,
-                        f'{script_post.replace(self.root_dir, "")}', 'configure'
+                        f'{script_post.replace(self.root_dir, "")}',
+                        'configure', '0'
                     ], self.command_env
                 )
