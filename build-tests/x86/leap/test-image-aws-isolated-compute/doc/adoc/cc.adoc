@@ -90,8 +90,10 @@ strictly limited to a local `vsock` connection.
 == Practical Guide: Deploying Attestable Images
 
 === 1. Fetch and Register the Image
-To start, you need an attestable image. For example, an
-openSUSE-based isolated compute image:
+To start, you need an attestable image. For example, a
+SUSE Linux Enterprise Server (SLES) image built by KIWI for
+AWS with the necessary configurations for Nitro TPM and
+Enclaves. You can find such an image as follows:
 
 * **Image:** link:https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/leap/images_sles/kiwi-test-image-aws-isolated-compute.x86_64.raw.xz[kiwi-test-image-aws-isolated-compute.x86_64.raw.xz]
 * **Upload:** Use tools like `ec2uploadimg` as utilized in link:https://build.opensuse.org/projects/Virtualization:Appliances:Images:Testing_x86:leap/packages/test-image-aws-isolated-compute/files/ec2-upload?expand=1[ec2-upload] or an alternative custom upload script.
