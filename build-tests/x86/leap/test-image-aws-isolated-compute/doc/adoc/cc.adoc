@@ -1,7 +1,7 @@
 include::generic-attributes.adoc[]
 // defining article ID
 [#art-suse-migration-services]
-= Confidential Computing on AWS: Attestation and Enclaves
+= Confidential Computing on AWS: Nitro Attestation and Enclaves
 Marcus Schäfer
 :docinfo:
 
@@ -32,12 +32,13 @@ gap in traditional security models, which typically focus on "data at rest"
 (encryption on disk) and "data in transit" (encryption over the network).
 
 In conventional environments, data in use can be exposed to threats
-such as privileged insiders, compromised hypervisors, or advanced malware
-capable of reading servers’ memory. Confidential computing solves this
-by placing workloads inside a hardware-protected Trusted Execution
-Environment (TEE) that encrypts memory and strictly controls access,
-helping ensure that even cloud providers, system administrators, and
-system-level software cannot view or modify data in use.
+from privileged insiders, compromised hypervisors, or advanced malware
+capable of reading system memory. Confidential computing addressed this
+attack vector by placing workloads inside a hardware-protected Trusted
+Execution Environment (TEE). The memory part of the TEE is encrypted
+and strictly access controled ensuring that neither cloud providers,
+system administrators, or system-level software can view or modify
+data in use.
 
 == Trusted Execution Environment (TEE)
 
@@ -47,7 +48,7 @@ Environment (TEE). A TEE is defined by three core technological pillars:
 Isolation::
 A hardware-based, isolated area within a processor. It ensures that only
 authorized code can access the data inside, protecting it from other
-processes, the operating system, and even the hypervisor.
+processes, the operating system, and the hypervisor.
 
 Invisibility::
 Data remains encrypted in memory and is only decrypted inside the
@@ -60,13 +61,14 @@ and correctly configured before any data is released to the environment.
 
 == Key Concepts on AWS
 
-AWS implements these TEE concepts through a combination of Nitro
-TPM technology, specialized OS images, and Nitro Enclaves.
+AWS implements the TEE concepts through a combination of Nitro
+Trusted Platform Module (TPM) technology, specialized OS images,
+and Nitro Enclaves.
 
 === Isolation on AWS
-Isolation is achieved using KIWI-built images that provide an overlay-based
+Isolation is achieved using images that provide an overlay-based
 read-only system. This system is verified at boot time by `dm-verity`, which
-checks all rootfs blocks. In production state instances of these images are
+checks all rootfs blocks. In production, instances from these images are
 not expected to be remotely accessible to minimize the attack surface.
 
 === Attestation on AWS
@@ -78,10 +80,10 @@ the kernel, initrd, and bootloader. The Platform Configuration Register
 * Used as an AWS KMS key policy to block operations if there is a key
   mismatch, ensuring only "known good" software can run.
 
-=== Invisibility and Nitro Enclaves
-While the base image runs in overlayfs mode (writing to memory only),
-this memory area is not natively protected. To ensure true invisibility,
-the actual workload must run as a **Nitro Enclave**.
+=== Memory enctption and Nitro Enclaves
+While the base instance runs in overlayfs mode (writing to memory only),
+this memory area is not encrypted. To ensure true memory cannot be accessed
+the workload must run as a **Nitro Enclave**.
 
 Nitro Enclaves protect and encrypt the memory area, making it invisible
 to the host OS and hypervisor. Communication with the enclave is
