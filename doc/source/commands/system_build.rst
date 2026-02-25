@@ -12,7 +12,7 @@ SYNOPSIS
 
    kiwi-ng [global options] service <command> [<args>]
 
-   kiwi-ng system build -h | --help
+   kiwi-ng system build --help
    kiwi-ng system build --description=<directory> --target-dir=<directory>
        [--allow-existing-root]
        [--clear-cache]
@@ -33,7 +33,6 @@ SYNOPSIS
        [--set-type-attr=<attribute=value>...]
        [--set-release-version=<version>]
        [--signing-key=<key-file>...]
-   kiwi-ng system build help
 
 .. _db_kiwi_system_build_desc:
 
