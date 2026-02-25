@@ -3625,6 +3625,26 @@ div {
         ## The boxname as it's written into the json file
         ## If not specified the image name is used
         attribute boxname { text }
+	k.vagrantconfig.info.element =
+	    ## The info.json is a freeform document with info to display
+		## with the box when running `vagrant box list -i`
+		element info {
+		    attribute name { text },
+		    text
+		}
+		>> sch:pattern [ id = "vagrant_info_structure"
+            sch:rule [
+			    context = "info"
+				sch:assert [
+				    test = "@name"
+				    "vagrantconfig info element must have a name attribute"
+				]
+				sch:assert [
+				    test = "normalize-space(.) != ''"
+					"vagrantconfig info element must contain a non-empty value"
+				]
+			]
+		]
     k.vagrantconfig.attlist =
         k.vagrantconfig.provider.attribute &
         k.vagrantconfig.virtualsize.attribute &
@@ -3635,7 +3655,8 @@ div {
         ## The vagrantconfig element specifies the Vagrant meta
         ## configuration options which are used inside a vagrant box
         element vagrantconfig {
-            k.vagrantconfig.attlist
+            k.vagrantconfig.attlist,
+            k.vagrantconfig.info.element*
         }
 }
 
