@@ -591,9 +591,9 @@ class PackageManagerApt(PackageManagerBase):
                             'configure'
                         ], self.command_env
                     )
-                except Exception as e:
-                    # Some newer postinst scripts require a non-empty version number
-                    # as second parameter (e.g. libselinux1)
+                except Exception:
+                    # Some newer postinst scripts require a non-empty
+                    # version number as second parameter.
                     Command.run(
                         [
                             'chroot', self.root_dir,
@@ -601,4 +601,3 @@ class PackageManagerApt(PackageManagerBase):
                             'configure', "0"
                         ], self.command_env
                     )
-
