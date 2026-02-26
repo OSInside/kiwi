@@ -199,7 +199,7 @@ class TestPackageManagerApt:
             call(
                 [
                     'chroot', 'root-dir',
-                    'tempdir/base-passwd/postinst', 'configure', '0'
+                    'tempdir/base-passwd/postinst', 'configure'
                 ], new_env
             ),
             call(
@@ -224,7 +224,7 @@ class TestPackageManagerApt:
             call(
                 [
                     'chroot', 'root-dir',
-                    'tempdir/base-passwd/postinst', 'configure', '0'
+                    'tempdir/base-passwd/postinst', 'configure'
                 ], new_env
             ),
             call(
@@ -249,7 +249,7 @@ class TestPackageManagerApt:
             call(
                 [
                     'chroot', 'root-dir',
-                    'tempdir/vim/postinst', 'configure', '0'
+                    'tempdir/vim/postinst', 'configure'
                 ], new_env
             )
         ]
