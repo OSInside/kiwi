@@ -139,13 +139,7 @@ If the values match `pcr_measurements.json`, you have verified that:
 
 The workload itself is packaged as an AWS Enclave Image (`.eif`)
 built by KIWI and stored in the TEE's `/data` directory. For details about
-the example enclave see: link:https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:rawhide/test-image-nitro-enclave[test-image-nitro-enclaves].
-
-[IMPORTANT]
-The example enclave was build against Fedora Rawhide because the native
-`eif_build` tool from AWS has already been integrated to Fedora and is
-currently missing on SUSE. As such the decision was made to start with
-a Fedora image and then eventually migrate to SUSE on demand
+the example enclave see: link:https://build.opensuse.org/package/show/Virtualization:Appliances:Images:Testing_x86:leap/test-image-nitro-enclave[test-image-nitro-enclaves].
 
 The example workload is designed to return the PCR values from the
 attestation document when queried via `vsock`. This allows you to
