@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="7.5" name="kiwi-test-image-nitro-enclave">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>AWS Nitro Enclave test build</specification>
+    </description>
+    <profiles>
+        <profile name="default" description="CPIO: default profile" import="true"/>
+        <profile name="std" description="KERNEL: default kernel" import="true"/>
+        <profile name="Container" description="Container build"/>
+        <profile name="Enclave" description="Enclave build"/>
+    </profiles>
+    <preferences>
+        <version>1.1.1</version>
+        <packagemanager>zypper</packagemanager>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Container">
+        <type image="docker">
+            <containerconfig name="enclave" tag="latest">
+                <entrypoint execute="/usr/lib/systemd/systemd"/>
+            </containerconfig>
+        </type>
+    </preferences>
+    <preferences profiles="Enclave,default,std">
+        <type image="enclave" enclave_format="aws-nitro" kernelcmdline="reboot=k panic=30 pci=off console=ttyS0 i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd random.trust_cpu=on enforcing=0 rdinit=/sbin/init"/>
+    </preferences>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <packages type="image" profiles="Enclave,default,std">
+        <package name="kernel"/>
+    </packages>
+    <packages type="image">
+        <package name="systemd"/>
+        <package name="iputils"/>
+        <package name="less"/>
+        <package name="nitro-enclave-alive"/>
+        <package name="aws-nitro-enclaves-nsm-api"/>
+        <package name="python3-devel"/>
+        <package name="openssh-server"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="zypper"/>
+        <package name="gawk"/>
+        <package name="grep"/>
+        <package name="gzip"/>
+        <package name="udev"/>
+        <package name="xz"/>
+        <package name="diffutils"/>
+        <package name="shadow"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+    </packages>
+</image>
