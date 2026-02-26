@@ -583,10 +583,21 @@ class PackageManagerApt(PackageManagerBase):
             # 2. postinst
             if os.path.exists(script_post):
                 Command.run(['chmod', '755', script_post])
-                Command.run(
-                    [
-                        'chroot', self.root_dir,
-                        f'{script_post.replace(self.root_dir, "")}',
-                        'configure', '0'
-                    ], self.command_env
-                )
+                try:
+                    Command.run(
+                        [
+                            'chroot', self.root_dir,
+                            f'{script_post.replace(self.root_dir, "")}',
+                            'configure'
+                        ], self.command_env
+                    )
+                except Exception:
+                    # Some newer postinst scripts require a non-empty
+                    # version number as second parameter.
+                    Command.run(
+                        [
+                            'chroot', self.root_dir,
+                            f'{script_post.replace(self.root_dir, "")}',
+                            'configure', "0"
+                        ], self.command_env
+                    )

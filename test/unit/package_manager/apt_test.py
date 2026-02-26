@@ -126,6 +126,16 @@ class TestPackageManagerApt:
         mock_Temporary_new_file, mock_Command_call, mock_Command_run,
         mock_pathlib_Path
     ):
+        def command_run(command, env=None):
+            # mock a postinst error for base-passwd to test the retry logic
+            if command == [
+                'chroot', 'root-dir',
+                'tempdir/base-passwd/postinst', 'configure'
+            ]:
+                raise Exception
+            return MagicMock(stdout='stdout', stderr='stderr')
+
+        mock_Command_run.side_effect = command_run
         mock_os_path_exists.return_value = True
         mock_Temporary_new_dir.return_value.name = 'tempdir'
         mock_Temporary_new_file.return_value.name = 'temporary'
@@ -199,6 +209,12 @@ class TestPackageManagerApt:
             call(
                 [
                     'chroot', 'root-dir',
+                    'tempdir/base-passwd/postinst', 'configure'
+                ], new_env
+            ),
+            call(
+                [
+                    'chroot', 'root-dir',
                     'tempdir/base-passwd/postinst', 'configure', '0'
                 ], new_env
             ),
@@ -220,6 +236,12 @@ class TestPackageManagerApt:
                 [
                     'chmod', '755', 'tempdir/base-passwd/postinst'
                 ]
+            ),
+            call(
+                [
+                    'chroot', 'root-dir',
+                    'tempdir/base-passwd/postinst', 'configure'
+                ], new_env
             ),
             call(
                 [
@@ -249,7 +271,7 @@ class TestPackageManagerApt:
             call(
                 [
                     'chroot', 'root-dir',
-                    'tempdir/vim/postinst', 'configure', '0'
+                    'tempdir/vim/postinst', 'configure'
                 ], new_env
             )
         ]
