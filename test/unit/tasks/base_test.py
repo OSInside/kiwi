@@ -149,9 +149,6 @@ class TestCliTask:
         self.task = CliTask()
         mock_setLogLevel.assert_called_once_with(20)
 
-    def test_quadruple_token(self):
-        assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]
-
     def test_eleventuple_token(self):
         assert self.task.eleventuple_token(
             'a,b,,d,e,f,{1;2;3},x y z,jammy,false,metalink'

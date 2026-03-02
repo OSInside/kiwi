@@ -210,23 +210,6 @@ class CliTask:
 
         self.runtime_checker = RuntimeChecker(self.xml_state)
 
-    def quadruple_token(
-        self, option: str
-    ) -> List[Union[bool, str, List[str], None]]:
-        """
-        Helper method for commandline options of the form --option a,b,c,d
-
-        Make sure to provide a common result for option values which
-        separates the information in a comma separated list of values
-
-        :param str option: comma separated option string
-
-        :return: common option value representation
-
-        :rtype: list
-        """
-        return self._ntuple_token(option, 4)
-
     def eleventuple_token(
         self, option: str
     ) -> List[Union[bool, str, List[str], None]]:

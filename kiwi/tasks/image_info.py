@@ -22,7 +22,8 @@ usage: kiwi-ng image info -h | --help
            [--list-profiles]
            [--print-kiwi-env]
            [--ignore-repos]
-           [--add-repo=<source,type,alias,priority>...]
+           [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>...]
+           [--add-repo-credentials=<user:pass_or_filename>...]
            [--print-xml|--print-yaml|--print-toml]
        kiwi-ng image info help
 
@@ -31,8 +32,20 @@ commands:
         provide information about the specified image description
 
 options:
-    --add-repo=<source,type,alias,priority>
-        add repository with given source, type, alias and priority
+    --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
+        add repository with given source, type, alias,
+        priority, imageinclude(true|false), package_gpgcheck(true|false),
+        list of signing_keys enclosed in curly brackets delimited by a colon,
+        component list for debian based repos as string delimited by a space,
+        main distribution name for debian based repos,
+        repo_gpgcheck(true|false) and repo_sourcetype(metalink|baseurl|mirrorlist)
+    --add-repo-credentials=<user:pass_or_filename>
+        for uri://user:pass@location type repositories, set the user and
+        password connected with an add-repo specification. The first
+        add-repo-credentials is connected with the first add-repo
+        specification and so on. If the provided value describes a
+        filename in the filesystem, the first line of that file is read
+        and used as credentials information.
     --description=<directory>
         the description must be a directory containing a kiwi XML
         description and optional metadata files
@@ -50,6 +63,8 @@ options:
         print image description in specified format
 """
 import os
+from itertools import zip_longest
+from urllib.parse import urlparse
 
 # project
 from kiwi.tasks.base import CliTask
@@ -88,11 +103,12 @@ class ImageInfoTask(CliTask):
             self.xml_state.delete_repository_sections()
 
         if self.command_args['--add-repo']:
-            for add_repo in self.command_args['--add-repo']:
-                (repo_source, repo_type, repo_alias, repo_prio) = \
-                    self.quadruple_token(add_repo)
+            for add_repo, add_credentials in zip_longest(
+                self.command_args['--add-repo'],
+                self.command_args['--add-repo-credentials']
+            ):
                 self.xml_state.add_repository(
-                    repo_source, repo_type, repo_alias, repo_prio
+                    *self._get_repo_parameters(add_repo, add_credentials)
                 )
 
         self.runtime_checker.check_repositories_configured()
@@ -215,3 +231,37 @@ class ImageInfoTask(CliTask):
                 )
             )
         return solver
+
+    def _get_repo_parameters(self, tokens, credentials):
+        parameters = self.eleventuple_token(tokens)
+        signing_keys_index = 6
+        repo_source_index = 0
+        repo_type_index = 1
+        repo_alias_index = 2
+        if not parameters[repo_type_index]:
+            # make sure to pass a None value if an empty string
+            # is provided as repo type. This will cause no type
+            # attribute to be set instead of an empty type which
+            # is not allowed by the schema
+            parameters[repo_type_index] = None
+        if not parameters[repo_alias_index]:
+            # make sure to pass a None value if an empty string
+            # is provided as repo alias. This will cause no alias
+            # attribute to be set instead of an empty type which
+            # is not allowed by the schema
+            parameters[repo_alias_index] = None
+        if not parameters[signing_keys_index]:
+            # make sure to pass empty list for signing_keys param
+            parameters[signing_keys_index] = []
+        if credentials:
+            if os.path.isfile(credentials):
+                credentials_data = open(credentials).readline().strip(os.linesep)
+                os.unlink(credentials)
+                credentials = credentials_data
+            repo_source = parameters[repo_source_index]
+            repo_scheme = urlparse(repo_source).scheme
+            if repo_scheme:
+                repo_source = repo_source.replace(f'{repo_scheme}://', '')
+                repo_source = f'{repo_scheme}://{credentials}@{repo_source}'
+                parameters[repo_source_index] = repo_source
+        return parameters

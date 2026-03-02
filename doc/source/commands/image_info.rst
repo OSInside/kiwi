@@ -16,7 +16,8 @@ SYNOPSIS
        [--list-profiles]
        [--print-kiwi-env]
        [--ignore-repos]
-       [--add-repo=<source,type,alias,priority>...]
+       [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>...]
+       [--add-repo-credentials=<user:pass_or_filename>...]
        [--print-xml|--print-yaml]
    kiwi-ng image info help
 
@@ -37,9 +38,79 @@ the image description.
 OPTIONS
 -------
 
---add-repo=<source,type,alias,priority>
+--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
 
-  Adds a repository with the given source, type, alias, and priority.
+  Adds a new repository to the existing repository setup in the XML
+  description. This option can be specified multiple times.
+
+  - **source**
+
+    Source URL pointing to a package repository that must be in a format
+    supported by the selected package manager. See the URI_TYPES section for
+    details about the supported source locators.
+
+  - **type**
+
+    Repository type: `rpm-md`, `apt-deb`.
+
+  - **alias**
+
+    An alias name for the repository. If not specified, {kiwi} generates
+    an alias name as a result of a hex representation from uuid4. While the hex
+    is used to uniquely identify the repository, it is not descriptive.
+    We recommend using descriptive aliases.
+
+  - **priority**
+
+    A number indicating the repository priority. How the value is evaluated
+    depends on the selected package manager. Refer to the package
+    manager documentation for details about the supported priority ranges
+    and their meaning.
+
+  - **imageinclude**
+
+    Set to either **true** or **false** to indicate if the repository
+    is part of the system image repository setup or not.
+
+  - **package_gpgcheck**
+
+    Set to either **true** or **false** to indicate if the repository
+    should validate the package signatures.
+
+  - **{signing_keys}**
+
+    A list of `signing_keys` enclosed in curly brackets and delimited by
+    a semicolon. The reference to a signing key must be provided in the URI
+    format.
+
+  - **components**
+
+    A component list for Debian-based repos as a space-delimited string.
+
+  - **distribution**
+
+    The main distribution name for Debian-based repos.
+
+  - **repo_gpgcheck**
+
+    Set to either **true** or **false** to indicate if the repository
+    should validate the repository signature.
+
+  - **repo_sourcetype**
+
+    Specifies the source type of the repository path. Supported values
+    are `baseurl`, `metalink`, or `mirrorlist`. With `baseurl`, the source
+    path is interpreted as a simple URI. If `metalink` is set, the source
+    path is resolved as a metalink URI, and if `mirrorlist` is set, the
+    source path is resolved as a mirrorlist file. If not specified,
+    `baseurl` is the default.
+
+--add-repo-credentials=<user:pass_or_filename>
+
+  For **uri://user:pass@location** repositories, set the user and password
+  associated with an add-repo specification. If the provided value describes a
+  filename in the filesystem, the first line of that file is used as
+  credentials.
 
 --description=<directory>
 
