@@ -5635,12 +5635,7 @@ called Open Virtual Appliance(OVA). The standard describes
 major components associated with a disk image. The exact
 specification depends on the product using the format
 and is specified in KIWI as the OVF type.</a:documentation>
-        <choice>
-          <value>zvm</value>
-          <value>powervm</value>
-          <value>xen</value>
-          <value>vmware</value>
-        </choice>
+        <value>vmware</value>
       </attribute>
     </define>
     <define name="k.machine.HWversion.attribute">

@@ -160,8 +160,7 @@ The following attributes are supported by the `machine` element:
   standard for describing virtual appliances and distributing them in an archive
   called an Open Virtual Appliance (OVA). The standard describes the major
   components associated with a disk image. The exact specification depends on
-  the product using the format. Supported values are `zvm`, `powervm`, `xen`, and
-  `vmware`.
+  the product using the format. Supported value is `vmware`.
 
 - `HWversion`: The virtual machine's hardware version (`vmdk` and `ova`
   formats only); refer to VMware documentation for further

@@ -3719,7 +3719,7 @@ div {
         ## major components associated with a disk image. The exact
         ## specification depends on the product using the format
         ## and is specified in KIWI as the OVF type.
-        attribute ovftype { "zvm" | "powervm" | "xen" | "vmware" }
+        attribute ovftype { "vmware" }
     k.machine.HWversion.attribute =
         ## The virtual HW version number for the VM configuration
         ## (vmdk and ova)
