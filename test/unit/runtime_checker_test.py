@@ -378,6 +378,29 @@ class TestRuntimeChecker:
 
         assert f"Required tool {tool_binary} not found in caller environment" in str(rt_err_ctx.value)
 
+    @patch('kiwi.runtime_checker.Path.which')
+    @patch('kiwi.runtime_checker.RuntimeConfig')
+    @patch('kiwi.runtime_checker.FirmWare')
+    def test_check_checkmedia_used_with_msdos_table(
+        self, mock_FirmWare, mock_RuntimeConfig, mock_which
+    ):
+        firmware = Mock()
+        firmware.get_partition_table_type.return_value = 'gpt'
+        mock_FirmWare.return_value = firmware
+        runtime_config = Mock()
+        runtime_config.get_iso_media_tag_tool.return_value = 'checkmedia'
+        mock_RuntimeConfig.return_value = runtime_config
+        mock_which.return_value = False
+        xml_state = XMLState(
+            self.description.load(), ['vmxFlavour'], 'iso'
+        )
+        runtime_checker = RuntimeChecker(xml_state)
+        with raises(KiwiRuntimeError) as runtime_context:
+            runtime_checker.check_checkmedia_used_with_msdos_table()
+
+        assert 'ISO media tag tool tagmedia does not support gpt' in \
+            format(runtime_context)
+
     def test_check_dracut_module_for_live_iso_in_package_list(self):
         xml_state = XMLState(
             self.description.load(), ['vmxFlavour'], 'iso'

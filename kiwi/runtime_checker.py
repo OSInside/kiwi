@@ -932,6 +932,29 @@ class RuntimeChecker:
                     message_tool_not_found.format(name=tool)
                 )
 
+    def check_checkmedia_used_with_msdos_table(self) -> None:
+        """
+        The checkmedia/tagmedia tools only supports plain
+        MBR partition tables.
+        """
+        message = dedent('''\n
+            ISO media tag tool tagmedia does not support {table} partition tables
+
+            The attribute 'mediacheck' is set to 'true' and the selected
+            media tag tool only supports plain MBR (msdos) partition tables.
+            Attributes influencing the partition table type are
+            firmware, efiparttable and targettype. Please check your
+            image description for the setup of these attributes.
+        ''')
+        if self.xml_state.build_type.get_mediacheck() is True:
+            media_tagger = RuntimeConfig().get_iso_media_tag_tool()
+            firmware = FirmWare(self.xml_state)
+            table_type = firmware.get_partition_table_type()
+            if media_tagger == 'checkmedia' and table_type != 'msdos':
+                raise KiwiRuntimeError(
+                    message.format(tool=media_tagger, table=table_type)
+                )
+
     def check_image_version_provided(self) -> None:
         """
         Kiwi requires a <version> element to be specified as part
