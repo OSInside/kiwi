@@ -134,6 +134,8 @@ class TestSystemPrepareTask:
         self.runtime_checker.\
             check_mediacheck_installed.assert_called_once_with()
         self.runtime_checker.\
+            check_checkmedia_used_with_msdos_table.assert_called_once_with()
+        self.runtime_checker.\
             check_dracut_module_for_live_iso_in_package_list.\
             assert_called_once_with()
         self.runtime_checker.\
