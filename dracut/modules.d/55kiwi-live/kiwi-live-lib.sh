@@ -129,6 +129,19 @@ function udev_pending {
     udevadm settle --timeout="${limit}"
 }
 
+function set_device_lock {
+    # """
+    # Set device lock, preferrable via udevadm or via
+    # flock as fallback if systemd/udev does not provide
+    # the command
+    # """
+    if udevadm lock --help &>/dev/null;then
+        udevadm lock --device "$@"
+    else
+        flock -x "$@"
+    fi
+}
+
 function initGlobalDevices {
     if [ -z "$1" ]; then
         die "No root device for operation given"
@@ -188,14 +201,90 @@ function mountCompressedContainerFromIso {
     squashfs_container="${iso_mount_point}/${live_dir}/${squash_image}"
     mkdir -m 0755 -p "${container_mount_point}"
 
+    if activate_verity "${squashfs_container}";then
+        squashfs_container=/dev/mapper/verityroot
+    fi
+
     if activate_luks "${squashfs_container}" luks; then
         squashfs_container=/dev/mapper/luks
     fi
 
     if ! mount -n "${squashfs_container}" "${container_mount_point}";then
-        die "Failed to mount live ISO squashfs container"
+        die "Failed to mount live ISO compressed read-only container"
     fi
     echo "${container_mount_point}"
+}
+
+function activate_verity {
+    # The method loopback mounts the given compressed root image
+    # and calls veritysetup to activate the verity device. The
+    # activatrion of the verity device can also be done with help
+    # from systemd-veritysetup which would automatically be called
+    # after losetup if the dracut module systemd-veritysetup
+    # would be included to the initrd. Unfortunately no proper
+    # veritytab file can be provided if the root image is based on
+    # squashfs because there is no support for UUIDs in squashfs
+    # which means the veritytab would have to be modified with the
+    # plain loopback device after the losetup call. Such a modification
+    # then requires to call "systemctl daemon-reload" followed by
+    # "systemctl restart systemd-veritysetup@verityroot" to make
+    # systemd-veritysetup aware of the changes in the veritytab.
+    # To avoid this complexity the verity device is activated via
+    # veritysetup directly.
+    local compressed_root=$1
+    local verity_loop
+    local verity_name
+    local data_device
+    local hash_device
+    local root_hash
+    local verity_options
+    local kiwi_verity_options
+    local veritysetup
+    local option
+    if [ -f /etc/veritytab ];then
+        read -r \
+            verity_name data_device hash_device root_hash verity_options \
+        < /etc/veritytab
+        verity_loop=$(losetup --show --find "${compressed_root}")
+        udevadm wait "${verity_loop}"
+        if [ "${data_device}" = "PLACEHOLDER" ];then
+            # squashfs does not support UUIDs, therefore the initial
+            # veritytab only contains a placeholder for the device name
+            sed -ie "s|PLACEHOLDER|${verity_loop}|g" /etc/veritytab
+        fi
+        read -r \
+            verity_name data_device hash_device root_hash verity_options \
+        < /etc/veritytab
+        if [ "$(echo "${data_device}" | cut -f1 -d=)" = "UUID" ];then
+            data_device=/dev/disk/by-uuid/$(echo "${data_device}" | cut -f2 -d=)
+            udevadm wait "${data_device}"
+        fi
+        if [ "$(echo "${hash_device}" | cut -f1 -d=)" = "UUID" ];then
+            hash_device=/dev/disk/by-uuid/$(echo "${hash_device}" | cut -f2 -d=)
+            udevadm wait "${hash_device}"
+        fi
+        # Read kernel command line verity options and merge the options
+        kiwi_verity_options=$(getarg rd.kiwi.verity_options=)
+        if [ -n "${kiwi_verity_options}" ]; then
+            if [ -n "${verity_options}" ]; then
+                verity_options="${verity_options},${kiwi_verity_options}"
+            else
+                verity_options="${kiwi_verity_options}"
+            fi
+        fi
+        veritysetup="veritysetup open "
+        veritysetup="${veritysetup} ${data_device} ${verity_name} "
+        veritysetup="${veritysetup} ${hash_device} ${root_hash}"
+        for option in $(echo "${verity_options}" | tr , " ");do
+            veritysetup="${veritysetup} --${option}"
+        done
+        eval "${veritysetup}"
+        set_device_lock "${verity_loop}" \
+            udevadm wait "/dev/mapper/verityroot"
+        return 0
+    else
+        return 1
+    fi
 }
 
 function activate_luks {
@@ -220,7 +309,7 @@ function mountReadOnlyRootImageFromContainer {
     local container_mount_point=$1
     local overlay_base
     overlay_base=$(getOverlayBaseDirectory)
-    local rootfs_image="${container_mount_point}/LiveOS/rootfs.img"
+    local rootfs_image="${container_mount_point}/${live_dir}/rootfs.img"
     local root_mount_point="${overlay_base}/rootfsbase"
     mkdir -m 0755 -p "${root_mount_point}"
 

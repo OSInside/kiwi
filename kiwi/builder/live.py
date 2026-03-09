@@ -18,12 +18,20 @@
 from contextlib import ExitStack
 import os
 import logging
-from typing import Dict
+from typing import (
+    Dict, List, Union
+)
 import shutil
 
 # project
+import kiwi.defaults as defaults
+
+from kiwi.utils.veritysetup import VeritySetup
+from kiwi.utils.block import BlockID
 from kiwi.utils.temporary import Temporary
 from kiwi.bootloader.config import create_boot_loader_config
+from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
+from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
@@ -67,6 +75,8 @@ class LiveImageBuilder:
         self.bootloader = xml_state.get_build_type_bootloader_name()
         if self.bootloader != 'systemd_boot':
             self.bootloader = 'grub2'
+        self.root_filesystem_verity_blocks = \
+            xml_state.build_type.get_verity_blocks()
         self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -76,7 +86,8 @@ class LiveImageBuilder:
             Defaults.get_volume_id()
         self.mbrid = SystemIdentifier()
         self.mbrid.calculate_id()
-        self.application_id = self.xml_state.build_type.get_application_id() or \
+        self.application_id = \
+            self.xml_state.build_type.get_application_id() or \
             self.mbrid.get_id()
         self.publisher = xml_state.build_type.get_publisher() or \
             Defaults.get_publisher()
@@ -92,7 +103,8 @@ class LiveImageBuilder:
 
         self.boot_image = BootImageDracut(
             xml_state,
-            f'{root_dir}/boot' if self.bootloader == 'systemd_boot' else target_dir,
+            f'{root_dir}/boot'
+            if self.bootloader == 'systemd_boot' else target_dir,
             self.root_dir
         )
         self.firmware = FirmWare(
@@ -113,6 +125,19 @@ class LiveImageBuilder:
         )
         self.result = Result(xml_state)
         self.runtime_config = RuntimeConfig()
+        self.custom_iso_args = {
+            'meta_data': {
+                'publisher': self.publisher,
+                'preparer': Defaults.get_preparer(),
+                'volume_id': self.volume_id,
+                'mbr_id': self.mbrid.get_id(),
+                'application_id': self.application_id,
+                'efi_mode': self.firmware.efi_mode(),
+                'efi_partition_table': self.firmware.get_partition_table_type(),
+                'gpt_hybrid_mbr': self.firmware.gpt_hybrid_mbr,
+                'legacy_bios_mode': self.firmware.legacy_bios_mode()
+            }
+        }
 
     def create(self) -> Result:
         """
@@ -143,20 +168,6 @@ class LiveImageBuilder:
         log.info('--> Application id: {0}'.format(self.application_id))
         log.info('--> Publisher: {0}'.format(self.publisher))
         log.info('--> Volume id: {0}'.format(self.volume_id))
-        custom_iso_args = {
-            'meta_data': {
-                'publisher': self.publisher,
-                'preparer': Defaults.get_preparer(),
-                'volume_id': self.volume_id,
-                'mbr_id': self.mbrid.get_id(),
-                'application_id': self.application_id,
-                'efi_mode': self.firmware.efi_mode(),
-                'efi_partition_table': self.firmware.get_partition_table_type(),
-                'gpt_hybrid_mbr': self.firmware.gpt_hybrid_mbr,
-                'legacy_bios_mode': self.firmware.legacy_bios_mode()
-            }
-        }
-
         log.info(
             'Setting up live image bootloader configuration'
         )
@@ -187,47 +198,10 @@ class LiveImageBuilder:
             self.boot_image.prepare()
 
             # create dracut initrd for live image
-            log.info('Creating live ISO boot image')
-            live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
-                self.live_type
+            log.info('Creating live ISO boot image(s)')
+            self.create_live_iso_boot_images(
+                bootloader_config, modules=['pollcdrom']
             )
-            live_dracut_modules.append('pollcdrom')
-            for dracut_module in live_dracut_modules:
-                self.boot_image.include_module(dracut_module)
-            self.boot_image.omit_module('multipath')
-            self.boot_image.write_system_config_file(
-                config={
-                    'modules': live_dracut_modules,
-                    'omit_modules': ['multipath']
-                },
-                config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
-            )
-            self.boot_image.create_initrd(self.mbrid)
-            # Clean up leftover dracut config file (which can break installs)
-            os.unlink(self.root_dir + '/etc/dracut.conf.d/02-livecd.conf')
-            if self.bootloader == 'systemd_boot':
-                # make sure the initrd name follows the dracut
-                # naming conventions
-                boot_names = self.boot_image.get_boot_names()
-                if self.boot_image.initrd_filename:
-                    Command.run(
-                        [
-                            'mv', self.boot_image.initrd_filename,
-                            self.root_dir + ''.join(
-                                ['/boot/', boot_names.initrd_name]
-                            )
-                        ]
-                    )
-
-            # create EFI FAT image
-            if self.firmware.efi_mode():
-                efi_loader = Temporary(
-                    prefix='efi-loader.', path=self.target_dir
-                ).new_file()
-                bootloader_config._create_embedded_fat_efi_image(
-                    efi_loader.name
-                )
-                custom_iso_args['meta_data']['efi_loader'] = efi_loader.name
 
         # setup kernel file(s) and initrd in ISO boot layout
         if self.bootloader != 'systemd_boot':
@@ -239,7 +213,7 @@ class LiveImageBuilder:
         # calculate size and decide if we need UDF
         if rootsize.accumulate_mbyte_file_sizes() > 4096:
             log.info('ISO exceeds 4G size, using UDF filesystem')
-            custom_iso_args['meta_data']['udf'] = True
+            self.custom_iso_args['meta_data']['udf'] = True
 
         # pack system into live boot structure as expected by dracut
         log.info(
@@ -287,7 +261,8 @@ class LiveImageBuilder:
                         root_dir=self.root_dir
                     )
 
-                device_provider = luks_provider.get_device() or DeviceProvider() \
+                device_provider = \
+                    luks_provider.get_device() or DeviceProvider() \
                     if luks_provider else loop_provider
                 live_filesystem = FileSystem.new(
                     name=root_filesystem,
@@ -312,7 +287,8 @@ class LiveImageBuilder:
             ).new_dir()
             Path.create(self.live_container_dir.name + '/LiveOS')
             shutil.copy(
-                root_image.name, self.live_container_dir.name + '/LiveOS/rootfs.img'
+                root_image.name,
+                self.live_container_dir.name + '/LiveOS/rootfs.img'
             )
             with FileSystem.new(
                 name='squashfs',
@@ -327,6 +303,14 @@ class LiveImageBuilder:
                 live_container_image.create_on_file(
                     container_image.name
                 )
+                if self.root_filesystem_verity_blocks:
+                    live_container_image.create_verity_layer(
+                        self.root_filesystem_verity_blocks if
+                        self.root_filesystem_verity_blocks != 'all' else None
+                    )
+                    self._write_veritytab_to_boot_image(
+                        container_image.name, live_container_image.veritysetup
+                    )
                 Path.create(self.media_dir.name + '/LiveOS')
                 os.chmod(container_image.name, 0o644)
                 shutil.copy(
@@ -359,6 +343,16 @@ class LiveImageBuilder:
                     get_exclude_list_for_root_data_sync() + Defaults.
                     get_exclude_list_from_custom_exclude_files(self.root_dir)
                 )
+
+                if self.root_filesystem_verity_blocks:
+                    live_container_image.create_verity_layer(
+                        self.root_filesystem_verity_blocks if
+                        self.root_filesystem_verity_blocks != 'all' else None
+                    )
+                    self._write_veritytab_to_boot_image(
+                        container_image.name, live_container_image.veritysetup
+                    )
+
                 luks_image = None
                 if self.luks is not None:
                     # dump root filesystem blob on top of a LUKS blob
@@ -406,11 +400,20 @@ class LiveImageBuilder:
                     self.media_dir.name + '/LiveOS/squashfs.img'
                 )
 
+        if self.root_filesystem_verity_blocks:
+            log.info('Rebuild live ISO boot image(s) to include veritysetup')
+            with self._create_bootloader_instance() as bootloader_config:
+                self.create_live_iso_boot_images(
+                    bootloader_config, modules=['pollcdrom']
+                )
+            if self.bootloader != 'systemd_boot':
+                self._setup_live_iso_kernel_and_initrd()
+
         # create iso filesystem from media_dir
         log.info('Creating live ISO image')
         with FileSystemIsoFs(
             device_provider=DeviceProvider(), root_dir=self.media_dir.name,
-            custom_args=custom_iso_args
+            custom_args=self.custom_iso_args
         ) as iso_image:
             iso_image.create_on_file(self.isoname)
 
@@ -459,6 +462,84 @@ class LiveImageBuilder:
             shasum=False
         )
         return self.result
+
+    def create_live_iso_boot_images(
+        self,
+        bootloader_config: Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot],
+        modules: List[str] = []
+    ) -> None:
+        live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
+            self.live_type
+        ) + modules
+        for dracut_module in live_dracut_modules:
+            self.boot_image.include_module(dracut_module)
+        self.boot_image.omit_module('multipath')
+        self.boot_image.write_system_config_file(
+            config={
+                'modules': live_dracut_modules,
+                'omit_modules': ['multipath']
+            },
+            config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
+        )
+        self.boot_image.create_initrd(self.mbrid)
+        # Clean up leftover dracut config file (which can break installs)
+        os.unlink(self.root_dir + '/etc/dracut.conf.d/02-livecd.conf')
+        if self.bootloader == 'systemd_boot':
+            # make sure the initrd name follows the dracut
+            # naming conventions
+            boot_names = self.boot_image.get_boot_names()
+            if self.boot_image.initrd_filename:
+                Command.run(
+                    [
+                        'mv', self.boot_image.initrd_filename,
+                        self.root_dir + ''.join(
+                            ['/boot/', boot_names.initrd_name]
+                        )
+                    ]
+                )
+
+        # create EFI FAT image
+        if self.firmware.efi_mode():
+            self.efi_loader = Temporary(
+                prefix='efi-loader.', path=self.target_dir
+            ).new_file()
+            bootloader_config._create_embedded_fat_efi_image(
+                self.efi_loader.name
+            )
+            self.custom_iso_args['meta_data']['efi_loader'] = \
+                self.efi_loader.name
+
+    def _write_veritytab_to_boot_image(
+        self, container_image_name: str, veritysetup: VeritySetup
+    ) -> None:
+        log.info('Creating generic boot image etc/veritytab')
+        veritytab_filename = ''.join([self.root_dir, '/etc/veritytab'])
+        block_operation = BlockID(container_image_name)
+        filesystem = block_operation.get_filesystem()
+        if filesystem == 'squashfs':
+            # squashfs does not provide a label or uuid
+            # The real device name is not known at this point, and
+            # will be replaced in the initrd code with a device name
+            # based on the loopsetup result of the compressed image file
+            device_id = 'PLACEHOLDER'
+        else:
+            device_id = 'UUID={}'.format(
+                block_operation.get_blkid('UUID')
+            )
+        with open(veritytab_filename, 'w') as veritytab:
+            veritytab.write(
+                'verityroot {0} {0} {1} {2},{3}{4}'.format(
+                    device_id, veritysetup.verity_dict.get('Roothash'),
+                    f'hash-offset={veritysetup.verity_hash_offset}',
+                    f'hash-block-size={defaults.VERITY_HASH_BLOCKSIZE}',
+                    os.linesep
+                )
+            )
+            self.boot_image.include_file(
+                filename=os.sep + os.sep.join(
+                    ['etc', os.path.basename(veritytab_filename)]
+                ), delete_after_include=True
+            )
 
     def _create_bootloader_instance(self) -> BootLoaderConfigBase:
         return create_boot_loader_config(
