@@ -55,6 +55,12 @@
 %global develsuffix devel
 %endif
 
+%if 0%{?fedora} || 0%{?rhel} || 0%{?suse_version} >= 1600
+%bcond_without selinux
+%else
+%bcond_with selinux
+%endif
+
 Name:           python-kiwi
 Version:        %%VERSION
 Provides:       kiwi-schema = 8.1
@@ -453,6 +459,9 @@ Requires:       python%{python3_pkgversion}-docopt-ng
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-xmltodict
+%if %{with selinux}
+Requires:       (kiwi-selinux = %{version}-%{release} if selinux-policy)
+%endif
 %if ! (0%{?rhel} && 0%{?rhel} < 8)
 Recommends:     kiwi-man-pages
 %endif
@@ -692,6 +701,21 @@ BuildArch:      noarch
 Bash command line completion support for python-kiwi - completion
 of subcommands, parameters and keywords for the kiwi-ng command.
 
+%if %{with selinux}
+%package -n kiwi-selinux
+Summary:        SELinux module for kiwi-ng
+License:        GPL-2.0-or-later
+BuildArch:      noarch
+BuildRequires:  selinux-policy
+BuildRequires:  selinux-policy-devel
+BuildRequires:  make
+%{?selinux_requires}
+
+%description -n kiwi-selinux
+This package provides the SELinux policy module to ensure kiwi-ng
+runs properly under an environment with SELinux enabled.
+%endif
+
 %prep
 %setup -q -n kiwi-%{version}
 
@@ -712,6 +736,11 @@ sed -e "s|#!/usr/bin/env python||" -i kiwi/xml_parse.py
 
 # Build documentation
 make -C doc man
+
+%if %{with selinux}
+# Build SELinux module
+make -C selinux SHARE="%{_datadir}" TARGETS="kiwi"
+%endif
 
 # Build application wheel
 %{__python3} -m build --no-isolation --wheel
@@ -739,6 +768,11 @@ make buildroot=%{buildroot}/ docdir=%{_defaultdocdir}/ python=%{__python3} insta
 ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi
 ln -sr %{buildroot}%{_bindir}/kiwi-ng %{buildroot}%{_bindir}/kiwi-ng-3
 
+%if %{with selinux}
+# Install SELinux module
+install -t %{buildroot}%{_datadir}/selinux/packages -Dpm 0644 selinux/kiwi.pp.bz2
+%endif
+
 %if "%{_vendor}" != "debbuild"
 # kiwi pxeboot directory structure to be packed in kiwi-pxeboot
 %ifarch %{ix86} x86_64
@@ -765,6 +799,24 @@ if ! /usr/bin/getent passwd tftp >/dev/null; then
         -r -s /bin/false tftp
 fi
 %endif
+%endif
+
+%if %{with selinux}
+%pre -n kiwi-selinux
+%selinux_relabel_pre
+
+%post -n kiwi-selinux
+%selinux_modules_install %{_datadir}/selinux/packages/kiwi.pp.bz2
+%selinux_relabel_post
+
+%posttrans -n kiwi-selinux
+%selinux_relabel_post
+
+%postun -n kiwi-selinux
+%selinux_modules_uninstall kiwi
+if [ $1 -eq 0 ]; then
+    %selinux_relabel_post
+fi
 %endif
 
 %files -n kiwi-systemdeps-core
@@ -844,6 +896,13 @@ fi
 %dir /srv/tftpboot/upload
 %dir /srv/tftpboot/boot
 %endif
+%endif
+
+%if %{with selinux}
+%files -n kiwi-selinux
+%license selinux/LICENSE
+%doc selinux/README.md
+%{_datadir}/selinux/packages/kiwi.pp.bz2
 %endif
 
 %changelog
