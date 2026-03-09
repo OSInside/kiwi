@@ -124,6 +124,7 @@ class DiskFormatVagrantBase(DiskFormatBase):
         * creation of box metadata.json
         * creation of box Vagrantfile (either from scratch or by using the user
           provided Vagrantfile)
+        * creation of box info.json
         * creation of result format tarball from the files created above
         """
         if not self.image_format or not self.provider:
@@ -155,6 +156,11 @@ class DiskFormatVagrantBase(DiskFormatBase):
 
             vagrant.write(embedded_vagrantfile)
 
+        info_json = os.path.join(temp_image_dir.name, 'info.json')
+        if box_info := self._create_box_info():
+            with open(info_json, 'w') as info:
+                info.write(box_info)
+
         Command.run(
             [
                 'tar', '-C', temp_image_dir.name,
@@ -162,7 +168,8 @@ class DiskFormatVagrantBase(DiskFormatBase):
                     self.image_format
                 ),
                 os.path.basename(metadata_json),
-                os.path.basename(vagrantfile)
+                os.path.basename(vagrantfile),
+                os.path.basename(info_json)
             ] + [
                 os.path.basename(box_img_file)
                 for box_img_file in box_img_files
@@ -220,6 +227,21 @@ class DiskFormatVagrantBase(DiskFormatBase):
         :rtype: str
         """
         return ''
+
+    def _create_box_info(self) -> Optional[str]:
+        """Serialize Vagrant box info as a JSON string, if present"""
+        vagrant_info = self.vagrantconfig.get_info()
+        if not vagrant_info:
+            return None
+        info: Dict[str, str] = {}
+        for item in vagrant_info:
+            name = item.get_name()
+            value = item.get_valueOf_()
+
+            # just use the last one if someone sends two of the same...
+            info[name] = value
+        return json.dumps(
+            info, sort_keys=True, indent=2, separators=(',', ': '))
 
     def _create_box_metadata(self):
         metadata = self.get_additional_metadata() or {}

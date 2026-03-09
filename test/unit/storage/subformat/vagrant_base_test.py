@@ -36,6 +36,7 @@ class TestDiskFormatVagrantBase:
         self.vagrantconfig.get_virtualsize = Mock(
             return_value=42
         )
+        self.vagrantconfig.get_info = Mock(return_value=[])
         self.runtime_config = Mock()
         self.runtime_config.get_bundle_compression.return_value = False
         kiwi.storage.subformat.base.RuntimeConfig = Mock(
@@ -87,6 +88,17 @@ class TestDiskFormatVagrantBase:
             }
         ''').strip()
 
+        info_json = dedent('''
+            {
+              "repo": "my-kiwi-descriptions"
+            }
+        ''').strip()
+
+        vagrantconfig_info = [Mock()]
+        vagrantconfig_info[0].get_name = Mock(return_value='repo')
+        vagrantconfig_info[0].get_valueOf_ = Mock(return_value='my-kiwi-descriptions')
+        self.vagrantconfig.get_info.return_value = vagrantconfig_info
+
         expected_vagrantfile = dedent('''
             Vagrant.configure("2") do |config|
             end
@@ -102,17 +114,18 @@ class TestDiskFormatVagrantBase:
 
             assert mock_file.call_args_list == [
                 call('tmpdir/metadata.json', 'w'),
-                call('tmpdir/Vagrantfile', 'w')
+                call('tmpdir/Vagrantfile', 'w'),
+                call('tmpdir/info.json', 'w')
             ]
             assert file_handle.write.call_args_list == [
-                call(metadata_json), call(expected_vagrantfile)
+                call(metadata_json), call(expected_vagrantfile), call(info_json)
             ]
 
         mock_command.assert_called_once_with(
             [
                 'tar', '-C', 'tmpdir', '-czf',
                 'target_dir/some-disk-image.x86_64-1.2.3.vagrant.libvirt.box',
-                'metadata.json', 'Vagrantfile'
+                'metadata.json', 'Vagrantfile', 'info.json'
             ]
         )
 
@@ -144,7 +157,7 @@ class TestDiskFormatVagrantBase:
             assert mock_file.call_args_list == [
                 call('tmpdir/metadata.json', 'w'),
                 call('tmpdir/Vagrantfile', 'w'),
-                call('./example_Vagrantfile', 'r')
+                call('./example_Vagrantfile', 'r'),
             ]
             assert file_handle.write.call_args_list[1] == call(
                 expected_vagrantfile
