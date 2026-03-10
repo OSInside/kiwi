@@ -1,5 +1,9 @@
 .. kiwi documentation master file
 
+.. only:: suse
+
+   .. include:: suse_metadata.rst
+
 Welcome to KIWI NG
 ==================
 
