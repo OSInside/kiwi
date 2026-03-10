@@ -402,6 +402,10 @@ class TestLiveImageBuilder:
 
         self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')
 
+        assert self.setup.setup_selinux_file_contexts.call_args_list == [
+            call(), call()
+        ]
+
         if xml_filesystem == 'squashfs':
             assert kiwi.builder.live.FileSystem.new.call_args_list == [
                 call(

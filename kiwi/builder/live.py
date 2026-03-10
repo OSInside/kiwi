@@ -181,6 +181,8 @@ class LiveImageBuilder:
                 working_directory=self.root_dir
             )
 
+            self.system_setup.setup_selinux_file_contexts()
+
             # prepare dracut initrd call
             self.boot_image.prepare()
 
@@ -252,6 +254,9 @@ class LiveImageBuilder:
             'mount_options': self.xml_state.get_fs_mount_option_list(),
             'create_options': self.xml_state.get_fs_create_option_list()
         }
+
+        self.system_setup.setup_selinux_file_contexts()
+
         filesystem_setup = FileSystemSetup(
             self.xml_state, self.root_dir
         )
