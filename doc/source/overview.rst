@@ -76,31 +76,3 @@ Virtualization Technology
    a real computer but is separated from the physical hardware.
    Within this documentation, the QEMU virtualization system is
    used. Another popular alternative is VirtualBox.
-
-System Requirements
--------------------
-
-To use and run {kiwi}, you need:
-
-* A recent Linux distribution; see :ref:`supported-distributions` for
-  details.
-
-* Enough free disk space to build and store the image. We recommend a
-  minimum of 15GB.
-
-* Python version 3.5 or higher
-
-* Git (package ``git``) to clone a repository.
-
-* Any virtualization technology to start the image. We recommend QEMU.
-
-The project officially tests and supports the following distributions:
-
-* `Fedora Linux <https://fedoraproject.org>`_ 40+
-* `CentOS Stream <https://centos.org>`_ 9+
-* `CentOS Stream Hyperscale <https://centos.org/hyperscale>`_ 9+
-* `openSUSE Tumbleweed <https://get.opensuse.org/tumbleweed/>`_ after April 2024
-* `openSUSE Leap 16.0+ <https://get.opensuse.org/leap/16.0/>`_
-* `Canonical Ubuntu Linux <https://ubuntu.com/>`_ 24.04+
-* `Debian GNU/Linux <https://debian.org>`_ 12+
-* `Arch Linux <https://archlinux.org>`_ after April 2024
