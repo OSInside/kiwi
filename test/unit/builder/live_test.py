@@ -18,6 +18,9 @@ class TestLiveImageBuilder:
         Defaults.set_platform_name('x86_64')
 
         self.firmware = Mock()
+        self.firmware.bios_mode.return_value = False
+        self.firmware.get_partition_table_type.return_value = 'gpt'
+        self.firmware.gpt_hybrid_mbr = False
         self.firmware.legacy_bios_mode = Mock(
             return_value=True
         )
@@ -74,6 +77,9 @@ class TestLiveImageBuilder:
         )
 
         self.xml_state = Mock()
+        self.xml_state.build_type.get_verity_blocks = Mock(
+            return_value=None
+        )
         self.xml_state.get_fs_mount_option_list = Mock(
             return_value=['async']
         )
@@ -180,6 +186,94 @@ class TestLiveImageBuilder:
         mock_Command_run.assert_called_once_with(
             ['mv', 'kiwi_used_initrd_name', 'root_dir/boot/dracut_initrd_name']
         )
+
+    @mark.parametrize('xml_filesystem', [None, 'squashfs', 'erofs'])
+    @patch('kiwi.builder.live.create_boot_loader_config')
+    @patch('kiwi.builder.live.LoopDevice')
+    @patch('kiwi.builder.live.DeviceProvider')
+    @patch('kiwi.builder.live.IsoToolsBase.setup_media_loader_directory')
+    @patch('kiwi.builder.live.Temporary')
+    @patch('kiwi.builder.live.shutil')
+    @patch('kiwi.builder.live.Iso.set_media_tag')
+    @patch('kiwi.builder.live.Iso')
+    @patch('kiwi.builder.live.FileSystemIsoFs')
+    @patch('kiwi.builder.live.FileSystem.new')
+    @patch('kiwi.builder.live.SystemSize')
+    @patch('kiwi.builder.live.Defaults.get_grub_boot_directory_name')
+    @patch('os.unlink')
+    @patch('os.path.exists')
+    @patch('os.chmod')
+    @patch('kiwi.builder.live.BlockID')
+    def test_create_overlay_structure_boot_verity_baked(
+        self,
+        mock_BlockID,
+        mock_chmod,
+        mock_exists,
+        mock_unlink,
+        mock_grub_dir,
+        mock_size,
+        mock_filesystem,
+        mock_isofs,
+        mock_Iso,
+        mock_tag,
+        mock_shutil,
+        mock_Temporary,
+        mock_setup_media_loader_directory,
+        mock_DeviceProvider,
+        mock_LoopDevice,
+        mock_create_boot_loader_config,
+        xml_filesystem
+    ):
+        if not xml_filesystem or xml_filesystem == 'squashfs':
+            mock_BlockID.return_value.get_filesystem.return_value = 'squashfs'
+        if xml_filesystem and xml_filesystem == 'erofs':
+            mock_BlockID.return_value.get_filesystem.return_value = 'erofs'
+        bootloader_config = Mock()
+        mock_create_boot_loader_config.return_value.__enter__.return_value = \
+            bootloader_config
+        loop_provider = Mock()
+        mock_LoopDevice.return_value.__enter__.return_value = loop_provider
+        mock_exists.return_value = True
+        mock_unlink.return_value = True
+        mock_grub_dir.return_value = 'grub2'
+        temp_squashfs = Mock()
+        temp_squashfs.name = 'temp-squashfs'
+        temp_media_dir = Mock()
+        temp_media_dir.name = 'temp_media_dir'
+        tmpdir_name = [temp_squashfs, temp_media_dir]
+
+        def side_effect():
+            return tmpdir_name.pop()
+
+        mock_Temporary.return_value.new_dir.side_effect = side_effect
+        mock_Temporary.return_value.new_file.return_value.name = 'kiwi-tmpfile'
+        self.live_image.live_type = 'overlay'
+        self.live_image.root_filesystem_verity_blocks = 'all'
+        self.xml_state.build_type.get_filesystem = Mock(
+            return_value=xml_filesystem
+        )
+        iso_image = Mock()
+        iso_image.create_on_file.return_value = 'offset'
+        mock_isofs.return_value.__enter__.return_value = iso_image
+        rootsize = Mock()
+        rootsize.accumulate_mbyte_file_sizes = Mock(
+            return_value=8192
+        )
+        mock_size.return_value = rootsize
+        self.setup.export_package_changes.return_value = '.changes'
+        self.setup.export_package_verification.return_value = '.verified'
+        self.setup.export_package_list.return_value = '.packages'
+
+        with patch('builtins.open', create=True):
+            self.live_image.create()
+
+        if xml_filesystem is None:
+            mock_filesystem.return_value.__enter__.return_value.\
+                create_verity_layer.assert_called_once_with(None)
+
+        if xml_filesystem == 'squashfs':
+            mock_filesystem.return_value.\
+                create_verity_layer.assert_called_once_with(None)
 
     @mark.parametrize('xml_filesystem', ['xfs'])
     @patch('kiwi.builder.live.create_boot_loader_config')
@@ -395,9 +489,6 @@ class TestLiveImageBuilder:
         self.setup.export_package_verification.return_value = '.verified'
         self.setup.export_package_list.return_value = '.packages'
 
-        self.firmware.bios_mode.return_value = False
-        self.firmware.get_partition_table_type.return_value = 'gpt'
-        self.firmware.gpt_hybrid_mbr = False
         self.live_image.create()
 
         self.setup.import_cdroot_files.assert_called_once_with('temp_media_dir')

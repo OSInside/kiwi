@@ -35,7 +35,7 @@
         </type>
     </preferences>
     <preferences profiles="EroFS">
-        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="xfs" hybridpersistent="true" filesystem="erofs" fscreateoptions="-Ededupe,all-fragments -C 65536">
+        <type image="iso" flags="overlay" firmware="uefi" kernelcmdline="console=ttyS0 rd.kiwi.verity_options=panic-on-corruption" hybridpersistent_filesystem="xfs" hybridpersistent="true" filesystem="erofs" fscreateoptions="-Ededupe,all-fragments -C 65536" verity_blocks="all">
             <bootloader name="grub2" console="serial" timeout="10"/>
         </type>
     </preferences>
@@ -75,7 +75,7 @@
         <package name="grub2-i386-pc"/>
         <package name="shim"/>
     </packages>
-    <packages type="image" profiles="Encrypted">
+    <packages type="image" profiles="Encrypted,EroFS">
         <package name="cryptsetup"/>
     </packages>
     <packages type="image">

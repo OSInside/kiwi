@@ -1800,7 +1800,7 @@ div {
         attribute verity_blocks { blocks-type }
         >> sch:pattern [ id = "verity_blocks" is-a = "image_type"
             sch:param [ name = "attr" value = "verity_blocks" ]
-            sch:param [ name = "types" value = "oem" ]
+            sch:param [ name = "types" value = "oem iso" ]
         ]
     k.type.embed_verity_metadata.attribute =
         ## In combination with the verity_blocks attribute, embed
