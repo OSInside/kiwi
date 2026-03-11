@@ -302,15 +302,19 @@ Provides:       kiwi-filesystem:ext4
 Provides:       kiwi-filesystem:squashfs
 Provides:       kiwi-filesystem:xfs
 %if ! (0%{?suse_version} && 0%{?suse_version} < 1600)
+%if 0%{?fedora} || 0%{?rhel} || 0%{?debian} || 0%{?ubuntu} || 0%{?is_opensuse}
 Provides:       kiwi-filesystem:erofs
 Provides:       kiwi-image:erofs
+%endif
 %endif
 %endif
 Requires:       dosfstools
 Requires:       e2fsprogs
 Requires:       xfsprogs
 %if ! (0%{?suse_version} && 0%{?suse_version} < 1600)
+%if 0%{?fedora} || 0%{?rhel} || 0%{?debian} || 0%{?ubuntu} || 0%{?is_opensuse}
 Requires:       erofs-utils
+%endif
 %endif
 %if 0%{?suse_version}
 Requires:       btrfsprogs
