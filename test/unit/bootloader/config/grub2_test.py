@@ -697,6 +697,7 @@ class TestBootLoaderConfigGrub2:
         grub_default.write = Mock()
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
+        self.bootloader.bls = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'gfxterm'
         self.bootloader.theme = 'openSUSE'
@@ -754,6 +755,7 @@ class TestBootLoaderConfigGrub2:
         grub_default.write = Mock()
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
+        self.bootloader.bls = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'gfxterm'
         self.bootloader.theme = 'openSUSE'
@@ -794,6 +796,7 @@ class TestBootLoaderConfigGrub2:
         grub_default = MagicMock()
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
+        self.bootloader.bls = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'serial'
         self.bootloader.theme = 'openSUSE'
@@ -840,6 +843,7 @@ class TestBootLoaderConfigGrub2:
         grub_default = MagicMock()
         mock_sysconfig.return_value = grub_default
         mock_exists.return_value = True
+        self.bootloader.bls = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'serial'
         self.bootloader.theme = 'openSUSE'
@@ -889,6 +893,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.displayname = 'Bob'
         self.bootloader.cmdline = 'abcd root=LABEL=foo console=tty0'
         self.bootloader.persistency_type = 'by-label'
+        self.bootloader.bls = True
 
         self.bootloader._setup_default_grub()
 

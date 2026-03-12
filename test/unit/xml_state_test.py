@@ -1244,8 +1244,12 @@ class TestXMLState:
         assert self.state.get_build_type_bootloader_bls() is False
         self.bootloader.get_bls.return_value = True
         assert self.state.get_build_type_bootloader_bls() is True
-        self.bootloader.get_bls.return_value = None
-        assert self.state.get_build_type_bootloader_bls() is True
+        # The behavior for this is different on some distributions
+        # because of the different default state. See
+        # kiwi-revert-bls-default-for-suse.patch
+        # As long as we cary this patch the following test is disabled
+        # self.bootloader.get_bls.return_value = None
+        # assert self.state.get_build_type_bootloader_bls() is True
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_console(self, mock_bootloader):
