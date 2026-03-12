@@ -289,6 +289,18 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         # Setup/Update loader environment
         self._setup_loader_variables()
 
+        # Fix BLS entries before running grub2-mkconfig. On distros
+        # like RHEL 8 the grub.d/10_linux_bls script reads BLS
+        # entries and inlines them as menuentry blocks in grub.cfg
+        # rather than emitting a blscfg command. BLS entries created
+        # during package installation in the kiwi image root often
+        # contain the build host path prefix in linux/initrd paths
+        # and the host's /proc/cmdline in the options field. Those
+        # must be corrected before grub2-mkconfig reads them,
+        # otherwise the wrong values are baked into grub.cfg.
+        self._fix_grub_loader_entries_boot_cmdline()
+        self._fix_grub_loader_entries_linux_and_initrd_paths()
+
         # Disable os-prober, it takes information from the host it
         # runs on which is not necessarily matching with the image
         os.environ.update({'GRUB_DISABLE_OS_PROBER': 'true'})
