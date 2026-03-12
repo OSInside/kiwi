@@ -23,24 +23,46 @@ Why KIWI?
 * **Extensible and Customizable**: A flexible plugin architecture and the ability to include custom scripts and configuration files give you full control over the image-building process.
 * **Battle-Tested**: {kiwi} is used by enterprises and open-source projects alike, and builds official images in the build service of SUSE and Fedora.
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
+.. only:: suse
 
-   overview
-   installation
-   quickstart
-   commands
-   troubleshooting
-   plugins
-   concept_and_workflow
-   image_description
-   image_types_and_results
-   building_images
-   working_with_images
-   contributing
-   integration_testing
-   api
+   .. toctree::
+      :maxdepth: 1
+
+      overview
+      installation
+      quickstart
+      commands
+      troubleshooting
+      plugins
+      concept_and_workflow
+      image_description
+      image_types_and_results
+      building_images
+      working_with_images
+      contributing
+      integration_testing
+      api
+
+.. only:: not suse
+
+   .. toctree::
+      :maxdepth: 1
+      :hidden:
+
+      overview
+      installation
+      quickstart
+      commands
+      troubleshooting
+      plugins
+      concept_and_workflow
+      image_description
+      image_types_and_results
+      building_images
+      working_with_images
+      contributing
+      integration_testing
+      api
 
 .. sidebar:: Links
 
