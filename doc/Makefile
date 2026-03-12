@@ -210,6 +210,14 @@ xml:
 	@echo
 	@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
 
+
+.PHONY: xml_suse
+xml_suse:
+	$(SPHINXBUILD) -b xml -t suse $(ALLSPHINXOPTS) $(BUILDDIR)/xml
+	@echo
+	@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
+
+
 .PHONY: pseudoxml
 pseudoxml:
 	$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
