@@ -24,6 +24,7 @@ from importlib.metadata import (
     entry_points, EntryPoint
 )
 from pathlib import Path
+from typing_extensions import Literal
 from typing import (
     Annotated, Dict, Optional, List
 )
@@ -663,7 +664,7 @@ class Cli:
             )
         ] = [],
         ca_target_distribution: Annotated[
-            Optional[str], typer.Option(
+            Optional[Literal['suse', 'redhat', 'debian', 'archlinux']], typer.Option(
                 help='Specify target distribution for the import of '
                 'certificates via the --ca-cert options(s) and/or the '
                 'provided <certificates> from the image description. '
@@ -862,7 +863,7 @@ class Cli:
             )
         ] = [],
         ca_target_distribution: Annotated[
-            Optional[str], typer.Option(
+            Optional[Literal['suse', 'redhat', 'debian', 'archlinux']], typer.Option(
                 help='Specify target distribution for the import of '
                 'certificates via the --ca-cert options(s) and/or the '
                 'provided <certificates> from the image description. '
