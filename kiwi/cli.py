@@ -28,6 +28,11 @@ from typing import (
     Annotated, Dict, Optional, List
 )
 
+if sys.version_info >= (3, 8):
+    from typing import Literal  # pragma: no cover
+else:  # pragma: no cover
+    from typing_extensions import Literal  # pragma: no cover
+
 # project
 from kiwi.exceptions import (
     KiwiUnknownServiceName,
@@ -670,7 +675,7 @@ class Cli:
             )
         ] = [],
         ca_target_distribution: Annotated[
-            Optional[str], typer.Option(
+            Optional[Literal['suse', 'redhat', 'debian', 'archlinux']], typer.Option(
                 help='Specify target distribution for the import of '
                 'certificates via the --ca-cert options(s) and/or the '
                 'provided <certificates> from the image description. '
@@ -869,7 +874,7 @@ class Cli:
             )
         ] = [],
         ca_target_distribution: Annotated[
-            Optional[str], typer.Option(
+            Optional[Literal['suse', 'redhat', 'debian', 'archlinux']], typer.Option(
                 help='Specify target distribution for the import of '
                 'certificates via the --ca-cert options(s) and/or the '
                 'provided <certificates> from the image description. '
