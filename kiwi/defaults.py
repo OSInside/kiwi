@@ -1372,6 +1372,7 @@ class Defaults:
             'EFI/fedora',
             'EFI/redhat',
             'EFI/centos',
+            'EFI/almalinux',
             'EFI/opensuse',
             'EFI/ubuntu',
             'EFI/debian'
