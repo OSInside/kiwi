@@ -13,6 +13,7 @@ from kiwi.exceptions import KiwiCATargetDistributionError
 
 from ..test_helper import argv_kiwi_tests
 
+from kiwi.defaults import Defaults
 from kiwi.tasks.system_build import SystemBuildTask
 
 
@@ -22,6 +23,7 @@ class TestSystemBuildTask:
         self._caplog = caplog
 
     def setup(self):
+        Defaults.set_platform_name('x86_64')
         sys.argv = [
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'build',
             '--description', '../data/description',

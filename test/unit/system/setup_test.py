@@ -374,25 +374,33 @@ class TestSystemSetup:
                 self.setup_with_real_xml.import_description()
 
     @patch('kiwi.command.Command.run')
-    def test_cleanup(self, mock_command):
+    @patch('os.path.isdir')
+    @patch('kiwi.system.setup.Path.wipe')
+    @patch('kiwi.system.setup.MountManager')
+    def test_cleanup(
+        self,
+        mock_MountManager,
+        mock_Path_wipe,
+        mock_os_path_isdir,
+        mock_Command_run
+    ):
+        image_meta = Mock()
+        mock_MountManager.return_value = image_meta
+        mock_os_path_isdir.return_value = True
         self.setup.cleanup()
-        assert mock_command.call_args_list == [
-            call(
-                [
-                    'chroot', 'root_dir', 'rm', '-f',
-                    '.kconfig',
-                    '.profile',
-                    'config.bootoptions'
-                ]
-            ),
-            call(
-                command=['mountpoint', '-q', 'root_dir/image'],
-                raise_on_error=False
-            ),
-            call(
-                ['rm', '-r', '-f', 'root_dir/image']
-            )
-        ]
+        mock_Command_run.assert_called_once_with(
+            [
+                'chroot', 'root_dir', 'rm', '-f',
+                '.kconfig',
+                '.profile',
+                'config.bootoptions'
+            ]
+        )
+        mock_MountManager.assert_called_once_with(
+            device='none', mountpoint='root_dir/image'
+        )
+        image_meta.umount.assert_called_once_with()
+        mock_Path_wipe.assert_called_once_with('root_dir/image')
 
     @patch('kiwi.system.setup.ArchiveTar')
     @patch('kiwi.system.setup.glob.iglob')

@@ -29,7 +29,7 @@ usage: kiwi-ng system build -h | --help
            [--add-package=<name>...]
            [--add-bootstrap-package=<name>...]
            [--ca-cert=<cert-file>...]
-           [--ca-target-distribution=<suse|redhat|debian|archlinux>]
+           [--ca-target-distribution=<suse,redhat,debian,archlinux>]
            [--delete-package=<name>...]
            [--set-container-derived-from=<uri>]
            [--set-container-tag=<name>]
