@@ -135,7 +135,7 @@ test: setup
 	# python static code checks
 	poetry run mypy kiwi
 	# unit tests
-	poetry run bash -c 'pushd test/unit && pytest -n 5 \
+	poetry run bash -c 'pushd test/unit && pytest -n 8 \
 		--doctest-modules --no-cov-on-fail --cov=kiwi \
 		--cov-report=term-missing --cov-fail-under=100 \
 		--cov-config .coveragerc'
