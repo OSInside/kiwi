@@ -87,10 +87,11 @@ class SystemPrepare:
         root.create()
         image_uris = xml_state.get_derived_from_image_uri()
         delta_root = xml_state.build_type.get_delta_root()
+        image_type = xml_state.build_type.get_image()
 
-        if image_uris:
+        if image_uris and image_type in ['docker', 'oci']:
             self.root_import = RootImport.new(
-                root_dir, image_uris, xml_state.build_type.get_image()
+                root_dir, image_uris, image_type
             )
             if delta_root:
                 self.root_import.overlay_data()

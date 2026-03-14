@@ -114,6 +114,24 @@ class TestDiskFormat:
             {'adapter_type=controller': None, 'subformat=disk-mode': None}
         )
 
+    @patch('kiwi.storage.subformat.oci.DiskFormatOci')
+    def test_disk_format_oci(self, mock_oci):
+        DiskFormat.new(
+            'oci:raw', self.xml_state, 'root_dir', 'target_dir'
+        )
+        mock_oci.assert_called_once_with(
+            self.xml_state, 'root_dir', 'target_dir',
+            {'base_format': 'raw', 'container_format': 'oci'}
+        )
+        mock_oci.reset_mock()
+        DiskFormat.new(
+            'docker:raw', self.xml_state, 'root_dir', 'target_dir'
+        )
+        mock_oci.assert_called_once_with(
+            self.xml_state, 'root_dir', 'target_dir',
+            {'base_format': 'raw', 'container_format': 'docker'}
+        )
+
     @patch('kiwi.storage.subformat.vagrant_virtualbox.DiskFormatVagrantVirtualBox')
     @patch('kiwi.storage.subformat.vagrant_libvirt.DiskFormatVagrantLibVirt')
     def test_disk_format_vagrant_libvirt(

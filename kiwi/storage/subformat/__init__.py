@@ -39,6 +39,7 @@ class DiskFormat:
         name: str, xml_state: XMLState, root_dir: str, target_dir: str
     ) -> DiskFormatBase:
         name_map = {
+            'oci': 'Oci',
             'qcow2': 'Qcow2',
             'vdi': 'Vdi',
             'vhd': 'Vhd',
@@ -108,4 +109,13 @@ class DiskFormat:
                 )
         elif name == 'raw':
             module_namespace = 'base'
+        elif name.startswith('oci:') or name.startswith('docker:'):
+            container_format, base_format = name.split(':', 1)
+            module_namespace = 'oci'
+            custom_args.update(
+                {
+                    'base_format': base_format,
+                    'container_format': container_format
+                }
+            )
         return custom_args, module_namespace

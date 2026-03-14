@@ -43,6 +43,7 @@ grub_console_input = xsd:token {pattern = "(none|console|serial|at_keyboard|usb_
 fs_attributes = xsd:token {pattern = "(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*"}
 package-version-type =  xsd:token {pattern = "(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}"}
 simple-uri-type = xsd:token {pattern = "(file:|https:|http:|ftp:).*"}
+oci_format_type = xsd:token {pattern = "(oci|docker):(gce|ova|qcow2|vmdk|vdi|vhd|vhdx|vhd-fixed|raw)"}
 
 #==========================================
 # start with image description
@@ -1509,6 +1510,18 @@ div {
     ]
     sch:pattern [
         abstract = "true"
+        id = "derived_from_requirement"
+        sch:rule [
+            context = "type[@image='oem']"
+            sch:assert [
+                test = "not(@derived_from) or starts-with(@format, 'oci:') or starts-with(@format, 'docker:')"
+                "in oem images, derived_from can only be used in combination "
+                "with format='oci:disk_format' or format='docker:disk_format'"
+            ]
+        ]
+    ]
+    sch:pattern [
+        abstract = "true"
         id = "image_verity_requirement"
         sch:rule [
             context = "type[@embed_verity_metadata]"
@@ -1819,14 +1832,14 @@ div {
             sch:param [ name = "attr" value = "filesystem" ]
             sch:param [ name = "types" value = "oem" ]
         ]
-	k.type.erofscompression.attribute =
+    k.type.erofscompression.attribute =
         ## Specifies the compression type for erofs
         attribute erofscompression { text }
         >> sch:pattern [ id = "erofscompression" is-a = "image_type"
             sch:param [ name = "attr" value = "erofscompression" ]
             sch:param [ name = "types" value = "oem pxe kis iso erofs" ]
         ]
-	k.type.squashfscompression.attribute =
+    k.type.squashfscompression.attribute =
         ## Specifies the compression type for mksquashfs
         attribute squashfscompression {
             "uncompressed" | "gzip" | "lzo" | "lz4" | "xz" | "zstd"
@@ -2029,7 +2042,7 @@ div {
         ## Specifies the format of the virtual disk.
         attribute format {
             "gce" | "ova" | "qcow2" | "vagrant" | "vmdk" |
-            "vdi" | "vhd" | "vhdx" | "vhd-fixed"
+            "vdi" | "vhd" | "vhdx" | "vhd-fixed" | oci_format_type
         }
         >> sch:pattern [ id = "format" is-a = "image_type"
             sch:param [ name = "attr" value = "format" ]
@@ -2339,7 +2352,11 @@ div {
         attribute derived_from { text }
         >> sch:pattern [ id = "derived_from" is-a = "image_type"
             sch:param [ name = "attr" value = "derived_from" ]
-            sch:param [ name = "types" value = "docker oci" ]
+            sch:param [ name = "types" value = "docker oci oem" ]
+        ]
+        >> sch:pattern [
+            id = "no_derived_from_in_oem_without_container_format"
+            is-a = "derived_from_requirement"
         ]
     k.type.provide_system_files.attribute =
         ## Create a systemfiles metadata file containing the
@@ -3133,14 +3150,30 @@ div {
             ]
         ]
     ]
+    sch:pattern [
+        abstract = "true"
+        id = "format_type"
+        sch:rule [
+            context = "containerconfig[@name]"
+            sch:assert [
+                test = "not(../@format) or starts-with(../@format, 'oci:') or starts-with(../@format, 'docker:')"
+                "in oem images, the <containerconfig> section is only "~
+                "available in combination with @format='oci:disk_format' "~
+                "or @format='docker:disk_format'"
+            ]
+        ]
+    ]
     k.containerconfig.name.attribute =
         ## Specifies a name for the container. This is usually the
         ## the repository name of the container as read if the container
         ## image is imported via the docker load command
         attribute name { text }
-        >> sch:pattern [ id = "name" is-a = "container_type"
+        >> sch:pattern [ id = "image_name" is-a = "container_type"
             sch:param [ name = "attr" value = "name" ]
-            sch:param [ name = "types" value = "docker oci appx" ]
+            sch:param [ name = "types" value = "oem docker oci appx" ]
+        ]
+        >> sch:pattern [
+            id = "valid_in_disk_type" is-a = "format_type"
         ]
     k.containerconfig.tag.attribute =
         ## Specifies a tag for the container. This is usually the
@@ -3149,7 +3182,7 @@ div {
         attribute tag { text }
         >> sch:pattern [ id = "tag" is-a = "container_type"
             sch:param [ name = "attr" value = "tag" ]
-            sch:param [ name = "types" value = "docker oci" ]
+            sch:param [ name = "types" value = "oem docker oci" ]
         ]
     k.containerconfig.additionalnames.attribute =
         ## Specifies additional names for the container using a comma
@@ -3160,28 +3193,28 @@ div {
         attribute additionalnames { text }
         >> sch:pattern [ id = "additionalnames" is-a = "container_type"
             sch:param [ name = "attr" value = "additionalnames" ]
-            sch:param [ name = "types" value = "docker oci" ]
+            sch:param [ name = "types" value = "oem docker oci" ]
         ]
     k.containerconfig.maintainer.attribute =
         ## Specifies a maintainer for the container.
         attribute maintainer { text }
         >> sch:pattern [ id = "maintainer" is-a = "container_type"
             sch:param [ name = "attr" value = "maintainer" ]
-            sch:param [ name = "types" value = "docker oci" ]
+            sch:param [ name = "types" value = "oem docker oci" ]
         ]
     k.containerconfig.user.attribute =
         ## Specifies a user for the container.
         attribute user { text }
         >> sch:pattern [ id = "user" is-a = "container_type"
             sch:param [ name = "attr" value = "user" ]
-            sch:param [ name = "types" value = "docker oci" ]
+            sch:param [ name = "types" value = "oem docker oci" ]
         ]
     k.containerconfig.workingdir.attribute =
         ## Specifies the default working directory of the container
         attribute workingdir { text }
         >> sch:pattern [ id = "workingdir" is-a = "container_type"
             sch:param [ name = "attr" value = "workingdir" ]
-            sch:param [ name = "types" value = "docker oci" ]
+            sch:param [ name = "types" value = "oem docker oci" ]
         ]
     k.containerconfig.attlist =
         k.containerconfig.name.attribute &
@@ -3547,7 +3580,7 @@ div {
         ## Specifies the 'created by' history record. By default set to 'KIWI'
         attribute created_by { text }
 
-	k.history.author.attribute =
+    k.history.author.attribute =
         ## Specifies the 'author' history record.
         attribute author { text }
 
@@ -3568,7 +3601,7 @@ div {
 
     k.history.attlist =
         k.history.created_by.attribute? &
-		k.history.author.attribute? &
+        k.history.author.attribute? &
         k.history.application_id? &
         k.history.package_version? &
         k.history.launcher?
