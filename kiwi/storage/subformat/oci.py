@@ -34,6 +34,7 @@ class DiskFormatOci(DiskFormatBase):
         :param dict custom_args: unused
         """
         self.image_format: str = 'oci'
+        # FIXME: get_derived_from_image_uri() must be used
         self.base_container_uri = custom_args.get('base_container_uri')
 
     def create_image_format(self) -> None:
