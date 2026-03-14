@@ -116,6 +116,11 @@
       <param name="pattern">(file:|https:|http:|ftp:).*</param>
     </data>
   </define>
+  <define name="oci_format_type">
+    <data type="token">
+      <param name="pattern">oci:.*</param>
+    </data>
+  </define>
   <!--
     ==========================================
     start with image description
@@ -2914,6 +2919,7 @@ a different set of live features.</a:documentation>
           <value>vhd</value>
           <value>vhdx</value>
           <value>vhd-fixed</value>
+          <ref name="oci_format_type"/>
         </choice>
       </attribute>
       <sch:pattern id="format" is-a="image_type">

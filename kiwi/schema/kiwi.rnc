@@ -43,6 +43,7 @@ grub_console_input = xsd:token {pattern = "(none|console|serial|at_keyboard|usb_
 fs_attributes = xsd:token {pattern = "(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*"}
 package-version-type =  xsd:token {pattern = "(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}"}
 simple-uri-type = xsd:token {pattern = "(file:|https:|http:|ftp:).*"}
+oci_format_type = xsd:token {pattern = "oci:.*"}
 
 #==========================================
 # start with image description
@@ -1986,7 +1987,7 @@ div {
         ## Specifies the format of the virtual disk.
         attribute format {
             "gce" | "ova" | "qcow2" | "vagrant" | "vmdk" |
-            "vdi" | "vhd" | "vhdx" | "vhd-fixed"
+            "vdi" | "vhd" | "vhdx" | "vhd-fixed" | oci_format_type
         }
         >> sch:pattern [ id = "format" is-a = "image_type"
             sch:param [ name = "attr" value = "format" ]
