@@ -48,7 +48,7 @@
             </oemconfig>
         </type>
     </preferences>
-    preferences profiles="Physical_FBA_512">
+    <preferences profiles="Physical_FBA_512">
         <type image="oem" filesystem="xfs" kernelcmdline="console=ttyS0 dasd_mod.dasd=ipldev" bootpartition="true" bootfilesystem="ext3">
             <bootloader name="grub2_s390x_emu" console="serial" targettype="FBA" timeout="10"/>
             <oemconfig>
