@@ -118,6 +118,7 @@ function get_target_rootpart_size {
 }
 
 function plymouth_msg {
+    [ -z "$1" ] || info "$1"
     if command -v plymouth &>/dev/null; then
         plymouth display-message --text="$1"
     fi
