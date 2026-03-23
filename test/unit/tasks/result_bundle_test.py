@@ -492,7 +492,63 @@ class TestResultBundleTask:
     @patch('os.unlink')
     @patch('os.symlink')
     @patch('os.readlink')
-    def test_process_result_bundle_with_bundle_format_for_docker_types(
+    def test_process_result_bundle_with_bundle_format_for_docker_type(
+        self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
+        mock_os_path_islink, mock_exists, mock_path_create, mock_command,
+        mock_load
+    ):
+        self.xml_state.profiles = None
+        self.xml_state.host_architecture = 'x86_64'
+        self.xml_state.get_build_type_name = Mock(
+            return_value='docker'
+        )
+        self.xml_state.xml_data.get_name = Mock(
+            return_value='Leap-15.2'
+        )
+
+        result = Result(self.xml_state)
+        result.add_bundle_format('%N-%T:%M')
+        result.add(
+            key='container',
+            filename='/tmp/mytest/Leap-15.2.x86_64-1.15.2.docker.tar',
+            use_for_bundle=True, compress=False, shasum=False
+        )
+
+        mock_exists.return_value = False
+        mock_load.return_value = result
+        self._init_command_args()
+
+        self.task.process()
+
+        assert mock_command.call_args_list == [
+            call(
+                [
+                    'cp',
+                    '/tmp/mytest/Leap-15.2.x86_64-1.15.2.docker.tar',
+                    os.sep.join(
+                        [self.abs_bundle_dir, 'Leap-15.2-docker:1.docker.tar']
+                    )
+                ]
+            ),
+            call(
+                [
+                    'file',
+                    os.sep.join(
+                        [self.abs_bundle_dir, 'Leap-15.2-docker:1.docker.tar']
+                    )
+                ]
+            )
+        ]
+
+    @patch('kiwi.tasks.result_bundle.Result.load')
+    @patch('kiwi.tasks.result_bundle.Command.run')
+    @patch('kiwi.tasks.result_bundle.Path.create')
+    @patch('os.path.exists')
+    @patch('os.path.islink')
+    @patch('os.unlink')
+    @patch('os.symlink')
+    @patch('os.readlink')
+    def test_process_result_bundle_with_bundle_format_for_compressed_docker_type(
         self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
         mock_os_path_islink, mock_exists, mock_path_create, mock_command,
         mock_load
