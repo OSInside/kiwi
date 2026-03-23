@@ -162,6 +162,8 @@ build: clean check test
 	cp package/python-kiwi-rpmlintrc dist
 	# provide patches
 	cp package/*.patch dist
+	# provide additional source files
+	cp package/systemd-tmpfiles-for-suse.conf dist
 
 prepare_for_pypi: clean setup
 	# documentation render and tests
