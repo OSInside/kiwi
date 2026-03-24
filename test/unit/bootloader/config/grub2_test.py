@@ -1231,7 +1231,7 @@ class TestBootLoaderConfigGrub2:
                 }
             )
             mock_mount_system.assert_called_once_with(
-                'rootdev', 'bootdev', None, None, None
+                None, 'rootdev', 'bootdev', None, None, None, None
             )
             os.environ.update({'GRUB_DISABLE_OS_PROBER': 'true'})
             assert mock_Command_run.call_args_list == [

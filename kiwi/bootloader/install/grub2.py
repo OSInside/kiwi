@@ -71,12 +71,18 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         self.root_mount = None
         self.sysfs_mount = None
         self.volumes = None
+        self.partitions = None
         self.root_volume_name = None
         self.target_removable = None
+        self.device_map = None
         if custom_args and 'target_removable' in custom_args:
             self.target_removable = custom_args['target_removable']
         if custom_args and 'system_volumes' in custom_args:
             self.volumes = custom_args['system_volumes']
+        if custom_args and 'system_partitions' in custom_args:
+            self.partitions = custom_args['system_partitions']
+        if custom_args and 'device_map' in custom_args:
+            self.device_map = custom_args['device_map']
         if custom_args and 'system_root_volume' in custom_args:
             self.root_volume_name = custom_args['system_root_volume']
         if custom_args and 'firmware' in custom_args:
@@ -358,6 +364,18 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
                 volume_mount.mount(
                     options=[self.volumes[volume_path]['volume_options']]
                 )
+        if self.partitions:
+            for map_name in sorted(self.partitions.keys()):
+                if map_name in self.device_map:
+                    partition_mount = MountManager(
+                        device=self.device_map[map_name].get_device(),
+                        mountpoint=os.path.join(
+                            self.root_mount.mountpoint,
+                            self.partitions[map_name].mountpoint.lstrip(os.sep)
+                        )
+                    )
+                    stack.push(partition_mount)
+                    partition_mount.mount()
         device_mount = MountManager(
             device='/dev',
             mountpoint=self.root_mount.mountpoint + '/dev'

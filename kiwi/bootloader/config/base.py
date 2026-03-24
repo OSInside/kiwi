@@ -53,6 +53,7 @@ class BootLoaderConfigBase(ABC):
 
         self.system_is_mounted = False
         self.volumes_mount = []
+        self.partitions_mount = []
         self.root_mount = None
         self.boot_mount = None
         self.efi_mount = None
@@ -495,8 +496,8 @@ class BootLoaderConfigBase(ABC):
             return gfxmode
 
     def _mount_system(
-        self, root_device, boot_device, efi_device=None,
-        volumes=None, root_volume_name=None
+        self, device_map, root_device, boot_device, efi_device=None,
+        volumes=None, root_volume_name=None, partitions=None
     ):
         self.root_mount = MountManager(
             device=root_device
@@ -537,6 +538,19 @@ class BootLoaderConfigBase(ABC):
                 volume_mount.mount(
                     options=[volumes[volume_path]['volume_options']]
                 )
+
+        if partitions:
+            for map_name in sorted(partitions.keys()):
+                if map_name in device_map:
+                    partition_mount = MountManager(
+                        device=device_map[map_name].get_device(),
+                        mountpoint=os.path.join(
+                            self.root_mount.mountpoint,
+                            partitions[map_name].mountpoint.lstrip(os.sep)
+                        )
+                    )
+                    self.partitions_mount.append(partition_mount)
+                    partition_mount.mount()
 
         if efi_device:
             self.efi_mount.mount()
@@ -590,6 +604,8 @@ class BootLoaderConfigBase(ABC):
                 self.boot_mount.umount()
             for volume_mount in reversed(self.volumes_mount):
                 volume_mount.umount()
+            for partition_mount in reversed(self.partitions_mount):
+                partition_mount.umount()
             if self.device_mount:
                 self.device_mount.umount()
             if self.proc_mount:

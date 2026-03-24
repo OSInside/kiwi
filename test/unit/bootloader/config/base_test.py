@@ -11,6 +11,8 @@ from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import KiwiBootLoaderTargetError
 from kiwi.bootloader.config.base import BootLoaderConfigBase
+from kiwi.storage.mapped_device import MappedDevice
+from kiwi.storage.disk import ptable_entry_type
 
 
 class BootLoaderConfigTestImpl(BootLoaderConfigBase):
@@ -360,7 +362,7 @@ class TestBootLoaderConfigBase:
 
         mock_MountManager.side_effect = mount_managers_effect
         self.bootloader._mount_system(
-            'rootdev', 'bootdev'
+            {}, 'rootdev', 'bootdev'
         )
         assert mock_MountManager.call_args_list == [
             call(device='rootdev'),
@@ -392,10 +394,11 @@ class TestBootLoaderConfigBase:
         efi_mount = MagicMock()
         efi_mount.device = 'efidev'
         volume_mount = MagicMock()
+        partition_mount = MagicMock()
 
         mount_managers = [
             proc_mount, sys_mount, dev_mount, tmp_mount, etc_kernel_mount,
-            volume_mount, efi_mount, boot_mount, root_mount
+            partition_mount, volume_mount, efi_mount, boot_mount, root_mount
         ]
 
         def mount_managers_effect(**args):
@@ -406,18 +409,38 @@ class TestBootLoaderConfigBase:
         with BootLoaderConfigTestImpl(self.state, 'root_dir') as bootloader:
             bootloader.root_filesystem_is_overlay = True
             bootloader._mount_system(
-                'rootdev', 'bootdev', 'efidev', {
+                {
+                    'var': MappedDevice('/dev/var-device', Mock())
+                },
+                'rootdev',
+                'bootdev',
+                'efidev',
+                {
                     'boot/grub2': {
                         'volume_options': 'subvol=@/boot/grub2',
                         'volume_device': 'device'
                     }
-                }, root_volume_name='root'
+                },
+                'root',
+                {
+                    'var': ptable_entry_type(
+                        mbsize=100,
+                        clone=1,
+                        partition_name='p.lxvar',
+                        partition_type='t.linux',
+                        partition_id=None,
+                        mountpoint='/var',
+                        filesystem='ext3',
+                        label='var'
+                    )
+                }
             )
             assert mock_MountManager.call_args_list == [
                 call(device='rootdev'),
                 call(device='bootdev', mountpoint='root_mount_point/boot'),
                 call(device='efidev', mountpoint='root_mount_point/boot/efi'),
                 call(device='device', mountpoint='root_mount_point/boot/grub2'),
+                call(device='/dev/var-device', mountpoint='root_mount_point/var'),
                 call(device='/tmp', mountpoint='root_mount_point/tmp'),
                 call(device='efidev', mountpoint='root_mount_point/etc/kernel'),
                 call(device='/dev', mountpoint='root_mount_point/dev'),
@@ -429,6 +452,7 @@ class TestBootLoaderConfigBase:
             )
             boot_mount.mount.assert_called_once_with()
             efi_mount.mount.assert_called_once_with()
+            partition_mount.mount.assert_called_once_with()
             volume_mount.mount.assert_called_once_with(
                 options=['subvol=@/boot/grub2']
             )

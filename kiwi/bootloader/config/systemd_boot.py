@@ -75,10 +75,13 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             )
         boot_options = self.custom_args['boot_options']
         self._mount_system(
+            boot_options.get('device_map'),
             boot_options.get('root_device'),
             boot_options.get('boot_device'),
             boot_options.get('efi_device'),
-            boot_options.get('system_volumes')
+            boot_options.get('system_volumes'),
+            boot_options.get('system_root_volume'),
+            boot_options.get('system_partitions')
         )
         dracut_setup = self.xml_state.get_dracut_config('setup')
         self._run_bootctl(self.root_mount.mountpoint)
