@@ -1477,10 +1477,17 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('kiwi.bootloader.config.grub2.DataSync')
     @patch('os.path.exists')
+    @patch('kiwi.bootloader.config.base.DiskSetup')
     def test_setup_disk_boot_images_bios_plus_efi(
-        self, mock_exists, mock_sync, mock_Path_which,
-        mock_command, mock_get_unsigned_grub_loader
+        self,
+        mock_DiskSetup,
+        mock_exists,
+        mock_sync,
+        mock_Path_which,
+        mock_command,
+        mock_get_unsigned_grub_loader
     ):
+        mock_DiskSetup.return_value.need_boot_partition.return_value = True
         Defaults.set_platform_name('x86_64')
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
         mock_get_unsigned_grub_loader.return_value = []

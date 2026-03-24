@@ -359,7 +359,9 @@ class TestXMLState:
         assert self.state.get_build_type_vmdvd_section().get_id() == 0
         assert self.boot_state.get_build_type_vmdvd_section() is None
 
-    def test_get_volume_management(self):
+    @patch('kiwi.xml_parse.type_.get_filesystem')
+    def test_get_volume_management(self, mock_xml_parse_get_filesystem):
+        mock_xml_parse_get_filesystem.return_value = 'lvm'
         assert self.state.get_volume_management() == 'lvm'
 
     def test_get_volume_management_none(self):

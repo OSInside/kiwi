@@ -2268,6 +2268,14 @@ volume management system</a:documentation>
         <sch:assert test="vagrantconfig[@provider]">&lt;vagrantconfig&gt; section is required for the vagrant format</sch:assert>
       </sch:rule>
     </sch:pattern>
+    <sch:pattern abstract="true" id="image_btrfs_type_requirement">
+      <sch:rule context="systemdisk[@preferlvm='true']">
+        <sch:assert test="not(../@$attr)">Attribute $attr is not supported in combination with preferlvm</sch:assert>
+      </sch:rule>
+      <sch:rule context="type[@filesystem!='btrfs']">
+        <sch:assert test="not(@$attr)">Attribute $attr is only supported with filesystem=btrfs</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <sch:pattern abstract="true" id="image_verity_requirement">
       <sch:rule context="type[@embed_verity_metadata]">
         <sch:assert test="@$attr">$attr attribute must be set for embed_verity_metadata</sch:assert>
@@ -2318,6 +2326,9 @@ By default the quota system is inactive</a:documentation>
         <sch:param name="attr" value="btrfs_quota_groups"/>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
+      <sch:pattern id="no_lvm_btrfs_quota_groups" is-a="image_btrfs_type_requirement">
+        <sch:param name="attr" value="btrfs_quota_groups"/>
+      </sch:pattern>
     </define>
     <define name="k.type.btrfs_set_default_volume.attribute">
       <attribute name="btrfs_set_default_volume">
@@ -2333,6 +2344,9 @@ used to turn it off</a:documentation>
         <sch:param name="attr" value="btrfs_set_default_volume"/>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
+      <sch:pattern id="no_lvm_btrfs_set_default_volume" is-a="image_btrfs_type_requirement">
+        <sch:param name="attr" value="btrfs_set_default_volume"/>
+      </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_subvolume.attribute">
       <attribute name="btrfs_root_is_subvolume">
@@ -2347,6 +2361,9 @@ By default the creation of a root subvolume is set to: true</a:documentation>
         <sch:param name="attr" value="btrfs_root_is_subvolume"/>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
+      <sch:pattern id="no_lvm_btrfs_root_is_subvolume" is-a="image_btrfs_type_requirement">
+        <sch:param name="attr" value="btrfs_root_is_subvolume"/>
+      </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_snapper_snapshot.attribute">
       <attribute name="btrfs_root_is_snapper_snapshot">
@@ -2359,6 +2376,9 @@ By default no snapshots are used</a:documentation>
       <sch:pattern id="btrfs_root_is_snapper_snapshot" is-a="image_type">
         <sch:param name="attr" value="btrfs_root_is_snapper_snapshot"/>
         <sch:param name="types" value="oem"/>
+      </sch:pattern>
+      <sch:pattern id="no_lvm_btrfs_root_is_snapper_snapshot" is-a="image_btrfs_type_requirement">
+        <sch:param name="attr" value="btrfs_root_is_snapper_snapshot"/>
       </sch:pattern>
     </define>
     <define name="k.type.btrfs_root_is_readonly_snapshot.attribute">
@@ -2374,6 +2394,9 @@ is writable</a:documentation>
       <sch:pattern id="btrfs_root_is_readonly_snapshot" is-a="image_type">
         <sch:param name="attr" value="btrfs_root_is_readonly_snapshot"/>
         <sch:param name="types" value="oem"/>
+      </sch:pattern>
+      <sch:pattern id="no_lvm_btrfs_root_is_readonly_snapshot" is-a="image_btrfs_type_requirement">
+        <sch:param name="attr" value="btrfs_root_is_readonly_snapshot"/>
       </sch:pattern>
     </define>
     <define name="k.type.target_blocksize.attribute">
