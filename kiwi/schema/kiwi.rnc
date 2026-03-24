@@ -1491,6 +1491,24 @@ div {
     ]
     sch:pattern [
         abstract = "true"
+        id = "image_btrfs_type_requirement"
+        sch:rule [
+            context = "systemdisk[@preferlvm='true']"
+            sch:assert [
+                test = "not(../@$attr)"
+                "Attribute $attr is not supported in combination with preferlvm"
+            ]
+        ]
+        sch:rule [
+            context = "type[@filesystem!='btrfs']"
+            sch:assert [
+                test = "not(@$attr)"
+                "Attribute $attr is only supported with filesystem=btrfs"
+            ]
+        ]
+    ]
+    sch:pattern [
+        abstract = "true"
         id = "image_verity_requirement"
         sch:rule [
             context = "type[@embed_verity_metadata]"
@@ -1542,6 +1560,11 @@ div {
             sch:param [ name = "attr" value = "btrfs_quota_groups" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+        >> sch:pattern [
+            id = "no_lvm_btrfs_quota_groups"
+            is-a = "image_btrfs_type_requirement"
+            sch:param [ name = "attr" value = "btrfs_quota_groups" ]
+        ]
     k.type.btrfs_set_default_volume.attribute =
         ## Tell kiwi to explicitly make a volume the default volume
         ## This can be either (/) or the root subvolume or the root
@@ -1554,6 +1577,11 @@ div {
             sch:param [ name = "attr" value = "btrfs_set_default_volume" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+        >> sch:pattern [
+            id = "no_lvm_btrfs_set_default_volume"
+            is-a = "image_btrfs_type_requirement"
+            sch:param [ name = "attr" value = "btrfs_set_default_volume" ]
+        ]
     k.type.btrfs_root_is_subvolume.attribute =
         ## Tell kiwi to create a root volume to host (/) inside.
         ## The name of this subvolume is by default set to: '@'
@@ -1565,6 +1593,11 @@ div {
             sch:param [ name = "attr" value = "btrfs_root_is_subvolume" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+        >> sch:pattern [
+            id = "no_lvm_btrfs_root_is_subvolume"
+            is-a = "image_btrfs_type_requirement"
+            sch:param [ name = "attr" value = "btrfs_root_is_subvolume" ]
+        ]
     k.type.btrfs_root_is_snapper_snapshot.attribute =
         ## Tell kiwi to install the system into a btrfs snapshot
         ## The snapshot layout is compatible with the snapper management
@@ -1574,6 +1607,11 @@ div {
         >> sch:pattern [ id = "btrfs_root_is_snapper_snapshot" is-a = "image_type"
             sch:param [ name = "attr" value = "btrfs_root_is_snapper_snapshot" ]
             sch:param [ name = "types" value = "oem" ]
+        ]
+        >> sch:pattern [
+            id = "no_lvm_btrfs_root_is_snapper_snapshot"
+            is-a = "image_btrfs_type_requirement"
+            sch:param [ name = "attr" value = "btrfs_root_is_snapper_snapshot" ]
         ]
     k.type.btrfs_root_is_readonly_snapshot.attribute =
         ## Tell kiwi to set the btrfs root filesystem snapshot read-only
@@ -1586,6 +1624,11 @@ div {
         >> sch:pattern [ id = "btrfs_root_is_readonly_snapshot" is-a = "image_type"
             sch:param [ name = "attr" value = "btrfs_root_is_readonly_snapshot" ]
             sch:param [ name = "types" value = "oem" ]
+        ]
+        >> sch:pattern [
+            id = "no_lvm_btrfs_root_is_readonly_snapshot"
+            is-a = "image_btrfs_type_requirement"
+            sch:param [ name = "attr" value = "btrfs_root_is_readonly_snapshot" ]
         ]
     k.type.target_blocksize.attribute =
         ## Specifies the image blocksize in bytes which has to match
