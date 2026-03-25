@@ -1052,13 +1052,25 @@ class TestSystemSetup:
         )
         mock_setup_selinux_file_contexts.assert_called_once_with()
 
+    @patch('kiwi.system.setup.Profile')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
     @patch('os.path.abspath')
+    @patch('copy.deepcopy')
     def test_call_config_host_overlay_script(
-        self, mock_abspath, mock_exists, mock_watch, mock_command
+        self,
+        mock_copy_deepcopy,
+        mock_abspath,
+        mock_exists,
+        mock_watch,
+        mock_command,
+        mock_Profile
     ):
+        mock_copy_deepcopy.return_value = {}
+        profile = Mock()
+        mock_Profile.return_value = profile
+        profile.get_settings.return_value = {}
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )
@@ -1070,18 +1082,32 @@ class TestSystemSetup:
         mock_abspath.assert_called_once_with(
             'root_dir/image/config-host-overlay.sh'
         )
-        mock_command.assert_called_once_with([
-            'bash', '-c',
-            'cd root_dir && bash --norc /root_dir/image/config-host-overlay.sh '
-        ])
+        mock_command.assert_called_once_with(
+            [
+                'bash', '-c',
+                'cd root_dir && bash --norc /root_dir/image/config-host-overlay.sh '
+            ], {}
+        )
 
+    @patch('kiwi.system.setup.Profile')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
     @patch('os.path.abspath')
+    @patch('copy.deepcopy')
     def test_call_edit_boot_config_script(
-        self, mock_abspath, mock_exists, mock_watch, mock_command
+        self,
+        mock_copy_deepcopy,
+        mock_abspath,
+        mock_exists,
+        mock_watch,
+        mock_command,
+        mock_Profile
     ):
+        mock_copy_deepcopy.return_value = {}
+        profile = Mock()
+        mock_Profile.return_value = profile
+        profile.get_settings.return_value = {}
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )
@@ -1093,22 +1119,37 @@ class TestSystemSetup:
         mock_abspath.assert_called_once_with(
             'root_dir/image/edit_boot_config.sh'
         )
-        mock_command.assert_called_once_with([
-            'bash', '-c',
-            'cd root_dir && bash --norc /root_dir/image/edit_boot_config.sh '
-            'ext4 1'
-        ])
+        mock_command.assert_called_once_with(
+            [
+                'bash', '-c',
+                'cd root_dir && bash --norc /root_dir/image/edit_boot_config.sh '
+                'ext4 1'
+            ], {}
+        )
 
+    @patch('kiwi.system.setup.Profile')
     @patch('kiwi.system.setup.Defaults.is_buildservice_worker')
     @patch('kiwi.logger.Logger.getLogFlags')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
     @patch('os.path.abspath')
+    @patch('copy.deepcopy')
     def test_call_edit_boot_install_script(
-        self, mock_abspath, mock_exists, mock_watch, mock_command,
-        mock_getLogFlags, mock_is_buildservice_worker
+        self,
+        mock_copy_deepcopy,
+        mock_abspath,
+        mock_exists,
+        mock_watch,
+        mock_command,
+        mock_getLogFlags,
+        mock_is_buildservice_worker,
+        mock_Profile
     ):
+        mock_copy_deepcopy.return_value = {}
+        profile = Mock()
+        mock_Profile.return_value = profile
+        profile.get_settings.return_value = {}
         mock_is_buildservice_worker.return_value = False
         mock_getLogFlags.return_value = {
             'run-scripts-in-screen': True
@@ -1133,7 +1174,7 @@ class TestSystemSetup:
                 'cd root_dir && bash --norc '
                 '/root_dir/image/edit_boot_install.sh '
                 'my_image.raw /dev/mapper/loop0p1'
-            ]
+            ], {}
         )
 
     @patch('kiwi.system.setup.Profile')
@@ -1159,12 +1200,23 @@ class TestSystemSetup:
         with raises(KiwiScriptFailed):
             self.setup.call_image_script()
 
+    @patch('kiwi.system.setup.Profile')
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')
     @patch('os.path.exists')
+    @patch('copy.deepcopy')
     def test_call_edit_boot_install_script_raises(
-        self, mock_os_path, mock_watch, mock_command
+        self,
+        mock_copy_deepcopy,
+        mock_os_path,
+        mock_watch,
+        mock_command,
+        mock_Profile
     ):
+        mock_copy_deepcopy.return_value = {}
+        profile = Mock()
+        mock_Profile.return_value = profile
+        profile.get_settings.return_value = {}
         result_type = namedtuple(
             'result_type', ['stderr', 'returncode']
         )

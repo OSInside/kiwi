@@ -1337,6 +1337,9 @@ class SystemSetup:
         script_path = os.path.abspath(
             os.sep.join([self.root_dir, 'image', name])
         )
+        profile = Profile(self.xml_state)
+        caller_environment = copy.deepcopy(os.environ)
+        caller_environment.update(profile.get_settings())
         if os.path.exists(script_path):
             bash_command = [
                 'cd', working_directory, '&&',
@@ -1345,12 +1348,14 @@ class SystemSetup:
             if log.getLogFlags().get('run-scripts-in-screen'):
                 # Run scripts in a screen session if requested
                 config_script = Command.call(
-                    ['screen', '-t', '-X', 'bash', '-c', ' '.join(bash_command)]
+                    ['screen', '-t', '-X', 'bash', '-c', ' '.join(bash_command)],
+                    caller_environment
                 )
             else:
                 # In standard mode run script through bash
                 config_script = Command.call(
-                    ['bash', '-c', ' '.join(bash_command)]
+                    ['bash', '-c', ' '.join(bash_command)],
+                    caller_environment
                 )
             process = CommandProcess(
                 command=config_script, log_topic='Calling ' + name + ' script'
