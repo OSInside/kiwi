@@ -29,7 +29,7 @@ Before you start
 .. note:: 
 
    Please see the :ref:`troubleshooting` chapter and/or our
-   :ref:`contact` info page if the following procedure causes
+   `Contact` info on the main page if the following procedure causes
    any trouble.
 
 Choose a First Image

@@ -129,8 +129,6 @@ Distribution                                                  Version
 `Arch Linux <https://archlinux.org>`_                         after April 2024
 ============================================================  =================
 
-.. _contact:
-
 Contact
 -------
 
