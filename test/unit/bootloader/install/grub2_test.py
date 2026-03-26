@@ -5,6 +5,8 @@ from unittest.mock import (
 from pytest import raises
 import unittest.mock as mock
 
+from kiwi.storage.mapped_device import MappedDevice
+from kiwi.storage.disk import ptable_entry_type
 from kiwi.bootloader.install.grub2 import BootLoaderInstallGrub2
 from kiwi.defaults import Defaults
 
@@ -17,24 +19,43 @@ from kiwi.exceptions import (
 
 
 class TestBootLoaderInstallGrub2:
-    def setup(self):
+    @patch('os.path.exists')
+    def setup(self, mock_os_path_exists):
+        mock_os_path_exists.return_value = True
         Defaults.set_platform_name('x86_64')
 
         self.firmware = mock.Mock()
         self.firmware.efi_mode = mock.Mock(
             return_value=None
         )
-
+        self.device_map = {
+            'var': MappedDevice('/dev/var-device', Mock())
+        }
         self.custom_args = {
+            'device_map': self.device_map,
             'boot_device': '/dev/mapper/loop0p2',
             'root_device': '/dev/mapper/loop0p1',
             'efi_device': '/dev/mapper/loop0p3',
             'prep_device': '/dev/mapper/loop0p2',
             'system_root_volume': 'root',
-            'system_volumes': {'boot/grub2': {
-                'volume_options': 'subvol=@/boot/grub2',
-                'volume_device': 'device'
-            }},
+            'system_volumes': {
+                'boot/grub2': {
+                    'volume_options': 'subvol=@/boot/grub2',
+                    'volume_device': 'device'
+                }
+            },
+            'system_partitions': {
+                'var': ptable_entry_type(
+                    mbsize=100,
+                    clone=1,
+                    partition_name='p.lxvar',
+                    partition_type='t.linux',
+                    partition_id=None,
+                    mountpoint='/var',
+                    filesystem='ext3',
+                    label='var'
+                )
+            },
             'firmware': self.firmware,
             'target_removable': None,
             'install_options': [],
@@ -48,6 +69,10 @@ class TestBootLoaderInstallGrub2:
         self.volume_mount = mock.Mock()
         self.volume_mount.device = self.custom_args['root_device']
         self.volume_mount.mountpoint = 'tmp_volume'
+
+        self.partition_mount = mock.Mock()
+        self.partition_mount.device = self.custom_args['root_device']
+        self.partition_mount.mountpoint = 'tmp_partition'
 
         self.boot_mount = mock.Mock()
         self.boot_mount.device = self.custom_args['boot_device']
@@ -74,6 +99,7 @@ class TestBootLoaderInstallGrub2:
             self.sysfs_mount,
             self.proc_mount,
             self.device_mount,
+            self.partition_mount,
             self.volume_mount,
             self.efi_mount,
             self.boot_mount,
@@ -357,6 +383,7 @@ class TestBootLoaderInstallGrub2:
         self.root_mount.mount.assert_called_once_with(
             options=['subvol=root']
         )
+        self.partition_mount.mount.assert_called_once_with()
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )
@@ -421,6 +448,7 @@ class TestBootLoaderInstallGrub2:
         self.root_mount.mount.assert_called_once_with(
             options=['subvol=root']
         )
+        self.partition_mount.mount.assert_called_once_with()
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )
@@ -446,6 +474,7 @@ class TestBootLoaderInstallGrub2:
         self.root_mount.mount.assert_called_once_with(
             options=['subvol=root']
         )
+        self.partition_mount.mount.assert_called_once_with()
         self.volume_mount.mount.assert_called_once_with(
             options=['subvol=@/boot/grub2']
         )

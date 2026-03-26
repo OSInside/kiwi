@@ -17,7 +17,7 @@
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="oem" bootpartition="false" filesystem="xfs" kernelcmdline="console=ttyS0" firmware="uefi" format="qcow2">
-            <size unit="G">5</size>
+            <size unit="G">10</size>
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>512</oem-swapsize>
@@ -26,6 +26,7 @@
             <bootloader name="grub2" console="serial" timeout="10"/>
             <partitions>
                 <partition name="var" size="1G" mountpoint="/var" filesystem="ext3"/>
+                <partition name="usr" size="5G" mountpoint="/usr" filesystem="btrfs"/>
             </partitions>
             <systemdisk>
                 <volume name="home" freespace="all"/>

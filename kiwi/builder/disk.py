@@ -1942,6 +1942,7 @@ class DiskBuilder:
             boot_device = device_map['boot']
 
         custom_install_arguments = {
+            'device_map': device_map,
             'boot_image': boot_image,
             'boot_device': boot_device.get_device(),
             'root_device':
@@ -1974,6 +1975,11 @@ class DiskBuilder:
                         system.get_root_volume_name()
                         if self.volume_manager_name == 'btrfs' else None
                 }
+            )
+
+        if system and self.custom_partitions:
+            custom_install_arguments.update(
+                {'system_partitions': self.custom_partitions}
             )
 
         # create bootloader config prior bootloader installation

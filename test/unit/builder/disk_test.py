@@ -343,6 +343,7 @@ class TestDiskBuilder:
         )
         bootloader_config.setup_disk_image_config.assert_called_once_with(
             boot_options={
+                'device_map': self.device_map,
                 'boot_image': self.boot_image_task,
                 'boot_device': '/dev/boot-device',
                 'root_device': '/dev/readonly-root-device',
@@ -969,6 +970,7 @@ class TestDiskBuilder:
         )
         bootloader_config.setup_disk_image_config.assert_called_once_with(
             boot_options={
+                'device_map': self.device_map,
                 'boot_image': self.boot_image_task,
                 'boot_device': '/dev/boot-device',
                 'root_device': '/dev/readonly-root-device',
