@@ -8,11 +8,13 @@ import kiwi
 
 from ..test_helper import argv_kiwi_tests
 
+from kiwi.defaults import Defaults
 from kiwi.tasks.system_create import SystemCreateTask
 
 
 class TestSystemCreateTask:
     def setup(self):
+        Defaults.set_platform_name('x86_64')
         sys.argv = [
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'create',
             '--root', '../data/root-dir', '--target-dir', 'some-target'
