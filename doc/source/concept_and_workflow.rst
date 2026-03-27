@@ -81,7 +81,7 @@ CD root user data:
 Image Building Process
 ----------------------
 
-.. figure:: .images/flow-diagram.svg
+.. figure:: .images/flow-diagram.png
     :align: center
     :alt: Kiwi NG Build Process Flow Diagram
 

@@ -8,6 +8,9 @@ import sys
 from os.path import abspath, dirname, join, normpath
 import shlex
 
+from sphinx.transforms import SphinxTransform
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -57,8 +60,25 @@ def prologReplace(app, docname, source):
         result = result.replace(key, app.config.prolog_replacements[key])
     source[0] = result
 
+class AddRootRole(SphinxTransform):
+    # Runs after the document is parsed and the source path is set
+    default_priority = 500
+
+    def apply(self):
+        master_doc = self.config.master_doc
+
+        # Get the current document name relative to the source directory
+        # e.g., 'index', 'folder/subpage', etc.
+        docname = self.env.docname
+
+        # Only apply the attribute if this is the main entry point
+        if docname == master_doc:
+            self.document['role'] = 'main'
+
+
 def setup(app):
     app.add_config_value('prolog_replacements', {}, True)
+    app.add_transform(AddRootRole)
     app.connect('source-read', prologReplace)
     app.connect("autodoc-process-docstring", remove_module_docstring)
 

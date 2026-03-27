@@ -105,9 +105,10 @@ ghpages: setup
 		--output-dir doc/build/api
 
 docs_suse: setup
-	poetry run make -C doc xml
+	poetry run make -C doc xml_suse
 	rm -rf doc/build/restxml
 	mv doc/build/xml doc/build/restxml
+	poetry run pip uninstall --yes rstxml2docbook || true
 	poetry run pip install \
 		git+https://github.com/openSUSE/rstxml2docbook.git@feature/kiwi
 	poetry run bash -c 'pushd doc && rstxml2docbook \

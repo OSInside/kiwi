@@ -1,5 +1,9 @@
 .. kiwi documentation master file
 
+.. only:: suse
+
+   .. include:: suse_metadata.rst
+
 Welcome to KIWI NG
 ==================
 
@@ -10,6 +14,47 @@ KIWI NG is a powerful, command-line-driven tool that allows you to create custom
 .. note::
    This documentation covers {kiwi-product} |version|.
 
+.. only:: suse
+
+   .. toctree::
+      :maxdepth: 1
+
+      overview
+      installation
+      quickstart
+      commands
+      troubleshooting
+      plugins
+      concept_and_workflow
+      image_description
+      image_types_and_results
+      building_images
+      working_with_images
+      contributing
+      integration_testing
+      api
+
+.. only:: not suse
+
+   .. toctree::
+      :maxdepth: 1
+      :hidden:
+
+      overview
+      installation
+      quickstart
+      commands
+      troubleshooting
+      plugins
+      concept_and_workflow
+      image_description
+      image_types_and_results
+      building_images
+      working_with_images
+      contributing
+      integration_testing
+      api
+
 Why KIWI?
 ---------
 
@@ -18,25 +63,6 @@ Why KIWI?
 * **Cross-Distribution Support**: While born in the SUSE world, {kiwi} supports a wide range of Linux distributions, including openSUSE, SUSE Linux Enterprise, Red Hat Enterprise Linux, Fedora, CentOS, and Ubuntu.
 * **Extensible and Customizable**: A flexible plugin architecture and the ability to include custom scripts and configuration files give you full control over the image-building process.
 * **Battle-Tested**: {kiwi} is used by enterprises and open-source projects alike, and builds official images in the build service of SUSE and Fedora.
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   overview
-   installation
-   quickstart
-   commands
-   troubleshooting
-   plugins
-   concept_and_workflow
-   image_description
-   image_types_and_results
-   building_images
-   working_with_images
-   contributing
-   integration_testing
-   api
 
 .. sidebar:: Links
 
@@ -65,13 +91,10 @@ Why KIWI?
 
    * `Build Tests ArchLinux(x86) <https://build.opensuse.org/project/show/Virtualization:Appliances:Images:Testing_x86:archlinux>`__
 
-
 Get Started
 -----------
 
 Ready to build your first image? Jump into the :doc:`quickstart` or explore the :doc:`concept_and_workflow` to get a deeper understanding of how {kiwi} works.
-
-.. _contact:
 
 System Requirements
 -------------------
