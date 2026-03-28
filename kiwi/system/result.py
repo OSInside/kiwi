@@ -99,6 +99,51 @@ class Result:
             'tags': self.name_tags
         }
 
+    def get_name_for_pattern(self, command_args: Dict[str, str] = {}) -> str:
+        bundle_format = self.result_files.get('bundle_format')
+        bundle_file_format_name = ''
+        if bundle_format:
+            tags = bundle_format['tags']
+            bundle_file_format_name = bundle_format['pattern']
+            # Insert image name
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%N', tags.N
+            )
+            # Insert Concatenated profile name (_)
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%P', tags.P
+            )
+            # Insert Architecture name
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%A', tags.A
+            )
+            # Insert Image build type name
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%T', tags.T
+            )
+            # Insert Image Major version number
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%M', format(tags.M)
+            )
+            # Insert Image Minor version number
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%m', format(tags.m)
+            )
+            # Insert Image Patch version number
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%p', format(tags.p)
+            )
+            # Insert Version string
+            bundle_file_format_name = bundle_file_format_name.replace(
+                '%v', format(tags.v)
+            )
+            # Insert Bundle ID
+            if command_args.get('--id'):
+                bundle_file_format_name = bundle_file_format_name.replace(
+                    '%I', command_args['--id']
+                )
+        return bundle_file_format_name
+
     def add(
         self, key: str, filename: str, use_for_bundle: bool = True,
         compress: bool = False, shasum: bool = True

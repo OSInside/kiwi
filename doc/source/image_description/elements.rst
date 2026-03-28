@@ -931,10 +931,37 @@ flags="overlay|dmsquash":
   system based on the capabilities of the upstream dracut
   module.
 
-format="gce|ova|qcow2|vagrant|vmdk|vdi|vhd|vhdx|vhd-fixed":
-  For disk image type oem, this specifies the format of
-  the virtual disk so that it can run on the desired target
-  virtualization platform.
+format="format_name":
+  For disk image type `oem`, this specifies the format of the virtual disk
+  so that it can run on the desired target virtualization platform. The
+  supported formats_name's are:
+
+   * `gce`: Google Compute Engine image format.
+   * `ova`: Open Virtualization Format Archive.
+   * `qcow2`: QEMU Copy-On-Write version 2.
+   * `vagrant`: Vagrant box format (tar.gz).
+   * `vmdk`: VMware Virtual Machine Disk.
+   * `vdi`: VirtualBox Disk Image.
+   * `vhd`: Microsoft Virtual Hard Disk.
+   * `vhdx`: Microsoft Virtual Hard Disk version 2.
+   * `vhd-fixed`: Microsoft Virtual Hard Disk with fixed size.
+   * `oci:image_format`: OCI image archive (oci format).
+   * `docker:image_format`: OCI image archive (docker format).
+
+   The `(oci|docker):image_format` format is a special case that stores the
+   disk image inside of an OCI-compliant container. The disk image is
+   stored in the specified `image_format` in the `disk/` directory
+   of the container. The disk format can be one of the above formats
+   or just `raw` if the disk should be stored as a raw disk inside
+   of the container. Custom naming conventions for the disk image
+   can be applied by using the `bundle_format` attribute.
+   The `derived_from` attribute can be used to specify the source
+   container. The resulting container image will be built by adding
+   the disk image as a new layer on top of the specified reference container.
+   If there is no `derived_from` attribute, the container image will be built
+   from scratch using an empty root directory. This format is particularly
+   useful for building an image which bundles the actual disk image
+   and its runtime requirements into one artifact.
 
 formatoptions="string":
   Specifies additional format options passed on to `qemu-img`.

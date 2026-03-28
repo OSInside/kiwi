@@ -1528,8 +1528,19 @@ class Defaults:
         :rtype: list
         """
         return [
-            'gce', 'qcow2', 'vmdk', 'ova', 'meta', 'vmx', 'vhd', 'vhdx',
-            'vhdfixed', 'vdi', 'vagrant.libvirt.box', 'vagrant.virtualbox.box'
+            'gce',
+            'qcow2',
+            'vmdk',
+            'ova',
+            'meta',
+            'vmx',
+            'vhd',
+            'vhdx',
+            'vhdfixed',
+            'vdi',
+            'vagrant.libvirt.box',
+            'vagrant.virtualbox.box',
+            'oci'
         ]
 
     @staticmethod

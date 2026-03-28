@@ -115,3 +115,14 @@ class TestResult:
         mock_getsize.return_value = 524288000
         with raises(KiwiResultError):
             self.result.verify_image_size(524287999, 'foo')
+
+    def test_get_name_for_pattern(self):
+        self.xml_state.get_image_version.return_value = '1.1.1'
+        self.xml_state.xml_data.get_name.return_value = 'foo'
+        self.xml_state.host_architecture = 'x86_64'
+        self.xml_state.get_build_type_name.return_value = 'oem'
+        self.result.add('foo', 'bar')
+        self.result.add_bundle_format('%N_%I')
+        assert self.result.get_name_for_pattern(
+            command_args={'--id': '0'}
+        ) == 'foo_0'

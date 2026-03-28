@@ -116,6 +116,11 @@
       <param name="pattern">(file:|https:|http:|ftp:).*</param>
     </data>
   </define>
+  <define name="oci_format_type">
+    <data type="token">
+      <param name="pattern">(oci|docker):(gce|ova|qcow2|vmdk|vdi|vhd|vhdx|vhd-fixed|raw)</param>
+    </data>
+  </define>
   <!--
     ==========================================
     start with image description
@@ -2276,6 +2281,11 @@ volume management system</a:documentation>
         <sch:assert test="not(@$attr)">Attribute $attr is only supported with filesystem=btrfs</sch:assert>
       </sch:rule>
     </sch:pattern>
+    <sch:pattern abstract="true" id="derived_from_requirement">
+      <sch:rule context="type[@image='oem']">
+        <sch:assert test="not(@derived_from) or starts-with(@format, 'oci:') or starts-with(@format, 'docker:')">in oem images, derived_from can only be used in combination with format='oci:disk_format' or format='docker:disk_format'</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <sch:pattern abstract="true" id="image_verity_requirement">
       <sch:rule context="type[@embed_verity_metadata]">
         <sch:assert test="@$attr">$attr attribute must be set for embed_verity_metadata</sch:assert>
@@ -2937,6 +2947,7 @@ a different set of live features.</a:documentation>
           <value>vhd</value>
           <value>vhdx</value>
           <value>vhd-fixed</value>
+          <ref name="oci_format_type"/>
         </choice>
       </attribute>
       <sch:pattern id="format" is-a="image_type">
@@ -3368,8 +3379,9 @@ to work on.</a:documentation>
       </attribute>
       <sch:pattern id="derived_from" is-a="image_type">
         <sch:param name="attr" value="derived_from"/>
-        <sch:param name="types" value="docker oci"/>
+        <sch:param name="types" value="docker oci oem"/>
       </sch:pattern>
+      <sch:pattern id="no_derived_from_in_oem_without_container_format" is-a="derived_from_requirement"/>
     </define>
     <define name="k.type.provide_system_files.attribute">
       <attribute name="provide_system_files">
@@ -4723,16 +4735,22 @@ and to provide configuration parameters for it</a:documentation>
         <sch:assert test="contains('$types', ../@image)">containerconfig($attr) is only available for the following image types: $types</sch:assert>
       </sch:rule>
     </sch:pattern>
+    <sch:pattern abstract="true" id="format_type">
+      <sch:rule context="containerconfig[@name]">
+        <sch:assert test="not(../@format) or starts-with(../@format, 'oci:') or starts-with(../@format, 'docker:')">in oem images, the &lt;containerconfig&gt; section is only available in combination with @format='oci:disk_format' or @format='docker:disk_format'</sch:assert>
+      </sch:rule>
+    </sch:pattern>
     <define name="k.containerconfig.name.attribute">
       <attribute name="name">
         <a:documentation>Specifies a name for the container. This is usually the
 the repository name of the container as read if the container
 image is imported via the docker load command</a:documentation>
       </attribute>
-      <sch:pattern id="name" is-a="container_type">
+      <sch:pattern id="image_name" is-a="container_type">
         <sch:param name="attr" value="name"/>
-        <sch:param name="types" value="docker oci appx"/>
+        <sch:param name="types" value="oem docker oci appx"/>
       </sch:pattern>
+      <sch:pattern id="valid_in_disk_type" is-a="format_type"/>
     </define>
     <define name="k.containerconfig.tag.attribute">
       <attribute name="tag">
@@ -4742,7 +4760,7 @@ image is imported via the docker load command</a:documentation>
       </attribute>
       <sch:pattern id="tag" is-a="container_type">
         <sch:param name="attr" value="tag"/>
-        <sch:param name="types" value="docker oci"/>
+        <sch:param name="types" value="oem docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.additionalnames.attribute">
@@ -4755,7 +4773,7 @@ will be used to build a complete image referrence.</a:documentation>
       </attribute>
       <sch:pattern id="additionalnames" is-a="container_type">
         <sch:param name="attr" value="additionalnames"/>
-        <sch:param name="types" value="docker oci"/>
+        <sch:param name="types" value="oem docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.maintainer.attribute">
@@ -4764,7 +4782,7 @@ will be used to build a complete image referrence.</a:documentation>
       </attribute>
       <sch:pattern id="maintainer" is-a="container_type">
         <sch:param name="attr" value="maintainer"/>
-        <sch:param name="types" value="docker oci"/>
+        <sch:param name="types" value="oem docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.user.attribute">
@@ -4773,7 +4791,7 @@ will be used to build a complete image referrence.</a:documentation>
       </attribute>
       <sch:pattern id="user" is-a="container_type">
         <sch:param name="attr" value="user"/>
-        <sch:param name="types" value="docker oci"/>
+        <sch:param name="types" value="oem docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.workingdir.attribute">
@@ -4782,7 +4800,7 @@ will be used to build a complete image referrence.</a:documentation>
       </attribute>
       <sch:pattern id="workingdir" is-a="container_type">
         <sch:param name="attr" value="workingdir"/>
-        <sch:param name="types" value="docker oci"/>
+        <sch:param name="types" value="oem docker oci"/>
       </sch:pattern>
     </define>
     <define name="k.containerconfig.attlist">
