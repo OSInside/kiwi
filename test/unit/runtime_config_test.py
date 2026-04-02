@@ -1,5 +1,7 @@
 import logging
-from unittest.mock import patch
+from unittest.mock import (
+    patch, call
+)
 from pytest import (
     raises, fixture
 )
@@ -38,18 +40,83 @@ class TestRuntimeConfig:
 
     @patch('os.path.exists')
     @patch('yaml.safe_load')
-    def test_reading_system_wide_config_file(
-        self, mock_yaml, mock_exists
+    @patch('os.path.isdir')
+    @patch('os.listdir')
+    def test_reading_system_wide_config_file_from_etc(
+        self,
+        mock_os_listdir,
+        mock_os_path_isdir,
+        mock_yaml,
+        mock_exists
     ):
-        exists_call_results = [True, False]
+        mock_os_path_isdir.return_value = True
+        mock_os_listdir.return_value = ['some.yml']
 
         def os_path_exists(config):
-            return exists_call_results.pop()
+            if config == '/etc/kiwi.yml':
+                return True
+            return False
 
         mock_exists.side_effect = os_path_exists
         with patch('builtins.open') as m_open:
             RuntimeConfig(reread=True)
-            m_open.assert_called_once_with('/etc/kiwi.yml', 'r')
+            assert m_open.call_args_list == [
+                call('/etc/kiwi.yml', 'r'),
+                call('/etc/kiwi.yml.d/some.yml', 'r')
+            ]
+
+    @patch('os.path.exists')
+    @patch('yaml.safe_load')
+    @patch('os.path.isdir')
+    @patch('os.listdir')
+    def test_reading_system_wide_config_file_from_usr(
+        self,
+        mock_os_listdir,
+        mock_os_path_isdir,
+        mock_yaml,
+        mock_exists
+    ):
+        mock_os_path_isdir.return_value = True
+        mock_os_listdir.return_value = ['some.yml']
+
+        def os_path_exists(config):
+            if config == '/usr/share/kiwi/kiwi.yml':
+                return True
+            return False
+
+        mock_exists.side_effect = os_path_exists
+        with patch('builtins.open') as m_open:
+            RuntimeConfig(reread=True)
+            assert m_open.call_args_list == [
+                call('/usr/share/kiwi/kiwi.yml', 'r'),
+                call('/usr/share/kiwi/kiwi.yml.d/some.yml', 'r')
+            ]
+
+    @patch('kiwi.defaults.ETC_RUNTIME_CONFIG_FILE', '../data/kiwi.yml')
+    @patch('kiwi.defaults.ETC_RUNTIME_CONFIG_DIR', '../data/kiwi.yml.d')
+    @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
+    def test_config_sections_from_system_wide_etc_config(
+        self,
+        mock_is_buildservice_worker
+    ):
+        mock_is_buildservice_worker.return_value = False
+        runtime_config = RuntimeConfig(reread=True)
+        assert runtime_config.get_xz_options() == ['-a', '-b', 'xxx']
+        assert runtime_config.get_mapper_tool() == 'partx'
+
+    @patch('kiwi.defaults.ETC_RUNTIME_CONFIG_FILE', '')
+    @patch('kiwi.defaults.ETC_RUNTIME_CONFIG_DIR', '')
+    @patch('kiwi.defaults.USR_RUNTIME_CONFIG_FILE', '../data/kiwi.yml')
+    @patch('kiwi.defaults.USR_RUNTIME_CONFIG_DIR', '../data/kiwi.yml.d')
+    @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
+    def test_config_sections_from_system_wide_usr_config(
+        self,
+        mock_is_buildservice_worker
+    ):
+        mock_is_buildservice_worker.return_value = False
+        runtime_config = RuntimeConfig(reread=True)
+        assert runtime_config.get_xz_options() == ['-a', '-b', 'xxx']
+        assert runtime_config.get_mapper_tool() == 'partx'
 
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
     def test_config_sections_from_home_base_config(self, mock_is_buildservice_worker):

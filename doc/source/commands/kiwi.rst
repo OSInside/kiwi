@@ -97,8 +97,14 @@ GLOBAL OPTIONS
 --config=<configfile>
 
   Use the specified runtime configuration file. If not specified, the
-  runtime configuration is expected to be in the :file:`~/.config/kiwi/config.yml`
-  or :file:`/etc/kiwi.yml` files.
+  runtime configuration is looked up at :file:`~/.config/kiwi/config.yml`
+  or :file:`/etc/kiwi.yml` or :file:`/usr/share/kiwi/kiwi.yml`.
+  If the runtime configuration file is located at :file:`/etc/kiwi.yml`,
+  the system will also check for extra configuration files in
+  :file:`/etc/kiwi.yml.d/`. Similarly, if the main file is at
+  :file:`/usr/share/kiwi/kiwi.yml`, it will look for additional files in
+  :file:`/usr/share/kiwi/kiwi.yml.d/`. All `.yml` files in these directories are
+  loaded in alphabetical order and combined into the final configuration.
 
 --debug
 

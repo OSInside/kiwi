@@ -123,6 +123,10 @@ class TestDiskBuilder:
         kiwi.builder.disk.DiskSetup = MagicMock(
             return_value=self.disk_setup
         )
+        self.runtime_config = Mock()
+        kiwi.builder.disk.RuntimeConfig = MagicMock(
+            return_value=self.runtime_config
+        )
         self.boot_image_task = Mock()
         self.boot_image_task.boot_root_directory = 'boot_dir'
         self.boot_image_task.kernel_filename = 'kernel'

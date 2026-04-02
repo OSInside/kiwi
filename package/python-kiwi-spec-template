@@ -803,6 +803,9 @@ fi
 %files -n python%{python3_pkgversion}-kiwi
 %dir %{_defaultdocdir}/python-kiwi
 %dir %{_usr}/share/kiwi
+%dir %{_usr}/share/kiwi/kiwi.yml.d
+%dir %_sysconfdir/kiwi.yml.d
+%doc %{_usr}/share/kiwi/kiwi.yml.example
 %{_bindir}/kiwi
 %{_bindir}/kiwi-ng
 %{_bindir}/kiwi-ng-3*
@@ -815,7 +818,6 @@ fi
 %{_usr}/share/bash-completion/completions/kiwi-ng
 
 %files -n kiwi-man-pages
-%config %_sysconfdir/kiwi.yml
 %doc %{_mandir}/man8/*
 
 %files -n dracut-kiwi-lib
