@@ -94,6 +94,10 @@ RUNTIME_CHECKER_METADATA = '{}/runtime_checker_metadata.yml'.format(
 TEMP_DIR = '/var/tmp'
 LOCAL_CONTAINERS = '/var/tmp/kiwi_containers'
 CUSTOM_RUNTIME_CONFIG_FILE = None
+ETC_RUNTIME_CONFIG_FILE = '/etc/kiwi.yml'
+ETC_RUNTIME_CONFIG_DIR = '/etc/kiwi.yml.d'
+USR_RUNTIME_CONFIG_FILE = '/usr/share/kiwi/kiwi.yml'
+USR_RUNTIME_CONFIG_DIR = '/usr/share/kiwi/kiwi.yml.d'
 PLATFORM_MACHINE = platform.machine()
 EFI_FAT_IMAGE_SIZE = 20
 

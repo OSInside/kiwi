@@ -43,11 +43,12 @@ class RuntimeConfig:
 
     1. Check for --config provided from the CLI
     2. ~/.config/kiwi/config.yml
-    3. /etc/kiwi.yml
+    3. /etc/kiwi.yml + /etc/kiwi.yml.d/*.yml
+    4. /usr/share/kiwi/kiwi.yml + /usr/share/kiwi/kiwi.yml.d/*.yml
 
     The KIWI runtime configuration file is a yaml formatted file
     containing information to control the behavior of the tools
-    used by KIWI.
+    used by KIWI on the build host.
 
     :param bool reread: reread runtime config
     """
@@ -56,6 +57,7 @@ class RuntimeConfig:
 
         if RUNTIME_CONFIG is None or reread:
             config_file = None
+            config_dir = None
             custom_config_file = defaults.CUSTOM_RUNTIME_CONFIG_FILE
 
             if custom_config_file:
@@ -69,13 +71,33 @@ class RuntimeConfig:
                     [self._home_path(), '.config', 'kiwi', 'config.yml']
                 )
             if not config_file or not os.path.exists(config_file):
-                config_file = '/etc/kiwi.yml'
+                config_file = defaults.ETC_RUNTIME_CONFIG_FILE
+                if not os.path.exists(config_file):
+                    config_file = defaults.USR_RUNTIME_CONFIG_FILE
             if os.path.exists(config_file):
                 log.info(
                     f'Reading runtime config file: {config_file!r}'
                 )
                 with open(config_file, 'r') as config:
                     RUNTIME_CONFIG = yaml.safe_load(config) or {}
+
+                if config_file == defaults.ETC_RUNTIME_CONFIG_FILE:
+                    config_dir = defaults.ETC_RUNTIME_CONFIG_DIR
+                elif config_file == defaults.USR_RUNTIME_CONFIG_FILE:
+                    config_dir = defaults.USR_RUNTIME_CONFIG_DIR
+
+                if config_dir and os.path.isdir(config_dir):
+                    for config_file in sorted(os.listdir(config_dir)):
+                        if config_file.endswith('.yml'):
+                            config_file_path = os.path.normpath(
+                                os.sep.join([config_dir, config_file])
+                            )
+                            log.info(
+                                f'--> Reading addon runtime config file: {config_file_path!r}'
+                            )
+                            with open(config_file_path, 'r') as config:
+                                additional_config = yaml.safe_load(config) or {}
+                                RUNTIME_CONFIG.update(additional_config)
 
     def get_credentials_verification_metadata_signing_key_file(self) -> str:
         """

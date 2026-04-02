@@ -16,6 +16,18 @@ configuration file in the following locations:
 
 2. :file:`/etc/kiwi.yml`
 
-A default runtime config file in :file:`/etc/kiwi.yml` is provided with
-the `python3-kiwi` package. The file contains all settings as comments,
-including a short description of each setting.
+3. :file:`/usr/share/kiwi/kiwi.yml`
+
+A default runtime config file in :file:`/usr/etc/kiwi.yml.example` is
+provided with the `python3-kiwi` main package. The file contains all
+possible settings as comments, including a short description of each
+setting.
+
+If the runtime configuration file is located at :file:`/etc/kiwi.yml`,
+the system will also check for extra configuration files in
+:file:`/etc/kiwi.yml.d/`. Similarly, if the main file is at
+:file:`/usr/share/kiwi/kiwi.yml`, it will look for additional files in
+:file:`/usr/share/kiwi/kiwi.yml.d/`. All `.yml` files in these directories are
+loaded in alphabetical order and combined into the final configuration.
+This allows for modular configuration management, where different
+aspects of the configuration can be separated into different files.
