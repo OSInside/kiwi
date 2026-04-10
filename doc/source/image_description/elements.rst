@@ -141,7 +141,7 @@ settings apply:
 +==============+===========================================+========================+
 | SUSE         | /etc/pki/trust/anchors                    | update-ca-certificates |
 +--------------+-------------------------------------------+------------------------+
-| Red Hat      | /etc/pki/ca-trust/source/anchors          | update-ca-certificates |
+| Red Hat      | /etc/pki/ca-trust/source/anchors          | update-ca-trust        |
 +--------------+-------------------------------------------+------------------------+
 | Debian Based | /usr/local/share/ca-certificates          | update-ca-certificates |
 +--------------+-------------------------------------------+------------------------+
