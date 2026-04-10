@@ -111,7 +111,7 @@ CA_UPDATE_MAP = {
         'destination_path': '/etc/pki/trust/anchors'
     },
     'redhat': {
-        'tool': 'update-ca-certificates',
+        'tool': 'update-ca-trust',
         'destination_path': '/etc/pki/ca-trust/source/anchors/'
     },
     'debian': {
