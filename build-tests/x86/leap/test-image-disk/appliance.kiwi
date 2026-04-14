@@ -17,7 +17,7 @@
         <bootsplash-theme>bgrt</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
         <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" installboot="install" volid="KATO_INSTALL">
-            <bootloader name="grub2" console="serial" timeout="10"/>
+            <bootloader name="grub2" bls="false" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
                 <oem-swapsize>1024</oem-swapsize>
