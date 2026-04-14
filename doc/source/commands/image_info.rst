@@ -10,7 +10,7 @@ SYNOPSIS
 
    kiwi-ng [global options] service <command> [<args>]
 
-   kiwi-ng image info -h | --help
+   kiwi-ng image info --help
    kiwi-ng image info --description=<directory>
        [--resolve-package-list]
        [--list-profiles]
@@ -19,7 +19,6 @@ SYNOPSIS
        [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>...]
        [--add-repo-credentials=<user:pass_or_filename>...]
        [--print-xml|--print-yaml]
-   kiwi-ng image info help
 
 .. _db_image_info_desc:
 

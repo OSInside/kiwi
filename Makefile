@@ -35,8 +35,8 @@ install:
 	done
 	# completion
 	install -d -m 755 ${buildroot}usr/share/bash-completion/completions
-	$(python) helper/completion_generator.py \
-		> ${buildroot}usr/share/bash-completion/completions/kiwi-ng
+	install -m 644 completions/bash-completion \
+		${buildroot}usr/share/bash-completion/completions/kiwi-ng
 	# kiwi default configuration
 	install -d -m 755 ${buildroot}usr/share/kiwi
 	install -d -m 755 ${buildroot}usr/share/kiwi/kiwi.yml.d
@@ -80,16 +80,6 @@ valid:
 			mv $$i.converted $$i ;\
 		fi \
 	done
-
-git_attributes:
-	# the following is required to update the $Format:%H$ git attribute
-	# for details on when this target is called see setup.py
-	git archive HEAD kiwi/version.py | tar -x
-
-clean_git_attributes:
-	# cleanup version.py to origin state
-	# for details on when this target is called see setup.py
-	git checkout kiwi/version.py
 
 setup:
 	poetry install --all-extras
@@ -174,7 +164,7 @@ prepare_for_pypi: clean setup
 	# ci-publish-to-pypi.yml github action
 	poetry build --format=sdist
 
-clean: clean_git_attributes
+clean:
 	rm -rf dist
 	rm -rf doc/build
 	rm -rf doc/dist
