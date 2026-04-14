@@ -49,7 +49,7 @@
     <preferences profiles="SystemFeatures">
         <!-- simple disk image testing features useful in embedded projects -->
         <type image="oem" filesystem="ext4" firmware="efi" overlayroot="true" bootpartition="true" devicepersistency="by-partuuid" kernelcmdline="console=ttyS0">
-            <bootloader name="grub2" console="serial" timeout="10"/>
+            <bootloader name="grub2" bls="false" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>

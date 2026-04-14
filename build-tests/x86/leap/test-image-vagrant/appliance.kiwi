@@ -32,7 +32,7 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" timeout="0" console="serial"/>
+            <bootloader name="grub2" bls="false" timeout="0" console="serial"/>
             <vagrantconfig provider="libvirt" virtualsize="42"/>
             <size unit="G">42</size>
         </type>
@@ -42,7 +42,7 @@
             <oemconfig>
                 <oem-resize>false</oem-resize>
             </oemconfig>
-            <bootloader name="grub2" timeout="0" console="serial"/>
+            <bootloader name="grub2" bls="false" timeout="0" console="serial"/>
             <vagrantconfig provider="virtualbox" virtualbox_guest_additions_present="true" virtualsize="42"/>
             <size unit="G">42</size>
         </type>

@@ -71,9 +71,6 @@ Source0:        %{name}.tar.gz
 Source1:        %{name}-rpmlintrc
 # SUSE-specific source additions (1001+)
 Source1001:     systemd-tmpfiles-for-suse.conf
-# SUSE-specific patches (1001+)
-## PATCH-FIX-OPENSUSE kiwi-revert-bls-default-for-suse.patch -- temporary until opensuse has bls
-Patch1001:      kiwi-revert-bls-default-for-suse.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %if 0%{?fedora} || 0%{?suse_version}
 BuildRequires:  fdupes
@@ -696,11 +693,6 @@ of subcommands, parameters and keywords for the kiwi-ng command.
 
 %prep
 %setup -q -n kiwi-%{version}
-
-%if 0%{?suse_version}
-# Temporarily revert grub-bls default to false for SUSE distributions
-%patch -P 1001 -p1
-%endif
 
 # Temporarily switch things back to docopt for everything but Fedora 41+
 # FIXME: Drop this hack as soon as we can...
