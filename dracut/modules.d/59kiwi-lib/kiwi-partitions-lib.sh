@@ -22,6 +22,7 @@ function create_partitions {
             create_dasd_partitions "${disk_device}" "${partition_setup}"
         ;;
     esac
+    # notify the kernel about partition table changes
     if type partprobe &> /dev/null;then
         set_device_lock "${disk_device}" \
             partprobe "${disk_device}"
@@ -29,6 +30,9 @@ function create_partitions {
         set_device_lock "${disk_device}" \
             partx -u "${disk_device}"
     fi
+    # the changes cause udev to remove and recreate links in /dev,
+    # wait until that has settled
+    udev_pending
 }
 
 function create_msdos_partitions {
