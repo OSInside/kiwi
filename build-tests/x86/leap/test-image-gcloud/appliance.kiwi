@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="7.5" name="kiwi-test-image-gcloud">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>Google gcloud tool, latest version</specification>
+    </description>
+    <preferences>
+        <version>1.16.0</version>
+        <packagemanager>zypper</packagemanager>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <type image="docker">
+            <containerconfig name="gcloud"/>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="https://public-dl.suse.com/SUSE/Products/SLE-BCI/16.0/x86_64/product/"/>
+    </repository>
+    <repository type="rpm-md">
+        <source path="this://release"/>
+    </repository>
+    <packages type="image">
+        <package name="python3"/>
+        <package name="python3-pip"/>
+        <package name="curl"/>
+        <package name="tar"/>
+        <package name="sed"/>
+        <package name="less"/>
+        <package name="sudo"/>
+        <package name="which"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="udev"/>
+        <package name="filesystem"/>
+        <package name="glibc-locale"/>
+        <package name="cracklib-dict-full"/>
+        <package name="ca-certificates"/>
+        <package name="ca-certificates-mozilla"/>
+    </packages>
+</image>
