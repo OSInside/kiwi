@@ -69,8 +69,8 @@ class DiskFormatOva(DiskFormatBase):
 
     def create_image_format(self) -> None:
         """
-        Create ova disk format using ovftool from
-        https://www.vmware.com/support/developer/ovf
+        Create ova disk format using ova-compose
+        https://github.com/vmware/open-vmdk
         """
         # Check for required mkova tool
         ova_compose = Path.which(filename='ova-compose', access_mode=os.X_OK)
