@@ -159,6 +159,11 @@ function create_dasd_partitions {
     # expand the partition table up to the disk size bsc#1209247
     parted --script --machine "${disk_device}" resizepart 1
 
+    # Trigger recreation of the VTOC to work around
+    # https://github.com/ibm-s390-linux/s390-tools/issues/166
+    echo "u" >> ${partition_setup_file}
+    echo "y" >> ${partition_setup_file}
+
     for cmd in ${partition_setup};do
         if [ "${ignore_cmd}" = 1 ] && echo "${cmd}" | grep -qE '[dntwq]';then
             ignore_cmd=0
