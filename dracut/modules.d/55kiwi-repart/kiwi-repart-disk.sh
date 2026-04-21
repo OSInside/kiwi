@@ -117,6 +117,13 @@ function get_target_rootpart_size {
     echo "${kiwi_oemrootMB}"
 }
 
+function plymouth_msg {
+    [ -z "$1" ] || info "$1"
+    if command -v plymouth &>/dev/null; then
+        plymouth display-message --text="$1"
+    fi
+}
+
 function repart_standard_disk {
     # """
     # repartition disk with read/write root filesystem
@@ -322,6 +329,8 @@ if ! resize_wanted "${last_device}" "${disk}"; then
     return
 fi
 
+plymouth_msg "Expanding disk..."
+
 # prepare disk for repartition
 if [ "$(get_partition_table_type "${disk}")" = 'gpt' ];then
     relocate_gpt_at_end_of_disk "${disk}"
@@ -357,6 +366,8 @@ if lvm_system; then
 else
     resize_filesystem "$(get_root_map)"
 fi
+
+plymouth_msg ""
 
 # wait for the root device to appear
 wait_for_storage_device "${last_device}"
