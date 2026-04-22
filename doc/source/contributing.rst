@@ -23,7 +23,7 @@ driven development rules.
 
 If you want to implement a bigger feature, consider opening an issue on
 GitHub first to discuss the changes. Or, join the discussion in the
-`#kiwi` channel on `Riot.im <https://about.riot.im>`_.
+`#kiwi` channel on `Matrix <https://matrix.to/#kiwi:matrix.org>`_.
 
 Fork the upstream repository
 ----------------------------
@@ -76,7 +76,6 @@ Python sources inside the virtual environment using Poetry:
 
     $ poetry run kiwi-ng --help
 
-
 Running the Unit Tests
 ----------------------
 
@@ -128,6 +127,18 @@ create a pull request into the upstream repository.
 Thank you much for contributing to {kiwi}. Your time and work effort are very
 much appreciated!
 
+AI policy
+---------
+
+{kiwi} accepts contributions created using gen-AI tools. Contributions
+using AI tools need to be clearly labeled with the tool used set as
+co-author. If the tool used offers a selection of models set the model
+as co-author. Ultimately the submitter, a human, is still responsible
+for the quality of the code. It is expected that code contributions are
+self reviewed prior to creating a pull request.
+
+The co-author is set using the `Co-authored-by:` trailer in the commit
+comment, for example `Co-authored-by: qwen2.5-coder`
 
 Coding Style
 ------------
@@ -141,8 +152,6 @@ Coding Style
 - Do not set module and class-level variables; put these into the class's
   `__init__` method.
 
-- The names of constants are not written in all capital letters.
-
 Documentation
 ~~~~~~~~~~~~~
 
@@ -153,10 +162,9 @@ user documentation, and man pages.
 
     $ make docs
 
-Document all your classes, methods, their parameters, and their types using
-the standard `reStructuredText
-<https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-syntax as supported by Sphinx. An example class is documented as follows:
+API documentation is created from type hints. Even though python is
+not a strong typed language we value if all parameters and return
+values uses proper type hints.
 
 .. code:: python
 
@@ -164,47 +172,36 @@ syntax as supported by Sphinx. An example class is documented as follows:
        """
        **Example class**
 
-       :param str param: A parameter
-       :param bool: Source file name to compress
-       :param list supported_zipper: List of supported compression tools
-       :attr Optional[str] attr: A class attribute
+       This class has a single responsibility and provides...
        """
-       def __init__(self, param, param_w_default=False):
-           self.attr = param if param_w_default else None
-
-       def method(self, param):
+       def __init__(self, names: List[str], set_names: bool = False):
            """
-           A method that takes a parameter.
-
-           :param list param: a parameter
-           :return: whether param is very long
-           :rtype: bool
+           Initialize instance of Example with a list of some
+           example names. If param_w_default is set to True the
+           instance is initialized with an empty name list
            """
-           return len(param) > 50
+           self.some_names = names if set_names else []
 
+       def is_retired(self, age: int = 0) -> bool:
+           """
+           A method that implements...
+           """
+           return len(age) > 70
 
 Try to stick to the following guidelines when documenting source code:
 
 - Classes should be documented directly in their main docstring and not in
   `__init__`.
 
-- Document **every** function parameter and every public attribute,
-  including their types.
+- Document function parameters unless their name makes it clear
 
 - Only public methods should be documented; private methods don't have to be,
   unless they are complex and it is not easy to grasp what they do (which
   should be avoided anyway).
 
-
 Please also document any user-facing changes that you are implementing
 (e.g., adding a new build type) in the user documentation, which can be
-found in `doc/source`. General documentation should be put into the
-`working_with_kiwi/` subfolder, whereas documentation about more
-specialized topics would belong in the `building/` subfolder.
-
-Adhere to a line limit of 75 characters when writing the user-facing
-documentation [#f1]_.
-
+found in `doc/source`.
 
 Additional Information
 ----------------------
@@ -235,7 +232,6 @@ To prepare Git to sign commits, follow these instructions:
    validity period (we recommend 2 to 5 years). Complete the key generation
    by entering your name and email address.
 
-
 #. Add the key ID to your git configuration by running the following
    :command:`git config` commands:
 
@@ -258,7 +254,6 @@ To prepare Git to sign commits, follow these instructions:
    The key's ID in this case would be `AABBCCDDEEFF0011`. Note that your
    sign key will have only a `[S]` after the creation date, not a `[SC]`
    (then you are looking at your ordinary GPG key that can also encrypt).
-
 
 Bumping the Version
 ~~~~~~~~~~~~~~~~~~~
@@ -307,14 +302,3 @@ To create the necessary files to build an RPM package via `rpmbuild`, run:
 The sources are collected in the :file:`dist/` directory. These can be
 directly built with :command:`rpmbuild`, :command:`fedpkg`, or submitted
 to the Open Build Service using :command:`osc`.
-
-
-.. [#f1] Configure your editor to automatically break lines and/or reformat
-         paragraphs. For Emacs, you can use `M-x set-fill-column RET 75` and
-         `M-x auto-fill-mode RET` for automatic filling of paragraphs in
-         conjunction with `M-x fill-paragraph` (usually bound to `M-q`) to
-         reformat a paragraph to adhere to the current column width. For
-         editing reStructuredText, we recommend `rst-mode` (built into
-         Emacs since version `23.1`).
-         Vim users can set the text width via `:tw 75` and then use the
-         commands `gwip` or `gq`.
