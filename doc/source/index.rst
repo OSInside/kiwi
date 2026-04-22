@@ -14,46 +14,24 @@ KIWI NG is a powerful, command-line-driven tool that allows you to create custom
 .. note::
    This documentation covers {kiwi-product} |version|.
 
-.. only:: suse
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
-   .. toctree::
-      :maxdepth: 1
-
-      overview
-      installation
-      quickstart
-      commands
-      troubleshooting
-      plugins
-      concept_and_workflow
-      image_description
-      image_types_and_results
-      building_images
-      working_with_images
-      contributing
-      integration_testing
-      api
-
-.. only:: not suse
-
-   .. toctree::
-      :maxdepth: 1
-      :hidden:
-
-      overview
-      installation
-      quickstart
-      commands
-      troubleshooting
-      plugins
-      concept_and_workflow
-      image_description
-      image_types_and_results
-      building_images
-      working_with_images
-      contributing
-      integration_testing
-      api
+   overview
+   installation
+   quickstart
+   commands
+   troubleshooting
+   plugins
+   concept_and_workflow
+   image_description
+   image_types_and_results
+   building_images
+   working_with_images
+   contributing
+   integration_testing
+   api
 
 Why KIWI?
 ---------

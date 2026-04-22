@@ -106,7 +106,10 @@ ghpages: setup
 		--output-dir doc/build/api
 
 docs_suse: setup
+	sed -ie "s@:hidden:@@" doc/source/index.rst
+	rm -f doc/source/index.rste
 	poetry run make -C doc xml_suse
+	git checkout doc/source/index.rst
 	rm -rf doc/build/restxml
 	mv doc/build/xml doc/build/restxml
 	poetry run pip uninstall --yes rstxml2docbook || true
