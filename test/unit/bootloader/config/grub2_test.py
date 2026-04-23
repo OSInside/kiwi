@@ -1133,7 +1133,7 @@ class TestBootLoaderConfigGrub2:
         )
         self.bootloader.setup_live_image_config(self.mbrid)
         self.grub2.get_multiboot_iso_template.assert_called_once_with(
-            True, True, False, None, False
+            True, False, False, None, False
         )
 
     @patch.object(BootLoaderConfigGrub2, '_copy_grub_config_to_efi_path')
@@ -1326,7 +1326,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.multiboot = False
         self.bootloader.setup_install_image_config(self.mbrid)
         self.grub2.get_install_template.assert_called_once_with(
-            True, True, False, True, True
+            True, False, False, True, True
         )
         mock_copy_grub_config_to_efi_path.assert_called_once_with(
             'root_dir', 'earlyboot.cfg', 'iso'
