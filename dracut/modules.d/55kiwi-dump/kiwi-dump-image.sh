@@ -374,8 +374,15 @@ function dump_image {
         dump=dump_local_image
     fi
 
+    # preserve pre-dump partition table
+    if getargbool 0 rd.kiwi.install.retain_past; then
+        fetch_local_partition_table "${image_target}" /tmp/parttable_pre
+    fi
+
     # setup blocks and blocksize to retain last
-    if getargbool 0 rd.kiwi.install.retain_last; then
+    if getargbool 0 rd.kiwi.install.retain_last || \
+       getargbool 0 rd.kiwi.install.retain_past
+    then
         if [ -n "${image_from_remote}" ];then
             image_size=$((blocks * blocksize))
             parttable=$(
@@ -387,7 +394,15 @@ function dump_image {
             )
         fi
         if compatible_to_retain "${parttable}" "${image_target}"; then
-            count=$(get_disk_offset_retain_last_partition "${parttable}")
+            if getargbool 0 rd.kiwi.install.retain_last; then
+                count=$(get_disk_offset_retain_last_partition "${parttable}")
+            else
+                # retain_past always dumps the complete image
+                # the compatible_to_retain check for this image blob
+                # has been done and the deployment can happen for
+                # all blocks
+                count=0
+            fi
         fi
         if [ "${count}" -gt 0 ];then
             block_size=$(get_sector_size_from_table_dump "${parttable}")
@@ -412,8 +427,7 @@ function dump_image {
 
     # deploy
     echo "${load_text} [${image_target}]..."
-    if command -v pv &>/dev/null && [ "${kiwi_oemsilentinstall}" = "false" ]
-    then
+    if with_progress && [ "${kiwi_oemsilentinstall}" = "false" ]; then
         # dump with dialog based progress information
         setup_progress_fifo ${progress}
         eval \
@@ -437,13 +451,56 @@ function dump_image {
             report_and_quit "Failed to install image"
         fi
     fi
+
+    # recreate last partition from pre-dump table
+    if getargbool 0 rd.kiwi.install.retain_past && \
+        [ ! -e /tmp/retain_not_applicable ]
+    then
+        recreate_last_partition "${image_target}"
+    fi
+}
+
+function with_progress {
+    if getargbool 0 rd.debug || ! command -v pv &>/dev/null; then
+        return 1
+    fi
+    return 0
 }
 
 function fetch_local_partition_table {
     local image_source=$1
-    local parttable=/tmp/parttable
+    local parttable=$2
+    if [ -z "${parttable}" ];then
+        parttable=/tmp/parttable
+    fi
     sfdisk -d "${image_source}" > "${parttable}" 2>/dev/null
     echo "${parttable}"
+}
+
+function recreate_last_partition {
+    # recreate last partition as it existed prior dump
+    local image_target=$1
+    local table_type
+    table_type=$(get_partition_table_type "${image_target}")
+    if [ "${table_type}" = "gpt" ];then
+        relocate_gpt_at_end_of_disk "${image_target}"
+    fi
+    # parttable after image dump, the OS
+    sfdisk -d "${image_target}" > /tmp/parttable_1 2>/dev/null
+    # last partition of table as it existed prior dump
+    tail -n 1 /tmp/parttable_pre > /tmp/parttable_2
+    # combine table snippets. Please note there can now be a gap
+    # between the end of the OS table and the start of the last
+    # partition of the table prior dump. Please also note, if the
+    # table prior dump had more partitions than only the last
+    # one to retain, this table concat will not retain those.
+    # and the OS dump might have overwritten them. A more
+    # sophisticated concat procedure would be needed to support
+    # this case here in this code and also in the
+    # compatible_to_retain() method
+    cat /tmp/parttable_1 /tmp/parttable_2 > /tmp/parttable
+    set_device_lock "${image_target}" \
+        sfdisk -f "${image_target}" < /tmp/parttable
 }
 
 function fetch_remote_partition_table {
@@ -480,8 +537,14 @@ function compatible_to_retain {
         touch /tmp/retain_not_applicable
         return 1
     fi
-    if [ ! "${source_start}" = "${target_start}" ];then
-        report_and_quit "Cannot retain partition, start address mismatch"
+    if getargbool 0 rd.kiwi.install.retain_last; then
+        if [ ! "${source_start}" = "${target_start}" ];then
+            report_and_quit "Cannot retain partition, start address mismatch"
+        fi
+    elif getargbool 0 rd.kiwi.install.retain_past; then
+        if [ "${source_start}" -gt "${target_start}" ];then
+            report_and_quit "Cannot retain partition, image overlaps"
+        fi
     fi
     return 0
 }
@@ -578,15 +641,18 @@ function check_image_integrity {
         # no verification wanted
         return
     fi
-    if getargbool 0 rd.kiwi.install.retain_last; then
+    if getargbool 0 rd.kiwi.install.retain_last || \
+       getargbool 0 rd.kiwi.install.retain_past
+    then
         if [ ! -e /tmp/retain_not_applicable ];then
             # no verification possible as only a portion of
-            # the image got deployed intentionally
+            # the image got deployed intentionally (retain_last)
+            # or parts of the former partition table got
+            # restored (retain_past)
             return
         fi
     fi
-    if command -v pv &>/dev/null && [ "${kiwi_oemsilentverify}" = "false" ]
-    then
+    if with_progress && [ "${kiwi_oemsilentverify}" = "false" ]; then
         # verify with dialog based progress information
         setup_progress_fifo ${progress}
         (
