@@ -52,7 +52,7 @@ Optional include of XML file content from a file.
 
    <image schemaversion="{schema_version}" name="{exc_image_base_name}">
        <include from="file://description.xml"/>
-   </image> 
+   </image>
 
 with file :file:`description.xml` as follows:
 
@@ -208,7 +208,7 @@ table shows which package manager is connected to which distributor:
 | Red Hat      | dnf4 / dnf5     |
 +--------------+-----------------+
 | Debian Based | apt             |
-+--------------+-----------------+ 
++--------------+-----------------+
 | Arch Linux   | pacman          |
 +--------------+-----------------+
 | Alpine Linux | apk             |
@@ -714,6 +714,26 @@ devicepersistency="by-uuid|by-label":
   parameter in the kernel command line. By default, by-uuid
   is used.
 
+  .. note:: devicepersistency and its impact to install images
+
+     Please note that specifying `devicepersistency` also affects an
+     eventually generated install image. This means that the installation
+     media created from the image description will also use the specified
+     device persistency method. It is possible that the selected method
+     does not provide device representations for the disk devices found
+     by the installation process. In this case the fallback to the raw
+     unix device node e.g., `/dev/sda` will be used. If the installation
+     media is created to allow user interaction and there are more than
+     one disk device found during installation, the user will be prompted
+     with a list of disk device names to select from. If the list shows
+     the raw unix device nodes, it might be difficult for the user to
+     select the correct disk. In this case, it is recommended to explicitly
+     set the persistency method to use for the installation media via
+     the `rd.kiwi.install.devicepersistency` kernel command line parameter.
+     The parameter can also be set as a fixed value in the `kernelcmdline`
+     attribute of the image description. Available persistency methods
+     useful for disk device mappings are: `by-id` and `by-path`.
+
 squashfscompression="uncompressed|gzip|lzo|lz4|xz|zstd":
   Specifies the compression type for mksquashfs.
 
@@ -751,7 +771,7 @@ integrity_metadata_key_description="string":
   filename. The format of this key argument is:
 
   .. code:: bash
-    
+
      :BASENAME_OF_integrity_keyfile_WITHOUT_FILE_EXTENSION
 
 embed_integrity_metadata="true|false":
@@ -1211,7 +1231,7 @@ input_console="none|console|serial|at_keyboard|usb_keyboard":
   `grub` bootloader type. Multiple console types can be provided, separated
   by a space. If no `input_console` is provided, the value for the
   `output_console` is used if specified.
-  
+
 grub_template="filename":
   Specifies a custom grub bootloader template file that will be used
   instead of the one provided with Kiwi. A static bootloader template to
@@ -1444,7 +1464,7 @@ dracut.module.NAME:
 
 dracut.driver.NAME:
   As part of the `add` or `omit` action, this adds or omits the given
-  kernel driver. The element can be specified multiple times and 
+  kernel driver. The element can be specified multiple times and
   accepts kernel driver names without the `.ko` extension.
 
 .. _sec.registry:
@@ -1645,7 +1665,7 @@ use_for_bootstrap="true|false"
   It is set to 'false' by default. Only a single repository is allowed
   to be used for bootstrapping. If no repository is set for the bootstrap,
   the last one in the description XML is used.
-  
+
 <repository><source>
 ~~~~~~~~~~~~~~~~~~~~
 The location of a repository is specified by the path attribute of the
@@ -1687,7 +1707,7 @@ the following location indicators:
   A reference to a project in the Open Build Service (OBS). {kiwi}
   translates the given project path into a remote URL at which
   the given project hosts the packages.
-  
+
 * ``obsrepositories:/``
   A placeholder for the Open Build Service (OBS) to indicate that all
   repositories are taken from the project configuration in OBS.
@@ -1797,7 +1817,7 @@ any of its required packages, and any recommended packages.
    On Red Hat-based distributions, collections are called `groups` and are
    extra metadata. To get the names of these groups, type the following
    command: `$ dnf group list -v`. Please note that since {kiwi} v9.23.39,
-   group IDs are allowed only, e.g.: 
+   group IDs are allowed only, e.g.:
    `<namedCollection name="minimal-environment"/>`.
 
 <packages><collectionModule>
@@ -1988,7 +2008,7 @@ groups="group_a,group_b,group_c:id":
      configuration will **not** be taken into account. Usually, all
      standard system groups are affected by this behavior because they
      are provided by the OS itself. Thus, it's by intention not possible
-     to overwrite the group ID of an existing group. 
+     to overwrite the group ID of an existing group.
 
 id="number":
   The numeric user ID of this account.
