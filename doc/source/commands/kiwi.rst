@@ -8,47 +8,13 @@ SYNOPSIS
 
 .. code:: bash
 
-   kiwi-ng [global options] service <command> [<args>]
+   kiwi-ng --help | --version
 
-   kiwi-ng -h | --help
-   kiwi-ng [--profile=<name>...]
-           [--setenv=<variable=value>...]
-           [--temp-dir=<directory>]
-           [--type=<build_type>]
-           [--logfile=<filename>]
-           [--logsocket=<socketfile>]
-           [--loglevel=<number>]
-           [--debug]
-           [--debug-run-scripts-in-screen]
-           [--color-output]
-           [--config=<configfile>]
-           [--kiwi-file=<kiwifile>]
-       image <command> [<args>...]
-   kiwi-ng [--logfile=<filename>]
-           [--logsocket=<socketfile>]
-           [--loglevel=<number>]
-           [--debug]
-           [--debug-run-scripts-in-screen]
-           [--color-output]
-           [--config=<configfile>]
-       result <command> [<args>...]
-   kiwi-ng [--profile=<name>...]
-           [--setenv=<variable=value>...]
-           [--shared-cache-dir=<directory>]
-           [--temp-dir=<directory>]
-           [--target-arch=<name>]
-           [--type=<build_type>]
-           [--logfile=<filename>]
-           [--logsocket=<socketfile>]
-           [--loglevel=<number>]
-           [--debug]
-           [--debug-run-scripts-in-screen]
-           [--color-output]
-           [--config=<configfile>]
-           [--kiwi-file=<kiwifile>]
-       system <command> [<args>...]
-   kiwi-ng -v | --version
-   kiwi-ng help
+   kiwi-ng [global options] image <command> [<args>...]
+   kiwi-ng [global options] result <command> [<args>...]
+   kiwi-ng [global options] system <command> [<args>...]
+
+   kiwi-ng help [kiwi::COMMAND::SUBCOMMAND]
 
 .. _db_commands_kiwi_desc:
 
