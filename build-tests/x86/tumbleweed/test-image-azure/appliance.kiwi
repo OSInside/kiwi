@@ -42,7 +42,6 @@
         <package name="psmisc"/>
         <package name="rsync"/>
         <package name="systemd"/>
-        <package name="systemd-sysvinit"/>
         <package name="sudo"/>
         <package name="tar"/>
         <package name="vim"/>
