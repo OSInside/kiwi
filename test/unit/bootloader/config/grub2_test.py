@@ -1196,15 +1196,12 @@ class TestBootLoaderConfigGrub2:
         with patch('builtins.open', create=True) as mock_open:
             mock_open_grub = MagicMock(spec=io.IOBase)
             mock_open_menu = MagicMock(spec=io.IOBase)
-            mock_open_grubenv = MagicMock(spec=io.IOBase)
 
             def open_file(filename, mode=None):
                 if filename == 'root_mount_point/boot/grub2/grub.cfg':
                     return mock_open_grub.return_value
                 elif filename == 'some_entry.conf':
                     return mock_open_menu.return_value
-                elif filename == 'grubenv':
-                    return mock_open_grubenv.return_value
 
             mock_open.side_effect = open_file
 
@@ -1212,13 +1209,10 @@ class TestBootLoaderConfigGrub2:
                 mock_open_grub.return_value.__enter__.return_value
             file_handle_menu = \
                 mock_open_menu.return_value.__enter__.return_value
-            file_handle_grubenv = \
-                mock_open_grubenv.return_value.__enter__.return_value
 
             file_handle_grub.read.return_value = \
                 'root=rootdev nomodeset console=ttyS0 console=tty0\n' \
                 'root=PARTUUID=xx'
-            file_handle_grubenv.read.return_value = 'root=rootdev'
             file_handle_menu.read.return_value = \
                 'options foo\nlinux unexpected/boot/vmlinuz\ninitrd /boot/initrd'
             self.bootloader.xml_state.\
@@ -1252,6 +1246,12 @@ class TestBootLoaderConfigGrub2:
                         'bash', '-c',
                         'cd root_mount_point/boot && rm -f boot && ln -s . boot'
                     ], raise_on_error=False
+                ),
+                call(
+                    [
+                        'chroot', self.bootloader.root_mount.mountpoint,
+                        'grub2-editenv', '-', 'set', 'root=overlay:UUID=ID'
+                    ]
                 )
             ]
             mock_copy_grub_config_to_efi_path.assert_called_once_with(
@@ -1260,9 +1260,6 @@ class TestBootLoaderConfigGrub2:
             file_handle_grub.write.assert_called_once_with == (
                 'root=overlay:UUID=ID nomodeset console=ttyS0 console=tty0'
                 '\n'
-                'root=overlay:UUID=ID'
-            )
-            file_handle_grubenv.write.assert_called_once_with(
                 'root=overlay:UUID=ID'
             )
             assert 'options some-cmdline root=UUID=foo' in \
@@ -1304,7 +1301,6 @@ class TestBootLoaderConfigGrub2:
 
             # test read-only device
             file_handle_grub.write.side_effect = OSError('readonly system')
-            file_handle_grubenv.write.side_effect = OSError('readonly system')
             file_handle_menu.write.side_effect = OSError('readonly system')
 
             with self._caplog.at_level(logging.INFO):

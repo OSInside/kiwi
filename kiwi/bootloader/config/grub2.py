@@ -24,6 +24,7 @@ import logging
 import glob
 import shutil
 from collections import OrderedDict
+from typing import List
 
 # project
 from kiwi.bootloader.config.base import BootLoaderConfigBase
@@ -291,7 +292,9 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             ]
         )
         # Setup/Update loader environment
-        self._setup_loader_variables()
+        self._setup_loader_variables(
+            self.xml_state.get_build_type_bootloader_environment_variables()
+        )
 
         # Disable os-prober, it takes information from the host it
         # runs on which is not necessarily matching with the image
@@ -1572,16 +1575,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                 vendor_grubenv_file = \
                     Defaults.get_vendor_grubenv(self.efi_mount.mountpoint)
                 if vendor_grubenv_file:
-                    with open(vendor_grubenv_file) as vendor_grubenv:
-                        grubenv = vendor_grubenv.read()
-                        grubenv = grubenv.replace(
-                            'root={0}'.format(
-                                boot_options.get('root_device')
-                            ),
-                            self.root_reference
-                        )
-                    with open(vendor_grubenv_file, 'w') as vendor_grubenv:
-                        vendor_grubenv.write(grubenv)
+                    self._setup_loader_variables([self.root_reference])
 
     def _fix_grub_loader_entries_boot_cmdline(self):
         if self.cmdline:
@@ -1753,18 +1747,15 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             return True
         return False
 
-    def _setup_loader_variables(self):
+    def _setup_loader_variables(self, variable_list: List[str]):
         """
         Run grub2-editenv for writing an updated environment blob
         """
-        if self.root_mount:
-            variable_list = \
-                self.xml_state.get_build_type_bootloader_environment_variables()
-            if variable_list:
-                log.info(f'Set grub environment variables: {variable_list}')
-                Command.run(
-                    [
-                        'chroot', self.root_mount.mountpoint,
-                        'grub2-editenv', '-', 'set'
-                    ] + variable_list
-                )
+        if self.root_mount and variable_list:
+            log.info(f'Set grub environment variables: {variable_list}')
+            Command.run(
+                [
+                    'chroot', self.root_mount.mountpoint,
+                    'grub2-editenv', '-', 'set'
+                ] + variable_list
+            )
