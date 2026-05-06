@@ -64,7 +64,6 @@
         <package name="SUSEConnect"/>
         <package name="firewalld"/>
         <package name="systemd"/>
-        <package name="systemd-sysvinit"/>
         <package name="timezone"/>
         <package name="wicked"/>
         <package name="iproute2"/>
