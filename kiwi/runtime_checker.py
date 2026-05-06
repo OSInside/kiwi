@@ -934,11 +934,11 @@ class RuntimeChecker:
 
     def check_checkmedia_used_with_msdos_table(self) -> None:
         """
-        The checkmedia/tagmedia tools only supports plain
-        MBR partition tables.
+        The checkmedia/tagmedia tools in versions < v6.6 only
+        supports plain MBR partition tables.
         """
         message = dedent('''\n
-            ISO media tag tool tagmedia does not support {table} partition tables
+            ISO media tag tool tagmedia < v6.6 does not support {table} partition tables
 
             The attribute 'mediacheck' is set to 'true' and the selected
             media tag tool only supports plain MBR (msdos) partition tables.
@@ -951,9 +951,16 @@ class RuntimeChecker:
             firmware = FirmWare(self.xml_state)
             table_type = firmware.get_partition_table_type()
             if media_tagger == 'checkmedia' and table_type != 'msdos':
-                raise KiwiRuntimeError(
-                    message.format(tool=media_tagger, table=table_type)
-                )
+                self.check_mediacheck_installed()
+                # checkmedia in versions >= 6.6 supports GPT, only for
+                # older versions the runtime check applies
+                expected_version = (6, 6)
+                if not CommandCapabilities.check_version(
+                    media_tagger, expected_version, raise_on_error=False
+                ):
+                    raise KiwiRuntimeError(
+                        message.format(tool=media_tagger, table=table_type)
+                    )
 
     def check_image_version_provided(self) -> None:
         """
