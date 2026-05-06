@@ -473,11 +473,9 @@ class LiveImageBuilder:
         ) + modules
         for dracut_module in live_dracut_modules:
             self.boot_image.include_module(dracut_module)
-        self.boot_image.omit_module('multipath')
         self.boot_image.write_system_config_file(
             config={
-                'modules': live_dracut_modules,
-                'omit_modules': ['multipath']
+                'modules': live_dracut_modules
             },
             config_file=self.root_dir + '/etc/dracut.conf.d/02-livecd.conf'
         )
