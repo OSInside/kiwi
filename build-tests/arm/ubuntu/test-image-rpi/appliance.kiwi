@@ -79,5 +79,6 @@
     </packages>
     <packages type="bootstrap">
         <package name="ca-certificates"/>
+        <package name="coreutils"/>
     </packages>
 </image>
