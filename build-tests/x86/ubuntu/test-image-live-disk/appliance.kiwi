@@ -88,6 +88,7 @@
         <package name="btrfs-progs"/>
         <package name="xz-utils"/>
         <package name="language-pack-en"/>
+        <package name="login"/>
     </packages>
     <packages type="image" profiles="Virtual">
         <package name="shim"/>
