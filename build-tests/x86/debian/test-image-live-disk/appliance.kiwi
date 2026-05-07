@@ -7,7 +7,7 @@
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.de</contact>
-        <specification>Debian Bookworm Appliance</specification>
+        <specification>Debian Trixie Appliance</specification>
     </description>
     <profiles>
         <profile name="Live" description="Live image of Debian"/>
@@ -15,7 +15,7 @@
         <profile name="Disk" description="OEM image of Debian"/>
     </profiles>
     <preferences>
-        <version>12.1</version>
+        <version>13.1</version>
         <packagemanager>apt</packagemanager>
         <bootsplash-theme>fade-in</bootsplash-theme>
         <bootloader-theme>starfield</bootloader-theme>
@@ -63,16 +63,16 @@
             groups="users,root"/>
     </users>
     <repository type="apt-deb" repository_gpgcheck="false" architectures="amd64">
-        <source path="obs://Virtualization:Appliances:Staging/Debian_12_update"/>
+        <source path="obs://Virtualization:Appliances:Staging/Debian_13_update"/>
     </repository>
     <repository type="apt-deb" repository_gpgcheck="false" architectures="amd64">
-        <source path="obs://Virtualization:Appliances:Staging/Debian_12_x86_64"/>
+        <source path="obs://Virtualization:Appliances:Staging/Debian_13_x86_64"/>
     </repository>
-    <repository type="apt-deb" distribution="bookworm" components="main contrib non-free" repository_gpgcheck="false">
-        <source path="obs://Debian:12/universe"/>
+    <repository type="apt-deb" distribution="trixie" components="main contrib non-free" repository_gpgcheck="false">
+        <source path="obs://Debian:13/universe"/>
     </repository>
-    <repository type="apt-deb" distribution="bookworm" components="main contrib non-free" repository_gpgcheck="false">
-        <source path="obs://Debian:12/standard"/>
+    <repository type="apt-deb" distribution="trixie" components="main contrib non-free" repository_gpgcheck="false">
+        <source path="obs://Debian:13/standard"/>
     </repository>
     <packages type="image">
         <package name="libpam-runtime"/>

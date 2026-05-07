@@ -1,5 +1,5 @@
-obs://Virtualization:Appliances:Staging/Debian_12_update,apt-deb,kiwi,,,,,,,false
-obs://Virtualization:Appliances:Staging/Debian_12_x86_64,apt-deb,kiwi,,,,,,,false
-https://ftp.halifax.rwth-aachen.de/debian,apt-deb,bookworm_1,,,,,main,bookworm,false
-https://ftp.halifax.rwth-aachen.de/debian,apt-deb,bookworm_2,,,,,contrib,bookworm,false
-https://ftp.halifax.rwth-aachen.de/debian,apt-deb,bookworm_3,,,,,non-free,bookworm,false
+obs://Virtualization:Appliances:Staging/Debian_13_update,apt-deb,kiwi,,,,,,,false
+obs://Virtualization:Appliances:Staging/Debian_13_x86_64,apt-deb,kiwi,,,,,,,false
+https://ftp.halifax.rwth-aachen.de/debian,apt-deb,trixie_1,,,,,main,trixie,false
+https://ftp.halifax.rwth-aachen.de/debian,apt-deb,trixie_2,,,,,contrib,trixie,false
+https://ftp.halifax.rwth-aachen.de/debian,apt-deb,trixie_3,,,,,non-free,trixie,false

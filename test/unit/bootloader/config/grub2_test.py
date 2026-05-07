@@ -1463,7 +1463,7 @@ class TestBootLoaderConfigGrub2:
                     'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512', 'crypto',
                     'cryptodisk', 'test', 'true', 'loadenv', 'multiboot',
-                    'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'part_gpt', 'part_msdos', 'efi_gop', 'linuxefi'
                 ]
             )
         ]
@@ -1545,7 +1545,7 @@ class TestBootLoaderConfigGrub2:
                     'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512', 'crypto',
                     'cryptodisk', 'test', 'true', 'loadenv', 'part_gpt',
-                    'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'part_msdos', 'efi_gop', 'linuxefi'
                 ]
             )
         ]
@@ -2154,7 +2154,7 @@ class TestBootLoaderConfigGrub2:
                     'all_video', 'xfs', 'btrfs', 'squash4', 'lvm', 'luks',
                     'gcry_rijndael', 'gcry_sha256', 'gcry_sha512',
                     'crypto', 'cryptodisk', 'test', 'true', 'loadenv',
-                    'part_gpt', 'part_msdos', 'efi_gop', 'efi_uga', 'linuxefi'
+                    'part_gpt', 'part_msdos', 'efi_gop', 'linuxefi'
                 ]
             )
         ]
