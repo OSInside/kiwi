@@ -782,16 +782,11 @@ class Defaults:
 
         :rtype: list
         """
-        host_architecture = Defaults.get_platform_name()
         modules = Defaults.get_grub_basic_modules(multiboot) + [
             'part_gpt',
             'part_msdos',
             'efi_gop'
         ]
-        if host_architecture == 'x86_64':
-            modules += [
-                'efi_uga'
-            ]
         return modules
 
     @staticmethod
