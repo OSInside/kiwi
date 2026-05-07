@@ -28,15 +28,15 @@
     </users>
 
     <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false" architectures="arm64">
-        <source path="obs://Virtualization:Appliances:Staging/xUbuntu_24.04_aarch64"/>
+        <source path="obs://Virtualization:Appliances:Staging/xUbuntu_26.04_aarch64"/>
     </repository>
-    <repository type="apt-deb" alias="Ubuntu-Noble-Universe" distribution="noble" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:24.04/universe"/>
+    <repository type="apt-deb" alias="Ubuntu-Resolute-Universe" distribution="resolute" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:26.04/universe"/>
     </repository>
-    <repository type="apt-deb" alias="Ubuntu-Noble" distribution="noble" components="main multiverse restricted universe" repository_gpgcheck="false">
-        <source path="obs://Ubuntu:24.04/standard"/>
+    <repository type="apt-deb" alias="Ubuntu-Resolute" distribution="resolute" components="main multiverse restricted universe" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:26.04/standard"/>
     </repository>
-    
+
     <packages type="image">
         <!-- raspi packages -->
         <package name="linux-raspi"/>
