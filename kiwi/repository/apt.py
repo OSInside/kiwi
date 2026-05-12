@@ -94,6 +94,7 @@ class RepositoryApt(RepositoryBase):
 
         self.shared_apt_get_dir = {
             'sources-dir': self.manager_base + '/sources.list.d',
+            'netrcparts-dir': self.manager_base + '/auth.conf.d',
             'preferences-dir': self.manager_base + '/preferences.d'
         }
         self.keyring = '{}/trusted.gpg'.format(self.manager_base)
@@ -130,6 +131,8 @@ class RepositoryApt(RepositoryBase):
             os.sep.join([self.manager_base, 'sources.list.d'])
         self.shared_apt_get_dir['preferences-dir'] = \
             os.sep.join([self.manager_base, 'preferences.d'])
+        self.shared_apt_get_dir['netrcparts-dir'] = \
+            os.sep.join([self.manager_base, 'auth.conf.d'])
         self._write_runtime_config(system_default=True)
 
     def runtime_config(self) -> Dict:
@@ -160,8 +163,8 @@ class RepositoryApt(RepositoryBase):
         :param int prio: unused
         :param str dist: distribution name for non flat deb repos
         :param str components: distribution categories
-        :param str user: unused
-        :param str secret: unused
+        :param str user: username
+        :param str secret: password_or_token
         :param str credentials_file: unused
         :param bool repo_gpgcheck: enable repository signature validation
         :param bool pkg_gpgcheck: unused
@@ -173,6 +176,9 @@ class RepositoryApt(RepositoryBase):
         """
         sources_file = '/'.join(
             [self.shared_apt_get_dir['sources-dir'], name + '.sources']
+        )
+        auth_file = '/'.join(
+            [self.shared_apt_get_dir['netrcparts-dir'], name + '.conf']
         )
         pref_file = '/'.join(
             [self.shared_apt_get_dir['preferences-dir'], name + '.pref']
@@ -211,6 +217,20 @@ class RepositoryApt(RepositoryBase):
                 repo_details += 'trusted: yes' + os.linesep
                 repo_details += 'check-valid-until: no' + os.linesep
             repo.write(repo_details)
+        if secret:
+            with open(auth_file, 'w') as auth:
+                if user:
+                    auth.write(
+                        'machine {} login {} password {}{}'.format(
+                            uri, user, secret, os.linesep
+                        )
+                    )
+                else:
+                    auth.write(
+                        'machine {} login {}{}'.format(
+                            uri, secret, os.linesep
+                        )
+                    )
         if customization_script:
             self.run_repo_customize(customization_script, sources_file)
         if prio:
@@ -271,13 +291,20 @@ class RepositoryApt(RepositoryBase):
         Path.wipe(
             self.shared_apt_get_dir['sources-dir'] + '/' + name + '.sources'
         )
+        Path.wipe(
+            self.shared_apt_get_dir['netrcparts-dir'] + '/' + name + '.conf'
+        )
+        Path.wipe(
+            self.shared_apt_get_dir['preferences-dir'] + '/' + name + '.pref'
+        )
 
     def delete_all_repos(self) -> None:
         """
         Delete all apt-get repositories
         """
-        Path.wipe(self.shared_apt_get_dir['sources-dir'])
-        Path.create(self.shared_apt_get_dir['sources-dir'])
+        for dirname in ['sources-dir', 'netrcparts-dir', 'preferences-dir']:
+            Path.wipe(self.shared_apt_get_dir[dirname])
+            Path.create(self.shared_apt_get_dir[dirname])
 
     def delete_repo_cache(self, name: str) -> None:
         """
