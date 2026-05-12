@@ -1587,7 +1587,23 @@ repository_gpgcheck="true|false"
   `false`. If set, the relevant key information needs to be provided
   on the {kiwi} commandline using the `--signing-key` option or via
   the `<signing>` element as part of the `<repository><source>`
-  setting in the image description.
+  setting in the image description. Some distributions provides the
+  signing keys as part of the `distribution-gpg-keys` package. In that case,
+  the keys can be included in the image by specifying a repository like
+  the following:
+
+  .. code:: xml
+
+     <repository type="rpm-md" alias="baseos" sourcetype="metalink">
+         <source path="https://mirrors.fedoraproject.org/metalink?repo=eln-baseos-1&amp;arch=$basearch">
+             <signing key="file:///usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-rawhide-primary"/>
+         </source>
+     </repository>
+
+  Debian based distributions, on the other hand, usually provide the keys
+  at https://ftp-master.debian.org/keys.html. Fetch the relevant key for
+  the image target distribution from there and use them in the same way as
+  described above.
 
 package_gpgcheck="true|false"
   Specify whether or not this specific repository values the result
