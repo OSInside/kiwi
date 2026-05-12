@@ -66,6 +66,8 @@ class TestRepositoryApt:
             '../data/etc/apt/sources.list.d'
         assert self.repo.shared_apt_get_dir['preferences-dir'] == \
             '../data/etc/apt/preferences.d'
+        assert self.repo.shared_apt_get_dir['netrcparts-dir'] == \
+            '../data/etc/apt/auth.conf.d'
         self.apt_conf.get_image_template.assert_called_once_with(
             self.exclude_docs
         )
@@ -166,6 +168,54 @@ class TestRepositoryApt:
             )
 
     @patch('os.path.exists')
+    def test_add_repo_private_with_authentication(self, mock_exists):
+        mock_exists.return_value = False
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.add_repo(
+                'foo', 'https://example.org/debian', 'deb', None, 'xenial', 'a b',
+                user='some-user', secret='some-secret',
+                architectures='amd64,arm64'
+            )
+            assert mock_open.call_args_list == [
+                call('/shared-dir/apt-get/sources.list.d/foo.sources', 'w'),
+                call('/shared-dir/apt-get/auth.conf.d/foo.conf', 'w')
+            ]
+            assert file_handle.write.call_args_list == [
+                call(
+                    'Types: deb\n'
+                    'URIs: https://example.org/debian\n'
+                    'Architectures: amd64 arm64\n'
+                    'Suites: xenial\n'
+                    'Components: a b\n'
+                ),
+                call(
+                    'machine https://example.org/debian login '
+                    'some-user password some-secret\n'
+                )
+            ]
+            file_handle.reset_mock()
+            self.repo.add_repo(
+                'foo', 'https://example.org/debian', 'deb', None, 'xenial', 'a b',
+                secret='some-token',
+                architectures='amd64,arm64'
+            )
+            assert file_handle.write.call_args_list == [
+                call(
+                    'Types: deb\n'
+                    'URIs: https://example.org/debian\n'
+                    'Architectures: amd64 arm64\n'
+                    'Suites: xenial\n'
+                    'Components: a b\n'
+                ),
+                call(
+                    'machine https://example.org/debian login '
+                    'some-token\n'
+                )
+            ]
+
+    @patch('os.path.exists')
     def test_add_repo_distribution_without_gpgchecks(self, mock_exists):
         mock_exists.return_value = True
         with patch('builtins.open', create=True) as mock_open:
@@ -253,9 +303,11 @@ class TestRepositoryApt:
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):
         self.repo.delete_repo('foo')
-        mock_wipe.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d/foo.sources'
-        )
+        assert mock_wipe.call_args_list == [
+            call('/shared-dir/apt-get/sources.list.d/foo.sources'),
+            call('/shared-dir/apt-get/auth.conf.d/foo.conf'),
+            call('/shared-dir/apt-get/preferences.d/foo.pref')
+        ]
 
     @patch('kiwi.path.Path.wipe')
     @patch('os.walk')
@@ -273,12 +325,16 @@ class TestRepositoryApt:
     @patch('kiwi.path.Path.create')
     def test_delete_all_repos(self, mock_create, mock_wipe):
         self.repo.delete_all_repos()
-        mock_wipe.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d'
-        )
-        mock_create.assert_called_once_with(
-            '/shared-dir/apt-get/sources.list.d'
-        )
+        assert mock_wipe.call_args_list == [
+            call('/shared-dir/apt-get/sources.list.d'),
+            call('/shared-dir/apt-get/auth.conf.d'),
+            call('/shared-dir/apt-get/preferences.d')
+        ]
+        assert mock_create.call_args_list == [
+            call('/shared-dir/apt-get/sources.list.d'),
+            call('/shared-dir/apt-get/auth.conf.d'),
+            call('/shared-dir/apt-get/preferences.d')
+        ]
 
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo_cache(self, mock_wipe):
