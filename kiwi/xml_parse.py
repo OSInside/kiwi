@@ -3567,7 +3567,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vga=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
+    def __init__(self, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
         self.original_tagname_ = None
         self.eficsmpart_id = _cast(None, eficsmpart_id)
         self.efipart_id = _cast(None, efipart_id)
@@ -3647,7 +3647,6 @@ class type_(GeneratedsSuper):
         self.target_blocksize = _cast(int, target_blocksize)
         self.target_removable = _cast(bool, target_removable)
         self.selinux_policy = _cast(None, selinux_policy)
-        self.vga = _cast(None, vga)
         self.vhdfixedtag = _cast(None, vhdfixedtag)
         self.volid = _cast(None, volid)
         self.application_id = _cast(None, application_id)
@@ -3929,8 +3928,6 @@ class type_(GeneratedsSuper):
     def set_target_removable(self, target_removable): self.target_removable = target_removable
     def get_selinux_policy(self): return self.selinux_policy
     def set_selinux_policy(self, selinux_policy): self.selinux_policy = selinux_policy
-    def get_vga(self): return self.vga
-    def set_vga(self, vga): self.vga = vga
     def get_vhdfixedtag(self): return self.vhdfixedtag
     def set_vhdfixedtag(self, vhdfixedtag): self.vhdfixedtag = vhdfixedtag
     def get_volid(self): return self.volid
@@ -4283,9 +4280,6 @@ class type_(GeneratedsSuper):
         if self.selinux_policy is not None and 'selinux_policy' not in already_processed:
             already_processed.add('selinux_policy')
             outfile.write(' selinux_policy=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selinux_policy), input_name='selinux_policy')), ))
-        if self.vga is not None and 'vga' not in already_processed:
-            already_processed.add('vga')
-            outfile.write(' vga=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.vga), input_name='vga')), ))
         if self.vhdfixedtag is not None and 'vhdfixedtag' not in already_processed:
             already_processed.add('vhdfixedtag')
             outfile.write(' vhdfixedtag=%s' % (quote_attrib(self.vhdfixedtag), ))
@@ -4882,10 +4876,6 @@ class type_(GeneratedsSuper):
             already_processed.add('selinux_policy')
             self.selinux_policy = value
             self.selinux_policy = ' '.join(self.selinux_policy.split())
-        value = find_attr_value_('vga', node)
-        if value is not None and 'vga' not in already_processed:
-            already_processed.add('vga')
-            self.vga = value
         value = find_attr_value_('vhdfixedtag', node)
         if value is not None and 'vhdfixedtag' not in already_processed:
             already_processed.add('vhdfixedtag')
@@ -6302,13 +6292,14 @@ class bootloader(GeneratedsSuper):
     provide configuration parameters for it"""
     subclass = None
     superclass = None
-    def __init__(self, name=None, bls=None, output_console=None, input_console=None, serial_line=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None, securelinux=None):
+    def __init__(self, name=None, bls=None, output_console=None, input_console=None, serial_line=None, video_mode=None, timeout=None, timeout_style=None, targettype=None, use_disk_password=None, grub_template=None, bootloadersettings=None, securelinux=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.bls = _cast(bool, bls)
         self.output_console = _cast(None, output_console)
         self.input_console = _cast(None, input_console)
         self.serial_line = _cast(None, serial_line)
+        self.video_mode = _cast(None, video_mode)
         self.timeout = _cast(int, timeout)
         self.timeout_style = _cast(None, timeout_style)
         self.targettype = _cast(None, targettype)
@@ -6353,6 +6344,8 @@ class bootloader(GeneratedsSuper):
     def set_input_console(self, input_console): self.input_console = input_console
     def get_serial_line(self): return self.serial_line
     def set_serial_line(self, serial_line): self.serial_line = serial_line
+    def get_video_mode(self): return self.video_mode
+    def set_video_mode(self, video_mode): self.video_mode = video_mode
     def get_timeout(self): return self.timeout
     def set_timeout(self, timeout): self.timeout = timeout
     def get_timeout_style(self): return self.timeout_style
@@ -6422,6 +6415,9 @@ class bootloader(GeneratedsSuper):
         if self.serial_line is not None and 'serial_line' not in already_processed:
             already_processed.add('serial_line')
             outfile.write(' serial_line=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.serial_line), input_name='serial_line')), ))
+        if self.video_mode is not None and 'video_mode' not in already_processed:
+            already_processed.add('video_mode')
+            outfile.write(' video_mode=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.video_mode), input_name='video_mode')), ))
         if self.timeout is not None and 'timeout' not in already_processed:
             already_processed.add('timeout')
             outfile.write(' timeout="%s"' % self.gds_format_integer(self.timeout, input_name='timeout'))
@@ -6484,6 +6480,10 @@ class bootloader(GeneratedsSuper):
         if value is not None and 'serial_line' not in already_processed:
             already_processed.add('serial_line')
             self.serial_line = value
+        value = find_attr_value_('video_mode', node)
+        if value is not None and 'video_mode' not in already_processed:
+            already_processed.add('video_mode')
+            self.video_mode = value
         value = find_attr_value_('timeout', node)
         if value is not None and 'timeout' not in already_processed:
             already_processed.add('timeout')

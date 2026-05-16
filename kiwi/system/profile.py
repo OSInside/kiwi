@@ -341,7 +341,7 @@ class Profile:
         self.dot_profile['kiwi_bootprofile'] = \
             type_section.get_bootprofile()
         self.dot_profile['kiwi_vga'] = \
-            type_section.get_vga()
+            self.xml_state.get_build_type_bootloader_video_mode()
         self.dot_profile['kiwi_startsector'] = \
             self.xml_state.get_disk_start_sector()
         self.dot_profile['kiwi_luks_empty_passphrase'] = \

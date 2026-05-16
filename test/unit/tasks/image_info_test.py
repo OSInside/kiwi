@@ -188,7 +188,7 @@ class TestImageInfoTask:
                         ('kiwi_target_removable', ''),
                         ('kiwi_timezone', 'Europe/Berlin'),
                         ('kiwi_type', 'iso'),
-                        ('kiwi_vga', ''),
+                        ('kiwi_vga', 'auto'),
                         ('kiwi_wwid_wait_timeout', '')
                     ]
                 )

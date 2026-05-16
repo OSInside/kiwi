@@ -1236,6 +1236,21 @@ class XMLState:
             return bootloader.get_serial_line()
         return None
 
+    def get_build_type_bootloader_video_mode(self) -> str:
+        """
+        Return bootloader video mode for the selected build type.
+        If not specified the method returns "auto" as default
+        mode name.
+
+        :return: video mode name or auto
+
+        :rtype: str
+        """
+        bootloader = self.get_build_type_bootloader_section()
+        if bootloader:
+            return bootloader.get_video_mode()
+        return 'auto'
+
     def get_build_type_bootloader_timeout(self) -> Optional[str]:
         """
         Return bootloader timeout setting for selected build type

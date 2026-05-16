@@ -40,7 +40,7 @@
     </preferences>
     <preferences profiles="ISO">
         <type image="oem" filesystem="btrfs" fsmountoptions="compress=zstd:15" firmware="uefi" installiso="true" installboot="install" kernelcmdline="rd.kiwi.ramdisk rd.kiwi.install.pass.bootparam" volid="agama">
-            <bootloader name="grub2" timeout="1"/>
+            <bootloader name="grub2" timeout="1" video_mode="1024x768"/>
             <oemconfig>
                 <oem-skip-verify>true</oem-skip-verify>
                 <oem-unattended>true</oem-unattended>
