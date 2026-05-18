@@ -23,16 +23,8 @@ install() {
         vgs vgchange lvextend lvcreate lvresize pvresize \
         mdadm cryptsetup dialog \
         pv curl xz sha256sum sed \
-        dmsetup touch chmod flock
+        dmsetup touch chmod flock partx
     inst_multiple -o dolly
-    if type partx &> /dev/null;then
-        inst_multiple partx
-    elif type partprobe &> /dev/null;then
-        inst_multiple partprobe
-    else
-        dfatal "Either partx or partprobe is required"
-        exit 1
-    fi
     if [[ "$(uname -m)" =~ s390 ]];then
         inst_multiple fdasd parted partprobe
     fi
