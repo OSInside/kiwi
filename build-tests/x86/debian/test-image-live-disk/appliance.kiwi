@@ -63,6 +63,9 @@
             groups="users,root"/>
     </users>
     <repository type="apt-deb" repository_gpgcheck="false" architectures="amd64">
+        <source path="obs://OBS:DefaultKernel/deb"/>
+    </repository>
+    <repository type="apt-deb" repository_gpgcheck="false" architectures="amd64">
         <source path="obs://Virtualization:Appliances:Staging/Debian_13_update"/>
     </repository>
     <repository type="apt-deb" repository_gpgcheck="false" architectures="amd64">
