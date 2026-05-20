@@ -231,7 +231,7 @@ function get_partition_name {
     if [ "${table_type}" = "gpt" ];then
         part_name=$(sfdisk --part-label "${disk}" "${part_id}")
     else
-        part_name=unsupported
+        part_name=p:unsupported
     fi
     echo "${part_name}"
 }
