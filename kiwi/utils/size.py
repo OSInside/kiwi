@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import re
-import math
 
 from kiwi.exceptions import KiwiSizeError
 
@@ -26,7 +25,7 @@ class StringToSize:
     **Performs size convertions from strings to numbers**
     """
     @staticmethod
-    def to_bytes(size_value):
+    def to_bytes(size_value: str) -> int:
         """
         Convert the given string representig a size into the appropriate
         number of bytes.
@@ -46,5 +45,5 @@ class StringToSize:
             )
         size_base = int(size.group(1))
         size_unit = {'g': 3, 'm': 2}.get(size.group(2).lower())
-        return size_base * math.pow(1024, size_unit) if size_unit \
+        return size_base * (1024 ** size_unit) if size_unit \
             else size_base
