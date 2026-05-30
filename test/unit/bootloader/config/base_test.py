@@ -320,22 +320,6 @@ class TestBootLoaderConfigBase:
         assert self.bootloader.get_menu_entry_install_title() == \
             'LimeJeOS'
 
-    @patch('kiwi.xml_parse.type_.get_vga')
-    def test_get_gfxmode_default(self, mock_get_vga):
-        mock_get_vga.return_value = None
-        assert self.bootloader.get_gfxmode('grub2') == 'auto'
-
-    @patch('kiwi.xml_parse.type_.get_vga')
-    def test_get_gfxmode(self, mock_get_vga):
-        mock_get_vga.return_value = '0x318'
-        assert self.bootloader.get_gfxmode('grub2') == '1024x768'
-
-    @patch('kiwi.xml_parse.type_.get_vga')
-    def test_get_gfxmode_other_loader(self, mock_get_vga):
-        mock_get_vga.return_value = '0x318'
-        assert self.bootloader.get_gfxmode('some-loader') == \
-            mock_get_vga.return_value
-
     @patch('kiwi.bootloader.config.base.MountManager')
     def test_mount_system_s390(self, mock_MountManager):
         tmp_mount = MagicMock()

@@ -1296,6 +1296,12 @@ serial_line="string":
   the bootloader console is set to use the serial line. The attribute is
   available for the grub bootloader only.
 
+video_mode="string":
+  Specifies the video mode to use for the bootloader. The attribute is
+  available for the grub bootloader only and is passed to grub's `gfxmode`
+  command. For details on the supported video modes, please see the grub
+  manual at https://www.gnu.org/software/grub/manual/grub/html_node/gfxmode.html.
+
 timeout="number":
   Specifies the boot timeout in seconds prior to launching the default
   boot option. By default, the timeout is set to 10 seconds. It makes

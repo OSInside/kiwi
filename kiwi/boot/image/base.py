@@ -417,7 +417,6 @@ class BootImageBase:
             'kernelcmdline',
             'ramonly',
             'target_removable',
-            'vga',
             'wwid_wait_timeout'
         ]
         self.xml_state.copy_build_type_attributes(

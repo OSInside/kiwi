@@ -67,6 +67,7 @@ class TestXMLState:
             no_image_packages_description.load()
         )
         self.bootloader = Mock()
+        self.bootloader.get_video_mode.return_value = '800x600'
         self.bootloader.get_name.return_value = 'some-loader'
         self.bootloader.get_timeout.return_value = 'some-timeout'
         self.bootloader.get_timeout_style.return_value = 'some-style'
@@ -1267,6 +1268,15 @@ class TestXMLState:
         mock_bootloader.return_value = [None]
         assert self.state.get_build_type_bootloader_serial_line_setup() \
             is None
+
+    @patch('kiwi.xml_parse.type_.get_bootloader')
+    def test_get_build_type_bootloader_video_mode(self, mock_bootloader):
+        mock_bootloader.return_value = [self.bootloader]
+        assert self.state.get_build_type_bootloader_video_mode() == \
+            '800x600'
+        mock_bootloader.return_value = [None]
+        assert self.state.get_build_type_bootloader_video_mode() == \
+            'auto'
 
     @patch('kiwi.xml_parse.type_.get_bootloader')
     def test_get_build_type_bootloader_timeout(self, mock_bootloader):

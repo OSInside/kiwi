@@ -130,7 +130,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         self.terminal_input = \
             self.xml_state.get_build_type_bootloader_console()[1] or 'console'
 
-        self.gfxmode = self.get_gfxmode('grub2')
+        self.gfxmode = self.xml_state.get_build_type_bootloader_video_mode()
         self.theme = self.get_boot_theme()
         self.timeout = self.get_boot_timeout_seconds()
         self.bootpartition = self.xml_state.build_type.get_bootpartition()

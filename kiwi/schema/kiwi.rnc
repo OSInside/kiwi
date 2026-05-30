@@ -68,7 +68,7 @@ div {
         attribute xsi:schemaLocation { xsd:anyURI }
     k.image.schemaversion.attribute =
         ## The allowed Schema version (fixed value)
-        attribute schemaversion { "8.4" }
+        attribute schemaversion { "8.5" }
     k.image.id =
         ## An identification number which is represented in a file
         ## named /etc/ImageID
@@ -2295,15 +2295,6 @@ div {
             sch:param [ name = "attr" value = "rootfs_label" ]
             sch:param [ name = "types" value = "oem pxe kis docker" ]
         ]
-    k.type.vga.attribute =
-        ## Specifies the kernel framebuffer mode. More information
-        ## about the possible values can be found by calling
-        ## hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt
-        attribute vga { text }
-        >> sch:pattern [ id = "vga" is-a = "image_type"
-            sch:param [ name = "attr" value = "vga" ]
-            sch:param [ name = "types" value = "oem pxe kis iso" ]
-        ]
     k.type.gcelicense.attribute =
         ## Specifies the license tag in a GCE format
         attribute gcelicense { text }
@@ -2550,7 +2541,6 @@ div {
         k.type.target_blocksize.attribute? &
         k.type.target_removable.attribute? &
         k.type.selinux_policy.attribute? &
-        k.type.vga.attribute? &
         k.type.vhdfixedtag.attribute? &
         k.type.volid.attribute? &
         k.type.application_id.attribute? &
@@ -3074,6 +3064,14 @@ div {
             sch:param [ name = "attr" value = "serial_line" ]
             sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
         ]
+    k.bootloader.video_mode.attribute =
+        ## Specifies the bootloader video mode.
+        ## The attribute is available for the grub bootloader
+        attribute video_mode { text }
+        >> sch:pattern [ id = "video_mode" is-a = "bootloader_name_type"
+            sch:param [ name = "attr" value = "video_mode" ]
+            sch:param [ name = "types" value = "grub2 grub2_s390x_emu" ]
+        ]
     k.bootloader.timeout.attribute =
         ## Specifies the boot timeout in seconds prior to launching
         ## the default boot option. By default the timeout is set
@@ -3118,6 +3116,7 @@ div {
         k.bootloader.output_console.attribute? &
         k.bootloader.input_console.attribute? &
         k.bootloader.serial_line.attribute? &
+        k.bootloader.video_mode.attribute? &
         k.bootloader.timeout.attribute? &
         k.bootloader.timeout_style.attribute? &
         k.bootloader.targettype.attribute? &

@@ -582,46 +582,6 @@ class Defaults:
         )
 
     @staticmethod
-    def get_video_mode_map():
-        """
-        Provides video mode map
-
-        Assign a tuple to each kernel vesa hex id for each of the
-        supported bootloaders
-
-        :return:
-            video type map
-
-            .. code:: python
-
-                {'kernel_hex_mode': video_type(grub2='mode')}
-
-        :rtype: dict
-        """
-        video_type = namedtuple(
-            'video_type', ['grub2']
-        )
-        return {
-            '0x301': video_type(grub2='640x480'),
-            '0x310': video_type(grub2='640x480'),
-            '0x311': video_type(grub2='640x480'),
-            '0x312': video_type(grub2='640x480'),
-            '0x303': video_type(grub2='800x600'),
-            '0x313': video_type(grub2='800x600'),
-            '0x314': video_type(grub2='800x600'),
-            '0x315': video_type(grub2='800x600'),
-            '0x305': video_type(grub2='1024x768'),
-            '0x316': video_type(grub2='1024x768'),
-            '0x317': video_type(grub2='1024x768'),
-            '0x318': video_type(grub2='1024x768'),
-            '0x307': video_type(grub2='1280x1024'),
-            '0x319': video_type(grub2='1280x1024'),
-            '0x31a': video_type(grub2='1280x1024'),
-            '0x31b': video_type(grub2='1280x1024'),
-            'auto': video_type(grub2='auto')
-        }
-
-    @staticmethod
     def get_volume_id():
         """
         Provides default value for ISO volume ID
@@ -664,19 +624,6 @@ class Defaults:
                 snapper_default_conf = template_config
                 break
         return snapper_default_conf
-
-    @staticmethod
-    def get_default_video_mode():
-        """
-        Uses auto mode for default video. See get_video_mode_map
-        for details on the value depending which bootloader is
-        used
-
-        :return: auto
-
-        :rtype: str
-        """
-        return 'auto'
 
     @staticmethod
     def get_default_bootloader():

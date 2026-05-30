@@ -464,37 +464,6 @@ class BootLoaderConfigBase(ABC):
             title = self.xml_state.xml_data.get_name()
         return title
 
-    def get_gfxmode(self, target):
-        """
-        Graphics mode according to bootloader target
-
-        Bootloaders which support a graphics mode can be configured
-        to run graphics in a specific resolution and colors. There
-        is no standard for this setup which causes kiwi to create
-        a mapping from the kernel vesa mode number to the corresponding
-        bootloader graphics mode setup
-
-        :param string target: bootloader name
-
-        :return: boot graphics mode
-
-        :rtype: str
-        """
-        gfxmode_map = Defaults.get_video_mode_map()
-
-        default_mode = Defaults.get_default_video_mode()
-        requested_gfxmode = self.xml_state.build_type.get_vga()
-
-        if requested_gfxmode in gfxmode_map:
-            gfxmode = requested_gfxmode
-        else:
-            gfxmode = default_mode
-
-        if target == 'grub2':
-            return gfxmode_map[gfxmode].grub2
-        else:
-            return gfxmode
-
     def _mount_system(
         self, device_map, root_device, boot_device, efi_device=None,
         volumes=None, root_volume_name=None, partitions=None

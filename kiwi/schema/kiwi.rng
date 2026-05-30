@@ -160,7 +160,7 @@ second the location of the XSD Schema
     <define name="k.image.schemaversion.attribute">
       <attribute name="schemaversion">
         <a:documentation>The allowed Schema version (fixed value)</a:documentation>
-        <value>8.4</value>
+        <value>8.5</value>
       </attribute>
     </define>
     <define name="k.image.id">
@@ -3305,17 +3305,6 @@ will force any COW action to happen in RAM</a:documentation>
         <sch:param name="types" value="oem pxe kis docker"/>
       </sch:pattern>
     </define>
-    <define name="k.type.vga.attribute">
-      <attribute name="vga">
-        <a:documentation>Specifies the kernel framebuffer mode. More information
-about the possible values can be found by calling
-hwinfo --framebuffer or in /usr/src/linux/Documentation/fb/vesafb.txt</a:documentation>
-      </attribute>
-      <sch:pattern id="vga" is-a="image_type">
-        <sch:param name="attr" value="vga"/>
-        <sch:param name="types" value="oem pxe kis iso"/>
-      </sch:pattern>
-    </define>
     <define name="k.type.gcelicense.attribute">
       <attribute name="gcelicense">
         <a:documentation>Specifies the license tag in a GCE format</a:documentation>
@@ -3770,9 +3759,6 @@ partition if present</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.selinux_policy.attribute"/>
-        </optional>
-        <optional>
-          <ref name="k.type.vga.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.vhdfixedtag.attribute"/>
@@ -4621,6 +4607,16 @@ bootloader</a:documentation>
         <sch:param name="types" value="grub2 grub2_s390x_emu"/>
       </sch:pattern>
     </define>
+    <define name="k.bootloader.video_mode.attribute">
+      <attribute name="video_mode">
+        <a:documentation>Specifies the bootloader video mode.
+The attribute is available for the grub bootloader</a:documentation>
+      </attribute>
+      <sch:pattern id="video_mode" is-a="bootloader_name_type">
+        <sch:param name="attr" value="video_mode"/>
+        <sch:param name="types" value="grub2 grub2_s390x_emu"/>
+      </sch:pattern>
+    </define>
     <define name="k.bootloader.timeout.attribute">
       <attribute name="timeout">
         <a:documentation>Specifies the boot timeout in seconds prior to launching
@@ -4690,6 +4686,9 @@ is useful for full disk encryption images</a:documentation>
         </optional>
         <optional>
           <ref name="k.bootloader.serial_line.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.bootloader.video_mode.attribute"/>
         </optional>
         <optional>
           <ref name="k.bootloader.timeout.attribute"/>

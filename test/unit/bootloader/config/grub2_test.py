@@ -700,6 +700,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.bls = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'gfxterm'
+        self.bootloader.gfxmode = '800x600'
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.bootloader.arch = 's390x'
@@ -758,6 +759,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.bls = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'gfxterm'
+        self.bootloader.gfxmode = '800x600'
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.firmware.efi_mode.return_value = 'efi'
@@ -799,6 +801,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.bls = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'serial'
+        self.bootloader.gfxmode = '800x600'
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.bootloader.cmdline = 'root=LABEL=some-label'
@@ -846,6 +849,7 @@ class TestBootLoaderConfigGrub2:
         self.bootloader.bls = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'serial'
+        self.bootloader.gfxmode = '800x600'
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.bootloader.cmdline = 'root=UUID=foo'
@@ -889,6 +893,7 @@ class TestBootLoaderConfigGrub2:
         mock_exists.return_value = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'serial'
+        self.bootloader.gfxmode = '800x600'
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.bootloader.cmdline = 'abcd root=LABEL=foo console=tty0'
@@ -938,6 +943,7 @@ class TestBootLoaderConfigGrub2:
         mock_exists.return_value = True
         self.bootloader.terminal_input = 'serial'
         self.bootloader.terminal_output = 'gfxterm'
+        self.bootloader.gfxmode = '800x600'
         self.bootloader.theme = 'openSUSE'
         self.bootloader.displayname = 'Bob'
         self.bootloader.bls = True
