@@ -365,7 +365,6 @@ Requires:       gptfdisk
 Requires:       gdisk
 %endif
 Requires:       lvm2
-Requires:       parted
 Requires:       kpartx
 Requires:       cryptsetup
 Requires:       mdadm
