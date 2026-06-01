@@ -33,7 +33,7 @@ sgdisk --new=6:0:+100M "$disk_device" || exit 1
 sgdisk --new=7:0:0 "$disk_device" || exit 1
 
 # reread partition changes
-partprobe "$disk_device" || exit 1
+partx -u "$disk_device" || exit 1
 
 # recreate partition maps
 if [ "${is_kpartx}" = "false" ];then
