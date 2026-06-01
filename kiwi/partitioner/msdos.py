@@ -108,12 +108,11 @@ class PartitionerMsDos(PartitionerBase):
             if flag_name == 'f.active':
                 Command.run(
                     [
-                        'parted', self.disk_device,
-                        'set', format(partition_id), 'boot', 'on'
+                        'sfdisk', '--activate', self.disk_device,
+                        format(partition_id)
                     ]
                 )
-            else:
-                assert isinstance(flag_val, str), f"flag {flag_name} must be a string but got a {type(flag_val)}"
+            elif isinstance(flag_val, str):
                 Command.run(
                     [
                         'sfdisk', '-c', self.disk_device,

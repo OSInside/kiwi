@@ -182,7 +182,7 @@ class TestPartitionerMsDos:
     def test_set_active(self, mock_command):
         self.partitioner.set_flag(1, 'f.active')
         mock_command.assert_called_once_with(
-            ['parted', '/dev/loop0', 'set', '1', 'boot', 'on']
+            ['sfdisk', '--activate', '/dev/loop0', '1']
         )
 
     def test_set_flag_ignored(self):
