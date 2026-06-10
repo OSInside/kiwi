@@ -23,9 +23,9 @@ function create_partitions {
         ;;
     esac
     # notify the kernel about partition table changes
-    if type partprobe &> /dev/null;then
-        set_device_lock "${disk_device}" \
-            partprobe "${disk_device}"
+    if [ "${pt_table_type}" = "dasd" ];then
+        # partx doesn't work for DASD disk, so on s390 partprobe is used
+        partprobe "${disk_device}"
     else
         set_device_lock "${disk_device}" \
             partx -u "${disk_device}"
@@ -349,20 +349,12 @@ function get_free_disk_bytes {
 function get_partition_table_type {
     local disk_device="$1"
     local table_type
-
-    # blkid doesn't work for dasd partitions, so on s390 parted is used
+    # blkid doesn't work for dasd partitions, so on s390 fdasd is used
+    # checking if it can read the partition table of the device and if it
+    # can set dasd as table_type. In any other case use blkid
     # to detect the partition type (bsc#1209247)
-    if [[ "$(uname -m)" =~ s390 ]];then
-        table_type=$(
-            parted --script --machine "${disk_device}" print |\
-                grep "^${disk_device}" | cut -d":" -f6
-        )
-        if [ "${table_type}" = "msdos" ];then
-            # make sure to set a consistent table name for the
-            # DOS table type. In the initrd code we use 'dos'
-            # as identifier but parted reports msdos
-            table_type="dos"
-        fi
+    if [[ "$(uname -m)" =~ s390 ]] && fdasd -p "${disk_device}" &>/dev/null;then
+        table_type="dasd"
         echo "${table_type}"
     else
         blkid -s PTTYPE -o value "$disk_device"

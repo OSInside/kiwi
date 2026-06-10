@@ -405,14 +405,8 @@ function preparePersistentOverlayDiskBoot {
     if ! mount -L cow "${overlay_mount_point}"; then
         partitions_before_cow_part=$(_partition_count)
         echo -e "n\np\n\n\n\nw\nq" | fdisk "${isodiskdev}"
-        if type partprobe &> /dev/null;then
-            if ! partprobe "${isodiskdev}"; then
-                return 1
-            fi
-        else
-            if ! partx -u "${isodiskdev}"; then
-                return 1
-            fi
+        if ! set_device_lock "${isodiskdev}" partx -u "${isodiskdev}"; then
+            return 1
         fi
         udev_pending
         if [ "$(_partition_count)" -le "${partitions_before_cow_part}" ];then
