@@ -19,13 +19,16 @@
 
 # If they aren't provided by a system installed macro, define them
 %{!?_defaultdocdir: %global _defaultdocdir %{_datadir}/doc}
+%{!?__python3: %global __python3 /usr/bin/python3}
+%{!?python3_pkgversion:%global python3_pkgversion 3}
 
 %if 0%{?suse_version} && 0%{?suse_version} < 1600
 %global __python3 /usr/bin/python3.11
 %global python3_pkgversion 311
-%else
-%{!?__python3: %global __python3 /usr/bin/python3}
-%{!?python3_pkgversion:%global python3_pkgversion 3}
+%endif
+
+%if 0%{?suse_version} && 0%{?suse_version} >= 1600
+%global __python3 %(echo /usr/bin/%{primary_python} | sed -e "s@3@3.@")
 %endif
 
 %if %{undefined python3_sitelib}
