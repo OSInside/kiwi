@@ -1,14 +1,18 @@
+import io
 import logging
 from unittest.mock import (
-    patch, call, Mock
+    patch, call, Mock, MagicMock
 )
 from pytest import (
     raises, fixture
 )
 
 from kiwi.partitioner.gpt import PartitionerGpt
-
-from kiwi.exceptions import KiwiPartitionerGptFlagError
+from kiwi.command import CommandT
+from kiwi.exceptions import (
+    KiwiPartitionerGptFlagError,
+    KiwiDiskGeometryError
+)
 
 
 class TestPartitionerGpt:
@@ -94,7 +98,7 @@ class TestPartitionerGpt:
     @patch('kiwi.partitioner.gpt.PartitionerGpt._call_sfdisk')
     @patch('kiwi.partitioner.gpt.PartitionerGpt._get_partition_type')
     @patch('kiwi.partitioner.gpt.PartitionerGpt._get_partition_geometry')
-    def test_set_hybrid_mbr(
+    def test_set_hybrid_mbr_max_partitions_exceeded(
         self, mock_geometry, mock_type, mock_call_sfdisk
     ):
         self.partitioner.partition_id = 5
@@ -106,17 +110,84 @@ class TestPartitionerGpt:
             4: 4,
             5: 5
         }
+
+        def type_call(args):
+            if args == 1:
+                return 'A19D880F-05FC-4D3B-A006-743F0F84911E'
+            else:
+                return '9E1A2D38-C612-4316-AA26-8B49521E5A8B'
+
+        mock_type.side_effect = type_call
+
         mock_geometry.side_effect = [('2048', '4096')] * 3
-        mock_type.return_value = '0FC63DAF-8483-4772-8E79-3D69D8477DE4'
         self.partitioner.set_hybrid_mbr()
-        mock_call_sfdisk.assert_called_once_with(
-            [
-                '/dev/loop0p1 : start=2048, size=4096, type=83',
-                '/dev/loop0p2 : start=2048, size=4096, type=83',
-                '/dev/loop0p3 : start=2048, size=4096, type=83'
-            ],
-            ['--label-nested=mbr']
+        assert len(mock_type.call_args_list) == 3
+
+    @patch('kiwi.partitioner.gpt.Command.run')
+    def test_set_hybrid_mbr_geometry_error(self, mock_Command_run):
+        self.partitioner.partition_id = 1
+        self.partitioner.partition_count = 1
+        self.partitioner.partition_map = {
+            1: 1,
+        }
+        mock_Command_run.return_value = CommandT(
+            output='bogus',
+            error='',
+            returncode=0
         )
+        with raises(KiwiDiskGeometryError):
+            self.partitioner.set_hybrid_mbr()
+
+    @patch('kiwi.partitioner.gpt.Command.run')
+    def test_set_hybrid_mbr(self, mock_Command_run):
+        self.partitioner.partition_id = 1
+        self.partitioner.partition_count = 1
+        self.partitioner.partition_map = {
+            1: 1,
+        }
+
+        def command_call(args):
+            print(args)
+            if '--dump' in args:
+                return CommandT(
+                    output='\n'.join(
+                        [
+                            'label: gpt',
+                            'label-id: ID',
+                            'device: /dev/loop0',
+                            'unit: sectors',
+                            'first-lba: 2048',
+                            'last-lba: 4096',
+                            'sector-size: 512',
+                            '',
+                            '/dev/loop0p1 : start=2048, size=1024, type=TYPE'
+                        ]
+                    ),
+                    error='',
+                    returncode=0
+                )
+            elif '--part-type' in args:
+                return CommandT(
+                    output='0FC63DAF-8483-4772-8E79-3D69D8477DE4\n',
+                    error='',
+                    returncode=0
+                )
+            else:
+                return CommandT(
+                    output='',
+                    error='',
+                    returncode=0
+                )
+
+        mock_Command_run.side_effect = command_call
+
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.partitioner.set_hybrid_mbr()
+            file_handle.write.assert_called_once_with(
+                '/dev/loop0p1 : start=2048, size=1024, type=83\n'
+            )
 
     @patch('kiwi.partitioner.gpt.PartitionerGpt._call_sfdisk')
     @patch('kiwi.partitioner.gpt.PartitionerGpt._get_partition_type')
@@ -175,13 +246,13 @@ class TestPartitionerGpt:
         )
         mock_call_sfdisk.assert_called_once_with(
             [
+                'table-length: 42',
                 'label: gpt',
                 'label-id: ID',
                 'device: /dev/loop0',
                 'unit: sectors',
                 'first-lba: 2048',
                 'last-lba: 4096',
-                'table-length: 42',
                 'sector-size: 512',
                 '',
                 '/dev/loop0p1 : start=2048, size=1024, type=TYPE'

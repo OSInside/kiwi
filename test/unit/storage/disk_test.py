@@ -378,7 +378,9 @@ class TestDisk:
     @patch('kiwi.storage.disk.Command.run')
     def test_wipe_gpt(self, mock_command, mock_temp):
         mock_temp.return_value = self.tempfile
-        self.disk.wipe()
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.disk.wipe()
         mock_command.assert_called_once_with(
             ['bash', '-c', 'sfdisk --wipe always /dev/loop0 < tempfile']
         )

@@ -29,7 +29,8 @@ from kiwi.partitioner.base import PartitionerBase
 from kiwi.utils.temporary import Temporary
 
 from kiwi.exceptions import (
-    KiwiPartitionerGptFlagError
+    KiwiPartitionerGptFlagError,
+    KiwiDiskGeometryError
 )
 
 log = logging.getLogger('kiwi')
@@ -204,25 +205,17 @@ class PartitionerGpt(PartitionerBase):
         """
         Resize partition table
 
-        :param int entries: number of default entries
+        This is done by a dump/reload which automatically corrects
+        geometry differences in the table when sfdisk is used
+
+        :param int entries: Specify the maximal number of GPT partitions
         """
         partition_table = Command.run(
             ['sfdisk', '--dump', self.disk_device]
         ).output.splitlines()
-        table_length = f'table-length: {entries}'
-        updated_table = []
-        insert_index = 0
-        for line in partition_table:
-            if line.startswith('table-length:'):
-                updated_table.append(table_length)
-                insert_index = -1
-                continue
-            updated_table.append(line)
-            if line.startswith('last-lba:'):
-                insert_index = len(updated_table)
-        if insert_index >= 0:
-            updated_table.insert(insert_index, table_length)
-        self._call_sfdisk(updated_table)
+        if entries != 128:
+            partition_table.insert(0, f'table-length: {entries}')
+        self._call_sfdisk(partition_table)
 
     def _call_sfdisk(
         self, partition_setup: List[str], options: List[str] = None
@@ -255,7 +248,9 @@ class PartitionerGpt(PartitionerBase):
             re.MULTILINE
         )
         if not partition_match:
-            raise RuntimeError(f'Failed to locate partition {partition_id}')
+            raise KiwiDiskGeometryError(
+                f'Failed to locate partition {partition_id}'
+            )
         return partition_match.group(1), partition_match.group(2)
 
     def _get_partition_type(self, partition_id: int) -> str:
