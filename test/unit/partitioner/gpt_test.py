@@ -261,7 +261,10 @@ class TestPartitionerGpt:
 
     @patch('kiwi.partitioner.gpt.Command.run')
     def test_set_uuid(self, mock_Command_run):
-        self.partitioner.set_uuid(42, 'ID')
+        self.partitioner.set_uuid(42, 'c12a7328f81f11d2ba4b00a0c93ec93b')
         mock_Command_run.assert_called_once_with(
-            ['sfdisk', '--part-type', '/dev/loop0', '42', 'ID']
+            [
+                'sfdisk', '--part-uuid', '/dev/loop0',
+                '42', 'c12a7328-f81f-11d2-ba4b-00a0c93ec93b'
+            ]
         )

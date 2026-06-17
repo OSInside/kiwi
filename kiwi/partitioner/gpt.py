@@ -19,6 +19,7 @@ import json
 import logging
 import re
 import shlex
+from uuid import UUID
 from typing import (
     List, Optional
 )
@@ -137,8 +138,8 @@ class PartitionerGpt(PartitionerBase):
         """
         Command.run(
             [
-                'sfdisk', '--part-type', self.disk_device,
-                format(partition_id), uuid
+                'sfdisk', '--part-uuid', self.disk_device,
+                format(partition_id), format(UUID(uuid))
             ]
         )
 
