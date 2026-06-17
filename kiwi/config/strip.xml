@@ -215,7 +215,6 @@
         <file name="pam_console_apply"/>
         <file name="parted"/>
         <file name="gdisk"/>
-        <file name="sgdisk"/>
         <file name="path_id"/>
         <file name="pidof"/>
         <file name="ping"/>

@@ -90,7 +90,7 @@ function create_msdos_partitions {
 
 function create_gpt_partitions {
     # """
-    # create partitions using sgdisk (gpt table)
+    # create partitions using sfdisk (gpt table)
     # """
     local disk_device=$1
     local partition_setup=$2
@@ -103,7 +103,7 @@ function create_gpt_partitions {
 
     # put partition setup in a command list(cmd_list)
     for cmd in ${partition_setup};do
-        # default values in sgdisk are used if 0 is provided
+        # default values in sfdisk are used if 0 is provided
         cmd=$(echo "${cmd}" | tr . 0)
         cmd_list[$index]=${cmd}
         index=$((index + 1))
@@ -117,7 +117,7 @@ function create_gpt_partitions {
             # delete a partition...
             partid=${cmd_list[$index + 1]}
             set_device_lock "${disk_device}" \
-                sgdisk --delete "${partid}" "${disk_device}"
+                sfdisk --force --delete "${disk_device}" "${partid}"
         ;;
         "n")
             # create a partition...
@@ -125,17 +125,27 @@ function create_gpt_partitions {
             partid=${cmd_list[$index + 2]}
             part_size_start=${cmd_list[$index + 3]}
             part_size_end=${cmd_list[$index + 4]}
+            if [ "${part_size_end}" = "0" ];then
+                part_size=+
+            else
+                part_size=$((part_size_end - part_size_start + 1))
+            fi
+            if [ "${part_size_start}" = "0" ];then
+                printf 'size=%s, name="%s"\n' \
+                    "${part_size}" "${part_name}" > /tmp/sfdisk.in
+            else
+                printf 'start=%s, size=%s, name="%s"\n' \
+                    "${part_size_start}" "${part_size}" "${part_name}" > /tmp/sfdisk.in
+            fi
             set_device_lock "${disk_device}" \
-                sgdisk --new "${partid}:${part_size_start}:${part_size_end}" "${disk_device}"
-            set_device_lock "${disk_device}" \
-                sgdisk --change-name "${partid}:${part_name}" "${disk_device}"
+                sfdisk --force -N "${partid}" "${disk_device}" < /tmp/sfdisk.in
         ;;
         "t")
             # change a partition type...
             part_type=${cmd_list[$index + 2]}
             partid=${cmd_list[$index + 1]}
             set_device_lock "${disk_device}" \
-                sgdisk --typecode "${partid}:$(_to_guid "${part_type}")" "${disk_device}"
+                sfdisk --part-type "${disk_device}" "${partid}" "$(_to_guid "${part_type}")"
         ;;
         esac
         index=$((index + 1))
@@ -417,15 +427,29 @@ function activate_boot_partition {
 function create_hybrid_gpt {
     local disk_device=$1
     local partition_count
+    local partition_id
+    local partition_start
+    local partition_size
+    local partition_type
     udev_pending
     partition_count=$(lsblk -r -o NAME,TYPE "${disk_device}" | grep -c part)
     if [ "${partition_count}" -gt 3 ]; then
         # The max number of partitions to embed is 3
-        # see man sgdisk for details
+        # see man sfdisk for details
         partition_count=3
     fi
+    : > /tmp/sfdisk.in
+    for partition_id in $(seq 1 "${partition_count}");do
+        partition_start=$(_get_gpt_partition_start_sector "${disk_device}" "${partition_id}")
+        partition_size=$(_get_gpt_partition_size "${disk_device}" "${partition_id}")
+        partition_type=$(_get_gpt_partition_mbr_type "${disk_device}" "${partition_id}")
+        printf '%s : start=%s, size=%s, type=%s\n' \
+            "$(get_partition_node_name "${disk_device}" "${partition_id}")" \
+            "${partition_start}" "${partition_size}" "${partition_type}" \
+            >> /tmp/sfdisk.in
+    done
     if ! set_device_lock "${disk_device}" \
-        sgdisk -h "$(seq -s : 1 "${partition_count}")" "${disk_device}"
+        sfdisk --label-nested=mbr "${disk_device}" < /tmp/sfdisk.in
     then
         die "Failed to create hybrid GPT/MBR !"
     fi
@@ -513,6 +537,38 @@ function _get_msdos_partition_start_sector {
     local partid=$2
     sfdisk --dump "${disk_device}" |\
         grep "${partid} :" | cut -f1 -d, | cut -f2 -d= | tr -d " "
+}
+
+function _get_gpt_partition_start_sector {
+    local disk_device=$1
+    local partid=$2
+    sfdisk --dump "${disk_device}" |\
+        grep "${partid} :" | cut -f1 -d, | cut -f2 -d= | tr -d " "
+}
+
+function _get_gpt_partition_size {
+    local disk_device=$1
+    local partid=$2
+    sfdisk --dump "${disk_device}" |\
+        grep "${partid} :" | cut -f2 -d, | cut -f2 -d= | tr -d " "
+}
+
+function _get_gpt_partition_mbr_type {
+    local disk_device=$1
+    local partid=$2
+    local part_type
+    part_type=$(sfdisk --part-type "${disk_device}" "${partid}")
+    if [ "${part_type}" = "0657FD6D-A4AB-43C4-84E5-0933C84B4F4F" ];then
+        echo 82
+    elif [ "${part_type}" = "E6D6D379-F507-44C2-A23C-238F2A3DF928" ];then
+        echo 8e
+    elif [ "${part_type}" = "A19D880F-05FC-4D3B-A006-743F0F84911E" ];then
+        echo fd
+    elif [ "${part_type}" = "9E1A2D38-C612-4316-AA26-8B49521E5A8B" ];then
+        echo 41
+    else
+        echo 83
+    fi
 }
 
 function _to_guid {

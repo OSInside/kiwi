@@ -374,11 +374,13 @@ class TestDisk:
         self.disk.activate_boot_partition()
         self.partitioner.set_flag(1, 'f.active')
 
+    @patch('kiwi.storage.disk.Temporary.new_file')
     @patch('kiwi.storage.disk.Command.run')
-    def test_wipe_gpt(self, mock_command):
+    def test_wipe_gpt(self, mock_command, mock_temp):
+        mock_temp.return_value = self.tempfile
         self.disk.wipe()
         mock_command.assert_called_once_with(
-            ['sgdisk', '--zap-all', '/dev/loop0']
+            ['bash', '-c', 'sfdisk --wipe always /dev/loop0 < tempfile']
         )
 
     @patch('kiwi.storage.disk.Command.run')
