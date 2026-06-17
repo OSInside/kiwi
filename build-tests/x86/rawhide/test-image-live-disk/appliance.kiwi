@@ -12,7 +12,7 @@
     <profiles>
         <profile name="Live" description="Live image of Fedora Rawhide"/>
         <profile name="LiveEroFS" description="Live Root via EroFS"/>
-        <profile name="Virtual" description="Virtual image of Fedora Rawhide"/>
+        <profile name="Virtual" description="Virtual image of Fedora Rawhide and no shim"/>
         <profile name="Virtual_btrfs" description="Virtual image of Fedora Rawhide with btrfs layout"/>
         <profile name="Disk" description="OEM image of Fedora Rawhide"/>
     </profiles>
@@ -124,6 +124,9 @@
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
+    <packages type="bootstrap" profiles="Live,LiveEroFS,Virtual_btrfs,Disk">
+        <package name="shim-x64" arch="x86_64"/>
+    </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
         <package name="shadow-utils"/>
@@ -131,7 +134,6 @@
         <package name="grub2-efi-x64" arch="x86_64"/>
         <package name="grub2-efi-ia32-modules" arch="x86_64"/>
         <package name="grub2-efi-ia32" arch="x86_64"/>
-        <package name="shim-x64" arch="x86_64"/>
         <package name="fedora-release"/>
     </packages>
 </image>

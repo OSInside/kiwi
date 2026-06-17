@@ -1337,27 +1337,31 @@ class Defaults:
                 return grubenv
 
     @staticmethod
-    def get_shim_vendor_directory(root_path):
+    def get_shim_vendor_directories(root_path: str) -> List[str]:
         """
-        Provides shim vendor directory
+        Provides list of shim vendor directories
 
         Searches distribution specific locations to find shim.efi
-        below the given root path and return the directory name
+        below the given root path and return the directory names
         to the file found
 
         :param string root_path: image root path
 
-        :return: directory path or None
+        :return: list of directory names or empty list
 
-        :rtype: str
+        :rtype: list
         """
         shim_vendor_patterns = [
             '/boot/efi/EFI/*/shim*.efi',
             '/EFI/*/shim*.efi'
         ]
+        vendor_paths = []
         for shim_vendor_pattern in shim_vendor_patterns:
             for shim_file in glob.iglob(root_path + shim_vendor_pattern):
-                return os.path.dirname(shim_file)
+                shim_path = os.path.dirname(shim_file)
+                if shim_path not in vendor_paths:
+                    vendor_paths.append(shim_path)
+        return vendor_paths
 
     @staticmethod
     def get_default_volume_group_name():

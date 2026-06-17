@@ -596,12 +596,12 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self._copy_xen_modules_to_boot_directory(lookup_path)
 
     def _copy_grub_config_to_efi_path(
-        self, root_path, config_file, target_type='disk'
-    ):
-        efi_boot_path = Defaults.get_shim_vendor_directory(
+        self, root_path: str, config_file: str, target_type: str = 'disk'
+    ) -> None:
+        efi_boot_paths = Defaults.get_shim_vendor_directories(
             root_path
         )
-        if not efi_boot_path:
+        if not efi_boot_paths:
             # not all distributors installs a vendor directory but
             # have them in their encoded early boot script. Thus
             # the following code tries to look up the vendor string
@@ -622,31 +622,35 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
                         strings_abspath,
                         grub_image.filename, '|', 'grep', r'EFI\/'
                     ]
-                    efi_boot_path = Command.run(
+                    vendor_paths = Command.run(
                         ['bash', '-c', ' '.join(bash_command)],
                         raise_on_error=False, raise_on_command_not_found=True
-                    ).output
-                    if efi_boot_path:
-                        efi_boot_path = os.path.normpath(
-                            os.sep.join([root_path, efi_boot_path.strip()])
-                        )
-        if not efi_boot_path:
-            efi_boot_path = os.path.normpath(
-                os.sep.join([root_path, 'EFI/BOOT'])
+                    )
+                    if vendor_paths and vendor_paths.output:
+                        for path in vendor_paths.output.strip().split(os.linesep):
+                            efi_boot_paths.append(
+                                os.path.normpath(
+                                    os.sep.join([root_path, path.strip()])
+                                )
+                            )
+        if not efi_boot_paths:
+            efi_boot_paths = [
+                os.path.normpath(os.sep.join([root_path, 'EFI/BOOT']))
+            ]
+        for efi_boot_path in efi_boot_paths:
+            Path.create(efi_boot_path)
+            grub_config_file_for_efi_boot = os.sep.join(
+                [efi_boot_path, 'grub.cfg']
             )
-        Path.create(efi_boot_path)
-        grub_config_file_for_efi_boot = os.sep.join(
-            [efi_boot_path, 'grub.cfg']
-        )
-        if config_file != grub_config_file_for_efi_boot:
-            log.info(
-                'Copying {0} -> {1} to be found by EFI'.format(
+            if config_file != grub_config_file_for_efi_boot:
+                log.info(
+                    'Copying {0} -> {1} to be found by EFI'.format(
+                        config_file, grub_config_file_for_efi_boot
+                    )
+                )
+                shutil.copy2(
                     config_file, grub_config_file_for_efi_boot
                 )
-            )
-            shutil.copy2(
-                config_file, grub_config_file_for_efi_boot
-            )
 
     def _supports_platform_modules(self):
         if self.efi_csm and (
