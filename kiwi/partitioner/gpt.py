@@ -121,7 +121,7 @@ class PartitionerGpt(PartitionerBase):
                 [
                     'sfdisk', '--part-type', self.disk_device,
                     format(partition_id),
-                    self._to_guid(self.flag_map[flag_name])
+                    self._to_guid(format(self.flag_map[flag_name]))
                 ]
             )
         else:
