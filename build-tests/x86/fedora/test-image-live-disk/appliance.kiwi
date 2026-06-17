@@ -13,7 +13,7 @@
     <profiles>
         <profile name="Live" description="Live image of Fedora"/>
         <profile name="Virtual" description="Virtual image of Fedora"/>
-        <profile name="Virtual_bootpart" description="Virtual image of Fedora with extra boot partition"/>
+        <profile name="Virtual_bootpart" description="Virtual image of Fedora with extra boot partition and no shim"/>
         <profile name="Disk" description="OEM image of Fedora"/>
     </profiles>
     <preferences>
@@ -126,12 +126,14 @@
         <package name="dracut-kiwi-oem-repart"/>
         <package name="dracut-kiwi-oem-dump"/>
     </packages>
+    <packages type="bootstrap" profiles="Live,Disk,Virtual">
+        <package name="shim" arch="x86_64"/>
+    </packages>
     <packages type="bootstrap">
         <package name="filesystem"/>
         <package name="basesystem"/>
         <package name="grub2-efi-x64-modules"/>
         <package name="grub2-efi-x64"/>
-        <package name="shim" arch="x86_64"/>
         <package name="fedora-release"/>
         <package name="shadow"/>
     </packages>
