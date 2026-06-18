@@ -234,6 +234,7 @@ class PartitionerGpt(PartitionerBase):
         command = ' '.join(
             sfdisk_command
         )
+        log.debug(f'Creating partition layout: {partition_setup}')
         Command.run(['bash', '-c', command])
 
     def _get_partition_geometry(self, partition_id: int) -> tuple[str, str]:
