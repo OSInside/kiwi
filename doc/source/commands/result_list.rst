@@ -10,9 +10,8 @@ SYNOPSIS
 
    kiwi-ng [global options] service <command> [<args>]
 
-   kiwi-ng result list -h | --help
+   kiwi-ng result list --help
    kiwi-ng result list --target-dir=<directory>
-   kiwi-ng result list help
 
 .. _db_kiwi_result_list_desc:
 

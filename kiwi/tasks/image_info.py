@@ -15,53 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-"""
-usage: kiwi-ng image info -h | --help
-       kiwi-ng image info --description=<directory>
-           [--resolve-package-list]
-           [--list-profiles]
-           [--print-kiwi-env]
-           [--ignore-repos]
-           [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>...]
-           [--add-repo-credentials=<user:pass_or_filename>...]
-           [--print-xml|--print-yaml|--print-toml]
-       kiwi-ng image info help
-
-commands:
-    info
-        provide information about the specified image description
-
-options:
-    --add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>
-        add repository with given source, type, alias,
-        priority, imageinclude(true|false), package_gpgcheck(true|false),
-        list of signing_keys enclosed in curly brackets delimited by a colon,
-        component list for debian based repos as string delimited by a space,
-        main distribution name for debian based repos,
-        repo_gpgcheck(true|false) and repo_sourcetype(metalink|baseurl|mirrorlist)
-    --add-repo-credentials=<user:pass_or_filename>
-        for uri://user:pass@location type repositories, set the user and
-        password connected with an add-repo specification. The first
-        add-repo-credentials is connected with the first add-repo
-        specification and so on. If the provided value describes a
-        filename in the filesystem, the first line of that file is read
-        and used as credentials information.
-    --description=<directory>
-        the description must be a directory containing a kiwi XML
-        description and optional metadata files
-    --ignore-repos
-        ignore all repos from the XML configuration
-    --resolve-package-list
-        solve package dependencies and return a list of all
-        packages including their attributes e.g size,
-        shasum, etc...
-    --list-profiles
-        list profiles available for the selected/default type
-    --print-kiwi-env
-        print kiwi profile environment variables
-    --print-xml|--print-yaml|--print-toml
-        print image description in specified format
-"""
 import os
 from itertools import zip_longest
 from urllib.parse import urlparse
