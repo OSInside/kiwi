@@ -1019,6 +1019,16 @@ class DiskBuilder:
                     if system:
                         self._setup_property_root_is_readonly_snapshot(system)
 
+            # set btrfs seed
+            if (
+                self._install_image_requested()
+                and self._partition_based_install_requested()
+                and self.volume_manager_name == 'btrfs'
+            ):
+                Command.run(
+                    ['btrfstune', '-S', '1', device_map['root'].get_device()]
+                )
+
             # call edit_boot_install script
             boot_device = device_map['root']
             if 'boot' in device_map:
@@ -1029,6 +1039,16 @@ class DiskBuilder:
 
     def _install_image_requested(self) -> bool:
         return bool(self.install_iso or self.install_stick or self.install_pxe)
+
+    def _partition_based_install_requested(self) -> bool:
+        # follow the dracut getargbool semantics, the last
+        # occurrence of the option wins
+        requested = False
+        for option in self.cmdline.split():
+            name, _, value = option.partition('=')
+            if name == 'rd.kiwi.install.partition_based':
+                requested = value not in ('0', 'no', 'off')
+        return requested
 
     def _get_exclude_list_for_root_data_sync(self, device_map: Dict) -> list:
         exclude_list = (

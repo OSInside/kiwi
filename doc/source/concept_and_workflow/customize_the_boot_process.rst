@@ -244,6 +244,81 @@ documents the most commonly used kernel boot parameters for these modules:
   Note that options starting with `rd.kiwi` are not passed to avoid
   side effects.
 
+``rd.kiwi.install.partition_based``
+  Instructs an OEM installation image to deploy the disk image
+  partition by partition instead of dumping the entire disk image
+  as one blob to the target disk. In this mode {kiwi} clones the
+  partition table and the MBR boot code of the image to the target
+  disk, maps the partitions of the image and transfers each partition
+  individually. Partitions containing a `btrfs` filesystem are
+  transferred using the btrfs seed/sprout process as described in
+  https://btrfs.readthedocs.io/en/latest/Seeding-device.html.
+  All other partitions, e.g. the EFI partition, are copied block by
+  block. After the transfer, the filesystem UUID of the original btrfs
+  filesystem is restored on the target partition. The main purpose of
+  this mode is to make the btrfs seed/sprout process available for
+  the deployment of a system.
+
+  The seed/sprout process requires the btrfs root filesystem of the
+  disk image to be flagged as a seeding device. This flag is set by
+  {kiwi} at build time and not by the installation system. Therefore,
+  `rd.kiwi.install.partition_based` must be activated as part of the
+  image description via the `kernelcmdline` attribute of the `<type>`
+  element. Passing the option only at boot time of the installation
+  image is not sufficient. {kiwi} flags the root filesystem as a seeding
+  device only for install images (`installiso`, `installstick` or
+  `installpxe`) using the `btrfs` volume manager that set
+  `rd.kiwi.install.partition_based` in `kernelcmdline`, for example:
+
+  .. code:: xml
+
+     <type image="oem" filesystem="btrfs" installiso="true"
+           kernelcmdline="console=ttyS0 rd.kiwi.install.partition_based">
+       ...
+     </type>
+
+  The btrfs tools `btrfs` and `btrfstune` must be present in the
+  installation initrd.
+
+  If used in combination with `rd.kiwi.install.pxe`, the disk image
+  is first fetched from the remote location into the main memory of
+  the installation system as :file:`/image.raw`. From there the
+  partition based deployment is performed. Make sure the system has
+  enough main memory to store the complete uncompressed disk image.
+
+  .. note:: Partition Based Mode Limitations
+
+     * The result of the seed/sprout process is not bit identical
+       with the disk image. Therefore, the verification of the
+       installed image against the image checksum is skipped in this
+       mode, regardless of the `oem-skip-verify` setting.
+     * All partitions of the disk image are always deployed. This mode
+       can't be combined with `rd.kiwi.install.retain_last` or
+       `rd.kiwi.install.retain_past`. If one of them is set, the
+       installation is aborted before any data is written to the
+       target disk.
+     * Compared to the default mode of dumping the entire disk image,
+       the partition based deployment does not provide a significant
+       performance gain. In combination with `rd.kiwi.install.pxe`, the
+       deployment is even slower because of the additional transfer of
+       the image into main memory.
+     * Messages from the btrfs seed/sprout process are logged to
+       :file:`/seed.log` inside the installation initrd.
+
+``rd.kiwi.install.clone_local``
+  For OEM installation images in combination with
+  `rd.kiwi.install.partition_based`. Instructs the installation
+  to first copy the disk image from the install media into the main
+  memory of the installation system as :file:`/image.raw` and to use
+  this copy as the source for the partition based deployment. On this
+  copy, the btrfs filesystems are explicitly marked as seeding devices
+  prior to the seed/sprout process. This allows the partition based
+  deployment from install media of images which have not been flagged
+  as a seeding device at build time. Make sure the system has enough
+  main memory to store the complete uncompressed disk image. This option
+  has no effect for PXE-based installations, as these always use an
+  in-memory copy of the disk image in partition based mode.
+
 ``rd.kiwi.install.retain_last``
   Instructs an OEM installation to retain the contents of the
   last partition on the target disk. This setting is only useful

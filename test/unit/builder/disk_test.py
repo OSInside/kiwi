@@ -1777,6 +1777,82 @@ class TestDiskBuilder:
     @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
     @patch('kiwi.builder.disk.ImageSystem')
     @patch('os.path.exists')
+    def test_create_disk_btrfs_seed_for_partition_based_install(
+        self,
+        mock_exists,
+        mock_ImageSystem,
+        mock_grub_dir,
+        mock_command,
+        mock_volume_manager,
+        mock_fs,
+        mock_create_boot_loader_config,
+        mock_Disk,
+    ):
+        mock_Disk.return_value.__enter__.return_value = (
+            self._get_disk_instance()
+        )
+        bootloader_config = Mock()
+        bootloader_config.get_boot_cmdline = Mock(return_value='boot_cmdline')
+        mock_create_boot_loader_config.return_value.__enter__.return_value = (
+            bootloader_config
+        )
+        mock_exists.return_value = True
+        volume_manager = Mock()
+        volume_manager.get_device = Mock(
+            return_value={'root': MappedDevice('/dev/root-device', Mock())}
+        )
+        volume_manager.get_fstab = Mock(return_value=['fstab_volume_entries'])
+        volume_manager.get_root_volume_name = Mock(return_value='@')
+        mock_volume_manager.return_value = volume_manager
+        filesystem = Mock()
+        mock_fs.return_value.__enter__.return_value = filesystem
+        self.disk_builder.volume_manager_name = 'btrfs'
+        self.disk_builder.btrfs_default_volume_requested = False
+        self.disk_builder.install_iso = True
+        seed_call = call(['btrfstune', '-S', '1', '/dev/root-device'])
+
+        # install image without partition based mode, no seed
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+        assert seed_call not in mock_command.call_args_list
+
+        # install image with partition based mode, root is seed
+        mock_command.reset_mock()
+        self.disk_builder.cmdline = (
+            'console=ttyS0 rd.kiwi.install.partition_based'
+        )
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+        assert seed_call in mock_command.call_args_list
+
+    def test_partition_based_install_requested(self):
+        for cmdline, requested in [
+            ('', False),
+            ('rd.kiwi.install.partition_based', True),
+            ('rd.kiwi.install.partition_based=1', True),
+            ('rd.kiwi.install.partition_based=0', False),
+            ('rd.kiwi.install.partition_based=off', False),
+            ('rd.kiwi.install.partition_based_foo', False),
+            (
+                'rd.kiwi.install.partition_based '
+                'rd.kiwi.install.partition_based=no',
+                False,
+            ),
+        ]:
+            self.disk_builder.cmdline = cmdline
+            assert (
+                self.disk_builder._partition_based_install_requested()
+                is requested
+            )
+
+    @patch('kiwi.builder.disk.Disk')
+    @patch('kiwi.builder.disk.create_boot_loader_config')
+    @patch('kiwi.builder.disk.FileSystem.new')
+    @patch('kiwi.builder.disk.VolumeManager.new')
+    @patch('kiwi.builder.disk.Command.run')
+    @patch('kiwi.builder.disk.Defaults.get_grub_boot_directory_name')
+    @patch('kiwi.builder.disk.ImageSystem')
+    @patch('os.path.exists')
     def test_create_disk_volume_managed_root(
         self,
         mock_exists,
