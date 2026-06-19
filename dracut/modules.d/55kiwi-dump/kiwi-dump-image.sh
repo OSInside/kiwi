@@ -59,6 +59,25 @@ function sort_disk_entries {
     echo "${list_items_sorted[*]}"
 }
 
+function load_ramdisk_driver {
+    declare kiwi_oemramdisksize=${kiwi_oemramdisksize}
+    local rd_size
+    local custom_rd_size
+    local modfile=/etc/modprobe.d/99-brd.conf
+    custom_rd_size=$(getarg ramdisk_size=)
+    if [ -n "${custom_rd_size}" ];then
+        rd_size="${custom_rd_size}"
+    elif [ -n "${kiwi_oemramdisksize}" ];then
+        rd_size="${kiwi_oemramdisksize}"
+    fi
+    mkdir -p /etc/modprobe.d
+    if [ -n "${rd_size}" ];then
+        echo "options brd rd_size=${rd_size}" > ${modfile}
+    fi
+    modprobe brd
+    udev_pending
+}
+
 function get_disk_list {
     declare kiwi_oemdevicefilter=${kiwi_oemdevicefilter}
     declare kiwi_oemmultipath_scan=${kiwi_oemmultipath_scan}
@@ -66,7 +85,6 @@ function get_disk_list {
     declare kiwi_install_volid=${kiwi_install_volid}
     declare kiwi_oemunattended=${kiwi_oemunattended}
     declare kiwi_oemunattended_id=${kiwi_oemunattended_id}
-    declare kiwi_oemramdisksize=${kiwi_oemramdisksize}
     local disk_id="by-id"
     local disk_size
     local disk_device
@@ -108,21 +126,7 @@ function get_disk_list {
     if getargbool 0 rd.kiwi.ramdisk; then
         # target should be a ramdisk on request. Thus actively
         # load the ramdisk block driver and support custom sizes
-        local rd_size
-        local custom_rd_size
-        local modfile=/etc/modprobe.d/99-brd.conf
-        custom_rd_size=$(getarg ramdisk_size=)
-        if [ -n "${custom_rd_size}" ];then
-            rd_size="${custom_rd_size}"
-        elif [ -n "${kiwi_oemramdisksize}" ];then
-            rd_size="${kiwi_oemramdisksize}"
-        fi
-        mkdir -p /etc/modprobe.d
-        if [ -n "${rd_size}" ];then
-            echo "options brd rd_size=${rd_size}" > ${modfile}
-        fi
-        modprobe brd
-        udev_pending
+        load_ramdisk_driver
         # target should be a ramdisk on request. Thus instruct
         # lsblk to list only ramdisk devices (Major=1)
         blk_opts="-I 1 ${blk_opts}"
@@ -355,9 +359,11 @@ function dump_image {
     image_source="$(echo "${image_source_files}" | cut -f1 -d\|)"
     image_basename=$(basename "${image_source}")
     local progress=/dev/install_progress
+    local image_source_file=/image.raw
     local load_text="Loading ${image_basename}..."
     local title_text="Installation..."
     local dump
+    local copy
     local parttable
     local count_32k
     local image_size
@@ -369,9 +375,21 @@ function dump_image {
 
     # select dump method
     if [ -n "${image_from_remote}" ];then
-        dump=dump_remote_image
+        if getargbool 0 rd.kiwi.install.partition_based; then
+            copy=dump_remote_image
+            dump=dump_local_image_partition_based
+        else
+            dump=dump_remote_image
+        fi
     else
-        dump=dump_local_image
+        if getargbool 0 rd.kiwi.install.partition_based; then
+            if getargbool 0 rd.kiwi.install.clone_local; then
+                copy=dump_local_image
+            fi
+            dump=dump_local_image_partition_based
+        else
+            dump=dump_local_image
+        fi
     fi
 
     # setup blocks and blocksize to retain last
@@ -416,6 +434,18 @@ function dump_image {
     then
         # dump with dialog based progress information
         setup_progress_fifo ${progress}
+        if [ -n "${copy}" ];then
+            eval \
+                "${copy}" \
+                "${image_source}" \
+                "${image_source_file}" \
+                "${count}" \
+                "${block_size}" \
+                "${progress}" \
+            &
+            run_progress_dialog "${load_text}" "${title_text}"
+            image_source="${image_source_file}"
+        fi
         eval \
             "${dump}" \
             "${image_source}" \
@@ -427,6 +457,18 @@ function dump_image {
         run_progress_dialog "${load_text}" "${title_text}"
     else
         # dump with silently blocked console
+        if [ -n "${copy}" ];then
+            if ! eval \
+                "${copy}" \
+                "${image_source}" \
+                "${image_source_file}" \
+                "${count}" \
+                "${block_size}"
+            then
+                report_and_quit "Failed to copy image"
+            fi
+            image_source="${image_source_file}"
+        fi
         if ! eval \
             "${dump}" \
             "${image_source}" \
@@ -536,6 +578,131 @@ function dump_local_image {
         dd \
             if="${image_source}" bs="${block_size}" ${count} \
             of="${image_target}" &>/dev/null
+    fi
+}
+
+function dump_local_image_partition_based {
+    local image_source=$1
+    local image_target=$2
+    local count=$3
+    local block_size=$4
+    local progress=$5
+    local source_disk
+    local device_index=0
+    local source_device_array
+    local target_device_array
+    local btrfs_source_device_array
+    local btrfs_target_device_array
+    local btrfs_source_uuid_array
+    local source_device
+    local target_device
+    local filesystem
+    local part
+    local seed=/seed
+    # no partial dump in partition based mode
+    unset count
+
+    # clone partition table to target
+    fetch_local_partition_table "${image_source}"
+    sfdisk "${image_target}" < /tmp/parttable
+    # clone MBR bootloader code
+    dd if="${image_source}" of="${image_target}" bs=1 count=446
+    partx -u "${image_target}"
+    udev_pending
+
+    # map source image partitions
+    source_disk=$(losetup --show --find "${image_source}")
+    kpartx -a "${source_disk}"
+
+    # walk through source image partitions and store them
+    for part in $(
+        lsblk -p -n -r --sort SIZE -o NAME,TYPE "${source_disk}" |\
+        grep part | cut -f1 -d" "
+    );do
+        filesystem=$(blkid "${part}" -s TYPE -o value)
+        uuid=$(blkid "${part}" -s UUID -o value)
+        if [ "${filesystem}" = "btrfs" ];then
+            btrfs_source_device_array[device_index]=${part}
+            btrfs_source_uuid_array[device_index]=${uuid}
+        else
+            source_device_array[device_index]=${part}
+        fi
+        device_index=$((device_index + 1))
+    done
+    device_index=0
+    # walk through target image partitions and store them
+    for part in $(
+        lsblk -p -n -r --sort SIZE -o NAME,TYPE "${image_target}" |\
+        grep part | cut -f1 -d" "
+    );do
+        if [ -n "${btrfs_source_device_array[${device_index}]}" ];then
+            btrfs_target_device_array[device_index]=${part}
+        else
+            target_device_array[device_index]=${part}
+        fi
+        device_index=$((device_index + 1))
+    done
+    # seed/sprout for btrfs based partitions
+    for ((index=0; index<device_index; index++)); do
+        if [ -n "${btrfs_source_device_array[${index}]}" ];then
+            (
+                mkdir -p "${seed}"
+                source_device="${btrfs_source_device_array[${index}]}"
+                target_device="${btrfs_target_device_array[${index}]}"
+                if getargbool 0 rd.kiwi.install.clone_local; then
+                    btrfstune -S 1 "${source_device}"
+                fi
+                mount "${source_device}" "${seed}"
+                btrfs device add "${target_device}" "${seed}"
+                umount "${seed}"
+                mount "${target_device}" "${seed}"
+                btrfs device delete "${source_device}" "${seed}"
+                umount "${seed}"
+            ) 2>/seed.log
+        fi
+    done
+    # dump standard partitions...
+    if [ -e "${progress}" ];then
+        (
+            for ((index=0; index<device_index; index++)); do
+                if [ -n "${source_device_array[${index}]}" ];then
+                    source_device="${source_device_array[${index}]}"
+                    target_device="${target_device_array[${index}]}"
+                    pv -n "${source_device}" |\
+                        dd bs="${block_size}" of="${target_device}" &>/dev/null
+                fi
+            done
+            kpartx -d "${source_disk}" &>/dev/null && \
+                losetup -d "${source_disk}" &>/dev/null
+            # replay UUID when needed
+            for ((index=0; index<device_index; index++)); do
+                if [ -n "${btrfs_source_uuid_array[${index}]}" ];then
+                    target_device="${btrfs_target_device_array[${index}]}"
+                    uuid="${btrfs_source_uuid_array[${index}]}"
+                    btrfstune -f -U "${uuid}" "${target_device}" &>/dev/null
+                fi
+            done
+        ) 2>"${progress}"
+    else
+        for ((index=0; index<device_index; index++)); do
+            if [ -n "${source_device_array[${index}]}" ];then
+                source_device="${source_device_array[${index}]}"
+                target_device="${target_device_array[${index}]}"
+                dd \
+                    if="${source_device}" bs="${block_size}" \
+                    of="${target_device}" &>/dev/null
+            fi
+        done
+        kpartx -d "${source_disk}" &>/dev/null \
+            && losetup -d "${source_disk}" &>/dev/null
+        # replay UUID when needed
+        for ((index=0; index<device_index; index++)); do
+            if [ -n "${btrfs_source_uuid_array[${index}]}" ];then
+                target_device="${btrfs_target_device_array[${index}]}"
+                uuid="${btrfs_source_uuid_array[${index}]}"
+                btrfstune -f -U "${uuid}" "${target_device}" &>/dev/null
+            fi
+        done
     fi
 }
 
@@ -709,6 +876,10 @@ else
 fi
 
 export_image_metadata "${image_source_files}"
+
+if getargbool 0 rd.kiwi.install.partition_based; then
+    export kiwi_oemskipverify=true
+fi
 
 if getargbool 0 rd.kiwi.install.pxe; then
     dump_image "${image_source_files}" "${image_target}" "remote_image"

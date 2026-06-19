@@ -22,7 +22,7 @@
         <bootloader-theme>openSUSE</bootloader-theme>
     </preferences>
     <preferences profiles="Standard">
-        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install">
+        <type image="oem" filesystem="btrfs" kernelcmdline="console=ttyS0 rd.kiwi.install.partition_based rd.kiwi.oem.force_resize" firmware="efi" installiso="true" bootpartition="false" btrfs_root_is_snapshot="true" installboot="install">
             <bootloader name="grub2" console="serial" timeout="10"/>
             <oemconfig>
                 <oem-unattended>true</oem-unattended>
