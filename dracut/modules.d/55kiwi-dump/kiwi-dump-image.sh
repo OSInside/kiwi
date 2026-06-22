@@ -581,6 +581,48 @@ function dump_local_image {
     fi
 }
 
+function clone_partition_table {
+    local image_source=$1
+    local image_target=$2
+    fetch_local_partition_table "${image_source}"
+    sfdisk "${image_target}" < /tmp/parttable
+    # clone MBR bootloader code
+    dd if="${image_source}" of="${image_target}" bs=1 count=446
+    partx -u "${image_target}"
+    udev_pending
+}
+
+function btrfs_seed_device_on_target {
+    local source_device=$1
+    local target_device=$2
+    local seed=/seed
+    if [ -n "${source_device}" ]; then
+        mkdir -p "${seed}"
+        if getargbool 0 rd.kiwi.install.clone_local; then
+            btrfstune -S 1 "${source_device}"
+        fi
+        mount "${source_device}" "${seed}"
+        btrfs device add "${target_device}" "${seed}"
+        umount "${seed}"
+        mount "${target_device}" "${seed}"
+        btrfs device delete "${source_device}" "${seed}"
+        umount "${seed}"
+    fi
+}
+
+function btrfs_replay_uuid {
+    local target_device=$1
+    local uuid=$2
+    if [ -n "${uuid}" ];then
+        btrfstune -f -U "${uuid}" "${target_device}"
+    fi
+}
+
+function clean_partition_map {
+    local source_disk=$1
+    kpartx -d "${source_disk}" && losetup -d "${source_disk}"
+}
+
 function dump_local_image_partition_based {
     local image_source=$1
     local image_target=$2
@@ -594,21 +636,13 @@ function dump_local_image_partition_based {
     local btrfs_source_device_array
     local btrfs_target_device_array
     local btrfs_source_uuid_array
-    local source_device
-    local target_device
     local filesystem
     local part
-    local seed=/seed
     # no partial dump in partition based mode
     unset count
 
     # clone partition table to target
-    fetch_local_partition_table "${image_source}"
-    sfdisk "${image_target}" < /tmp/parttable
-    # clone MBR bootloader code
-    dd if="${image_source}" of="${image_target}" bs=1 count=446
-    partx -u "${image_target}"
-    udev_pending
+    clone_partition_table "${image_source}" "${image_target}"
 
     # map source image partitions
     source_disk=$(losetup --show --find "${image_source}")
@@ -629,8 +663,9 @@ function dump_local_image_partition_based {
         fi
         device_index=$((device_index + 1))
     done
-    device_index=0
+
     # walk through target image partitions and store them
+    device_index=0
     for part in $(
         lsblk -p -n -r --sort SIZE -o NAME,TYPE "${image_target}" |\
         grep part | cut -f1 -d" "
@@ -642,66 +677,47 @@ function dump_local_image_partition_based {
         fi
         device_index=$((device_index + 1))
     done
+
     # seed/sprout for btrfs based partitions
     for ((index=0; index<device_index; index++)); do
-        if [ -n "${btrfs_source_device_array[${index}]}" ];then
-            (
-                mkdir -p "${seed}"
-                source_device="${btrfs_source_device_array[${index}]}"
-                target_device="${btrfs_target_device_array[${index}]}"
-                if getargbool 0 rd.kiwi.install.clone_local; then
-                    btrfstune -S 1 "${source_device}"
-                fi
-                mount "${source_device}" "${seed}"
-                btrfs device add "${target_device}" "${seed}"
-                umount "${seed}"
-                mount "${target_device}" "${seed}"
-                btrfs device delete "${source_device}" "${seed}"
-                umount "${seed}"
-            ) 2>/seed.log
-        fi
+        (
+            btrfs_seed_device_on_target \
+                "${btrfs_source_device_array[${index}]}" \
+                "${btrfs_target_device_array[${index}]}"
+        ) 2>>/seed.log
     done
+
     # dump standard partitions...
     if [ -e "${progress}" ];then
         (
             for ((index=0; index<device_index; index++)); do
                 if [ -n "${source_device_array[${index}]}" ];then
-                    source_device="${source_device_array[${index}]}"
-                    target_device="${target_device_array[${index}]}"
-                    pv -n "${source_device}" |\
-                        dd bs="${block_size}" of="${target_device}" &>/dev/null
+                    pv -n "${source_device_array[${index}]}" |\
+                        dd \
+                        bs="${block_size}" \
+                        of="${target_device_array[${index}]}" &>/dev/null
                 fi
             done
-            kpartx -d "${source_disk}" &>/dev/null && \
-                losetup -d "${source_disk}" &>/dev/null
-            # replay UUID when needed
+            clean_partition_map "${source_disk}" &>/dev/null
             for ((index=0; index<device_index; index++)); do
-                if [ -n "${btrfs_source_uuid_array[${index}]}" ];then
-                    target_device="${btrfs_target_device_array[${index}]}"
-                    uuid="${btrfs_source_uuid_array[${index}]}"
-                    btrfstune -f -U "${uuid}" "${target_device}" &>/dev/null
-                fi
+                btrfs_replay_uuid \
+                    "${btrfs_target_device_array[${index}]}" \
+                    "${btrfs_source_uuid_array[${index}]}" &>/dev/null
             done
         ) 2>"${progress}"
     else
         for ((index=0; index<device_index; index++)); do
             if [ -n "${source_device_array[${index}]}" ];then
-                source_device="${source_device_array[${index}]}"
-                target_device="${target_device_array[${index}]}"
                 dd \
-                    if="${source_device}" bs="${block_size}" \
-                    of="${target_device}" &>/dev/null
+                    if="${source_device_array[${index}]}" bs="${block_size}" \
+                    of="${target_device_array[${index}]}" &>/dev/null
             fi
         done
-        kpartx -d "${source_disk}" &>/dev/null \
-            && losetup -d "${source_disk}" &>/dev/null
-        # replay UUID when needed
+        clean_partition_map "${source_disk}" &>/dev/null
         for ((index=0; index<device_index; index++)); do
-            if [ -n "${btrfs_source_uuid_array[${index}]}" ];then
-                target_device="${btrfs_target_device_array[${index}]}"
-                uuid="${btrfs_source_uuid_array[${index}]}"
-                btrfstune -f -U "${uuid}" "${target_device}" &>/dev/null
-            fi
+            btrfs_replay_uuid \
+                "${btrfs_target_device_array[${index}]}" \
+                "${btrfs_source_uuid_array[${index}]}" &>/dev/null
         done
     fi
 }
