@@ -178,6 +178,7 @@ class TestImageInfoTask:
                         ('kiwi_revision', '$Format:%H$'),
                         ('kiwi_rootpartuuid', ''),
                         ('kiwi_sectorsize', '512'),
+                        ('kiwi_shasum_suffix', '.sha256'),
                         ('kiwi_showlicense', ''),
                         ('kiwi_splash_theme', 'openSUSE'),
                         ('kiwi_startsector', '2048'),

@@ -571,9 +571,14 @@ function check_image_integrity {
     local progress=/dev/install_verify_progress
     local verify_text="Verifying ${image_target}"
     local title_text="Installation..."
-    local verify_result=/dumped_image.sha256
+    local verify_result
+    local shasum
+    local sha_extension
     kiwi_oemskipverify=$(bool "${kiwi_oemskipverify}")
     kiwi_oemsilentverify=$(bool "${kiwi_oemsilentverify}")
+    shasum=$(shasum_tool)
+    sha_extension=$(shasum_extension)
+    verify_result=/dumped_image."${sha_extension}"
     if [ "${kiwi_oemskipverify}" = "true" ];then
         # no verification wanted
         return
@@ -591,17 +596,17 @@ function check_image_integrity {
         setup_progress_fifo ${progress}
         (
             pv --size $((blocks * blocksize)) --stop-at-size \
-            -n "${image_target}" | sha256sum - > ${verify_result}
+            -n "${image_target}" | "${shasum}" - > "${verify_result}"
         ) 2>${progress} &
         run_progress_dialog "${verify_text}" "${title_text}"
     else
         # verify with silently blocked console
         head --bytes=$((blocks * blocksize)) "${image_target}" |\
-        sha256sum - > ${verify_result}
+        "${shasum}" - > "${verify_result}"
     fi
     local checksum_dumped_image
     local checksum_fileref
-    read -r checksum_dumped_image checksum_fileref < ${verify_result}
+    read -r checksum_dumped_image checksum_fileref < "${verify_result}"
     echo "Dumped Image checksum: ${checksum_dumped_image}/${checksum_fileref}"
     if [ "${checksum}" != "${checksum_dumped_image}" ];then
         report_and_quit "Image checksum test failed"
@@ -613,8 +618,10 @@ function get_local_image_source_files {
     local iso_device="${root#install:}"
     local iso_mount_point=/run/install
     local image_mount_point=/run/image
+    local sha_extension
     local image_source
-    local image_sha256
+    local image_sha
+    sha_extension=$(shasum_extension)
     mkdir -m 0755 -p "${iso_mount_point}"
     if ! mount -n "${iso_device}" "${iso_mount_point}"; then
         report_and_quit "Failed to mount install ISO device"
@@ -624,15 +631,20 @@ function get_local_image_source_files {
         report_and_quit "Failed to mount install image squashfs filesystem"
     fi
     image_source="$(echo "${image_mount_point}"/*.raw)"
-    image_sha256="$(echo "${image_mount_point}"/*.sha256)"
-    echo "${image_source}|${image_sha256}"
+    image_sha="$(echo "${image_mount_point}"/*."${sha_extension}")"
+    echo "${image_source}|${image_sha}"
 }
 
 function get_remote_image_source_files {
     local image_uri
+    local sha_extension
+    local image_sha
     local install_dir=/run/install
-    local image_sha256="${install_dir}/image.sha256"
     local metadata_dir="${install_dir}/boot/remote/loader"
+
+    sha_extension=$(shasum_extension)
+
+    local image_sha="${install_dir}/image.${sha_extension}"
 
     mkdir -p "${metadata_dir}"
 
@@ -640,8 +652,8 @@ function get_remote_image_source_files {
     # make sure the protocol type is tftp for metadata files. There is no need for
     # complex protocol types on small files and for standard PXE boot operations
     # only tftp can be guaranteed
-    image_sha256_uri=$(
-        echo "${image_uri}" | awk '{ gsub("\\.xz",".sha256", $1); gsub("dolly:","tftp:", $1); print $1 }'
+    image_sha_uri=$(
+        echo "${image_uri}" | awk '{ gsub("\\.xz",".'"${sha_extension}"'", $1); gsub("dolly:","tftp:", $1); print $1 }'
     )
     image_initrd_uri=$(
         echo "${image_uri}" | awk '{ gsub("\\.xz",".initrd", $1); gsub("dolly:","tftp:", $1); print $1 }'
@@ -654,15 +666,15 @@ function get_remote_image_source_files {
         awk '{ gsub("\\.xz",".config.bootoptions", $1); gsub("dolly:","tftp:", $1); print $1 }'
     )
 
-    # if we can not access image_sha256_uri, maybe network setup
+    # if we can not access image_sha_uri, maybe network setup
     # by dracut did fail, so collect some additional info
-    if ! fetch_file "${image_sha256_uri}" > "${image_sha256}";then
+    if ! fetch_file "${image_sha_uri}" > "${image_sha}";then
         {
             echo "--- ip a ---"; ip a
             echo "--- ip r ---"; ip r
         } >> /tmp/fetch.info 2>&1
         show_log_and_quit \
-            "Failed to fetch ${image_sha256_uri}" /tmp/fetch.info
+            "Failed to fetch ${image_sha_uri}" /tmp/fetch.info
     fi
 
     if ! getargbool 0 rd.kiwi.ramdisk; then
@@ -684,7 +696,7 @@ function get_remote_image_source_files {
             "Failed to fetch ${image_config_uri}" /tmp/fetch.info
     fi
 
-    echo "${image_uri}|${image_sha256}"
+    echo "${image_uri}|${image_sha}"
 }
 
 #======================================

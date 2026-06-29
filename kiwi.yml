@@ -40,6 +40,11 @@
 #  # a .changes file. The .changes file contains the package changelog
 #  # information from all packages installed into the image.
 #  - has_package_changes: false
+#  # Specify shasum size for the bundle creation. Supported values
+#  # are "256" (default) and "512". This value takes precedence
+#  # over the global shasum size specified in the shasum section.
+#  # If not specified, the global shasum size or the default is used.
+#  - shasum_size: "256"
 
 
 # Setup behaviour of XZ compressor
@@ -72,6 +77,14 @@
 #  # Possible values are umoci and buildah
 #  - archive_tool: umoci
 
+# Setup shasum size
+# shasum:
+#  # Specify shasum size, supported are "256" (default) and "512"
+#  # Setting the size in this section globally applies to all
+#  # shasum operations performed by KIWI. Please also see the
+#  # bundle section for shasum size configuration specific to the
+#  # result bundle creation.
+#  - size: "256"
 
 # Specify build constraints that applies during the image build
 # process. If one or more constraints are violated the build exits

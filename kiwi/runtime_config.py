@@ -17,8 +17,9 @@
 #
 import os
 import logging
+import functools
 from typing import (
-    Literal, List, Optional
+    Literal, List, Optional, NamedTuple, Callable
 )
 import yaml
 
@@ -27,6 +28,7 @@ import kiwi.defaults as defaults
 
 from kiwi.defaults import Defaults
 from kiwi.utils.size import StringToSize
+from kiwi.utils.checksum import Checksum
 from kiwi.exceptions import (
     KiwiRuntimeConfigFormatError,
     KiwiRuntimeConfigFileError
@@ -35,6 +37,11 @@ from kiwi.exceptions import (
 log = logging.getLogger('kiwi')
 
 RUNTIME_CONFIG = None
+
+
+class ShasumT(NamedTuple):
+    suffix: str
+    digest: Callable
 
 
 class RuntimeConfig:
@@ -251,6 +258,66 @@ class RuntimeConfig:
         if bundle_compress is None:
             bundle_compress = default
         return bool(bundle_compress)
+
+    def get_checksum_handler(
+        self,
+        source_filename: str,
+        target_filename: Optional[str] = None,
+        default: str = '256',
+        bundle_lookup: bool = False
+    ) -> ShasumT:
+        """
+        Return a ShasumT with information about the configured
+        shasum suffix name and the digest(Checksum) callable. The
+        following configuration setting allows to configure the
+        size of the checksum:
+
+        shasum:
+          - size: 256
+
+        bundle:
+          - shasum_size: "256"
+
+        Instructs kiwi to use the provided shasum size. Supported
+        values are 256 (default) and 512. In case of an unsupported
+        value the default is used. A value from the bundle section
+        takes precedence over the global shasum size specified
+        in the shasum section for creating bundle results. If no
+        information for bundle results is specified, the global
+        shasum size or the default applies.
+
+        :param str source_filename: filename to calculate checksum for
+        :param str target_filename: filename to write checksum to
+        :param str default: default size set to 256
+
+        :rtype: ShasumT
+        """
+        supported_shasums = {
+            '256': ShasumT(
+                suffix='.sha256',
+                digest=functools.partial(
+                    Checksum(source_filename).sha256, target_filename
+                )
+            ),
+            '512': ShasumT(
+                suffix='.sha512',
+                digest=functools.partial(
+                    Checksum(source_filename).sha512, target_filename
+                )
+            )
+        }
+        shasum_size = self._get_attribute(
+            element='shasum', attribute='size'
+        )
+        if bundle_lookup:
+            bundle_shasum_size = self._get_attribute(
+                element='bundle', attribute='shasum_size'
+            )
+            if bundle_shasum_size:
+                shasum_size = bundle_shasum_size
+        if supported_shasums.get(shasum_size):
+            return supported_shasums[shasum_size]
+        return supported_shasums['256']
 
     def get_xz_options(self) -> Optional[List[str]]:
         """

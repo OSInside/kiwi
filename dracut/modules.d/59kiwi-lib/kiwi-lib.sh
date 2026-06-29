@@ -116,6 +116,28 @@ function lookup_disk_device_from_root {
     echo "${disk_device}"
 }
 
+function shasum_tool {
+    declare kiwi_shasum_suffix=${kiwi_shasum_suffix}
+    if getargbool 0 rd.kiwi.oem.sha512; then
+        echo sha512sum
+    elif [ "${kiwi_shasum_suffix}" = ".sha512" ]; then
+        echo sha512sum
+    else
+        echo sha256sum
+    fi
+}
+
+function shasum_extension {
+    declare kiwi_shasum_suffix=${kiwi_shasum_suffix}
+    if getargbool 0 rd.kiwi.oem.sha512; then
+        echo sha512
+    elif [ "${kiwi_shasum_suffix}" = ".sha512" ]; then
+        echo sha512
+    else
+        echo sha256
+    fi
+}
+
 function udev_pending {
     declare DEVICE_TIMEOUT=${DEVICE_TIMEOUT}
     local limit=30

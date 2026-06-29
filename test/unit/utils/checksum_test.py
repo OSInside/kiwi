@@ -92,6 +92,42 @@ class TestChecksum:
 
     @patch('kiwi.path.Path.which')
     @patch('kiwi.utils.checksum.Compress')
+    @patch('hashlib.sha512')
+    @patch('os.path.getsize')
+    def test_sha512_xz(self, mock_size, mock_sha512, mock_compress, mock_which):
+        checksum = Mock
+        checksum.uncompressed_filename = 'some-file-uncompressed'
+        mock_which.return_value = 'factor'
+        compress = Mock()
+        digest = Mock()
+        digest.block_size = 1024
+        digest._calculate_hash_hexdigest = Mock(
+            return_value=checksum
+        )
+        digest.hexdigest = Mock(
+            return_value='sum'
+        )
+        compress.get_format = Mock(
+            return_value='xz'
+        )
+        mock_size.return_value = 1343225856
+        mock_sha512.return_value = digest
+        mock_compress.return_value = compress
+
+        with patch('builtins.open', self.m_open, create=True):
+            self.checksum.sha512('outfile')
+
+        assert self.m_open.call_args_list == [
+            call('some-file', 'rb'),
+            call('some-file-uncompressed', 'rb'),
+            call('outfile', encoding=self.ascii, mode='w')
+        ]
+        self.m_open.return_value.write.assert_called_once_with(
+            'sum 163968 8192 163968 8192\n'
+        )
+
+    @patch('kiwi.path.Path.which')
+    @patch('kiwi.utils.checksum.Compress')
     @patch('hashlib.sha256')
     @patch('os.path.getsize')
     def test_sha256_file(

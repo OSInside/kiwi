@@ -47,6 +47,7 @@ class ContainerBuilder:
         self, xml_state: XMLState, target_dir: str,
         root_dir: str, custom_args: Dict = None
     ):
+        self.runtime_config = RuntimeConfig()
         self.custom_args = custom_args or {}
         self.root_dir = root_dir
         self.target_dir = target_dir
@@ -55,7 +56,7 @@ class ContainerBuilder:
         self.requested_container_type = xml_state.get_build_type_name()
         self.delta_root = xml_state.build_type.get_delta_root()
         self.base_image = None
-        self.base_image_sha256 = None
+        self.base_image_sha = None
         self.ensure_empty_tmpdirs = True
 
         self.container_config['xz_options'] = \
@@ -67,22 +68,24 @@ class ContainerBuilder:
         if xml_state.get_derived_from_image_uri() and not self.delta_root:
             # The base image(all derived imports) is expected to be unpacked
             # by the kiwi prepare step and stored inside of the root_dir/image
-            # directory. In addition a sha256 file of the image is expected too
+            # directory. In addition a sha file of the image is expected too
             self.base_image = Defaults.get_imported_root_image(
                 self.root_dir
             )
-            self.base_image_sha256 = ''.join([self.base_image, '.sha256'])
-
+            self.base_image_sha = '{}{}'.format(
+                self.base_image,
+                self.runtime_config.get_checksum_handler(self.base_image).suffix
+            )
             if not os.path.exists(self.base_image):
                 raise KiwiContainerBuilderError(
                     'Unpacked Base image {0} not found'.format(
                         self.base_image
                     )
                 )
-            if not os.path.exists(self.base_image_sha256):
+            if not os.path.exists(self.base_image_sha):
                 raise KiwiContainerBuilderError(
-                    'Base image SHA256 sum {0} not found at'.format(
-                        self.base_image_sha256
+                    'Base image shasum file {0} not found'.format(
+                        self.base_image_sha
                     )
                 )
 
@@ -104,7 +107,6 @@ class ContainerBuilder:
             ]
         )
         self.result = Result(xml_state)
-        self.runtime_config = RuntimeConfig()
 
     def create(self) -> Result:
         """
@@ -132,8 +134,11 @@ class ContainerBuilder:
             )
             container_setup.setup()
         else:
+            shasum = self.runtime_config.get_checksum_handler(
+                source_filename=self.base_image
+            )
             checksum = Checksum(self.base_image)
-            if not checksum.matches(checksum.sha256(), self.base_image_sha256):
+            if not checksum.matches(shasum.digest(), self.base_image_sha):
                 raise KiwiContainerBuilderError(
                     'base image file {0} checksum validation failed'.format(
                         self.base_image

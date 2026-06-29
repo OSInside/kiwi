@@ -89,7 +89,6 @@ class TestResultBundleTask:
     @patch('kiwi.tasks.result_bundle.Path.create')
     @patch('kiwi.tasks.result_bundle.Path.which')
     @patch('kiwi.tasks.result_bundle.Compress')
-    @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
     @patch('os.path.islink')
     @patch('os.unlink')
@@ -97,7 +96,7 @@ class TestResultBundleTask:
     @patch('os.readlink')
     def test_process_result_bundle(
         self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_checksum, mock_compress,
+        mock_os_path_islink, mock_exists, mock_compress,
         mock_path_which, mock_path_create, mock_command, mock_load
     ):
         # This file won't be copied with build id
@@ -106,12 +105,10 @@ class TestResultBundleTask:
             use_for_bundle=True, compress=False, shasum=False
         )
 
-        checksum = Mock()
         compress = Mock()
         mock_path_which.return_value = 'zsyncmake'
         compress.xz.return_value = 'compressed_filename'
         mock_compress.return_value = compress
-        mock_checksum.return_value = checksum
         mock_exists.return_value = False
         mock_load.return_value = self.result
         self._init_command_args()
@@ -167,13 +164,9 @@ class TestResultBundleTask:
         mock_compress.assert_called_once_with(
             os.sep.join([self.abs_bundle_dir, 'test-image-1.2.3-Build_42'])
         )
-        mock_checksum.assert_called_once_with(
-            'compressed_filename'
-        )
-        checksum.sha256.assert_called_once_with()
         m_open.return_value.write.assert_called_once_with(
             '{0}  compressed_filename{1}'.format(
-                checksum.sha256.return_value, os.linesep
+                self.task.runtime_config.get_checksum_handler.return_value.digest.return_value, os.linesep
             )
         )
 
@@ -184,7 +177,6 @@ class TestResultBundleTask:
     @patch('kiwi.tasks.result_bundle.Path.which')
     @patch('kiwi.tasks.result_bundle.Path.wipe')
     @patch('kiwi.tasks.result_bundle.Compress')
-    @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
     @patch('os.chdir')
     @patch('os.unlink')
@@ -197,7 +189,7 @@ class TestResultBundleTask:
     def test_process_result_bundle_as_rpm(
         self, mock_os_path_abspath, mock_os_path_realpath, mock_os_readlink,
         mock_os_symlink, mock_os_path_islink, mock_iglob, mock_unlink,
-        mock_chdir, mock_exists, mock_checksum, mock_compress,
+        mock_chdir, mock_exists, mock_compress,
         mock_path_wipe, mock_path_which, mock_path_create, mock_command,
         mock_load, mock_Privileges_check_for_root_permissions
     ):
@@ -207,14 +199,12 @@ class TestResultBundleTask:
             else:
                 return 'bundle-dir'
 
-        checksum = Mock()
         compress = Mock()
         mock_os_readlink.return_value = 'readlink'
         mock_os_path_abspath.side_effect = abspath
         mock_path_which.return_value = 'zsyncmake'
         compress.xz.return_value = 'compressed_filename'
         mock_compress.return_value = compress
-        mock_checksum.return_value = checksum
         mock_exists.return_value = False
         mock_load.return_value = self.result
         self._init_command_args()
@@ -710,7 +700,6 @@ class TestResultBundleTask:
     @patch('kiwi.tasks.result_bundle.Path.create')
     @patch('kiwi.tasks.result_bundle.Path.which')
     @patch('kiwi.tasks.result_bundle.Compress')
-    @patch('kiwi.tasks.result_bundle.Checksum')
     @patch('os.path.exists')
     @patch('os.path.islink')
     @patch('os.unlink')
@@ -718,15 +707,13 @@ class TestResultBundleTask:
     @patch('os.readlink')
     def test_process_result_bundle_zsyncmake_missing(
         self, mock_os_readlink, mock_os_symlink, mock_os_unlink,
-        mock_os_path_islink, mock_exists, mock_checksum, mock_compress,
+        mock_os_path_islink, mock_exists, mock_compress,
         mock_path_which, mock_path_create, mock_command, mock_load
     ):
-        checksum = Mock()
         compress = Mock()
         mock_path_which.return_value = None
         compress.xz.return_value = 'compressed_filename'
         mock_compress.return_value = compress
-        mock_checksum.return_value = checksum
         mock_exists.return_value = False
         mock_load.return_value = self.result
         self._init_command_args()

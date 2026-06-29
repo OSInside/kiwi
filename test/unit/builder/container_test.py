@@ -1,5 +1,5 @@
 from unittest.mock import (
-    patch, call, mock_open
+    patch, call, mock_open, Mock
 )
 from pytest import raises
 import unittest.mock as mock
@@ -12,7 +12,10 @@ from kiwi.exceptions import KiwiContainerBuilderError
 
 class TestContainerBuilder:
     @patch('os.path.exists')
-    def setup(self, mock_exists):
+    def setup(
+        self,
+        mock_exists
+    ):
         Defaults.set_platform_name('x86_64')
         self.runtime_config = mock.Mock()
         self.runtime_config.get_max_size_constraint = mock.Mock(
@@ -20,6 +23,12 @@ class TestContainerBuilder:
         )
         self.runtime_config.get_container_compression = mock.Mock(
             return_value=False
+        )
+        self.shasum = Mock()
+        self.shasum.suffix = '.sha256'
+        self.shasum.digest.return_value = 'checksumvalue'
+        self.runtime_config.get_checksum_handler = Mock(
+            return_value=self.shasum
         )
         kiwi.builder.container.RuntimeConfig = mock.Mock(
             return_value=self.runtime_config
@@ -187,7 +196,12 @@ class TestContainerBuilder:
     @patch('kiwi.builder.container.Checksum')
     @patch('kiwi.builder.container.ContainerImage')
     @patch('os.path.exists')
-    def test_create_derived(self, mock_exists, mock_image, mock_checksum):
+    def test_create_derived(
+        self,
+        mock_exists,
+        mock_image,
+        mock_checksum
+    ):
         def side_effect(filename):
             if filename.endswith('.config/kiwi/config.yml'):
                 return False

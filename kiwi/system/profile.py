@@ -21,6 +21,7 @@ import collections
 from typing import Dict
 
 # project
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.utils.temporary import Temporary
 from kiwi.xml_state import XMLState
 from kiwi.system.shell import Shell
@@ -50,6 +51,7 @@ class Profile:
         self._oemconfig_to_profile()
         self._drivers_to_profile()
         self._root_partition_uuid_to_profile()
+        self._runtime_settings_to_profile()
 
     def get_settings(self) -> Dict:
         """
@@ -346,6 +348,13 @@ class Profile:
             self.xml_state.get_disk_start_sector()
         self.dot_profile['kiwi_luks_empty_passphrase'] = \
             self.xml_state.get_luks_credentials() == ''
+
+    def _runtime_settings_to_profile(self):
+        # kiwi_shasum_suffix
+        temp_file = Temporary().new_file()
+        runtime_config = RuntimeConfig()
+        self.dot_profile['kiwi_shasum_suffix'] = \
+            runtime_config.get_checksum_handler(temp_file.name).suffix
 
     def _profile_names_to_profile(self):
         # kiwi_profiles

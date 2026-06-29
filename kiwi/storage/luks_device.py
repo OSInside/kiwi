@@ -21,8 +21,8 @@ import binascii
 from typing import Optional
 
 # project
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.utils.temporary import Temporary
-from kiwi.utils.checksum import Checksum
 from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.defaults import Defaults
@@ -43,7 +43,7 @@ class LuksDevice(DeviceProvider):
     :param object storage_provider: Instance of class based on DeviceProvider
     """
     def __init__(self, storage_provider: DeviceProvider) -> None:
-        #: the underlaying device provider
+        self.runtime_config = RuntimeConfig()
         self.storage_provider = storage_provider
 
         self.luks_device: Optional[str] = None
@@ -191,9 +191,11 @@ class LuksDevice(DeviceProvider):
                 '--header-backup-file', master_checksum
             ]
         )
-        checksum = Checksum(master_checksum).sha256()
-        with open(master_checksum, 'w') as shasum:
-            shasum.write(checksum)
+        shasum = self.runtime_config.get_checksum_handler(
+            source_filename=master_checksum
+        )
+        with open(master_checksum, 'w') as sha_file:
+            sha_file.write(shasum.digest())
 
         # Create key slot number as reencryption reference
         master_slot = f'{root_dir}/root/.luks.slot'

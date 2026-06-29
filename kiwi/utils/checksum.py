@@ -86,11 +86,26 @@ class Checksum:
         )
         if filename:
             self._create_checksum_file(
-                sha256_checksum, filename
+                sha256_checksum, filename, hashlib.sha256
             )
         return sha256_checksum
 
-    def _create_checksum_file(self, checksum, filename):
+    def sha512(self, filename=None):
+        """
+        Create sha512 checksum
+
+        :param str filename: filename for checksum
+        """
+        sha512_checksum = self._calculate_hash_hexdigest(
+            hashlib.sha512(), self.source_filename
+        )
+        if filename:
+            self._create_checksum_file(
+                sha512_checksum, filename, hashlib.sha512
+            )
+        return sha512_checksum
+
+    def _create_checksum_file(self, checksum, filename, haslib_method):
         """
         Creates the text file that contains the checksum
 
@@ -108,7 +123,7 @@ class Checksum:
                 os.path.getsize(compress.uncompressed_filename)
             )
             checksum = self._calculate_hash_hexdigest(
-                hashlib.sha256(), compress.uncompressed_filename
+                haslib_method(), compress.uncompressed_filename
             )
         else:
             blocks = self._block_list(

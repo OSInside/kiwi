@@ -3,8 +3,6 @@ from unittest.mock import (
     patch, Mock
 )
 
-import kiwi
-
 from kiwi.defaults import Defaults
 from kiwi.storage.subformat.oci import DiskFormatOci
 from kiwi.exceptions import KiwiContainerBuilderError
@@ -29,14 +27,15 @@ class TestDiskFormatOci:
         self.xml_state.get_image_version = Mock(
             return_value='1.2.3'
         )
-        self.runtime_config = Mock()
-        kiwi.storage.subformat.base.RuntimeConfig = Mock(
-            return_value=self.runtime_config
-        )
         self.disk_format = DiskFormatOci(
             self.xml_state, 'root_dir', 'target_dir'
         )
         self.disk_format.base_format = 'raw'
+        self.runtime_config = Mock()
+        self.runtime_config.get_container_compression.return_value = True
+        self.shasum = self.runtime_config.get_checksum_handler.return_value
+        self.shasum.suffix = '.sha256'
+        self.disk_format.runtime_config = self.runtime_config
 
     def setup_method(self, cls):
         self.setup()
@@ -153,7 +152,7 @@ class TestDiskFormatOci:
             ]
         )
         mock_Checksum.return_value.matches.assert_called_once_with(
-            mock_Checksum.return_value.sha256.return_value, 'some-base.sha256'
+            self.shasum.digest.return_value, 'some-base.sha256'
         )
         mock_ContainerImage.new.assert_called_once_with(
             'docker', 'tmpdir', self.xml_state.get_container_config.return_value

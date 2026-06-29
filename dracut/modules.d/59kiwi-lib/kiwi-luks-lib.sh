@@ -34,16 +34,18 @@ function reencrypt_luks {
     local progress=/dev/install_progress
     local load_text="Reencrypting..."
     local title_text="LUKS"
+    local shasum
     local device
     device=$(get_partition_node_name "${disk}" "${kiwi_RootPart}")
     read -r header_checksum_origin < "${header_checksum_origin}"
     read -r keyslot < "${keyslot}"
 
     # Checksum test if luks header is still the image origin header
+    shasum=$(shasum_tool)
     cryptsetup luksHeaderBackup \
         "${device}" --header-backup-file "${header_checksum_cur}"
     header_checksum_cur=$(
-        sha256sum "${header_checksum_cur}" |\
+        "${shasum}" "${header_checksum_cur}" |\
         cut -f1 -d" "; rm -f "${header_checksum_cur}"
     )
     if [ "${header_checksum_origin}" == "${header_checksum_cur}" ];then

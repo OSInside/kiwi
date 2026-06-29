@@ -89,7 +89,6 @@ class DiskFormatOci(DiskFormatBase):
             base_image = Defaults.get_imported_root_image(
                 container_root
             )
-            base_image_sha256 = ''.join([base_image, '.sha256'])
 
         # Create disk format and copy this format or the raw
         # disk to the imported container root dir.
@@ -133,8 +132,12 @@ class DiskFormatOci(DiskFormatBase):
 
         # build the container
         if base_image:
+            shasum = self.runtime_config.get_checksum_handler(
+                source_filename=base_image
+            )
             checksum = Checksum(base_image)
-            if not checksum.matches(checksum.sha256(), base_image_sha256):
+            base_image_sha = ''.join([base_image, shasum.suffix])
+            if not checksum.matches(shasum.digest(), base_image_sha):
                 raise KiwiContainerBuilderError(
                     f'base image file {base_image} checksum validation failed'
                 )
