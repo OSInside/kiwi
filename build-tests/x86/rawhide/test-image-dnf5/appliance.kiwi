@@ -30,7 +30,7 @@
     <repository type="rpm-md">
         <source path="obsrepositories:/"/>
     </repository>
-    <packages type="image">
+    <packages type="image" patternType="plusRecommended">
         <package name="grub2"/>
         <package name="grubby"/>
         <package name="kernel"/>
