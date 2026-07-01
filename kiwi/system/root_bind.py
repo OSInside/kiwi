@@ -22,6 +22,7 @@ import textwrap
 from typing import List
 
 # project
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.command import Command
 from kiwi.defaults import Defaults
 from kiwi.path import Path
@@ -53,6 +54,7 @@ class RootBind:
         build system root
     """
     def __init__(self, root_init: RootInit):
+        self.runtime_config = RuntimeConfig()
         self.root_dir = root_init.root_dir
         self.cleanup_files: List[str] = []
         self.mount_stack: List[MountManager] = []
@@ -181,9 +183,11 @@ class RootBind:
                     Command.run(
                         ['ln', '-s', '-f', link_target, self.root_dir + config]
                     )
-                    checksum = Checksum(config)
-                    with open(self.root_dir + config + '.sha', 'w') as shasum:
-                        shasum.write(checksum.sha256())
+                    shasum = self.runtime_config.get_checksum_handler(
+                        source_filename=config
+                    )
+                    with open(f'{self.root_dir}{config}.sha', 'w') as sha_file:
+                        sha_file.write(shasum.digest())
         except Exception as e:
             self.cleanup()
             raise KiwiSetupIntermediateConfigError(
@@ -204,13 +208,16 @@ class RootBind:
 
         for config in self.cleanup_files:
             config_file = self.root_dir + config
-            shasum_file = config_file.replace('.kiwi', '.sha')
+            sha_file = config_file.replace('.kiwi', '.sha')
 
             config_files_to_delete.append(config_file)
-            config_files_to_delete.append(shasum_file)
+            config_files_to_delete.append(sha_file)
 
+            shasum = self.runtime_config.get_checksum_handler(
+                source_filename=config_file
+            )
             checksum = Checksum(config_file)
-            if not checksum.matches(checksum.sha256(), shasum_file):
+            if not checksum.matches(shasum.digest(), sha_file):
                 message = textwrap.dedent('''\n
                     Modifications to intermediate config file detected
 

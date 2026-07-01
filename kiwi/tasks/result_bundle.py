@@ -73,7 +73,6 @@ from kiwi.system.result import (
 )
 from kiwi.path import Path
 from kiwi.utils.compress import Compress
-from kiwi.utils.checksum import Checksum
 from kiwi.privileges import Privileges
 from kiwi.command import Command
 
@@ -263,12 +262,14 @@ class ResultBundleTask(CliTask):
                         )
 
                 if result_file.shasum:
-                    log.info('--> Creating SHA 256 sum')
-                    checksum = Checksum(bundle_file)
-                    with open(bundle_file + '.sha256', 'w') as shasum:
+                    checksum = self.runtime_config.get_checksum_handler(
+                        source_filename=bundle_file, bundle_lookup=True
+                    )
+                    log.info(f'--> Creating {checksum.suffix} sum')
+                    with open(f'{bundle_file}{checksum.suffix}', 'w') as shasum:
                         shasum.write(
                             '{0}  {1}{2}'.format(
-                                checksum.sha256(),
+                                checksum.digest(),
                                 os.path.basename(bundle_file),
                                 os.linesep
                             )

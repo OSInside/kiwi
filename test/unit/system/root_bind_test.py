@@ -46,6 +46,10 @@ class TestRootBind:
         self.bind_root.mount_stack = [self.mount_manager]
         self.bind_root.dir_stack = ['/mountpoint']
 
+        self.runtime_config = Mock()
+        self.shasum = self.runtime_config.get_checksum_handler.return_value
+        self.bind_root.runtime_config = self.runtime_config
+
     def setup_method(self, cls):
         self.setup()
 
@@ -167,7 +171,7 @@ class TestRootBind:
                 'ln', '-s', '-f', 'proxy.kiwi', 'root-dir/etc/sysconfig/proxy'
             ])
         ]
-        checksum.sha256.assert_called_once_with()
+        self.shasum.digest.assert_called_once_with()
 
     @patch('textwrap.dedent')
     @patch('kiwi.system.root_bind.Checksum')

@@ -23,6 +23,7 @@ from typing import (
 import shutil
 
 # project
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
@@ -36,7 +37,6 @@ from kiwi.system.identifier import SystemIdentifier
 from kiwi.path import Path
 from kiwi.utils.block import BlockID
 from kiwi.defaults import Defaults
-from kiwi.utils.checksum import Checksum
 from kiwi.system.kernel import Kernel
 from kiwi.utils.compress import Compress
 from kiwi.archive.tar import ArchiveTar
@@ -68,6 +68,7 @@ class InstallImageBuilder:
         boot_image_task: Optional[BootImageBase],
         custom_args: Dict = None
     ) -> None:
+        self.runtime_config = RuntimeConfig()
         self.arch = Defaults.get_platform_name()
         self.bootloader = xml_state.get_build_type_bootloader_name()
         if self.bootloader != 'systemd_boot':
@@ -120,9 +121,6 @@ class InstallImageBuilder:
         self.squashed_diskname = ''.join(
             [xml_state.xml_data.get_name(), '.raw']
         )
-        self.sha256name = ''.join(
-            [xml_state.xml_data.get_name(), '.sha256']
-        )
         self.xz_options = custom_args['xz_options'] if custom_args \
             and 'xz_options' in custom_args else None
 
@@ -170,12 +168,19 @@ class InstallImageBuilder:
         }
 
         # the system image transfer is checked against a checksum
-        log.info('Creating disk image checksum')
         self.squashed_contents = Temporary(
             prefix='kiwi_install_squashfs.', path=self.target_dir
         ).new_dir()
-        checksum = Checksum(self.diskname)
-        checksum.sha256(self.squashed_contents.name + '/' + self.sha256name)
+        shasum = self.runtime_config.get_checksum_handler(
+            source_filename=self.diskname,
+            target_filename='{}/{}{}'.format(
+                self.squashed_contents.name,
+                self.xml_state.xml_data.get_name(),
+                self.runtime_config.get_checksum_handler(self.diskname).suffix
+            )
+        )
+        log.info(f'Creating disk image {shasum.suffix} checksum')
+        shasum.digest()
 
         # the system image name is stored in a config file
         self._write_install_image_info_to_iso_image()
@@ -291,15 +296,16 @@ class InstallImageBuilder:
         )
 
         # the system image transfer is checked against a checksum
-        log.info('Creating disk image checksum')
-        pxe_sha256_filename = ''.join(
-            [
-                self.pxe_dir.name, '/',
-                self.pxename, '.sha256'
-            ]
+        shasum = self.runtime_config.get_checksum_handler(
+            source_filename=self.diskname,
+            target_filename='{}/{}{}'.format(
+                self.pxe_dir.name,
+                self.pxename,
+                self.runtime_config.get_checksum_handler(self.diskname).suffix
+            )
         )
-        checksum = Checksum(self.diskname)
-        checksum.sha256(pxe_sha256_filename)
+        log.info(f'Creating disk image {shasum.suffix} checksum')
+        shasum.digest()
 
         # the install image name is stored in a config file
         if self.initrd_system == 'kiwi':

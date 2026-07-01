@@ -1,7 +1,7 @@
 import logging
 from collections import namedtuple
 from unittest.mock import (
-    patch, Mock, MagicMock, mock_open
+    patch, Mock, MagicMock, mock_open, call
 )
 from pytest import (
     raises, fixture
@@ -20,16 +20,26 @@ class TestKisBuilder:
     @patch('kiwi.builder.kis.FileSystemBuilder')
     @patch('kiwi.builder.kis.BootImage')
     @patch('kiwi.builder.kis.Defaults.get_platform_name')
-    def setup(self, mock_get_platform_name, mock_boot, mock_filesystem):
+    @patch('kiwi.builder.kis.RuntimeConfig')
+    def setup(
+        self,
+        mock_RuntimeConfig,
+        mock_get_platform_name,
+        mock_boot,
+        mock_filesystem
+    ):
         mock_get_platform_name.return_value = 'x86_64'
         self.setup = Mock()
         self.runtime_config = Mock()
         self.runtime_config.get_max_size_constraint = Mock(
             return_value=None
         )
-        kiwi.builder.kis.RuntimeConfig = Mock(
-            return_value=self.runtime_config
+        self.shasum = Mock()
+        self.shasum.suffix = '.sha256'
+        self.runtime_config.get_checksum_handler = Mock(
+            return_value=self.shasum
         )
+        mock_RuntimeConfig.return_value = self.runtime_config
         kiwi.builder.kis.SystemSetup = Mock(
             return_value=self.setup
         )
@@ -86,7 +96,15 @@ class TestKisBuilder:
 
     @patch('kiwi.builder.kis.FileSystemBuilder')
     @patch('kiwi.builder.kis.BootImage')
-    def test_setup_warn_no_initrd_support(self, mock_boot, mock_filesystem):
+    @patch('kiwi.builder.kis.RuntimeConfig')
+    def test_setup_warn_no_initrd_support(self, mock_RuntimeConfig, mock_boot, mock_filesystem):
+        self.runtime_config = Mock()
+        self.shasum = Mock()
+        self.shasum.suffix = '.sha256'
+        self.runtime_config.get_checksum_handler = Mock(
+            return_value=self.shasum
+        )
+        mock_RuntimeConfig.return_value = self.runtime_config
         boot_image_task = MagicMock()
         boot_image_task.has_initrd_support = Mock(
             return_value=False
@@ -95,20 +113,17 @@ class TestKisBuilder:
         with self._caplog.at_level(logging.WARNING):
             KisBuilder(self.xml_state, 'target_dir', 'root_dir')
 
-    @patch('kiwi.builder.kis.Checksum')
     @patch('kiwi.builder.kis.Compress')
     @patch('kiwi.builder.kis.ArchiveTar')
     @patch('os.rename')
     def test_create(
-        self, mock_rename, mock_tar, mock_compress, mock_checksum
+        self, mock_rename, mock_tar, mock_compress
     ):
         tar = Mock()
         mock_tar.return_value = tar
         compress = Mock()
         mock_compress.return_value = compress
         compress.xz.return_value = 'compressed-file-name'
-        checksum = Mock()
-        mock_checksum.return_value = checksum
         self.boot_image_task.required = Mock(
             return_value=True
         )
@@ -129,9 +144,14 @@ class TestKisBuilder:
             'myimage.fs', 'myimage'
         )
         compress.xz.assert_called_once_with(None)
-        checksum.sha256.assert_called_once_with(
-            'target_dir/some-image.x86_64-1.2.3.sha256'
-        )
+        assert self.runtime_config.get_checksum_handler.call_args_list == [
+            call('target_dir/some-image.x86_64-1.2.3'),
+            call(
+                source_filename='compressed-file-name',
+                target_filename='target_dir/some-image.x86_64-1.2.3.sha256'
+            )
+        ]
+        self.shasum.digest.assert_called_once_with()
         self.boot_image_task.prepare.assert_called_once_with()
         self.setup.export_modprobe_setup.assert_called_once_with(
             'initrd_dir'
@@ -160,11 +180,10 @@ class TestKisBuilder:
             'target_dir', xz_options=['--threads=0']
         )
 
-    @patch('kiwi.builder.kis.Checksum')
     @patch('kiwi.builder.kis.Compress')
     @patch('os.rename')
     def test_create_no_kernel_found(
-        self, mock_rename, mock_compress, mock_checksum
+        self, mock_rename, mock_compress
     ):
         compress = Mock()
         mock_compress.return_value = compress
@@ -173,11 +192,10 @@ class TestKisBuilder:
         with raises(KiwiKisBootImageError):
             self.kis.create()
 
-    @patch('kiwi.builder.kis.Checksum')
     @patch('kiwi.builder.kis.Compress')
     @patch('os.rename')
     def test_create_no_hypervisor_found(
-        self, mock_rename, mock_compress, mock_checksum
+        self, mock_rename, mock_compress
     ):
         compress = Mock()
         mock_compress.return_value = compress

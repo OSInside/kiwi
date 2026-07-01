@@ -70,7 +70,8 @@ class TestProfile:
             'kiwi_strip_tools': '',
             'kiwi_strip_libs': '',
             'kiwi_drivers': '',
-            'kiwi_rootpartuuid': None
+            'kiwi_rootpartuuid': None,
+            'kiwi_shasum_suffix': '.sha256'
         }
 
     @patch('kiwi.path.Path.which')
@@ -155,7 +156,8 @@ class TestProfile:
             'kiwi_luks_empty_passphrase': True,
             'kiwi_wwid_wait_timeout': None,
             'kiwi_xendomain': 'dom0',
-            'kiwi_rootpartuuid': None
+            'kiwi_rootpartuuid': None,
+            'kiwi_shasum_suffix': '.sha256'
         }
 
     @patch('kiwi.path.Path.which')

@@ -96,13 +96,18 @@ class TestRuntimeConfig:
     @patch('kiwi.defaults.ETC_RUNTIME_CONFIG_DIR', '../data/kiwi.yml.d')
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
     def test_config_sections_from_system_wide_etc_config(
-        self,
-        mock_is_buildservice_worker
+        self, mock_is_buildservice_worker
     ):
         mock_is_buildservice_worker.return_value = False
         runtime_config = RuntimeConfig(reread=True)
         assert runtime_config.get_xz_options() == ['-a', '-b', 'xxx']
         assert runtime_config.get_mapper_tool() == 'partx'
+        assert runtime_config.get_checksum_handler(
+            '../data/metalink'
+        ).suffix == '.sha512'
+        assert runtime_config.get_checksum_handler(
+            '../data/metalink', bundle_lookup=True
+        ).suffix == '.sha256'
 
     @patch('kiwi.defaults.ETC_RUNTIME_CONFIG_FILE', '')
     @patch('kiwi.defaults.ETC_RUNTIME_CONFIG_DIR', '')
@@ -175,6 +180,9 @@ class TestRuntimeConfig:
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/defaults'}):
             runtime_config = RuntimeConfig(reread=True)
         assert runtime_config.get_mapper_tool() == 'partx'
+        assert runtime_config.get_checksum_handler(
+            '../data/metalink'
+        ).suffix == '.sha256'
 
     def test_config_sections_invalid(self):
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/invalid'}):

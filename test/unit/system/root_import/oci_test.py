@@ -25,6 +25,9 @@ class TestRootImportOCI:
                 'root_dir', [Uri('file:///image.tar')],
                 {'archive_transport': 'oci-archive'}
             )
+            self.runtime_config = Mock()
+            self.shasum = self.runtime_config.get_checksum_handler.return_value
+            self.oci_import.runtime_config = self.runtime_config
         assert self.oci_import.image_files == ['/image.tar']
 
     @patch('os.path.exists')
@@ -41,13 +44,11 @@ class TestRootImportOCI:
             )
 
     @patch('kiwi.system.root_import.oci.Compress')
-    @patch('kiwi.system.root_import.base.Checksum')
     @patch('kiwi.system.root_import.oci.Path.create')
     @patch('kiwi.system.root_import.oci.OCI')
-    def test_sync_data(self, mock_OCI, mock_path, mock_sha256, mock_compress):
+    def test_sync_data(self, mock_OCI, mock_path, mock_compress):
         oci = Mock()
         mock_OCI.new.return_value.__enter__.return_value = oci
-        mock_sha256.return_value = Mock()
 
         uncompress = Mock()
         uncompress.get_format = Mock(return_value=None)
@@ -61,7 +62,7 @@ class TestRootImportOCI:
         oci.import_rootfs.assert_called_once_with(
             'root_dir'
         )
-        mock_sha256.assert_called_once_with('root_dir/image/imported_root')
+        self.shasum.digest.assert_called_once_with()
         uncompress.get_format.assert_called_once_with()
 
     @patch('kiwi.system.root_import.oci.Compress')
@@ -98,15 +99,13 @@ class TestRootImportOCI:
         )
 
     @patch('kiwi.system.root_import.oci.Compress')
-    @patch('kiwi.system.root_import.base.Checksum')
     @patch('kiwi.system.root_import.oci.Path.create')
     @patch('kiwi.system.root_import.oci.OCI')
     def test_sync_data_compressed_image(
-        self, mock_OCI, mock_path, mock_sha256, mock_compress
+        self, mock_OCI, mock_path, mock_compress
     ):
         oci = Mock()
         mock_OCI.new.return_value.__enter__.return_value = oci
-        mock_sha256.return_value = Mock()
 
         uncompress = Mock()
         uncompress.get_format = Mock(return_value='xz')
@@ -120,26 +119,25 @@ class TestRootImportOCI:
         oci.import_rootfs.assert_called_once_with(
             'root_dir'
         )
-        mock_sha256.assert_called_once_with('root_dir/image/imported_root')
+        self.shasum.digest.assert_called_once_with()
         uncompress.get_format.assert_called_once_with()
         uncompress.uncompress.assert_called_once_with(True)
 
     @patch('os.path.exists')
-    @patch('kiwi.system.root_import.base.Checksum')
     @patch('kiwi.system.root_import.oci.Path.create')
     @patch('kiwi.system.root_import.oci.OCI')
     def test_sync_data_unknown_uri(
-        self, mock_OCI, mock_path, mock_sha256, mock_exists
+        self, mock_OCI, mock_path, mock_exists
     ):
         mock_exists.return_value = True
         oci = Mock()
         mock_OCI.new.return_value.__enter__.return_value = oci
-        mock_sha256.return_value = Mock()
         with patch.dict('os.environ', {'HOME': '../data'}):
             oci_import = RootImportOCI(
                 'root_dir', [Uri('docker:image:tag')],
                 {'archive_transport': 'docker-archive'}
             )
+            oci_import.runtime_config = self.runtime_config
 
         with self._caplog.at_level(logging.WARNING):
             oci_import.sync_data()
@@ -151,4 +149,4 @@ class TestRootImportOCI:
             oci.import_rootfs.assert_called_once_with(
                 'root_dir'
             )
-            mock_sha256.assert_called_once_with('root_dir/image/imported_root')
+            self.shasum.digest.assert_called_once_with()

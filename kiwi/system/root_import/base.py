@@ -23,6 +23,7 @@ from typing import (
 )
 
 # project
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.xml_state import XMLState
 from kiwi.defaults import Defaults
 from kiwi.system.setup import SystemSetup
@@ -30,7 +31,6 @@ from kiwi.path import Path
 from kiwi.system.uri import Uri
 from kiwi.command import Command
 from kiwi.mount_manager import MountManager
-from kiwi.utils.checksum import Checksum
 from kiwi.exceptions import (
     KiwiRootImportError,
     KiwiUriTypeUnknown
@@ -56,6 +56,7 @@ class RootImportBase:
         self, root_dir: str, image_uris: List[Uri],
         custom_args: Dict[str, str] = {}
     ):
+        self.runtime_config = RuntimeConfig()
         self.raw_urls: List[str] = []
         self.image_files: List[str] = []
         self.overlay: Optional[MountManager] = None
@@ -185,5 +186,10 @@ class RootImportBase:
         raise NotImplementedError
 
     def _make_checksum(self, image):
-        checksum = Checksum(image)
-        checksum.sha256(''.join([image, '.sha256']))
+        shasum = self.runtime_config.get_checksum_handler(
+            source_filename=image,
+            target_filename='{}{}'.format(
+                image, self.runtime_config.get_checksum_handler(image).suffix
+            )
+        )
+        shasum.digest()

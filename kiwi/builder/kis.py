@@ -24,7 +24,6 @@ from kiwi.defaults import Defaults
 from kiwi.boot.image import BootImage
 from kiwi.builder.filesystem import FileSystemBuilder
 from kiwi.utils.compress import Compress
-from kiwi.utils.checksum import Checksum
 from kiwi.system.setup import SystemSetup
 from kiwi.system.kernel import Kernel
 from kiwi.system.result import Result
@@ -54,6 +53,7 @@ class KisBuilder:
         self, xml_state: XMLState, target_dir: str,
         root_dir: str, custom_args: Dict = None
     ):
+        self.runtime_config = RuntimeConfig()
         self.target_dir = target_dir
         self.compressed = xml_state.build_type.get_compressed()
         self.xen_server = xml_state.is_xen_server()
@@ -88,11 +88,15 @@ class KisBuilder:
         self.image: str = ''
         self.append_file = ''.join([self.image_name, '.append'])
         self.archive_name = ''.join([self.image_name, '.tar'])
-        self.checksum_name = ''.join([self.image_name, '.sha256'])
+        self.checksum_name = ''.join(
+            [
+                self.image_name,
+                self.runtime_config.get_checksum_handler(self.image_name).suffix
+            ]
+        )
         self.kernel_filename: str = ''
         self.hypervisor_filename: str = ''
         self.result = Result(xml_state)
-        self.runtime_config = RuntimeConfig()
 
         if not self.boot_image_task.has_initrd_support():
             log.warning('Building without initrd support !')
@@ -126,9 +130,12 @@ class KisBuilder:
                 compress = Compress(self.image)
                 self.image = compress.xz(self.xz_options)
 
-            log.info('Creating root filesystem SHA256 checksum')
-            checksum = Checksum(self.image)
-            checksum.sha256(self.checksum_name)
+            shasum = self.runtime_config.get_checksum_handler(
+                source_filename=self.image,
+                target_filename=self.checksum_name
+            )
+            log.info(f'Creating root filesystem {shasum.suffix} checksum')
+            shasum.digest()
 
         # prepare initrd
         if self.boot_image_task.has_initrd_support():
