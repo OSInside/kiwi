@@ -18,6 +18,7 @@
 import os
 import glob
 import logging
+import shlex
 from string import Template
 from contextlib import ExitStack
 from typing import Dict
@@ -137,7 +138,17 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             ['qemu-img', 'create', path, f'{fat_image_mbsize}M']
         )
         Command.run(
-            ['sgdisk', '-n', ':1.0', '-t', '1:EF00', path]
+            [
+                'bash', '-c', ' '.join(
+                    [
+                        'printf',
+                        shlex.quote('label: gpt\nsize=+, type=U\n'),
+                        '|',
+                        'sfdisk',
+                        shlex.quote(path)
+                    ]
+                )
+            ]
         )
         with LoopDevice(path) as loop_provider:
             loop_provider.create(overwrite=False)
