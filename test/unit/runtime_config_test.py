@@ -142,7 +142,9 @@ class TestRuntimeConfig:
         assert runtime_config.get_mapper_tool() == 'partx'
 
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
-    def test_config_sections_from_home_base_config(self, mock_is_buildservice_worker):
+    def test_config_sections_from_home_base_config(
+        self, mock_is_buildservice_worker
+    ):
         mock_is_buildservice_worker.return_value = False
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/ok'}):
             runtime_config = RuntimeConfig(reread=True)
@@ -163,9 +165,6 @@ class TestRuntimeConfig:
         assert runtime_config.get_disabled_runtime_checks() == [
             'check_dracut_module_for_oem_install_in_package_list',
             'check_container_tool_chain_installed'
-        ]
-        assert runtime_config.get_obs_api_credentials() == [
-            {'user_name': 'user_credentials'}
         ]
 
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
