@@ -88,12 +88,6 @@ class KisBuilder:
         self.image: str = ''
         self.append_file = ''.join([self.image_name, '.append'])
         self.archive_name = ''.join([self.image_name, '.tar'])
-        self.checksum_name = ''.join(
-            [
-                self.image_name,
-                self.runtime_config.get_checksum_handler(self.image_name).suffix
-            ]
-        )
         self.kernel_filename: str = ''
         self.hypervisor_filename: str = ''
         self.result = Result(xml_state)
@@ -132,7 +126,10 @@ class KisBuilder:
 
             shasum = self.runtime_config.get_checksum_handler(
                 source_filename=self.image,
-                target_filename=self.checksum_name
+                target_filename='{}{}'.format(
+                    self.image_name,
+                    self.runtime_config.get_checksum_handler(self.image).suffix
+                )
             )
             log.info(f'Creating root filesystem {shasum.suffix} checksum')
             shasum.digest()
@@ -212,7 +209,12 @@ class KisBuilder:
 
         kis_tarball_files = [
             self.kernel_filename,
-            os.path.basename(self.checksum_name),
+            os.path.basename(
+                '{}{}'.format(
+                    self.image_name,
+                    self.runtime_config.get_checksum_handler(self.kernel_filename).suffix
+                )
+            )
         ]
         if self.boot_image_task.initrd_filename:
             kis_tarball_files.append(

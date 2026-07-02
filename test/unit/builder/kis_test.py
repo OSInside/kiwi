@@ -145,11 +145,12 @@ class TestKisBuilder:
         )
         compress.xz.assert_called_once_with(None)
         assert self.runtime_config.get_checksum_handler.call_args_list == [
-            call('target_dir/some-image.x86_64-1.2.3'),
+            call('compressed-file-name'),
             call(
                 source_filename='compressed-file-name',
-                target_filename='target_dir/some-image.x86_64-1.2.3.sha256'
-            )
+                target_filename='myimage.sha256'
+            ),
+            call('myimage-42.kernel')
         ]
         self.shasum.digest.assert_called_once_with()
         self.boot_image_task.prepare.assert_called_once_with()
