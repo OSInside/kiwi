@@ -109,7 +109,7 @@ class RuntimeConfig:
         signature creation of rootfs verification metadata:
 
         credentials:
-          - verification_metadata_signing_key_file: ...
+          verification_metadata_signing_key_file: ...
 
         There is no default value for this setting available
 
@@ -128,7 +128,7 @@ class RuntimeConfig:
         Return URL of buildservice download server in:
 
         obs:
-          - download_url: ...
+          download_url: ...
 
         if no configuration exists the downloadserver from
         the Defaults class is returned
@@ -148,7 +148,7 @@ class RuntimeConfig:
         Return URL of buildservice API server in:
 
         obs:
-          - api_url: ...
+          api_url: ...
 
         if no configuration exists the API server from
         the Defaults class is returned
@@ -163,27 +163,12 @@ class RuntimeConfig:
         return obs_api_server_url if obs_api_server_url else \
             Defaults.get_obs_api_server_url()
 
-    def get_obs_api_credentials(self) -> List[str]:
-        """
-        Return OBS API credentials if configured:
-
-        obs:
-          - user:
-              - user_name: user_credentials
-
-        :return: List of Dicts with credentials per user
-
-        :rtype: list
-        """
-        obs_users = self._get_attribute(element='obs', attribute='user') or []
-        return obs_users
-
     def is_obs_public(self) -> bool:
         """
         Check if the buildservice configuration is public or private in:
 
         obs:
-          - public: true|false
+          public: true|false
 
         if no configuration exists we assume to be public
 
@@ -205,7 +190,7 @@ class RuntimeConfig:
         into the image.
 
         bundle:
-          - has_package_changes: true|false
+          has_package_changes: true|false
 
         By default the creation is switched on.
         When building in the Open Build Service the default is
@@ -234,7 +219,7 @@ class RuntimeConfig:
         contain XZ compressed image results or not.
 
         bundle:
-          - compress: true|false
+          compress: true|false
 
         If compression of image build results is activated the size
         of the bundle is smaller and the download speed increases.
@@ -270,10 +255,10 @@ class RuntimeConfig:
         size of the checksum:
 
         shasum:
-          - size: 256
+          size: 256
 
         bundle:
-          - shasum_size: "256"
+          shasum_size: "256"
 
         Instructs kiwi to use the provided shasum size. Supported
         values are 256 (default) and 512. In case of an unsupported
@@ -321,7 +306,7 @@ class RuntimeConfig:
         Return list of XZ compression options in:
 
         xz:
-          - options: ...
+          options: ...
 
         if no configuration exists None is returned
 
@@ -342,7 +327,7 @@ class RuntimeConfig:
         Return compression for container images
 
         container:
-          - compress: xz|none|true|false
+          compress: xz|none|true|false
 
         if no or invalid configuration data is provided, the default
         compression from the Defaults class is returned
@@ -373,7 +358,7 @@ class RuntimeConfig:
         Return tool category which should be used to build iso images
 
         iso:
-          - tool_category: xorriso
+          tool_category: xorriso
 
         if no or invalid configuration exists the default tool category
         from the Defaults class is returned
@@ -402,7 +387,7 @@ class RuntimeConfig:
         Return media tag tool used to checksum iso images
 
         iso:
-          - media_tag_tool: checkmedia
+          media_tag_tool: checkmedia
 
         if no or invalid configuration exists the default media tagger
         from the Defaults class is returned
@@ -434,7 +419,7 @@ class RuntimeConfig:
         container archives for OCI compliant images, e.g docker
 
         oci:
-          - archive_tool: umoci
+          archive_tool: umoci
 
         if no configuration exists the default tool from the
         Defaults class is returned
@@ -453,7 +438,7 @@ class RuntimeConfig:
         Return partition mapper tool
 
         mapper:
-          - part_mapper: partx
+          part_mapper: partx
 
         if no configuration exists the default tool from the
         Defaults class is returned
@@ -475,7 +460,7 @@ class RuntimeConfig:
         it can be specified with m=MB or g=GB.
 
         build_constraints:
-          - max_size: 700m
+          max_size: 700m
 
         if no configuration exists None is returned
 
@@ -493,7 +478,8 @@ class RuntimeConfig:
         Returns disabled runtime checks. Checks can be disabled with:
 
         runtime_checks:
-            - disable: check_container_tool_chain_installed
+          disable:
+            - check_container_tool_chain_installed
 
         if the provided string does not match any RuntimeChecker method it is
         just ignored.
@@ -508,10 +494,9 @@ class RuntimeConfig:
     def _get_attribute(self, element: str, attribute: str):
         if RUNTIME_CONFIG:
             try:
-                if element in RUNTIME_CONFIG:
-                    for attribute_dict in RUNTIME_CONFIG[element]:
-                        if attribute in attribute_dict:
-                            return attribute_dict[attribute]
+                for key, value in RUNTIME_CONFIG.get(element, {}).items():
+                    if key == attribute:
+                        return value
             except Exception as issue:
                 raise KiwiRuntimeConfigFormatError(
                     f'{type(issue).__name__}: {issue}'

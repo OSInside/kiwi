@@ -1,8 +1,8 @@
 xz:
-  - options: -a -b xxx
+  options: -a -b xxx
 
 shasum:
-  - size: "512"
+  size: "512"
 
 bundle:
-  - shasum_size: "256"
+  shasum_size: "256"

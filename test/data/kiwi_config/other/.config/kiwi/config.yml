@@ -1,8 +1,8 @@
 bundle:
-  - has_package_changes: true
+  has_package_changes: true
 
 container:
-  - compress: true
+  compress: true
 
 iso:
-  - media_tag_tool: checkmedia
+  media_tag_tool: checkmedia
