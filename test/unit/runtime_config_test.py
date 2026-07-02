@@ -38,6 +38,14 @@ class TestRuntimeConfig:
             with raises(KiwiRuntimeConfigFileError):
                 RuntimeConfig(reread=True)
 
+    @patch('yaml.safe_load')
+    @patch('kiwi.defaults.CUSTOM_RUNTIME_CONFIG_FILE', 'some-custom-file')
+    def test_reading_custom_config_file(self, mock_yaml):
+        with patch('os.path.isfile', return_value=True):
+            with patch('builtins.open') as m_open:
+                RuntimeConfig(reread=True)
+                m_open.assert_called_once_with('some-custom-file', 'r')
+
     @patch('os.path.exists')
     @patch('yaml.safe_load')
     @patch('os.path.isdir')
@@ -49,7 +57,6 @@ class TestRuntimeConfig:
         mock_yaml,
         mock_exists
     ):
-        mock_os_path_isdir.return_value = True
         mock_os_listdir.return_value = ['some.yml']
 
         def os_path_exists(config):
@@ -57,7 +64,13 @@ class TestRuntimeConfig:
                 return True
             return False
 
+        def os_path_isdir(config):
+            if config == '/etc/kiwi.yml.d':
+                return True
+            return False
+
         mock_exists.side_effect = os_path_exists
+        mock_os_path_isdir.side_effect = os_path_isdir
         with patch('builtins.open') as m_open:
             RuntimeConfig(reread=True)
             assert m_open.call_args_list == [
@@ -76,7 +89,6 @@ class TestRuntimeConfig:
         mock_yaml,
         mock_exists
     ):
-        mock_os_path_isdir.return_value = True
         mock_os_listdir.return_value = ['some.yml']
 
         def os_path_exists(config):
@@ -84,7 +96,13 @@ class TestRuntimeConfig:
                 return True
             return False
 
+        def os_path_isdir(config):
+            if config == '/usr/share/kiwi/kiwi.yml.d':
+                return True
+            return False
+
         mock_exists.side_effect = os_path_exists
+        mock_os_path_isdir.side_effect = os_path_isdir
         with patch('builtins.open') as m_open:
             RuntimeConfig(reread=True)
             assert m_open.call_args_list == [
