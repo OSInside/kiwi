@@ -62,7 +62,14 @@ function resize_filesystem {
     ;;
     esac
     if ! _is_ramdisk_device "${device}"; then
-        check_filesystem "${device}"
+        if [ ! "${fstype}" = "btrfs" ];then
+            # btrfs reports the free space cache to be outdated/corrupt
+            # after kiwi has resized the partition table. This is an
+            # expected condition prior resize of the filesystem and
+            # should not prevent the following resize. As such the
+            # filesystem check is not applied for btrfs prior resize
+            check_filesystem "${device}"
+        fi
     fi
     info "Resizing ${fstype} filesystem on ${device}..."
     if ! eval "${resize_fs}"; then
