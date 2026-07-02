@@ -212,7 +212,9 @@ class KisBuilder:
             os.path.basename(
                 '{}{}'.format(
                     self.image_name,
-                    self.runtime_config.get_checksum_handler(self.kernel_filename).suffix
+                    self.runtime_config.get_checksum_handler(
+                        f'{self.target_dir}/{self.kernel_filename}'
+                    ).suffix
                 )
             )
         ]

@@ -150,7 +150,7 @@ class TestKisBuilder:
                 source_filename='compressed-file-name',
                 target_filename='myimage.sha256'
             ),
-            call('myimage-42.kernel')
+            call('target_dir/myimage-42.kernel')
         ]
         self.shasum.digest.assert_called_once_with()
         self.boot_image_task.prepare.assert_called_once_with()
