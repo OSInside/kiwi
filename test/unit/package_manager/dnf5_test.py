@@ -173,14 +173,23 @@ class TestPackageManagerDnf5:
 
     def test_process_only_required(self):
         self.manager.process_only_required()
-        assert self.manager.custom_args == ['--setopt=install_weak_deps=False']
+        assert self.manager.custom_args == [
+            '--setopt=install_weak_deps=False',
+            '--setopt=group_package_types=mandatory'
+        ]
 
     def test_process_plus_recommended(self):
         self.manager.process_only_required()
-        assert self.manager.custom_args == ['--setopt=install_weak_deps=False']
         self.manager.process_plus_recommended()
-        assert \
-            '--setopt=install_weak_deps=False' not in self.manager.custom_args
+        assert self.manager.custom_args == [
+            '--setopt=install_weak_deps=True',
+            '--setopt=group_package_types=default,mandatory,conditional'
+        ]
+        self.manager.process_only_required()
+        assert self.manager.custom_args == [
+            '--setopt=install_weak_deps=False',
+            '--setopt=group_package_types=mandatory'
+        ]
 
     def test_match_package_installed(self):
         assert self.manager.match_package_installed('foo', 'Installing  : foo')

@@ -278,15 +278,17 @@ class PackageManagerDnf5(PackageManagerBase):
         """
         Setup package processing only for required packages
         """
-        if '--setopt=install_weak_deps=False' not in self.custom_args:
-            self.custom_args.append('--setopt=install_weak_deps=False')
+        self.__clean_pattern_type()
+        self.custom_args.append('--setopt=install_weak_deps=False')
+        self.custom_args.append('--setopt=group_package_types=mandatory')
 
     def process_plus_recommended(self) -> None:
         """
         Setup package processing to also include recommended dependencies.
         """
-        if '--setopt=install_weak_deps=False' in self.custom_args:
-            self.custom_args.remove('--setopt=install_weak_deps=False')
+        self.__clean_pattern_type()
+        self.custom_args.append('--setopt=install_weak_deps=True')
+        self.custom_args.append('--setopt=group_package_types=default,mandatory,conditional')
 
     def match_package_installed(
         self, package_name: str, package_manager_output: str
@@ -356,3 +358,16 @@ class PackageManagerDnf5(PackageManagerBase):
         Rpm(
             self.root_dir, Defaults.get_custom_rpm_image_macro_name()
         ).wipe_config()
+
+    def __clean_pattern_type(self) -> None:
+        """
+        Setup package processing only for required packages
+        """
+        if '--setopt=install_weak_deps=True' in self.custom_args:
+            self.custom_args.remove('--setopt=install_weak_deps=True')
+        if '--setopt=install_weak_deps=False' in self.custom_args:
+            self.custom_args.remove('--setopt=install_weak_deps=False')
+        if '--setopt=group_package_types=default,mandatory,conditional' in self.custom_args:
+            self.custom_args.remove('--setopt=group_package_types=default,mandatory,conditional')
+        if '--setopt=group_package_types=mandatory' in self.custom_args:
+            self.custom_args.remove('--setopt=group_package_types=mandatory')
