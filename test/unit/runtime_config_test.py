@@ -1,4 +1,5 @@
 import logging
+import yaml
 from unittest.mock import (
     patch, call
 )
@@ -38,13 +39,50 @@ class TestRuntimeConfig:
             with raises(KiwiRuntimeConfigFileError):
                 RuntimeConfig(reread=True)
 
+    def test_merge_strategy(self):
+        with open('../data/kiwi.yml', 'r') as config:
+            master = yaml.safe_load(config)
+        with open('../data/kiwi_merge_ok.yml', 'r') as config:
+            slave_ok = yaml.safe_load(config)
+        with open('../data/kiwi_merge_invalid_dict.yml', 'r') as config:
+            slave_invalid_dict = yaml.safe_load(config)
+        with open('../data/kiwi_merge_invalid_list.yml', 'r') as config:
+            slave_invalid_list = yaml.safe_load(config)
+        assert RuntimeConfig._merge(master, slave_ok) == {
+            'xz': {
+                'options': '--foo'
+            },
+            'shasum': {
+                'size': '256'
+            },
+            'bundle': {
+                'shasum_size': '256',
+                'compress': False
+            },
+            'runtime_checks': {
+                'disable': [
+                    'check_boot_description_exists',
+                    'check_container_tool_chain_installed',
+                    'check_repositories_configured'
+                ]
+            }
+        }
+        with raises(NotImplementedError):
+            RuntimeConfig._merge(master, slave_invalid_dict)
+        with raises(NotImplementedError):
+            RuntimeConfig._merge(master, slave_invalid_list)
+
     @patch('yaml.safe_load')
     @patch('kiwi.defaults.CUSTOM_RUNTIME_CONFIG_FILE', 'some-custom-file')
     def test_reading_custom_config_file(self, mock_yaml):
         with patch('os.path.isfile', return_value=True):
             with patch('builtins.open') as m_open:
                 RuntimeConfig(reread=True)
-                m_open.assert_called_once_with('some-custom-file', 'r')
+                m_open.assert_has_calls(
+                    [
+                        call('some-custom-file', 'r')
+                    ]
+                )
 
     @patch('os.path.exists')
     @patch('yaml.safe_load')
