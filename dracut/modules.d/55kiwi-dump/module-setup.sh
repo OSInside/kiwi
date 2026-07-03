@@ -21,7 +21,8 @@ install() {
     declare moddir=${moddir}
     declare systemdutildir=${systemdutildir}
     inst_multiple \
-        tr lsblk dd sha256sum sha512sum head pv kexec basename awk kpartx sort
+        tr lsblk dd sha256sum sha512sum head pv kexec basename awk kpartx sort \
+        btrfs btrfstune mount umount
 
     inst_hook pre-udev 30 "${moddir}/kiwi-installer-genrules.sh"
 
@@ -30,7 +31,7 @@ install() {
 
     inst_hook cmdline 30 "${moddir}/parse-kiwi-install.sh"
     inst_hook pre-mount 30 "${moddir}/kiwi-dump-image.sh"
-    inst_hook mount 30 "${moddir}/kiwi-mount-ramdisk.sh" 
+    inst_hook mount 30 "${moddir}/kiwi-mount-ramdisk.sh"
 
     inst_script "${moddir}/kiwi-ramdisk-deployment-generator.sh" \
         "${systemdutildir}/system-generators/dracut-kiwi-ramdisk-generator"

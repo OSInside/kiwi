@@ -1000,6 +1000,13 @@ class DiskBuilder:
                     if system:
                         self._setup_property_root_is_readonly_snapshot(system)
 
+            # set btrfs seed
+            if self._install_image_requested() and \
+               self.volume_manager_name == 'btrfs':
+                Command.run(
+                    ['btrfstune', '-S', '1', device_map['root'].get_device()]
+                )
+
             # call edit_boot_install script
             boot_device = device_map['root']
             if 'boot' in device_map:
