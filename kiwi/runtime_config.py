@@ -94,14 +94,17 @@ class RuntimeConfig:
                         f'Custom config file {config_file!r} not found'
                     )
                 config_files.append(config_file)
-            # read all config files...
+            # read and merge all config files...
             RUNTIME_CONFIG = {}
             for config_file in config_files:
                 log.info(
                     f'Reading runtime config file: {config_file!r}'
                 )
                 with open(config_file, 'r') as config:
-                    RUNTIME_CONFIG.update(yaml.safe_load(config) or {})
+                    next_config = yaml.safe_load(config) or {}
+                    RUNTIME_CONFIG = RuntimeConfig._merge(
+                        RUNTIME_CONFIG, next_config
+                    )
 
     def get_credentials_verification_metadata_signing_key_file(self) -> str:
         """
@@ -515,3 +518,43 @@ class RuntimeConfig:
                     )
                     config_files.append(config_file_path)
         return config_files
+
+    @staticmethod
+    def _merge(master: Dict, slave: Dict) -> Dict:
+        if slave:
+            if not master or \
+               isinstance(master, str) or \
+               isinstance(master, int) or \
+               isinstance(master, float):
+                # border case for first run or if slave is a
+                # primitive type in the recursive iteration
+                master = slave
+            elif isinstance(master, list):
+                if isinstance(slave, list):
+                    # list on list gets a merged list
+                    master.extend(slave)
+                else:
+                    raise NotImplementedError(
+                        'No strategy for merge non-list into list'
+                    )
+                # no duplicates
+                master = sorted(set(master))
+            elif isinstance(master, dict):
+                # dict on dict gets a merged dict by copy
+                # slave on master recursively
+                if isinstance(slave, dict):
+                    for key in slave:
+                        if key in master:
+                            master[key] = RuntimeConfig._merge(
+                                master[key], slave[key]
+                            )
+                        else:
+                            master[key] = slave[key]
+                else:
+                    raise NotImplementedError(
+                        'No strategy for merge non-dict into dict'
+                    )
+            else:
+                # No merge strategy available
+                pass
+        return master

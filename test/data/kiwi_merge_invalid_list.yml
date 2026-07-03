@@ -1,0 +1,2 @@
+runtime_checks:
+  disable: check_container_tool_chain_installed
