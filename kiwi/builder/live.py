@@ -562,6 +562,10 @@ class LiveImageBuilder:
         kernel = Kernel(self.boot_image.boot_root_directory)
         if kernel.get_kernel():
             kernel.copy_kernel(boot_path, '/linux')
+            os.symlink(
+                'loader/linux',
+                f'{self.media_dir.name}/boot/{self.arch}/linux'
+            )
         else:
             raise KiwiLiveBootImageError(
                 'No kernel in boot image tree {0} found'.format(
@@ -583,6 +587,10 @@ class LiveImageBuilder:
             os.chmod(self.boot_image.initrd_filename, 0o644)
             shutil.move(
                 self.boot_image.initrd_filename, boot_path + '/initrd'
+            )
+            os.symlink(
+                'loader/initrd',
+                f'{self.media_dir.name}/boot/{self.arch}/initrd'
             )
         else:
             raise KiwiLiveBootImageError(

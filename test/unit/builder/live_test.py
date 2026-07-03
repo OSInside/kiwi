@@ -203,10 +203,12 @@ class TestLiveImageBuilder:
     @patch('os.unlink')
     @patch('os.path.exists')
     @patch('os.chmod')
+    @patch('os.symlink')
     @patch('kiwi.builder.live.BlockID')
     def test_create_overlay_structure_boot_verity_baked(
         self,
         mock_BlockID,
+        mock_os_symlink,
         mock_chmod,
         mock_exists,
         mock_unlink,
@@ -293,8 +295,10 @@ class TestLiveImageBuilder:
     @patch('os.path.exists')
     @patch('os.chmod')
     @patch('os.path.getsize')
+    @patch('os.symlink')
     def test_create_overlay_structure_encrypted_embedded_root(
         self,
+        mock_os_symlink,
         mock_os_path_getsize,
         mock_chmod,
         mock_exists,
@@ -362,8 +366,10 @@ class TestLiveImageBuilder:
     @patch('os.path.exists')
     @patch('os.chmod')
     @patch('os.path.getsize')
+    @patch('os.symlink')
     def test_create_overlay_structure_encrypted_direct_root(
         self,
+        mock_os_symlink,
         mock_os_path_getsize,
         mock_chmod,
         mock_exists,
@@ -437,11 +443,26 @@ class TestLiveImageBuilder:
     @patch('os.unlink')
     @patch('os.path.exists')
     @patch('os.chmod')
+    @patch('os.symlink')
     def test_create_overlay_structure_boot_on_grub(
-        self, mock_chmod, mock_exists, mock_unlink, mock_grub_dir, mock_size,
-        mock_filesystem, mock_isofs, mock_Iso, mock_tag, mock_shutil,
-        mock_Temporary, mock_setup_media_loader_directory, mock_DeviceProvider,
-        mock_LoopDevice, mock_create_boot_loader_config, xml_filesystem
+        self,
+        mock_os_symlink,
+        mock_chmod,
+        mock_exists,
+        mock_unlink,
+        mock_grub_dir,
+        mock_size,
+        mock_filesystem,
+        mock_isofs,
+        mock_Iso,
+        mock_tag,
+        mock_shutil,
+        mock_Temporary,
+        mock_setup_media_loader_directory,
+        mock_DeviceProvider,
+        mock_LoopDevice,
+        mock_create_boot_loader_config,
+        xml_filesystem
     ):
         bootloader_config = Mock()
         mock_create_boot_loader_config.return_value.__enter__.return_value = \
@@ -688,9 +709,15 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.Temporary')
     @patch('kiwi.builder.live.shutil')
     @patch('os.unlink')
+    @patch('os.symlink')
     def test_create_no_hypervisor_found(
-        self, mock_unlink, mock_shutil, mock_Temporary,
-        mock_setup_media_loader_directory, mock_create_boot_loader_config
+        self,
+        mock_os_symlink,
+        mock_unlink,
+        mock_shutil,
+        mock_Temporary,
+        mock_setup_media_loader_directory,
+        mock_create_boot_loader_config
     ):
         self.firmware.bios_mode.return_value = False
         mock_Temporary.return_value.new_dir.return_value.name = 'tmpdir'
@@ -704,8 +731,14 @@ class TestLiveImageBuilder:
     @patch('kiwi.builder.live.shutil')
     @patch('os.unlink')
     @patch('os.path.exists')
+    @patch('os.symlink')
     def test_create_no_initrd_found(
-        self, mock_exists, mock_unlink, mock_shutil, mock_Temporary,
+        self,
+        mock_os_symlink,
+        mock_exists,
+        mock_unlink,
+        mock_shutil,
+        mock_Temporary,
         mock_setup_media_loader_directory,
         mock_create_boot_loader_config
     ):
