@@ -44,7 +44,11 @@ class TestRuntimeConfig:
         with patch('os.path.isfile', return_value=True):
             with patch('builtins.open') as m_open:
                 RuntimeConfig(reread=True)
-                m_open.assert_called_once_with('some-custom-file', 'r')
+                m_open.assert_has_calls(
+                    [
+                        call('some-custom-file', 'r')
+                    ]
+                )
 
     @patch('os.path.exists')
     @patch('yaml.safe_load')
