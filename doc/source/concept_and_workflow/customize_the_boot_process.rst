@@ -297,24 +297,27 @@ the available kernel boot parameters for these modules:
 ``rd.kiwi.oem.installdevice``
   Configures the disk device to use in an OEM installation. This overwrites or
   resets any other OEM device-specific settings, such as `oem-device-filter`,
-  `oem-unattended-id`, or `rd.kiwi.oem.maxdisk`, and continues the installation on
-  the given device. The device must exist and must be a block special.
+  `oem-unattended-id`, or `rd.kiwi.oem.maxdisk`, and continues the
+  installation on the given device. The device must exist and must be a
+  block special.
+
+  .. note:: Non-interactive mode activated by rd.kiwi.oem.installdevice
+
+     When setting `rd.kiwi.oem.installdevice` explicitly through the
+     kernel command line, {kiwi} uses the device without prompting for
+     confirmation.
 
 ``rd.kiwi.oem.sha512``
   Expect sha512 checksums and use the respective `sha512sum` tool and
   the `.sha512` extension for filename match and checksum calculation.
   By default sha256 is used.
 
-.. note:: Non-interactive mode activated by rd.kiwi.oem.installdevice
-
-   When setting `rd.kiwi.oem.installdevice` explicitly through the kernel command line,
-   {kiwi} uses the device without prompting for confirmation.
-
 ``rd.kiwi.oem.smallest_disk``
-  Alters the logic that chooses the destination device during non-interactive mode
-  deployments. The device with the smallest capacity gets selected instead of the drive
-  with the alphabetical first device name. USB flash drives are filtered out.
-  For big JBOD setups this parameter is an alternative to `rd.kiwi.oem.maxdisk`.
+  Alters the logic that chooses the destination device during non-interactive
+  mode deployments. The device with the smallest capacity gets selected
+  instead of the drive with the alphabetical first device name. USB flash
+  drives are filtered out. For big JBOD setups this parameter is an
+  alternative to `rd.kiwi.oem.maxdisk`.
 
 ``rd.live.overlay.size``
   Specifies the size for the `tmpfs` filesystem of a live ISO image that is used
