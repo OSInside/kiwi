@@ -3567,8 +3567,9 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
+    def __init__(self, archive=None, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
         self.original_tagname_ = None
+        self.archive = _cast(bool, archive)
         self.eficsmpart_id = _cast(None, eficsmpart_id)
         self.efipart_id = _cast(None, efipart_id)
         self.rootpart_id = _cast(None, rootpart_id)
@@ -3772,6 +3773,8 @@ class type_(GeneratedsSuper):
     def add_luksformat(self, value): self.luksformat.append(value)
     def insert_luksformat_at(self, index, value): self.luksformat.insert(index, value)
     def replace_luksformat_at(self, index, value): self.luksformat[index] = value
+    def get_archive(self): return self.archive
+    def set_archive(self, archive): self.archive = archive
     def get_eficsmpart_id(self): return self.eficsmpart_id
     def set_eficsmpart_id(self, eficsmpart_id): self.eficsmpart_id = eficsmpart_id
     def get_efipart_id(self): return self.efipart_id
@@ -4046,6 +4049,9 @@ class type_(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='type'):
+        if self.archive is not None and 'archive' not in already_processed:
+            already_processed.add('archive')
+            outfile.write(' archive="%s"' % self.gds_format_boolean(self.archive, input_name='archive'))
         if self.eficsmpart_id is not None and 'eficsmpart_id' not in already_processed:
             already_processed.add('eficsmpart_id')
             outfile.write(' eficsmpart_id=%s' % (quote_attrib(self.eficsmpart_id), ))
@@ -4360,6 +4366,15 @@ class type_(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('archive', node)
+        if value is not None and 'archive' not in already_processed:
+            already_processed.add('archive')
+            if value in ('true', '1'):
+                self.archive = True
+            elif value in ('false', '0'):
+                self.archive = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('eficsmpart_id', node)
         if value is not None and 'eficsmpart_id' not in already_processed:
             already_processed.add('eficsmpart_id')

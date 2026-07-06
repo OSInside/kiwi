@@ -86,6 +86,7 @@ def setup(app):
 prolog_replacements = {
     '{exc_image_base_name}': 'kiwi-test-image-some',
     '{exc_image_base_name_pxe}': 'kiwi-test-image-pxe',
+    '{exc_image_base_name_kis}': 'kiwi-test-image-kis',
     '{exc_image_base_name_vagrant}': 'kiwi-test-image-vagrant',
     '{exc_image_base_name_disk}': 'kiwi-test-image-disk',
     '{exc_image_base_name_disk_simple}': 'kiwi-test-image-disk-simple',
@@ -94,6 +95,7 @@ prolog_replacements = {
     '{exc_image_base_name_enclave}': 'kiwi-test-image-nitro-enclave',
     '{exc_netboot}': 'netboot/suse-tumbleweed',
     '{exc_description_pxe}': 'x86/tumbleweed/test-image-pxe',
+    '{exc_description_kis}': 'x86/tumbleweed/test-image-kis',
     '{exc_description_vagrant}': 'x86/leap/test-image-vagrant',
     '{exc_description_disk}': 'x86/leap/test-image-disk',
     '{exc_description_disk_simple}': 'x86/leap/test-image-disk-simple',

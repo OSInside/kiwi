@@ -517,8 +517,17 @@ bootstrap_package="package_name":
 
 compressed="true|false":
   Specifies whether the image output file should be
-  compressed or not. This option is only used for filesystem-only images or
-  for the `pxe` or `cpio` types.
+  compressed or not. This option is used for filesystem-only images or
+  for the `pxe`, `kis` or `cpio` types. When used with the `pxe` or `kis`
+  types, compression also applies to the tar archive that contains
+  the build results.
+
+archive="true|false":
+  Specifies whether the image output file should be an archive or not.
+  This option is only available for the `kis` type. When set to `true`,
+  all image build results will be placed into an archive file. When set
+  to `false`, the build results will stay as individual files in the
+  build directory. The default is `true`.
 
 editbootconfig="file_path":
   Specifies the path to a script that is called right

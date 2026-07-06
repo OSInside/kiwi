@@ -61,6 +61,8 @@ class KisBuilder:
         self.filesystem = FileSystemBuilder(
             xml_state, target_dir, root_dir + '/'
         ) if xml_state.build_type.get_filesystem() else None
+        self.archive = xml_state.build_type.get_archive() \
+            if xml_state.build_type.get_archive() is not None else True
         self.system_setup = SystemSetup(
             xml_state=xml_state, root_dir=root_dir
         )
@@ -230,37 +232,66 @@ class KisBuilder:
            and self.initrd_system == 'dracut':
             kis_tarball_files.append(os.path.basename(self.append_file))
 
-        kis_tarball = ArchiveTar(
-            self.archive_name,
-            create_from_file_list=True,
-            file_list=kis_tarball_files
-        )
-
-        if self.compressed:
-            self.archive_name = kis_tarball.create(self.target_dir)
-        else:
-            self.archive_name = kis_tarball.create_xz_compressed(
-                self.target_dir, xz_options=self.xz_options
+        if self.archive:
+            # Put all result files into a tar archive and add this
+            # one file to the result instance
+            kis_tarball = ArchiveTar(
+                self.archive_name,
+                create_from_file_list=True,
+                file_list=kis_tarball_files
             )
 
-        Result.verify_image_size(
-            self.runtime_config.get_max_size_constraint(),
-            self.archive_name
-        )
+            if self.compressed:
+                self.archive_name = kis_tarball.create(self.target_dir)
+            else:
+                self.archive_name = kis_tarball.create_xz_compressed(
+                    self.target_dir, xz_options=self.xz_options
+                )
+
+            Result.verify_image_size(
+                self.runtime_config.get_max_size_constraint(),
+                self.archive_name
+            )
+
+            # store archive file name in result
+            self.result.add(
+                key='kis_archive',
+                filename=self.archive_name,
+                use_for_bundle=True,
+                compress=self.runtime_config.get_bundle_compression(
+                    default=False
+                ),
+                shasum=True
+            )
+        else:
+            # Treat all result files individually and add them to the
+            # result instance. An eventually configured max size constraint
+            # applies to the rootfs image only
+            if self.image:
+                Result.verify_image_size(
+                    self.runtime_config.get_max_size_constraint(),
+                    self.image
+                )
+            for result_file in kis_tarball_files:
+                compress_file = False
+                filename = f'{self.target_dir}/{result_file}'
+                keyname = f'kis_{result_file.split(".").pop()}'
+                if self.image and filename == self.image:
+                    keyname = 'kis_rootfs'
+                    compress_file = self.runtime_config.get_bundle_compression(
+                        default=False
+                    )
+                self.result.add(
+                    key=keyname,
+                    filename=filename,
+                    use_for_bundle=True,
+                    compress=compress_file,
+                    shasum=False
+                )
+
         # store image bundle_format in result
         if self.bundle_format:
             self.result.add_bundle_format(self.bundle_format)
-
-        # # store archive file name in result
-        self.result.add(
-            key='kis_archive',
-            filename=self.archive_name,
-            use_for_bundle=True,
-            compress=self.runtime_config.get_bundle_compression(
-                default=False
-            ),
-            shasum=True
-        )
 
         # create image root metadata
         self.result.add(
