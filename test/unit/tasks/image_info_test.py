@@ -241,9 +241,8 @@ class TestImageInfoTask:
     @patch('kiwi.xml_state.XMLState.add_repository')
     @patch('kiwi.tasks.image_info.DataOutput')
     @patch('os.path.isfile')
-    @patch('os.unlink')
     def test_process_image_info_add_repo(
-        self, mock_os_unlink, mock_os_path_is_file, mock_out, mock_add_repo
+        self, mock_os_path_is_file, mock_out, mock_add_repo
     ):
         self._init_command_args()
         mock_os_path_is_file.return_value = False

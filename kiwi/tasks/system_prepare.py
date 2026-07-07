@@ -375,9 +375,8 @@ class SystemPrepareTask(CliTask):
             parameters[signing_keys_index] = []
         if credentials:
             if os.path.isfile(credentials):
-                credentials_data = open(credentials).readline().strip(os.linesep)
-                os.unlink(credentials)
-                credentials = credentials_data
+                with open(credentials) as credentials_fd:
+                    credentials = credentials_fd.readline().strip(os.linesep)
             repo_source = parameters[repo_source_index]
             repo_scheme = urlparse(repo_source).scheme
             if repo_scheme:
