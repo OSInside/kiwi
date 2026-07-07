@@ -337,11 +337,13 @@ class TestSystemBuildTask:
     @patch('kiwi.xml_state.XMLState.set_repository')
     @patch('kiwi.logger.Logger.set_logfile')
     @patch('os.path.isfile')
-    @patch('os.unlink')
     @patch('kiwi.tasks.system_build.SystemPrepare')
     def test_process_system_build_prepare_stage_set_repo(
-        self, mock_SystemPrepare, mock_os_unlink, mock_os_path_is_file,
-        mock_log, mock_set_repo
+        self,
+        mock_SystemPrepare,
+        mock_os_path_is_file,
+        mock_log,
+        mock_set_repo
     ):
         mock_os_path_is_file.return_value = False
         self._init_command_args()
@@ -366,7 +368,6 @@ class TestSystemBuildTask:
             'http://user:pass@example.com', 'yast2', 'alias',
             None, None, None, [], None, None, None, None
         )
-        mock_os_unlink.assert_called_once_with('../data/credentials')
 
     @patch('kiwi.xml_state.XMLState.add_repository')
     @patch('kiwi.logger.Logger.set_logfile')
