@@ -342,6 +342,29 @@ function check_image_fits_target {
     fi
 }
 
+function check_image_matches_target_blocksize {
+    declare kiwi_target_blocksize=${kiwi_target_blocksize}
+    local image_blocksize=${kiwi_target_blocksize}
+    local target_node
+    local target_blocksize
+    local message
+    target_node="${1}"
+    if [ -L "${target_node}" ];then
+        target_node="$(readlink "${target_node}")"
+    fi
+    target_node=$(basename "${target_node}")
+    target_blocksize="/sys/block/${target_node}/queue/physical_block_size"
+    mountpoint -q /sys || mount -t sysfs sysfs /sys
+    if [ -n "${image_blocksize}" ] && [ -e "${target_blocksize}" ];then
+        read -r target_blocksize < "${target_blocksize}"
+        if [ ! "${target_blocksize}" = "${image_blocksize}" ];then
+            message="Target blocksize(${target_blocksize}b) doesn't match"
+            message="${message} image blocksize(${image_blocksize}b)"
+            report_and_quit "${message}"
+        fi
+    fi
+}
+
 function dump_image {
     declare kiwi_oemsilentinstall=${kiwi_oemsilentinstall}
     declare kiwi_oemunattended=${kiwi_oemunattended}
@@ -366,6 +389,7 @@ function dump_image {
 
     # can we dump this
     check_image_fits_target "${image_target}"
+    check_image_matches_target_blocksize "${image_target}"
 
     # select dump method
     if [ -n "${image_from_remote}" ];then

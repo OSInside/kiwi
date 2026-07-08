@@ -313,7 +313,7 @@ class Profile:
         self.dot_profile['kiwi_ramonly'] = \
             type_section.get_ramonly()
         self.dot_profile['kiwi_target_blocksize'] = \
-            type_section.get_target_blocksize()
+            type_section.get_target_blocksize() or '512'
         self.dot_profile['kiwi_target_removable'] = \
             type_section.get_target_removable()
         self.dot_profile['kiwi_cmdline'] = \

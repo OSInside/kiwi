@@ -185,7 +185,7 @@ class TestImageInfoTask:
                         ('kiwi_strip_delete', ''),
                         ('kiwi_strip_libs', ''),
                         ('kiwi_strip_tools', ''),
-                        ('kiwi_target_blocksize', ''),
+                        ('kiwi_target_blocksize', '512'),
                         ('kiwi_target_removable', ''),
                         ('kiwi_timezone', 'Europe/Berlin'),
                         ('kiwi_type', 'iso'),
