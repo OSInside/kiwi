@@ -3414,6 +3414,17 @@ container image created by Kiwi.  Default is true.</a:documentation>
         <sch:param name="types" value="docker oci"/>
       </sch:pattern>
     </define>
+    <define name="k.type.archive.attribute">
+      <attribute name="archive">
+        <a:documentation>Specifies to archive the image result files into a tarball.
+The option is only available for the kis image type</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="archive" is-a="image_type">
+        <sch:param name="attr" value="archive"/>
+        <sch:param name="types" value="kis"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.publisher.attribute">
       <attribute name="publisher">
         <a:documentation>Specifies the publisher name of the ISO.</a:documentation>
@@ -3527,9 +3538,12 @@ partition if present</a:documentation>
     <define name="k.type.attlist">
       <interleave>
         <optional>
-          <ref name="k.type.eficsmpart_id.attribute">
+          <ref name="k.type.archive.attribute">
             <a:documentation>Specifies the image type</a:documentation>
           </ref>
+        </optional>
+        <optional>
+          <ref name="k.type.eficsmpart_id.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.efipart_id.attribute"/>

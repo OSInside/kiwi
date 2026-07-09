@@ -42,6 +42,16 @@ as part of the image description.
 The following attributes of the `type` element are often used when
 building KIS images:
 
+- `archive`: By default the output files of a KIS image will be stored
+  in a tarball archive. If you want to store the output files
+  individually instead, set this attribute to `false`.
+
+- `compressed`: By default the output files of a KIS image will be tar
+  archived and compressed. If you want to store the output files in
+  the archive without compression, set this attribute to `false`.
+  If the `archive` attribute is set to `false`, this attribute has no
+  effect.
+
 - `filesystem`: Specifies the root filesystem and triggers the build
   of an additional filesystem image of that filesystem. The generated
   kernel command-line options file (append file) will then also
@@ -64,7 +74,7 @@ build the image:
 .. code:: bash
 
    $ sudo kiwi-ng --type kis system build \
-       --description kiwi/build-tests/{exc_description_pxe} \
+       --description kiwi/build-tests/{exc_description_kis} \
        --set-repo {exc_repo_tumbleweed} \
        --target-dir /tmp/myimage
 
@@ -78,14 +88,14 @@ tested with QEMU as follows:
        -kernel /tmp/myimage/*.kernel \
        -initrd /tmp/myimage/*.initrd \
        -append "$(cat /tmp/myimage/*.append) rw" \
-       -drive file=/tmp/myimage/{exc_image_base_name_pxe}.*-{exc_image_version},if=virtio,driver=raw \
+       -drive file=/tmp/myimage/{exc_image_base_name_kis}.*.ext3,if=virtio,driver=raw \
        -serial stdio
 
 .. note::
 
    Testing the components of a KIS image normally requires a deployment
-   infrastructure and a deployment process. An example of a deployment
-   infrastructure using PXE is provided by {kiwi} with the `netboot`
-   infrastructure. However, that netboot infrastructure is no longer developed
-   and is only kept for compatibility reasons. For details, see
-   :ref:`build_legacy_pxe`.
+   infrastructure and a deployment process encoded in the initrd. An example
+   of a deployment infrastructure using PXE is provided by {kiwi} with
+   the `netboot` infrastructure. However, that netboot infrastructure is
+   no longer developed and is only kept for compatibility reasons.
+   For details, see :ref:`build_legacy_pxe`.

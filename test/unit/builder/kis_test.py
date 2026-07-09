@@ -86,7 +86,7 @@ class TestKisBuilder:
             self.xml_state, 'target_dir', 'root_dir',
             custom_args={'signing_keys': ['key_file_a', 'key_file_b']}
         )
-        self.kis.image_name = 'myimage'
+        self.kis.image_name = 'target_dir/myimage'
         self.kis.compressed = True
 
     @patch('kiwi.builder.kis.FileSystemBuilder')
@@ -113,20 +113,15 @@ class TestKisBuilder:
         with self._caplog.at_level(logging.WARNING):
             KisBuilder(self.xml_state, 'target_dir', 'root_dir')
 
-    @patch('kiwi.builder.kis.Compress')
-    @patch('kiwi.builder.kis.ArchiveTar')
     @patch('os.rename')
-    def test_create(
-        self, mock_rename, mock_tar, mock_compress
+    def test_create_no_archive(
+        self, mock_rename
     ):
-        tar = Mock()
-        mock_tar.return_value = tar
-        compress = Mock()
-        mock_compress.return_value = compress
-        compress.xz.return_value = 'compressed-file-name'
         self.boot_image_task.required = Mock(
             return_value=True
         )
+        self.kis.archive = False
+        self.kis.compressed = False
 
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
@@ -141,14 +136,67 @@ class TestKisBuilder:
 
         self.filesystem.create.assert_called_once_with()
         mock_rename.assert_called_once_with(
-            'myimage.fs', 'myimage'
+            'myimage.fs', 'target_dir/myimage'
+        )
+        assert self.runtime_config.get_checksum_handler.call_args_list == [
+            call('target_dir/myimage'),
+            call(
+                source_filename='target_dir/myimage',
+                target_filename='target_dir/myimage.sha256'
+            ),
+            call('target_dir/myimage-42.kernel')
+        ]
+        self.shasum.digest.assert_called_once_with()
+        self.boot_image_task.prepare.assert_called_once_with()
+        self.setup.export_modprobe_setup.assert_called_once_with(
+            'initrd_dir'
+        )
+        self.boot_image_task.create_initrd.assert_called_once_with()
+        self.setup.export_package_list.assert_called_once_with(
+            'target_dir'
+        )
+        self.setup.export_package_verification.assert_called_once_with(
+            'target_dir'
+        )
+
+    @patch('kiwi.builder.kis.Compress')
+    @patch('kiwi.builder.kis.ArchiveTar')
+    @patch('os.rename')
+    def test_create(
+        self, mock_rename, mock_tar, mock_compress
+    ):
+        tar = Mock()
+        mock_tar.return_value = tar
+        compress = Mock()
+        mock_compress.return_value = compress
+        compress.xz.return_value = 'compressed-file-name'
+        self.boot_image_task.required = Mock(
+            return_value=True
+        )
+        self.kis.archive = True
+        self.kis.compressed = True
+
+        m_open = mock_open()
+        with patch('builtins.open', m_open, create=True):
+            self.kis.create()
+
+        m_open.assert_called_once_with(
+            'target_dir/some-image.x86_64-1.2.3.append', 'w'
+        )
+        m_open.return_value.write.assert_called_once_with(
+            'root=UUID=some_uuid console=hvc0'
+        )
+
+        self.filesystem.create.assert_called_once_with()
+        mock_rename.assert_called_once_with(
+            'myimage.fs', 'target_dir/myimage'
         )
         compress.xz.assert_called_once_with(None)
         assert self.runtime_config.get_checksum_handler.call_args_list == [
             call('compressed-file-name'),
             call(
                 source_filename='compressed-file-name',
-                target_filename='myimage.sha256'
+                target_filename='target_dir/myimage.sha256'
             ),
             call('target_dir/myimage-42.kernel')
         ]
