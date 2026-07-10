@@ -1274,6 +1274,9 @@ class TestXMLState:
         mock_bootloader.return_value = [self.bootloader]
         assert self.state.get_build_type_bootloader_video_mode() == \
             '800x600'
+        self.bootloader.get_video_mode.return_value = None
+        assert self.state.get_build_type_bootloader_video_mode() == \
+            'auto'
         mock_bootloader.return_value = [None]
         assert self.state.get_build_type_bootloader_video_mode() == \
             'auto'
