@@ -1247,8 +1247,8 @@ class XMLState:
         :rtype: str
         """
         bootloader = self.get_build_type_bootloader_section()
-        if bootloader:
-            return bootloader.get_video_mode()
+        if bootloader and (video_mode := bootloader.get_video_mode()):
+            return video_mode
         return 'auto'
 
     def get_build_type_bootloader_timeout(self) -> Optional[str]:
