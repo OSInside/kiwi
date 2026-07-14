@@ -230,8 +230,29 @@ the available kernel boot parameters for these modules:
   the type setup of the image description. The implementation
   also checks if the start address of the last partition on the
   target disk matches the start address of the image to be
-  deployed. Only if they match can the data on the last partition
-  be retained.
+  deployed. Only if they match the data on the last partition
+  can be retained.
+
+``rd.kiwi.install.retain_past``
+  Instructs an OEM installation to retain the contents of the
+  last partition on the target disk in a less strict mode than
+  it is the case with `rd.kiwi.install.retain_last`. In the retain_past
+  mode the partition to preserve must not be part of the initial image.
+  It can retain the content of any last partition if its start address
+  is past the OS image.
+
+  .. note:: Retain Past Mode Limitations
+
+     There are no sanity checks for the partition to retain in this mode.
+     From an implementation perspective {kiwi-ng} simply takes the last
+     partition prior dump as reported by sfdisk and rebuilds this partition
+     after the OS image is deployed. This can lead to a gap in the partition
+     table between the OS end and the start of the retained partition. There
+     is also no sanity checking when there are multiple partitions after the
+     OS image. In this case, the last partition is retained, and all other
+     partitions are removed. In constrast to `rd.kiwi.install.retain_last`,
+     there is no tight coupling to the OS image partition table layout and
+     as such `rd.kiwi.install.retain_last` should be used with caution.
 
 ``rd.kiwi.oem.luks.reencrypt``
   For OEM LUKS2-encrypted disk images. If set, it re-encrypts the disk
