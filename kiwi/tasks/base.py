@@ -56,9 +56,6 @@ class CliTask:
         # initialize runtime checker
         self.runtime_checker: Optional[RuntimeChecker] = None
 
-        # help requested
-        self.cli.show_and_exit_on_help_request()
-
         # load/import task module
         self.task = self.cli.load_command()
 
