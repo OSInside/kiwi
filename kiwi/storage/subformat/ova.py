@@ -123,7 +123,10 @@ class DiskFormatOva(DiskFormatBase):
 
     def _create_ova_compose_meta_file(self) -> None:
         """
-        Create the ova-compose meta file used to create the final ova file
+        Create the ova-compose meta file used to create the final ova file.
+
+        This method mirrors the logic from DiskFormatVmdk._create_vmware_settings_file()
+        to ensure consistent hardware configuration between VMX and Meta files.
         """
         displayname = self.xml_state.xml_data.get_displayname()
         efi_mode = self.firmware.efi_mode()
@@ -132,19 +135,26 @@ class DiskFormatOva(DiskFormatBase):
                 displayname or self.xml_state.xml_data.get_name(),
             'vmdk_file':
                 os.path.basename(self.get_target_file_path_for_format('vmdk')),
-            'guest_os': 'other4xLinux64Guest',
+            'virtual_hardware_version': '9',
+            'guest_os': 'suse-64',
+            'disk_id': '0',
             'memory_size': 4096,
             'number_of_cpus': 2,
             'firmware': 'efi' if efi_mode else 'bios',
             'secure_boot': 'true' if efi_mode == 'uefi' else 'false'
         }
 
-        # Basic setup
+        # Basic setup - extract memory, guest OS, and CPU configuration
         machine_setup = self.xml_state.get_build_type_machine_section()
+        memory_setup = None
+        cpu_setup = None
         if machine_setup:
             memory_setup = machine_setup.get_memory()
+            hardware_version = machine_setup.get_HWversion()
             guest_os = machine_setup.get_guestOS()
             cpu_setup = machine_setup.get_ncpus()
+            if hardware_version:
+                template_record['virtual_hardware_version'] = hardware_version
             if guest_os:
                 template_record['guest_os'] = guest_os
             if memory_setup:
@@ -152,9 +162,43 @@ class DiskFormatOva(DiskFormatBase):
             if cpu_setup:
                 template_record['number_of_cpus'] = cpu_setup
 
+        # CD/DVD setup
+        iso_setup = self.xml_state.get_build_type_vmdvd_section()
+        iso_controller = 'ide'
+        iso_id = '0'
+        if iso_setup:
+            iso_controller = iso_setup.get_controller() or iso_controller
+            iso_id = iso_setup.get_id() or iso_id
+
+        # Disk setup
+        disk_controller = None
+        disk_id = '0'
+        disk_setup = self.xml_state.get_build_type_vmdisk_section()
+        if disk_setup:
+            disk_controller = disk_setup.get_controller()
+            disk_id = disk_setup.get_id() or disk_id
+
+        # Network setup
+        network_entries = self.xml_state.get_build_type_vmnic_entries()
+        network_setup = {}
+        if network_entries:
+            for network_entry in network_entries:
+                network_setup[network_entry.get_interface() or '0'] = {
+                    'driver': network_entry.get_driver(),
+                    'connection_type': network_entry.get_mode(),
+                    'mac': network_entry.get_mac() or 'generated'
+                }
+
         # Build settings template and write settings file
         settings_template = OvaComposeTemplate().get_template(
-            bool(machine_setup)
+            memory_setup,
+            cpu_setup,
+            network_setup,
+            bool(iso_setup),
+            disk_controller=disk_controller,
+            iso_controller=iso_controller,
+            disk_id=disk_id,
+            iso_id=iso_id
         )
         try:
             settings_file = self.get_target_file_path_for_format('meta')

@@ -194,3 +194,89 @@ class TestDiskFormatOva:
         mock_Path_which.return_value = None
         with raises(KiwiCommandNotFound):
             self.disk_format.create_image_format()
+
+    @patch('kiwi.storage.subformat.ova.OvaComposeTemplate.get_template')
+    def test_create_ova_compose_meta_file_with_disk_controller(self, mock_get_template):
+        """Test that disk controller and disk id are passed to OvaComposeTemplate"""
+        self.disk_setup.get_controller.return_value = 'lsilogic'
+        self.disk_setup.get_id.return_value = '7'
+        template = Mock()
+        mock_get_template.return_value = template
+        template.substitute.return_value = 'meta_content'
+
+        with patch('builtins.open', create=True):
+            self.disk_format._create_ova_compose_meta_file()
+            # Verify OvaComposeTemplate.get_template was called with disk setup
+            mock_get_template.assert_called_once()
+            call_args = mock_get_template.call_args
+            assert call_args[1]['disk_controller'] == 'lsilogic'
+            assert call_args[1]['disk_id'] == '7'
+
+    @patch('kiwi.storage.subformat.ova.OvaComposeTemplate.get_template')
+    def test_create_ova_compose_meta_file_with_nic_driver(self, mock_get_template):
+        """Test that NIC settings are passed to OvaComposeTemplate"""
+        self.network_setup[0].get_driver.return_value = 'e1000'
+        self.network_setup[0].get_interface.return_value = '2'
+        self.network_setup[0].get_mode.return_value = 'bridged'
+        self.network_setup[0].get_mac.return_value = '00:11:22:33:44:55'
+        template = Mock()
+        mock_get_template.return_value = template
+        template.substitute.return_value = 'meta_content'
+
+        with patch('builtins.open', create=True):
+            self.disk_format._create_ova_compose_meta_file()
+            # Verify OvaComposeTemplate.get_template was called with network setup
+            mock_get_template.assert_called_once()
+            call_args = mock_get_template.call_args
+            assert call_args[0][2] == {
+                '2': {
+                    'driver': 'e1000',
+                    'connection_type': 'bridged',
+                    'mac': '00:11:22:33:44:55'
+                }
+            }
+
+    @patch('kiwi.storage.subformat.ova.OvaComposeTemplate.get_template')
+    def test_create_ova_compose_meta_file_with_no_controllers(self, mock_get_template):
+        """Test that defaults are used when no optional setup is configured"""
+        self.disk_setup.get_controller.return_value = None
+        self.disk_setup.get_id.return_value = None
+        self.iso_setup.get_controller.return_value = None
+        self.iso_setup.get_id.return_value = None
+        self.network_setup = []
+        self.xml_state.get_build_type_vmnic_entries.return_value = self.network_setup
+        template = Mock()
+        mock_get_template.return_value = template
+        template.substitute.return_value = 'meta_content'
+
+        with patch('builtins.open', create=True):
+            self.disk_format._create_ova_compose_meta_file()
+            # Verify OvaComposeTemplate.get_template was called with defaults
+            mock_get_template.assert_called_once()
+            call_args = mock_get_template.call_args
+            assert call_args[1]['disk_controller'] is None
+            assert call_args[1]['disk_id'] == '0'
+            assert call_args[1]['iso_controller'] == 'ide'
+            assert call_args[1]['iso_id'] == '0'
+            assert call_args[0][2] == {}
+
+    @patch('kiwi.storage.subformat.ova.OvaComposeTemplate.get_template')
+    def test_create_ova_compose_meta_file_memory_cpu_extraction(self, mock_get_template):
+        """Test that memory and CPU configuration are correctly extracted"""
+        self.machine_setup.get_memory.return_value = '8192'
+        self.machine_setup.get_ncpus.return_value = '4'
+        self.machine_setup.get_guestOS.return_value = 'ubuntu64Guest'
+        template = Mock()
+        mock_get_template.return_value = template
+        template.substitute.return_value = 'meta_content'
+
+        with patch('builtins.open', create=True) as mock_open:
+            self.disk_format._create_ova_compose_meta_file()
+            # Verify template.substitute was called with correct values
+            template.substitute.assert_called_once()
+            call_args = template.substitute.call_args[0][0]
+            assert call_args['memory_size'] == '8192'
+            assert call_args['number_of_cpus'] == '4'
+            assert call_args['guest_os'] == 'ubuntu64Guest'
+            # Verify meta file was opened for writing
+            mock_open.assert_called_once()
