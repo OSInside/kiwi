@@ -16,7 +16,9 @@ echo "PermitRootLogin yes" > /etc/ssh/sshd_config.d/root.conf
 #======================================
 # load virtio_mmio
 #--------------------------------------
-echo virtio_mmio > /etc/modules-load.d/virtio-mmio.conf
+if [ -d /etc/modules-load.d ];then
+    echo virtio_mmio > /etc/modules-load.d/virtio-mmio.conf
+fi
 
 #======================================
 # autologin on tty1/serial
