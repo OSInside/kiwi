@@ -361,11 +361,6 @@ Requires:       kiwi-systemdeps-iso-media = %{version}-%{release}
 Requires:       binutils
 Requires:       glibc-gconv-modules-extra
 %endif
-%if 0%{?suse_version}
-Requires:       gptfdisk
-%else
-Requires:       gdisk
-%endif
 Requires:       lvm2
 Requires:       kpartx
 Requires:       cryptsetup
@@ -514,15 +509,12 @@ Requires:       btrfs-progs
 %else
 Recommends:     btrfs-progs
 %endif
-Requires:       gdisk
 Requires:       dracut-network
 %else
 %if 0%{?debian} || 0%{?ubuntu}
 Recommends:     btrfs-tools
-Requires:       gdisk
 %else
 Requires:       btrfsprogs
-Requires:       gptfdisk
 %endif
 %endif
 Requires:       coreutils

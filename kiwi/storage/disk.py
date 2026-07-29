@@ -17,6 +17,7 @@
 #
 import os
 import logging
+import shlex
 from collections import OrderedDict
 from typing import (
     Dict, NamedTuple, Tuple, Optional
@@ -554,9 +555,19 @@ class Disk(DeviceProvider):
                 log.debug('potential fdasd errors were ignored')
         else:
             log.debug('Initialize %s disk', self.table_type)
+            sfdisk_input = Temporary().new_file()
+            label_type = 'dos' if self.table_type == 'msdos' else self.table_type
+            with open(sfdisk_input.name, 'w') as partition:
+                partition.write(f'label: {label_type}\n')
             Command.run(
                 [
-                    'sgdisk', '--zap-all', self.storage_provider.get_device()
+                    'bash', '-c', ' '.join(
+                        [
+                            'sfdisk', '--wipe', 'always',
+                            shlex.quote(self.storage_provider.get_device()),
+                            '<', shlex.quote(sfdisk_input.name)
+                        ]
+                    )
                 ]
             )
 

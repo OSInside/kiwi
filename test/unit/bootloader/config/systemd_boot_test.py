@@ -237,7 +237,7 @@ class TestBootLoaderSystemdBoot:
         ]
         assert mock_Command_run.call_args_list == [
             call(['qemu-img', 'create', 'ESP', '20M']),
-            call(['sgdisk', '-n', ':1.0', '-t', '1:EF00', 'ESP']),
+            call(['bash', '-c', "printf 'label: gpt\nsize=+, type=U\n' | sfdisk ESP"]),
             call(
                 ['mkdosfs', '-n', 'BOOT', 'efi_device']
             ),
