@@ -1,13 +1,14 @@
 xz:
-  options: -a -b xxx
+  options: --foo
 
 shasum:
-  size: "512"
+  size: "256"
 
 bundle:
   shasum_size: "256"
+  compress: false
 
 runtime_checks:
   disable:
     - check_container_tool_chain_installed
-    - check_repositories_configured
+    - check_boot_description_exists

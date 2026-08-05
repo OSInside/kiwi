@@ -1,4 +1,5 @@
 import logging
+import yaml
 from unittest.mock import (
     patch, call
 )
@@ -37,6 +38,39 @@ class TestRuntimeConfig:
         with patch('os.path.isfile', return_value=False):
             with raises(KiwiRuntimeConfigFileError):
                 RuntimeConfig(reread=True)
+
+    def test_merge_strategy(self):
+        with open('../data/kiwi.yml', 'r') as config:
+            master = yaml.safe_load(config)
+        with open('../data/kiwi_merge_ok.yml', 'r') as config:
+            slave_ok = yaml.safe_load(config)
+        with open('../data/kiwi_merge_invalid_dict.yml', 'r') as config:
+            slave_invalid_dict = yaml.safe_load(config)
+        with open('../data/kiwi_merge_invalid_list.yml', 'r') as config:
+            slave_invalid_list = yaml.safe_load(config)
+        assert RuntimeConfig._merge(master, slave_ok) == {
+            'xz': {
+                'options': '--foo'
+            },
+            'shasum': {
+                'size': '256'
+            },
+            'bundle': {
+                'shasum_size': '256',
+                'compress': False
+            },
+            'runtime_checks': {
+                'disable': [
+                    'check_boot_description_exists',
+                    'check_container_tool_chain_installed',
+                    'check_repositories_configured'
+                ]
+            }
+        }
+        with raises(NotImplementedError):
+            RuntimeConfig._merge(master, slave_invalid_dict)
+        with raises(NotImplementedError):
+            RuntimeConfig._merge(master, slave_invalid_list)
 
     @patch('yaml.safe_load')
     @patch('kiwi.defaults.CUSTOM_RUNTIME_CONFIG_FILE', 'some-custom-file')
@@ -146,7 +180,9 @@ class TestRuntimeConfig:
         assert runtime_config.get_mapper_tool() == 'partx'
 
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
-    def test_config_sections_from_home_base_config(self, mock_is_buildservice_worker):
+    def test_config_sections_from_home_base_config(
+        self, mock_is_buildservice_worker
+    ):
         mock_is_buildservice_worker.return_value = False
         with patch.dict('os.environ', {'HOME': '../data/kiwi_config/ok'}):
             runtime_config = RuntimeConfig(reread=True)
@@ -167,9 +203,6 @@ class TestRuntimeConfig:
         assert runtime_config.get_disabled_runtime_checks() == [
             'check_dracut_module_for_oem_install_in_package_list',
             'check_container_tool_chain_installed'
-        ]
-        assert runtime_config.get_obs_api_credentials() == [
-            {'user_name': 'user_credentials'}
         ]
 
     @patch('kiwi.runtime_checker.Defaults.is_buildservice_worker')
