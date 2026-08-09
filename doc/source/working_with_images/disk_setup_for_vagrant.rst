@@ -109,8 +109,8 @@ steps are required:
 
    .. code:: xml
 
-      <users group='vagrant'>
-          <user name='vagrant' password='vh4vw1N4alxKQ' home='/home/vagrant'/>
+      <users>
+          <user name='vagrant' password='vh4vw1N4alxKQ' home='/home/vagrant' groups='vagrant'/>
       </users>
 
    This adds the **vagrant** user to the system and applies the

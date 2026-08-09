@@ -14,6 +14,7 @@ SYNOPSIS
    kiwi-ng [--profile=<name>...]
            [--setenv=<variable=value>...]
            [--temp-dir=<directory>]
+           [--target-arch=<name>]
            [--type=<build_type>]
            [--logfile=<filename>]
            [--logsocket=<socketfile>]
@@ -96,15 +97,21 @@ GLOBAL OPTIONS
 
 --config=<configfile>
 
-  Use the specified runtime configuration file. If not specified, the
-  runtime configuration is looked up at :file:`~/.config/kiwi/config.yml`
-  or :file:`/etc/kiwi.yml` or :file:`/usr/share/kiwi/kiwi.yml`.
-  If the runtime configuration file is located at :file:`/etc/kiwi.yml`,
-  the system will also check for extra configuration files in
-  :file:`/etc/kiwi.yml.d/`. Similarly, if the main file is at
-  :file:`/usr/share/kiwi/kiwi.yml`, it will look for additional files in
-  :file:`/usr/share/kiwi/kiwi.yml.d/`. All `.yml` files in these directories are
-  loaded in alphabetical order and combined into the final configuration.
+  Use the specified runtime configuration file. This does not replace the
+  standard lookup: the files settings take the highest precedence. A path that
+  does not exist is an error.
+
+  Independent of `--config`, {kiwi} always reads and merges every one of the
+  following files that exist, with later entries overriding earlier ones:
+  :file:`/usr/share/kiwi/kiwi.yml`, every :file:`*.yml` in
+  :file:`/usr/share/kiwi/kiwi.yml.d/` (alphabetically), :file:`/etc/kiwi.yml`,
+  every :file:`*.yml` in :file:`/etc/kiwi.yml.d/` (alphabetically), and
+  :file:`~/.config/kiwi/config.yml`. Both drop-in directories are scanned
+  whether or not the corresponding main file exists.
+
+  Merging happens at the top level only: a file that defines a section replaces
+  that whole section from earlier files, rather than merging the keys inside it.
+  See :ref:`runtime_config` for further details.
 
 --debug
 
@@ -162,6 +169,7 @@ GLOBAL OPTIONS
   is shared via bind mount between the build host and image
   root system, and it contains information about package repositories
   and their cache and metadata. The default location is `/var/cache/kiwi`.
+  This option is only accepted for the `system` service.
 
 --temp-dir=<directory>
 
@@ -189,9 +197,13 @@ GLOBAL OPTIONS
   configuration elements. If not specified, kiwi uses
   a file named `config.xml` or a file matching `*.kiwi`.
 
---version
+-v, --version
 
   Show the program version.
+
+help
+
+  Show the manual page for the given service and command.
 
 .. _db_commands_kiwi_example:
 

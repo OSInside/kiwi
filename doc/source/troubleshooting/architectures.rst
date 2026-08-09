@@ -12,7 +12,7 @@ aarch64 image would require some work on binutils and hacks as well as
 performance tweaks, which is all not worth the effort and can still lead
 to broken results. Thus, we recommend providing native systems for the
 target architecture and building there. One possible alternative is to
-use the kiwi boxed plugin, as mentioned above, together with a box
+use the {kiwi} boxed plugin (see :ref:`self_contained`), together with a box
 created for the desired architecture. However, keep in mind the
 performance problematic when running a VM of a different
 architecture.

@@ -52,6 +52,11 @@ when building simple disk images:
   `gce`, `ova`, `qcow2`, `vagrant`, `vmdk`, `vdi`, `vhd`, `vhdx`, and
   `vhd-fixed`.
 
+  In addition, a disk can be wrapped into a container by prefixing the format
+  with `oci:` or `docker:`, for example `format="oci:qcow2"`. The permitted
+  sub-formats are `gce`, `ova`, `qcow2`, `vmdk`, `vdi`, `vhd`, `vhdx`,
+  `vhd-fixed` and `raw`. Note that `vagrant` cannot be used as a sub-format.
+
 - `formatoptions`: Specifies additional format options passed to
   :command:`qemu-img`. `formatoptions` is a comma-separated list of format-
   specific options in a `name=value` format, as expected by
@@ -167,7 +172,7 @@ The following attributes are supported by the `machine` element:
   information on the supported values.
 
 - `arch`: the VM architecture (`vmdk` format only). Valid values are
-  `ix86` (= `i585` and `i686`) and `x86_64`.
+  `ix86` (= `i586` and `i686`) and `x86_64`.
 
 - `xen_loader`: the Xen target loader that is expected to load the guest.
   Valid values are `hvmloader`, `pygrub`, and `pvgrub`.
@@ -264,9 +269,9 @@ files.
 Specifying Disks and Disk Controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `vmdisk` element can be used to customize the disks and disk controllers for
-the virtual machine. This element can be specified for each disk or disk
-controller present.
+The `vmdisk` element can be used to customize the disk and disk controller for
+the virtual machine. At most one `vmdisk` element may be specified per `machine`
+element.
 
 Note that this element is used for `vmdk` and `ova` image formats only.
 
@@ -304,10 +309,10 @@ attributes:
 Adding CD/DVD Drives
 ^^^^^^^^^^^^^^^^^^^^
 
-{kiwi} supports adding IDE and SCSCI CD/DVD drives to the virtual
-machine using the `vmdvd` element for the `vmdk` image format. The
-following example adds two drives: one with a SCSCI and another with an
-IDE controller:
+{kiwi} supports adding one IDE or SCSI CD/DVD drive to the virtual
+machine using the `vmdvd` element for the `vmdk` image format. At most one
+`vmdvd` element may be specified per `machine` element. The following example
+adds a single drive with a SCSI controller:
 
 .. code:: xml
 
@@ -315,7 +320,6 @@ IDE controller:
      <type image="oem" filesystem="ext4">
        <machine memory="512" xen_loader="hvmloader">
          <vmdvd id="0" controller="scsi"/>
-         <vmdvd id="1" controller="ide"/>
        </machine>
      </type>
    </preferences>

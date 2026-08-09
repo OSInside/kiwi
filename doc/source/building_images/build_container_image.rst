@@ -25,6 +25,11 @@ specified.
 
 * ``name``: Specifies the repository name of the container image.
 * ``tag``: Sets the tag of the container image.
+* ``additionalnames``: Additional fully qualified names for the image, given
+  as a comma-separated list of ``repository:tag`` entries. An entry that
+  starts with ``:`` adds another tag for the primary repository name, for
+  example ``:latest,:stable``.
+  This attribute is only applied for the image type ``docker-archive``.
 * ``maintainer``: Specifies the author of the container. Equivalent to the
   `MAINTAINER` directive in a :file:`Dockerfile`.
 * ``user``: Sets the user name or user id (UID) to be used when

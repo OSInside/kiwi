@@ -1,9 +1,10 @@
 # KIWI - Build configuration file
 #
 # Below all configuration parameters available to control
-# KIWI's build process are listed as comments. The values
-# used here provides the default values applied by KIWI if
-# no other information is specified.
+# KIWI's build process are listed as comments. The values shown
+# are representative examples. For most settings the value shown
+# is also the default applied by KIWI when nothing is specified,
+# but a few settings are context dependent (noted explicitly)
 #
 # To make any of the below effective, please uncomment the
 # respective section(s) and adapt the parameters according
@@ -19,6 +20,11 @@
 #obs:
 #  # Specify the URL of the Open BuildService download server
 #  - download_url: http://download.opensuse.org/repositories
+#  # Specify the URL of the Open BuildService API server
+#  - api_url: https://api.opensuse.org
+#  # Specify Open BuildService API credentials, one mapping per user
+#  - user:
+#      - user_name: user_credentials
 #  # Specify if the BuildService download server is public or private.
 #  # This information is used to verify if the request to populate
 #  # the repositories via the imageinclude attribute is possible
@@ -29,17 +35,25 @@
 #bundle:
 #  # Specify if the bundle tarball should contain compressed results.
 #  # Note: Already compressed result information will not be touched.
-#  # Build results that generate an encrypted filesystem, i.e.
-#  # luks setup, will not be compressed. The intention for result compression
-#  # is to produce a smaller representation of the original. Encrypted data
-#  # generally grows when an attempt is made to compress the data. This is
-#  # due to the nature of compression algorithms. Therefore this setting is
-#  # ignored when encryption is enabled.
-#  - compress: false
+#  # There is no single default for this setting. The effective default
+#  # depends on the image and its subformat: raw disk, filesystem images,
+#  # vhdfixed and any disk subformat that does not override the generic
+#  # base default to compressed, while vmdk, qcow2, ova, kis and enclave
+#  # default to uncompressed. Setting this key forces the value for all
+#  # of them.
+#  # The intention for result compression is to produce a smaller
+#  # image than the original. Encrypted data generally grows when an
+#  # attempt is made to compress it. Therefore this setting is ignored for
+#  # filesystem images and for disk subformats derived from the generic base,
+#  # including vhdfixed and vmdk, when a luks setup is present. For raw disks
+#  # the override additionally requires luks_randomize.
+#  - compress: true
 #  # Specify if the image build result and bundle should contain
 #  # a .changes file. The .changes file contains the package changelog
 #  # information from all packages installed into the image.
-#  - has_package_changes: false
+#  # Default: true. Automatically false when building inside the Open
+#  # Build Service, which provides an equivalent .report file itself.
+#  - has_package_changes: true
 #  # Specify shasum size for the bundle creation. Supported values
 #  # are "256" (default) and "512". This value takes precedence
 #  # over the global shasum size specified in the shasum section.
@@ -99,6 +113,7 @@
 #mapper:
 #  # Specify tool to use for creating partition maps
 #  # Possible values are: kpartx and partx
+#  # Default: partx, except on s390 where the default is kpartx
 #  - part_mapper: partx
 
 # Setup process parameters to handle runtime checks
@@ -156,9 +171,6 @@
 #      # verify dracut-kiwi-oem-dump is installed for OEM install images
 #      - check_dracut_module_for_oem_install_in_package_list
 
-#      # verify configured firmware is compatible with host architecture
-#      - check_architecture_supports_iso_firmware_setup
-
 #      # verify WSL naming conventions
 #      - check_appx_naming_conventions_valid
 
@@ -179,3 +191,18 @@
 
 #      # check efifatimagesize does not exceed the max El Torito load size
 #      - check_efi_fat_image_has_correct_size
+
+#      # check the target directory is not inside the shared cache directory
+#      - check_target_directory_not_in_shared_cache
+
+#      # check the swap partition name is only used with an LVM setup
+#      - check_swap_name_used_with_lvm
+
+#      # check the image description provides a version
+#      - check_image_version_provided
+
+#      # check no two build types with the same image attribute are selected
+#      - check_image_type_unique
+
+#      # check the bootloader environment is compatible with the loader
+#      - check_bootloader_env_compatible_with_loader

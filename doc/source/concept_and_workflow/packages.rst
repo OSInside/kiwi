@@ -27,8 +27,9 @@ that instruct {kiwi} when and how to perform package installation or
 removal. Each `packages` element acts as a group whose behavior can be
 configured via the following attributes:
 
-- `type`: either `bootstrap`, `image`, `delete`, `uninstall` or one of the
-  following build types: `docker`, `iso`, `oem`, `kis`, `oci`.
+- `type`: either `bootstrap`, `image`, `delete`, `uninstall`, `systemfiles`
+  or one of the following build types: `docker`, `iso`, `oem`, `pxe`, `kis`,
+  `oci`.
 
   Packages for `type="bootstrap"` are pre-installed to populate the image's
   root filesystem before chrooting into it.

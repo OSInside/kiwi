@@ -91,8 +91,8 @@ The notable differences to running {kiwi} locally include:
 
   There are two options to build multiple profiles on OBS:
 
-  1. Use the `<image>` element and add it below the XML
-     declaration (`<?xml ..?>`):
+  1. Add the `OBS-Profiles` XML comment between the XML declaration
+     (`<?xml ..?>`) and the opening `<image>` element:
 
      .. code:: xml
 

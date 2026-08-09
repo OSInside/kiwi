@@ -105,8 +105,9 @@ rd.kiwi.live.dolly_options=
 rd.kiwi.live.system=
   Block device to use for the system. By default, this is set to `/dev/ram0`.
 
-ramdisk_size=bytes
-  Size of the ramdisk in bytes. By default, this is set to 2097152 (2G).
+ramdisk_size=kbytes
+  Size of the ramdisk in kilobytes; the value is passed to the kernel `brd`
+  module as `rd_size`. By default, this is set to 2097152, which is 2 GiB.
 
 rd.kiwi.live.reset
   Force reset of the live system. This option only makes sense if

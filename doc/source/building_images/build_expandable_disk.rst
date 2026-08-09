@@ -301,7 +301,7 @@ element, for example:
    </oemconfig>
 
 
-Below is a list of optional `oem` element settings.
+Below is a list of the most commonly used optional `oem` element settings.
 
 oemconfig.oem-resize
   Determines if the disk has the capability to expand itself to
@@ -360,8 +360,8 @@ oemconfig.oem-shutdown-interactive
 
 oemconfig.oem-swap
   Determines if a swap partition is created. By default, no
-  swap partition is created. This value is represented
-  by the `kiwi_oemswap` variable in the initrd.
+  swap partition is created. This setting is evaluated by {kiwi} at build
+  time.
 
 oemconfig.oem-swapname
   Specifies the name of the swap space. By default, the name is set to

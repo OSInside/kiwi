@@ -18,7 +18,7 @@ SYNOPSIS
        [--ignore-repos]
        [--add-repo=<source,type,alias,priority,imageinclude,package_gpgcheck,{signing_keys},components,distribution,repo_gpgcheck,repo_sourcetype>...]
        [--add-repo-credentials=<user:pass_or_filename>...]
-       [--print-xml|--print-yaml]
+       [--print-xml|--print-yaml|--print-toml]
    kiwi-ng image info help
 
 .. _db_image_info_desc:
@@ -174,3 +174,8 @@ OPTIONS
     missing, requests to convert to a format other than XML will fail.
 
   * Updates an old image description to the latest schema.
+
+--print-toml
+
+  Behaves like `--print-yaml`, but the validated result is converted into
+  TOML. This also requires the `anymarkup` Python module.

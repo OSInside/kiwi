@@ -13,21 +13,23 @@ Custom Disk Volumes
 the filesystem supports it (e.g., btrfs).
 
 Volumes are defined in the {kiwi} description file, :file:`config.xml`,
-using `systemdisk`. This element is a child of the `type`.
-Volumes themselves are added via (multiple) `volume` child
-elements of the `systemdisk` element:
+using `systemdisk`. This element is a child of the `type` element, which in
+turn is a child of `preferences`. Volumes themselves are added via (multiple)
+`volume` child elements of the `systemdisk` element:
 
 .. code:: xml
 
-   <image schemaversion="{schema_version}" name="openSUSE-Leap-15.1">
-     <type image="oem" filesystem="btrfs">
-       <systemdisk name="vgroup" preferlvm="true">
-         <volume name="usr/lib" size="1G" label="library"/>
-         <volume name="@root" freespace="500M"/>
-         <volume name="etc_volume" mountpoint="etc" copy_on_write="false"/>
-         <volume name="bin_volume" size="all" mountpoint="/usr/bin" quota="2G"/>
-       </systemdisk>
-     </type>
+   <image schemaversion="{schema_version}" name="openSUSE-Leap-16.0">
+     <preferences>
+       <type image="oem" filesystem="btrfs">
+         <systemdisk name="vgroup" preferlvm="true">
+           <volume name="usr/lib" size="1G" label="library"/>
+           <volume name="@root" freespace="500M"/>
+           <volume name="etc_volume" mountpoint="etc" copy_on_write="false"/>
+           <volume name="bin_volume" size="all" mountpoint="/usr/bin" quota="2G"/>
+         </systemdisk>
+       </type>
+     </preferences>
    </image>
 
 Additional non-root volumes are created for each `volume`
@@ -76,6 +78,10 @@ attributes:
 - `quota`: Optional attribute for the `btrfs` filesystem only. Allows
   you to specify a quota size for the generated volume.
 
+- `parent`: Optional attribute for the `btrfs` volume manager only. The
+  name or path of the parent subvolume this volume should be nested in.
+  If not set, the volume is created below the default volume.
+
 - `filesystem_check`: Optional attribute to indicate that this
   filesystem should perform the validation to become filesystem-checked.
   The actual constraints of whether the check is performed or not depends on
@@ -95,7 +101,7 @@ attributes:
 The `systemdisk` element additionally supports the following optional
 attributes:
 
-- `name`: The volume group name, by default, `kiwiVG` is used. This setting
+- `name`: The volume group name, by default, `systemVG` is used. This setting
   is only relevant for LVM volumes.
 
 - `preferlvm`: A boolean value instructing {kiwi} to prefer LVM even if the
