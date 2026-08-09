@@ -67,7 +67,7 @@ example and requires some background knowledge about the Open Build Service
 
    .. code:: xml
 
-      <image schemaversion="7.4" name="bootstrap-root">
+      <image schemaversion="{schema_version}" name="bootstrap-root">
           <description type="system">
               <author>The Author</author>
               <contact>author@example.com</contact>

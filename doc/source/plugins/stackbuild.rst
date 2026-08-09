@@ -174,7 +174,7 @@ And place the following content:
 
     <?xml version="1.0" encoding="utf-8"?>
 
-    <image schemaversion="8.0" name="Leap-VM">
+    <image schemaversion="{schema_version}" name="Leap-VM">
         <description type="system">
             <author>The Author</author>
             <contact>user@example.org</contact>
@@ -209,8 +209,9 @@ And place the following content:
         </users>
     </image>
 
-To build the virtual machine image from the current hosted Leap 15.3
-container at SUSE, call the following `stackbuild` command:
+To build the virtual machine image from the currently hosted
+Leap {exc_os_version} container at SUSE, call the following `stackbuild`
+command:
 
 .. code:: bash
 
