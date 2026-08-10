@@ -15,13 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import sys
-from typing import TYPE_CHECKING, Dict, Union, overload
+from typing import TYPE_CHECKING, Dict, Literal, Union, overload
 
-if sys.version_info >= (3, 8):
-    from typing import Literal  # pragma: no cover
-else:  # pragma: no cover
-    from typing_extensions import Literal  # pragma: no cover
 
 from kiwi.exceptions import (
     KiwiBootLoaderConfigSetupError
