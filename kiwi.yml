@@ -39,8 +39,8 @@
 #  # depends on the image and its subformat: raw disk, filesystem images,
 #  # vhdfixed and any disk subformat that does not override the generic
 #  # base default to compressed, while vmdk, qcow2, ova, kis and enclave
-#  # default to uncompressed. Setting this key forces the value for all
-#  # of them.
+#  # default to uncompressed. Setting this key overrides the default only for
+#  # result formats whose bundle compression is configurable.
 #  # The intention for result compression is to produce a smaller
 #  # image than the original. Encrypted data generally grows when an
 #  # attempt is made to compress it. Therefore this setting is ignored for

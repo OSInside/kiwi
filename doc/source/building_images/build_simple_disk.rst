@@ -310,7 +310,7 @@ Adding CD/DVD Drives
 ^^^^^^^^^^^^^^^^^^^^
 
 {kiwi} supports adding one IDE or SCSI CD/DVD drive to the virtual
-machine using the `vmdvd` element for the `vmdk` image format. At most one
+machine using the `vmdvd` element for the `vmdk` and `ova` image formats. At most one
 `vmdvd` element may be specified per `machine` element. The following example
 adds a single drive with a SCSI controller:
 

@@ -98,7 +98,7 @@ GLOBAL OPTIONS
 --config=<configfile>
 
   Use the specified runtime configuration file. This does not replace the
-  standard lookup: the files settings take the highest precedence. A path that
+  standard lookup: the file's settings take the highest precedence. A path that
   does not exist is an error.
 
   Independent of `--config`, {kiwi} always reads and merges every one of the

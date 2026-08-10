@@ -29,7 +29,8 @@ specified.
   as a comma-separated list of ``repository:tag`` entries. An entry that
   starts with ``:`` adds another tag for the primary repository name, for
   example ``:latest,:stable``.
-  This attribute is only applied for the image type ``docker-archive``.
+  This attribute is only applied to Docker archive output (`image="docker"`
+  or an OEM `format="docker:..."`); OCI archive output ignores it.
 * ``maintainer``: Specifies the author of the container. Equivalent to the
   `MAINTAINER` directive in a :file:`Dockerfile`.
 * ``user``: Sets the user name or user id (UID) to be used when
