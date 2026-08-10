@@ -13,7 +13,7 @@ SYNOPSIS
    kiwi-ng result bundle -h | --help
    kiwi-ng result bundle --target-dir=<directory> --id=<bundle_id> --bundle-dir=<directory>
        [--bundle-format=<format>]
-       [--zsync_source=<download_location>]
+       [--zsync-source=<download_location>]
        [--package-as-rpm]
        [--no-compress]
    kiwi-ng result bundle help
@@ -64,7 +64,7 @@ OPTIONS
 
   The directory containing the {kiwi} build results.
 
---zsync_source=<download_location>
+--zsync-source=<download_location>
 
   The download location of the bundle file or files. Only relevant if `zsync` is
   used to sync the bundle.

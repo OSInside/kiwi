@@ -166,7 +166,7 @@ Set up image type and layout.
 
    <preferences arch="arch">
      <version>1.2.3</version>
-     <packagemanager name="zypper"/>
+     <packagemanager>zypper</packagemanager>
      <type image="tbz"/>
    </preferences>
 
@@ -205,7 +205,8 @@ table shows which package manager is connected to which distributor:
 +==============+=================+
 | SUSE         | zypper          |
 +--------------+-----------------+
-| Red Hat      | dnf4 / dnf5     |
+| Red Hat      | dnf4 / dnf5 /   |
+|              | microdnf        |
 +--------------+-----------------+
 | Debian Based | apt             |
 +--------------+-----------------+
@@ -342,6 +343,18 @@ manager to define the distribution release.
    happen that it gets applied to the other package manager
    backends as well. This will happen on demand, though.
 
+<preferences><showlicense>
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Specifies the name of a license to be displayed in a dialog window at
+boot time. The element may be provided multiple times to show more than one
+license.
+
+.. code:: xml
+
+   <preferences>
+     <showlicense>license_name</showlicense>
+   </preferences>
+
 <preferences><type>
 ~~~~~~~~~~~~~~~~~~~
 At least one type element must be configured. It is possible to
@@ -363,7 +376,7 @@ image="tbz"
   A simple tar archive image. The `tbz` type packs the contents of
   the image root tree into an xz-compressed tarball.
 
-image="btrfs|ext2|ext3|ext4|squashfs|xfs"
+image="btrfs|ext2|ext3|ext4|squashfs|erofs|xfs"
   A filesystem image. The image root tree data is packed into a
   filesystem image of the given type. An image of that type can
   be loop-mounted and accessed according to the capabilities of
@@ -412,6 +425,23 @@ image="kis"
   The use case for this component image type is highly customizable.
   Many different deployment strategies are possible.
 
+image="pxe"
+  The legacy network boot image type, superseded by `kis`. It builds the
+  same kernel, initrd and root filesystem components but defaults to the
+  {kiwi} initrd system rather than dracut.
+
+image="cpio"
+  A cpio archive of the image root tree, as used for an initrd.
+
+image="enclave"
+  An AWS Nitro Enclave image. Requires
+  `enclave_format="aws-nitro"`. See :ref:`eif`.
+
+The complete set of accepted values is `btrfs`, `cpio`, `docker`, `enclave`,
+`erofs`, `ext2`, `ext3`, `ext4`, `iso`, `kis`, `oci`, `oem`, `pxe`, `squashfs`,
+`tbz`, `wsl`, `xfs` and `appx`.
+
+
 For completion of a type description, there could be several other
 optional attributes and child elements. The `type` element supports a
 plethora of optional attributes; some of these are only relevant for
@@ -423,31 +453,41 @@ bootpartition="true|false":
   A boolean parameter notifying {kiwi} whether an extra boot
   partition should be used or not (the default depends on the current
   layout). This will override {kiwi}'s default layout.
+  Only available for the `oem` type.
+
 
 bootpartsize="nonNegativeInteger":
   For images with a separate boot partition, this attribute
   specifies the size in MB. If not set, the boot partition
-  size is set to 200 MB.
+  size is set to 300 MB. Only available for the `oem` type.
 
 eficsm="true|false":
   For images with an EFI layout, specify if the legacy
   CSM (BIOS) mode should be supported or not. By default,
   CSM mode is enabled.
+  Only available for the `oem` and `iso` types.
+
 
 efipartsize="nonNegativeInteger":
   For images with an EFI fat partition, this attribute
   specifies the size in MB. If not set, the EFI partition
   size is set to 20 MB.
+  Only available for the `oem` type.
+
 
 efifatimagesize="nonNegativeInteger":
   For ISO images (live and install), the EFI boot requires
   an embedded FAT image. This attribute specifies the size
   in MB. If not set, the FAT image size is set to 20 MB.
+  Only available for the `oem` and `iso` types.
+
 
 efiparttable="msdos|gpt":
   For images with an EFI firmware, specifies the partition
   table type to use. If not set, it defaults to the GPT partition
   table type for disk images and MBR (msdos) for ISO images.
+  Only available for the `oem` and `iso` types.
+
 
 dosparttable_extended_layout="true|false":
   For OEM disk images, specifies to make use of logical partitions
@@ -457,10 +497,14 @@ dosparttable_extended_layout="true|false":
   placed as logical partitions inside of that extended
   partition. This setting is useful if more than 4 primary
   partitions need to be created in an msdos table.
+  Only available for the `oem` type.
+
 
 btrfs_quota_groups="true|false":
   A boolean parameter to activate filesystem quotas if
   the filesystem is `btrfs`. By default, quotas are inactive.
+  Only available for the `oem` type.
+
 
 btrfs_set_default_volume="true|false":
   For OEM disk images using the btrfs filesystem, this requests to
@@ -492,12 +536,16 @@ btrfs_root_is_subvolume="true|false":
      </systemdisk>
 
   By default, the creation of a top-level volume is set to `true`.
+  Only available for the `oem` type.
+
 
 btrfs_root_is_snapper_snapshot="true|false":
   A boolean parameter that tells {kiwi} to install
   the system into a btrfs snapshot. The snapshot layout is compatible
   with the snapper management toolkit and follows a concept by SUSE.
   By default, snapshots are turned off.
+  Only available for the `oem` type.
+
 
 btrfs_root_is_readonly_snapshot="true|false":
   A boolean parameter notifying {kiwi} that
@@ -506,21 +554,15 @@ btrfs_root_is_readonly_snapshot="true|false":
   read-only mode once all data has been placed in it. The option is only
   effective if `btrfs_root_is_snapper_snapshot` is also set to true. By default, the
   root filesystem snapshot is writable.
+  Only available for the `oem` type.
 
-bootstrap_package="package_name":
-  For use with the `apt` package manager only. Specifies the name
-  of a bootstrap package that provides a bootstrap tarball
-  in :file:`/var/lib/bootstrap/PACKAGE_NAME.ARCH.tar.xz`.
-  The tarball will be unpacked and used as the bootstrap
-  rootfs to begin with. This allows for an alternative bootstrap
-  method. For further details, see :ref:`debianbootstrap_alternative`.
+
 
 compressed="true|false":
   Specifies whether the image output file should be
-  compressed or not. This option is used for filesystem-only images or
-  for the `pxe`, `kis` or `cpio` types. When used with the `pxe` or `kis`
-  types, compression also applies to the tar archive that contains
-  the build results.
+  compressed or not. Only available for the `pxe` and `kis` types, where
+  compression also applies to the tar archive that contains the build
+  results.
 
 archive="true|false":
   Specifies whether the image output file should be an archive or not.
@@ -533,21 +575,27 @@ editbootconfig="file_path":
   Specifies the path to a script that is called right
   before the bootloader is installed. The script runs relative to the
   directory that contains the image structure.
+  Only available for the `oem` and `iso` types.
+
 
 editbootinstall="file_path":
   Specifies the path to a script that is called right
   after the bootloader is installed. The script runs relative to the
   directory that contains the image structure.
+  Only available for the `oem` type.
 
-filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs":
-  The root filesystem.
 
-firmware="efi|uefi|bios|ec2|ofw|opal":
+filesystem="btrfs|ext2|ext3|ext4|squashfs|erofs|xfs":
+  The root filesystem. Available for the `oem`, `pxe`, `kis` and `iso` types,
+  and **required** for the `oem` type.
+
+firmware="efi|uefi|bios|ec2|ofw|opal|custom":
   Specifies the boot firmware of the appliance. This attribute is
   used to differentiate the image according to the firmware which
   boots up the system. It mostly impacts the disk layout and the
   partition table type. By default, `bios` is used on x86,
-  `ofw` on PowerPC, and `efi` on ARM.
+  `ofw` on PowerPC, and `efi` on ARM, RISC-V and LoongArch.
+  Only available for the `oem`, `pxe` and `iso` types.
 
   * `efi`
     Standard EFI layout.
@@ -568,13 +616,17 @@ firmware="efi|uefi|bios|ec2|ofw|opal":
   * `opal`
     Standard openPOWER PPC64 layout. kexec-based boot process.
 
+  * `custom`
+    The firmware setup is entirely provided by custom scripts and {kiwi} takes
+    no further action.
+
 force_mbr="true|false":
   A boolean parameter to force the usage of an MBR partition
   table even if the system would default to GPT. This is occasionally
   required on ARM systems that use an EFI partition layout but must
   not be stored in a GPT. Note that forcing an MBR partition table incurs
   limitations with respect to the number of available partitions and their
-  sizes.
+  sizes. Only available for the `oem` type.
 
 fsmountoptions="option_string":
   Specifies the filesystem mount options that are passed
@@ -606,6 +658,8 @@ fscreateoptions="option_string":
 kernelcmdline="string":
   Additional kernel parameters passed to the kernel by the
   bootloader.
+  Only available for the `oem`, `iso`, `pxe`, `kis` and `enclave` types.
+
 
 root_clone="number"
   For OEM disk images, this attribute allows you to create `number`
@@ -617,9 +671,13 @@ root_clone="number"
   partition considered the origin. The origin partition is the
   one that will be referenced and used by the system.
   Also, see :ref:`clone_partitions`.
+  Only available for the `oem` type.
+
 
 boot_clone="number"
   Same as `root_clone` but applied to the boot partition if present.
+  Only available for the `oem` type.
+
 
 luks="passphrase|file:///path/to/keyfile|random":
   Supplying a value will trigger the encryption of the partition
@@ -649,6 +707,8 @@ luks="passphrase|file:///path/to/keyfile|random":
   that can, e.g., grub, will then open an interactive dialog at
   the bootloader level asking for the credentials to decrypt the
   root filesystem.
+  Only available for the `oem`, `iso`, `pxe` and `kis` types.
+
 
 luks_version="luks|luks1|luks2":
   Specify which `LUKS` version should be used. If not set, and by
@@ -657,6 +717,8 @@ luks_version="luks|luks1|luks2":
   The specification of the `LUKS` version allows using a different
   set of `luksformat` options. To investigate the differences between
   the two, please consult the `cryptsetup` manual page.
+  Only available for the `oem`, `iso`, `pxe` and `kis` types.
+
 
 target_blocksize="number":
   Specifies the image blocksize in bytes, which has to
@@ -668,6 +730,9 @@ target_blocksize="number":
 
      blockdev --report $DEVICE
 
+  Only available for the `oem` and `kis` types.
+
+
 target_removable="true|false":
   Indicate if the target disk for OEM images is deployed
   to a removable device, e.g., a USB stick or not. This only
@@ -675,8 +740,10 @@ target_removable="true|false":
   the creation of a custom boot menu entry in the firmware
   of the target machine. By default, the target disk is
   expected to be non-removable.
+  Only available for the `oem` type.
 
-selinux_policy.attribute="targeted|mls|minimum":
+
+selinux_policy="targeted|mls|minimum":
   The `selinux_policy` attribute sets the SELinux policy to use.
   The `targeted` policy is the default policy. Only change this option
   if you want to use the `mls` or `minimum` policy.
@@ -716,7 +783,7 @@ spare_part_is_last="true|false":
   if oem-resize is switched off. There is a runtime
   check in the {kiwi} code to check this condition.
 
-devicepersistency="by-uuid|by-label":
+devicepersistency="by-uuid|by-label|by-partuuid":
   Specifies which method to use for persistent device names.
   This will affect all files written by kiwi that include
   device references, for example, `/etc/fstab` or the `root=`
@@ -745,6 +812,8 @@ devicepersistency="by-uuid|by-label":
 
 squashfscompression="uncompressed|gzip|lzo|lz4|xz|zstd":
   Specifies the compression type for mksquashfs.
+  Only available for the `oem`, `pxe`, `kis`, `iso` and `squashfs` types.
+
 
 erofscompression="text"
   Specifies the compression type and level for erofs.
@@ -752,6 +821,8 @@ erofscompression="text"
   for the different compression types. Please consult the erofs
   man page for details on how to specify a value for the `-z` option
   on `mkfs.erofs` and pass a proper value as `erofscompression`.
+  Only available for the `oem`, `pxe`, `kis`, `iso` and `erofs` types.
+
 
 standalone_integrity="true|false":
   For the `oem` type only, specifies to create a standalone
@@ -825,7 +896,7 @@ embed_integrity_metadata="true|false":
       web for possible flag values.
 
 verity_blocks="number|all":
-  For the `oem` type only, specifies to create a dm-verity hash
+  For the `oem` and `iso` types only, specifies to create a dm-verity hash
   from the number of given blocks (or all) placed at the end of the
   root filesystem. For later verification of the device,
   the credentials information produced by `veritysetup` from the
@@ -944,12 +1015,16 @@ overlayroot_readonly_partsize="mbsize":
   pre-calculation requires some time in the build process.
   If the value can be provided beforehand, this also speeds
   up the build process significantly.
+  Only available for the `oem` type.
+
 
 bootfilesystem="btrfs|ext2|ext3|ext4|xfs|fat32|fat16":
   If an extra boot partition is required, this attribute
   specifies which filesystem should be used for it. The
   type of the selected bootloader might overwrite this
   setting if there is no alternative possible, though.
+  Only available for the `oem` type.
+
 
 flags="overlay|dmsquash":
   For the ISO image type, this specifies the live ISO technology and
@@ -998,22 +1073,8 @@ formatoptions="string":
   options in a `name=value` format, as `qemu-img` expects it.
   kiwi will take the information and pass it as a parameter to
   the `-o` option in the `qemu-img` call.
+  Only available for the `oem` type.
 
-fsmountoptions="string":
-  Specifies the filesystem mount options, which also end up in `fstab`.
-  The string given here is passed as a value to the `-o` option of `mount`.
-
-fscreateoptions="string":
-  Specifies options to use at the creation time of the filesystem.
-
-force_mbr="true|false":
-  Force the use of an MBR (msdos table) partition table even if the
-  use of the GPT would be the natural choice. On, e.g., some
-  ARM systems, an EFI partition layout is required but must
-  not be stored in a GPT. For those rare cases, this attribute
-  allows you to force the use of the msdos table, including all
-  its restrictions in max partition size and amount of
-  partitions.
 
 gpt_hybrid_mbr="true|false":
   For disk types, create a hybrid GPT/MBR partition table with an
@@ -1024,15 +1085,21 @@ gpt_hybrid_mbr="true|false":
   bootable in both UEFI and BIOS modes on as much hardware as possible).
   In both cases, it only has an effect if the EFI partition table
   type is GPT.
+  Only available for the `oem` and `iso` types.
+
 
 hybridpersistent="true|false":
   For the live ISO type, this triggers the creation of a partition for
   a COW file to keep data persistent over a reboot.
+  Only available for the `iso` and `pxe` types.
+
 
 hybridpersistent_filesystem="ext4|xfs":
   For the live ISO type, set the filesystem to use for persistent
   writing if a hybrid image is used as a disk on, e.g., a USB Stick.
   By default, the ext4 filesystem is used.
+  Only available for the `iso` and `pxe` types.
+
 
 initrd_system="kiwi|dracut|none":
   Specify which initrd builder to use; the default is set to `dracut`.
@@ -1040,6 +1107,8 @@ initrd_system="kiwi|dracut|none":
   on the image type, this can lead to a non-bootable system, as it's
   now a kernel responsibility if the given root device can be
   mounted or not.
+  Only available for the `oem`, `pxe` and `kis` types.
+
 
 metadata_path="dir_path":
   Specifies a path to additional metadata required for the selected
@@ -1047,7 +1116,8 @@ metadata_path="dir_path":
 
   .. note::
 
-     Currently, this is only effective for the appx container image type.
+     Currently, this is only effective for the `appx` container image type,
+     where it is **mandatory**.
 
 installboot="failsafe-install|harddisk|install":
   Specifies the bootloader's default boot entry for the initial
@@ -1066,12 +1136,18 @@ install_continue_on_timeout="true|false":
 installprovidefailsafe="true|false":
   Specifies if the bootloader menu should provide a
   failsafe entry with special kernel parameters or not.
+  Only available for the `oem` type.
+
 
 installiso="true|false"
   Specifies if an install ISO image should be created.
   This attribute is only available for the `oem` type.
   The generated ISO image is a hybrid ISO that can be
   used as a disk on, e.g., a USB stick or as an ISO.
+
+installstick="true|false":
+  Specifies if an install stick image should be created.
+  Only available for the `oem` type.
 
 installpxe="true|false":
   Specifies if a tarball that contains all data for a PXE network
@@ -1086,6 +1162,8 @@ mediacheck="true|false":
 mdraid="mirroring|striping":
   Set up software RAID in degraded mode with one disk.
   Thus, only mirroring and striping are possible.
+  Only available for the `oem` type.
+
 
 primary="true|false":
   Specifies this type to be the primary type. If no type option
@@ -1094,13 +1172,18 @@ primary="true|false":
 ramonly="true|false":
   For all images that are configured to use the overlay filesystem,
   this setting forces any COW(Copy-On-Write) action to happen in RAM.
+  Only available for the `oem` type.
+
 
 rootfs_label="string":
   A label name to set for the root filesystem. By default, `ROOT` is used.
+  Only available for the `oem`, `pxe`, `kis` and `docker` types.
+
 
 volid="string":
-  For the ISO type only, this specifies the volume ID (volume name or label)
-  to be written into the master block. There is space for 32 characters.
+  For the `iso` and `oem` install ISO only, this specifies the
+  volume ID (volume name or label) to be written into the master block.
+  Can be at most 32 characters.
 
 application_id="string":
   For the ISO/(oem install ISO) type only, specifies the Application
@@ -1109,11 +1192,17 @@ application_id="string":
 
 vhdfixedtag="GUID_string":
   For the VHD disk format, this specifies the GUID.
+  Only available for the `oem` type.
+
 
 derived_from="string":
   For container images, specifies the image URI of the container image.
   The image created by {kiwi} will use the specified container as the
   base root to work on.
+  Only available for the `docker`, `oci` and `oem` types. On the `oem` type it
+  may only be combined with a container output format, that is
+  `format="oci:..."` or `format="docker:..."`.
+
 
 delta_root="true|false":
   For container images and in combination with the `derived_from`
@@ -1127,14 +1216,20 @@ delta_root="true|false":
   `oci-pilot <https://github.com/Elektrobit/oci-pilot>`_
   project and allows you to manage applications as containers
   that feel like native applications on the host system.
+  Only available for the `docker` and `oci` types.
+
 
 ensure_empty_tmpdirs="true|false":
   For OCI container images, this specifies whether to ensure the `/run` and `/tmp`
   directories are empty in the container image created by Kiwi.
   The default is true.
+  Only available for the `docker` and `oci` types.
+
 
 publisher="string":
   For ISO images, this specifies the publisher name of the ISO.
+  Only available for the `iso` type.
+
 
 eficsmpart_id="number":
   For OEM images, this specifies the partition number for the EFI CSM
@@ -1155,6 +1250,74 @@ bootpart_id="number":
   For OEM images, specifies the partition number for the BOOT partition.
   For details about the evaluation and impact of custom partition ids,
   please see: :ref:`custom_partitions`.
+
+boot="path":
+  Path to a {kiwi} boot image description used to build the initrd.
+  Requires `initrd_system="kiwi"`. A relative path is looked up below
+  :file:`/usr/share/kiwi/custom_boot`. Only available for the `oem` and
+  `pxe` types.
+
+bootkernel="name":
+  Name of the kernel profile of the boot image description to use.
+  Passed on as `add-profile` when the boot image is built.
+
+bootprofile="name":
+  Name of the profile of the boot image description to use. Passed on as
+  `add-profile` when the boot image is built. Only available for the
+  `oem`, `iso`, `pxe` and `cpio` types.
+
+bundle_format="string":
+  Base name pattern used for all target image files by
+  :command:`kiwi-ng result bundle`. See
+  :ref:`image_types` for the list of supported placeholders.
+
+disk_start_sector="number":
+  First usable sector of the partition table. The minimum, and the
+  default, is 2048. Only available for the `oem` type.
+
+enclave_format="aws-nitro":
+  Target format of the enclave image. `aws-nitro` is currently the only
+  supported value. Only available for the `enclave` type.
+
+gcelicense="string":
+  License tag to embed into an image built with `format="gce"`.
+  Only available for the `oem` type.
+
+luksOS="sle12":
+  Passes a predefined set of cipher, keysize and hash format options to
+  the :command:`cryptsetup` call, producing a format compatible with the
+  named distribution. Only available for the `oem`, `iso`, `pxe` and
+  `kis` types.
+
+luks_pbkdf="pbkdf2|argon2i|argon2id":
+  Key derivation function used by LUKS to derive the encryption key from
+  the password. Only available for the `oem`, `iso`, `pxe` and `kis`
+  types.
+
+luks_randomize="true|false":
+  By default all blocks of a LUKS volume are filled with pseudo-random
+  data. Set this to `false` to reduce the image size when shipping an
+  image with a well-known key that is re-encrypted at deployment time.
+  Only available for the `oem`, `iso`, `pxe` and `kis` types.
+
+provide_system_files="true|false":
+  Emit a metadata file listing the system files of the image, for later
+  consumption by a derived build. Only available for the `docker` and
+  `oci` types. Use a `<packages type="systemfiles">` section to filter
+  the generated list.
+
+require_system_files="true|false":
+  Consume the system file metadata provided by a base image. Only
+  available for the `docker` and `oci` types.
+
+wwid_wait_timeout="number":
+  Seconds to wait for a device WWID to appear. Defaults to 3.
+  Only available for the `oem` type.
+
+xen_server="true|false":
+  Marks the image as a Xen dom0 (server) rather than a Xen guest.
+  Only available for the `oem` type. See also
+  `check_xen_uniquely_setup_as_server_or_guest`.
 
 The following sections show the supported child elements of the `type`
 element, including references to their usage in a detailed type setup:
@@ -1199,7 +1362,7 @@ the `editbootinstall` and `editbootconfig` custom scripts.
    selected bootloader, the image build process will fail with
    an exception message.
 
-name="grub2|systemd_boot|grub2_s390x_emu|zipl":
+name="grub2|grub2_s390x_emu|systemd_boot|custom|zipl":
   Specifies the bootloader to use for this image.
 
   .. note:: systemd_boot ESP size
@@ -1317,18 +1480,19 @@ timeout="number":
   sense to set this value to `0` for images intended to be started
   non-interactively (e.g., virtual machines).
 
-timeout_style="countdown|hidden":
+timeout_style="countdown|hidden|menu":
   Specifies the boot timeout style to control the way in which the timeout
   interacts with displaying the menu. If set, the display of the
   bootloader menu is delayed after the timeout has expired. In countdown mode,
   an indication of the remaining time is displayed. The attribute is
   available for the grub loader only.
 
-targettype="CDL|LDL|FBA|SCSI|GPT":
+targettype="CDL|FBA|SCSI|GPT":
   Specifies the device type of the disk zipl should boot.
   On zFCP and/or KVM devices, use `SCSI` or `GPT`; on DASD devices,
-  use `CDL` or `LDL`; on emulated DASD devices, use `FBA`.
-  The attribute is available for the zipl loader only.
+  use `CDL`; on emulated DASD devices, use `FBA`.
+  The attribute is available for the `grub2_s390x_emu` and `zipl`
+  loaders only.
 
 <preferences><type><bootloader><securelinux>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1338,41 +1502,38 @@ encrypted data blob and couples the image to the machine it gets
 executed on. Typically, the private key is protected in hardware on
 the machine itself. {kiwi} supports secure execution for the IBM secure
 Linux target on the s390 platform, along with the bootloaders
-`zipl` and `grub2-s390x-emu`.
+`zipl` and `grub2_s390x_emu`.
 
 .. code:: xml
 
-   <securelinux>
+   <securelinux hkd_ca_cert="some-ca.crt" hkd_sign_cert="some-signing.crt">
        <hkd_cert name="some1-host.crt"/>
        <hkd_cert name="some2-host.crt"/>
-       <hkd_ca_cert name="some-ca.crt"/>
-       <hkd_sign_cert name="some1-signing.crt"/>
-       <hkd_sign_cert name="some2-signing.crt"/>
        <hkd_revocation_list name="some1-revocation.crl"/>
        <hkd_revocation_list name="some2-revocation.crl"/>
    </securelinux>
 
-Except for the `hkd_ca_cert`, all other certificates can be specified
-multiple times.
-
-hkd_cert:
-  The file specified in `hkd_cert` defines the `Host Key Document`
-  and tightly couples the image to the host matching the document.
+The `securelinux` element itself can be specified multiple times, for example to
+couple one image to several machines that use different signing certificates.
 
 hkd_ca_cert:
-  Required in combination with `hkd_cert`, providing the `Common Authority`
-  certificate (signed by the root CA) that is used to establish a chain
-  of trust for the verification of the `Host Key Document`.
+  Mandatory attribute providing the `Common Authority` certificate (signed by
+  the root CA) that is used to establish a chain of trust for the verification
+  of the `Host Key Document`.
 
 hkd_sign_cert:
-  Required in combination with `hkd_cert`, providing the `Signing`
-  certificate that is used to establish a chain of trust for the
-  verification of the `Host Key Document`.
+  Mandatory attribute providing the `Signing` certificate that is used to
+  establish a chain of trust for the verification of the `Host Key Document`.
+
+hkd_cert:
+  Child element, required at least once. The file specified in the `name`
+  attribute defines the `Host Key Document` and tightly couples the image to the
+  host matching the document. Can be specified multiple times.
 
 hkd_revocation_list:
-  Optional in combination with `hkd_cert`, providing the
-  revocation list to check on the use of expired certificates in
-  the chain of trust.
+  Optional child element, providing in its `name` attribute the revocation list
+  to check on the use of expired certificates in the chain of trust. Can be
+  specified multiple times.
 
 <preferences><type><bootloader><bootloadersettings>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1570,10 +1731,12 @@ Set up software sources for the image.
      <source path="uri"/>
    </repository>
 
-The mandatory repository element specifies the location and type of a
+The repository element specifies the location and type of a
 repository to be used by the package manager as a package installation
-source. {kiwi} supports apk, apt, dnf4, dnf5, pacman, and zypper as
-package managers, specified with the packagemanager element.
+source. It is optional and may be provided multiple times, but at least one
+repository is required for {kiwi} to be able to install software.
+{kiwi} supports apk, apt, dnf4, dnf5, microdnf, pacman, and zypper as
+package managers, specified via the packagemanager element.
 The repository element has the following optional attributes:
 
 alias="name"
@@ -1581,6 +1744,21 @@ alias="name"
   attribute is not specified, {kiwi} will generate a random alias name
   for the repository. The specified name must match the pattern:
   `[a-zA-Z0-9_\-\.]+`.
+
+type="apk|apt-deb|apt-rpm|deb-dir|mirrors|rpm-md"
+  Specifies the repository metadata format. If not set, {kiwi} derives a
+  suitable default from the configured package manager.
+
+arch="arch_name[,arch_name]"
+  Use this repository only when building on one of the listed host
+  architectures.
+
+profiles="profile_a,profile_b"
+  Use this repository only when one of the listed build profiles is active.
+
+architectures="arch_name[,arch_name]"
+  Used for `apt-deb` repositories only. Declares which architectures this
+  repository provides packages for.
 
 components="name"
   Used for Debian (apt) based repositories only. Specifies the
@@ -1594,7 +1772,8 @@ distribution="name"
 imageonly="true|false"
   Specifies whether or not this repository should be configured in
   the resulting image without using it at build time. By default,
-  the value is set to false.
+  the value is set to false. This attribute is mutually exclusive with
+  `imageinclude`.
 
 repository_gpgcheck="true|false"
   Specifies whether or not this specific repository values the result
@@ -1665,14 +1844,6 @@ username="name"
   Dependent on the repository location, this information may not be
   used.
 
-prefer-license="true|false"
-  The repository providing this attribute will be used primarily to
-  install the license tarball if found on that repository. If no
-  repository with a preferred license attribute exists, the search
-  happens over all repositories. It's not guaranteed in that case that
-  the search order follows the repository order as they are written
-  into the XML description.
-
 priority="number"
   Specifies the repository priority for this given repository. Priority
   values are treated differently by different package managers.
@@ -1681,21 +1852,16 @@ priority="number"
   configured repositories. The zypper package manager, for example,
   prefers packages from a repository with a *lower* priority over
   packages from a repository with higher priority values.
-  The value 99 means “no priority is set”. For other package managers,
-  please refer to the individual documentation about repository priorities.
+  If the attribute is not set, {kiwi} writes no priority into the generated
+  repository configuration, so the package manager's own default applies.
+  For other package managers, please refer to the individual documentation
+  about repository priorities.
 
 sourcetype="baseurl|metalink|mirrorlist"
   Specifies the source type of the repository path. Depending on whether the
   source path is a simple URL or a pointer to a metadata file or mirror
   list, the configured package manager needs to be set up appropriately.
   By default, the source is expected to be a simple repository baseurl.
-
-use_for_bootstrap="true|false"
-  Used for Debian (apt) based repositories only. It specifies whether
-  this repository should be the one used for bootstrapping or not.
-  It is set to 'false' by default. Only a single repository is allowed
-  to be used for bootstrapping. If no repository is set for the bootstrap,
-  the last one in the description XML is used.
 
 <repository><source>
 ~~~~~~~~~~~~~~~~~~~~
@@ -1771,10 +1937,12 @@ Set up software components to be installed in the image.
 
    <packages type="type"/>
 
-The mandatory packages element specifies the setup of a packages
-group for the given type. The value of the type attribute specifies
-at which state in the build process the packages group is handled.
-Supported values are as follows:
+The packages element specifies the setup of a packages group for the given
+type. It is optional and may be provided multiple times, but in practice at
+least a `bootstrap` group is required to produce a usable appliance. The value
+of the type attribute specifies at which state in the build process the packages
+group is handled.
+The attribute accepts the following set of values:
 
 type="bootstrap"
   Bootstrap packages, a list of packages to be installed first into
@@ -1790,15 +1958,41 @@ type="uninstall|delete"
   Packages to be uninstalled or deleted. For further details,
   see :ref:`uninstall-system-packages`.
 
-type="*image_type_name*"
-  Packages to be installed for the given image type name. For example,
-  if set to `type="iso"`, the packages in this group will only be
-  installed if the ISO image type is built.
+type="docker|iso|kis|oci|oem|pxe"
+  Packages to be installed only when the named image type is being built.
+  For example, with `type="iso"` the packages in this group are installed
+  only if the ISO image type is built. Note that these six are the only
+  image type names accepted here. Other `<type image="...">` values such as
+  `appx`, `wsl`, `enclave`, `tbz`, `cpio` and the plain filesystem types have
+  no corresponding packages group, use `type="image"` for those.
+
+type="systemfiles"
+  Used together with the `provide_system_files` and `require_system_files`
+  type attributes. The group typically holds `<ignore>` entries naming
+  packages to filter out of the generated system file list.
 
 
-The packages element must contain at least one child element of the
-following list to provide specific configuration information for the
-specified packages group:
+In addition to `type`, the `packages` element accepts the following optional
+attributes:
+
+profiles="profile_a,profile_b"
+  Use this packages group only when one of the listed build profiles is active.
+
+patternType="onlyRequired|plusRecommended"
+  Controls how `namedCollection` entries are resolved.
+
+bootstrap_package="package_name"
+  For use with the `apt` package manager only, and only on a
+  `type="bootstrap"` group. Specifies the name of a bootstrap package that
+  provides a bootstrap tarball in
+  :file:`/var/lib/bootstrap/PACKAGE_NAME.ARCH.tar.xz`. The tarball is
+  unpacked and used as the bootstrap rootfs to begin with, providing an
+  alternative bootstrap method. For further details, see
+  :ref:`debianbootstrap_alternative`.
+
+The packages element may contain any number of the following child elements,
+which provide specific configuration information for the specified packages
+group:
 
 <packages><package>
 ~~~~~~~~~~~~~~~~~~~
@@ -1812,6 +2006,15 @@ The package element installs the given package name. The optional
 `arch` attribute can be used to limit the installation of the package
 to the host architecture from which {kiwi} is called. The `arch`
 attribute is also available in all of the following elements.
+
+Two further optional attributes control the {kiwi} initrd:
+
+bootinclude="true|false"
+  Additionally install this package into the {kiwi} initrd.
+
+bootdelete="true|false"
+  Remove this package from the {kiwi} initrd again. Only evaluated in
+  combination with `bootinclude`.
 
 <packages><namedCollection>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1928,7 +2131,8 @@ is installed using the `tar` program. Thus, the file name is
 expected to be a tar archive. The compression of the archive is
 detected automatically by the tar program. The optional `target_dir`
 attribute can be used to specify a target directory to unpack the
-archive inside the image root tree.
+archive inside the image root tree. The optional `bootinclude` attribute
+additionally unpacks the archive into the {kiwi} initrd.
 
 <packages><ignore>
 ~~~~~~~~~~~~~~~~~~
@@ -2048,6 +2252,70 @@ pwdformat="plain|encrypted":
   The format in which `password` is provided. The default, if not
   specified, is `encrypted`.
 
+realname="string":
+  The full name of the user, stored in the GECOS field.
+
+shell="path":
+  The login shell for this account.
+
+The `users` element itself accepts the optional `arch` and `profiles`
+attributes to restrict a whole group of accounts to a given host
+architecture or set of build profiles.
+
+.. _sec.drivers:
+
+<drivers>
+---------
+
+.. code:: xml
+
+   <drivers>
+     <file name="crypto/*"/>
+   </drivers>
+
+Lists kernel driver modules to include in the {kiwi} initrd. Each `file`
+child element takes a `name` attribute holding a path relative to the
+kernel module directory (shell globs are supported). The `drivers` element
+accepts the optional `profiles` attribute and may be provided multiple times.
+
+.. _sec.strip:
+
+<strip>
+-------
+
+.. code:: xml
+
+   <strip type="delete">
+     <file name="/usr/share/doc"/>
+   </strip>
+
+Lists files to remove from, or to keep in, the image root tree. The
+mandatory `type` attribute selects the meaning of the `file` children:
+
+type="delete"
+  A list of custom files and directories to delete.
+
+type="tools"
+  A list of file names in the Linux `bin` and `sbin` directories to keep;
+  everything else is removed.
+
+type="libs"
+  A list of file names in the Linux library directories to keep;
+  everything else is removed.
+
+The element accepts the optional `profiles` attribute and may be supplied
+multiple times.
+
+.. _sec.extension:
+
+<extension>
+-----------
+
+An optional container for namespaced XML belonging to a {kiwi} plugin. Each
+XML namespace may appear at most once, and its content is validated against
+an external RELAX NG schema resolved through the XML catalog. See
+:doc:`../contributing/schema_extensions` for how to register and consume one.
+
 .. _sec.profiles:
 
 <profiles>
@@ -2064,9 +2332,19 @@ Manage image namespace(s).
 The optional profiles section lets you maintain one image description
 while allowing for variation of other sections that are included. A
 separate profile element must be specified for each variation. The
-profile child element, which has name, description and arch attributes,
-specifies an alias name used to mark sections as belonging to a profile
-and a short description explaining what this profile does.
+profile child element specifies an alias name used to mark sections as
+belonging to a profile, and a short description explaining what this profile
+does. Both `name` and `description` are **mandatory**. Two further attributes
+are optional:
+
+import="true|false"
+  Select this profile automatically when no profile was given on the
+  command line. If any profile is passed via `--profile`, `import` is
+  ignored entirely and only the profiles named on the command line plus
+  their transitive `requires` are used.
+
+arch="arch_name"
+  Limit this profile to the listed host architectures.
 
 A profile can require other profiles, and the required profiles will
 be evaluated in the order of their declaration. The optional arch
@@ -2111,7 +2389,7 @@ For example:
 
    <preferences>
      <version>1.2.3</version>
-     <packagemanager name="zypper"/>
+     <packagemanager>zypper</packagemanager>
    </preferences>
 
    <preferences profiles="oem_qcow_format">

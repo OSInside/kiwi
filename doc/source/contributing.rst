@@ -66,7 +66,7 @@ environment for Python 3:
 
 .. code:: shell-session
 
-   $ poetry install
+   $ poetry install --all-extras
 
 The command above automatically creates the application script
 called :command:`kiwi-ng`, which allows you to run {kiwi} from the

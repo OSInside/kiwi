@@ -19,31 +19,41 @@ of {kiwi}, the following dracut modules are used:
   Serves as an image installer. It provides the required implementation to
   install a {kiwi} image on a selectable target. This module is required if one
   of the attributes in the image type definition, `installiso`, `installstick`, or
-  `installpxe`, is set to `true`.
+  `installpxe`, is set to `true`. Shipped in the `dracut-kiwi-oem-dump`
+  package.
 
 ``kiwi-dump-reboot``
   Serves to boot the system into the installed image after installation is
-  completed.
+  completed. Also shipped in the `dracut-kiwi-oem-dump` package, together
+  with `kiwi-dump`.
 
 ``kiwi-live``
   Boots up a {kiwi} live image. This module is required
-  if the `iso` image type is selected.
+  if the `iso` image type is selected. Shipped in the `dracut-kiwi-live`
+  package.
+
+``kiwi-verity``
+  Sets up dm-verity for images built with the `verity_blocks` or
+  `embed_verity_metadata` type attributes, verifying the integrity of the
+  root device at boot time. Shipped in the `dracut-kiwi-verity` package.
 
 ``kiwi-overlay``
   Allows you to boot disk images with the attribute `overlayroot` set to `true`. A
   disk like that has its root partition compressed and read-only. The disk boots up
   using overlayfs for the root filesystem with a separate partition on the same
-  disk for persistent data.
+  disk for persistent data. Shipped in the `dracut-kiwi-overlay` package.
 
 ``kiwi-repart``
   Resizes an OEM disk image after installation on
   the target disk to meet the size limits configured in the `oemconfig`
   section of the image description. The module takes over the tasks of
   repartitioning the disk, resizing RAID, LVM, LUKS, and other layers, as well as
-  resizing the system filesystems.
+  resizing the system filesystems. Shipped in the `dracut-kiwi-oem-repart`
+  package.
 
 ``kiwi-lib``
-  Provides common functions used by dracut modules.
+  Provides common functions used by dracut modules. Shipped in the
+  `dracut-kiwi-lib` package, which the other modules depend on.
 
 .. note:: Using Custom Boot Image Support
 
@@ -178,9 +188,9 @@ the `dracut project page <https://dracut.wiki.kernel.org/index.php/Main_Page>`_.
 Boot Image Parameters
 .....................
 
-A dracut-generated initrd in a {kiwi} image build process includes one or
-more of the {kiwi}-provided dracut modules. The following list documents
-the available kernel boot parameters for these modules:
+A dracut-generated initrd in a {kiwi} image build process includes one or more
+of the {kiwi}-provided dracut modules. The following non-exhaustive list
+documents the most commonly used kernel boot parameters for these modules:
 
 ``rd.kiwi.term``
   Exports the `TERM` variable into the initrd environment. If

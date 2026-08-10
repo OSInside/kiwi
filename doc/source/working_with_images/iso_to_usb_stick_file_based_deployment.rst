@@ -20,7 +20,7 @@ a different deployment needs to be used.
 
 The following deployment process copies the ISO image as an
 additional file to the USB stick and makes the USB stick bootable.
-The ability to boot from the stick is configured through a SYSLINUX
+The ability to boot from the stick is configured through a Grub2
 feature that allows you to loopback mount an ISO file and boot the
 kernel and initrd directly from the ISO file.
 
@@ -31,7 +31,7 @@ feature upstream, called "iso-scan". Therefore, all {kiwi}-generated
 live ISO images support this deployment mode.
 
 For copying the ISO file to the USB stick and the setup of the
-SYSLINUX bootloader to make use of the "iso-scan" feature, an extra tool
+Grub2 bootloader to make use of the "iso-scan" feature, an extra tool
 named `live-grub-stick` exists. The following procedure shows how
 to set up the USB stick with `live-grub-stick`:
 

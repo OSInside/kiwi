@@ -64,8 +64,8 @@ following systemdeps packages:
   * Supports building the `oem` image type.
   * Installs all tools to create virtual disks. Virtual disks in {kiwi}
     are created using the QEMU toolchain.
-  * Depends on the `-filesystems` and `-bootloaders` kiwi-systemdeps
-    packages.
+  * Depends on the `-filesystems`, `-bootloaders` and `-iso-media`
+    kiwi-systemdeps packages.
 
 `kiwi-systemdeps-image-validation`:
   * Installs the `jing` tool to validate the image description. This is

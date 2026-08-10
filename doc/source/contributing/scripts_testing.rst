@@ -6,15 +6,15 @@ also: :ref:`working-with-kiwi-user-defined-scripts`). These functions utilize co
 to run the individual tasks and verify the final result.
 
 Ensure that you have either :command:`podman` or :command:`docker` installed and
-configured on your system. With Podman, the integration tests use `podman` in
-**rootless mode** by default. You can select
+configured on your system. Podman is used by default. You can select
 :command:`docker` instead by setting the environment variable
 ``CONTAINER_RUNTIME`` to ``docker``. Then, you can run the integration tests via
 the `test_scripts` Makefile target:
 
 .. code:: shell-session
 
-    $ sudo make test_scripts
+    $ make test_scripts
+
 
 
 The tests are written using the `pytest-container

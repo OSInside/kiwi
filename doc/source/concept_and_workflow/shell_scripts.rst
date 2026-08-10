@@ -27,13 +27,15 @@ config.sh
   config file.
 
 config-overlay.sh
-  Available only if `delta_root="true"` is set. In this case, the script runs at
+  Available only if `delta_root="true"` is set on a `docker` or `oci` build type
+  that also uses `derived_from`. In this case, the script runs at
   the end of the :ref:`prepare step <prepare-step>` prior to the `umount` of the
   overlay root tree. It runs after `config.sh` (if specified), and it is the
   last entry point to change the delta root tree.
 
 config-host-overlay.sh
-  Available only if `delta_root="true"` is set. In this case, the script runs at
+  Available only if `delta_root="true"` is set on a `docker` or `oci` build type
+  that also uses `derived_from`. In this case, the script runs at
   the end of the :ref:`prepare step <prepare-step>` prior to the `umount` of the
   overlay root tree. The script is called **NOT CHROOTED** from the host with
   the image root directory as its working directory. It runs after `config.sh`
@@ -66,6 +68,22 @@ disk.sh
   partition table, the contents of the final initrd, the bootloader, filesystem
   attributes, etc.
 
+Two further hooks have variable file names. Their paths come from the
+`editbootconfig` and `editbootinstall` attributes of the `type` element, and
+both are called **NOT CHROOTED** from the host with the image root directory as
+the working directory:
+
+editbootconfig
+  Called after the bootloader configuration has been written into the system
+  image and before the root tree is synced into the disk. Two arguments are
+  passed: the boot filesystem name and the boot partition number. This hook is
+  also invoked for the live ISO build type.
+
+editbootinstall
+  Called as the very last step of the disk build, after the bootloader has been
+  installed. Two arguments are passed: the disk image file name and the device
+  node of the boot partition. Only invoked for the `oem` disk build type.
+
 {kiwi} executes scripts via the operating system if their executable
 bit is set (in that case, a shebang is mandatory); otherwise, they are
 invoked via the Bash shell. If a script exits with a non-zero exit code,
@@ -77,7 +95,7 @@ Developing/Debugging Scripts
 Creating a custom script may require some experimenting and testing. To help
 developers with this task, {kiwi} calls scripts associated with a `screen`
 session. The connection to `screen` is only done if {kiwi} is called with the
-`--debug` option.
+`--debug-run-scripts-in-screen` option.
 
 In this mode, a script can be started using the following template:
 
@@ -110,8 +128,8 @@ as follows:
    As shown above, the screen session for executing the script code provides
    extended control, which can be considered a security risk. Because of that,
    {kiwi} only runs scripts through `screen` when explicitly enabled via the
-   `--debug` switch. In production, all scripts must run natively and
-   must not require a terminal to operate correctly.
+   `--debug-run-scripts-in-screen` switch. In production, all scripts must run
+   natively and must not require a terminal to operate correctly.
 
 Script Template for config.sh / images.sh
 -----------------------------------------
@@ -156,7 +174,9 @@ The :file:`.kconfig` file provides a common set of functions.  Functions
 specific to SUSE Linux Enterprise and openSUSE start with `suse`; functions
 applicable to all Linux distributions start with `base`.
 
-The following list describes all functions provided by :file:`.kconfig`:
+The following list describes the functions provided by :file:`.kconfig` that are
+supported for use in image scripts. Additional functions are defined in
+:file:`.kconfig`, these are {kiwi} internals and may change without notice.
 
 baseSetRunlevel {value}
   Set the default run level.
@@ -248,8 +268,12 @@ Rm {list of files}
 Profile Environment Variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :file:`.profile` environment file is created by {kiwi} and contains a
-specific set of variables listed below.
+The :file:`.profile` environment file is created by {kiwi} and contains the
+variables listed below, among others. The full list can be obtained by running:
+
+.. code:: shell-session
+
+    $ kiwi-ng image info --description=<directory> --print-kiwi-env
 
 $kiwi_compressed
   A value of the `compressed` attribute set in the `type` element in

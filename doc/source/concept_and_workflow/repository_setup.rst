@@ -25,7 +25,7 @@ which is a child of the top-level `image` element:
            <source path="{exc_kiwi_repo}"/>
        </repository>
        <repository type="rpm-md" alias="OS" imageinclude="true">
-           <source path="{exc_repo}"/>
+           <source path="{exc_repo_obs}"/>
        </repository>
    </image>
 
@@ -35,7 +35,7 @@ The above example specifies two repositories:
    *{exc_kiwi_repo}* at the Open Build Service (OBS).
 
 2. The RPM repository belonging to the OS project:
-   *{exc_repo}* at the Open Build Service (OBS). The translated
+   *{exc_repo_obs}* at the Open Build Service (OBS). The translated
    HTTP URL is also included in the final appliance.
 
 The `repository` element accepts one `source` child element that

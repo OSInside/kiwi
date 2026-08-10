@@ -67,7 +67,7 @@ size="size_string"
 mountpoint="path"
   Optional mountpoint to mount the partition in the system.
 
-filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs
+filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs|fat32|fat16"
   Optional filesystem configuration to create one of the supported
   filesystems on the partition.
 
