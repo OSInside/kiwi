@@ -59,8 +59,8 @@ def test_configures_system_for_vagrant(container_per_test):
 
     # check the sshd config
     sshd_config = container_per_test.connection.run_expect([0], "sshd -T").stdout
-    assert "UseDNS no".lower() in sshd_config
-    assert "GSSAPIAuthentication no".lower() in sshd_config
+    assert "UseDNS no".lower() in sshd_config.lower()
+    assert "GSSAPIAuthentication no".lower() in sshd_config.lower()
 
     # check that the shared /vagrant folder is present and has the correct permissions
     vagrant_shared_dir = container_per_test.connection.file("/vagrant")
