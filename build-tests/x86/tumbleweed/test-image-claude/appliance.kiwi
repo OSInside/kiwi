@@ -47,6 +47,7 @@
         <package name="python3"/>
         <package name="rust"/>
         <package name="cargo"/>
+        <package name="vim"/>
     </packages>
     <packages type="bootstrap">
         <package name="gawk"/>
