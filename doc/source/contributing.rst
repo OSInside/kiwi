@@ -130,15 +130,43 @@ much appreciated!
 AI policy
 ---------
 
-{kiwi} accepts contributions created using gen-AI tools. Contributions
-using AI tools need to be clearly labeled with the tool used set as
-co-author. If the tool used offers a selection of models set the model
-as co-author. Ultimately the submitter, a human, is still responsible
-for the quality of the code. It is expected that code contributions are
-self reviewed prior to creating a pull request.
+{kiwi} has a policy of human-centric development. Only humans can be authors
+and are ultimately responsible for the quality of their contributions.
+That said, assisted development with "AI" tools (particularly contemporary
+LLM-based tools) is permitted with the restriction that such usage is clearly
+labeled with the `Assisted-by:` trailer in the pull request and commit message.
+The format of the trailer is as such: `Assisted-by: <Tool>:<model-id>`.
 
-The co-author is set using the `Co-authored-by:` trailer in the commit
-comment, for example `Co-authored-by: qwen2.5-coder`
+Examples of such trailers:
+
++----------------+---------------------------------------+
+|      Tool      |                Trailer                |
++================+=======================================+
+| Claude         | `Assisted-by: Claude:claude-opus-4-6` |
+| Gemini         | `Assisted-by: Gemini:gemini-2.5-pro`  |
+| GitHub Copilot | `Assisted-by: Copilot:gpt-4o`         |
+| ChatGPT        | `Assisted-by: ChatGPT:gpt-4o`         |
++----------------+---------------------------------------+
+
+The trailers are required for the following scenarios:
+
+- AI wrote or generated code that ended up in the commit
+- AI substantially modified or refactored existing code
+- AI generated an implementation that the contributor then adapted
+
+It is **not** required for the following scenarios:
+
+- AI was used for **research only** - asking questions, understanding APIs,
+  exploring approaches - but the human wrote all the code
+- AI performed purely **mechanical tasks** like formatting, running commands,
+  or committing
+
+All submitted changes must be at least self-reviewed and all other guidelines
+continue to apply (follow code style, pass tests, make tests for new functionality,
+etc.)
+
+Intentional obfuscation of AI tooling usage is grounds for rejection and may result
+in being blocked from future contributions.
 
 Coding Style
 ------------
