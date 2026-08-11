@@ -35,6 +35,7 @@ from kiwi.exceptions import KiwiFileNotFound
 from kiwi.firmware import FirmWare
 from kiwi.path import Path
 from kiwi.system.identifier import SystemIdentifier
+from kiwi.utils.sparse import SparseFile
 from kiwi.utils.sync import DataSync
 from kiwi.utils.sysconfig import SysConfig
 from kiwi.utils.temporary import Temporary
@@ -1092,9 +1093,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             options=Defaults.get_sync_options(),
             exclude=Defaults.get_exclude_list_from_custom_exclude_files_for_efifatimage(self.root_dir)
         )
-        Command.run(
-            ['qemu-img', 'create', path, f'{fat_image_mbsize}M']
-        )
+        SparseFile.create(path, f'{fat_image_mbsize}M')
         Command.run(
             ['mkdosfs', '-n', 'BOOT', path]
         )

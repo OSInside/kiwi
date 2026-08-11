@@ -39,29 +39,32 @@ class TestLoopDevice:
         assert self.loop.is_loop() is True
 
     @patch('os.path.exists')
+    @patch('kiwi.storage.loop_device.SparseFile.create')
     @patch('kiwi.storage.loop_device.Command.run')
     @patch('kiwi.storage.loop_device.CommandCapabilities.has_option_in_help')
     def test_create(
-        self, mock_has_option_in_help, mock_command, mock_exists
+        self, mock_has_option_in_help, mock_command, mock_sparse_file_create,
+        mock_exists
     ):
         mock_has_option_in_help.return_value = True
         mock_exists.return_value = False
         self.loop.create()
-        call = mock_command.call_args_list[0]
+        mock_sparse_file_create.assert_called_once_with(
+            'loop-file', '20M'
+        )
         assert mock_command.call_args_list[0] == \
-            call([
-                'qemu-img', 'create', 'loop-file', '20M'
-            ])
-        call = mock_command.call_args_list[1]
-        assert mock_command.call_args_list[1] == \
             call([
                 'losetup', '--sector-size', '4096',
                 '-f', '--show', 'loop-file'
             ])
         mock_has_option_in_help.return_value = False
         mock_command.reset_mock()
+        mock_sparse_file_create.reset_mock()
         self.loop.create()
-        assert mock_command.call_args_list[1] == \
+        mock_sparse_file_create.assert_called_once_with(
+            'loop-file', '20M'
+        )
+        assert mock_command.call_args_list[0] == \
             call([
                 'losetup', '--logical-blocksize', '4096',
                 '-f', '--show', 'loop-file'

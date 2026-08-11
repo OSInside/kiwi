@@ -32,6 +32,7 @@ from kiwi.storage.loop_device import LoopDevice
 from kiwi.storage.disk import Disk
 from kiwi.command import Command
 from kiwi.utils.os_release import OsRelease
+from kiwi.utils.sparse import SparseFile
 
 from kiwi.exceptions import (
     KiwiTemplateError,
@@ -133,9 +134,7 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             self.xml_state.build_type
                 .get_efifatimagesize() or defaults.EFI_FAT_IMAGE_SIZE
         )
-        Command.run(
-            ['qemu-img', 'create', path, f'{fat_image_mbsize}M']
-        )
+        SparseFile.create(path, f'{fat_image_mbsize}M')
         Command.run(
             ['sgdisk', '-n', ':1.0', '-t', '1:EF00', path]
         )

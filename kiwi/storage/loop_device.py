@@ -24,6 +24,7 @@ import pathlib
 from kiwi.command import Command
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.utils.command_capabilities import CommandCapabilities
+from kiwi.utils.sparse import SparseFile
 
 from kiwi.exceptions import (
     KiwiLoopSetupError,
@@ -88,9 +89,7 @@ class LoopDevice(DeviceProvider):
         """
         if overwrite:
             qemu_img_size = format(self.filesize_mbytes) + 'M'
-            Command.run(
-                ['qemu-img', 'create', self.filename, qemu_img_size]
-            )
+            SparseFile.create(self.filename, qemu_img_size)
         loop_options = []
         if self.blocksize_bytes and self.blocksize_bytes != 512:
             if CommandCapabilities.has_option_in_help(

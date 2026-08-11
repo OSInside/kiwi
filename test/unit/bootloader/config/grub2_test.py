@@ -416,18 +416,19 @@ class TestBootLoaderConfigGrub2:
 
     @patch('kiwi.bootloader.config.grub2.DataSync.sync_data')
     @patch('kiwi.bootloader.config.grub2.Temporary.new_dir')
+    @patch('kiwi.bootloader.config.grub2.SparseFile.create')
     @patch('kiwi.bootloader.config.grub2.Command.run')
-    def test_create_embedded_fat_efi_image(self, mock_command, mock_tmpdir, mock_syncdata):
+    def test_create_embedded_fat_efi_image(
+        self, mock_command, mock_sparse_file_create, mock_tmpdir, mock_syncdata
+    ):
         tmpdir = Mock()
         tmpdir.name = 'tmpdir'
         mock_tmpdir.return_value = tmpdir
         self.bootloader._create_embedded_fat_efi_image('tmp-esp-image')
+        mock_sparse_file_create.assert_called_once_with(
+            'tmp-esp-image', '20M'
+        )
         assert mock_command.call_args_list == [
-            call(
-                [
-                    'qemu-img', 'create', 'tmp-esp-image', '20M'
-                ]
-            ),
             call(
                 [
                     'mkdosfs', '-n', 'BOOT', 'tmp-esp-image'
