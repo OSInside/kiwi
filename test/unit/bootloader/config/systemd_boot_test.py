@@ -213,6 +213,7 @@ class TestBootLoaderSystemdBoot:
             file_handle.write.assert_called_once_with(self.bootloader.cmdline)
 
     @patch('kiwi.bootloader.config.systemd_boot.Path.create')
+    @patch('kiwi.bootloader.config.systemd_boot.SparseFile.create')
     @patch('kiwi.bootloader.config.systemd_boot.Command.run')
     @patch('kiwi.bootloader.config.systemd_boot.LoopDevice')
     @patch('kiwi.bootloader.config.systemd_boot.Disk')
@@ -221,7 +222,8 @@ class TestBootLoaderSystemdBoot:
     @patch.object(BootLoaderSystemdBoot, 'set_loader_entry')
     def test_create_embedded_fat_efi_image(
         self, mock_set_loader_entry, mock_run_bootctl, mock_MountManager,
-        mock_Disk, mock_LoopDevice, mock_Command_run, mock_Path_create
+        mock_Disk, mock_LoopDevice, mock_Command_run, mock_sparse_file_create,
+        mock_Path_create
     ):
         target = Mock()
         self.bootloader.target = target
@@ -229,6 +231,9 @@ class TestBootLoaderSystemdBoot:
             'efi': 'efi_device'
         }
         self.bootloader._create_embedded_fat_efi_image('ESP')
+        mock_sparse_file_create.assert_called_once_with(
+            'ESP', '20M'
+        )
         assert mock_MountManager.call_args_list == [
             call(device='efi_device', mountpoint='root_dir/boot/efi'),
             call(device='/dev', mountpoint='root_dir/dev'),
@@ -236,7 +241,6 @@ class TestBootLoaderSystemdBoot:
             call(device='/sys', mountpoint='root_dir/sys')
         ]
         assert mock_Command_run.call_args_list == [
-            call(['qemu-img', 'create', 'ESP', '20M']),
             call(['sgdisk', '-n', ':1.0', '-t', '1:EF00', 'ESP']),
             call(
                 ['mkdosfs', '-n', 'BOOT', 'efi_device']
