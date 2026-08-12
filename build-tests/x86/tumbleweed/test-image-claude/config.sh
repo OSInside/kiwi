@@ -9,7 +9,7 @@ zypper ar -f https://packages.cloud.google.com/yum/repos/cloud-sdk-el10-x86_64 g
 
 zypper ar  https://download.opensuse.org/tumbleweed/repo/oss TW
 
-sudo zypper in google-cloud-cli
+zypper in google-cloud-cli
 
 mkdir -p ~/.claude
 
