@@ -3,6 +3,7 @@ set -ex
 
 mkdir -p /root/ai
 
+npm approve-scripts @anthropic-ai/claude-code
 npm install -g @anthropic-ai/claude-code
 
 zypper ar -f https://packages.cloud.google.com/yum/repos/cloud-sdk-el10-x86_64 google-cloud-rhel10
