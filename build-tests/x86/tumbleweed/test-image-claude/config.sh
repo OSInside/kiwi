@@ -11,9 +11,9 @@ zypper ar  https://download.opensuse.org/tumbleweed/repo/oss TW
 
 zypper in google-cloud-cli
 
-mkdir -p ~/.claude
+mkdir -p /etc/claude-code
 
-cat > ~/.claude/settings.json <<'EOF'
+cat > /etc/claude-code/managed-settings.json <<'EOF'
 {
   "permissions": {
     "defaultMode": "default"
@@ -28,4 +28,4 @@ cat > ~/.claude/settings.json <<'EOF'
   }
 }
 EOF
-chmod 0644 ~/.claude/settings.json
+chmod 0644 /etc/claude-code/managed-settings.json
