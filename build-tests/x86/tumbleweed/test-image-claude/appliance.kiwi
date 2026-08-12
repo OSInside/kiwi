@@ -25,6 +25,8 @@
     </repository>
     <packages type="image">
         <package name="curl"/>
+        <package name="less"/>
+        <package name="sed"/>
         <package name="libcap-progs"/>
         <package name="ncurses-utils"/>
         <package name="patterns-openSUSE-base"/>
@@ -45,9 +47,11 @@
         <package name="openssh-server"/>
         <package name="npm-default"/>
         <package name="python3"/>
+        <package name="python3-pip"/>
         <package name="rust"/>
         <package name="cargo"/>
         <package name="vim"/>
+        <package name="which"/>
     </packages>
     <packages type="bootstrap">
         <package name="gawk"/>

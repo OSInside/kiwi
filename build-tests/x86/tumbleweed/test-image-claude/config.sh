@@ -1,15 +1,16 @@
 #!/bin/bash
 set -ex
 
-mkdir -p /root/ai
+zypper ar -f https://download.opensuse.org/tumbleweed/repo/oss TW
 
 npm install -g @anthropic-ai/claude-code
 
-zypper ar -f https://packages.cloud.google.com/yum/repos/cloud-sdk-el10-x86_64 google-cloud-rhel10
+curl https://sdk.cloud.google.com > install.sh
+bash install.sh --disable-prompts --install-dir=/usr/share
 
-zypper ar  https://download.opensuse.org/tumbleweed/repo/oss TW
-
-zypper in google-cloud-cli
+ln -s /usr/share/google-cloud-sdk/bin/gcloud /usr/bin/gcloud
+ln -s /usr/share/google-cloud-sdk/bin/gsutil /usr/bin/gsutil
+ln -s /usr/share/google-cloud-sdk/bin/bq /usr/bin/bq
 
 mkdir -p /etc/claude-code
 
