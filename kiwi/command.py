@@ -15,17 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import IO, Callable, List, MutableMapping, NamedTuple, Optional, overload
+from typing import IO, Callable, Literal, List, MutableMapping, NamedTuple, Optional, overload
 import logging
 import os
 import select
 import subprocess
-import sys
-
-if sys.version_info >= (3, 8):
-    from typing import Literal  # pragma: no cover
-else:  # pragma: no cover
-    from typing_extensions import Literal  # pragma: no cover
 
 # project
 from kiwi.utils.codec import Codec

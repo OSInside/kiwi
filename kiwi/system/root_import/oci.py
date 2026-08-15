@@ -101,11 +101,7 @@ class RootImportOCI(RootImportBase):
                     uncompressed_image = compressor.uncompressed_filename
                 else:
                     uncompressed_image = image_file
-                image_urls.append(
-                    '{0}:{1}'.format(
-                        self.archive_transport, uncompressed_image
-                    )
-                )
+                image_urls.append(f"{self.archive_transport}:{uncompressed_image}")
             return image_urls
         else:
             log.warning('Bypassing base image URI to OCI tools')

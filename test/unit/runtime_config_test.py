@@ -5,6 +5,7 @@ from unittest.mock import (
 from pytest import (
     raises, fixture
 )
+import pytest
 
 from kiwi.runtime_config import RuntimeConfig
 from kiwi.defaults import Defaults
@@ -50,6 +51,7 @@ class TestRuntimeConfig:
                     ]
                 )
 
+    @pytest.mark.no_kiwi_yml_mock
     @patch('os.path.exists')
     @patch('yaml.safe_load')
     @patch('os.path.isdir')
@@ -82,6 +84,7 @@ class TestRuntimeConfig:
                 call('/etc/kiwi.yml.d/some.yml', 'r')
             ]
 
+    @pytest.mark.no_kiwi_yml_mock
     @patch('os.path.exists')
     @patch('yaml.safe_load')
     @patch('os.path.isdir')

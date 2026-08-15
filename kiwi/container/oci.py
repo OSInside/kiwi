@@ -17,12 +17,7 @@
 #
 import os
 import logging
-import sys
-from typing import Dict, List, Optional
-if sys.version_info >= (3, 8):
-    from typing import TypedDict  # pragma: no cover
-else:  # pragma: no cover
-    from typing_extensions import TypedDict  # pragma: no cover
+from typing import Dict, List, Optional, TypedDict
 
 # project
 from kiwi.utils.compress import Compress

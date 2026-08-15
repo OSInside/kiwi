@@ -17,15 +17,8 @@
 #
 from contextlib import ExitStack
 import os
-import sys
 import logging
-from typing import (
-    Dict, List, Optional, Tuple, Union
-)
-if sys.version_info >= (3, 8):
-    from typing import TypedDict  # pragma: no cover
-else:  # pragma: no cover
-    from typing_extensions import TypedDict  # pragma: no cover
+from typing import Dict, List, Optional, Tuple, TypedDict, Union
 
 # project
 import kiwi.defaults as defaults
