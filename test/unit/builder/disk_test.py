@@ -1952,3 +1952,18 @@ class TestDiskBuilder:
         disk.storage_provider = provider
         disk.partitioner = partitioner
         return disk
+
+    def test_get_root_readonly_compression_erofs(self):
+        self.disk_builder.root_filesystem_read_only_type = 'erofs'
+        self.disk_builder.xml_state.build_type.get_erofscompression = Mock(
+            return_value='lz4hc,level=12'
+        )
+        assert self.disk_builder._get_root_readonly_compression() == \
+            'lz4hc,level=12'
+
+    def test_get_root_readonly_compression_squashfs(self):
+        self.disk_builder.root_filesystem_read_only_type = 'squashfs'
+        self.disk_builder.xml_state.build_type.get_squashfscompression = Mock(
+            return_value='gzip'
+        )
+        assert self.disk_builder._get_root_readonly_compression() == 'gzip'
