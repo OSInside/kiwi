@@ -1192,7 +1192,7 @@ class TestDiskBuilder:
             [
                 call(
                     'squashfs',
-                    custom_args={'compression': None},
+                    custom_args={'compression': None, 'create_options': []},
                     device_provider=mock_DeviceProvider.return_value,
                     root_dir='root_dir'
                 )

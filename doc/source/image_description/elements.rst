@@ -993,6 +993,15 @@ overlayroot_readonly_filesystem="squashfs|erofs":
   as a read-only filesystem in an `overlayroot` setup. By default,
   `squashfs` is used.
 
+overlayroot_readonly_createoptions="string":
+  For the `oem` type only, specifies additional creation options
+  passed to the tool that builds the read-only filesystem of an
+  `overlayroot` setup (`mkfs.erofs` or `mksquashfs`). The value is a
+  whitespace separated list of options, analogous to `fscreateoptions`
+  for the read-write root filesystem. A typical use is to select a
+  larger EROFS physical cluster for a better compression ratio, for
+  example `overlayroot_readonly_createoptions="-C 1048576"`.
+
 overlayroot_write_partition="true|false":
   For the `oem` type only, this allows you to specify if the extra read-write
   partition in an `overlayroot` setup should be created or not.

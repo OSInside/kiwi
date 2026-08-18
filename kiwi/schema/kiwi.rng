@@ -3005,6 +3005,13 @@ The string given here is passed as value to the -o option of mount</a:documentat
         <a:documentation>Specifies options to create the filesystem</a:documentation>
       </attribute>
     </define>
+    <define name="k.type.overlayroot_readonly_createoptions.attribute">
+      <attribute name="overlayroot_readonly_createoptions">
+        <a:documentation>Specifies extra creation options passed to the tool that builds
+the overlay read-only root filesystem (e.g. mkfs.erofs -C for a
+larger pcluster). Whitespace separated.</a:documentation>
+      </attribute>
+    </define>
     <define name="k.type.hybridpersistent.attribute">
       <attribute name="hybridpersistent">
         <a:documentation>Will trigger the creation of a partition for a COW file
@@ -3719,6 +3726,9 @@ partition if present</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.overlayroot_readonly_partsize.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.overlayroot_readonly_createoptions.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.verity_blocks.attribute"/>
