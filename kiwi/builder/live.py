@@ -73,7 +73,7 @@ class LiveImageBuilder:
         root_dir: str, custom_args: Dict = None
     ):
         self.bootloader = xml_state.get_build_type_bootloader_name()
-        if self.bootloader != 'systemd_boot':
+        if self.bootloader not in ('systemd_boot', 'iso_s390x'):
             self.bootloader = 'grub2'
         self.root_filesystem_verity_blocks = \
             xml_state.build_type.get_verity_blocks()
