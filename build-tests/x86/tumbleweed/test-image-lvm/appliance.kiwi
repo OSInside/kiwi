@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 <image schemaversion="7.5" name="kiwi-test-image-lvm">
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@suse.com</contact>
         <specification>Disk test build using LVM</specification>
     </description>
+    <profiles>
+        <profile name="DOS" description="MBR(DOS) disk"/>
+        <profile name="GPT" description="GPT disk"/>
+    </profiles>
     <preferences>
         <version>1.42.1</version>
         <packagemanager>zypper</packagemanager>
@@ -16,7 +20,21 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>breeze</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
+    </preferences>
+    <preferences profiles="GPT">
         <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="uefi" format="vmdk">
+            <oemconfig>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>512</oem-swapsize>
+            </oemconfig>
+            <bootloader name="grub2" console="serial" timeout="10"/>
+            <systemdisk>
+                <volume name="home" size="2G"/>
+            </systemdisk>
+        </type>
+    </preferences>
+    <preferences profiles="DOS">
+        <type image="oem" filesystem="ext3" kernelcmdline="console=ttyS0" firmware="bios" format="vmdk">
             <oemconfig>
                 <oem-swap>true</oem-swap>
                 <oem-swapsize>512</oem-swapsize>
@@ -43,7 +61,6 @@
         <package name="iputils"/>
         <package name="vim"/>
         <package name="grub2"/>
-        <package name="grub2-x86_64-efi" arch="x86_64"/>
         <package name="grub2-i386-pc"/>
         <package name="lvm2"/>
         <package name="plymouth"/>
@@ -61,6 +78,9 @@
         <package name="shim"/>
         <package name="timezone"/>
         <package name="dracut-kiwi-oem-repart"/>
+    </packages>
+    <packages type="image" profiles="GPT">
+        <package name="grub2-x86_64-efi" arch="x86_64"/>
     </packages>
     <packages type="bootstrap">
         <package name="gawk"/>
