@@ -177,6 +177,9 @@ class Disk(DeviceProvider):
                 self.partitioner.set_uuid(
                     self.partition_id_map[map_name], part_uuid
                 )
+                self.partitioner.set_flag(
+                    entry.partition_id, entry.partition_type
+                )
 
     def create_root_partition(
         self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
@@ -250,6 +253,7 @@ class Disk(DeviceProvider):
             self.partitioner.set_uuid(
                 self.partition_id_map['root'], root_uuid
             )
+            self.partitioner.set_flag(partition_id, 't.lvm')
 
     def create_root_raid_partition(
         self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
@@ -287,6 +291,7 @@ class Disk(DeviceProvider):
             self.partitioner.set_uuid(
                 self.partition_id_map['root'], root_uuid
             )
+            self.partitioner.set_flag(partition_id, 't.raid')
 
     def create_root_readonly_partition(
         self, mbsize: str, clone: int = 0, partition_id: Optional[int] = None
@@ -432,6 +437,7 @@ class Disk(DeviceProvider):
             self.partitioner.set_uuid(
                 self.partition_id_map['swap'], swap_uuid
             )
+            self.partitioner.set_flag(partition_id, 't.swap')
 
     def create_efi_csm_partition(
         self, mbsize: str, partition_id: Optional[int] = None
@@ -483,6 +489,7 @@ class Disk(DeviceProvider):
             self.partitioner.set_uuid(
                 self.partition_id_map['efi'], esp_uuid
             )
+            self.partitioner.set_flag(partition_id, 't.efi')
 
     def activate_boot_partition(self):
         """

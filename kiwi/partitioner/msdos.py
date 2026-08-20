@@ -99,6 +99,7 @@ class PartitionerMsDos(PartitionerBase):
         :param int partition_id: partition number
         :param string flag_name: name from flag map
         """
+        partition_id = partition_id if partition_id else self.partition_id
         if flag_name not in self.flag_map:
             raise KiwiPartitionerMsDosFlagError(
                 f'Unknown partition flag {flag_name}'
