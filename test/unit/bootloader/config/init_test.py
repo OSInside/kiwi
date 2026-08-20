@@ -58,3 +58,13 @@ class TestBootLoaderConfig:
         mock_custom.assert_called_once_with(
             xml_state, 'root_dir', None, None
         )
+
+    @patch('kiwi.bootloader.config.s390x_iso.BootLoaderS390xIso')
+    def test_bootloader_config_s390x_iso(self, mock_s390x_iso):
+        xml_state = Mock()
+        create_boot_loader_config(
+            name='s390x_iso', xml_state=xml_state, root_dir='root_dir'
+        )
+        mock_s390x_iso.assert_called_once_with(
+            xml_state, 'root_dir', None, None
+        )
