@@ -71,7 +71,8 @@ class RootBind:
             '/proc',
             '/dev',
             '/var/run/dbus',
-            '/sys'
+            '/sys',
+            '/sys/fs/cgroup'
         ]
         # share the following directory with the host
         self.shared_location = '/' + Defaults.get_shared_cache_location()

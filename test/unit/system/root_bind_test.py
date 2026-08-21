@@ -33,7 +33,8 @@ class TestRootBind:
             '/proc',
             '/dev',
             '/var/run/dbus',
-            '/sys'
+            '/sys',
+            '/sys/fs/cgroup'
         ]
 
         # stub config files and bind locations
