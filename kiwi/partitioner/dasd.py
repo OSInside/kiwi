@@ -96,6 +96,17 @@ class PartitionerDasd(PartitionerBase):
         """
         pass  # pragma: nocover
 
+    def set_flag(self, partition_id: int, flag_name: str):
+        """
+        Set partition flag
+
+        Nothing to be done here for DASD devices
+
+        :param int partition_id: unused
+        :param string flag_name: unused
+        """
+        pass  # pragma: nocover
+
     def resize_table(self, entries: int = None) -> None:
         """
         Resize partition table
