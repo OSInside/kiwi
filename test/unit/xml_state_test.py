@@ -1001,6 +1001,12 @@ class TestXMLState:
     def test_get_fs_create_option_list(self):
         assert self.state.get_fs_create_option_list() == ['-O', '^has_journal']
 
+    @patch('kiwi.xml_parse.type_.get_overlayroot_readonly_createoptions')
+    def test_get_fs_readonly_create_option_list(self, mock_createopts):
+        mock_createopts.return_value = '-C 1048576'
+        assert self.state.get_fs_readonly_create_option_list() == \
+            ['-C', '1048576']
+
     @patch('kiwi.xml_parse.type_.get_boot')
     def test_get_distribution_name_from_boot_attribute_no_boot(self, mock_boot):
         mock_boot.return_value = None

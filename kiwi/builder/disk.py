@@ -138,6 +138,8 @@ class DiskBuilder:
             if xml_state.build_type.get_root_clone() else 0
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
         self.custom_root_creation_args = xml_state.get_fs_create_option_list()
+        self.custom_root_readonly_creation_args = \
+            xml_state.get_fs_readonly_create_option_list()
         self.build_type_name = xml_state.get_build_type_name()
         self.image_format = xml_state.build_type.get_format()
         self.install_iso = xml_state.build_type.get_installiso()
@@ -282,6 +284,22 @@ class DiskBuilder:
         result = self.create_install_media(result)
         self.append_unpartitioned_space()
         return self.create_disk_format(result)
+
+    def _get_root_readonly_compression(self):
+        """
+        Compression setting for the overlay read-only root filesystem
+
+        The read-only root filesystem type of an overlayroot image is
+        selectable via the overlayroot_readonly_filesystem attribute
+        (squashfs or erofs). Return the compression value that matches
+        that type, so that both squashfscompression and erofscompression
+        are honored. Before this, the overlay code path always read
+        squashfscompression, which silently ignored erofscompression for
+        an erofs overlay root.
+        """
+        if self.root_filesystem_read_only_type == 'erofs':
+            return self.xml_state.build_type.get_erofscompression()
+        return self.xml_state.build_type.get_squashfscompression()
 
     def create_disk(self) -> Result:
         """
@@ -1235,7 +1253,9 @@ class DiskBuilder:
                     device_provider=DeviceProvider(), root_dir=self.root_dir,
                     custom_args={
                         'compression':
-                            self.xml_state.build_type.get_squashfscompression()
+                            self._get_root_readonly_compression(),
+                        'create_options':
+                            self.custom_root_readonly_creation_args
                     }
                 ) as squashed_root:
                     squashed_root.create_on_file(
@@ -1751,7 +1771,9 @@ class DiskBuilder:
                 device_provider=DeviceProvider(), root_dir=self.root_dir,
                 custom_args={
                     'compression':
-                        self.xml_state.build_type.get_squashfscompression()
+                        self._get_root_readonly_compression(),
+                    'create_options':
+                        self.custom_root_readonly_creation_args
                 }
             ) as squashed_root:
                 exclude_list = self._get_exclude_list_for_root_data_sync(

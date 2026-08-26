@@ -2915,6 +2915,28 @@ class XMLState:
 
         return option_list
 
+    def get_fs_readonly_create_option_list(self) -> List:
+        """
+        List of overlay read-only root filesystem creation options
+
+        The list contains elements with the information from the
+        overlayroot_readonly_createoptions attribute string that got
+        split into its substring components. These options are passed to
+        the tool that builds the overlay read-only root filesystem
+        (e.g. mkfs.erofs / mksquashfs), for example a larger pcluster
+        via the erofs -C option.
+
+        :return: list with create options
+
+        :rtype: list
+        """
+        option_list = []
+        create_options = self.build_type.get_overlayroot_readonly_createoptions()
+        if create_options:
+            option_list = create_options.split()
+
+        return option_list
+
     def get_luks_credentials(self) -> Optional[str]:
         """
         Return key or passphrase credentials to open the luks pool

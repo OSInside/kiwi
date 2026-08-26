@@ -2086,6 +2086,11 @@ div {
     k.type.fscreateoptions.attribute =
         ## Specifies options to create the filesystem
         attribute fscreateoptions { text }
+    k.type.overlayroot_readonly_createoptions.attribute =
+        ## Specifies extra creation options passed to the tool that builds
+        ## the overlay read-only root filesystem (e.g. mkfs.erofs -C for a
+        ## larger pcluster). Whitespace separated.
+        attribute overlayroot_readonly_createoptions { text }
     k.type.hybridpersistent.attribute =
         ## Will trigger the creation of a partition for a COW file
         ## to keep data persistent over a reboot
@@ -2532,6 +2537,7 @@ div {
         k.type.overlayroot_write_partition.attribute? &
         k.type.overlayroot_readonly_filesystem.attribute? &
         k.type.overlayroot_readonly_partsize.attribute? &
+        k.type.overlayroot_readonly_createoptions.attribute? &
         k.type.verity_blocks.attribute? &
         k.type.embed_verity_metadata.attribute? &
         k.type.standalone_integrity.attribute? &
