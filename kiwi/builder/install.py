@@ -163,7 +163,8 @@ class InstallImageBuilder:
                 'efi_partition_table': self.firmware.get_partition_table_type(),
                 'gpt_hybrid_mbr': self.firmware.gpt_hybrid_mbr,
                 'ofw_mode': self.firmware.ofw_mode(),
-                'legacy_bios_mode': self.firmware.legacy_bios_mode()
+                'legacy_bios_mode': self.firmware.legacy_bios_mode(),
+                'bootloader': self.bootloader
             }
         }
 
