@@ -74,7 +74,9 @@ class IsoToolsXorrIso(IsoToolsBase):
         :param list custom_args: custom ISO meta data
         """
         legacy_bios_mode = True
+        bootloader = None
         if custom_args:
+            bootloader = custom_args.get('bootloader')
             application_id = \
                 custom_args.get('application_id') or custom_args.get('mbr_id')
             if application_id:
@@ -108,6 +110,15 @@ class IsoToolsXorrIso(IsoToolsBase):
                 # https://lists.gnu.org/archive/html/bug-xorriso/2024-11/msg00012.html
                 '-compliance', 'no_emul_toc'
             ]
+
+        if bootloader == 's390x_iso':
+            loader_file = '/'.join([self.boot_path, 'loader', 'cd.ikr'])
+            self.iso_loaders += [
+                '-boot_image', 'any', f'bin_path={loader_file}',
+                '-boot_image', 'any', 'boot_info_table=off',
+                '-boot_image', 'any', 'load_size=512'
+            ]
+            return
 
         if Defaults.is_x86_arch(self.arch) and legacy_bios_mode:
             mbr_file = os.sep.join(

@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import glob
 import logging
 import struct
 import shutil
@@ -175,7 +174,7 @@ class BootLoaderS390xIso(BootLoaderConfigBase):
             def write_at_offset(data: bytearray, offset: int, payload: bytes) -> None:
                 if len(data) < offset + len(payload):
                     data.extend(b'\x00' * (offset + len(payload) - len(data)))
-                data[offset:offset+len(payload)] = payload
+                data[offset:offset + len(payload)] = payload
 
             write_at_offset(cd_ikr_data, initrd_ofs_ofs, initrd_off_data)
             write_at_offset(cd_ikr_data, initrd_siz_ofs, initrd_siz_data)
