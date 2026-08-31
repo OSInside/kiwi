@@ -27,6 +27,7 @@ if TYPE_CHECKING:  # pragma: nocover
     from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
     from kiwi.bootloader.config.custom import BootLoaderConfigCustom
     from kiwi.bootloader.config.zipl import BootLoaderZipl
+    from kiwi.bootloader.config.s390x_iso import BootLoaderS390xIso
 
 
 @overload
@@ -63,16 +64,16 @@ def create_boot_loader_config(
 
 @overload
 def create_boot_loader_config(
-    *, name: str, xml_state: object, root_dir: str,
+    *, name: Literal["s390x_iso"], xml_state: object, root_dir: str,
     boot_dir: str = None, custom_args: Dict = None
-) -> "Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderZipl]":
+) -> "BootLoaderS390xIso":
     ...  # pragma: nocover
 
 
 def create_boot_loader_config(
     *, name: str, xml_state: object, root_dir: str,
     boot_dir: str = None, custom_args: Dict = None
-) -> "Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderZipl, BootLoaderConfigCustom]":
+) -> "Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderZipl, BootLoaderConfigCustom, BootLoaderS390xIso]":
 
     if name in ("grub2", "grub2_s390x_emu"):
         from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
@@ -83,6 +84,9 @@ def create_boot_loader_config(
     if name == "zipl":
         from kiwi.bootloader.config.zipl import BootLoaderZipl
         return BootLoaderZipl(xml_state, root_dir, boot_dir, custom_args)
+    if name == "s390x_iso":
+        from kiwi.bootloader.config.s390x_iso import BootLoaderS390xIso
+        return BootLoaderS390xIso(xml_state, root_dir, boot_dir, custom_args)
     if name == "custom":
         from kiwi.bootloader.config.custom import BootLoaderConfigCustom
         return BootLoaderConfigCustom(xml_state, root_dir, boot_dir, custom_args)

@@ -32,6 +32,7 @@ from kiwi.utils.temporary import Temporary
 from kiwi.bootloader.config import create_boot_loader_config
 from kiwi.bootloader.config.grub2 import BootLoaderConfigGrub2
 from kiwi.bootloader.config.systemd_boot import BootLoaderSystemdBoot
+from kiwi.bootloader.config.s390x_iso import BootLoaderS390xIso
 from kiwi.bootloader.config.base import BootLoaderConfigBase
 from kiwi.filesystem import FileSystem
 from kiwi.filesystem.isofs import FileSystemIsoFs
@@ -73,7 +74,7 @@ class LiveImageBuilder:
         root_dir: str, custom_args: Dict = None
     ):
         self.bootloader = xml_state.get_build_type_bootloader_name()
-        if self.bootloader != 'systemd_boot':
+        if self.bootloader not in ('systemd_boot', 's390x_iso'):
             self.bootloader = 'grub2'
         self.root_filesystem_verity_blocks = \
             xml_state.build_type.get_verity_blocks()
@@ -135,7 +136,8 @@ class LiveImageBuilder:
                 'efi_mode': self.firmware.efi_mode(),
                 'efi_partition_table': self.firmware.get_partition_table_type(),
                 'gpt_hybrid_mbr': self.firmware.gpt_hybrid_mbr,
-                'legacy_bios_mode': self.firmware.legacy_bios_mode()
+                'legacy_bios_mode': self.firmware.legacy_bios_mode(),
+                'bootloader': self.bootloader
             }
         }
 
@@ -465,7 +467,9 @@ class LiveImageBuilder:
 
     def create_live_iso_boot_images(
         self,
-        bootloader_config: Union[BootLoaderConfigGrub2, BootLoaderSystemdBoot],
+        bootloader_config: Union[
+            BootLoaderConfigGrub2, BootLoaderSystemdBoot, BootLoaderS390xIso
+        ],
         modules: List[str] = []
     ) -> None:
         live_dracut_modules = Defaults.get_live_dracut_modules_from_flag(
@@ -482,6 +486,15 @@ class LiveImageBuilder:
         self.boot_image.create_initrd(self.mbrid)
         # Clean up leftover dracut config file (which can break installs)
         os.unlink(self.root_dir + '/etc/dracut.conf.d/02-livecd.conf')
+        if self.bootloader == 's390x_iso':
+            from kiwi.system.kernel import Kernel
+            kernel = Kernel(self.boot_image.boot_root_directory)
+            kernel_info = kernel.get_kernel()
+            if kernel_info and self.boot_image.initrd_filename:
+                bootloader_config.setup_s390x_boot_images(
+                    kernel_file=kernel_info.filename,
+                    initrd_file=self.boot_image.initrd_filename
+                )
         if self.bootloader == 'systemd_boot':
             # make sure the initrd name follows the dracut
             # naming conventions

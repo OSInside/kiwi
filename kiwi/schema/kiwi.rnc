@@ -3030,7 +3030,7 @@ div {
         ## user which can be done by using the editbootinstall and
         ## editbootconfig custom scripts
         attribute name {
-            "grub2" | "grub2_s390x_emu" | "systemd_boot" | "custom" | "zipl"
+            "grub2" | "grub2_s390x_emu" | "systemd_boot" | "custom" | "zipl" | "s390x_iso"
         }
         >> sch:pattern [ id = "loader_name" is-a = "bootloader_image_type"
             sch:param [ name = "attr" value = "name" ]

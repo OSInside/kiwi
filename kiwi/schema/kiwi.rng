@@ -4568,6 +4568,7 @@ editbootconfig custom scripts</a:documentation>
           <value>systemd_boot</value>
           <value>custom</value>
           <value>zipl</value>
+          <value>s390x_iso</value>
         </choice>
       </attribute>
       <sch:pattern id="loader_name" is-a="bootloader_image_type">
