@@ -30,7 +30,9 @@ install() {
         umount dmsetup partx blkid lsblk dd losetup \
         grep cut find wc fdisk tail mkfs.ext4 mkfs.xfs \
         dialog cat mountpoint curl dolly dd cryptsetup veritysetup \
-        flock udevadm sed
+        flock udevadm sed nbdkit nbd-client
+    inst_simple "/usr/lib64/nbdkit/plugins/nbdkit-curl-plugin.so" \
+        "/usr/lib64/nbdkit/plugins/nbdkit-curl-plugin.so"
 
     dmsquashdir=$(find "${dracutbasedir}/modules.d" -name "*dmsquash-live")
     if [ -n "${dmsquashdir}" ] && \
