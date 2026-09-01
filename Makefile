@@ -165,8 +165,6 @@ build: clean check test
 		-e s"@%%MD5SUM@$${md5sums}@" > dist/PKGBUILD
 	# provide rpm rpmlintrc
 	cp package/python-kiwi-rpmlintrc dist
-	# provide patches
-	cp package/*.patch dist
 	# provide additional source files
 	cp package/systemd-tmpfiles-for-suse.conf dist
 
