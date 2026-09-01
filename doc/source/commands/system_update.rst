@@ -10,11 +10,10 @@ SYNOPSIS
 
    kiwi-ng [global options] service <command> [<args>]
 
-   kiwi-ng system update -h | --help
+   kiwi-ng system update --help
    kiwi-ng system update --root=<directory>
        [--add-package=<name>...]
        [--delete-package=<name>...]
-   kiwi-ng system update help
 
 .. _db_kiwi_system_update_desc:
 

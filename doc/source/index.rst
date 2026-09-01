@@ -97,14 +97,14 @@ The project officially tests and supports the following distributions:
 ============================================================  =================
 Distribution                                                  Version
 ============================================================  =================
-`Fedora Linux <https://fedoraproject.org>`_                   40+
-`CentOS Stream <https://centos.org>`_                         9+
-`CentOS Stream Hyperscale <https://centos.org/hyperscale>`_   9+
-`openSUSE Tumbleweed <https://get.opensuse.org/tumbleweed>`_  after April 2024
+`Fedora Linux <https://fedoraproject.org>`_                   43+
+`CentOS Stream <https://centos.org>`_                         10+
+`CentOS Stream Hyperscale <https://centos.org/hyperscale>`_   10+
+`openSUSE Tumbleweed <https://get.opensuse.org/tumbleweed>`_  after April 2025
 `openSUSE Leap 16.0+ <https://get.opensuse.org/leap/16.0/>`_  16.0+
-`Canonical Ubuntu Linux <https://ubuntu.com/>`_               24.04+
-`Debian GNU/Linux <https://debian.org>`_                      12+
-`Arch Linux <https://archlinux.org>`_                         after April 2024
+`Canonical Ubuntu Linux <https://ubuntu.com/>`_               26.04+
+`Debian GNU/Linux <https://debian.org>`_                      13+
+`Arch Linux <https://archlinux.org>`_                         after April 2025
 ============================================================  =================
 
 Contact

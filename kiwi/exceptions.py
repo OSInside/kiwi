@@ -387,6 +387,12 @@ class KiwiLoadCommandUndefined(KiwiError):
     """
 
 
+class KiwiLoadPluginError(KiwiError):
+    """
+    Exception raised if loading the plugin has failed
+    """
+
+
 class KiwiLogFileSetupFailed(KiwiError):
     """
     Exception raised if the log file could not be created.

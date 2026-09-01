@@ -12,10 +12,9 @@ SYNOPSIS
 
    kiwi-ng [global options] service <command> [<args>]
 
-   kiwi-ng system create -h | --help
+   kiwi-ng system create --help
    kiwi-ng system create --root=<directory> --target-dir=<directory>
        [--signing-key=<key-file>...]
-   kiwi-ng system create help
 
 .. _db_kiwi_system_create_desc:
 
