@@ -3,7 +3,7 @@ set -ex
 
 zypper ar -f https://download.opensuse.org/tumbleweed/repo/oss TW
 
-npm install -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code@latest
 
 curl https://sdk.cloud.google.com > install.sh
 bash install.sh --disable-prompts --install-dir=/usr/share
