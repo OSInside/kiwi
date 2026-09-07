@@ -73,12 +73,12 @@ class LiveImageBuilder:
         self, xml_state: XMLState, target_dir: str,
         root_dir: str, custom_args: Dict = None
     ):
+        self.arch = Defaults.get_platform_name()
         self.bootloader = xml_state.get_build_type_bootloader_name()
-        if self.bootloader not in ('systemd_boot', 'iso_s390x'):
-            self.bootloader = 'grub2'
+        if self.bootloader not in ('custom', 'iso_s390x', 'systemd_boot'):
+            self.bootloader = 'grub2' if self.arch != 's390x' else 'iso_s390x'
         self.root_filesystem_verity_blocks = \
             xml_state.build_type.get_verity_blocks()
-        self.arch = Defaults.get_platform_name()
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
@@ -486,7 +486,7 @@ class LiveImageBuilder:
         self.boot_image.create_initrd(self.mbrid)
         # Clean up leftover dracut config file (which can break installs)
         os.unlink(self.root_dir + '/etc/dracut.conf.d/02-livecd.conf')
-        if self.bootloader == 'iso_s390x':
+        if self.arch == 's390x':
             from kiwi.system.kernel import Kernel
             kernel = Kernel(self.boot_image.boot_root_directory)
             kernel_info = kernel.get_kernel()

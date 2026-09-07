@@ -71,8 +71,8 @@ class InstallImageBuilder:
         self.runtime_config = RuntimeConfig()
         self.arch = Defaults.get_platform_name()
         self.bootloader = xml_state.get_build_type_bootloader_name()
-        if self.bootloader != 'systemd_boot':
-            self.bootloader = 'grub2'
+        if self.bootloader not in ('custom', 'iso_s390x', 'systemd_boot'):
+            self.bootloader = 'grub2' if self.arch != 's390x' else 'iso_s390x'
         self.root_dir = root_dir
         self.target_dir = target_dir
         self.xml_state = xml_state
