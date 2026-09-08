@@ -1,6 +1,6 @@
 iso:
-  - media_tag_tool: isomd5sum
+  media_tag_tool: isomd5sum
 oci:
-  - archive_tool: buildah
+  archive_tool: buildah
 bundle:
-  - shasum_size: "512"
+  shasum_size: "512"
