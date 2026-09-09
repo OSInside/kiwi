@@ -22,7 +22,6 @@
         <bootsplash-theme>charge</bootsplash-theme>
         <bootloader-theme>breeze</bootloader-theme>
         <locale>en_US</locale>
-        <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>

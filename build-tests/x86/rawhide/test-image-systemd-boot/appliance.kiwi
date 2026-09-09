@@ -11,7 +11,6 @@
         <packagemanager>dnf5</packagemanager>
         <bootsplash-theme>charge</bootsplash-theme>
         <locale>en_US</locale>
-        <keytable>us</keytable>
         <timezone>UTC</timezone>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
