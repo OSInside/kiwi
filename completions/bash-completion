@@ -1,0 +1,86 @@
+#========================================
+# _kiwi
+#----------------------------------------
+function setupCompletionLine {
+    local comp_line=$(echo $COMP_LINE | sed -e 's@kiwi-ng@kiwi@')
+    local result_comp_line
+    local prev_was_option=0
+    for item in $comp_line; do
+        if [ $prev_was_option = 1 ];then
+            prev_was_option=0
+            continue
+        fi
+        if [[ $item =~ -.* ]];then
+            prev_was_option=1
+            continue
+        fi
+        result_comp_line="$result_comp_line $item"
+    done
+    echo $result_comp_line
+}
+
+function _kiwi {
+    local cur prev opts
+    _get_comp_words_by_ref cur prev
+    local cmd=$(setupCompletionLine | awk -F ' ' '{ print $NF }')
+    for comp in $prev $cmd;do
+        case "$comp" in
+            "image")
+                __comp_reply "info resize"
+                return 0
+                ;;
+            "result")
+                __comp_reply "bundle list"
+                return 0
+                ;;
+            "system")
+                __comp_reply "build create prepare update"
+                return 0
+                ;;
+            "build")
+                __comp_reply "--add-bootstrap-package --add-container-label --add-package --add-repo --add-repo-credentials --allow-existing-root --clear-cache --delete-package --description --help --ignore-repos --ignore-repos-used-for-build --set-container-derived-from --set-container-tag --set-release-version --set-repo --set-repo-credentials --set-type-attr=<attribute --signing-key --target-dir --ca-cert --ca-target-distribution help"
+                return 0
+                ;;
+            "bundle")
+                __comp_reply "--bundle-dir --bundle-format --help --id --package-as-rpm --target-dir --zsync-source help"
+                return 0
+                ;;
+            "create")
+                __comp_reply "--help --root --signing-key --target-dir help"
+                return 0
+                ;;
+            "info")
+                __comp_reply "--description --help --list-profiles --resolve-package-list help"
+                return 0
+                ;;
+            "list")
+                __comp_reply "--help --target-dir help"
+                return 0
+                ;;
+            "prepare")
+                __comp_reply "--add-bootstrap-package --add-container-label --add-package --add-repo --add-repo-credentials --allow-existing-root --clear-cache --delete-package --description --help --ignore-repos --ignore-repos-used-for-build --root --set-container-derived-from --set-container-tag --set-release-version --set-repo --set-repo-credentials --set-type-attr=<attribute --signing-key --ca-cert --ca-target-distribution help"
+                return 0
+                ;;
+            "resize")
+                __comp_reply "--help --root --size --target-dir help"
+                return 0
+                ;;
+            "update")
+                __comp_reply "--add-package --delete-package --help --root help"
+                return 0
+                ;;
+        esac
+    done
+    __comp_reply "--help --logfile --profile --version help image result system"
+    return 0
+}
+#========================================
+# comp_reply
+#----------------------------------------
+function __comp_reply {
+    word_list=$@
+    COMPREPLY=($(compgen -W "$word_list" -- ${cur}))
+}
+
+complete -F _kiwi -o default kiwi
+complete -F _kiwi -o default kiwi-ng
