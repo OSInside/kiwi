@@ -63,6 +63,14 @@ function ProvideIso {
                 echo "/dev/disk/by-label/CDROM"
             fi
         ;;
+        nbd:*) \
+            {
+                modprobe nbd
+                nbdkit -r curl "$(echo "${iso_url}" | cut -f2- -d:)"
+                nbd-client -N live 127.0.0.1 /dev/nbd0
+            } &>/dev/null
+            echo "/dev/nbd0"
+        ;;
         *) \
             echo "${root}"
         ;;

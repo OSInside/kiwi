@@ -78,7 +78,15 @@ the network:
 
    * The boot parameter `root=live:PROTOCOL://IP/PATH...` specifies the
      remote endpoint and protocol to find the live ISO file. So far,
-     `ftp`, `http`, `https`, and `dolly` are supported.
+     `ftp`, `http`, `https`, and `dolly` are supported. In these modes
+     the ISO file is copied into the RAM space of the system.
+
+   * The boot parameter `root=live:nbd:PROTOCOL://IP/PATH...` can be
+     used to remote bind the specified remote file to a local NBD block
+     device. The kiwi-live dracut module is using the nbdkit-curl-plugin
+     to serve the ISO file and opens an nbd-client connection to a local
+     block storage device (/dev/nbd0). In this mode the ISO file is not
+     copied as a whole into the RAM space of the system.
 
 4. Boot from the Network
 
