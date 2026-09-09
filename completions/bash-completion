@@ -1,29 +1,47 @@
+# shellcheck shell=bash
+
 #========================================
 # _kiwi
 #----------------------------------------
+function _kiwi_is_flag_option {
+    case "$1" in
+        --allow-existing-root|--clear-cache|--color-output|--debug|\
+        --debug-run-scripts-in-screen|--help|--ignore-repos|\
+        --ignore-repos-used-for-build|--list-profiles|--no-compress|\
+        --package-as-rpm|--print-kiwi-env|--print-toml|--print-xml|\
+        --print-yaml|--resolve-package-list|--version)
+            return 0
+            ;;
+    esac
+    return 1
+}
+
 function setupCompletionLine {
-    local comp_line=$(echo $COMP_LINE | sed -e 's@kiwi-ng@kiwi@')
+    local comp_line
     local result_comp_line
     local prev_was_option=0
+    comp_line=${COMP_LINE//kiwi-ng/kiwi}
     for item in $comp_line; do
-        if [ $prev_was_option = 1 ];then
+        if [ "$prev_was_option" = 1 ]; then
             prev_was_option=0
             continue
         fi
-        if [[ $item =~ -.* ]];then
-            prev_was_option=1
+        if [[ $item =~ -.* ]]; then
+            if ! _kiwi_is_flag_option "$item"; then
+                prev_was_option=1
+            fi
             continue
         fi
         result_comp_line="$result_comp_line $item"
     done
-    echo $result_comp_line
+    echo "$result_comp_line"
 }
 
 function _kiwi {
-    local cur prev opts
+    local cur prev cmd
     _get_comp_words_by_ref cur prev
-    local cmd=$(setupCompletionLine | awk -F ' ' '{ print $NF }')
-    for comp in $prev $cmd;do
+    cmd=$(setupCompletionLine | awk -F ' ' '{ print $NF }')
+    for comp in $prev $cmd; do
         case "$comp" in
             "image")
                 __comp_reply "info resize"
@@ -38,11 +56,11 @@ function _kiwi {
                 return 0
                 ;;
             "build")
-                __comp_reply "--add-bootstrap-package --add-container-label --add-package --add-repo --add-repo-credentials --allow-existing-root --clear-cache --delete-package --description --help --ignore-repos --ignore-repos-used-for-build --set-container-derived-from --set-container-tag --set-release-version --set-repo --set-repo-credentials --set-type-attr=<attribute --signing-key --target-dir --ca-cert --ca-target-distribution help"
+                __comp_reply "--add-bootstrap-package --add-container-label --add-package --add-repo --add-repo-credentials --allow-existing-root --ca-cert --ca-target-distribution --clear-cache --delete-package --description --help --ignore-repos --ignore-repos-used-for-build --set-container-derived-from --set-container-tag --set-release-version --set-repo --set-repo-credentials --set-type-attr --signing-key --target-dir help"
                 return 0
                 ;;
             "bundle")
-                __comp_reply "--bundle-dir --bundle-format --help --id --package-as-rpm --target-dir --zsync-source help"
+                __comp_reply "--bundle-dir --bundle-format --help --id --no-compress --package-as-rpm --target-dir --zsync-source help"
                 return 0
                 ;;
             "create")
@@ -50,7 +68,7 @@ function _kiwi {
                 return 0
                 ;;
             "info")
-                __comp_reply "--description --help --list-profiles --resolve-package-list help"
+                __comp_reply "--add-repo --add-repo-credentials --description --help --ignore-repos --list-profiles --print-kiwi-env --print-toml --print-xml --print-yaml --resolve-package-list help"
                 return 0
                 ;;
             "list")
@@ -58,7 +76,7 @@ function _kiwi {
                 return 0
                 ;;
             "prepare")
-                __comp_reply "--add-bootstrap-package --add-container-label --add-package --add-repo --add-repo-credentials --allow-existing-root --clear-cache --delete-package --description --help --ignore-repos --ignore-repos-used-for-build --root --set-container-derived-from --set-container-tag --set-release-version --set-repo --set-repo-credentials --set-type-attr=<attribute --signing-key --ca-cert --ca-target-distribution help"
+                __comp_reply "--add-bootstrap-package --add-container-label --add-package --add-repo --add-repo-credentials --allow-existing-root --ca-cert --ca-target-distribution --clear-cache --delete-package --description --help --ignore-repos --ignore-repos-used-for-build --root --set-container-derived-from --set-container-tag --set-release-version --set-repo --set-repo-credentials --set-type-attr --signing-key help"
                 return 0
                 ;;
             "resize")
@@ -71,15 +89,16 @@ function _kiwi {
                 ;;
         esac
     done
-    __comp_reply "--help --logfile --profile --version help image result system"
+    __comp_reply "--color-output --config --debug --debug-run-scripts-in-screen --help --kiwi-file --logfile --loglevel --logsocket --profile --setenv --shared-cache-dir --target-arch --temp-dir --type --version help image result system"
     return 0
 }
 #========================================
 # comp_reply
 #----------------------------------------
 function __comp_reply {
-    word_list=$@
-    COMPREPLY=($(compgen -W "$word_list" -- ${cur}))
+    local word_list
+    word_list="$*"
+    mapfile -t COMPREPLY < <(compgen -W "$word_list" -- "${cur}")
 }
 
 complete -F _kiwi -o default kiwi
