@@ -17,7 +17,6 @@
         <version>1.42.1</version>
         <packagemanager>dnf5</packagemanager>
         <locale>en_US</locale>
-        <keytable>us</keytable>
         <timezone>Europe/Berlin</timezone>
         <rpm-excludedocs>true</rpm-excludedocs>
         <rpm-check-signatures>false</rpm-check-signatures>
