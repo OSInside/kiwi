@@ -1,12 +1,29 @@
-Working with Images
--------------------
+Examples
+========
 
 .. note::
 
-   This document provides a collection of worksheets that
-   describes the creation and setup of appliances to work
-   within a number of different target environments.
-   
+   This chapter collects practical KIWI examples for image creation,
+   deployment, and customization. All images provided for testing use the root
+   password `linux`.
+
+Build Images for Supported Types
+--------------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   building_images/build_live_iso
+   building_images/build_simple_disk
+   building_images/build_expandable_disk
+   building_images/build_container_image
+   building_images/build_wsl_container
+   building_images/build_kis
+   building_images/build_enclave
+
+Work with Built Images
+----------------------
+
 .. toctree::
    :maxdepth: 1
 

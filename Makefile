@@ -89,11 +89,6 @@ docs: setup
 
 ghpages: setup
 	poetry run sphinx-build doc/source doc/build
-	poetry run pdoc kiwi \
-		'!kiwi.cli' '!kiwi.tasks' '!kiwi.builder' '!kiwi.xml_parse' \
-		'!kiwi.kiwi' '!kiwi.api_helper' \
-		--logo https://osinside.github.io/kiwi/_static/kiwi-logo.png \
-		--output-dir doc/build/api
 
 docs_suse: setup
 	sed -ie "s@:hidden:@@" doc/source/index.rst

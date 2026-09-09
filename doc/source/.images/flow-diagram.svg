@@ -384,7 +384,7 @@
      x="310"
      y="1075"
      class="text"
-     id="text99">Final Image (qcow2, vmdk, etc)</text>
+     id="text99">One or More Images</text>
   <!-- Output Arrow -->
   <line
      x1="400"

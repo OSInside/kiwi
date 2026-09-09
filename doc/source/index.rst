@@ -7,9 +7,11 @@
 Welcome to KIWI NG
 ==================
 
-**Your flexible operating system image and appliance builder**
+**Build Linux images from one description in a predictable two-step workflow.**
 
-KIWI NG is a powerful, command-line-driven tool that allows you to create customized Linux operating system images for a variety of platforms and use cases. Whether you're building for bare metal, virtual machines, containers, or cloud environments, KIWI provides the flexibility and control you need to craft the perfect OS image.
+KIWI NG is a command-line image builder for Linux distributions. It creates
+bootable, reproducible images for virtual machines, cloud platforms, removable
+media, containers, and specialized deployment targets.
 
 .. note::
    This documentation covers {kiwi-product} |version|.
@@ -27,20 +29,50 @@ KIWI NG is a powerful, command-line-driven tool that allows you to create custom
    concept_and_workflow
    image_description
    image_types_and_results
-   building_images
-   working_with_images
+   examples
    contributing
    integration_testing
-   api
+
+Build Architecture
+------------------
+
+.. figure:: .images/architecture.svg
+   :align: center
+   :alt: KIWI NG needs an image description and repositories with packages. The prepare step creates a new root tree, and the create step turns it into one or more images.
+
+   KIWI NG builds from an image description and the repositories that provide
+   the packages for it. In the *prepare* step, KIWI creates a new root tree.
+   In the *create* step, KIWI converts that prepared root tree into one or
+   more image artifacts.
+
+Diagram description:
+   The diagram shows two required inputs: an image description and the
+   repositories that contain the packages used for the build. Both feed the
+   *prepare* step, which creates a new root tree. The *create* step then turns
+   that prepared root tree into one or more images such as disk, ISO, or
+   container artifacts.
+
+The image description directory typically contains:
+
+* :file:`config.xml` or a :file:`*.kiwi` file with the image definition.
+* Repository definitions that point to the package sources used during the
+  build.
+* Optional overlays, archives, and shell hooks that customize the prepared
+  root tree or the final image artifacts.
 
 Why KIWI?
 ---------
 
-* **Versatile Image Types**: Build everything from traditional ISOs and virtual machine images (VMware, KVM, Hyper-V) to container images (Docker, OCI), live systems for USB sticks, and images for cloud platforms (AWS, Azure, GCP).
-* **Declarative by Design**: Define your entire image using a simple set of human-readable XML files. This allows for easy versioning, sharing, and reproducibility.
-* **Cross-Distribution Support**: While born in the SUSE world, {kiwi} supports a wide range of Linux distributions, including openSUSE, SUSE Linux Enterprise, Red Hat Enterprise Linux, Fedora, CentOS, and Ubuntu.
-* **Extensible and Customizable**: A flexible plugin architecture and the ability to include custom scripts and configuration files give you full control over the image-building process.
-* **Battle-Tested**: {kiwi} is used by enterprises and open-source projects alike, and builds official images in the build service of SUSE and Fedora.
+* **One source, multiple outputs**: prepare a root filesystem once and create
+  one or more image formats from it.
+* **Declarative image definitions**: keep image metadata, repositories,
+  packages, users, and storage settings in a versioned description.
+* **Broad target support**: build for bare metal, virtual machines, cloud
+  environments, live media, and containers.
+* **Distribution-aware builds**: work with the package managers and repository
+  layouts used by the supported Linux distributions.
+* **Controlled customization**: extend builds with overlays, archives, and
+  scripts when the schema alone is not enough.
 
 .. sidebar:: Links
 
@@ -72,25 +104,23 @@ Why KIWI?
 Get Started
 -----------
 
-Ready to build your first image? Jump into the :doc:`quickstart` or explore the :doc:`concept_and_workflow` to get a deeper understanding of how {kiwi} works.
+Start with :doc:`quickstart` for a first build, :doc:`concept_and_workflow` for
+workflow details, and :doc:`image_description` for the schema-backed reference
+for description files.
 
 System Requirements
 -------------------
 
-To use and run {kiwi}, you need:
+To build images with {kiwi}, you need:
 
-* A recent Linux distribution, see :ref:`supported-distributions` for
-  details.
-
-* Enough free disk space to build and store the image. We recommend a
-  minimum of 15GB.
-
-* Python version 3.9 or higher
-
-* Git (package ``git``) to clone a repository.
-
-* Optionally a virtualization technology to start the image or
-  isolate the build. We recommend QEMU.
+* A recent Linux distribution. See :ref:`supported-distributions` for the
+  tested targets.
+* Enough free disk space for the build root, caches, and resulting images. A
+  minimum of 15 GB is recommended.
+* Python 3.9 or newer.
+* Git to clone image descriptions and example repositories.
+* Optionally, a virtualization environment such as QEMU to boot and inspect
+  the resulting images.
 
 The project officially tests and supports the following distributions:
 

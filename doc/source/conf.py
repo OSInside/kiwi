@@ -34,7 +34,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx.ext.autodoc',
+    'sphinxcontrib.spelling',
     'sphinx_rtd_theme'
 ]
 
@@ -188,6 +188,10 @@ pygments_style = 'sphinx'
 todo_include_todos = True
 
 autosummary_generate = True
+
+spelling_lang = 'en_US'
+spelling_show_suggestions = True
+spelling_word_list_filename = ['spelling_wordlist.txt']
 
 # -- Options for HTML output ----------------------------------------------
 

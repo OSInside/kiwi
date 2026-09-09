@@ -1,12 +1,22 @@
 .. _image-description-elements:
 
-Image Description Elements
-==========================
+Schema Reference
+================
 
 .. note::
 
-   This document provides a reference for the elements
-   and attributes of the {kiwi} XML document in version |version|.
+   This document is the exhaustive reference for the {kiwi} image description
+   schema in :file:`kiwi/schema/kiwi.rnc` for version |version|.
+
+.. contents:: Schema sections
+   :local:
+   :depth: 2
+
+The sections are documented in the same order as they appear below the
+:ref:`sec.image` root element. Use :doc:`/image_description` for the guided
+introduction and this page when you need the complete list of valid elements
+and attributes.
+
 
 .. _sec.image:
 
