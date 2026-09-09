@@ -3,4 +3,4 @@ iso:
 oci:
   archive_tool: buildah
 bundle:
-  shasum_size: "512"
+  shasum_size: "256"
