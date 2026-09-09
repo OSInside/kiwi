@@ -19,7 +19,6 @@ import typer
 import logging
 import sys
 import os
-from unittest.mock import patch
 from importlib.metadata import (
     entry_points, EntryPoint
 )
@@ -98,17 +97,11 @@ class Cli:
                     'obj': Cli
                 }
             )
-        with patch('sys.exit') as sys_exit:
-            # This is unfortunately needed to integrate the
-            # typer interface with the former docopt based
-            # option handling to kiwi in a way that is not
-            # too intrusive. Usually typer quits after the
-            # invocation of the commmand function. But in case
-            # of kiwi we need the result of the typer processing
-            # to be used in the task classes such that typer
-            # should not exit from its operation.
+        try:
             Cli.cli()
-            (exit_code,) = sys_exit.call_args[0]
+        except SystemExit:
+            # avoid standalone mode
+            pass
         if not Cli.cli_ok:
             sys.exit(exit_code)
 
