@@ -55,8 +55,8 @@
         </type>
     </preferences>
     <preferences profiles="BIOS">
-        <type image="iso" flags="overlay" firmware="bios" kernelcmdline="console=ttyS0" hybridpersistent_filesystem="ext4" hybridpersistent="true">
-            <bootloader name="grub2" console="serial" timeout="10"/>
+        <type image="iso" flags="overlay" firmware="bios" kernelcmdline="console=ttyS0 console=tty1" hybridpersistent_filesystem="ext4" hybridpersistent="true" mediacheck="true">
+            <bootloader name="grub2" console="gfxterm" timeout="10"/>
         </type>
     </preferences>
     <users>
@@ -77,6 +77,9 @@
     </packages>
     <packages type="image" profiles="Encrypted,EroFS">
         <package name="cryptsetup"/>
+    </packages>
+    <packages type="image" profiles="BIOS">
+        <package name="checkmedia"/>
     </packages>
     <packages type="image">
         <package name="curl"/>
