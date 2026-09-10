@@ -42,6 +42,12 @@ class TestLuksDevice:
         with raises(KiwiLuksSetupError):
             self.luks.create_crypto_luks('passphrase', 'some-os')
 
+    def test_luks_name_is_unique_per_instance(self):
+        # Device mapper names are global to the host kernel, so two
+        # concurrent builds must not share the luks map name
+        assert self.luks.luks_name != LuksDevice(Mock()).luks_name
+        assert self.luks.luks_name.startswith('luksRoot_')
+
     @patch('os.path.exists')
     def test_get_device(self, mock_path):
         mock_path.return_value = True
@@ -100,7 +106,7 @@ class TestLuksDevice:
                     [
                         'cryptsetup', '--key-file', '/dev/zero',
                         '--keyfile-size', '32',
-                        'luksOpen', '/dev/some-device', 'luksRoot'
+                        'luksOpen', '/dev/some-device', self.luks.luks_name
                     ]
                 )
             ]
@@ -148,7 +154,7 @@ class TestLuksDevice:
                 call(
                     [
                         'cryptsetup', '--key-file', 'root/some-keyfile', 'luksOpen',
-                        '/dev/some-device', 'luksRoot'
+                        '/dev/some-device', self.luks.luks_name
                     ]
                 )
             ]
@@ -206,7 +212,7 @@ class TestLuksDevice:
                 call(
                     [
                         'cryptsetup', '--key-file', 'tmpfile', 'luksOpen',
-                        '/dev/some-device', 'luksRoot'
+                        '/dev/some-device', self.luks.luks_name
                     ]
                 )
             ]
@@ -260,6 +266,7 @@ class TestLuksDevice:
         with self._caplog.at_level(logging.ERROR):
             with LuksDevice(Mock()) as luks:
                 luks.luks_device = '/dev/mapper/luksRoot'
+                luks_name = luks.luks_name
         mock_command.assert_called_once_with(
-            ['cryptsetup', 'luksClose', 'luksRoot']
+            ['cryptsetup', 'luksClose', luks_name]
         )
