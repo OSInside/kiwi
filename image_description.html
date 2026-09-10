@@ -1,0 +1,649 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Description &mdash; KIWI NG 11.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=6a5133bb"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Schema Reference" href="image_description/elements.html" />
+    <link rel="prev" title="Customizing the Boot Process" href="concept_and_workflow/customize_the_boot_process.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            KIWI NG
+              <img src="_static/kiwi-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview/workflow.html">Basic Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview/workflow.html#components-of-an-image-description">Components of an Image Description</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#conceptual-overview">Conceptual Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#terminology">Terminology</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-from-obs">Installation from OBS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-from-distribution-repositories">Installation from Distribution Repositories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#example-appliance-descriptions">Example Appliance Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#choose-a-first-image">Choose a First Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#build-your-first-image">Build your First Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#run-your-image">Run your Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#tweak-and-customize-your-image">Tweak and Customize your Image</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">Working from the Command Line</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="commands/kiwi.html">kiwi-ng</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/kiwi.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/kiwi.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/kiwi.html#global-options">GLOBAL OPTIONS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/kiwi.html#example">EXAMPLE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commands/result_list.html">kiwi-ng result list</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/result_list.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/result_list.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/result_list.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commands/result_bundle.html">kiwi-ng result bundle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/result_bundle.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/result_bundle.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/result_bundle.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commands/system_prepare.html">kiwi-ng system prepare</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_prepare.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_prepare.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_prepare.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commands/system_update.html">kiwi-ng system update</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_update.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_update.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_update.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commands/system_build.html">kiwi-ng system build</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_build.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_build.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_build.html#options">OPTIONS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_build.html#uri-types">URI_TYPES</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commands/system_create.html">kiwi-ng system create</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_create.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_create.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/system_create.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commands/image_resize.html">kiwi-ng image resize</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/image_resize.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/image_resize.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/image_resize.html#options">OPTIONS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="commands/image_info.html">kiwi-ng image info</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="commands/image_info.html#synopsis">SYNOPSIS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/image_info.html#description">DESCRIPTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="commands/image_info.html#options">OPTIONS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting/buildhost_constraints.html">Build Host Constraints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting/buildhost_constraints.html#package-manager-behavior">Package Manager Behavior</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting/buildhost_constraints.html#zypper-modalias-matching">zypper: modalias matching</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting/architectures.html">Architectures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting/security.html">Host Security Settings Conflicts with KIWI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting/filesystems.html">Incompatible Filesystem Settings on Host vs. Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting/boxbuild_tweaks.html">Boxbuild Tweaks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting/boxbuild_tweaks.html#increase-box-build-image-size">Increase Box Build Image Size</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plugins.html">KIWI Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugins/self_contained.html">Building in a Self-Contained Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plugins/self_contained.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins/self_contained.html#building-with-the-boxbuild-command">Building with the boxbuild command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins/self_contained.html#sharing-backends">Sharing Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins/self_contained.html#building-in-container">Building in Container</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plugins/stackbuild.html">Building based on Containers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plugins/stackbuild.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins/stackbuild.html#concept">Concept</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins/stackbuild.html#create-a-stash">Create a stash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins/stackbuild.html#rebuild-from-a-stash">Rebuild from a stash</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins/stackbuild.html#turn-a-container-into-a-vm-image">Turn a container into a VM image</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="concept_and_workflow.html">Concept and Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow/systemdeps.html">Host Requirements To Build Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow/repository_setup.html">Setting up Repositories</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/repository_setup.html#adding-repositories">Adding repositories</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="concept_and_workflow/repository_setup.html#supported-repository-paths">Supported repository paths</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow/packages.html">Adding and Removing Packages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/packages.html#the-package-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">package</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/packages.html#the-archive-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">archive</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/packages.html#uninstall-system-packages">Uninstall System Packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/packages.html#the-product-and-namedcollection-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">namedCollection</span></code> element</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/packages.html#the-ignore-element">The <code class="xref py py-obj docutils literal notranslate"><span class="pre">ignore</span></code> element</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow/profiles.html">Image Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow/users.html">Adding Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow/shell_scripts.html">User-Defined Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/shell_scripts.html#developing-debugging-scripts">Developing/Debugging Scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="concept_and_workflow/shell_scripts.html#script-template-for-config-sh-images-sh">Script Template for config.sh / images.sh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="concept_and_workflow/shell_scripts.html#functions-and-variables-provided-by-kiwi-ng">Functions and Variables Provided by KIWI NG</a></li>
+<li class="toctree-l4"><a class="reference internal" href="concept_and_workflow/shell_scripts.html#configuration-tips">Configuration Tips</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow/runtime_configuration.html">The Runtime Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow/customize_the_boot_process.html">Customizing the Boot Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/customize_the_boot_process.html#boot-image-hook-scripts">Boot Image Hook-Scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow/customize_the_boot_process.html#boot-image-parameters">Boot Image Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="concept_and_workflow/customize_the_boot_process.html#boot-debugging">Boot Debugging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concept_and_workflow.html#image-building-process">Image Building Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow.html#the-prepare-step">The Prepare Step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="concept_and_workflow.html#the-create-step">The Create Step</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Image Description</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#description-directory-layout">Description Directory Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimal-example">Minimal Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#top-level-schema-layout">Top-Level Schema Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-to-configure-first">What to Configure First</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-patterns">Common Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#complete-schema-reference">Complete Schema Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="image_description/elements.html">Schema Reference</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#image">&lt;image&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#include">&lt;include&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#description">&lt;description&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#certificates">&lt;certificates&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#preferences">&lt;preferences&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#containers">&lt;containers&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#containers-container">&lt;containers&gt;&lt;container&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#repository">&lt;repository&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#packages">&lt;packages&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#users">&lt;users&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#drivers">&lt;drivers&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#strip">&lt;strip&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#extension">&lt;extension&gt;</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_description/elements.html#profiles">&lt;profiles&gt;</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="image_types_and_results.html">Image Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="image_types_and_results.html#image-results">Image Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="image_types_and_results.html#image-bundle-format">Image Bundle Format</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#build-images-for-supported-types">Build Images for Supported Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="building_images/build_live_iso.html">Build an ISO Hybrid Live Image</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_live_iso.html#overlay-or-dmsquash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">overlay</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">dmsquash</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="building_images/build_simple_disk.html">Build a Virtual Disk Image</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_simple_disk.html#setting-up-the-bootloader-in-the-image">Setting up the Bootloader in the Image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_simple_disk.html#modifying-the-size-of-the-image">Modifying the Size of the Image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_simple_disk.html#customizing-the-virtual-machine">Customizing the Virtual Machine</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="building_images/build_expandable_disk.html">Build an Expandable Disk Image</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_expandable_disk.html#deployment-methods">Deployment Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_expandable_disk.html#manual-deployment">Manual Deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_expandable_disk.html#cd-dvd-deployment">CD/DVD Deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_expandable_disk.html#network-deployment">Network Deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_expandable_disk.html#oem-customization">OEM Customization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_expandable_disk.html#installation-media-customization">Installation Media Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="building_images/build_container_image.html">Build a Container Image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="building_images/build_wsl_container.html">Build a WSL Container Image</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_wsl_container.html#setup-of-the-wsl-distrolauncher">Setup of the WSL-DistroLauncher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="building_images/build_wsl_container.html#testing-the-wsl-image">Testing the WSL image</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="building_images/build_kis.html">Build KIS Image (Kernel, Initrd, System)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="building_images/build_enclave.html">Build an AWS Nitro Enclave</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#work-with-built-images">Work with Built Images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/iso_to_usb_stick_deployment.html">Deploy ISO Image on a USB Stick</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/iso_to_usb_stick_file_based_deployment.html">Deploy ISO Image as a File on a FAT32 Formatted USB Stick</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/iso_to_usb_stick_grub2_boot_from_iso.html">Booting Live ISO Images from Grub2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/disk_setup_for_ec2.html">Image Description for Amazon EC2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/disk_setup_for_azure.html">Image Description for Microsoft Azure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/disk_setup_for_google.html">Image Description for Google Compute Engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/disk_setup_for_vagrant.html">Image Description for Vagrant</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/disk_setup_for_vagrant.html#customizing-the-embedded-vagrantfile">Customizing the embedded Vagrantfile</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/disk_setup_for_luks.html">Image Description for an Encrypted Disk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/disk_ramdisk_deployment.html">Deploy and Run a System in a Ramdisk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/custom_partitions.html">Custom Disk Partitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/custom_volumes.html">Custom Disk Volumes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/clone_partitions.html">Partition Clones</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/clone_partitions.html#use-case">Use Case</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/setup_network_bootserver.html">Setting Up a Network Boot Server</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/setup_network_bootserver.html#installing-and-configuring-dhcp-and-tftp-with-dnsmasq">Installing and Configuring DHCP and TFTP with dnsmasq</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/legacy_netboot_root_filesystem.html">Build PXE Root Filesystem Image for the legacy netboot infrastructure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/legacy_netboot_root_filesystem.html#pxe-client-setup-configuration">PXE Client Setup Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/network_overlay_boot.html">Booting a Root Filesystem from Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/network_live_iso_boot.html">Booting a Live ISO Image from Network</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/network_live_iso_boot.html#available-remote-boot-options">Available Remote Boot Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/network_live_iso_boot.html#persistent-live-system">Persistent Live System</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/custom_fstab_extension.html">Add or Update the Fstab File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/build_with_profiles.html">Building Images with Profiles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/build_with_profiles.html#local-builds">Local Builds</a></li>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/build_with_profiles.html#building-with-the-open-build-service">Building with the Open Build Service</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/build_in_buildservice.html">Building in the Open Build Service</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/build_in_buildservice.html#advantages-of-using-the-open-build-service-obs">Advantages of using the Open Build Service (OBS)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/build_in_buildservice.html#differences-between-building-locally-and-on-obs">Differences Between Building Locally and on OBS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/build_in_buildservice.html#recommendations">Recommendations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/use_suse_media.html">Using SUSE Product ISO To Build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="working_with_images/build_without_debianbootstrap.html">Circumvent Debian Bootstrap</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="working_with_images/build_without_debianbootstrap.html#how-to-create-a-bootstrap-package">How to Create a bootstrap_package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing/kiwi_from_python.html">Using KIWI NG in a Python Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing/kiwi_plugin_architecture.html">Plugin Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing/kiwi_plugin_architecture.html#naming-conventions">Naming conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing/kiwi_plugin_architecture.html#example-plugin">Example plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing/scripts_testing.html">Write Integration Tests for the Scripts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing/scripts_testing.html#test-setup">Test setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing/schema_extensions.html">Extending KIWI NG with Custom Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing/schema_extensions.html#the-extension-section">The &lt;extension&gt; Section</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing/schema_extensions.html#relax-ng-schema-for-the-extension">RELAX NG Schema for the Extension</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing/schema_extensions.html#extension-schema-in-xml-catalog">Extension schema in XML catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing/schema_extensions.html#using-the-extension">Using the extension</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#fork-the-upstream-repository">Fork the upstream repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#create-a-local-clone-of-the-forked-repository">Create a local clone of the forked repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#install-required-operating-system-packages">Install Required Operating System Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#create-a-python-virtual-development-environment">Create a Python Virtual Development Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#running-the-unit-tests">Running the Unit Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#create-a-branch-for-each-feature-or-bugfix">Create a Branch for each Feature or Bugfix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#ai-policy">AI policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#coding-style">Coding Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#additional-information">Additional Information</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#signing-git-patches">Signing Git Patches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#bumping-the-version">Bumping the Version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#creating-an-rpm-package">Creating an RPM Package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="integration_testing.html">Building Build Tests</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">KIWI NG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Image Description</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/image_description.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-description">
+<span id="id1"></span><h1>Image Description<a class="headerlink" href="#image-description" title="Link to this heading"></a></h1>
+<p>KIWI builds images from a description directory. The directory describes what
+packages to install, how to configure the target system, and which image types
+should be created from the prepared root tree.</p>
+<nav class="contents local" id="on-this-page">
+<p class="topic-title">On this page</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#description-directory-layout" id="id3">Description Directory Layout</a></p></li>
+<li><p><a class="reference internal" href="#minimal-example" id="id4">Minimal Example</a></p></li>
+<li><p><a class="reference internal" href="#top-level-schema-layout" id="id5">Top-Level Schema Layout</a></p></li>
+<li><p><a class="reference internal" href="#what-to-configure-first" id="id6">What to Configure First</a></p></li>
+<li><p><a class="reference internal" href="#common-patterns" id="id7">Common Patterns</a></p></li>
+<li><p><a class="reference internal" href="#complete-schema-reference" id="id8">Complete Schema Reference</a></p></li>
+</ul>
+</nav>
+<section id="description-directory-layout">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Description Directory Layout</a><a class="headerlink" href="#description-directory-layout" title="Link to this heading"></a></h2>
+<p>A description directory usually contains these files:</p>
+<dl class="simple">
+<dt><code class="file docutils literal notranslate"><span class="pre">config.xml</span></code> or <code class="file docutils literal notranslate"><span class="pre">*.kiwi</span></code></dt><dd><p>The main image description. It defines metadata, repositories, packages,
+users, image types, and optional profile-specific variants.</p>
+</dd>
+<dt><code class="file docutils literal notranslate"><span class="pre">root/</span></code> or <code class="file docutils literal notranslate"><span class="pre">root.tar.gz</span></code></dt><dd><p>Overlay content copied into the prepared root tree after package
+installation.</p>
+</dd>
+<dt><code class="file docutils literal notranslate"><span class="pre">config.sh</span></code></dt><dd><p>An optional shell hook executed near the end of the prepare step.</p>
+</dd>
+<dt><code class="file docutils literal notranslate"><span class="pre">images.sh</span></code></dt><dd><p>An optional shell hook executed at the beginning of the create step.</p>
+</dd>
+<dt><code class="file docutils literal notranslate"><span class="pre">config-cdroot.tar[.*]</span></code></dt><dd><p>Optional additional files for ISO-style images, such as licenses or offline
+documentation.</p>
+</dd>
+<dt>Referenced archives, drivers, certificate files, and include files</dt><dd><p>Additional resources referenced from the image description itself.</p>
+</dd>
+</dl>
+</section>
+<section id="minimal-example">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Minimal Example</a><a class="headerlink" href="#minimal-example" title="Link to this heading"></a></h2>
+<p>The following description is enough to prepare a root tree and create a simple
+image from it:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;image</span><span class="w"> </span><span class="na">schemaversion=</span><span class="s">"8.5"</span><span class="w"> </span><span class="na">name=</span><span class="s">"example"</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;description</span><span class="w"> </span><span class="na">type=</span><span class="s">"system"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;author&gt;</span>Example<span class="w"> </span>Author<span class="nt">&lt;/author&gt;</span>
+<span class="w">    </span><span class="nt">&lt;contact&gt;</span>example@example.invalid<span class="nt">&lt;/contact&gt;</span>
+<span class="w">    </span><span class="nt">&lt;specification&gt;</span>Small<span class="w"> </span>example<span class="w"> </span>image<span class="nt">&lt;/specification&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/description&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;preferences&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="w">    </span><span class="nt">&lt;packagemanager&gt;</span>zypper<span class="nt">&lt;/packagemanager&gt;</span>
+<span class="w">    </span><span class="nt">&lt;type</span><span class="w"> </span><span class="na">image=</span><span class="s">"oem"</span><span class="w"> </span><span class="na">filesystem=</span><span class="s">"ext4"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/preferences&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;repository</span><span class="w"> </span><span class="na">type=</span><span class="s">"rpm-md"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;source</span><span class="w"> </span><span class="na">path=</span><span class="s">"https://download.opensuse.org/distribution/leap/16.0/repo/oss"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/repository&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;packages</span><span class="w"> </span><span class="na">type=</span><span class="s">"image"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">"bash"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/packages&gt;</span>
+<span class="nt">&lt;/image&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="top-level-schema-layout">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Top-Level Schema Layout</a><a class="headerlink" href="#top-level-schema-layout" title="Link to this heading"></a></h2>
+<p>The <code class="file docutils literal notranslate"><span class="pre">kiwi/schema/kiwi.rnc</span></code> schema organizes the document below the
+<a class="reference internal" href="image_description/elements.html#sec-image"><span class="std std-ref">&lt;image&gt;</span></a> root element in this order:</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Top-level sections</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 34.0%" />
+<col style="width: 32.0%" />
+<col style="width: 16.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Section</p></th>
+<th class="head"><p>Purpose</p></th>
+<th class="head"><p>Main attributes and children</p></th>
+<th class="head"><p>Reference</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;image&gt;</span></code></p></td>
+<td><p>Root node of the description.</p></td>
+<td><p>Required: <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">schemaversion</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">displayname</span></code>, <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-image"><span class="std std-ref">&lt;image&gt;</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;include&gt;</span></code></p></td>
+<td><p>Insert the inner content of another XML description file.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">from</span></code> URI attribute.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-include"><span class="std std-ref">&lt;include&gt;</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;certificates&gt;</span></code></p></td>
+<td><p>Import additional CA certificates during the build.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">target_distribution</span></code> with one or more <code class="docutils literal notranslate"><span class="pre">&lt;certificate</span> <span class="pre">name=&quot;...&quot;/&gt;</span></code> entries.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-certificates"><span class="std std-ref">&lt;certificates&gt;</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;description&gt;</span></code></p></td>
+<td><p>Define human-readable identity and ownership.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">type</span></code> plus <code class="docutils literal notranslate"><span class="pre">&lt;author&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;contact&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;specification&gt;</span></code>, and optional <code class="docutils literal notranslate"><span class="pre">&lt;license&gt;</span></code>.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-description"><span class="std std-ref">&lt;description&gt;</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;preferences&gt;</span></code></p></td>
+<td><p>Define versions, package manager behavior, and one or more image types.</p></td>
+<td><p>Optional <code class="docutils literal notranslate"><span class="pre">arch</span></code> and <code class="docutils literal notranslate"><span class="pre">profiles</span></code> filters; includes <code class="docutils literal notranslate"><span class="pre">&lt;version&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;packagemanager&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;type&gt;</span></code>, locale, timezone, themes, and release settings.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-preferences"><span class="std std-ref">&lt;preferences&gt;</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;profiles&gt;</span></code></p></td>
+<td><p>Group conditional variants of the same description.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;profile&gt;</span></code> entries with <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">description</span></code>, <code class="docutils literal notranslate"><span class="pre">arch</span></code>, <code class="docutils literal notranslate"><span class="pre">import</span></code>, and optional <code class="docutils literal notranslate"><span class="pre">&lt;requires&gt;</span></code>.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-profiles"><span class="std std-ref">&lt;profiles&gt;</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;users&gt;</span></code></p></td>
+<td><p>Create or adjust users and groups in the image.</p></td>
+<td><p>User records, group membership, home, shell, SSH keys, and password data.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-users"><span class="std std-ref">&lt;users&gt;</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;drivers&gt;</span></code></p></td>
+<td><p>Add driver files to the image description.</p></td>
+<td><p>File references with optional profile filters.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-drivers"><span class="std std-ref">&lt;drivers&gt;</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;strip&gt;</span></code></p></td>
+<td><p>Remove files, libraries, or toolchains from the prepared root tree.</p></td>
+<td><p>Optional <code class="docutils literal notranslate"><span class="pre">type</span></code> and matching entries for files or package content.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-strip"><span class="std std-ref">&lt;strip&gt;</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;repository&gt;</span></code></p></td>
+<td><p>Point KIWI to package sources.</p></td>
+<td><p>Repository type, source type, priority, GPG behavior, credentials, and source URLs.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-repository"><span class="std std-ref">&lt;repository&gt;</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;containers&gt;</span></code></p></td>
+<td><p>Define container registry sources used by container-based builds.</p></td>
+<td><p>One or more registry definitions and registry-specific credentials.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-registry"><span class="std std-ref">&lt;containers&gt;</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;packages&gt;</span></code></p></td>
+<td><p>Define what KIWI installs, deletes, or imports.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">type</span></code>, optional <code class="docutils literal notranslate"><span class="pre">profiles</span></code>, <code class="docutils literal notranslate"><span class="pre">patternType</span></code>, <code class="docutils literal notranslate"><span class="pre">bootstrap_package</span></code> with package, collection, product, file, ignore, and archive entries.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-packages"><span class="std std-ref">&lt;packages&gt;</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;extension&gt;</span></code></p></td>
+<td><p>Attach custom XML namespaces validated outside the built-in schema.</p></td>
+<td><p>Arbitrary namespaced content.</p></td>
+<td><p><a class="reference internal" href="image_description/elements.html#sec-extension"><span class="std std-ref">&lt;extension&gt;</span></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="what-to-configure-first">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">What to Configure First</a><a class="headerlink" href="#what-to-configure-first" title="Link to this heading"></a></h2>
+<p>When you create or review an image description, work in this order:</p>
+<ol class="arabic simple">
+<li><p>Start with <a class="reference internal" href="image_description/elements.html#sec-description"><span class="std std-ref">&lt;description&gt;</span></a> so the image has clear ownership and a
+purpose.</p></li>
+<li><p>Add at least one <a class="reference internal" href="image_description/elements.html#sec-preferences"><span class="std std-ref">&lt;preferences&gt;</span></a> block with a version, package
+manager, and one or more <a class="reference internal" href="image_description/elements.html#sec-preferences"><span class="std std-ref">type definitions</span></a>.</p></li>
+<li><p>Add the <a class="reference internal" href="image_description/elements.html#sec-repository"><span class="std std-ref">&lt;repository&gt;</span></a> entries that provide the packages needed for
+the build.</p></li>
+<li><p>Add one or more <a class="reference internal" href="image_description/elements.html#sec-packages"><span class="std std-ref">&lt;packages&gt;</span></a> sections to populate the root tree.</p></li>
+<li><p>Add optional sections such as <a class="reference internal" href="image_description/elements.html#sec-users"><span class="std std-ref">&lt;users&gt;</span></a>, <a class="reference internal" href="image_description/elements.html#sec-profiles"><span class="std std-ref">&lt;profiles&gt;</span></a>, or
+<a class="reference internal" href="image_description/elements.html#sec-certificates"><span class="std std-ref">&lt;certificates&gt;</span></a> only when the use case needs them.</p></li>
+</ol>
+</section>
+<section id="common-patterns">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Common Patterns</a><a class="headerlink" href="#common-patterns" title="Link to this heading"></a></h2>
+<p>Use profiles when one description should build multiple variants.</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;profiles&gt;</span>
+<span class="w">  </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">"VMX"</span><span class="w"> </span><span class="na">description=</span><span class="s">"VMware output"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;profile</span><span class="w"> </span><span class="na">name=</span><span class="s">"CLOUD"</span><span class="w"> </span><span class="na">description=</span><span class="s">"Cloud output"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/profiles&gt;</span>
+
+<span class="nt">&lt;preferences</span><span class="w"> </span><span class="na">profiles=</span><span class="s">"VMX"</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="w">  </span><span class="nt">&lt;packagemanager&gt;</span>zypper<span class="nt">&lt;/packagemanager&gt;</span>
+<span class="w">  </span><span class="nt">&lt;type</span><span class="w"> </span><span class="na">image=</span><span class="s">"oem"</span><span class="w"> </span><span class="na">format=</span><span class="s">"vmdk"</span><span class="w"> </span><span class="na">filesystem=</span><span class="s">"ext4"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/preferences&gt;</span>
+
+<span class="nt">&lt;preferences</span><span class="w"> </span><span class="na">profiles=</span><span class="s">"CLOUD"</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="w">  </span><span class="nt">&lt;packagemanager&gt;</span>zypper<span class="nt">&lt;/packagemanager&gt;</span>
+<span class="w">  </span><span class="nt">&lt;type</span><span class="w"> </span><span class="na">image=</span><span class="s">"oem"</span><span class="w"> </span><span class="na">format=</span><span class="s">"qcow2"</span><span class="w"> </span><span class="na">filesystem=</span><span class="s">"ext4"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/preferences&gt;</span>
+</pre></div>
+</div>
+<p>Use multiple package sections to separate bootstrap packages from the final
+image content.</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;packages</span><span class="w"> </span><span class="na">type=</span><span class="s">"bootstrap"</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">"filesystem"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">"glibc-locale"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/packages&gt;</span>
+
+<span class="nt">&lt;packages</span><span class="w"> </span><span class="na">type=</span><span class="s">"image"</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">"bash"</span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">"vim"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/packages&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-schema-reference">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Complete Schema Reference</a><a class="headerlink" href="#complete-schema-reference" title="Link to this heading"></a></h2>
+<p>The exhaustive element and attribute reference is documented in
+<a class="reference internal" href="image_description/elements.html"><span class="doc">Schema Reference</span></a>. That reference follows the schema in
+<code class="file docutils literal notranslate"><span class="pre">kiwi/schema/kiwi.rnc</span></code> and covers:</p>
+<ul class="simple">
+<li><p>every top-level section allowed below <code class="docutils literal notranslate"><span class="pre">&lt;image&gt;</span></code>;</p></li>
+<li><p>all common and type-specific attributes of <code class="docutils literal notranslate"><span class="pre">&lt;preferences&gt;&lt;type&gt;</span></code>;</p></li>
+<li><p>repository, package, user, profile, bootloader, storage, and container
+substructures; and</p></li>
+<li><p>examples for the most frequently used sections.</p></li>
+</ul>
+<p>Use this page as the guide to the structure of a description directory and use
+<a class="reference internal" href="image_description/elements.html"><span class="doc">Schema Reference</span></a> as the schema-backed lookup for every valid
+section and attribute.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="image_description/elements.html">Schema Reference</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="concept_and_workflow/customize_the_boot_process.html" class="btn btn-neutral float-left" title="Customizing the Boot Process" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="image_description/elements.html" class="btn btn-neutral float-right" title="Schema Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020-2026, Marcus Schäfer.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
