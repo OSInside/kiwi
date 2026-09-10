@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import uuid
 import logging
 import binascii
 from typing import Optional
@@ -49,7 +50,11 @@ class LuksDevice(DeviceProvider):
         self.luks_device: Optional[str] = None
         self.luks_keyfile: str = ''
         self.passphrase: str = ''
-        self.luks_name = 'luksRoot'
+        # The device mapper name must be unique per build. Device mapper
+        # names are global to the host kernel and are not namespaced by
+        # the build chroot, so a fixed name makes concurrent builds on
+        # one host fail with 'Device luksRoot already exists.'
+        self.luks_name = 'luksRoot_{0}'.format(uuid.uuid4().hex)
 
         self.option_map = {
             'sle12': [
