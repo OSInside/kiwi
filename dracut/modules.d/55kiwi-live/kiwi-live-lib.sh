@@ -452,7 +452,8 @@ function runMediaCheck {
     local timeout=20
     local check_result
     check_result=/run/initramfs/checkmedia.result
-    checkmedia "${media_check_device}" &>${check_result}
+    set_device_lock "${media_check_device}" \
+        checkmedia --verbose "${media_check_device}" &>${check_result}
     local check_status=$?
     if [ ${check_status} != 0 ];then
         echo "ISO check failed" >> ${check_result}
@@ -460,7 +461,7 @@ function runMediaCheck {
         echo "ISO check passed" >> ${check_result}
     fi
     echo "Press key to continue (waiting ${timeout}sec...)" >> ${check_result}
-    _run_dialog --timeout ${timeout} --textbox ${check_result} 20 70
+    _run_dialog --timeout ${timeout} --tailbox ${check_result} 20 70
     if [ ${check_status} != 0 ];then
         die "Failed to verify system integrity"
     fi
@@ -556,7 +557,6 @@ function _setup_interactive_service {
         echo "StandardError=inherit"
         echo "KillMode=process"
         echo "IgnoreSIGPIPE=no"
-        echo "TaskMax=infinity"
         echo "KillSignal=SIGHUP"
     } > ${service}
 }
@@ -581,6 +581,7 @@ function _run_dialog {
     # output of the dialog call is stored in a file and can be
     # one time read via the get_dialog_result function
     # """
+    stop_plymouth
     local dialog_result=/tmp/dialog_result
     local dialog_exit_code=/tmp/dialog_code
     {
@@ -589,6 +590,14 @@ function _run_dialog {
     } >/run/dracut-interactive
     _run_interactive
     return "$(cat $dialog_exit_code)"
+}
+
+function stop_plymouth {
+    if ! getargbool 0 rd.kiwi.allow_plymouth; then
+        if command -v plymouth &>/dev/null;then
+            plymouth --quit --wait
+        fi
+    fi
 }
 
 function _partition_count {
