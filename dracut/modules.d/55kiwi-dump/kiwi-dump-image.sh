@@ -353,7 +353,7 @@ function check_image_matches_target_blocksize {
         target_node="$(readlink "${target_node}")"
     fi
     target_node=$(basename "${target_node}")
-    target_blocksize="/sys/block/${target_node}/queue/physical_block_size"
+    target_blocksize="/sys/block/${target_node}/queue/logical_block_size"
     mountpoint -q /sys || mount -t sysfs sysfs /sys
     if [ -n "${image_blocksize}" ] && [ -e "${target_blocksize}" ];then
         read -r target_blocksize < "${target_blocksize}"
