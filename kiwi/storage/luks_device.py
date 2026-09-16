@@ -199,8 +199,13 @@ class LuksDevice(DeviceProvider):
         shasum = self.runtime_config.get_checksum_handler(
             source_filename=master_checksum
         )
+        # The digest is calculated lazily and reads the header backup
+        # file at call time. It must therefore be created before the
+        # same file gets opened for writing, as that truncates the
+        # header backup and the digest would be taken over no data
+        checksum = shasum.digest()
         with open(master_checksum, 'w') as sha_file:
-            sha_file.write(shasum.digest())
+            sha_file.write(checksum)
 
         # Create key slot number as reencryption reference
         master_slot = f'{root_dir}/root/.luks.slot'
