@@ -1,0 +1,79 @@
+# This file is part of kiwi
+# Copyright (C) 2026 Neal Gompa
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this.  If not, see <https://www.gnu.org/licenses/>.
+
+
+policy_module(kiwi, 1.0.0)
+
+########################################
+#
+# Declarations
+#
+
+attribute_role kiwi_roles;
+roleattribute system_r kiwi_roles;
+
+type kiwi_t;
+type kiwi_exec_t;
+application_domain(kiwi_t, kiwi_exec_t)
+role kiwi_roles types kiwi_t;
+
+########################################
+#
+# kiwi local policy
+#
+
+allow kiwi_t self:fifo_file manage_fifo_file_perms;
+allow kiwi_t self:unix_stream_socket create_stream_socket_perms;
+
+# #####################################
+# Customization
+#
+
+# make an kiwi_t unconfined domain
+unconfined_domain(kiwi_t)
+
+# execute setfiles in the setfiles_mac domain
+# when in the kiwi_t domain
+seutil_domtrans_setfiles_mac(kiwi_t)
+kiwi_nnp_nosuid_trans(setfiles_mac_t)
+
+# Allow sysadm and unconfined to run kiwi
+optional_policy(`
+        gen_require(`
+                type sysadm_t;
+                role sysadm_r;
+        ')
+
+        kiwi_run(sysadm_t, sysadm_r)
+')
+
+optional_policy(`
+        gen_require(`
+                type unconfined_t;
+                role unconfined_r;
+        ')
+
+        kiwi_run(unconfined_t, unconfined_r)
+')
+
+optional_policy(`
+        gen_require(`
+                type unconfined_service_t;
+                role system_r;
+        ')
+
+        kiwi_run(unconfined_service_t, system_r)
+')

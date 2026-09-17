@@ -35,6 +35,7 @@ include = [
    { path = "build-tests.sh", format = "sdist" },
    { path = "Makefile", format = "sdist" },
    { path = "package", format = "sdist" },
+   { path = "selinux", format = "sdist" },
    { path = "test", format = "sdist" },
    { path = "kiwi/runtime_checker_metadata.yml", format = "sdist" },
 ]

@@ -1,0 +1,130 @@
+# This file is part of kiwi
+# Copyright (C) 2026 Neal Gompa
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this.  If not, see <https://www.gnu.org/licenses/>.
+
+
+## <summary>policy for kiwi</summary>
+
+########################################
+## <summary>
+##	Execute kiwi_exec_t in the kiwi domain.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`kiwi_domtrans',`
+	gen_require(`
+		type kiwi_t, kiwi_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, kiwi_exec_t, kiwi_t)
+')
+
+######################################
+## <summary>
+##	Execute kiwi in the caller domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`kiwi_exec',`
+	gen_require(`
+		type kiwi_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	can_exec($1, kiwi_exec_t)
+')
+
+########################################
+## <summary>
+##	Execute kiwi in the kiwi domain, and
+##	allow the specified role the kiwi domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed to transition
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	The role to be allowed the kiwi domain.
+##	</summary>
+## </param>
+#
+interface(`kiwi_run',`
+	gen_require(`
+		type kiwi_t;
+		attribute_role kiwi_roles;
+	')
+
+	kiwi_domtrans($1)
+	roleattribute $2 kiwi_roles;
+')
+
+########################################
+## <summary>
+##	Role access for kiwi
+## </summary>
+## <param name="role">
+##	<summary>
+##	Role allowed access
+##	</summary>
+## </param>
+## <param name="domain">
+##	<summary>
+##	User domain for the role
+##	</summary>
+## </param>
+#
+interface(`kiwi_role',`
+	gen_require(`
+		type kiwi_t;
+		attribute_role kiwi_roles;
+	')
+
+	roleattribute $1 kiwi_roles;
+
+	kiwi_domtrans($2)
+
+	ps_process_pattern($2, kiwi_t)
+	allow $2 kiwi_t:process { signull signal sigkill };
+')
+
+########################################
+## <summary>
+##	kiwi nnp / nosuid transitions to domain
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain to be allowed to transition into.
+## </summary>
+## </param>
+#
+interface(`kiwi_nnp_nosuid_trans',`
+	gen_require(`
+		type kiwi_t;
+		class process2 { nnp_transition nosuid_transition };
+	')
+
+	allow kiwi_t $1:process2 {nnp_transition nosuid_transition};
+')
