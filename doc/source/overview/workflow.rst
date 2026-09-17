@@ -61,20 +61,11 @@ only required component; others are optional.
 
 These are the optional components of an image description:
 
-#. ``config.sh`` shell script
+#. Shell scripts
 
-   This is the configuration shell script that runs at the end of the
-   :ref:`prepare step <prepare-step>` if present. It can be used to
-   fine-tune the unpacked image.
-
-   Note that the script is directly invoked by the operating system if its
-   executable bit is set. Otherwise, it is called by :file:`bash` instead.
-
-#. ``images.sh`` shell script
-
-   This is the configuration shell script that runs at the beginning of the
-   create step. So, it is expected to be used to handle image-type-specific
-   tasks. It is called in a similar fashion as `config.sh`.
+   There are optional hook scripts to influence the build process
+   at several stages. For details about the different script break
+   points see :ref:`User-Defined Scripts <working-with-kiwi-user-defined-scripts>`
 
 #. Overlay tree directory
 
