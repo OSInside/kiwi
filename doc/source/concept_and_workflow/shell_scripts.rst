@@ -141,10 +141,9 @@ template shows how to import this information into a script:
 .. code:: bash
 
    #======================================
-   # Include functions & variables
+   # Include functions
    #--------------------------------------
    test -f /.kconfig && . /.kconfig
-   test -f /.profile && . /.profile
 
    ...
 
@@ -160,12 +159,9 @@ template shows how to import this information into a script:
 Functions and Variables Provided by {kiwi}
 -------------------------------------------
 
-{kiwi} creates the :file:`.kconfig` and :file:`.profile` files to be sourced
-by the shell scripts :file:`config.sh` and :file:`images.sh`.
-:file:`.kconfig` contains several helper functions that can be used to
-simplify image configuration, while :file:`.profile` contains environment
-variables populated from the settings provided in the image
-description.
+{kiwi} creates the :file:`.kconfig` file to be sourced
+by shell scripts. :file:`.kconfig` contains several helper functions
+that can be used to simplify image configuration.
 
 Functions
 ^^^^^^^^^
@@ -268,8 +264,9 @@ Rm {list of files}
 Profile Environment Variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :file:`.profile` environment file is created by {kiwi} and contains the
-variables listed below, among others. The full list can be obtained by running:
+kiwi exports its environment file for each shell script call.
+The environment contains the variables listed below, among others.
+The full list can be obtained by running:
 
 .. code:: shell-session
 
@@ -308,11 +305,6 @@ $kiwi_timezone
 $kiwi_type
   The image type as extracted from the `type` element in
   :file:`config.xml`.
-
-.. note:: **.profile.extra**
-
-   If the file :file:`/.profile.extra` is available in the initrd, {kiwi}
-   imports the file importing :file:`/.profile`.
 
 Configuration Tips
 ------------------
