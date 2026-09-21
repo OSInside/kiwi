@@ -116,6 +116,36 @@ class Cli:
             raise typer.Exit(0)
 
     @staticmethod
+    def _as_path_name(path: Optional[Path]) -> Optional[str]:
+        """
+        Convert an optional Path option value into its string
+        representation. Options annotated with a Path type are
+        provided as PosixPath instance which cannot be used in
+        a string context. An unset option stays unset
+
+        :param Path path: option value or None
+
+        :return: path name or None
+
+        :rtype: str|None
+        """
+        return f'{path}' if path is not None else None
+
+    @staticmethod
+    def _as_path_names(paths: Optional[List[Path]]) -> List[str]:
+        """
+        Convert an optional list of Path option values into a
+        list of their string representations
+
+        :param list paths: list of option values or None
+
+        :return: list of path names
+
+        :rtype: list
+        """
+        return [f'{path}' for path in paths or []]
+
+    @staticmethod
     @cli.callback()
     def main(
         color_output: Annotated[
@@ -232,19 +262,21 @@ class Cli:
         KIWI - Appliance Builder
         """
         Cli.global_args['--color-output'] = color_output
-        Cli.global_args['--config'] = config
+        Cli.global_args['--config'] = Cli._as_path_name(config)
         Cli.global_args['--debug'] = debug
         Cli.global_args['--debug-run-scripts-in-screen'] = \
             debug_run_scripts_in_screen
         Cli.global_args['--kiwi-file'] = kiwi_file
-        Cli.global_args['--logfile'] = logfile
+        Cli.global_args['--logfile'] = Cli._as_path_name(logfile)
         Cli.global_args['--loglevel'] = loglevel
-        Cli.global_args['--logsocket'] = logsocket
+        Cli.global_args['--logsocket'] = Cli._as_path_name(logsocket)
         Cli.global_args['--profile'] = profile
         Cli.global_args['--setenv'] = setenv
-        Cli.global_args['--shared-cache-dir'] = f'{shared_cache_dir}'
+        Cli.global_args['--shared-cache-dir'] = Cli._as_path_name(
+            shared_cache_dir
+        )
         Cli.global_args['--target-arch'] = target_arch
-        Cli.global_args['--temp-dir'] = f'{temp_dir}'
+        Cli.global_args['--temp-dir'] = Cli._as_path_name(temp_dir)
         Cli.global_args['--type'] = type
         Cli.global_args['command'] = None
         Cli.global_args['image'] = False
@@ -353,7 +385,7 @@ class Cli:
         Provide information about the specified image description
         """
         Cli.subcommand_args['info'] = {
-            '--description': f'{description}',
+            '--description': Cli._as_path_name(description),
             '--resolve-package-list': resolve_package_list,
             '--list-profiles': list_profiles,
             '--print-kiwi-env': print_kiwi_env,
@@ -404,9 +436,9 @@ class Cli:
         useful for oem image builds most of the time
         """
         Cli.subcommand_args['resize'] = {
-            '--target-dir': f'{target_dir}',
+            '--target-dir': Cli._as_path_name(target_dir),
             '--size': size,
-            '--root': root,
+            '--root': Cli._as_path_name(root),
             'help': False
         }
         Cli.global_args['resize'] = True
@@ -427,7 +459,7 @@ class Cli:
         List result information from a previously built image
         """
         Cli.subcommand_args['list'] = {
-            '--target-dir': target_dir,
+            '--target-dir': Cli._as_path_name(target_dir),
             'help': False
         }
         Cli.global_args['list'] = True
@@ -498,7 +530,7 @@ class Cli:
         and a sha sum will be created from every result image.
         """
         Cli.subcommand_args['bundle'] = {
-            '--target-dir': target_dir,
+            '--target-dir': Cli._as_path_name(target_dir),
             '--id': id,
             '--bundle-dir': bundle_dir,
             '--bundle-format': bundle_format,
@@ -683,8 +715,8 @@ class Cli:
         build command combines the prepare and create commands.
         """
         Cli.subcommand_args['build'] = {
-            '--description': f'{description}',
-            '--target-dir': f'{target_dir}',
+            '--description': Cli._as_path_name(description),
+            '--target-dir': Cli._as_path_name(target_dir),
             '--allow-existing-root': allow_existing_root,
             '--clear-cache': clear_cache,
             '--ignore-repos': ignore_repos,
@@ -701,8 +733,8 @@ class Cli:
             '--add-container-label': add_container_label,
             '--set-type-attr': set_type_attr,
             '--set-release-version': set_release_version,
-            '--signing-key': signing_key,
-            '--ca-cert': ca_cert,
+            '--signing-key': Cli._as_path_names(signing_key),
+            '--ca-cert': Cli._as_path_names(ca_cert),
             '--ca-target-distribution': ca_target_distribution,
             'help': False
         }
@@ -881,8 +913,8 @@ class Cli:
         Prepare and install a new system root tree for chroot access.
         """
         Cli.subcommand_args['prepare'] = {
-            '--description': f'{description}',
-            '--root': f'{root}',
+            '--description': Cli._as_path_name(description),
+            '--root': Cli._as_path_name(root),
             '--allow-existing-root': allow_existing_root,
             '--clear-cache': clear_cache,
             '--ignore-repos': ignore_repos,
@@ -899,8 +931,8 @@ class Cli:
             '--add-container-label': add_container_label,
             '--set-type-attr': set_type_attr,
             '--set-release-version': set_release_version,
-            '--signing-key': signing_key,
-            '--ca-cert': ca_cert,
+            '--signing-key': Cli._as_path_names(signing_key),
+            '--ca-cert': Cli._as_path_names(ca_cert),
             '--ca-target-distribution': ca_target_distribution,
             'help': False
         }
@@ -935,7 +967,7 @@ class Cli:
         and optionally allow to add or delete packages.
         """
         Cli.subcommand_args['update'] = {
-            '--root': root,
+            '--root': Cli._as_path_name(root),
             '--add-package': add_package,
             '--delete-package': delete_package
         }
@@ -970,9 +1002,9 @@ class Cli:
         Create an image from the specified root directory.
         """
         Cli.subcommand_args['create'] = {
-            '--root': root,
-            '--target-dir': target_dir,
-            '--signing-key': signing_key
+            '--root': Cli._as_path_name(root),
+            '--target-dir': Cli._as_path_name(target_dir),
+            '--signing-key': Cli._as_path_names(signing_key)
         }
         Cli.global_args['create'] = True
         Cli.global_args['command'] = 'create'
