@@ -223,6 +223,42 @@ class TestLuksDevice:
             assert self.luks.luks_keyfile == 'some-keyfile'
             self.luks.luks_device = ''
 
+    @patch('kiwi.storage.luks_device.LuksDevice')
+    @patch('kiwi.storage.luks_device.Command.run')
+    @patch('kiwi.storage.luks_device.Temporary.new_file')
+    @patch('os.chmod')
+    def test_create_crypto_luks_header_digest_before_write(
+        self, mock_os_chmod, mock_tmpfile,
+        mock_command, mock_LuksDevice
+    ):
+        # The header backup file is also the file the checksum gets
+        # written to. Opening it for writing truncates it, thus the
+        # digest must be calculated before the file is opened
+        tmpfile = Mock()
+        tmpfile.name = 'tmpfile'
+        mock_tmpfile.return_value = tmpfile
+        order = []
+
+        def digest():
+            order.append('digest')
+            return 'sum'
+
+        def open_file(filename, mode):
+            order.append(f'open:{filename}')
+            return MagicMock(spec=io.IOBase)
+
+        self.shasum.digest.side_effect = digest
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.side_effect = open_file
+            self.luks.create_crypto_luks(
+                passphrase='passphrase', osname='sle12',
+                keyfile='some-keyfile', root_dir='root'
+            )
+        assert order.index('digest') < order.index(
+            'open:root/root/.luks.header'
+        )
+        self.luks.luks_device = ''
+
     def test_create_crypttab(self):
         self.luks.luks_device = '/dev/mapper/luksRoot'
         self.luks.luks_keyfile = None
