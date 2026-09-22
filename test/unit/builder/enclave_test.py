@@ -8,6 +8,7 @@ from pytest import (
 import kiwi
 
 from kiwi.builder.enclave import EnclaveBuilder
+from kiwi.defaults import Defaults
 from kiwi.exceptions import (
     KiwiEnclaveBootImageError,
     KiwiEnclaveFormatError
@@ -21,6 +22,7 @@ class TestEnclaveBuilder:
 
     @patch('kiwi.builder.enclave.BootImage')
     def setup(self, mock_boot):
+        Defaults.set_platform_name('x86_64')
         self.setup = Mock()
         self.runtime_config = Mock()
         self.runtime_config.get_max_size_constraint = Mock(

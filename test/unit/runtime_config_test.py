@@ -86,7 +86,7 @@ class TestRuntimeConfig:
                 )
 
     @pytest.mark.no_kiwi_yml_mock
-    @patch('os.path.exists')
+    @patch('os.path.isfile')
     @patch('yaml.safe_load')
     @patch('os.path.isdir')
     @patch('os.listdir')
@@ -95,11 +95,11 @@ class TestRuntimeConfig:
         mock_os_listdir,
         mock_os_path_isdir,
         mock_yaml,
-        mock_exists
+        mock_os_path_isfile
     ):
         mock_os_listdir.return_value = ['some.yml']
 
-        def os_path_exists(config):
+        def os_path_isfile(config):
             if config == '/etc/kiwi.yml':
                 return True
             return False
@@ -109,7 +109,7 @@ class TestRuntimeConfig:
                 return True
             return False
 
-        mock_exists.side_effect = os_path_exists
+        mock_os_path_isfile.side_effect = os_path_isfile
         mock_os_path_isdir.side_effect = os_path_isdir
         with patch('builtins.open') as m_open:
             RuntimeConfig(reread=True)
@@ -119,7 +119,7 @@ class TestRuntimeConfig:
             ]
 
     @pytest.mark.no_kiwi_yml_mock
-    @patch('os.path.exists')
+    @patch('os.path.isfile')
     @patch('yaml.safe_load')
     @patch('os.path.isdir')
     @patch('os.listdir')
@@ -128,11 +128,11 @@ class TestRuntimeConfig:
         mock_os_listdir,
         mock_os_path_isdir,
         mock_yaml,
-        mock_exists
+        mock_os_path_isfile
     ):
         mock_os_listdir.return_value = ['some.yml']
 
-        def os_path_exists(config):
+        def os_path_isfile(config):
             if config == '/usr/share/kiwi/kiwi.yml':
                 return True
             return False
@@ -142,7 +142,7 @@ class TestRuntimeConfig:
                 return True
             return False
 
-        mock_exists.side_effect = os_path_exists
+        mock_os_path_isfile.side_effect = os_path_isfile
         mock_os_path_isdir.side_effect = os_path_isdir
         with patch('builtins.open') as m_open:
             RuntimeConfig(reread=True)
