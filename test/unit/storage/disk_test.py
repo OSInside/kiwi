@@ -8,6 +8,7 @@ from pytest import (
 
 import unittest.mock as mock
 
+from kiwi.defaults import Defaults
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.disk import Disk
 from kiwi.exceptions import (
@@ -28,6 +29,7 @@ class TestDisk:
         self, mock_RuntimeConfig, mock_partitioner,
         mock_get_discoverable_partition_ids
     ):
+        Defaults.set_platform_name('x86_64')
         runtime_config = Mock()
         runtime_config.get_mapper_tool.return_value = 'partx'
         mock_RuntimeConfig.return_value = runtime_config

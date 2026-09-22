@@ -25,6 +25,7 @@ class TestRuntimeChecker:
         self._caplog = caplog
 
     def setup(self):
+        Defaults.set_platform_name('x86_64')
         Defaults.set_runtime_checker_metadata(
             '../data/runtime_checker_metadata.yml'
         )
@@ -277,7 +278,6 @@ class TestRuntimeChecker:
     def test_check_consistent_kernel_in_boot_and_system_image(
         self, mock_boot_path
     ):
-        Defaults.set_platform_name('x86_64')
         mock_boot_path.return_value = '../data'
         xml_state = XMLState(
             self.description.load(), ['vmxFlavour'], 'oem'

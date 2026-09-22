@@ -67,14 +67,14 @@ class RuntimeConfig:
             config_files = []
             # 1. vendor
             config_file = defaults.USR_RUNTIME_CONFIG_FILE
-            if os.path.exists(config_file):
+            if os.path.isfile(config_file):
                 config_files.append(config_file)
             config_files += self._read_drop_ins_dir(
                 defaults.USR_RUNTIME_CONFIG_DIR
             )
             # 2. admin
             config_file = defaults.ETC_RUNTIME_CONFIG_FILE
-            if os.path.exists(config_file):
+            if os.path.isfile(config_file):
                 config_files.append(config_file)
             config_files += self._read_drop_ins_dir(
                 defaults.ETC_RUNTIME_CONFIG_DIR
@@ -84,7 +84,7 @@ class RuntimeConfig:
                 config_file = os.sep.join(
                     [self._home_path(), '.config', 'kiwi', 'config.yml']
                 )
-                if os.path.exists(config_file):
+                if os.path.isfile(config_file):
                     config_files.append(config_file)
             # 4. cmdline
             if custom_config_file:

@@ -4,6 +4,7 @@ from unittest.mock import (
 )
 from pytest import fixture
 
+from kiwi.defaults import Defaults
 from kiwi.system.mount import ImageSystem
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.storage.disk import ptable_entry_type
@@ -16,6 +17,7 @@ class TestImageSystem:
 
     @patch('os.path.exists')
     def setup(self, mock_os_path_exists):
+        Defaults.set_platform_name('x86_64')
         mock_os_path_exists.return_value = True
         self.device_map = {
             'root': MappedDevice('/dev/root-device', Mock()),
