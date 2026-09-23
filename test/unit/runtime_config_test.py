@@ -73,6 +73,18 @@ class TestRuntimeConfig:
         with raises(NotImplementedError):
             RuntimeConfig._merge(master, slave_invalid_list)
 
+    def test_merge_strategy_on_self_referencing_config(self):
+        # the yaml anchor and alias syntax allows to create data
+        # that references itself. Both sides of the merge are read
+        # from the same file but as two independent objects, like
+        # it happens when two config files provide such data
+        with open('../data/kiwi_merge_recursive.yml', 'r') as config:
+            master = yaml.safe_load(config)
+        with open('../data/kiwi_merge_recursive.yml', 'r') as config:
+            slave = yaml.safe_load(config)
+        with raises(KiwiRuntimeConfigFormatError):
+            RuntimeConfig._merge(master, slave)
+
     @patch('yaml.safe_load')
     @patch('kiwi.defaults.CUSTOM_RUNTIME_CONFIG_FILE', 'some-custom-file')
     def test_reading_custom_config_file(self, mock_yaml):

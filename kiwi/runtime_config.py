@@ -38,6 +38,13 @@ log = logging.getLogger('kiwi')
 
 RUNTIME_CONFIG: Optional[Dict[str, Any]] = None
 
+# Maximum nesting level the merge of two runtime config files
+# is allowed to descend into. The runtime config format only
+# uses a nesting of element -> attribute. The limit prevents an
+# endless recursion in _merge() on config data that references
+# itself, which the yaml anchor and alias syntax allows to create
+MERGE_MAX_DEPTH = 20
+
 
 class ShasumT(NamedTuple):
     suffix: str
@@ -520,7 +527,15 @@ class RuntimeConfig:
         return config_files
 
     @staticmethod
-    def _merge(master: Dict, slave: Dict) -> Dict:
+    def _merge(master: Dict, slave: Dict, depth: int = 0) -> Dict:
+        if depth > MERGE_MAX_DEPTH:
+            # self referencing config data would let the merge
+            # recurse forever, stop it with an error message
+            raise KiwiRuntimeConfigFormatError(
+                f'Nesting level of {MERGE_MAX_DEPTH} exceeded on merge. '
+                'Please check the runtime config file(s) for data '
+                'structures referencing themselves'
+            )
         if slave:
             if not master or \
                isinstance(master, str) or \
@@ -546,7 +561,7 @@ class RuntimeConfig:
                     for key in slave:
                         if key in master:
                             master[key] = RuntimeConfig._merge(
-                                master[key], slave[key]
+                                master[key], slave[key], depth + 1
                             )
                         else:
                             master[key] = slave[key]
