@@ -65,6 +65,20 @@ class FileSystemXfs(FileSystemBase):
         Command.run(
             ['mkfs.xfs', '-f'] + call_args + [device]
         )
+        # Materialize log on disk.  Recent mkfs.xfs versions (v 5.5+) do not
+        # write zeros into the log, but FALLOC_FL_ZERO_RANGE that space.
+        # This leads to sparse holes in the underlying image file.  Image
+        # upload tools may skip these holes when creating EBS snapshots.
+        # EBS is usually returning 0 when reading from such sparse areas,
+        # but not when the image is server-side encrypted, where you get
+        # decrypt(0) == noise instead.  When mounting file system with
+        # partially garbled logs, XFS trips and cannot find its log head,
+        # and ultimately gives up ("XFS (nvme0n1p1): log mount/recovery
+        # failed: error -117").  Jumping to cycle count 2 forces real,
+        # non-zero writes throughout the log and sidesteps the problem.
+        Command.run(
+            ['xfs_db', '-x', '-c', 'logformat -c 2', device]
+        )
 
     def set_uuid(self):
         """
