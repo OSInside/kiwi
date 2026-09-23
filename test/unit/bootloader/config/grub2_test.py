@@ -253,14 +253,23 @@ class TestBootLoaderConfigGrub2:
     @patch('kiwi.bootloader.config.grub2.Path.which')
     @patch('os.path.exists')
     @patch('shutil.copy2')
+    @patch('os.path.isfile')
     def test_setup_install_boot_images_raises_no_efigrub(
-        self, mock_shutil_copy2, mock_exists, mock_Path_which,
-        mock_sync, mock_command, mock_grub, mock_shim
+        self,
+        mock_os_path_isfile,
+        mock_shutil_copy2,
+        mock_exists,
+        mock_Path_which,
+        mock_sync,
+        mock_command,
+        mock_grub,
+        mock_shim
     ):
-        Defaults.set_platform_name('x86_64')
+        # Defaults.set_platform_name('x86_64')
         self.firmware.efi_mode = Mock(
             return_value='uefi'
         )
+        mock_os_path_isfile.return_value = False
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
         mock_shim.return_value = 'shim.efi'
         mock_grub.return_value = None
@@ -275,10 +284,10 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['root_dir/usr/share/grub2/x86_64-efi'] = True
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = True
 
-        def side_effect(arg):
+        def os_path_exists(arg):
             return self.os_exists[arg]
 
-        mock_exists.side_effect = side_effect
+        mock_exists.side_effect = os_path_exists
         with patch('builtins.open'):
             with raises(KiwiBootLoaderGrubSecureBootError):
                 self.bootloader.setup_install_boot_images(self.mbrid)
@@ -2377,11 +2386,19 @@ class TestBootLoaderConfigGrub2:
     @patch('os.path.exists')
     @patch('kiwi.defaults.Defaults.get_grub_path')
     @patch('shutil.copy2')
+    @patch('os.path.isfile')
     def test_setup_install_boot_images_with_theme_not_existing(
-        self, mock_shutil_copy2, mock_get_grub_path,
-        mock_exists, mock_sync, mock_Path_which, mock_command
+        self,
+        mock_os_path_isfile,
+        mock_shutil_copy2,
+        mock_get_grub_path,
+        mock_exists,
+        mock_sync,
+        mock_Path_which,
+        mock_command
     ):
         Defaults.set_platform_name('x86_64')
+        mock_os_path_isfile.return_value = False
         mock_Path_which.return_value = '/path/to/grub2-mkimage'
         self.bootloader.theme = 'some-theme'
 
@@ -2390,10 +2407,10 @@ class TestBootLoaderConfigGrub2:
         self.os_exists['theme-dir'] = False
         self.os_exists['root_dir/boot/grub2/themes/some-theme'] = False
 
-        def side_effect(arg):
-            return self.os_exists[arg]
+        def os_path_exists(arg):
+            return bool(self.os_exists.get(arg))
 
-        mock_exists.side_effect = side_effect
+        mock_exists.side_effect = os_path_exists
 
         with patch('builtins.open'):
             with self._caplog.at_level(logging.WARNING):
