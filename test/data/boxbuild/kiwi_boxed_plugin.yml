@@ -1,0 +1,53 @@
+box:
+  -
+    name: suse
+    mem_mb: 8096M
+    processors: 4
+    console: hvc0
+    arch:
+      -
+        name: x86_64
+        cmdline:
+          - root=/dev/vda1
+          - rd.plymouth=0
+        source: obs://Virtualization:Appliances:SelfContained:suse/images
+        packages_file: SUSE-Box.x86_64-1.42.1-System-BuildBox.report
+        boxfiles:
+          - SUSE-Box.x86_64-1.42.1-Kernel-BuildBox.tar.xz
+          - SUSE-Box.x86_64-1.42.1-System-BuildBox.qcow2
+        container: some
+        use_initrd: true
+
+  -
+    name: universal
+    mem_mb: 8096M
+    processors: 4
+    console: hvc0
+    arch:
+      -
+        name: x86_64
+        cmdline:
+          - root=/dev/vda3
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:universal/images
+        packages_file: Universal-Box.x86_64-1.1.2-System-BuildBox.report
+        boxfiles:
+          - Universal-Box.x86_64-1.1.2-Kernel-BuildBox.tar.xz
+          - Universal-Box.x86_64-1.1.2-System-BuildBox.qcow2
+        container: some
+        use_initrd: true
+
+      -
+        name: aarch64
+        cmdline:
+          - root=/dev/vda2
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:universal/images
+        packages_file: Universal-Box.aarch64-1.1.2-System-BuildBox.report
+        boxfiles:
+          - Universal-Box.aarch64-1.1.2-Kernel-BuildBox.tar.xz
+          - Universal-Box.aarch64-1.1.2-System-BuildBox.qcow2
+        container: some
+        use_initrd: true

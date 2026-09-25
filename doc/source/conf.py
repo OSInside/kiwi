@@ -226,6 +226,7 @@ result_bundle_doc = 'commands/result_bundle'
 system_prepare_doc = 'commands/system_prepare'
 system_update_doc = 'commands/system_update'
 system_build_doc = 'commands/system_build'
+system_boxbuild_doc = 'commands/system_boxbuild'
 system_create_doc = 'commands/system_create'
 image_resize_doc = 'commands/image_resize'
 image_info_doc = 'commands/image_info'
@@ -278,6 +279,13 @@ man_pages = [
         system_build_doc,
         'kiwi::system::build',
         'Build image in combined prepare and create step',
+        [author],
+        8
+    ),
+    (
+        system_boxbuild_doc,
+        'kiwi::system::boxbuild',
+        'Build image in a self contained VM or container',
         [author],
         8
     ),

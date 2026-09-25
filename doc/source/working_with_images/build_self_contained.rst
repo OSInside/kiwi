@@ -28,24 +28,31 @@ Building in a Self-Contained Environment
    machines to address the issues listed above.
 
    The changes on the machine to become a build host will
-   be reduced to the requirements of the {kiwi} `boxed plugin`.
+   be reduced to the requirements of the {kiwi} `boxbuild` command.
 
 Requirements
 ------------
 
-Add the {kiwi} repo from the Open Build Service. For details, see
-:ref:`installation-from-obs`. The following {kiwi} plugin needs to be
-installed on the build system:
+The `boxbuild` command is part of {kiwi}. Add the {kiwi} repo from
+the Open Build Service. For details, see :ref:`installation-from-obs`.
+The following package pulls in the host requirements for the
+`boxbuild` command, like QEMU and the tools for the supported
+sharing backends:
 
 .. code:: bash
 
-    $ sudo zypper in python3-kiwi_boxed_plugin
+    $ sudo zypper in kiwi-systemdeps-boxbuild
+
+.. note::
+
+   The `boxbuild` command was formerly provided by the
+   `kiwi-boxed-plugin`. The plugin is no longer needed and is
+   replaced by the `kiwi-systemdeps-boxbuild` package.
 
 Building with the boxbuild command
 ----------------------------------
 
-The installation of the {kiwi} boxed plugin has registered a new kiwi
-command named `boxbuild`. The command implementation uses KVM as a
+The {kiwi} command named `boxbuild` uses KVM as a
 virtualization technology and runs the {kiwi} `build` command inside
 a KVM-controlled virtual machine. For running the build process in a
 virtual machine, it's required to provide VM images that are suitable
@@ -56,24 +63,28 @@ available at the `Subprojects` tab in the: `Virtualization:Appliances:SelfContai
 project.
 
 As a user, you don't need to work with the boxes because this is all done
-by the plugin and provided as a service by the {kiwi} team. The `boxbuild`
+by the `boxbuild` command and provided as a service by the {kiwi} team. The `boxbuild`
 command knows where to fetch the box and also cares for an update of the
 box when it has changed.
 
 Building an image with the `boxbuild` command is similar to building with
-the `build` command. The plugin validates the given command call with the
-capabilities of the `build` command. Thus, one part of the `boxbuild` command
-is exactly the same as with the `build` command. The separation between
-`boxbuild` and `build` options is done using the `--` separator. The following
-example shows how to build an example from the `kiwi-descriptions` repo:
+the `build` command. One part of the `boxbuild` command is exactly the same
+as with the `build` command. The separation between `boxbuild` and `build`
+options is done using the `kiwi` subcommand. Everything after `kiwi` is passed
+along to the `build` command running in the box. The following example shows
+how to build an example from the `kiwi-descriptions` repo:
 
 .. code:: bash
 
    $ git clone https://github.com/OSInside/kiwi-descriptions.git
 
-   $ kiwi-ng --profile Virtual system boxbuild --box leap -- \
+   $ kiwi-ng --profile Virtual system boxbuild --box leap kiwi \
          --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
          --target-dir /tmp/myimage
+
+For compatibility with the former `kiwi-boxed-plugin`, the `--` separator
+is accepted as an alias for `kiwi`. For all options of the `boxbuild`
+command, see :ref:`kiwi_system_boxbuild`.
 
 .. note::
 
@@ -146,7 +157,7 @@ container:
 
 .. code:: bash
 
-   $ kiwi-ng --profile Virtual system boxbuild --container --box leap -- \
+   $ kiwi-ng --profile Virtual system boxbuild --container --box leap kiwi \
          --description kiwi-descriptions/suse/x86_64/suse-leap-15.6 \
          --target-dir /tmp/myimage
 

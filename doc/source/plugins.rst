@@ -9,5 +9,4 @@ KIWI Plugins
 .. toctree::
    :maxdepth: 1
 
-   plugins/self_contained
    plugins/stackbuild

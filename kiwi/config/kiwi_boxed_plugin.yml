@@ -1,0 +1,244 @@
+box:
+  -
+    name: tumbleweed
+    mem_mb: 8096M
+    processors: 4
+    console: hvc0
+    arch:
+      -
+        name: x86_64
+        cmdline:
+          - root=/dev/vda3
+          - rd.plymouth=0
+        source: obs://Virtualization:Appliances:SelfContained:tumbleweed/images
+        packages_file: TumbleWeed-Box.x86_64-System.json
+        boxfiles:
+          - TumbleWeed-Box.x86_64-Kernel.tar.xz
+          - TumbleWeed-Box.x86_64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/tumbleweed/images/tumbleweed:latest
+        use_initrd: true
+
+      -
+        name: aarch64
+        cmdline:
+          - root=/dev/vda2
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:tumbleweed/images
+        packages_file: TumbleWeed-Box.aarch64-System.json
+        boxfiles:
+          - TumbleWeed-Box.aarch64-Kernel.tar.xz
+          - TumbleWeed-Box.aarch64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/tumbleweed/images/tumbleweed:latest
+        use_initrd: true
+
+      -
+        name: s390x
+        cmdline:
+          - root=/dev/vda1
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:tumbleweed/images
+        packages_file: TumbleWeed-Box.s390x-System.json
+        boxfiles:
+          - TumbleWeed-Box.s390x-Kernel.tar.xz
+          - TumbleWeed-Box.s390x-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/tumbleweed/images/tumbleweed:latest
+        use_initrd: true
+
+  -
+    name: leap
+    mem_mb: 8096M
+    processors: 4
+    console: hvc0
+    arch:
+      -
+        name: x86_64
+        cmdline:
+          - root=/dev/vda1
+          - rd.plymouth=0
+        source: obs://Virtualization:Appliances:SelfContained:leap/images
+        packages_file: Leap-Box.x86_64-System.json
+        boxfiles:
+          - Leap-Box.x86_64-Kernel.tar.xz
+          - Leap-Box.x86_64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/leap/images/leap:latest
+        use_initrd: true
+
+  -
+    name: fedora
+    mem_mb: 8096M
+    processors: 4
+    console: hvc0
+    arch:
+      -
+        name: x86_64
+        cmdline:
+          - root=/dev/vda3
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:fedora/images
+        packages_file: Fedora-Box.x86_64-System.json
+        boxfiles:
+          - Fedora-Box.x86_64-Kernel.tar.xz
+          - Fedora-Box.x86_64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/fedora/images/fedora:latest
+        use_initrd: true
+
+  -
+    name: ubuntu
+    mem_mb: 8096M
+    processors: 4
+    console: hvc0
+    arch:
+      -
+        name: x86_64
+        cmdline:
+          - root=/dev/vda3
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:ubuntu/images
+        packages_file: Ubuntu-Box.x86_64-System.json
+        boxfiles:
+          - Ubuntu-Box.x86_64-Kernel.tar.xz
+          - Ubuntu-Box.x86_64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/ubuntu/images/ubuntu:latest
+        use_initrd: true
+
+      -
+        name: aarch64
+        cmdline:
+          - root=/dev/vda2
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:ubuntu/images
+        packages_file: Ubuntu-Box.aarch64-System.json
+        boxfiles:
+          - Ubuntu-Box.aarch64-Kernel.tar.xz
+          - Ubuntu-Box.aarch64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/ubuntu/images/ubuntu:latest
+        use_initrd: true
+
+  -
+    name: universal
+    mem_mb: 8096M
+    processors: 4
+    console: hvc0
+    arch:
+      -
+        name: x86_64
+        cmdline:
+          - root=/dev/vda3
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:universal/images
+        packages_file: Universal-Box.x86_64-System.json
+        boxfiles:
+          - Universal-Box.x86_64-Kernel.tar.xz
+          - Universal-Box.x86_64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/universal/images/universal:latest
+        use_initrd: true
+
+      -
+        name: aarch64
+        cmdline:
+          - root=/dev/vda2
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:universal/images
+        packages_file: Universal-Box.aarch64-System.json
+        boxfiles:
+          - Universal-Box.aarch64-Kernel.tar.xz
+          - Universal-Box.aarch64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/universal/images/universal:latest
+        use_initrd: true
+
+      -
+        name: s390x
+        cmdline:
+          - root=/dev/vda1
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:universal/images
+        packages_file: Universal-Box.s390x-System.json
+        boxfiles:
+          - Universal-Box.s390x-Kernel.tar.xz
+          - Universal-Box.s390x-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/universal/images/universal:latest
+        use_initrd: true
+
+      -
+        name: ppc64le
+        cmdline:
+          - root=/dev/vda2
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:universal/images
+        packages_file: Universal-Box.ppc64le-System.json
+        boxfiles:
+          - Universal-Box.ppc64le-Kernel.tar.xz
+          - Universal-Box.ppc64le-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/universal/images/universal:latest
+        use_initrd: true
+
+  -
+    name: staging
+    mem_mb: 8096M
+    processors: 4
+    console: hvc0
+    arch:
+      -
+        name: x86_64
+        cmdline:
+          - root=/dev/vda3
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:staging/images
+        packages_file: Staging-Box.x86_64-System.json
+        boxfiles:
+          - Staging-Box.x86_64-Kernel.tar.xz
+          - Staging-Box.x86_64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/staging/images/staging:latest
+        use_initrd: true
+
+      -
+        name: aarch64
+        cmdline:
+          - root=/dev/vda2
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:staging/images
+        packages_file: Staging-Box.aarch64-System.json
+        boxfiles:
+          - Staging-Box.aarch64-Kernel.tar.xz
+          - Staging-Box.aarch64-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/staging/images/staging:latest
+        use_initrd: true
+
+      -
+        name: s390x
+        cmdline:
+          - root=/dev/vda1
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:staging/images
+        packages_file: Staging-Box.s390x-System.json
+        boxfiles:
+          - Staging-Box.s390x-Kernel.tar.xz
+          - Staging-Box.s390x-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/staging/images/staging:latest
+        use_initrd: true
+
+      -
+        name: ppc64le
+        cmdline:
+          - root=/dev/vda2
+          - rd.plymouth=0
+          - selinux=0
+        source: obs://Virtualization:Appliances:SelfContained:staging/images
+        packages_file: Staging-Box.ppc64le-System.json
+        boxfiles:
+          - Staging-Box.ppc64le-Kernel.tar.xz
+          - Staging-Box.ppc64le-System.qcow2
+        container: registry.opensuse.org/virtualization/appliances/selfcontained/staging/images/staging:latest
+        use_initrd: true

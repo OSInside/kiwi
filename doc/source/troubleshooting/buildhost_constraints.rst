@@ -18,7 +18,7 @@ major version (+-1) compared to the target. Such an environment can be
 found in:
  
 * The Open Build Service `OBS <https://build.opensuse.org>`__.
-* The {kiwi} boxed plugin: :ref:`self_contained`
+* The {kiwi} `boxbuild` command: :ref:`self_contained`
   
 In general, our goal is to support any major distribution with {kiwi}. However,
 for building images, we rely on core tools that are not under our control.

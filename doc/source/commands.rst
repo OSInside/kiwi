@@ -15,6 +15,7 @@ Working from the Command Line
    commands/system_prepare
    commands/system_update
    commands/system_build
+   commands/system_boxbuild
    commands/system_create
    commands/image_resize
    commands/image_info

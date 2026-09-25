@@ -44,22 +44,21 @@ Prior to calling `build-tests.sh`, the following requirements must be met:
 
      $ git clone https://github.com/OSInside/kiwi.git
 
-``kiwi-boxed-plugin``
+``kiwi``
 
-  Fetch the `kiwi-boxed-plugin` from pip. It provides the boxbuild
-  command used by `build-tests.sh`.
+  Install {kiwi}. It provides the boxbuild command used by
+  `build-tests.sh`. If there are no {kiwi} packages for your host,
+  install {kiwi} from pip:
 
   .. code:: bash
 
-     $ pip install --upgrade kiwi-boxed-plugin
+     $ pip install --upgrade kiwi
 
   .. warning::
 
-     Make sure to be able to execute `kiwi-ng`. In case there was no {kiwi}
-     installed on your host, you will be notified by the kiwi-boxed-plugin
-     installation to update your path to `export PATH:~/.local/bin/kiwi-ng:$PATH`.
-     If in doubt about all this, just install kiwi from pip too.
-     `pip install --upgrade kiwi`
+     Make sure to be able to execute `kiwi-ng`. When installed from
+     pip as a user, `kiwi-ng` is placed in `~/.local/bin`. Update your
+     path via `export PATH=~/.local/bin:$PATH` if needed.
 
 Building a specific integration test can be done as follows:
 
