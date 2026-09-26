@@ -27,6 +27,7 @@ systemctl mask lvm2-lvmetad.socket
 # Setup container
 # Setup for System/Kernel
 #--------------------------------------
+declare kiwi_profiles=${kiwi_profiles}
 for profile in ${kiwi_profiles//,/ }; do
     if [ ! "${profile}" = "Container" ]; then
         systemctl enable systemd-networkd
