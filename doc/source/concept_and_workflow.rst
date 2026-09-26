@@ -79,9 +79,9 @@ Image Building Process
 
 .. figure:: .images/flow-diagram.png
     :align: center
-    :alt: Kiwi NG Build Process Flow Diagram
+    :alt: {kiwi} Build Process Flow Diagram
 
-    Kiwi NG Build Process Flow Diagram
+    {kiwi} Build Process Flow Diagram
 
 {kiwi} creates images in a two-step process: The first step, the *prepare*
 operation, generates a so-called *unpacked image tree* (directory) using
@@ -103,7 +103,8 @@ installed during the image creation process.
 
 For the package installation, {kiwi} relies on the package manager specified
 in the `packagemanager` element in :file:`config.xml`. {kiwi} supports the
-following package managers: `dnf`, `zypper` (default), and `apt`.
+following package managers: `apk`, `apt`, `dnf4` (default), `dnf5`,
+`microdnf`, `pacman`, and `zypper`.
 
 The prepare step consists of the following substeps:
 
@@ -119,8 +120,9 @@ The prepare step consists of the following substeps:
    First, {kiwi} configures the package manager to use the repositories
    specified in the configuration file, via the command line, or
    both. After the repository setup, the packages specified in the
-   `bootstrap` section of the image description are installed in a
-   temporary directory external to the target root tree. This establishes
+   `bootstrap` section of the image description are installed into the
+   target root tree using the package manager of the build host (not
+   chrooted). This establishes
    the initial environment to support the completion of the process in a
    chroot setting. At the end of the `bootstrap` phase, the script
    :file:`post_bootstrap.sh` is executed, if present.
@@ -147,24 +149,23 @@ The prepare step consists of the following substeps:
       accomplished by marking them for deletion in the image description; see
       :ref:`uninstall-system-packages`.
 
+#. **Apply Archives**
+
+   All archives specified in the `archive` element of the
+   :file:`config.xml` file are applied in the specified order (top to
+   bottom) after the package installation is complete (see
+   :ref:`archive-element`). Files and directories are
+   extracted relative to the top level of the new root tree. It is
+   possible to overwrite files already existing in the target root tree.
+
 #. **Apply the Overlay Tree**
 
    Next, {kiwi} applies all files and directories present in the overlay
    directory named :file:`root` or in the compressed overlay,
    :file:`root.tar.gz`, to the target root tree. Files already present in
    the target root directory are overwritten. This allows you to
-   overwrite any file that was installed by one of the packages during the
-   installation phase.
-
-#. **Apply Archives**
-
-   All archives specified in the `archive` element of the
-   :file:`config.xml` file are applied in the specified order (top to
-   bottom) after the overlay tree copy operation is complete (see
-   :ref:`archive-element`). Files and directories are
-   extracted relative to the top level of the new root tree. As with the
-   overlay tree, it is possible to overwrite files already existing in the
-   target root tree.
+   overwrite any file that was installed by one of the packages or
+   archives during the installation phase.
 
 #. **Execute the user-defined script** :file:`config.sh`.
 

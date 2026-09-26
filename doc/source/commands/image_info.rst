@@ -45,8 +45,8 @@ OPTIONS
   - **source**
 
     Source URL pointing to a package repository that must be in a format
-    supported by the selected package manager. See the URI_TYPES section for
-    details about the supported source locators.
+    supported by the selected package manager. See the URI_TYPES section of
+    :ref:`kiwi_system_build` for details about the supported source locators.
 
   - **type**
 

@@ -44,7 +44,7 @@ Setup of the WSL-DistroLauncher
 -------------------------------
 
 The contents of the :file:`AppxManifest.xml` are changed by {kiwi}
-if the :file:`containerconfig` section is provided in the XML description.
+if the `containerconfig` section is provided in the XML description.
 In the context of a WSL image, the following container configuration
 parameters are taken into account:
 
@@ -96,10 +96,7 @@ launcher
 The following example shows how to build a WSL image based on
 openSUSE Tumbleweed:
 
-1. Check the example image descriptions;
-   see :ref:`example-descriptions`.
-
-#. Include the `Virtualization/WSL` repository in the list (replace `<DIST>`
+1. Include the `Virtualization/WSL` repository in the list (replace `<DIST>`
    with the desired distribution):
 
    .. code:: bash
@@ -130,7 +127,7 @@ openSUSE Tumbleweed:
 
    .. code:: xml
 
-      <type image="appx" metadata_path="/meta/data">
+      <type image="appx" metadata_path="/usr/share/wsl-appx">
           <containerconfig name="Tumbleweed">
               <history
                   created_by="SUSE"

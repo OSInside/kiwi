@@ -65,10 +65,7 @@ system. As a diskless client, a QEMU virtual machine is used.
      we recommend switching to the OEM disk image deployment via
      PXE.
 
-1. Make sure you have checked out the example image descriptions,
-   see :ref:`example-descriptions`.
-
-2. Build the image with {kiwi}:
+1. Build the image with {kiwi}:
 
    .. code:: bash
 
@@ -77,27 +74,27 @@ system. As a diskless client, a QEMU virtual machine is used.
            --set-repo {exc_repo_tumbleweed} \
            --target-dir /tmp/mypxe-result
 
-3. Change into the build directory:
+2. Change into the build directory:
 
    .. code:: bash
 
        $ cd /tmp/mypxe-result
 
-4. Copy the initrd and the kernel to :file:`/srv/tftpboot/boot`:
+3. Copy the initrd and the kernel to :file:`/srv/tftpboot/boot`:
 
    .. code:: bash
 
        $ cp *.initrd /srv/tftpboot/boot/initrd
        $ cp *.kernel /srv/tftpboot/boot/linux
 
-5. Copy the system image and its SHA256 sum to :file:`/srv/tftpboot/image`:
+4. Copy the system image and its SHA256 sum to :file:`/srv/tftpboot/image`:
 
    .. code:: bash
 
-       $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version} /srv/tftpboot/image
-       $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version}.sha256 /srv/tftpboot/image
+       $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version_pxe} /srv/tftpboot/image
+       $ cp {exc_image_base_name_pxe}.x86_64-{exc_image_version_pxe}.sha256 /srv/tftpboot/image
 
-6. Adjust the PXE configuration file.
+5. Adjust the PXE configuration file.
    The configuration file controls which kernel and initrd is
    loaded and which kernel parameters are set. A template has been installed
    at :file:`/srv/tftpboot/pxelinux.cfg/default` from the ``kiwi-pxeboot``
@@ -113,13 +110,13 @@ system. As a diskless client, a QEMU virtual machine is used.
            append initrd=boot/initrd
            IPAPPEND 2
 
-7. Create the image client configuration file:
+6. Create the image client configuration file:
 
    .. code:: bash
 
        $ vi /srv/tftpboot/KIWI/config.default
 
-       IMAGE=/dev/ram1;{exc_image_base_name_pxe}.x86_64;{exc_image_version};192.168.100.2;4096
+       IMAGE=/dev/ram1;{exc_image_base_name_pxe}.x86_64;{exc_image_version_pxe};192.168.100.2;4096
        UNIONFS_CONFIG=/dev/ram2,/dev/ram1,overlay
 
    All PXE boot-based deployment methods are controlled by a client
@@ -129,9 +126,9 @@ system. As a diskless client, a QEMU virtual machine is used.
    that all write operations will land in another ramdisk (`ram2`).
    {kiwi} supports a variety of different deployment strategies based
    on the rootfs image created beforehand. For details, refer
-   to :ref:`pxe_legacy_client_config`
+   to :ref:`pxe_legacy_client_config`.
 
-8. Connect the client to the network and boot. This can also be done
+7. Connect the client to the network and boot. This can also be done
    in a virtualized environment using QEMU as follows:
 
    .. code:: bash
@@ -170,7 +167,7 @@ The configuration file has the following general format:
     NBDROOT="ip-address;export-name;device;swap-export-name;swap-device;write-export-name;write-device"
     NFSROOT="ip-address;path"
 
-    UNIONFS_CONFIGURATION="rw-partition,compressed-partition,overlayfs"
+    UNIONFS_CONFIG="rw-partition,compressed-partition,overlay"
 
     CONF="src;dest;srvip;bsize;[hash],...,src;dest;srvip;bsize;[hash]"
 
@@ -238,7 +235,7 @@ is required:
 
 .. code:: bash
 
-       IMAGE="/dev/sda2;{exc_image_base_name_pxe}.x86_64;{exc_image_version};192.168.100.2;4096"
+       IMAGE="/dev/sda2;{exc_image_base_name_pxe}.x86_64;{exc_image_version_pxe};192.168.100.2;4096"
        DISK="/dev/sda"
        PART="5;S;X,X;L;/"
 
@@ -266,7 +263,7 @@ configuration, the following setup is required:
 .. code:: bash
 
        RAID="1;/dev/sda;/dev/sdb"
-       IMAGE="/dev/md1;{exc_image_base_name_pxe}.x86_64;{exc_image_version};192.168.100.2;4096"
+       IMAGE="/dev/md1;{exc_image_base_name_pxe}.x86_64;{exc_image_version_pxe};192.168.100.2;4096"
        PART="5;S;x,x;L;/"
 
 The first parameter of the RAID line is the RAID level. So far, only raid1

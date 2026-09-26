@@ -34,7 +34,7 @@ building and maintaining boxes.
 
 Vagrant expects boxes to be set up in a specific way (for details refer to
 the `Vagrant box documentation
-<https://www.vagrantup.com/docs/boxes/base.html>`_.). applied to the
+<https://www.vagrantup.com/docs/boxes/base.html>`_). Applied to the
 referenced {kiwi} image description from :ref:`simple_disk`, the following
 steps are required:
 
@@ -74,7 +74,7 @@ steps are required:
           </oemconfig>
       </type>
 
-   The resulting Vagrant box then uses the `vboxfs` module for the
+   The resulting Vagrant box then uses the `vboxsf` module for the
    synchronized folder instead of `rsync`, which is used by default.
 
 2. Add mandatory packages.

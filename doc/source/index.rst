@@ -26,9 +26,9 @@ media, containers, and specialized deployment targets.
    concept_and_workflow
    commands
    image_description
+   build_methods
    example_use_cases
    image_types_and_results
-   plugins
    troubleshooting
    contributing
 

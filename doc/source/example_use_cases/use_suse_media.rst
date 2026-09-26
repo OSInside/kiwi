@@ -21,11 +21,11 @@ To use a SUSE product media, the following steps are required:
 
 1. Mount the ISO media from the file or DVD drive:
 
-.. code:: bash
+   .. code:: bash
 
-    $ sudo mount Product_ISO_file.iso|DVD_drive /media/suse
+       $ sudo mount Product_ISO_file.iso|DVD_drive /media/suse
 
-2. Lookup all `Product` and `Module` directories:
+2. Look up all `Product` and `Module` directories:
 
    Below `/media/suse`, there is a directory structure that
    provides package repositories in directories starting

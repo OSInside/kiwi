@@ -71,16 +71,7 @@ additional files.
 The following example illustrates how to build a container image based on
 openSUSE Leap:
 
-1. Make sure you have checked out the example image descriptions
-   (see :ref:`example-descriptions`).
-
-#. Include the `Virtualization/containers` repository in your list (replace the placeholder `<DIST>` with the name of the desired distribution):
-
-   .. code:: bash
-
-      $ zypper addrepo http://download.opensuse.org/repositories/Virtualization:/containers/<DIST> container-tools
-
-#. Install `umoci` and `skopeo` tools.
+1. Install `umoci` and `skopeo` tools.
 
    .. code:: bash
 

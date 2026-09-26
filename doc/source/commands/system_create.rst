@@ -21,8 +21,8 @@ SYNOPSIS
 DESCRIPTION
 -----------
 
-Create an image from the previously prepared image root directory. The `kiwi
-create` command is normally issued after the `kiwi prepare` command, and it
+Create an image from the previously prepared image root directory. The `kiwi-ng
+system create` command is normally issued after the `kiwi-ng system prepare` command, and it
 builds the requested image type in the specified target directory.
 
 .. _db_kiwi_system_create_opts:
@@ -33,9 +33,9 @@ OPTIONS
 --root=<directory>
 
   The path to the image root directory. This directory is normally created by the
-  `kiwi prepare` command. Keep in mind that if the specified directory is not
-  created using the `kiwi prepare` command, {kiwi} stores image build metadata
-  in the `image/` directory. This directory must exist for the `kiwi create`
+  `kiwi-ng system prepare` command. Keep in mind that if the specified directory is not
+  created using the `kiwi-ng system prepare` command, {kiwi} stores image build metadata
+  in the `image/` directory. This directory must exist for the `kiwi-ng system create`
   command to work correctly.
 
 --target-dir=<directory>

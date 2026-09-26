@@ -107,7 +107,7 @@ The :file:`kiwi/schema/kiwi.rnc` schema organizes the document below the
      - :ref:`sec.profiles`
    * - ``<users>``
      - Create or adjust users and groups in the image.
-     - User records, group membership, home, shell, SSH keys, and password data.
+     - User records, group membership, home, shell, and password data.
      - :ref:`sec.users`
    * - ``<drivers>``
      - Add driver files to the image description.
@@ -115,15 +115,15 @@ The :file:`kiwi/schema/kiwi.rnc` schema organizes the document below the
      - :ref:`sec.drivers`
    * - ``<strip>``
      - Remove files, libraries, or toolchains from the prepared root tree.
-     - Optional ``type`` and matching entries for files or package content.
+     - Required ``type`` (``delete``, ``tools``, or ``libs``) with one or more ``<file>`` entries.
      - :ref:`sec.strip`
    * - ``<repository>``
      - Point KIWI to package sources.
      - Repository type, source type, priority, GPG behavior, credentials, and source URLs.
      - :ref:`sec.repository`
    * - ``<containers>``
-     - Define container registry sources used by container-based builds.
-     - One or more registry definitions and registry-specific credentials.
+     - Define containers to fetch from a registry into the image.
+     - Required ``source`` and ``backend`` with one or more ``<container>`` entries.
      - :ref:`sec.registry`
    * - ``<packages>``
      - Define what KIWI installs, deletes, or imports.

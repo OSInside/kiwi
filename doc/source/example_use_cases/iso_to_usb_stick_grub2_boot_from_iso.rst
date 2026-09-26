@@ -19,7 +19,8 @@ computers delivered without a CD/DVD drive, this becomes important.
 Writing this image to a USB stick will permanently erase all existing
 data on the device. Additionally, the stick will no longer be usable for
 general data storage. Most USB sticks are pre-formatted with a
-FAT32 or exFAT Windows filesystem, and to keep the existing data.
+FAT32 or exFAT Windows filesystem, and to keep the existing data untouched,
+a different deployment needs to be used.
 
 Fortunately, Grub2 supports booting directly from ISO files. It does not matter
 whether it is installed on your computer's hard drive or on a USB stick.

@@ -414,7 +414,7 @@ image="docker"
 
 image="oci"
   An archive image that builds a container matching the OCI
-  (Open Container Interface) standard. The container should be
+  (Open Container Initiative) standard. The container should be
   able to run with any OCI-compliant container engine.
 
 image="appx"
@@ -495,7 +495,7 @@ efifatimagesize="nonNegativeInteger":
 efiparttable="msdos|gpt":
   For images with an EFI firmware, specifies the partition
   table type to use. If not set, it defaults to the GPT partition
-  table type for disk images and MBR (msdos) for ISO images.
+  table type.
   Only available for the `oem` and `iso` types.
 
 
@@ -569,10 +569,10 @@ btrfs_root_is_readonly_snapshot="true|false":
 
 
 compressed="true|false":
-  Specifies whether the image output file should be
-  compressed or not. Only available for the `pxe` and `kis` types, where
-  compression also applies to the tar archive that contains the build
-  results.
+  Specifies whether the root filesystem image should be xz-compressed
+  or not. Only available for the `pxe` and `kis` types. If set to `true`,
+  the tar archive that contains the build results is not compressed
+  again; otherwise, the tar archive is xz-compressed.
 
 archive="true|false":
   Specifies whether the image output file should be an archive or not.
@@ -1057,7 +1057,7 @@ flags="overlay|dmsquash":
 format="format_name":
   For disk image type `oem`, this specifies the format of the virtual disk
   so that it can run on the desired target virtualization platform. The
-  supported formats_name's are:
+  supported format names are:
 
    * `gce`: Google Compute Engine image format.
    * `ova`: Open Virtualization Format Archive.
@@ -1074,9 +1074,9 @@ format="format_name":
    The `(oci|docker):image_format` format is a special case that stores the
    disk image inside of an OCI-compliant container. The disk image is
    stored in the specified `image_format` in the `disk/` directory
-   of the container. The disk format can be one of the above formats
-   or just `raw` if the disk should be stored as a raw disk inside
-   of the container. Custom naming conventions for the disk image
+   of the container. The disk format can be one of the above formats,
+   except `vagrant` and the container formats themselves, or just `raw`
+   if the disk should be stored as a raw disk inside of the container. Custom naming conventions for the disk image
    can be applied by using the `bundle_format` attribute.
    The `derived_from` attribute can be used to specify the source
    container. The resulting container image will be built by adding
@@ -1121,7 +1121,8 @@ hybridpersistent_filesystem="ext4|xfs":
 
 
 initrd_system="kiwi|dracut|none":
-  Specify which initrd builder to use; the default is set to `dracut`.
+  Specify which initrd builder to use; the default is set to `dracut`,
+  except for the `pxe` type, which defaults to `kiwi`.
   If set to `none`, the image is built without an initrd. Depending
   on the image type, this can lead to a non-bootable system, as it's
   now a kernel responsibility if the given root device can be
@@ -1225,7 +1226,7 @@ derived_from="string":
 
 delta_root="true|false":
   For container images and in combination with the `derived_from`
-  attribute. If `delta_root` is set to `true`, {kiwi-ng} creates
+  attribute. If `delta_root` is set to `true`, {kiwi} creates
   a container image that only contains the differences compared
   to the given `derived_from` container. Such a container is, on
   its own, no longer functional and requires a tool that is able
@@ -1240,7 +1241,7 @@ delta_root="true|false":
 
 ensure_empty_tmpdirs="true|false":
   For OCI container images, this specifies whether to ensure the `/run` and `/tmp`
-  directories are empty in the container image created by Kiwi.
+  directories are empty in the container image created by {kiwi}.
   The default is true.
   Only available for the `docker` and `oci` types.
 
@@ -1387,7 +1388,7 @@ name="grub2|grub2_s390x_emu|systemd_boot|custom|zipl":
   .. note:: systemd_boot ESP size
 
      The implementation to support systemd-boot reads all
-     data from the ESP (EFI Standard Partition). This also
+     data from the ESP (EFI System Partition). This also
      includes the kernel and initrd, which requires the size
      of the ESP to be configured appropriately. By default,
      {kiwi} configures the ESP with 20MB. For systemd_boot,
@@ -1425,8 +1426,8 @@ input_console="none|console|serial|at_keyboard|usb_keyboard":
 
 grub_template="filename":
   Specifies a custom grub bootloader template file that will be used
-  instead of the one provided with Kiwi. A static bootloader template to
-  create the grub config file is only used in Kiwi if the native method
+  instead of the one provided with {kiwi}. A static bootloader template to
+  create the grub config file is only used in {kiwi} if the native method
   via the grub `mkconfig` toolchain does not work properly. As of today,
   this is only the case for live and install ISO images. Thus, this
   setting only affects the oem and iso image types.
@@ -1513,6 +1514,11 @@ targettype="CDL|FBA|SCSI|GPT":
   The attribute is available for the `grub2_s390x_emu` and `zipl`
   loaders only.
 
+use_disk_password="true|false":
+  When `/boot` is encrypted, makes the bootloader store the
+  password in its configuration file (in cleartext). This is
+  useful for full disk encryption images.
+
 <preferences><type><bootloader><securelinux>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to specify data required to set up secure Linux execution. Secure
@@ -1558,7 +1564,8 @@ hkd_revocation_list:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Used to specify custom arguments for the tools called to set up
 the bootloader:
-* secure boot via `<shimoption>`, e.g., `shiminstall`
+
+* secure boot via `<shimoption>`, e.g., `shim-install`
 * installation of the bootloader via `<installoption>`, e.g., `grub-install`
 * configuration of the bootloader via `<configoption>`, e.g., `grub-mkconfig`
 * setup of bootloader environment variables via `<environment>`, e.g., `grub2-editenv`
@@ -1577,7 +1584,7 @@ the bootloader:
 
 .. note::
 
-   {kiwi-ng} does not judge the given parameters, and if the provided
+   {kiwi} does not judge the given parameters, and if the provided
    data is effectively used depends on the individual bootloader
    implementation.
 
@@ -1606,7 +1613,7 @@ For details, see: :ref:`custom_volumes`.
    be redefined as `<systemdisk>` volumes. The two types define a
    complete disk setup, so there cannot be any overlapping volumes
    or mount points. As a result, whatever is written in `<partitions>`
-   cannot be expressed in the same way in `<volumes>`.
+   cannot be expressed in the same way in `<systemdisk>`.
 
 <preferences><type><partitions>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2017,7 +2024,7 @@ group:
 ~~~~~~~~~~~~~~~~~~~
 .. code:: xml
 
-   <packages type="image"/>
+   <packages type="image">
      <package name="name" arch="arch"/>
    </packages>
 
@@ -2108,7 +2115,7 @@ elements:
 ~~~~~~~~~~~~~~~~~~~
 .. code:: xml
 
-   <packages type="image"/>
+   <packages type="image">
      <file name="name"/>
    </packages>
 
@@ -2139,7 +2146,7 @@ target="some/path"
 ~~~~~~~~~~~~~~~~~~~
 .. code:: xml
 
-   <packages type="image"/>
+   <packages type="image">
      <archive name="name" target_dir="some/path"/>
    </packages>
 
@@ -2157,7 +2164,7 @@ additionally unpacks the archive into the {kiwi} initrd.
 ~~~~~~~~~~~~~~~~~~
 .. code:: xml
 
-   <packages type="image"/>
+   <packages type="image">
      <ignore name="name"/>
    </packages>
 
@@ -2368,7 +2375,7 @@ arch="arch_name"
 A profile can require other profiles, and the required profiles will
 be evaluated in the order of their declaration. The optional arch
 attribute can be used to limit the profile and required profiles
-it to a certain architecture. For example:
+to a certain architecture. For example:
 
 .. code:: xml
 
@@ -2397,7 +2404,7 @@ by separating the names in the profiles attribute with a comma:
 
 If a section tag does not have a profiles attribute, it is globally
 present in the configuration. If global sections and profiled sections
-contains the same sub-sections, the profiled sections will overwrite
+contain the same sub-sections, the profiled sections will overwrite
 the global sections in the order of the provided profiles. For a better
 overview of the result configuration when profiles are used we
 recommend to put data that applies in any case to non profiled (global)
@@ -2419,7 +2426,7 @@ For example:
      <type image="oem" filesystem="ext4" format="vmdk"/>
    </preferences>
 
-The above example configures two version of the same oem type.
+The above example configures two versions of the same oem type.
 One builds a disk in qcow2 format the other builds a disk in
 vmdk format. The global preferences section without a profile
 assigned will be used in any case and defines those preferences
@@ -2429,5 +2436,5 @@ the disk format that is specified last because one is overwriting
 the other.
 
 Use of one or more profile(s) during image generation is triggered
-by the use of the ``--profile`` command line argument. multiple profiles
+by the use of the ``--profile`` command line argument. Multiple profiles
 can be selected by passing this option multiple times.

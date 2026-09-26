@@ -73,8 +73,8 @@ filesystem="btrfs|ext2|ext3|ext4|squashfs|xfs|fat32|fat16"
 
 label="string"
   Optional filesystem label if a filesystem is provided. If no
-  label is specified, the `name` identifier is set as the filesystem
-  label.
+  label is specified, the `name` identifier in uppercase letters is set
+  as the filesystem label.
 
 clone="number"
   Optional setting to indicate that this partition should be
@@ -102,7 +102,6 @@ part_id="number"
   IDs are not used for all partitions, this results in a mix of
   numbers, which works but is not obviously visible when reading the
   image description. Because of that, also see the information about
-
   the `<type>` attributes `eficsmpart_id`, `efipart_id`,
   `rootpart_id`, and `bootpart_id`.
 
@@ -138,7 +137,7 @@ there are the following limitations:
      is possible to disable `<oem-resize>` and configure an
      `<oem-systemsize>` which is smaller than the kiwi-calculated
      disk size or the fixed setting for the disk size via the
-     `size>` element.
+     `<size>` element.
 
    * **Build with unpartitioned free space.**
 

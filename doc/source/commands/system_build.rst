@@ -25,11 +25,11 @@ SYNOPSIS
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
        [--ca-cert=<cert-file>...]
-       [--ca-target-distribution=<suse,redhat,debian,archlinux>]
+       [--ca-target-distribution=<suse|redhat|debian|archlinux>]
        [--delete-package=<name>...]
        [--set-container-derived-from=<uri>]
        [--set-container-tag=<name>]
-       [--add-container-label=<label>...]
+       [--add-container-label=<name=value>...]
        [--set-type-attr=<attribute=value>...]
        [--set-release-version=<version>]
        [--signing-key=<key-file>...]
@@ -112,7 +112,7 @@ OPTIONS
 --ca-target-distribution=<suse|redhat|debian|archlinux>
 
   Specifies the target distribution for the import of certificates
-  via the `--ca-cert` options(s) and/or the provided `<certificates>`
+  via the `--ca-cert` option(s) and/or the provided `<certificates>`
   from the image description. The selected distribution is used
   in KIWI to map the distribution-specific CA storage path and
   update tool for the import process.
@@ -125,7 +125,7 @@ OPTIONS
 --description=<directory>
 
   The path to an XML description. This is a directory containing at least
-  one `_config.xml_` or `_*.kiwi_` XML file.
+  one `config.xml` or `*.kiwi` XML file.
 
 --ignore-repos
 

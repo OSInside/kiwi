@@ -44,7 +44,7 @@ The design of the stackbuild concept is twofold:
 
 First, {kiwi} comes with a command called `stash` that allows
 you to store a kiwi-built root tree as an OCI container. OCI stands for
-*Open Container Interface* and is a de facto standard format in the
+*Open Container Initiative* and is a de facto standard format in the
 container world. Once the container has been created, it can be managed
 using the preferred container toolchain. The `stash` and `stackbuild`
 commands use `podman` to work with containers.
@@ -94,7 +94,7 @@ registry:
 
     # Register the stash in a registry
     $ podman login
-    $ podman push twmos-20211008 \
+    $ podman push twmos-snapshot \
         docker://docker.io/.../twmos-snapshot:2021-10-08
 
 If the `stash` command is called multiple times with the same
@@ -143,7 +143,7 @@ call `stackbuild` as follows:
 
     # Rebuild image from stash
     $ sudo kiwi-ng system stackbuild \
-        --stash twmos-snapshot:2021-10-08 \
+        --stash twmos-snapshot \
         --target-dir /tmp/myTWToday
 
 This rebuilds the image from the stash and the {kiwi} configuration

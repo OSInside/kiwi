@@ -35,7 +35,7 @@ is required:
 
    .. code:: bash
 
-       $ cd kiwi/build-tests/{exc_description_pxe}
+       $ cd kiwi/build-tests/{exc_description_kis}
        $ mkdir -p root/etc/dracut.conf.d
        $ cd root/etc/dracut.conf.d
        $ echo 'add_dracutmodules+=" kiwi-overlay "' > overlay.conf
@@ -76,7 +76,7 @@ from the network:
 
      .. code:: bash
 
-         $ vbladed 0 1 IFACE {exc_image_base_name}.x86_64-{exc_image_version}
+         $ vbladed 0 1 IFACE {exc_image_base_name_kis}.x86_64-{exc_image_version_kis}
 
      The above command exports the given filesystem image file as a block
      storage device to the network of the given `IFACE`. On any machine except
@@ -88,7 +88,7 @@ from the network:
 
      .. note::
 
-         Only machines in the same network of the given `INTERFACE`
+         Only machines in the same network of the given `IFACE`
          can see the exported block device.
 
    Export via NBD:
@@ -99,7 +99,7 @@ from the network:
 
      .. code:: bash
 
-         $ losetup /dev/loop0 {exc_image_base_name}.x86_64-{exc_image_version}
+         $ losetup /dev/loop0 {exc_image_base_name_kis}.x86_64-{exc_image_version_kis}
 
          $ vi /etc/nbd-server/config
 
@@ -138,10 +138,11 @@ from the network:
 
          LABEL Overlay-Boot
              kernel boot/linux
-             append initrd=boot/initrd root=overlay:aoe=AOEINTERFACE
+             append initrd=boot/initrd root=overlay:aoe=AOEDEVICE
 
-     The boot parameter `root=overlay:aoe=AOEINTERFACE` specifies the
-     interface name as it was exported by the `vbladed` command.
+     The boot parameter `root=overlay:aoe=AOEDEVICE` specifies the
+     AoE device name below :file:`/dev/etherd` as it was exported by the
+     `vbladed` command, for example, `e0.1`.
 
 4. Boot from the Network
 

@@ -46,11 +46,11 @@ building KIS images:
   in a tarball archive. If you want to store the output files
   individually instead, set this attribute to `false`.
 
-- `compressed`: By default the output files of a KIS image will be tar
-  archived and compressed. If you want to store the output files in
-  the archive without compression, set this attribute to `false`.
-  If the `archive` attribute is set to `false`, this attribute has no
-  effect.
+- `compressed`: Specifies whether the root filesystem image should be
+  xz-compressed. If set to `true`, the tar archive that contains the
+  output files is not compressed again; otherwise, the tar archive is
+  xz-compressed. If the `archive` attribute is set to `false`, only the
+  compression of the root filesystem image applies.
 
 - `filesystem`: Specifies the root filesystem and triggers the build
   of an additional filesystem image of that filesystem. The generated
@@ -61,8 +61,8 @@ building KIS images:
 
 - `kernelcmdline`: Specifies kernel command-line options that are
   part of the generated kernel command-line options file (append file).
-  By default, the append file contains neither information nor a reference
-  to the root UUID if the `filesystem` attribute is used.
+  By default, the append file contains no information other than the
+  reference to the root UUID if the `filesystem` attribute is used.
 
 All other attributes of the `type` element that apply to an optional
 root filesystem image remain in effect in the system image of a KIS
@@ -84,11 +84,11 @@ tested with QEMU as follows:
 
 .. code:: bash
 
-   $ sudo qemu
+   $ sudo qemu \
        -kernel /tmp/myimage/*.kernel \
        -initrd /tmp/myimage/*.initrd \
        -append "$(cat /tmp/myimage/*.append) rw" \
-       -drive file=/tmp/myimage/{exc_image_base_name_kis}.*.ext3,if=virtio,driver=raw \
+       -drive file=/tmp/myimage/{exc_image_base_name_kis}.x86_64-{exc_image_version_kis},if=virtio,driver=raw \
        -serial stdio
 
 .. note::

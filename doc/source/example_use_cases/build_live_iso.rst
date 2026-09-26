@@ -49,7 +49,7 @@ Live ISO images:
   This option is not compatible with device-mapper-specific features of the
   `dmsquash-live` dracut module. In that case, use `overlayfs`.
 
-  If set to a value different from `squashfs`, the root filesystem is written
+  If set to a value different from `squashfs` or `erofs`, the root filesystem is written
   into a filesystem image of the specified type, and the filesystem image is
   written into a squashfs image for compression.
 
@@ -133,8 +133,9 @@ Media Checksum Verification
 Live ISO through PXE boot
   Boot the Live image via the network. This is possible with both
   modules, but it uses different technologies. The `overlay` module supports
-  network boot only in combination with the AoE (Ata Over Ethernet) protocol.
-  For details, see :ref:`network_live_boot`. The `dmsquash` module supports
+  network boot by fetching the ISO image via `ftp`, `http`, `https`, or
+  `dolly` from `root=live:<url>`, as well as via the AoE (ATA over
+  Ethernet) protocol. For details, see :ref:`network_live_boot`. The `dmsquash` module supports
   network boot by fetching the ISO image into memory from `root=live:<url>`
   using the `livenet` module.
 

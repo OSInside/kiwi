@@ -14,7 +14,7 @@ build time are handled by {kiwi} itself and setup in `/etc/fstab`.
 Thus there is usually no need to add entries or change the
 ones added by {kiwi}. However depending on where the image is
 deployed later it might be required to pre-populate fstab
-entries that are unknown at the time the image is build.
+entries that are unknown at the time the image is built.
 
 Possible use cases are for example:
 

@@ -33,7 +33,7 @@ Package Manager Behavior
 One of the key requirements for {kiwi} is that the target distribution
 consists of a collection of software packages provided through
 software repositories. As of today, this applies to every Linux
-distribution in some shape or form. For the installation of this
+distribution in some shape or form. For the installation of these
 software packages, there are tools available called `package manager`,
 and {kiwi} implements an API for a variety of package managers to
 support the different Linux distributions.
@@ -55,7 +55,6 @@ solutions on how to address them.
    the image bootstrap phase. During the image bootstrap phase,
    all package manager calls happen on the build host, and their
    behavior can only be influenced by changing the setup of the
-
    build host. An isolated build environment is required to
    address issues in this area. See :ref:`self_contained` for
    details.

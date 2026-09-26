@@ -36,7 +36,6 @@ Examples
    example_use_cases/custom_fstab_extension
    example_use_cases/build_with_profiles
    example_use_cases/build_in_buildservice
-   example_use_cases/build_self_contained
    example_use_cases/use_suse_media
    example_use_cases/build_without_debianbootstrap
    example_use_cases/integration_testing.rst
