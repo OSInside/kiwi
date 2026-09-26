@@ -422,6 +422,23 @@ Host setup helper to pull in all packages required/useful on
 the build host to build images in a self contained virtual
 machine or container via the kiwi-ng system boxbuild command
 
+%package -n kiwi-systemdeps-stackbuild
+Summary:        KIWI - host requirements for building based on containers
+Group:          %{sysgroup}
+Requires:       python%{python3_pkgversion}-kiwi = %{version}-%{release}
+Requires:       kiwi-systemdeps-containers = %{version}-%{release}
+Requires:       podman
+Requires:       rsync
+# The stackbuild and stash commands were provided by the kiwi_stackbuild_plugin
+Provides:       python%{python3_pkgversion}-kiwi_stackbuild_plugin = %{version}-%{release}
+Obsoletes:      python%{python3_pkgversion}-kiwi_stackbuild_plugin < %{version}-%{release}
+
+%description -n kiwi-systemdeps-stackbuild
+Host setup helper to pull in all packages required/useful on
+the build host to store image root trees as containers and
+to build images based on containers via the kiwi-ng system
+stash and kiwi-ng system stackbuild commands
+
 %package -n kiwi-systemdeps
 Summary:        KIWI - Host system dependencies
 Group:          %{sysgroup}
@@ -856,6 +873,9 @@ fi
 # Empty metapackage
 
 %files -n kiwi-systemdeps-boxbuild
+# Empty metapackage
+
+%files -n kiwi-systemdeps-stackbuild
 # Empty metapackage
 
 %files -n kiwi-systemdeps

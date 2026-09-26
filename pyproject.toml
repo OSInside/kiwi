@@ -82,6 +82,8 @@ system_boxbuild = "kiwi.tasks.system_boxbuild"
 system_build = "kiwi.tasks.system_build"
 system_create = "kiwi.tasks.system_create"
 system_prepare = "kiwi.tasks.system_prepare"
+system_stackbuild = "kiwi.tasks.system_stackbuild"
+system_stash = "kiwi.tasks.system_stash"
 system_update = "kiwi.tasks.system_update"
 
 [tool.poetry.scripts]

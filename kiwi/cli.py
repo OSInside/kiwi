@@ -47,13 +47,14 @@ from kiwi.defaults import Defaults
 log = logging.getLogger('kiwi')
 
 
-class BoxbuildGroup(TyperGroup):
+class PassThroughGroup(TyperGroup):
     """
-    **Command group for the system boxbuild command**
+    **Command group for commands passing arguments to kiwi**
 
+    Used by the system boxbuild and system stackbuild commands.
     Accepts the '--' separator as an alias for the kiwi
     subcommand, which keeps command lines written for the
-    former kiwi-boxed-plugin working
+    former kiwi-boxed-plugin and kiwi-stackbuild-plugin working
     """
     def parse_args(self, ctx: Any, args: List[str]) -> List[str]:
         # ctx is a click Context, click is vendored by newer typer
@@ -78,7 +79,7 @@ class Cli:
     cli_ok = False
 
     # plugins which provided commands that are now part of kiwi
-    obsolete_plugins = ['kiwi_boxed_plugin']
+    obsolete_plugins = ['kiwi_boxed_plugin', 'kiwi_stackbuild_plugin']
 
     # system
     system = typer.Typer(
@@ -100,10 +101,16 @@ class Cli:
 
     # system boxbuild
     boxbuild = typer.Typer(
-        cls=BoxbuildGroup, add_completion=True, invoke_without_command=True
+        cls=PassThroughGroup, add_completion=True, invoke_without_command=True
+    )
+
+    # system stackbuild
+    stackbuild = typer.Typer(
+        cls=PassThroughGroup, add_completion=True, invoke_without_command=True
     )
 
     system.add_typer(boxbuild, name='boxbuild')
+    system.add_typer(stackbuild, name='stackbuild')
 
     cli = typer.Typer()
     cli.add_typer(system, name='system')
@@ -1259,6 +1266,121 @@ class Cli:
         the virtual machine or container.
         """
         Cli.subcommand_args['boxbuild']['system_build'] = ctx.args
+
+    @staticmethod
+    @stackbuild.callback(
+        help='build an image based on a given stash container root.\n\n'
+        'If no --description is provided, stackbuild rebuilds the '
+        'image from '
+        'the stash container and passes the kiwi subcommand arguments '
+        'to the kiwi-ng system create command. If a --description is '
+        'provided, this description takes over precedence and a new '
+        'image from this description based on the given stash container '
+        'root will be built. In this case the kiwi subcommand arguments '
+        'are passed to the kiwi-ng system build command.',
+        subcommand_metavar='kiwi [OPTIONS]'
+    )
+    def stackbuild_options(
+        stash: Annotated[
+            List[str], typer.Option(
+                help='<name> Name of the stash container. See system stash '
+                '--list for available stashes. Multiple --stash options will '
+                'be stacked together in the given order'
+            )
+        ],
+        target_dir: Annotated[
+            Path, typer.Option(
+                help='<directory> The target directory to store the '
+                'system image file(s)'
+            )
+        ],
+        description: Annotated[
+            Optional[Path], typer.Option(
+                help='<directory> Path to KIWI image description'
+            )
+        ] = None,
+        from_registry: Annotated[
+            Optional[str], typer.Option(
+                help='<URI> Pull given stash container name from the '
+                'provided registry URI'
+            )
+        ] = None
+    ):
+        Cli.subcommand_args['stackbuild'] = {
+            '--stash': stash,
+            '--target-dir': Cli._as_path_name(target_dir),
+            '--description': Cli._as_path_name(description),
+            '--from-registry': from_registry,
+            'system_build_or_create': [],
+            'help': False
+        }
+        Cli.global_args['stackbuild'] = True
+        Cli.global_args['command'] = 'stackbuild'
+        Cli.global_args['system'] = True
+        Cli.cli_ok = True
+
+    @staticmethod
+    @stackbuild.command(
+        name='kiwi',
+        context_settings={
+            'allow_extra_args': True,
+            'ignore_unknown_options': True
+        }
+    )
+    def stackbuild_kiwi(ctx: typer.Context):
+        """
+        List of command parameters as supported by the kiwi-ng
+        build or create command. The information given here is passed
+        along to the kiwi-ng system build or the kiwi-ng system create
+        command depending on the presence of the --description
+        option.
+        """
+        Cli.subcommand_args['stackbuild']['system_build_or_create'] = \
+            ctx.args
+
+    @staticmethod
+    @system.command()
+    def stash(
+        root: Annotated[
+            Optional[Path], typer.Option(
+                help='<directory> The path to the root directory, '
+                'usually the result of a former system prepare or '
+                'build call'
+            )
+        ] = None,
+        tag: Annotated[
+            Optional[str], typer.Option(
+                help='<name> The tag name for the container. '
+                'By default set to: latest'
+            )
+        ] = None,
+        container_name: Annotated[
+            Optional[str], typer.Option(
+                help='<name> The name of the container. By default '
+                'set to the image name of the stash'
+            )
+        ] = None,
+        stash_list: Annotated[
+            Optional[bool], typer.Option(
+                '--list',
+                help='List the available stashes'
+            )
+        ] = False
+    ):
+        """
+        Create a container from the given root directory.
+        """
+        Cli.subcommand_args['stash'] = {
+            '--root': Cli._as_path_name(root),
+            '--tag': tag,
+            '--container-name': container_name,
+            '--list': stash_list,
+            'help': False
+        }
+        Cli.global_args['stash'] = True
+        Cli.global_args['command'] = 'stash'
+        Cli.global_args['system'] = True
+        Cli.cli_ok = True
 
     def get_servicename(self):
         """
