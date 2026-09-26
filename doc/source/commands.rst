@@ -17,5 +17,7 @@ Working from the Command Line
    commands/system_build
    commands/system_boxbuild
    commands/system_create
+   commands/system_stackbuild
+   commands/system_stash
    commands/image_resize
    commands/image_info

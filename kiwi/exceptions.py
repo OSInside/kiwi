@@ -964,3 +964,24 @@ class KiwiBoxBuildError(KiwiError):
     Exception raised if the build process in a box failed or
     could not be started
     """
+
+
+class KiwiStackBuildTargetDirExists(KiwiError):
+    """
+    Exception raised if the stackbuild image root directory
+    already exists
+    """
+
+
+class KiwiStackBuildContainerNameInvalid(KiwiError):
+    """
+    Exception raised if the image name cannot be used as
+    stash container name
+    """
+
+
+class KiwiStackBuildRootSyncFailed(KiwiError):
+    """
+    Exception raised if the rsync process to sync the stash into
+    the root-tree failed
+    """

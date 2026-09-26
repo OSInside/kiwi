@@ -5,9 +5,9 @@ Building based on Containers
 
 .. note:: **Abstract**
 
-   When building images, one of the following
-   requirements of the stackbuild plugin provides an opportunity
-   to address it:
+   When building images, the {kiwi} `stash` and `stackbuild`
+   commands provide an opportunity to address the following
+   requirements:
 
    * Preserve the image rootfs for a later rebuild without
      requiring the original software repositories.
@@ -18,34 +18,41 @@ Building based on Containers
 
    * Transform a container into a {kiwi} image type.
 
-Installation
+Requirements
 ------------
 
-Add the {kiwi} repo from the Open Build Service. For details, see
-:ref:`installation-from-obs`. The following {kiwi} plugin needs to be
-installed on the build system:
+The `stash` and `stackbuild` commands are part of {kiwi}. Add the
+{kiwi} repo from the Open Build Service. For details, see
+:ref:`installation-from-obs`. The following package pulls in the
+host requirements for the `stash` and `stackbuild` commands, like
+`podman` and the OCI container tools:
 
 .. code:: bash
 
-    $ sudo zypper in python3-kiwi_stackbuild_plugin
+    $ sudo zypper in kiwi-systemdeps-stackbuild
+
+.. note::
+
+   The `stash` and `stackbuild` commands were formerly provided by the
+   `kiwi-stackbuild-plugin`. The plugin is no longer needed and is
+   replaced by the `kiwi-systemdeps-stackbuild` package.
 
 Concept
 -------
 
-The design of the stackbuild plugin is twofold:
+The design of the stackbuild concept is twofold:
 
-First, the plugin comes with a command called `stash` that allows
+First, {kiwi} comes with a command called `stash` that allows
 you to store a kiwi-built root tree as an OCI container. OCI stands for
 *Open Container Interface* and is a de facto standard format in the
 container world. Once the container has been created, it can be managed
-using the preferred container toolchain. The plugin code itself
-uses `podman` to work with containers.
+using the preferred container toolchain. The `stash` and `stackbuild`
+commands use `podman` to work with containers.
 
-As a next step, and with the root tree as a container, the plugin offers
+As a next step, and with the root tree as a container, {kiwi} offers
 the opportunity to build images based on one or more containers.
-That's also the reason why the plugin is called *stackbuild*, as it
-allows you to stack different root containers together.
-Consequently, the other command provided is named `stackbuild`.
+That's also the reason why the other command is called *stackbuild*,
+as it allows you to stack different root containers together.
 
 The `stash` and `stackbuild` commands can be used independently
 from each other. If there is already a registry with containers
@@ -54,7 +61,7 @@ directly consume them.
 
 This concept leads to a number of use cases, and a few of them were
 picked and put into the abstract of this article. For the purpose
-of documenting the functionality of the plugin, only a part of the
+of documenting the functionality of the commands, only a part of the
 possibilities are taken into account as follows:
 
 .. _stash:
@@ -119,7 +126,7 @@ in which they were provided.
 
    When using multiple containers, the result stack root tree is
    created from a sequence of rsync commands into the same target
-   directory. The stackbuild plugin does this with any container
+   directory. The `stackbuild` command does this with any container
    content given and does not check, validate, or guarantee that
    the selection of containers is actually stackable or leads to a
    usable root tree. This means it's the caller's responsibility
@@ -143,10 +150,17 @@ This rebuilds the image from the stash and the {kiwi} configuration
 inside of the stash. As all rootfs data is already in the stash, the
 command will not need external resources to rebuild the image.
 
+Additional arguments for the `kiwi-ng system create` command, or for the
+`kiwi-ng system build` command if `--description` is given, can be passed
+after the `kiwi` subcommand. For compatibility with the former
+`kiwi-stackbuild-plugin`, the `--` separator is accepted as an alias for
+`kiwi`. For all options, see :ref:`kiwi_system_stackbuild` and
+:ref:`kiwi_system_stash`.
+
 Turn a container into a VM image
 --------------------------------
 
-Another use case for the `stackbuild` plugin is the transformation
+Another use case for the `stackbuild` command is the transformation
 of container images into another image type that is supported by {kiwi}.
 The following example demonstrates how an existing container image
 from the openSUSE registry can be turned into a virtual machine image.

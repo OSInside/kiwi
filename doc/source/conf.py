@@ -228,6 +228,8 @@ system_update_doc = 'commands/system_update'
 system_build_doc = 'commands/system_build'
 system_boxbuild_doc = 'commands/system_boxbuild'
 system_create_doc = 'commands/system_create'
+system_stackbuild_doc = 'commands/system_stackbuild'
+system_stash_doc = 'commands/system_stash'
 image_resize_doc = 'commands/image_resize'
 image_info_doc = 'commands/image_info'
 
@@ -286,6 +288,20 @@ man_pages = [
         system_boxbuild_doc,
         'kiwi::system::boxbuild',
         'Build image in a self contained VM or container',
+        [author],
+        8
+    ),
+    (
+        system_stackbuild_doc,
+        'kiwi::system::stackbuild',
+        'Build image based on stash containers',
+        [author],
+        8
+    ),
+    (
+        system_stash_doc,
+        'kiwi::system::stash',
+        'Create a stash container from an image root directory',
         [author],
         8
     ),
