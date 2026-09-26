@@ -57,6 +57,7 @@ function run_build {
         options="${options} --description /description --target-dir /result"
     fi
     export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
+    # shellcheck disable=SC2086
     if kiwi-ng --logfile "${logfile}" ${options}; then
         echo 0 > "${exit_code_file}"
         if ! is_container; then
@@ -161,6 +162,7 @@ function import_box_environment {
     # Import optional etc/boxprofile into runtime environment
     # """
     if [ -e /etc/boxprofile ];then
+        # shellcheck disable=SC1091
         source /etc/boxprofile
     fi
 }
@@ -188,6 +190,7 @@ function import_ssh_pub_key {
 }
 
 function waitport {
+    # shellcheck disable=SC2086
     while ! nc -z localhost $1 ; do sleep 1 ; done
 }
 
