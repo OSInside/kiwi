@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="7.4" name="Ubuntu-Box">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Ubuntu VM for kiwi boxed build</specification>
+    </description>
+    <profiles>
+        <profile name="Kernel" description="Provides kernel for kvm boot"/>
+        <profile name="System" description="Provides system for kvm boot"/>
+        <profile name="Container" description="Provides system for podman"/>
+    </profiles>
+    <preferences>
+        <version>1.26.4</version>
+        <packagemanager>apt</packagemanager>
+        <locale>en_US</locale>
+        <timezone>UTC</timezone>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Container">
+        <type image="docker">
+            <containerconfig name="ubuntu">
+                <entrypoint execute="/usr/lib/systemd/systemd"/>
+            </containerconfig>
+        </type>
+    </preferences>
+    <preferences profiles="Kernel">
+        <type image="pxe" initrd_system="dracut"/>
+    </preferences>
+    <preferences profiles="System">
+        <type image="oem" filesystem="ext2" firmware="efi" format="qcow2" formatoptions="preallocation=metadata,compat=1.1,lazy_refcounts=on">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2"/>
+            <size unit="G">50</size>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false" arch="x86_64">
+        <source path="obs://Virtualization:Appliances:Builder/xUbuntu_26.04_x86_64"/>
+    </repository>
+    <repository type="apt-deb" alias="kiwi-next-generation" priority="1" repository_gpgcheck="false" arch="aarch64">
+        <source path="obs://Virtualization:Appliances:Builder/xUbuntu_26.04_aarch64"/>
+    </repository>
+    <repository type="apt-deb" alias="Ubuntu-Resolute-Universe" distribution="resolute" components="main" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:26.04/universe"/>
+    </repository>
+    <repository type="apt-deb" alias="Ubuntu-Resolute" distribution="resolute" components="main" repository_gpgcheck="false">
+        <source path="obs://Ubuntu:26.04/standard"/>
+    </repository>
+    <packages type="image">
+        <package name="libpam-runtime"/>
+        <package name="netplan.io"/>
+        <package name="networkd-dispatcher"/>
+        <package name="net-tools"/>
+        <package name="plymouth-theme-sabily"/>
+        <package name="plymouth"/>
+        <package name="isolinux"/>
+        <package name="syslinux" arch="x86_64"/>
+        <package name="syslinux-common" arch="x86_64"/>
+        <package name="systemd"/>
+        <package name="systemd-resolved"/>
+        <package name="dracut"/>
+        <package name="init"/>
+        <package name="gnupg"/>
+        <package name="iproute2"/>
+        <package name="iptables"/>
+        <package name="iputils-ping"/>
+        <package name="isc-dhcp-client"/>
+        <package name="netbase"/>
+        <package name="dbus"/>
+        <package name="lvm2"/>
+        <package name="xfsprogs"/>
+        <package name="e2fsprogs"/>
+        <package name="btrfs-progs"/>
+        <package name="python3-kiwi"/>
+        <package name="python3-pip"/>
+        <package name="mawk"/>
+        <package name="gawk"/>
+        <package name="python3-dev"/>
+        <package name="libxml2-dev"/>
+        <package name="libxslt-dev"/>
+        <package name="gcc"/>
+        <package name="make"/>
+        <package name="kiwi-systemdeps"/>
+        <package name="jing"/>
+        <package name="netcat-openbsd"/>
+        <package name="zstd"/>
+        <package name="util-linux"/>
+        <package name="fdisk"/>
+        <package name="xxd"/>
+        <package name="language-pack-en"/>
+        <package name="python3-solv"/>
+        <package name="locales-all"/>
+        <package name="tzdata"/>
+        <package name="login"/>
+        <archive name="box-key-unsafe.tgz"/>
+    </packages>
+    <packages type="image" profiles="Kernel,System">
+        <package name="grub-efi-amd64" arch="x86_64"/>
+        <package name="grub-efi-arm64" arch="aarch64"/>
+        <package name="grub-common"/>
+        <package name="grub2-common"/>
+        <package name="grub-pc-bin" arch="x86_64"/>
+        <package name="linux-generic"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
+        <package name="openssh-client"/>
+        <package name="openssh-server"/>
+        <package name="sshfs"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="ca-certificates"/>
+        <package name="coreutils"/>
+    </packages>
+</image>

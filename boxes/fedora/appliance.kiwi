@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="7.4" name="Fedora-Box">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>ms@suse.com</contact>
+        <specification>Fedora VM for kiwi boxed build</specification>
+    </description>
+    <profiles>
+        <profile name="Kernel" description="Provides kernel for kvm boot"/>
+        <profile name="System" description="Provides system for kvm boot"/>
+        <profile name="Container" description="Provides system for podman"/>
+    </profiles>
+    <preferences>
+        <version>1.39.1</version>
+        <packagemanager>dnf5</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Container">
+        <type image="docker">
+            <containerconfig name="fedora">
+                <entrypoint execute="/usr/lib/systemd/systemd"/>
+            </containerconfig>
+        </type>
+    </preferences>
+    <preferences profiles="Kernel">
+        <type image="pxe" initrd_system="dracut"/>
+    </preferences>
+    <preferences profiles="System">
+        <type image="oem" filesystem="ext2" firmware="uefi" format="qcow2" formatoptions="preallocation=metadata,compat=1.1,lazy_refcounts=on">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2"/>
+            <size unit="G">50</size>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="glibc-all-langpacks"/>
+        <package name="iproute"/>
+        <package name="tzdata"/>
+        <package name="dbus-daemon"/>
+        <package name="lvm2"/>
+        <package name="xfsprogs"/>
+        <package name="e2fsprogs"/>
+        <package name="btrfs-progs"/>
+        <package name="python3-kiwi"/>
+        <package name="python3-pip"/>
+        <package name="python3-devel"/>
+        <package name="libxml2-devel"/>
+        <package name="libxslt-devel"/>
+        <package name="enchant-devel"/>
+        <package name="enchant"/>
+        <package name="gcc"/>
+        <package name="make"/>
+        <package name="syslinux"/>
+        <package name="kiwi-systemdeps"/>
+        <package name="fuse3"/>
+        <package name="fuse-common"/>
+        <package name="netcat"/>
+        <package name="audit"/>
+        <package name="distribution-gpg-keys"/>
+        <archive name="box-key-unsafe.tgz"/>
+    </packages>
+    <packages type="image" profiles="Kernel,System">
+        <package name="grub2"/>
+        <package name="grubby"/>
+        <package name="kernel"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
+        <package name="shim" arch="x86_64"/>
+        <package name="grub2-efi-x64-modules" arch="x86_64"/>
+        <package name="grub2-efi-x64" arch="x86_64"/>
+        <package name="openssh"/>
+        <package name="openssh-server"/>
+        <package name="sshfs"/>
+        <package name="systemd-resolved"/>
+        <package name="systemd-networkd"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+        <package name="shadow"/>
+    </packages>
+</image>
