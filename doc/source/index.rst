@@ -23,15 +23,14 @@ media, containers, and specialized deployment targets.
    overview
    installation
    quickstart
-   commands
-   troubleshooting
-   plugins
    concept_and_workflow
+   commands
    image_description
+   example_use_cases
    image_types_and_results
-   examples
+   plugins
+   troubleshooting
    contributing
-   integration_testing
 
 Build Architecture
 ------------------

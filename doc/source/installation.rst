@@ -93,33 +93,3 @@ Fedora/Rawhide:
   .. code:: shell-session
 
      $ sudo dnf install kiwi-cli
-
-.. _example-descriptions:
-
-Example Appliance Descriptions
-------------------------------
-
-There are two places for example appliance descriptions:
-
-The {kiwi} build tests:
-  The {kiwi} project itself hosts a collection of appliance descriptions
-  that are used for integration testing of the {kiwi} builder itself.
-  These descriptions are required to build prior to any {kiwi} release
-  and are also used as the base for this documentation. Please check
-  them out when working with this reference guide:
-
-  .. code:: shell-session
-
-      $ git clone https://github.com/OSInside/kiwi
-
-      $ tree -L 3 kiwi/build-tests
-
-The {kiwi} community descriptions project:
-  There is a GitHub project hosting example appliance descriptions to be used
-  with the next-generation {kiwi}. Contributions from the community make up
-  the contents of this repository, and users who need an example for a specific
-  use case and distribution can clone the project as follows:
-
-  .. code:: shell-session
-
-      $ git clone https://github.com/OSInside/kiwi-descriptions
