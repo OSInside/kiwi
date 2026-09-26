@@ -1,0 +1,8 @@
+[Match]
+Name=lan0
+
+[Network]
+DHCP=yes
+
+[DHCP]
+ClientIdentifier=mac

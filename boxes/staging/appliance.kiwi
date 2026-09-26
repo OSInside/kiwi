@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- The line below is required in order to use the multibuild OBS features -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
+
+<image schemaversion="7.4" name="Staging-Box">
+    <description type="system">
+        <author>Marcus Schäfer</author>
+        <contact>marcus.schaefer@suse.com</contact>
+        <specification>Staging VM for kiwi boxed build (Fedora rawhide)</specification>
+    </description>
+    <profiles>
+        <profile name="Kernel" description="Provides kernel for kvm boot"/>
+        <profile name="System" description="Provides system for kvm boot"/>
+        <profile name="Container" description="Provides system for podman"/>
+    </profiles>
+    <preferences>
+        <version>1.41.2</version>
+        <packagemanager>dnf5</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us</keytable>
+        <timezone>UTC</timezone>
+        <rpm-excludedocs>true</rpm-excludedocs>
+        <rpm-check-signatures>false</rpm-check-signatures>
+    </preferences>
+    <preferences profiles="Container">
+        <type image="docker">
+            <containerconfig name="staging">
+                <entrypoint execute="/usr/lib/systemd/systemd"/>
+            </containerconfig>
+        </type>
+    </preferences>
+    <preferences profiles="Kernel">
+        <type image="pxe" initrd_system="dracut"/>
+    </preferences>
+    <preferences profiles="System" arch="s390x">
+        <type image="oem" filesystem="ext4" bootpartition="false" kernelcmdline="console=ttyS0" format="qcow2">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="zipl" timeout="10"/>
+        </type>
+    </preferences>
+    <preferences profiles="System" arch="ppc64le">
+        <type image="oem" filesystem="btrfs" firmware="ofw" format="qcow2" formatoptions="preallocation=metadata,compat=1.1,lazy_refcounts=on">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2"/>
+            <size unit="G">500</size>
+        </type>
+    </preferences>
+    <preferences profiles="System" arch="x86_64,aarch64">
+        <type image="oem" filesystem="btrfs" firmware="uefi" format="qcow2" formatoptions="preallocation=metadata,compat=1.1,lazy_refcounts=on">
+            <oemconfig>
+                <oem-resize>false</oem-resize>
+            </oemconfig>
+            <bootloader name="grub2"/>
+            <size unit="G">500</size>
+        </type>
+    </preferences>
+    <users>
+        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root" groups="root"/>
+    </users>
+    <repository type="rpm-md">
+        <source path="obsrepositories:/"/>
+    </repository>
+    <packages type="image">
+        <package name="apk-tools"/>
+        <package name="selinux-policy-targeted"/>
+        <package name="dhclient"/>
+        <package name="glibc-all-langpacks"/>
+        <package name="tzdata"/>
+        <package name="dbus-daemon"/>
+        <package name="lvm2"/>
+        <package name="xfsprogs"/>
+        <package name="e2fsprogs"/>
+        <package name="btrfs-progs"/>
+        <package name="python3-kiwi"/>
+        <!-- The package currently does not resolve on Rawhide -->
+        <!-- <package name="python3-anymarkup"/> -->
+        <package name="python3-pip"/>
+        <package name="zypper"/>
+        <package name="pacman"/>
+        <package name="dpkg"/>
+        <package name="apt"/>
+        <package name="procps"/>
+        <package name="buildah"/>
+        <package name="skopeo"/>
+        <package name="python3-devel"/>
+        <package name="libxml2-devel"/>
+        <package name="libxslt-devel"/>
+        <package name="enchant-devel"/>
+        <package name="enchant"/>
+        <package name="gcc"/>
+        <package name="make"/>
+        <package name="s390utils" arch="s390x"/>
+        <package name="mariadb-connector-c-config" arch="s390x"/>
+        <package name="syslinux" arch="x86_64"/>
+        <package name="kiwi-systemdeps"/>
+        <package name="fuse3"/>
+        <package name="fuse-common"/>
+        <package name="netcat"/>
+        <package name="zstd"/>
+        <package name="audit"/>
+        <package name="eif_build"/>
+        <package name="distribution-gpg-keys"/>
+        <package name="kbd"/>
+        <package name="systemd-udev"/>
+        <archive name="box-key-unsafe.tgz"/>
+    </packages>
+    <packages type="image" profiles="Kernel,System">
+        <package name="grub2" arch="x86_64,aarch64,ppc64le"/>
+        <package name="grubby"/>
+        <package name="kernel"/>
+        <package name="dracut-kiwi-oem-repart"/>
+        <package name="dracut-kiwi-oem-dump"/>
+        <package name="shim" arch="x86_64"/>
+        <package name="grub2-efi-x64-modules" arch="x86_64"/>
+        <package name="grub2-efi-x64" arch="x86_64"/>
+        <package name="shim-signed-aa64" arch="aarch64"/>
+        <package name="grub2-efi-aa64" arch="aarch64"/>
+        <package name="grub2-efi-aa64-modules" arch="aarch64"/>
+        <package name="openssh"/>
+        <package name="openssh-server"/>
+        <package name="sshfs"/>
+        <package name="systemd-resolved"/>
+        <package name="systemd-networkd"/>
+    </packages>
+    <packages type="bootstrap">
+        <package name="filesystem"/>
+        <package name="basesystem"/>
+    </packages>
+</image>

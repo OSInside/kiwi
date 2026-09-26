@@ -1,0 +1,10 @@
+[Unit]
+Description=Start kiwi build process
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/run_kiwi
+
+[Install]
+WantedBy=multi-user.target
