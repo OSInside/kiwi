@@ -18,10 +18,6 @@ Concept and Workflow
    concept_and_workflow/runtime_configuration
    concept_and_workflow/customize_the_boot_process
 
-
-Overview
---------
-
 {kiwi} builds so-called *system images* (a fully installed and optionally
 configured system in a single file) of a Linux distribution in two steps (for
 further details, see :ref:`working-with-kiwi-image-building-process`):
@@ -79,7 +75,7 @@ CD root user data:
 .. _working-with-kiwi-image-building-process:
 
 Image Building Process
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: .images/flow-diagram.png
     :align: center
