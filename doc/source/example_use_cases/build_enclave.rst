@@ -72,7 +72,7 @@ be tested with QEMU:
          -m 4G \
          -nographic \
          -chardev socket,id=c,path=/tmp/vhost4.socket \
-         -kernel {exc_image_base_name_enclave}.eif
+         -kernel {exc_image_base_name_enclave}.x86_64-{exc_image_version_enclave}.eif
 
 The image is now complete and ready to use. Access to the system is
 possible via ssh through a vsock connection into the guest. To establish
@@ -95,7 +95,7 @@ host's ssh as follows:
    host *.vsock
      ProxyCommand ~/bin/vsock-ssh.sh %h
 
-After the ssh proxy setup, log in to the enclave with a custom vsock port
+After the ssh proxy setup, log in to the enclave with a custom vsock CID
 as follows:
 
 .. code:: bash

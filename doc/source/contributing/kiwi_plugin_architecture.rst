@@ -12,31 +12,38 @@ Naming conventions
 Task plugin file name
   The file name of a task plugin must follow the pattern
   :file:`system_<command>.py`. This allows you to invoke the task
-  with :command:`kiwi-ng system command ...`
+  with :command:`kiwi-ng system <command> ...`
 
 Task plugin option handling
   {kiwi} uses the typer module to handle options. Each task plugin
   must use typer to allow option handling. The typer definition
   must be provided in a file named :file:`cli.py` and must live in the
-  toplevel of the plugin python namespace.
+  toplevel of the plugin python namespace. The :file:`cli.py` file
+  must provide a dictionary named `typers` that maps the command name
+  to its `typer.Typer` instance.
 
 Task plugin class
   The implementation of the plugin must be a class that matches the naming
-  convention :class:`System<Command>Task`. The class must inherit from the
-  :class:`CliTask` base class. On the plugin startup, {kiwi} expects an
-  implementation of the :file:`process` method.
+  convention ``System<Command>Task``. The class must inherit from the
+  ``CliTask`` base class. On the plugin startup, {kiwi} expects an
+  implementation of the `process` method.
 
 Task plugin entry point
   Registration of the plugin must be done in :file:`pyproject.toml`
-  using the `tool.poetry.plugins` concept.
+  using the `tool.poetry.plugins` concept. The entry point group must be
+  `kiwi.tasks`, and the name of the toplevel plugin python namespace must
+  contain the `_plugin` substring. Otherwise, {kiwi} does not load the
+  :file:`cli.py` of the plugin. The namespaces `kiwi_boxed_plugin` and
+  `kiwi_stackbuild_plugin` are ignored because their commands are now part
+  of {kiwi} itself.
 
   .. code::
 
       [tool.poetry]
-      name = "kiwi_plugin"
+      name = "kiwi_<pluginname>_plugin"
 
       packages = [
-          { include = "kiwi_plugin"},
+          { include = "kiwi_<pluginname>_plugin"},
       ]
 
       [tool.poetry.plugins]
@@ -54,7 +61,7 @@ Example plugin
 1. Assuming the project namespace is **kiwi_relax_plugin**, create the task
    plugin directory :file:`kiwi_relax_plugin/tasks`.
 
-2. Create the entry point in :command:`pyproject.toml`.
+2. Create the entry point in :file:`pyproject.toml`.
 
    Assuming we want to create the system command **justdoit**, this is
    the following entry point definition in :file:`pyproject.toml`:
@@ -89,13 +96,13 @@ Example plugin
        system = typers['justdoit']
 
        @system.callback(
-           help='What is it good for'
+           help='What is it good for',
            invoke_without_command=True,
            subcommand_metavar=''
        )
        def justdoit(
            ctx: typer.Context,
-           now: Annotated[str, typer.Option(help='For --now option')]
+           now: Annotated[bool, typer.Option(help='For --now option')] = False
        ):
            Cli=ctx.obj
            Cli.subcommand_args['justdoit'] = {

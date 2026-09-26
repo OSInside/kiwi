@@ -61,10 +61,10 @@ host's `tmp` directory.
     ) as loop_provider:
         loop_provider.create()
 
-        filesystem = FileSystem.new(
+        with FileSystem.new(
             'ext4', loop_provider, '/tmp/'
-        )
-        filesystem.create_on_device(
-            label='TMP'
-        )
-        filesystem.sync_data()
+        ) as filesystem:
+            filesystem.create_on_device(
+                label='TMP'
+            )
+            filesystem.sync_data()

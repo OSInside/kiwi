@@ -24,46 +24,46 @@ To do so, follow these steps:
    and resize with `qemu-img`. Here, we will increase the size 
    by 20G. The VM will have to be told to utilize this space in
    the following steps.
-   
-.. code:: bash
-  
-  $ qemu-img resize Ubuntu-Box.x86_64-1.22.04-System-BuildBox.qcow2 +20G
+
+   .. code:: bash
+
+      $ qemu-img resize Ubuntu-Box.x86_64-System.qcow2 +20G
 
 2. When relaunching your `kiwi-ng` box build, make sure you use the `--no-snapshot`
    and `--box-debug` options within your build command/script. Example:
-   
-.. code:: bash
 
-   $ kiwi --debug --profile="Disk" --type oem system boxbuild --no-snapshot \
-   --box-memory=32G --box-smp-cpus=16 --box-debug --box ubuntu kiwi \
-   --description ./ubuntu-jammy --target-dir /build/kiwi/outputs/
-  
+   .. code:: bash
+
+      $ kiwi-ng --debug --profile="Disk" --type oem system boxbuild --no-snapshot \
+      --box-memory=32G --box-smp-cpus=16 --box-debug --box ubuntu kiwi \
+      --description ./ubuntu-jammy --target-dir /build/kiwi/outputs/
+
 3. When the build fails and drops you into the VM console, you will
    need to extend the partition of the VM's rootfs, then resize it with
    `resize2fs`. In this example, `parted` was used, and the partition
    in question was `/dev/vda3`.
-   
-.. code:: bash
 
-   $ parted
-   # You can run parted print to check for relevant partitions if needed.
-   (parted) $ print
-   (parted) $ resizepart 3 100%
-   # Exit from parted
-   (parted) $ quit
-   # Run resize2fs to grow the filesystem to fill the space
-   $ resize2fs /dev/vda3
+   .. code:: bash
+
+      $ parted
+      # You can run parted print to check for relevant partitions if needed.
+      (parted) $ print
+      (parted) $ resizepart 3 100%
+      # Exit from parted
+      (parted) $ quit
+      # Run resize2fs to grow the filesystem to fill the space
+      $ resize2fs /dev/vda3
 
 4. From this point, depending on where your build failed, it may be
    possible to continue your build from inside the box using the 
    existing 9p mount points defined by your build command. Using the
-   command above as an example, `/result` within the box maps to 
-   `/build/kiwi/outputs` on the host, and it's possible to run: 
-   
-.. code:: bash
+   command above as an example, the build results within the box are
+   stored below `/result`, and it's possible to run:
 
-   $ kiwi-ng --profile="Disk" --type oem  system create \
-   --root=/result/build/image-root/ --target-dir=/result
+   .. code:: bash
+
+      $ kiwi-ng --profile="Disk" --type oem  system create \
+      --root=/result/build/image-root/ --target-dir=/result
 
 5. If the rebuild from within was successful, you can copy the files
    from `/result` to `/bundle` from within the VM, where `/bundle`

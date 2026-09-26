@@ -21,9 +21,7 @@ The following example shows how to build and deploy an expandable disk image
 based on openSUSE Leap using a QEMU virtual machine as a target
 system:
 
-1. Make sure you have checked out the example image descriptions (see :ref:`example-descriptions`).
-
-2. Build an image with {kiwi}:
+1. Build an image with {kiwi}:
 
    .. code:: bash
 
@@ -37,7 +35,7 @@ system:
    * The disk image with the suffix :file:`.raw` is an expandable
      virtual disk. It can expand itself to a custom disk geometry.
 
-   * The installation image with the suffix :file:`install.iso` is a
+   * The installation image with the suffix :file:`.install.iso` is a
      hybrid installation system that contains the disk image and is
      capable of installing this image on any target disk.
 
@@ -165,7 +163,7 @@ a target system:
 
 
 2. Rebuild the image, unpack the resulting
-   :file:`{exc_image_base_name_disk}.x86_64-{exc_image_version}.install.tar.xz`
+   :file:`{exc_image_base_name_disk}.x86_64-{exc_image_version}.install.tar`
    file to a temporary directory, and copy the initrd and kernel images to
    the PXE server.
 
@@ -174,7 +172,7 @@ a target system:
       .. code:: bash
 
           mkdir /tmp/pxe && cd /tmp/pxe
-          tar -xf {exc_image_base_name_disk}.x86_64-{exc_image_version}.install.tar.xz
+          tar -xf {exc_image_base_name_disk}.x86_64-{exc_image_version}.install.tar
 
    b) Copy the kernel and initrd used for PXE boot:
 
@@ -208,8 +206,8 @@ a target system:
 
          The `config.bootoptions` file is used with `kexec` to boot the previously
          dumped image. This file specifies the root of the dumped image, and the
-         file can include other boot options. The file provided with the {kiwi}-
-         built image is connected to the image present in the PXE TAR archive. If
+         file can include other boot options. The file provided with the
+         {kiwi}-built image is connected to the image present in the PXE TAR archive. If
          other images are deployed, the file must be modified to match the
          correct root reference.
 
@@ -267,11 +265,11 @@ a target system:
       The initrd and Linux Kernel for PXE boot are always loaded via TFTP
       from the `PXE_SERVER`.
 
-4. Create a target disk.
+5. Create a target disk.
 
    Follow the steps above to create a virtual target disk.
 
-5. Connect the client to the network and boot QEMU with the target disk
+6. Connect the client to the network and boot QEMU with the target disk
    attached to the virtual machine:
 
    .. code:: bash
@@ -301,7 +299,7 @@ element, for example:
    </oemconfig>
 
 
-Below is a list of the most commonly used optional `oem` element settings.
+Below is a list of the most commonly used optional `oemconfig` element settings.
 
 oemconfig.oem-resize
   Determines if the disk has the capability to expand itself to
@@ -372,10 +370,10 @@ oemconfig.oem-swapname
   swap volume.
 
 oemconfig.oem-swapsize
-  Specifies the size of the swap partition. If a swap partition is created while
-  the size of the swap partition is not specified, KIWI calculates the size of
-  the swap partition and creates a swap partition at initial boot time. In this
-  case, the swap partition size equals double the amount of RAM of the system.
+  Specifies the size of the swap partition in MB. The value is only used if
+  `oem-swap` is set to `true`. If a swap partition is created while
+  the size of the swap partition is not specified, KIWI uses a default
+  size of 128 MB.
   This value is represented by the `kiwi_oemswapMB` variable in the initrd.
 
 oemconfig.oem-systemsize
@@ -397,7 +395,8 @@ oemconfig.oem-unattended
   The installation of the image to the target system occurs
   automatically without requiring user interaction. If multiple
   possible target devices are discovered, the image is deployed to
-  the first device. `kiwi_oemunattended` in the initrd.
+  the first device. This value is represented by the
+  `kiwi_oemunattended` variable in the initrd.
 
 oemconfig.oem-unattended-id
   Selects a target disk device for the installation according to the

@@ -54,7 +54,7 @@ to set up the USB stick with `live-grub-stick`:
 
    .. code:: bash
 
-      $ sudo live-grub-stick {exc_image_base_name}.x86_64-{exc_image_version}.iso /dev/sdz1
+      $ sudo live-grub-stick {exc_image_base_name_live}.x86_64-{exc_image_version}.iso /dev/sdz1
 
 4. Boot from your USB Stick.
 

@@ -69,5 +69,5 @@ btrfs
     build the image in a compatible environment. At best, the
     build host distribution is of the same major Linux version
     as the image target. For this purpose, {kiwi} provides the
-    so-called `boxed-plugin`. Further details can be found
-    in :ref:`self_contained`
+    `boxbuild` command. Further details can be found
+    in :ref:`self_contained`.

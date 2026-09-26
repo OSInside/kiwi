@@ -10,9 +10,10 @@ To build integration test image(s), the script `build-tests.sh`
 exists.
 
 The implementation of `build-tests.sh` calls kiwi's `boxbuild`
-command in container mode, which allows calling the script on
+command, by default in container mode, which allows calling the script on
 any host system that allows you to run container instances
-via `podman`.
+via `podman`. The `--vm` option of `build-tests.sh` runs the build in a
+virtual machine instead.
 
 .. warning:: **Architectures**
 

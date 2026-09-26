@@ -15,12 +15,12 @@ Contributing
    contributing/scripts_testing
    contributing/schema_extensions.rst
 
-The core appliance builder is developed in Python and follows the test-
-driven development rules.
+The core appliance builder is developed in Python and follows the
+test-driven development rules.
 
 If you want to implement a bigger feature, consider opening an issue on
 GitHub first to discuss the changes. Or, join the discussion in the
-`#kiwi` channel on `Matrix <https://matrix.to/#kiwi:matrix.org>`_.
+`#kiwi` channel on `Matrix <https://matrix.to/#/#kiwi:matrix.org>`_.
 
 Fork the upstream repository
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,8 +52,8 @@ The package is provided on the Open Build Service in the
 <https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder>`__
 project. For manual inspection of the packages
 that are pulled in from the above `kiwi-systemdeps` package, please refer
-to the `package/python-kiwi-spec-template` spec file from the checked-
-out Git repository.
+to the `package/python-kiwi-spec-template` spec file from the
+checked-out Git repository.
 
 Create a Python Virtual Development Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,8 +100,8 @@ Coding Style
 Documentation
 ~~~~~~~~~~~~~
 
-{kiwi} uses `Sphinx <https://www.sphinx-doc.org/en/master/>`_ for the,
-user documentation, and man pages.
+{kiwi} uses `Sphinx <https://www.sphinx-doc.org/en/master/>`_ for the
+user documentation and man pages.
 
 .. code:: shell-session
 

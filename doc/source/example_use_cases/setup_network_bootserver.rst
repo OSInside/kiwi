@@ -56,7 +56,7 @@ DHCP and TFTP server.
       your network setup.
 
 
-2.1. insert the following content to use `pxelinux.0`:
+2.1. Insert the following content to use `pxelinux.0`:
 
    .. code:: bash
 
@@ -86,7 +86,7 @@ DHCP and TFTP server.
       `pxelinux.0` config file is expected at
       :file:`TFTP_ROOT_DIR/pxelinux.cfg/default`
 
-2.2. insert the following content to use GRUB:
+2.2. Insert the following content to use GRUB:
 
     .. code:: bash
 

@@ -40,7 +40,7 @@ the network:
 2. Export Live ISO to the Network
 
    Access to the live ISO file must be provided by either `ftp`,
-   `http`, `https`, or `dolly`. The simplest method is to set up a FTP server,
+   `http`, `https`, or `dolly`. The simplest method is to set up an FTP server,
    e.g., `vsftpd`, and copy the live ISO file to the data directory:
 
    .. code:: bash

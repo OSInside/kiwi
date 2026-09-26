@@ -39,7 +39,7 @@ bootable disk. The following procedure shows how to do this:
 
    .. code:: bash
 
-      $ dd if={exc_image_base_name}.x86_64-{exc_image_version}.iso of=/dev/<stickdevice>
+      $ dd if={exc_image_base_name_live}.x86_64-{exc_image_version}.iso of=/dev/<stickdevice>
 
 3. Boot from your USB Stick.
 

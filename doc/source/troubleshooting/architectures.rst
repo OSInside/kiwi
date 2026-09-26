@@ -14,7 +14,7 @@ to broken results. Thus, we recommend providing native systems for the
 target architecture and building there. One possible alternative is to
 use the {kiwi} `boxbuild` command (see :ref:`self_contained`), together with a box
 created for the desired architecture. However, keep in mind the
-performance problematic when running a VM of a different
+performance problems when running a VM of a different
 architecture.
 
 The majority of the image builds are based on the x86 architecture.

@@ -40,7 +40,7 @@ To use any of these containers, you can either define the global variable
 
 .. code:: python
 
-    @pytest.mark.parametrize("container_per_test", (TUMBLEWEED, LEAP_15_3), indirect=True)
+    @pytest.mark.parametrize("container_per_test", (TUMBLEWEED, LEAP_15_5), indirect=True)
     def test_RmWorks(container_per_test):
         # create the file /root/foobar
         container_per_test.connection.run_expect([0], "touch /root/foobar")

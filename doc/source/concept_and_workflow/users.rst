@@ -49,5 +49,9 @@ Additionally, the following optional attributes can be specified:
 
 - `id`: The numeric user ID of the account.
 
+- `realname`: The full name of the user.
+
+- `shell`: The login shell of the user.
+
 - `pwdformat`: The format in which `password` is provided, either `plain`
   or `encrypted` (the latter is the default).

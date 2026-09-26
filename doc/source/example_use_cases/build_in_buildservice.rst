@@ -65,7 +65,7 @@ The notable differences to running {kiwi} locally include:
 
   .. code:: bash
 
-     unresolvable: have choice for SOMEPACKAGE: SOMEPAKAGE_1 SOMEPACKAGE_2
+     unresolvable: have choice for SOMEPACKAGE: SOMEPACKAGE_1 SOMEPACKAGE_2
 
   This can be solved by explicitly specifying one of the two packages in
   the project configuration via the following setting:
@@ -101,7 +101,7 @@ The notable differences to running {kiwi} locally include:
         <!-- OBS-Profiles: foo_profile bar_profile -->
 
         <image schemaversion="{schema_version}" name="openSUSE-Leap-15.1">
-          <!-- image description with the profiles foo_profile and bar_profile
+          <!-- image description with the profiles foo_profile and bar_profile -->
         </image>
 
   2. Use the `multibuild <https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.multibuild.html>`_ feature.
@@ -119,7 +119,7 @@ The notable differences to running {kiwi} locally include:
      <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 
      <image schemaversion="{schema_version}" name="openSUSE-Leap-15.1">
-       <!-- image description with the profiles foo_profile and bar_profile
+       <!-- image description with the profiles foo_profile and bar_profile -->
      </image>
 
   The file :file:`_multibuild` would have the following contents:
@@ -242,7 +242,7 @@ your dependent packages. These repositories can be provided in two ways:
    you have installed the latest stable {kiwi} as described in
    :ref:`kiwi-installation`, then you should add the following repository to
    your project's configuration (accessible via :command:`osc meta -e
-   prjconf`), so that OBS will pick the latest stable {kiwi} version too:
+   prj`), so that OBS will pick the latest stable {kiwi} version too:
 
    .. code:: xml
 
@@ -299,7 +299,7 @@ errors of the following type:
 
 .. code:: bash
 
-   unresolvable: have choice for SOMEPACKAGE: SOMEPAKAGE_1 SOMEPACKAGE_2
+   unresolvable: have choice for SOMEPACKAGE: SOMEPACKAGE_1 SOMEPACKAGE_2
 
 Instead of starting from scratch and manually adding `Prefer:` statements
 to the project configuration, we recommend copying the current project

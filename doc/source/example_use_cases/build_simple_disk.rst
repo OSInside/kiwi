@@ -58,8 +58,8 @@ when building simple disk images:
   `vhd-fixed` and `raw`. Note that `vagrant` cannot be used as a sub-format.
 
 - `formatoptions`: Specifies additional format options passed to
-  :command:`qemu-img`. `formatoptions` is a comma-separated list of format-
-  specific options in a `name=value` format, as expected by
+  :command:`qemu-img`. `formatoptions` is a comma-separated list of
+  format-specific options in a `name=value` format, as expected by
   :command:`qemu-img`. {kiwi} forwards the settings from the attribute as a
   parameter to the `-o` option in the :command:`qemu-img` call.
 

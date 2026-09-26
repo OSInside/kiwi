@@ -112,7 +112,7 @@ image="tbz"
   - **root archive**:
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.tar.xz`
 
-image="btrfs|ext2|ext3|ext4|squashfs|xfs"
+image="btrfs|ext2|ext3|ext4|squashfs|erofs|xfs"
   The image root tree data is packed into a filesystem image of the given
   type; hence, the result for an `ext4` image would be:
 
@@ -128,7 +128,7 @@ image="iso"
 image="oem"
   An image representing an expandable disk image. {kiwi} can also produce an
   installation ISO for this disk image by setting `installiso="true"` in
-  the :ref:`\<preferences\>\<type\><sec.preferences>`) section or a tarball,
+  the :ref:`\<preferences\>\<type\><sec.preferences>` section or a tarball,
   including the artifacts for a network deployment, by setting `installpxe="true"`.
   For further details, see :ref:`expandable_disk`. The results for `oem`
   can be:
@@ -160,7 +160,7 @@ image="docker"
 
 image="oci"
   An archive image that builds a container matching the OCI
-  (Open Container Interface) standard. The result is a tarball matching OCI
+  (Open Container Initiative) standard. The result is a tarball matching OCI
   standards:
 
   - **container**:
@@ -188,6 +188,13 @@ image="kis"
 
   - **kis archive**:
     :file:`{exc_image_base_name}.x86_64-{exc_image_version}.tar.xz`
+
+image="enclave"
+  An initrd-based image in the `eif` binary format for the AWS Nitro
+  Enclave system. See :ref:`eif` for further details:
+
+  - **enclave image**:
+    :file:`{exc_image_base_name}.x86_64-{exc_image_version}.eif`
 
 Image Bundle Format
 -------------------

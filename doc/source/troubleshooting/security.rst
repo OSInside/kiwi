@@ -11,7 +11,7 @@ Linux systems are protected against write/read or other
 operations depending on the application that wants to
 access or modify data. The rules for this protection are
 provided in security policies. There are several applications
-enforcing these security settings, e.g `apparmor` or `selinux`.
+enforcing these security settings, e.g. `apparmor` or `selinux`.
 In this troubleshooting chapter, the focus is on `selinux`.
 
 Protecting files, process groups, kernel filesystems, device

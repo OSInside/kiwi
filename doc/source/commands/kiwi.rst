@@ -14,8 +14,6 @@ SYNOPSIS
    kiwi-ng [global options] result <command> [<args>...]
    kiwi-ng [global options] system <command> [<args>...]
 
-   kiwi-ng help [kiwi::COMMAND::SUBCOMMAND]
-
 .. _db_commands_kiwi_desc:
 
 DESCRIPTION
@@ -56,7 +54,7 @@ GLOBAL OPTIONS
 --color-output
 
   Uses escape sequences to print different types of information in colored
-  output. for this option to work, the underlying terminal must support those
+  output. For this option to work, the underlying terminal must support those
   escape characters. Error messages appear in red, warning messages in yellow,
   and debugging information is printed in light grey.
 
@@ -74,8 +72,9 @@ GLOBAL OPTIONS
   :file:`~/.config/kiwi/config.yml`. Both drop-in directories are scanned
   whether or not the corresponding main file exists.
 
-  Merging happens at the top level only: a file that defines a section replaces
-  that whole section from earlier files, rather than merging the keys inside it.
+  Merging is recursive: keys inside a section are merged with the same section
+  from earlier files, values from later files override earlier ones, and lists
+  are combined.
   See :ref:`runtime_config` for further details.
 
 --debug
@@ -102,7 +101,7 @@ GLOBAL OPTIONS
   Specifies the logging level as a number. Further info about the
   available log levels can be found at:
   https://docs.python.org/3/library/logging.html#logging-levels.
-  Setting a log level displays all messages above the specified level.
+  Setting a log level displays all messages at or above the specified level.
 
   .. code:: bash
 
@@ -134,7 +133,6 @@ GLOBAL OPTIONS
   is shared via bind mount between the build host and image
   root system, and it contains information about package repositories
   and their cache and metadata. The default location is `/var/cache/kiwi`.
-  This option is only accepted for the `system` service.
 
 --temp-dir=<directory>
 
@@ -162,13 +160,9 @@ GLOBAL OPTIONS
   configuration elements. If not specified, kiwi uses
   a file named `config.xml` or a file matching `*.kiwi`.
 
--v, --version
+--version
 
   Show the program version.
-
-help
-
-  Show the manual page for the given service and command.
 
 .. _db_commands_kiwi_example:
 

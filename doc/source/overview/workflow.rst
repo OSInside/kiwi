@@ -19,7 +19,7 @@ Basic Workflow
     This description applies for version |version|.
 
 A system image (usually called an "image") is a *complete installation* of a Linux
-system within a file. The image represents an operational system and,
+system within a file. The image represents an operating system and,
 optionally, contains the "final" configuration.
 
 The behavior of the image upon deployment varies depending on the image type
@@ -72,7 +72,7 @@ These are the optional components of an image description:
    The *overlay tree* is a folder (called :file:`root`)
    or a tarball file (called :file:`root.tar.gz`) that contains
    files and directories that will be copied to the target image build tree
-   during the :ref:`prepare step <prepare-step>`. It is executed
+   during the :ref:`prepare step <prepare-step>`. It is applied
    after all the packages included in the :file:`config.xml` file
    have been installed. Any already present file is overwritten.
 

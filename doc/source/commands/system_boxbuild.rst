@@ -84,8 +84,11 @@ OPTIONS
 
 --box-memory=<vmgb>
 
-  Number of GBs to reserve as main memory for the virtual
-  machine. By default, 8GB will be used.
+  Amount of main memory to reserve for the virtual machine.
+  The value is passed as is to the QEMU `-m` option, so add a
+  unit suffix, e.g. `8G`. By default, the memory setting of the
+  selected box is used, which is 8096M for the boxes provided
+  with {kiwi}.
 
 --box-console=<ttyname>
 
