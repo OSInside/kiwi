@@ -23,11 +23,11 @@ SYNOPSIS
        [--add-package=<name>...]
        [--add-bootstrap-package=<name>...]
        [--ca-cert=<cert-file>...]
-       [--ca-target-distribution=<suse,redhat,debian,archlinux>]
+       [--ca-target-distribution=<suse|redhat|debian|archlinux>]
        [--delete-package=<name>...]
        [--set-container-derived-from=<uri>]
        [--set-container-tag=<name>]
-       [--add-container-label=<label>...]
+       [--add-container-label=<name=value>...]
        [--set-type-attr=<attribute=value>...]
        [--set-release-version=<version>]
        [--signing-key=<key-file>...]
@@ -148,8 +148,8 @@ OPTIONS
   - **source**
 
     Source URL pointing to a package repository that must be in a format
-    supported by the selected package manager. See the URI_TYPES section for
-    details about the supported source locators.
+    supported by the selected package manager. See the URI_TYPES section of
+    :ref:`kiwi_system_build` for details about the supported source locators.
 
   - **type**
 
@@ -179,7 +179,7 @@ OPTIONS
     Set to either **true** or **false** to specify if the repository
     must validate the package signatures.
 
-    - **{signing_keys}**
+  - **{signing_keys}**
 
     A list of signing_keys enclosed in curly brackets and delimited by
     a semicolon. The reference to a signing key must be provided in the URI

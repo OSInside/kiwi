@@ -895,3 +895,93 @@ class KiwiCATargetDistributionError(KiwiError):
     Exception raised if no CA target distribution can be found
     but the request to import custom CA certificates was issued
     """
+
+
+class KiwiBoxConfigError(KiwiError):
+    """
+    Exception raised if the box config yaml file is invalid
+    """
+
+
+class KiwiBoxNameError(KiwiError):
+    """
+    Exception raised if the boxname could not be found
+    """
+
+
+class KiwiBoxVirtioFsError(KiwiError):
+    """
+    Exception raised if virtiofsd does not start
+    """
+
+
+class KiwiBoxArchNotFoundError(KiwiError):
+    """
+    Exception raised if the selected architecture has no box configuration
+    """
+
+
+class KiwiBoxQEMUBinaryNotFound(KiwiError):
+    """
+    Exception raised if no QEMU binary for the desired box architecture
+    could be found
+    """
+
+
+class KiwiBoxSSHPortInvalid(KiwiError):
+    """
+    Exception raised if an invalid SSH port is passed as an argument
+    """
+
+
+class KiwiBoxSSHKeyNotFound(KiwiError):
+    """
+    Exception raised if the SSH pkey file could not be found
+    """
+
+
+class KiwiBoxChecksumError(KiwiError):
+    """
+    Exception raised in case of a box file checksum error
+    """
+
+
+class KiwiBoxDownloadError(KiwiError):
+    """
+    Exception raised in case of a box download issue
+    """
+
+
+class KiwiBoxTargetPathError(KiwiError):
+    """
+    Exception raised in case of an issue creating or accessing
+    the box build target dir
+    """
+
+
+class KiwiBoxBuildError(KiwiError):
+    """
+    Exception raised if the build process in a box failed or
+    could not be started
+    """
+
+
+class KiwiStackBuildTargetDirExists(KiwiError):
+    """
+    Exception raised if the stackbuild image root directory
+    already exists
+    """
+
+
+class KiwiStackBuildContainerNameInvalid(KiwiError):
+    """
+    Exception raised if the image name cannot be used as
+    stash container name
+    """
+
+
+class KiwiStackBuildRootSyncFailed(KiwiError):
+    """
+    Exception raised if the rsync process to sync the stash into
+    the root-tree failed
+    """

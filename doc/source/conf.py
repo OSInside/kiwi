@@ -87,7 +87,10 @@ prolog_replacements = {
     '{exc_description_docker}': 'x86/leap/test-image-docker',
     '{exc_description_enclave}': 'x86/rawhide/test-image-nitro-enclave',
     '{exc_os_version}': '16.0',
-    '{exc_image_version}': '1.15.6',
+    '{exc_image_version}': '1.15.3',
+    '{exc_image_version_pxe}': '1.42.1',
+    '{exc_image_version_kis}': '1.42.1',
+    '{exc_image_version_enclave}': '1.1.1',
     '{exc_repo_leap}': 'https://download.opensuse.org/distribution/leap/16.0/repo/oss',
     '{exc_repo_tumbleweed}': 'https://download.opensuse.org/tumbleweed/repo/oss',
     '{exc_repo_rawhide}': 'https://mirrors.fedoraproject.org/metalink?repo=rawhide&arch=x86_64',
@@ -212,7 +215,7 @@ html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     'collapse_navigation': False,
     'sticky_navigation': True,
-    'navigation_depth': 4,
+    'navigation_depth': 3,
     'includehidden': True,
     'titles_only': False
 }
@@ -226,7 +229,10 @@ result_bundle_doc = 'commands/result_bundle'
 system_prepare_doc = 'commands/system_prepare'
 system_update_doc = 'commands/system_update'
 system_build_doc = 'commands/system_build'
+system_boxbuild_doc = 'commands/system_boxbuild'
 system_create_doc = 'commands/system_create'
+system_stackbuild_doc = 'commands/system_stackbuild'
+system_stash_doc = 'commands/system_stash'
 image_resize_doc = 'commands/image_resize'
 image_info_doc = 'commands/image_info'
 
@@ -278,6 +284,27 @@ man_pages = [
         system_build_doc,
         'kiwi::system::build',
         'Build image in combined prepare and create step',
+        [author],
+        8
+    ),
+    (
+        system_boxbuild_doc,
+        'kiwi::system::boxbuild',
+        'Build image in a self contained VM or container',
+        [author],
+        8
+    ),
+    (
+        system_stackbuild_doc,
+        'kiwi::system::stackbuild',
+        'Build image based on stash containers',
+        [author],
+        8
+    ),
+    (
+        system_stash_doc,
+        'kiwi::system::stash',
+        'Create a stash container from an image root directory',
         [author],
         8
     ),

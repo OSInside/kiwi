@@ -23,8 +23,9 @@ from importlib.metadata import (
     entry_points, EntryPoint
 )
 from pathlib import Path
+from typer.core import TyperGroup
 from typing import (
-    Annotated, Dict, Optional, List
+    Annotated, Any, Dict, Optional, List
 )
 
 if sys.version_info >= (3, 8):
@@ -46,6 +47,24 @@ from kiwi.defaults import Defaults
 log = logging.getLogger('kiwi')
 
 
+class PassThroughGroup(TyperGroup):
+    """
+    **Command group for commands passing arguments to kiwi**
+
+    Used by the system boxbuild and system stackbuild commands.
+    Accepts the '--' separator as an alias for the kiwi
+    subcommand, which keeps command lines written for the
+    former kiwi-boxed-plugin and kiwi-stackbuild-plugin working
+    """
+    def parse_args(self, ctx: Any, args: List[str]) -> List[str]:
+        # ctx is a click Context, click is vendored by newer typer
+        # versions such that no common import location exists
+        if '--' in args:
+            separator = args.index('--')
+            args = args[:separator] + ['kiwi'] + args[separator + 1:]
+        return super().parse_args(ctx, args)
+
+
 class Cli:
     """
     **Implements the main command line interface**
@@ -58,6 +77,9 @@ class Cli:
     subcommand_args: Dict = {}
     plugins: Dict[str, typer.Typer] = {}
     cli_ok = False
+
+    # plugins which provided commands that are now part of kiwi
+    obsolete_plugins = ['kiwi_boxed_plugin', 'kiwi_stackbuild_plugin']
 
     # system
     system = typer.Typer(
@@ -76,6 +98,19 @@ class Cli:
         help='image command for retrieving image information '
         'prior building.'
     )
+
+    # system boxbuild
+    boxbuild = typer.Typer(
+        cls=PassThroughGroup, add_completion=True, invoke_without_command=True
+    )
+
+    # system stackbuild
+    stackbuild = typer.Typer(
+        cls=PassThroughGroup, add_completion=True, invoke_without_command=True
+    )
+
+    system.add_typer(boxbuild, name='boxbuild')
+    system.add_typer(stackbuild, name='stackbuild')
 
     cli = typer.Typer()
     cli.add_typer(system, name='system')
@@ -261,6 +296,9 @@ class Cli:
         """
         KIWI - Appliance Builder
         """
+        # start from a clean state, get_command_args() merges the
+        # subcommand arguments into the global arguments
+        Cli.global_args = {}
         Cli.global_args['--color-output'] = color_output
         Cli.global_args['--config'] = Cli._as_path_name(config)
         Cli.global_args['--debug'] = debug
@@ -1011,6 +1049,339 @@ class Cli:
         Cli.global_args['system'] = True
         Cli.cli_ok = True
 
+    @staticmethod
+    @boxbuild.callback(
+        help='build a system image in a self contained VM or container',
+        subcommand_metavar='kiwi [OPTIONS]'
+    )
+    def boxbuild_options(
+        box: Annotated[
+            Optional[str], typer.Option(
+                help='<name> Name of the box to use for the build process.'
+            )
+        ] = None,
+        list_boxes: Annotated[
+            Optional[bool], typer.Option(
+                '--list-boxes',
+                help='show available build boxes.'
+            )
+        ] = False,
+        box_memory: Annotated[
+            Optional[str], typer.Option(
+                help='<vmgb> Number of GBs to reserve as main memory '
+                'for the virtual machine. By default 8GB will be used.'
+            )
+        ] = None,
+        box_console: Annotated[
+            Optional[str], typer.Option(
+                help='<ttyname> Name of console in the kernel settings '
+                'for the virtual machine. By default set to hvc0.'
+            )
+        ] = None,
+        box_smp_cpus: Annotated[
+            Optional[int], typer.Option(
+                help='<number> Number of CPUs to use in the SMP setup. '
+                'By default 4 CPUs will be used.'
+            )
+        ] = 4,
+        box_debug: Annotated[
+            Optional[bool], typer.Option(
+                '--box-debug',
+                help='In debug mode the started virtual machine will be kept open.'
+            )
+        ] = False,
+        container: Annotated[
+            Optional[bool], typer.Option(
+                '--container',
+                help='Build in container instead of a VM. Options related to '
+                'building in a VM will have no effect.'
+            )
+        ] = False,
+        kiwi_version: Annotated[
+            Optional[str], typer.Option(
+                help='<version> Specify a KIWI version to use for '
+                'the build. The referenced KIWI will be fetched from '
+                'pip and replaces the box installed KIWI version. '
+                'Note: If --no-snapshot is used in combination '
+                'with this option, the change of the KIWI version will '
+                'be permanently stored in the used box.'
+            )
+        ] = None,
+        shared_path: Annotated[
+            Optional[Path], typer.Option(
+                help='<path> Optional host path to share with the box. '
+                'The same path as it is present on the host will also '
+                'be available inside of the box during build time.'
+            )
+        ] = None,
+        no_update_check: Annotated[
+            Optional[bool], typer.Option(
+                '--no-update-check',
+                help='Skip check for available box update. The option '
+                'has no effect if the selected box does not yet exist '
+                'on the host.'
+            )
+        ] = False,
+        no_snapshot: Annotated[
+            Optional[bool], typer.Option(
+                '--no-snapshot',
+                help='Run box with snapshot mode switched off. This '
+                'causes the box disk file to be modified by the build '
+                'process and allows to keep a persistent package cache '
+                'as part of the box. The option can be used to increase '
+                'the build performance due to data stored in the box '
+                'which does not have to be reloaded from the network. '
+                'On the contrary this option invalidates the immutable '
+                'box attribute and should be used with care. On update '
+                'of the box all data stored will be wiped. To prevent '
+                'this combine the option with the --no-update-check option.'
+            )
+        ] = False,
+        no_accel: Annotated[
+            Optional[bool], typer.Option(
+                '--no-accel',
+                help='Run box without hardware acceleration. By default '
+                'KVM acceleration is activated'
+            )
+        ] = False,
+        qemu_9p_sharing: Annotated[
+            Optional[bool], typer.Option(
+                '--9p-sharing',
+                help='Select 9p backend to use for sharing data '
+                'between the host and the box.'
+            )
+        ] = False,
+        virtiofs_sharing: Annotated[
+            Optional[bool], typer.Option(
+                '--virtiofs-sharing',
+                help='Select virtiofsd backend to use for sharing data '
+                'between the host and the box.'
+            )
+        ] = False,
+        sshfs_sharing: Annotated[
+            Optional[bool], typer.Option(
+                '--sshfs-sharing',
+                help='Select sshfs backend to use for sharing data '
+                'between the host and the box.'
+            )
+        ] = False,
+        ssh_key: Annotated[
+            Optional[str], typer.Option(
+                help='<name> Name of ssh key to authorize for '
+                'connection. By default id_rsa is used.'
+            )
+        ] = 'id_rsa',
+        ssh_port: Annotated[
+            Optional[int], typer.Option(
+                help='<port> Port number to use to forward the '
+                'guest SSH port to the host By default 10022 is used.'
+            )
+        ] = 10022,
+        x86_64: Annotated[
+            Optional[bool], typer.Option(
+                '--x86_64',
+                help='Select box for the x86_64 architecture. If no '
+                'architecture is selected the host architecture is '
+                'used for selecting the box. The selected box '
+                'architecture also specifies the target architecture '
+                'for the image build with that box.'
+            )
+        ] = False,
+        aarch64: Annotated[
+            Optional[bool], typer.Option(
+                '--aarch64',
+                help='Select box for the aarch64 architecture. If no '
+                'architecture is selected the host architecture is '
+                'used for selecting the box. The selected box '
+                'architecture also specifies the target architecture '
+                'for the image build with that box.'
+            )
+        ] = False,
+        machine: Annotated[
+            Optional[str], typer.Option(
+                help='<qemu_machine> Machine name used '
+                'by QEMU. By default no specific value is used here '
+                'and qemu selects its default machine type. For cross '
+                'arch builds or for system architectures for which '
+                'QEMU defines no default like for Arm, it is required '
+                'to specify a machine name. If you do not care about '
+                'reproducing the idiosyncrasies of a particular bit '
+                'of hardware, the best option is to use the virt '
+                'machine type.'
+            )
+        ] = None,
+        cpu: Annotated[
+            Optional[str], typer.Option(
+                help='<qemu_cpu> CPU type used by QEMU. By default '
+                'the host CPU type is used which is only a good '
+                'selection if the host and the selected box are from '
+                'the same architecture. On cross arch builds it is '
+                'required to specify the CPU emulation the box should use'
+            )
+        ] = None
+    ):
+        Cli.subcommand_args['boxbuild'] = {
+            '--box': box,
+            '--list-boxes': list_boxes,
+            '--box-memory': box_memory,
+            '--box-console': box_console,
+            '--box-smp-cpus': f'{box_smp_cpus}',
+            '--box-debug': box_debug,
+            '--container': container,
+            '--kiwi-version': kiwi_version,
+            '--shared-path': Cli._as_path_name(shared_path),
+            '--no-update-check': no_update_check,
+            '--no-snapshot': no_snapshot,
+            '--no-accel': no_accel,
+            '--9p-sharing': qemu_9p_sharing,
+            '--virtiofs-sharing': virtiofs_sharing,
+            '--sshfs-sharing': sshfs_sharing,
+            '--ssh-key': ssh_key,
+            '--ssh-port': f'{ssh_port}',
+            '--x86_64': x86_64,
+            '--aarch64': aarch64,
+            '--machine': machine,
+            '--cpu': cpu,
+            'system_build': [],
+            'help': False
+        }
+        Cli.global_args['boxbuild'] = True
+        Cli.global_args['command'] = 'boxbuild'
+        Cli.global_args['system'] = True
+        Cli.cli_ok = True
+
+    @staticmethod
+    @boxbuild.command(
+        name='kiwi',
+        context_settings={
+            'allow_extra_args': True,
+            'ignore_unknown_options': True
+        }
+    )
+    def boxbuild_kiwi(ctx: typer.Context):
+        """
+        List of command parameters as supported by the kiwi-ng
+        build command. The information given here is passed
+        along to the kiwi-ng system build command running in
+        the virtual machine or container.
+        """
+        Cli.subcommand_args['boxbuild']['system_build'] = ctx.args
+
+    @staticmethod
+    @stackbuild.callback(
+        help='build an image based on a given stash container root.\n\n'
+        'If no --description is provided, stackbuild rebuilds the '
+        'image from '
+        'the stash container and passes the kiwi subcommand arguments '
+        'to the kiwi-ng system create command. If a --description is '
+        'provided, this description takes over precedence and a new '
+        'image from this description based on the given stash container '
+        'root will be built. In this case the kiwi subcommand arguments '
+        'are passed to the kiwi-ng system build command.',
+        subcommand_metavar='kiwi [OPTIONS]'
+    )
+    def stackbuild_options(
+        stash: Annotated[
+            List[str], typer.Option(
+                help='<name> Name of the stash container. See system stash '
+                '--list for available stashes. Multiple --stash options will '
+                'be stacked together in the given order'
+            )
+        ],
+        target_dir: Annotated[
+            Path, typer.Option(
+                help='<directory> The target directory to store the '
+                'system image file(s)'
+            )
+        ],
+        description: Annotated[
+            Optional[Path], typer.Option(
+                help='<directory> Path to KIWI image description'
+            )
+        ] = None,
+        from_registry: Annotated[
+            Optional[str], typer.Option(
+                help='<URI> Pull given stash container name from the '
+                'provided registry URI'
+            )
+        ] = None
+    ):
+        Cli.subcommand_args['stackbuild'] = {
+            '--stash': stash,
+            '--target-dir': Cli._as_path_name(target_dir),
+            '--description': Cli._as_path_name(description),
+            '--from-registry': from_registry,
+            'system_build_or_create': [],
+            'help': False
+        }
+        Cli.global_args['stackbuild'] = True
+        Cli.global_args['command'] = 'stackbuild'
+        Cli.global_args['system'] = True
+        Cli.cli_ok = True
+
+    @staticmethod
+    @stackbuild.command(
+        name='kiwi',
+        context_settings={
+            'allow_extra_args': True,
+            'ignore_unknown_options': True
+        }
+    )
+    def stackbuild_kiwi(ctx: typer.Context):
+        """
+        List of command parameters as supported by the kiwi-ng
+        build or create command. The information given here is passed
+        along to the kiwi-ng system build or the kiwi-ng system create
+        command depending on the presence of the --description
+        option.
+        """
+        Cli.subcommand_args['stackbuild']['system_build_or_create'] = \
+            ctx.args
+
+    @staticmethod
+    @system.command()
+    def stash(
+        root: Annotated[
+            Optional[Path], typer.Option(
+                help='<directory> The path to the root directory, '
+                'usually the result of a former system prepare or '
+                'build call'
+            )
+        ] = None,
+        tag: Annotated[
+            Optional[str], typer.Option(
+                help='<name> The tag name for the container. '
+                'By default set to: latest'
+            )
+        ] = None,
+        container_name: Annotated[
+            Optional[str], typer.Option(
+                help='<name> The name of the container. By default '
+                'set to the image name of the stash'
+            )
+        ] = None,
+        stash_list: Annotated[
+            Optional[bool], typer.Option(
+                '--list',
+                help='List the available stashes'
+            )
+        ] = False
+    ):
+        """
+        Create a container from the given root directory.
+        """
+        Cli.subcommand_args['stash'] = {
+            '--root': Cli._as_path_name(root),
+            '--tag': tag,
+            '--container-name': container_name,
+            '--list': stash_list,
+            'help': False
+        }
+        Cli.global_args['stash'] = True
+        Cli.global_args['command'] = 'stash'
+        Cli.global_args['system'] = True
+        Cli.cli_ok = True
+
     def get_servicename(self):
         """
         Extract service name from argument parse result
@@ -1120,8 +1491,10 @@ class Cli:
         """
         plugin_typers = {}
         for entry in self._get_module_entries():
+            module_name = entry.value.split('.')[0]
+            if module_name in Cli.obsolete_plugins:
+                continue
             if '_plugin' in entry.value:
-                module_name = entry.value.split('.')[0]
                 plugin_entry = EntryPoint(
                     name='cli',
                     value=f'{module_name}.cli',
@@ -1150,6 +1523,8 @@ class Cli:
         """
         discovered_tasks = {}
         for entry in self._get_module_entries():
+            if entry.value.split('.')[0] in Cli.obsolete_plugins:
+                continue
             discovered_tasks[entry.name] = entry.load()
 
         service = self.get_servicename()

@@ -6,7 +6,7 @@ User-Defined Scripts
 .. note:: **Abstract**
 
    This chapter describes the purpose of the user-defined scripts
-   :file:`config.sh`, :file:`image.sh`, :file:`pre_disk_sync.sh`, and
+   :file:`config.sh`, :file:`images.sh`, :file:`pre_disk_sync.sh`, and
    :file:`disk.sh`. These scripts can be used to further customize an image in
    ways that are not possible via the image description alone.
 
@@ -86,7 +86,8 @@ editbootinstall
 
 {kiwi} executes scripts via the operating system if their executable
 bit is set (in that case, a shebang is mandatory); otherwise, they are
-invoked via the Bash shell. If a script exits with a non-zero exit code,
+invoked via the Bash shell. Scripts that are called **NOT CHROOTED** are
+always invoked via the Bash shell. If a script exits with a non-zero exit code,
 {kiwi} reports the failure and aborts the image creation.
 
 Developing/Debugging Scripts

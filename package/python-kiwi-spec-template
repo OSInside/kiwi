@@ -401,6 +401,44 @@ the build host to handling image descriptions better. This also
 includes reading of image descriptions for different markup
 languages
 
+%package -n kiwi-systemdeps-boxbuild
+Summary:        KIWI - host requirements for building in a self contained box
+Group:          %{sysgroup}
+Requires:       python%{python3_pkgversion}-kiwi = %{version}-%{release}
+%if 0%{?ubuntu} || 0%{?debian}
+Requires:       qemu-kvm
+%else
+Requires:       qemu
+%endif
+Recommends:     sshfs
+Recommends:     virtiofsd >= 1.10
+Recommends:     podman
+# The boxbuild command was provided by the kiwi_boxed_plugin
+Provides:       python%{python3_pkgversion}-kiwi_boxed_plugin = %{version}-%{release}
+Obsoletes:      python%{python3_pkgversion}-kiwi_boxed_plugin < %{version}-%{release}
+
+%description -n kiwi-systemdeps-boxbuild
+Host setup helper to pull in all packages required/useful on
+the build host to build images in a self contained virtual
+machine or container via the kiwi-ng system boxbuild command
+
+%package -n kiwi-systemdeps-stackbuild
+Summary:        KIWI - host requirements for building based on containers
+Group:          %{sysgroup}
+Requires:       python%{python3_pkgversion}-kiwi = %{version}-%{release}
+Requires:       kiwi-systemdeps-containers = %{version}-%{release}
+Requires:       podman
+Requires:       rsync
+# The stackbuild and stash commands were provided by the kiwi_stackbuild_plugin
+Provides:       python%{python3_pkgversion}-kiwi_stackbuild_plugin = %{version}-%{release}
+Obsoletes:      python%{python3_pkgversion}-kiwi_stackbuild_plugin < %{version}-%{release}
+
+%description -n kiwi-systemdeps-stackbuild
+Host setup helper to pull in all packages required/useful on
+the build host to store image root trees as containers and
+to build images based on containers via the kiwi-ng system
+stash and kiwi-ng system stackbuild commands
+
 %package -n kiwi-systemdeps
 Summary:        KIWI - Host system dependencies
 Group:          %{sysgroup}
@@ -451,6 +489,12 @@ Requires:       python%{python3_pkgversion}-typer >= 0.19.0
 Requires:       python%{python3_pkgversion}-lxml
 Requires:       python%{python3_pkgversion}-requests
 Requires:       python%{python3_pkgversion}-xmltodict
+Requires:       python%{python3_pkgversion}-progressbar2
+%if 0%{?suse_version}
+Requires:       python%{python3_pkgversion}-Cerberus
+%else
+Requires:       python%{python3_pkgversion}-cerberus
+%endif
 %if %{with selinux}
 Requires:       (kiwi-selinux = %{version}-%{release} if selinux-policy)
 %endif
@@ -826,6 +870,12 @@ fi
 # Empty metapackage
 
 %files -n kiwi-systemdeps-image-validation
+# Empty metapackage
+
+%files -n kiwi-systemdeps-boxbuild
+# Empty metapackage
+
+%files -n kiwi-systemdeps-stackbuild
 # Empty metapackage
 
 %files -n kiwi-systemdeps
