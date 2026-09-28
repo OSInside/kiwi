@@ -10,9 +10,10 @@
 # - podman
 # - pip
 #
-# And requires the installation of the kiwi box plugin
+# And requires the installation of kiwi which provides
+# the boxbuild command
 #
-# $ pip install --upgrade kiwi-boxed-plugin
+# $ pip install --upgrade kiwi
 #
 set -e
 
@@ -126,7 +127,7 @@ function create_build_commands() {
             has_profiles=true
             target_dir="build_results/${base_image}/${profile}"
             build_command="${build_command} --profile ${profile}"
-            build_command="${build_command} ${box_options} --"
+            build_command="${build_command} ${box_options} kiwi"
             build_command="${build_command} --description $image"
             build_command="${build_command} ${repo_options}"
             build_command="${build_command} --target-dir ${target_dir}"
@@ -137,7 +138,7 @@ function create_build_commands() {
         done
         if [ "${has_profiles}" = "false" ];then
             target_dir="build_results/${base_image}"
-            build_command="${build_command} ${box_options} --"
+            build_command="${build_command} ${box_options} kiwi"
             build_command="${build_command} --description $image"
             build_command="${build_command} ${repo_options}"
             build_command="${build_command} --target-dir ${target_dir}"

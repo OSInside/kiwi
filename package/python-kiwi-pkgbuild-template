@@ -24,8 +24,8 @@ build() {
 }
 
 package_python-kiwi(){
-  depends=(python-typer python-simplejson python-lxml python-requests python-yaml grub qemu squashfs-tools gptfdisk pacman e2fsprogs xfsprogs btrfs-progs libisoburn lvm2 mtools parted multipath-tools rsync tar shadow screen kiwi-man-pages)
-  optdepends=('gnupg: keyring creation for APT package manager')
+  depends=(python-typer python-simplejson python-lxml python-requests python-yaml python-cerberus python-progressbar grub qemu squashfs-tools gptfdisk pacman e2fsprogs xfsprogs btrfs-progs libisoburn lvm2 mtools parted multipath-tools rsync tar shadow screen kiwi-man-pages)
+  optdepends=('gnupg: keyring creation for APT package manager' 'sshfs: boxbuild data sharing via sshfs' 'virtiofsd: boxbuild data sharing via virtiofs' 'podman: boxbuild in a container, stackbuild and stash')
   cd kiwi-${pkgver}
   python3 -m installer --destdir "${pkgdir}/" dist/*.whl
   ln -sr "${pkgdir}/usr/bin/kiwi-ng" "${pkgdir}/usr/bin/kiwi"

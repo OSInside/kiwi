@@ -58,6 +58,8 @@ lxml = ">=4.6.0"
 requests = ">=2.25.0"
 PyYAML = ">=5.4.0"
 simplejson = ">=3.17.0"
+Cerberus = ">=1.3.0"
+progressbar2 = ">=3.53"
 
 # Optional dependencies for markup extra
 anymarkup-core = { version = ">=0.8.0", optional = true }
@@ -76,9 +78,12 @@ image_info = "kiwi.tasks.image_info"
 image_resize = "kiwi.tasks.image_resize"
 result_bundle = "kiwi.tasks.result_bundle"
 result_list = "kiwi.tasks.result_list"
+system_boxbuild = "kiwi.tasks.system_boxbuild"
 system_build = "kiwi.tasks.system_build"
 system_create = "kiwi.tasks.system_create"
 system_prepare = "kiwi.tasks.system_prepare"
+system_stackbuild = "kiwi.tasks.system_stackbuild"
+system_stash = "kiwi.tasks.system_stash"
 system_update = "kiwi.tasks.system_update"
 
 [tool.poetry.scripts]

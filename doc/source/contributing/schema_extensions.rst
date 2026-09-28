@@ -3,7 +3,7 @@ Extending {kiwi} with Custom Operations
 
 .. note:: **Abstract**
 
-    Extension plugins in {kiwi} offer a mechanism for adding information outside the standard {kiwi} schema.
+   Extension plugins in {kiwi} offer a mechanism for adding information outside the standard {kiwi} schema.
 
    This document describes how to create an extension plugin for the {kiwi}
    schema as well as how to add and validate additional information in the
@@ -27,7 +27,7 @@ to specify any XML structure and attributes, as long as they are
 attached to a namespace. This means that any custom XML
 structure can be implemented similar to the example below:
 
-.. code:: bash
+.. code:: xml
 
     <image>
         ...
@@ -50,7 +50,7 @@ the main XML catalog for the schema file to validate the extension data.
 The schema file must be a RELAX NG schema in the `.rng` format. We recommend
 saving the schema as :file:`/usr/share/xml/kiwi/my_plugin.rng`.
 
-For the example above, the RELAX NG Schema in the compressed format,
+For the example above, the RELAX NG Schema in the compact format,
 :file:`my_plugin.rnc`, looks as follows:
 
 .. there is no rnc syntax highlighting, try cpp
@@ -93,7 +93,7 @@ As mentioned above, the mapping from the extension namespace to the
 correct RELAX NG schema file is handled by an XML catalog file. The
 XML catalog for the example is as follows:
 
-.. code:: bash
+.. code:: xml
 
     <?xml version="1.0"?>
     <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">

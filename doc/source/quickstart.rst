@@ -12,21 +12,20 @@ Quick Start
 Before you start
 ----------------
 
-1. Install {kiwi} first, either via your distributions' package manager (see
+1. Install {kiwi} first, either via your distribution's package manager (see
    :ref:`kiwi-installation`) or via:
 
    .. code:: bash
 
       $ sudo pip install kiwi
 
-2. Clone the {kiwi} repository containing example appliances (see
-   :ref:`example-descriptions`):
+2. Clone the {kiwi} repository containing example appliances:
 
    .. code:: bash
 
       $ git clone https://github.com/OSInside/kiwi
 
-.. note:: 
+.. note::
 
    Please see the :ref:`troubleshooting` chapter and/or our
    `Contact` info on the main page if the following procedure causes
@@ -38,9 +37,9 @@ Choose a First Image
 Find example appliance descriptions in the {kiwi} repository checkout
 as follows:
 
-    .. code:: bash
+.. code:: bash
 
-       $ tree -L 3 kiwi/build-tests
+   $ tree -L 3 kiwi/build-tests
 
 Take a look at which images are available in the example appliances repository
 and select one that matches your desired image as closely as possible. Or
@@ -63,7 +62,7 @@ command in order to build it:
 The resulting image will be placed into the folder :file:`/tmp/myimage`
 with the suffix :file:`.raw`.
 
-If you don't wish to create a openSUSE Leap {exc_os_version} image,
+If you don't wish to create an openSUSE Leap {exc_os_version} image,
 substitute the folder following the ``--description`` option with another
 folder that contains the image description which you selected.
 
@@ -77,7 +76,7 @@ QEMU and boot it as follows:
 .. code:: bash
 
     $ sudo qemu -boot c \
-        -drive file={exc_image_base_name_disk}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
+        -drive file=/tmp/myimage/{exc_image_base_name_disk}.x86_64-{exc_image_version}.raw,format=raw,if=virtio \
         -m 4096 -serial stdio
 
 Tweak and Customize your Image

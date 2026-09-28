@@ -232,8 +232,8 @@ class TestCli:
         plugin_entry = Mock()
         mock_EntryPoint.return_value = plugin_entry
         entry = Mock(
-            name='system_boxbuild',
-            value='kiwi_boxed_plugin.tasks.system_boxbuild',
+            name='system_some',
+            value='kiwi_some_plugin.tasks.system_some',
             group='kiwi.tasks'
         )
         mock_get_module_entries.return_value = [entry]
@@ -254,6 +254,181 @@ class TestCli:
             plugin_entry.load.side_effect = Exception('error')
             with raises(KiwiLoadPluginError):
                 cli.load_plugin_cli()
+
+    @patch.object(Cli, '_get_module_entries')
+    @patch('kiwi.cli.EntryPoint')
+    def test_load_plugin_cli_skips_obsolete_plugin(
+        self, mock_EntryPoint, mock_get_module_entries
+    ):
+        entry = Mock(
+            value='kiwi_boxed_plugin.tasks.system_boxbuild',
+            group='kiwi.tasks'
+        )
+        mock_get_module_entries.return_value = [entry]
+        assert self.cli.load_plugin_cli() == {}
+        assert not mock_EntryPoint.called
+
+    @patch.object(Cli, '_get_module_entries')
+    def test_load_command_skips_obsolete_plugin(
+        self, mock_get_module_entries
+    ):
+        builtin_entry = Mock(
+            value='kiwi.tasks.system_prepare',
+            group='kiwi.tasks'
+        )
+        builtin_entry.name = 'system_prepare'
+        obsolete_entry = Mock(
+            value='kiwi_boxed_plugin.tasks.system_prepare',
+            group='kiwi.tasks'
+        )
+        obsolete_entry.name = 'system_prepare'
+        mock_get_module_entries.return_value = [
+            builtin_entry, obsolete_entry
+        ]
+        assert self.cli.load_command() == builtin_entry.load.return_value
+        assert not obsolete_entry.load.called
+
+    def test_boxbuild_command_args(self):
+        with patch(
+            'sys.argv', [
+                sys.argv[0],
+                'system', 'boxbuild',
+                '--box', 'universal',
+                '--shared-path', '/var/tmp/shared',
+                '--no-accel',
+                '--9p-sharing',
+                '--aarch64',
+                'kiwi',
+                '--description', 'description',
+                '--target-dir', 'directory',
+                '--allow-existing-root'
+            ]
+        ):
+            cli = Cli()
+            assert cli.get_servicename() == 'system'
+            assert cli.get_command() == 'boxbuild'
+            command_args = cli.get_command_args()
+            assert command_args['--box'] == 'universal'
+            assert command_args['--shared-path'] == '/var/tmp/shared'
+            assert command_args['--no-accel'] is True
+            assert command_args['--9p-sharing'] is True
+            assert command_args['--aarch64'] is True
+            assert command_args['--x86_64'] is False
+            assert command_args['--box-smp-cpus'] == '4'
+            assert command_args['--ssh-port'] == '10022'
+            assert command_args['--ssh-key'] == 'id_rsa'
+            assert command_args['system_build'] == [
+                '--description', 'description',
+                '--target-dir', 'directory',
+                '--allow-existing-root'
+            ]
+
+    def test_boxbuild_command_args_separator(self):
+        with patch(
+            'sys.argv', [
+                sys.argv[0],
+                'system', 'boxbuild',
+                '--box', 'universal',
+                '--',
+                '--description', 'description',
+                '--target-dir', 'directory'
+            ]
+        ):
+            cli = Cli()
+            assert cli.get_command_args()['system_build'] == [
+                '--description', 'description',
+                '--target-dir', 'directory'
+            ]
+
+    @patch.object(Cli, '_get_module_entries')
+    @patch('kiwi.cli.EntryPoint')
+    def test_load_plugin_cli_skips_obsolete_stackbuild_plugin(
+        self, mock_EntryPoint, mock_get_module_entries
+    ):
+        entry = Mock(
+            value='kiwi_stackbuild_plugin.tasks.system_stackbuild',
+            group='kiwi.tasks'
+        )
+        mock_get_module_entries.return_value = [entry]
+        assert self.cli.load_plugin_cli() == {}
+        assert not mock_EntryPoint.called
+
+    def test_stackbuild_command_args(self):
+        with patch(
+            'sys.argv', [
+                sys.argv[0],
+                'system', 'stackbuild',
+                '--stash', 'base',
+                '--stash', 'layer',
+                '--target-dir', 'directory',
+                '--description', 'description',
+                '--from-registry', 'registry.uri',
+                'kiwi',
+                '--signing-key', 'some-key'
+            ]
+        ):
+            cli = Cli()
+            assert cli.get_servicename() == 'system'
+            assert cli.get_command() == 'stackbuild'
+            command_args = cli.get_command_args()
+            assert command_args['--stash'] == ['base', 'layer']
+            assert command_args['--target-dir'] == 'directory'
+            assert command_args['--description'] == 'description'
+            assert command_args['--from-registry'] == 'registry.uri'
+            assert command_args['system_build_or_create'] == [
+                '--signing-key', 'some-key'
+            ]
+
+    def test_stackbuild_command_args_no_kiwi_subcommand(self):
+        with patch(
+            'sys.argv', [
+                sys.argv[0],
+                'system', 'stackbuild',
+                '--stash', 'base',
+                '--target-dir', 'directory'
+            ]
+        ):
+            cli = Cli()
+            command_args = cli.get_command_args()
+            assert command_args['--stash'] == ['base']
+            assert command_args['--description'] is None
+            assert command_args['--from-registry'] is None
+            assert command_args['system_build_or_create'] == []
+
+    def test_stackbuild_command_args_separator(self):
+        with patch(
+            'sys.argv', [
+                sys.argv[0],
+                'system', 'stackbuild',
+                '--stash', 'base',
+                '--target-dir', 'directory',
+                '--',
+                '--signing-key', 'some-key'
+            ]
+        ):
+            cli = Cli()
+            assert cli.get_command_args()['system_build_or_create'] == [
+                '--signing-key', 'some-key'
+            ]
+
+    def test_stash_command_args(self):
+        with patch(
+            'sys.argv', [
+                sys.argv[0],
+                'system', 'stash',
+                '--root', 'directory',
+                '--tag', 'v1',
+                '--container-name', 'name'
+            ]
+        ):
+            cli = Cli()
+            assert cli.get_servicename() == 'system'
+            assert cli.get_command() == 'stash'
+            command_args = cli.get_command_args()
+            assert command_args['--root'] == 'directory'
+            assert command_args['--tag'] == 'v1'
+            assert command_args['--container-name'] == 'name'
+            assert command_args['--list'] is False
 
     def test_get_servicename_unknown(self):
         self.cli.global_args['image'] = False

@@ -75,11 +75,24 @@ following systemdeps packages:
     is set. With `anymarkup` available, {kiwi} can also handle image
     descriptions in a format other than the XML markup (for example, YAML).
 
+`kiwi-systemdeps-boxbuild`:
+  * Supports building images in a self-contained virtual machine or
+    container via the `kiwi-ng system boxbuild` command.
+  * Installs the QEMU/KVM toolchain required to run the build box.
+
+`kiwi-systemdeps-stackbuild`:
+  * Supports storing image root trees as containers and building images
+    based on containers via the `kiwi-ng system stash` and
+    `kiwi-ng system stackbuild` commands.
+  * Installs `podman` and `rsync`.
+  * Depends on the `-containers` kiwi-systemdeps package.
+
 Depending on the image type, the `kiwi-systemdeps` packages can help
 to quickly set up the host system for building images.
 In case the host must support everything, there is also the
 main `kiwi-systemdeps` package that has all other
-existing `systemdeps` packages as its dependency.
+existing `systemdeps` packages, except for `-boxbuild` and `-stackbuild`,
+as its dependency.
 
 .. note::
 
