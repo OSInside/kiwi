@@ -63,7 +63,7 @@
 
 Name:           python-kiwi
 Version:        %%VERSION
-Provides:       kiwi-schema = 8.1
+Provides:       kiwi-schema = 8.5
 Release:        0
 Url:            https://github.com/OSInside/kiwi
 Summary:        KIWI - Appliance Builder Next Generation
@@ -404,6 +404,15 @@ languages
 %package -n kiwi-systemdeps-boxbuild
 Summary:        KIWI - host requirements for building in a self contained box
 Group:          %{sysgroup}
+%if "%{python3_pkgversion}" == "3"
+%if 0%{?suse_version}
+Provides:       python%{python3_version_nodots}-kiwi_boxed_plugin = 0.2.60+1
+Obsoletes:      python%{python3_version_nodots}-kiwi_boxed_plugin < 0.2.60+1
+%else
+Provides:       python%{python3_version}-kiwi_boxed_plugin = 0.2.60+1
+Obsoletes:      python%{python3_version}-kiwi_boxed_plugin < 0.2.60+1
+%endif
+%endif
 Requires:       python%{python3_pkgversion}-kiwi = %{version}-%{release}
 %if 0%{?ubuntu} || 0%{?debian}
 Requires:       qemu-kvm
@@ -413,9 +422,6 @@ Requires:       qemu
 Recommends:     sshfs
 Recommends:     virtiofsd >= 1.10
 Recommends:     podman
-# The boxbuild command was provided by the kiwi_boxed_plugin
-Provides:       python%{python3_pkgversion}-kiwi_boxed_plugin = %{version}-%{release}
-Obsoletes:      python%{python3_pkgversion}-kiwi_boxed_plugin < %{version}-%{release}
 
 %description -n kiwi-systemdeps-boxbuild
 Host setup helper to pull in all packages required/useful on
@@ -425,13 +431,19 @@ machine or container via the kiwi-ng system boxbuild command
 %package -n kiwi-systemdeps-stackbuild
 Summary:        KIWI - host requirements for building based on containers
 Group:          %{sysgroup}
+%if "%{python3_pkgversion}" == "3"
+%if 0%{?suse_version}
+Provides:       python%{python3_version_nodots}-kiwi_stackbuild_plugin = 1.0.14+1
+Obsoletes:      python%{python3_version_nodots}-kiwi_stackbuild_plugin < 1.0.14+1
+%else
+Provides:       python%{python3_version}-kiwi_stackbuild_plugin = 1.0.14+1
+Obsoletes:      python%{python3_version}-kiwi_stackbuild_plugin < 1.0.14+1
+%endif
+%endif
 Requires:       python%{python3_pkgversion}-kiwi = %{version}-%{release}
 Requires:       kiwi-systemdeps-containers = %{version}-%{release}
 Requires:       podman
 Requires:       rsync
-# The stackbuild and stash commands were provided by the kiwi_stackbuild_plugin
-Provides:       python%{python3_pkgversion}-kiwi_stackbuild_plugin = %{version}-%{release}
-Obsoletes:      python%{python3_pkgversion}-kiwi_stackbuild_plugin < %{version}-%{release}
 
 %description -n kiwi-systemdeps-stackbuild
 Host setup helper to pull in all packages required/useful on
@@ -467,8 +479,12 @@ Group:          %{pygroup}
 %if "%{python3_pkgversion}" == "3"
 %if 0%{?suse_version}
 Provides:       python%{python3_version_nodots}-kiwi = %{version}-%{release}
+Conflicts:      python%{python3_version_nodots}-kiwi_boxed_plugin < 0.2.60+1
+Conflicts:      python%{python3_version_nodots}-kiwi_stackbuild_plugin < 1.0.14+1
 %else
 Provides:       python%{python3_version}-kiwi = %{version}-%{release}
+Conflicts:      python%{python3_version}-kiwi_boxed_plugin < 0.2.60+1
+Conflicts:      python%{python3_version}-kiwi_stackbuild_plugin < 1.0.14+1
 %endif
 %endif
 Obsoletes:      python2-kiwi
