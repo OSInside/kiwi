@@ -31,7 +31,10 @@ class TestPartitionerGpt:
     def test_create(self, mock_flag, mock_command):
         self.partitioner.create('name', 100, 't.linux', ['t.csm'])
         mock_command.assert_called_once_with(
-            ['sgdisk', '-n', '1:0:+100M', '-c', '1:name', '/dev/loop0']
+            [
+                'sgdisk', '--align-end', '-n', '1:0:+100M',
+                '-c', '1:name', '/dev/loop0'
+            ]
         )
         call = mock_flag.call_args_list[0]
         assert mock_flag.call_args_list[0] == \
@@ -52,10 +55,12 @@ class TestPartitionerGpt:
         partitioner.create('name', 100, 't.linux', ['t.csm'])
         mock_command.assert_has_calls([
             call([
-                'sgdisk', '-n', '1:4096:+100M', '-c', '1:name', '/dev/loop0'
+                'sgdisk', '--align-end', '-n', '1:4096:+100M',
+                '-c', '1:name', '/dev/loop0'
             ]),
             call([
-                'sgdisk', '-n', '2:0:+100M', '-c', '2:name', '/dev/loop0'
+                'sgdisk', '--align-end', '-n', '2:0:+100M',
+                '-c', '2:name', '/dev/loop0'
             ])
         ])
         assert mock_flag.call_args_list[0] == \
@@ -68,7 +73,10 @@ class TestPartitionerGpt:
     def test_create_all_free(self, mock_flag, mock_command):
         self.partitioner.create('name', 'all_free', 't.linux')
         mock_command.assert_called_once_with(
-            ['sgdisk', '-n', '1:0:0', '-c', '1:name', '/dev/loop0']
+            [
+                'sgdisk', '--align-end', '-n', '1:0:0',
+                '-c', '1:name', '/dev/loop0'
+            ]
         )
 
     def test_set_flag_invalid(self):

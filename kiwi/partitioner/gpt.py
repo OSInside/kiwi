@@ -82,7 +82,7 @@ class PartitionerGpt(PartitionerBase):
             self.start_sector = 0
         Command.run(
             [
-                'sgdisk', '-n', ':'.join(
+                'sgdisk', '--align-end', '-n', ':'.join(
                     [
                         format(self.partition_id),
                         format(self.start_sector),

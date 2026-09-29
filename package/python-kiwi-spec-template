@@ -361,9 +361,9 @@ Requires:       binutils
 Requires:       glibc-gconv-modules-extra
 %endif
 %if 0%{?suse_version}
-Requires:       gptfdisk
+Requires:       gptfdisk >= 1.0.9
 %else
-Requires:       gdisk
+Requires:       gdisk >= 1.0.9
 %endif
 Requires:       lvm2
 Requires:       kpartx
@@ -556,15 +556,15 @@ Requires:       btrfs-progs
 %else
 Recommends:     btrfs-progs
 %endif
-Requires:       gdisk
+Requires:       gdisk >= 1.0.9
 Requires:       dracut-network
 %else
 %if 0%{?debian} || 0%{?ubuntu}
 Recommends:     btrfs-tools
-Requires:       gdisk
+Requires:       gdisk >= 1.0.9
 %else
 Requires:       btrfsprogs
-Requires:       gptfdisk
+Requires:       gptfdisk >= 1.0.9
 %endif
 %endif
 Requires:       coreutils
