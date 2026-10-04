@@ -15,10 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import List
+import os
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
+from kiwi.path import Path
 
 
 class Users:
@@ -72,6 +74,9 @@ class Users:
         :param str user_name: user name
         :param list options: useradd options
         """
+        # useradd -m creates the home directory itself, but not missing
+        # parents. Issue #2493.
+        self._create_home_parent(options)
         Command.run(
             ['chroot', self.root_dir, 'useradd'] + options + [user_name]
         )
@@ -111,3 +116,32 @@ class Users:
         except Exception:
             return False
         return True
+
+    def _create_home_parent(self, options: List[str]) -> None:
+        """
+        Create missing parent directories for a useradd home path
+
+        useradd creates the home directory given with -d/--home-dir when
+        -m is set, but fails if a parent of that path does not exist.
+        """
+        home_path = self._home_path_from_options(options)
+        if not home_path or not home_path.startswith(os.sep):
+            return
+        parent = os.path.dirname(home_path.rstrip(os.sep))
+        if not parent or parent == os.sep:
+            return
+        Path.create(
+            os.path.join(self.root_dir, parent.lstrip(os.sep))
+        )
+
+    @staticmethod
+    def _home_path_from_options(options: List[str]) -> Optional[str]:
+        home_flags = ('-d', '--home', '--home-dir')
+        for index, option in enumerate(options):
+            if option in home_flags and index + 1 < len(options):
+                return options[index + 1]
+            for flag in home_flags:
+                prefix = flag + '='
+                if option.startswith(prefix):
+                    return option[len(prefix):]
+        return None

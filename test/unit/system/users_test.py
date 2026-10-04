@@ -58,3 +58,28 @@ class TestUsers:
         mock_command.assert_called_once_with(
             ['chroot', 'root_dir', 'chown', '-R', 'user:group', '/home/path']
         )
+
+    @patch('kiwi.system.users.Path.create')
+    @patch('kiwi.system.users.Command.run')
+    def test_user_add_creates_missing_home_parent(
+        self, mock_command, mock_create
+    ):
+        assert self.users.user_add(
+            'newuser', ['-m', '-d', '/path/to/home']
+        ) is None
+        mock_create.assert_called_once_with('root_dir/path/to')
+        mock_command.assert_called_once_with(
+            [
+                'chroot', 'root_dir', 'useradd',
+                '-m', '-d', '/path/to/home', 'newuser'
+            ]
+        )
+
+    @patch('kiwi.system.users.Path.create')
+    @patch('kiwi.system.users.Command.run')
+    def test_user_add_skips_parent_for_top_level_home(self, mock_command, mock_create):
+        self.users.user_add('newuser', ['-m', '-d', '/home'])
+        mock_create.assert_not_called()
+        mock_command.assert_called_once_with(
+            ['chroot', 'root_dir', 'useradd', '-m', '-d', '/home', 'newuser']
+        )
