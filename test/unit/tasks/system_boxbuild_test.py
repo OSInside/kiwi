@@ -134,7 +134,12 @@ class TestSystemBoxbuildTask:
             ], True, True, False, None, None
         )
 
-    def test_process_system_boxbuild_no_kiwi_build_command(self):
+    @patch('platform.machine')
+    def test_process_system_boxbuild_no_kiwi_build_command(
+        self,
+        mock_platform_machine
+    ):
+        mock_platform_machine.return_value = 'x86_64'
         sys.argv = [
             sys.argv[0], 'system', 'boxbuild', '--box', 'universal'
         ]
