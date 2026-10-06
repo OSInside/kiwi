@@ -125,23 +125,26 @@ class Users:
         -m is set, but fails if a parent of that path does not exist.
         """
         home_path = self._home_path_from_options(options)
-        if not home_path or not home_path.startswith(os.sep):
-            return
-        parent = os.path.dirname(home_path.rstrip(os.sep))
-        if not parent or parent == os.sep:
-            return
-        Path.create(
-            os.path.join(self.root_dir, parent.lstrip(os.sep))
-        )
+        if home_path and home_path.startswith(os.sep):
+            # dirname() keeps a leading separator; drop it so join does not
+            # discard root_dir (os.path.join ignores earlier parts on abs paths).
+            # An empty relative parent means the home is directly under '/'.
+            relative_parent = os.path.dirname(
+                home_path.rstrip(os.sep)
+            ).lstrip(os.sep)
+            if relative_parent:
+                parent = os.path.join(self.root_dir, relative_parent)
+                if not os.path.isdir(parent):
+                    Path.create(parent)
 
     @staticmethod
     def _home_path_from_options(options: List[str]) -> Optional[str]:
         home_flags = ('-d', '--home', '--home-dir')
         for index, option in enumerate(options):
-            if option in home_flags and index + 1 < len(options):
-                return options[index + 1]
-            for flag in home_flags:
-                prefix = flag + '='
-                if option.startswith(prefix):
-                    return option[len(prefix):]
+            flag, separator, value = option.partition('=')
+            if flag in home_flags:
+                if separator:
+                    return value
+                if index + 1 < len(options):
+                    return options[index + 1]
         return None
