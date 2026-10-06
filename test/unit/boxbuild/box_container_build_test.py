@@ -5,6 +5,7 @@ from pytest import raises
 
 from kiwi.boxbuild.box_container_build import BoxContainerBuild
 from kiwi.exceptions import KiwiBoxBuildError
+from kiwi.utils.temporary import Temporary
 
 
 class TestBoxContainerBuild:
@@ -35,11 +36,12 @@ class TestBoxContainerBuild:
             return True
 
         mock_os_path_exists.side_effect = exists
+        target = Temporary().new_dir()
         with raises(KiwiBoxBuildError):
             self.build.run(
                 [
                     '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--description', 'desc', '--target-dir', target.name
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
@@ -60,11 +62,12 @@ class TestBoxContainerBuild:
             return True
 
         mock_os_path_exists.side_effect = exists
+        target = Temporary().new_dir()
         with raises(KiwiBoxBuildError):
             self.build.run(
                 [
                     '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--description', 'desc', '--target-dir', target.name
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
@@ -83,7 +86,7 @@ class TestBoxContainerBuild:
         mock_os_path_isdir
     ):
         def exists(path):
-            if path.endswith('target/result.code'):
+            if path.endswith('/result.code'):
                 return True
             if path.endswith('/var/tmp/repos'):
                 return True
@@ -99,11 +102,12 @@ class TestBoxContainerBuild:
         with patch('builtins.open', create=True) as mock_open:
             file_handle = mock_open.return_value.__enter__.return_value
             file_handle.readline.return_value = '1'
+            target = Temporary().new_dir()
             with raises(KiwiBoxBuildError):
                 self.build.run(
                     [
                         '--debug', '--type', 'oem', 'system', 'build',
-                        '--description', 'desc', '--target-dir', 'target'
+                        '--description', 'desc', '--target-dir', target.name
                     ],
                     keep_open=True,
                     kiwi_version='9.22.1',
@@ -143,10 +147,11 @@ class TestBoxContainerBuild:
         with patch('builtins.open', create=True) as mock_open:
             file_handle = mock_open.return_value.__enter__.return_value
             file_handle.readline.return_value = '0'
+            target = Temporary().new_dir()
             self.build.run(
                 [
                     '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', 'target'
+                    '--description', 'desc', '--target-dir', target.name
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
@@ -165,7 +170,7 @@ class TestBoxContainerBuild:
             '--cap-add CAP_SYS_ADMIN '
             '--volume /var/cache/kiwi:/var/cache/kiwi '
             '--volume tmpfile:/container.cmdline '
-            '--volume target:/bundle '
+            f'--volume {target.name}:/bundle '
             '--volume desc:/description '
             '--volume /dev:/dev '
             '--volume /var/tmp/repos:/var/tmp/repos '
