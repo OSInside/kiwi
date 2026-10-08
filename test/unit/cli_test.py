@@ -211,18 +211,48 @@ class TestCli:
                 f'KIWI (next generation) version {__version__}'
             )
 
-    # @patch('kiwi.cli.Help')
-    # def test_help(self, mock_Help):
-    #     manual = Mock()
-    #     mock_Help.return_value = manual
-    #     with patch(
-    #         'sys.argv', [
-    #             sys.argv[0], 'help'
-    #         ]
-    #     ):
-    #         with patch('sys.exit'):
-    #             Cli()
-    #         manual.show.assert_called_once_with('kiwi')
+    def test_command_help(self):
+        # required options of the command are not needed to
+        # request its manual page
+        for service, command in [
+            ('system', 'build'),
+            ('system', 'boxbuild'),
+            ('result', 'list'),
+            ('image', 'info')
+        ]:
+            with patch(
+                'sys.argv', [
+                    sys.argv[0], '--debug', service, command, 'help'
+                ]
+            ):
+                cli = Cli()
+                assert cli.get_servicename() == service
+                assert cli.get_command() == command
+                command_args = cli.get_command_args()
+                assert command_args['help'] is True
+                assert command_args[command] is True
+                assert cli.get_global_args()['--debug'] is True
+                assert cli.load_command()
+
+    def test_command_help_not_for_unknown_command(self):
+        with patch(
+            'sys.argv', [
+                sys.argv[0], 'system', 'unknown', 'help'
+            ]
+        ):
+            with raises(SystemExit):
+                Cli()
+
+    def test_command_without_help(self):
+        for arguments in [
+            ['system', 'update', '--root', 'directory'],
+            [
+                'system', 'create', '--root', 'directory',
+                '--target-dir', 'directory'
+            ]
+        ]:
+            with patch('sys.argv', [sys.argv[0]] + arguments):
+                assert Cli().get_command_args()['help'] is False
 
     @patch.object(Cli, '_get_module_entries')
     @patch('kiwi.cli.EntryPoint')
