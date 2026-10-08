@@ -3,7 +3,7 @@ docdir = /usr/share/doc/packages
 python_version = 3
 python_lookup_name = python$(python_version)
 python = $(shell which $(python_lookup_name))
-sc_disable = SC1091,SC1090,SC2001,SC2174,SC1117,SC2048,SC2004,SC2317
+sc_disable = SC1091,SC1090,SC2001,SC2174,SC1117,SC2048,SC2004,SC2317,SC2329
 
 LC = LC_MESSAGES
 
