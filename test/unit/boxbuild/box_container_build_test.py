@@ -121,10 +121,17 @@ class TestBoxContainerBuild:
     @patch('os.system')
     @patch('kiwi.boxbuild.box_container_build.NamedTemporaryFile')
     @patch('kiwi.boxbuild.box_container_build.Command.run')
+    @patch('pathlib.Path')
     def test_run(
-        self, mock_Command_run, mock_NamedTemporaryFile,
-        mock_os_system, mock_os_environ, mock_os_path_exists,
-        mock_os_abspath, mock_os_path_isdir
+        self,
+        mock_Path,
+        mock_Command_run,
+        mock_NamedTemporaryFile,
+        mock_os_system,
+        mock_os_environ,
+        mock_os_path_exists,
+        mock_os_abspath,
+        mock_os_path_isdir
     ):
         def abspath(path):
             return path
@@ -147,11 +154,10 @@ class TestBoxContainerBuild:
         with patch('builtins.open', create=True) as mock_open:
             file_handle = mock_open.return_value.__enter__.return_value
             file_handle.readline.return_value = '0'
-            target = Temporary().new_dir()
             self.build.run(
                 [
                     '--debug', '--type', 'oem', 'system', 'build',
-                    '--description', 'desc', '--target-dir', target.name
+                    '--description', 'desc', '--target-dir', 'target'
                 ],
                 keep_open=True,
                 kiwi_version='9.22.1',
@@ -170,7 +176,7 @@ class TestBoxContainerBuild:
             '--cap-add CAP_SYS_ADMIN '
             '--volume /var/cache/kiwi:/var/cache/kiwi '
             '--volume tmpfile:/container.cmdline '
-            f'--volume {target.name}:/bundle '
+            '--volume target:/bundle '
             '--volume desc:/description '
             '--volume /dev:/dev '
             '--volume /var/tmp/repos:/var/tmp/repos '
