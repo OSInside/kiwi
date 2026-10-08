@@ -96,7 +96,7 @@ class SystemCreateTask(CliTask):
         )
 
     def _help(self):
-        if self.command_args['help']:
+        if self.command_args.get('help', False):
             self.manual.show('kiwi::system::create')
         else:
             return False

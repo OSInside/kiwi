@@ -99,3 +99,10 @@ class TestSystemCreateTask:
         self.task.manual.show.assert_called_once_with(
             'kiwi::system::create'
         )
+
+    def test_help_argument_missing(self):
+        self.task.command_args = {}
+        self.task.manual = Mock()
+
+        assert self.task._help() is False
+        self.task.manual.show.assert_not_called()
