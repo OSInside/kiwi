@@ -152,7 +152,7 @@ copyright = f'2020-{datetime.now().year}, {author}'
 # built documents.
 #
 # The short X.Y version.
-version = '11.1.1'
+version = '11.1.2'
 # The full version, including alpha/beta/rc tags.
 release = version
 
