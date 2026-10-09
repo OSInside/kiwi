@@ -56,14 +56,14 @@
         <package name="xfsprogs"/>
         <package name="e2fsprogs"/>
         <package name="btrfsprogs"/>
-        <package name="python311-kiwi"/>
-        <package name="python311-pip"/>
+        <package name="python3-kiwi"/>
+        <package name="python3-pip"/>
         <package name="checkmedia"/>
         <package name="jing"/>
         <package name="iproute2"/>
         <package name="procps"/>
         <package name="gfxboot"/>
-        <package name="python311-devel"/>
+        <package name="python3-devel"/>
         <package name="libxml2-devel"/>
         <package name="libxslt-devel"/>
         <package name="glibc-devel"/>
