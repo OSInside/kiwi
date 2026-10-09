@@ -25,6 +25,7 @@ from typing import (
 from kiwi.defaults import Defaults
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
+from kiwi.utils.proxy import HostProxy
 
 log = logging.getLogger('kiwi')
 
@@ -157,5 +158,5 @@ class RepositoryApk(RepositoryBase):
 
     def _create_apk_get_runtime_environment(self) -> Dict:
         return dict(
-            os.environ, LANG='C'
+            os.environ, **HostProxy().get_env(), LANG='C'
         )

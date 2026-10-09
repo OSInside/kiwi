@@ -1,4 +1,4 @@
-from unittest.mock import patch, call
+from unittest.mock import patch
 from pytest import (
     raises, fixture
 )
@@ -57,13 +57,12 @@ class TestPackageManagerPacman:
         self.manager.request_package('vim')
         self.manager.request_collection('collection')
         self.manager.process_install_requests_bootstrap()
-        mock_run.call_args_list == [
-            call(['rm', '-r', '-f', '/root-dir/var/run']),
-            call([
+        mock_run.assert_called_once_with(
+            [
                 'pacman', '--config', '/root-dir/pacman.conf', '-y',
-                '--noconfirm', '--needed', '--root', '/root-dir', '-Sy'
-            ])
-        ]
+                '--noconfirm', '--root', '/root-dir', '-Sy'
+            ], ['env']
+        )
         mock_call.assert_called_once_with(
             [
                 'pacman', '--config', '/root-dir/pacman.conf',

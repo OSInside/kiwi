@@ -17,6 +17,7 @@
 #
 import os
 import re
+import logging
 from configparser import ConfigParser
 from typing import List, Dict
 
@@ -32,6 +33,9 @@ from kiwi.system.uri import Uri
 from kiwi.path import Path
 from kiwi.utils.rpm_database import RpmDataBase
 from kiwi.utils.toenv import ToEnv
+from kiwi.utils.proxy import HostProxy
+
+log = logging.getLogger('kiwi')
 
 
 class RepositoryZypper(RepositoryBase):
@@ -134,6 +138,7 @@ class RepositoryZypper(RepositoryBase):
         ] + self.custom_args
 
         self.command_env = self._create_zypper_runtime_environment()
+        self._setup_intermediate_proxy_config()
 
         # config file parameters for zypper tool
         self.runtime_zypper_config = ConfigParser(interpolation=None)
@@ -238,7 +243,9 @@ class RepositoryZypper(RepositoryBase):
         self.zypper_args = [
             '--non-interactive',
         ] + self.custom_args
-        self.command_env = dict(os.environ, LANG='C')
+        self.command_env = dict(
+            os.environ, **HostProxy().get_env(), LANG='C'
+        )
 
     def runtime_config(self) -> Dict:
         """
@@ -432,9 +439,35 @@ class RepositoryZypper(RepositoryBase):
         ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return dict(
             os.environ,
+            **HostProxy().get_env(),
             LANG='C',
             ZYPP_CONF=self.runtime_zypp_config_file.name
         )
+
+    def _setup_intermediate_proxy_config(self) -> None:
+        """
+        libzypp reads the proxy setup from /etc/sysconfig/proxy only
+        and ignores proxy environment variables. If the host does not
+        provide this file, RootBind could not copy it as intermediate
+        config into the image root. Thus a host proxy setup from the
+        environment would not be taken into account by zypper calls
+        inside of the image root. For this case create the intermediate
+        config file from the host proxy setup
+        """
+        sysconfig_proxy = '/etc/sysconfig/proxy'
+        if os.path.exists(defaults.HOST_SYSCONFIG_PROXY):
+            return
+        if os.path.islink(self.root_dir + sysconfig_proxy):
+            # intermediate config already created
+            return
+        host_proxy = HostProxy()
+        if host_proxy.has_proxy():
+            log.info(
+                f'Creating intermediate {sysconfig_proxy} from host proxy setup'
+            )
+            self.root_bind.add_intermediate_config(
+                sysconfig_proxy, host_proxy.get_sysconfig_data()
+            )
 
     def _write_runtime_config(self) -> None:
         with open(self.runtime_zypper_config_file.name, 'w') as config:

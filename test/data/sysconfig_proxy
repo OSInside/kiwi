@@ -1,0 +1,7 @@
+## Path:	Network/Proxy
+## Description:
+PROXY_ENABLED="yes"
+HTTP_PROXY="http://sysconfig-proxy:3128"
+HTTPS_PROXY="http://sysconfig-proxy:3129"
+FTP_PROXY=""
+NO_PROXY="localhost, 127.0.0.1"

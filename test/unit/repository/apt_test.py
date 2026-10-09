@@ -78,6 +78,34 @@ class TestRepositoryApt:
             {'apt_shared_base': '../data/etc/apt', 'unauthenticated': 'true'}
         )
 
+    @patch('kiwi.repository.apt.HostProxy')
+    def test_use_default_location_host_proxy(self, mock_HostProxy):
+        mock_HostProxy.get_apt_config.return_value = [
+            'Acquire::http::Proxy "http://proxy:3128/";'
+        ]
+        template = mock.Mock()
+        template.substitute.return_value = 'template-data\n'
+        self.apt_conf.get_image_template.return_value = template
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.use_default_location()
+            file_handle.write.assert_called_once_with(
+                'template-data\nAcquire::http::Proxy "http://proxy:3128/";\n'
+            )
+
+    @patch('kiwi.repository.apt.Path.create')
+    @patch('kiwi.repository.apt.HostProxy')
+    def test_runtime_environment_host_proxy(
+        self, mock_HostProxy, mock_Path_create
+    ):
+        mock_HostProxy.return_value.get_env.return_value = {
+            'http_proxy': 'http://proxy:3128'
+        }
+        command_env = self.repo._create_apt_get_runtime_environment()
+        assert command_env['http_proxy'] == 'http://proxy:3128'
+        assert command_env['DEBIAN_FRONTEND'] == 'noninteractive'
+
     def test_runtime_config(self):
         assert self.repo.runtime_config()['apt_get_args'] == \
             self.repo.apt_get_args
