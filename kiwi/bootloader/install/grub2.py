@@ -328,6 +328,12 @@ class BootLoaderInstallGrub2(BootLoaderInstallBase):
         custom_root_mount_args = []
         if self.root_volume_name and self.root_volume_name != '/':
             custom_root_mount_args += [f'subvol={self.root_volume_name}']
+        readonly_device = (self.device_map or {}).get('readonly')
+        if readonly_device and \
+           self.custom_args['root_device'] == readonly_device.get_device():
+            # The overlayroot readonly partition holds a read-only
+            # filesystem (squashfs/erofs), mount it as such
+            custom_root_mount_args += ['ro']
         self.root_mount.mount(options=custom_root_mount_args)
 
         if 's390' in self.arch:

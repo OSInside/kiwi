@@ -357,6 +357,18 @@ class TestBootLoaderConfigBase:
         ]
 
     @patch('kiwi.bootloader.config.base.MountManager')
+    def test_mount_system_readonly_root(self, mock_MountManager):
+        root_mount = mock_MountManager.return_value
+        readonly_device = Mock()
+        readonly_device.get_device.return_value = '/dev/readonly-root-device'
+        self.bootloader._mount_system(
+            {'readonly': readonly_device},
+            '/dev/readonly-root-device',
+            '/dev/readonly-root-device'
+        )
+        root_mount.mount.assert_called_once_with(options=['ro'])
+
+    @patch('kiwi.bootloader.config.base.MountManager')
     @patch('kiwi.bootloader.config.base.SystemSetup')
     @patch('os.path.exists')
     def test_mount_system(
