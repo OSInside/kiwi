@@ -31,6 +31,7 @@ from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.utils.toenv import ToEnv
+from kiwi.utils.proxy import HostProxy
 
 log = logging.getLogger('kiwi')
 
@@ -108,7 +109,7 @@ class RepositoryPacman(RepositoryBase):
         ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return {
             'pacman_args': self.pacman_args,
-            'command_env': os.environ
+            'command_env': dict(os.environ, **HostProxy().get_env())
         }
 
     def _add_repo_section(

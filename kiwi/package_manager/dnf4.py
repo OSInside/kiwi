@@ -185,7 +185,7 @@ class PackageManagerDnf4(PackageManagerBase):
         Command.run(
             [dnf4] + self.dnf_args + [
                 f'--releasever={self.release_version}'
-            ] + ['makecache']
+            ] + ['makecache'], self.command_env
         )
         dnf_command = [
             dnf4

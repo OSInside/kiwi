@@ -124,7 +124,7 @@ class PackageManagerPacman(PackageManagerBase):
         Command.run(
             ['pacman'] + self.pacman_args + [
                 '--root', self.root_dir, '-Sy'
-            ]
+            ], self.command_env
         )
         pacman_command = [
             'pacman'

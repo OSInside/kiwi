@@ -87,7 +87,7 @@ class TestPackageManagerApk:
         self.manager.request_package_exclusion('skipme')
         self.manager.process_install_requests()
         mock_run.assert_called_once_with(
-            ['chroot', '/root-dir', 'apk', 'update']
+            ['chroot', '/root-dir', 'apk', 'update'], ['env']
         )
         mock_call.assert_called_once_with(
             ['chroot', '/root-dir', 'apk', 'add', 'vim', 'collection'],
@@ -100,7 +100,7 @@ class TestPackageManagerApk:
         self.manager.request_package('vim')
         self.manager.process_delete_requests()
         mock_run.assert_called_once_with(
-            ['chroot', '/root-dir', 'apk', 'update']
+            ['chroot', '/root-dir', 'apk', 'update'], ['env']
         )
         mock_call.assert_called_once_with(
             ['chroot', '/root-dir', 'apk', 'del', 'vim'],
@@ -120,7 +120,7 @@ class TestPackageManagerApk:
     def test_update(self, mock_run, mock_call):
         self.manager.update()
         mock_run.assert_called_once_with(
-            ['chroot', '/root-dir', 'apk', 'update']
+            ['chroot', '/root-dir', 'apk', 'update'], ['env']
         )
         mock_call.assert_called_once_with(
             ['chroot', '/root-dir', 'apk', 'upgrade'],
