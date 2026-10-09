@@ -490,6 +490,11 @@ class BootLoaderConfigBase(ABC):
         custom_root_mount_args = []
         if root_volume_name and root_volume_name != '/':
             custom_root_mount_args += [f'subvol={root_volume_name}']
+        readonly_device = (device_map or {}).get('readonly')
+        if readonly_device and root_device == readonly_device.get_device():
+            # The overlayroot readonly partition holds a read-only
+            # filesystem (squashfs/erofs), mount it as such
+            custom_root_mount_args += ['ro']
         self.root_mount.mount(options=custom_root_mount_args)
 
         if not self.root_mount.device == self.boot_mount.device:
