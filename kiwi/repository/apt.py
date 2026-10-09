@@ -16,6 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import glob
+import shutil
+import hashlib
 import logging
 from base64 import b64encode
 from urllib.parse import (
@@ -54,6 +57,9 @@ class RepositoryApt(RepositoryBase):
     :param dict command_env: customized os.environ for apt-get
     :param manager_base: shared location for apt-get repodata between
         host and image
+    :param str keyrings_dir: location of the repository keyring files
+    :param str keyring_prefix: build specific keyring file name prefix
+    :param list keyrings: keyring files referenced via Signed-By
     """
 
     def post_init(self, custom_args: List = []) -> None:
@@ -68,7 +74,6 @@ class RepositoryApt(RepositoryBase):
         self.runtime_apt_get_config_file = TmpT(name='')
         self.custom_args = custom_args
         self.exclude_docs = False
-        self.signing_keys: List = []
 
         # delete custom arguments not used for apt
         for argument in self.custom_args:
@@ -106,7 +111,26 @@ class RepositoryApt(RepositoryBase):
             'netrcparts-dir': self.manager_base + '/auth.conf.d',
             'preferences-dir': self.manager_base + '/preferences.d'
         }
-        self.keyring = '{}/trusted.gpg'.format(self.manager_base)
+        # Each signing key is stored as keyring file in keyrings_dir
+        # and referenced via Signed-By from the repository sources
+        # files. apt is called on the host for the bootstrap phase and
+        # chrooted for the image build phase. Thus the keyring files
+        # must exist at the same location on the host and in the image
+        # root. The build specific prefix prevents concurrent builds
+        # from using each others keyring files on the host
+        self.keyrings_dir = '/etc/apt/keyrings'
+        self.keyring_prefix = 'kiwi-{0}-'.format(
+            hashlib.sha256(
+                os.path.realpath(self.root_dir).encode()
+            ).hexdigest()[:8]
+        )
+        self.keyrings: List[str] = []
+
+        # former kiwi versions created a global keyring in the
+        # shared location, which would still be trusted by apt
+        legacy_keyring = '{}/trusted.gpg'.format(self.manager_base)
+        if os.path.exists(legacy_keyring):
+            os.unlink(legacy_keyring)
 
         self.runtime_apt_get_config_file = Temporary(
             path=self.root_dir, prefix='kiwi_apt.config'
@@ -222,6 +246,10 @@ class RepositoryApt(RepositoryBase):
                 self.distribution_path = uri
                 repo_details += 'Suites: ' + dist + os.linesep
                 repo_details += 'Components: ' + components + os.linesep
+            if self.keyrings:
+                repo_details += 'Signed-By: {0}{1}'.format(
+                    ' '.join(self.keyrings), os.linesep
+                )
             if repo_gpgcheck is False:
                 repo_details += 'trusted: yes' + os.linesep
                 repo_details += 'check-valid-until: no' + os.linesep
@@ -264,7 +292,10 @@ class RepositoryApt(RepositoryBase):
 
     def import_trusted_keys(self, signing_keys: List) -> None:
         """
-        Creates a new keyring including provided keys
+        Stores each provided key as keyring file in /etc/apt/keyrings
+        on the host and in the image root. The keyring files are
+        referenced via Signed-By from the repository sources files
+        added afterwards
 
         :param list signing_keys:
             list of the key files to import. A key can be a local
@@ -274,35 +305,51 @@ class RepositoryApt(RepositoryBase):
 
         :raises KiwiUriOpenError: if the download of a remote key fails
         """
-        keybox = '{}/trusted-keybox.gpg'.format(self.manager_base)
-        gpg_args = [
-            'gpg', '--no-options', '--no-default-keyring',
-            '--no-auto-check-trustdb', '--trust-model', 'always',
-            '--keyring', keybox
-        ]
-        if os.path.exists(self.keyring):
-            os.unlink(self.keyring)
-        if os.path.exists(keybox):
-            os.unlink(keybox)
+        self.delete_trusted_keys()
         with Temporary(prefix='kiwi_apt_keys.').new_dir() as key_dir:
+            # use a temporary gpg home to not touch the gpg setup
+            # of the user calling kiwi
+            gpg_home = os.sep.join([key_dir, 'gnupg'])
+            os.mkdir(gpg_home, 0o700)
             for index, key in enumerate(signing_keys):
                 if urlparse(key).scheme in ('http', 'https', 'ftp'):
                     key = self._download_key(
                         key, os.sep.join([key_dir, f'key.{index}'])
                     )
+                keyring_name = f'{self.keyring_prefix}{index}.gpg'
+                keyring_file = os.sep.join([key_dir, keyring_name])
+                gpg_args = [
+                    'gpg', '--homedir', gpg_home, '--no-options',
+                    '--no-default-keyring', '--no-auto-check-trustdb',
+                    '--trust-model', 'always', '--keyring',
+                    os.sep.join([key_dir, f'keybox.{index}.gpg'])
+                ]
+                # import and export the key to store it as binary
+                # keyring independent of the key file format
                 Command.run(
                     gpg_args + ['--import', '--ignore-time-conflict', key]
                 )
-        if os.path.exists(keybox):
-            Command.run(
-                gpg_args + ['--export', '--yes', '--output', self.keyring]
-            )
-            os.unlink(keybox)
-            log.info('Custom keyring for APT created: {}'.format(self.keyring))
-            log.warning(
-                'The keyring is only available at build time. '
-                'It will not be part of the resulting image'
-            )
+                Command.run(
+                    gpg_args + ['--export', '--yes', '--output', keyring_file]
+                )
+                for keyrings_dir in self._get_keyrings_dirs():
+                    Path.create(keyrings_dir)
+                    target = os.sep.join([keyrings_dir, keyring_name])
+                    shutil.copy(keyring_file, target)
+                    # apt verifies signatures as _apt user
+                    os.chmod(target, 0o644)
+                keyring = os.sep.join([self.keyrings_dir, keyring_name])
+                self.keyrings.append(keyring)
+                log.info(f'Keyring for APT created: {keyring}')
+
+    def delete_trusted_keys(self) -> None:
+        """
+        Delete the keyring files created by import_trusted_keys
+        on the host and in the image root
+        """
+        for keyrings_dir in self._get_keyrings_dirs():
+            self._delete_keyrings(keyrings_dir)
+        self.keyrings = []
 
     @staticmethod
     def _download_key(key_url: str, target: str) -> str:
@@ -413,9 +460,25 @@ class RepositoryApt(RepositoryBase):
         with open(self.runtime_apt_get_config_file.name, 'w') as config:
             config.write(apt_conf_data)
 
+    def _get_keyrings_dirs(self) -> List[str]:
+        return [
+            self.keyrings_dir,
+            os.path.normpath(os.sep.join([self.root_dir, self.keyrings_dir]))
+        ]
+
+    def _delete_keyrings(self, keyrings_dir: str) -> None:
+        for keyring in glob.glob(
+            os.sep.join([keyrings_dir, f'{self.keyring_prefix}*.gpg'])
+        ):
+            os.unlink(keyring)
+
     def cleanup(self) -> None:
         """
-        Delete intermediate apt config file
+        Delete intermediate apt config file and the keyring files
+        on the host. The keyring files in the image root are still
+        referenced by the repository sources files and are deleted
+        via delete_trusted_keys at the end of the build
         """
         if os.path.isfile(self.runtime_apt_get_config_file.name):
             os.unlink(self.runtime_apt_get_config_file.name)
+        self._delete_keyrings(self.keyrings_dir)
