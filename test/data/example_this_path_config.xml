@@ -14,7 +14,10 @@
         <type image="oem" filesystem="ext3" firmware="efi"/>
     </preferences>
     <repository>
-        <source path="this://my_repo"/>
+        <source path="this://my_repo">
+            <signing key="this://keys/my_repo.key"/>
+            <signing key="file:///usr/share/keys/my_repo.key"/>
+        </source>
     </repository>
     <packages type="bootstrap">
         <package name="filesystem"/>

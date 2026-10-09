@@ -18,7 +18,7 @@
     </preferences>
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso">
-            <signing key="file:key_a"/>
+            <signing key="this://key_a"/>
         </source>
     </repository>
     <packages type="image">

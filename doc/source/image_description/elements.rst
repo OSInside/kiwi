@@ -1948,6 +1948,22 @@ following example:
      </source>
    </repository>
 
+The `key` attribute is a URI which can point to a remote location
+via `http://`, `https://` or `ftp://`, or to a local file. According
+to RFC 8089, a local file must be specified with an absolute path,
+either as `file:/path/to/key` or as `file:///path/to/key`. Relative
+paths like `file:path/to/key` or `file://path/to/key` are not
+supported. To use a key file stored in the image description
+directory, use the `this://` URI type:
+
+.. code:: xml
+
+   <repository alias="kiwi">
+     <source path="{exc_kiwi_repo}">
+       <signing key="this://keys/sign_key_a"/>
+     </source>
+   </repository>
+
 All signing keys from all repositories will be collected and
 incorporated into the keyring as used by the selected package
 manager.

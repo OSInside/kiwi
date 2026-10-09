@@ -18,7 +18,8 @@ from kiwi.exceptions import (
     KiwiTypeNotFound,
     KiwiDistributionNameError,
     KiwiProfileNotFound,
-    KiwiFileAccessError
+    KiwiFileAccessError,
+    KiwiUriStyleUnknown
 )
 
 
@@ -1336,19 +1337,54 @@ class TestXMLState:
     @patch('kiwi.system.uri.os.path.abspath')
     def test_get_repositories_signing_keys(self, mock_root_path):
         mock_root_path.side_effect = lambda x: f'(mock_abspath){x}'
+        # os.path.abspath is mocked, realpath can't be used here
+        description_dir = os.path.normpath(
+            os.sep.join([os.getcwd(), '../data'])
+        )
         assert self.state.get_repositories_signing_keys() == [
-            '(mock_abspath)key_a',
+            f'(mock_abspath){description_dir}/key_a',
             '(mock_abspath)/usr/share/distribution-gpg-keys/'
             'fedora/RPM-GPG-KEY-fedora-15.3-primary',
-            '(mock_abspath)key_b'
+            f'(mock_abspath){description_dir}/key_b'
         ]
+
+    def test_get_repositories_signing_keys_absolute_file_uri(self):
+        signing = self.state.get_repository_sections()[0] \
+            .get_source().get_signing()
+        for key_url in [
+            'file:/path/to/key', 'file:///path/to/key',
+            'file://localhost/path/to/key'
+        ]:
+            signing[0].set_key(key_url)
+            assert self.state.get_repositories_signing_keys()[0] == \
+                '/path/to/key'
+
+    def test_get_repositories_signing_keys_invalid_file_uri(self):
+        signing = self.state.get_repository_sections()[0] \
+            .get_source().get_signing()
+        for key_url in ['file:relative/key', 'file://relative/key']:
+            signing[0].set_key(key_url)
+            with raises(KiwiUriStyleUnknown):
+                self.state.get_repositories_signing_keys()
 
     def test_this_path_resolver(self):
         description = XMLDescription('../data/example_this_path_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data)
-        assert state.xml_data.get_repository()[0].get_source().get_path() \
-            == 'dir://{0}/my_repo'.format(os.path.realpath('../data'))
+        description_dir = os.path.realpath('../data')
+        repo_source = state.xml_data.get_repository()[0].get_source()
+        assert repo_source.get_path() == f'dir://{description_dir}/my_repo'
+        signing_keys = [
+            signing.get_key() for signing in repo_source.get_signing()
+        ]
+        assert signing_keys == [
+            f'file://{description_dir}/keys/my_repo.key',
+            'file:///usr/share/keys/my_repo.key'
+        ]
+        assert state.get_repositories_signing_keys() == [
+            f'{description_dir}/keys/my_repo.key',
+            '/usr/share/keys/my_repo.key'
+        ]
 
     def test_get_collection_modules(self):
         assert self.state.get_collection_modules() == {

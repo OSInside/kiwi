@@ -113,7 +113,7 @@
   </define>
   <define name="simple-uri-type">
     <data type="token">
-      <param name="pattern">(file:|https:|http:|ftp:).*</param>
+      <param name="pattern">(file:|this:|https:|http:|ftp:).*</param>
     </data>
   </define>
   <define name="oci_format_type">
@@ -2017,7 +2017,9 @@ needs to be separated by a comma</a:documentation>
   <div>
     <define name="k.signing.key.attribute">
       <attribute name="key">
-        <a:documentation>Specify path to a signing key for this repo</a:documentation>
+        <a:documentation>Specify URI of a signing key for this repo. A local key
+file is specified as absolute file:/ or file:/// URI or as
+this:// URI relative to the image description directory</a:documentation>
         <ref name="simple-uri-type"/>
       </attribute>
     </define>

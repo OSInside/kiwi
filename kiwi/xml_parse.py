@@ -16,7 +16,7 @@
 #   kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Command line:
-#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-Btua-i95-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
+#   /home/ms/.cache/pypoetry/virtualenvs/kiwi-XEM4Fy69-py3.11/bin/generateDS.py -f --external-encoding="utf-8" --no-dates --no-warnings -o "kiwi/xml_parse.py" kiwi/schema/kiwi_for_generateDS.xsd
 #
 # Current working directory (os.getcwd()):
 #   kiwi
@@ -3208,7 +3208,7 @@ class signing(GeneratedsSuper):
             if not self.gds_validate_simple_patterns(
                     self.validate_simple_uri_type_patterns_, value):
                 warnings_.warn('Value "%s" does not match xsd pattern restrictions: %s' % (value.encode('utf-8'), self.validate_simple_uri_type_patterns_, ))
-    validate_simple_uri_type_patterns_ = [['^(file:|https:|http:|ftp:).*$']]
+    validate_simple_uri_type_patterns_ = [['^(file:|this:|https:|http:|ftp:).*$']]
     def hasContent_(self):
         if (
 
@@ -3894,10 +3894,10 @@ class type_(GeneratedsSuper):
     def set_overlayroot_write_partition(self, overlayroot_write_partition): self.overlayroot_write_partition = overlayroot_write_partition
     def get_overlayroot_readonly_filesystem(self): return self.overlayroot_readonly_filesystem
     def set_overlayroot_readonly_filesystem(self, overlayroot_readonly_filesystem): self.overlayroot_readonly_filesystem = overlayroot_readonly_filesystem
-    def get_overlayroot_readonly_createoptions(self): return self.overlayroot_readonly_createoptions
-    def set_overlayroot_readonly_createoptions(self, overlayroot_readonly_createoptions): self.overlayroot_readonly_createoptions = overlayroot_readonly_createoptions
     def get_overlayroot_readonly_partsize(self): return self.overlayroot_readonly_partsize
     def set_overlayroot_readonly_partsize(self, overlayroot_readonly_partsize): self.overlayroot_readonly_partsize = overlayroot_readonly_partsize
+    def get_overlayroot_readonly_createoptions(self): return self.overlayroot_readonly_createoptions
+    def set_overlayroot_readonly_createoptions(self, overlayroot_readonly_createoptions): self.overlayroot_readonly_createoptions = overlayroot_readonly_createoptions
     def get_verity_blocks(self): return self.verity_blocks
     def set_verity_blocks(self, verity_blocks): self.verity_blocks = verity_blocks
     def get_embed_verity_metadata(self): return self.embed_verity_metadata
@@ -4232,12 +4232,12 @@ class type_(GeneratedsSuper):
         if self.overlayroot_readonly_filesystem is not None and 'overlayroot_readonly_filesystem' not in already_processed:
             already_processed.add('overlayroot_readonly_filesystem')
             outfile.write(' overlayroot_readonly_filesystem=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.overlayroot_readonly_filesystem), input_name='overlayroot_readonly_filesystem')), ))
-        if self.overlayroot_readonly_createoptions is not None and 'overlayroot_readonly_createoptions' not in already_processed:
-            already_processed.add('overlayroot_readonly_createoptions')
-            outfile.write(' overlayroot_readonly_createoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.overlayroot_readonly_createoptions), input_name='overlayroot_readonly_createoptions')), ))
         if self.overlayroot_readonly_partsize is not None and 'overlayroot_readonly_partsize' not in already_processed:
             already_processed.add('overlayroot_readonly_partsize')
             outfile.write(' overlayroot_readonly_partsize="%s"' % self.gds_format_integer(self.overlayroot_readonly_partsize, input_name='overlayroot_readonly_partsize'))
+        if self.overlayroot_readonly_createoptions is not None and 'overlayroot_readonly_createoptions' not in already_processed:
+            already_processed.add('overlayroot_readonly_createoptions')
+            outfile.write(' overlayroot_readonly_createoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.overlayroot_readonly_createoptions), input_name='overlayroot_readonly_createoptions')), ))
         if self.verity_blocks is not None and 'verity_blocks' not in already_processed:
             already_processed.add('verity_blocks')
             outfile.write(' verity_blocks=%s' % (quote_attrib(self.verity_blocks), ))
@@ -4763,10 +4763,6 @@ class type_(GeneratedsSuper):
             already_processed.add('overlayroot_readonly_filesystem')
             self.overlayroot_readonly_filesystem = value
             self.overlayroot_readonly_filesystem = ' '.join(self.overlayroot_readonly_filesystem.split())
-        value = find_attr_value_('overlayroot_readonly_createoptions', node)
-        if value is not None and 'overlayroot_readonly_createoptions' not in already_processed:
-            already_processed.add('overlayroot_readonly_createoptions')
-            self.overlayroot_readonly_createoptions = value
         value = find_attr_value_('overlayroot_readonly_partsize', node)
         if value is not None and 'overlayroot_readonly_partsize' not in already_processed:
             already_processed.add('overlayroot_readonly_partsize')
@@ -4776,6 +4772,10 @@ class type_(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.overlayroot_readonly_partsize < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('overlayroot_readonly_createoptions', node)
+        if value is not None and 'overlayroot_readonly_createoptions' not in already_processed:
+            already_processed.add('overlayroot_readonly_createoptions')
+            self.overlayroot_readonly_createoptions = value
         value = find_attr_value_('verity_blocks', node)
         if value is not None and 'verity_blocks' not in already_processed:
             already_processed.add('verity_blocks')
