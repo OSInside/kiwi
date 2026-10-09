@@ -277,62 +277,117 @@ class TestRepositoryApt:
                 '/shared-dir/apt-get/sources.list.d/foo.sources', 'w'
             )
 
+    @patch('kiwi.repository.apt.glob.glob')
+    @patch('kiwi.repository.apt.os.chmod')
+    @patch('kiwi.repository.apt.shutil.copy')
+    @patch('kiwi.repository.apt.Path.create')
     @patch('kiwi.repository.apt.Temporary.new_dir')
     @patch('kiwi.repository.apt.os.unlink')
-    @patch('kiwi.repository.apt.os.path.exists')
-    @patch('kiwi.repository.apt.Command.run')
     def test_import_trusted_keys(
-        self, mock_run, mock_exists, mock_unlink, mock_Temporary_new_dir
+        self, mock_unlink, mock_Temporary_new_dir, mock_Path_create,
+        mock_copy, mock_chmod, mock_glob
     ):
-        mock_exists.return_value = True
-        self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
-        assert mock_run.call_args_list == [
-            call([
-                'gpg', '--no-options', '--no-default-keyring',
-                '--no-auto-check-trustdb', '--trust-model', 'always',
-                '--keyring', '/shared-dir/apt-get/trusted-keybox.gpg',
-                '--import', '--ignore-time-conflict', 'key-file-a.asc'
-            ]), call([
-                'gpg', '--no-options', '--no-default-keyring',
-                '--no-auto-check-trustdb', '--trust-model', 'always',
-                '--keyring', '/shared-dir/apt-get/trusted-keybox.gpg',
-                '--import', '--ignore-time-conflict', 'key-file-b.asc'
-            ]), call([
-                'gpg', '--no-options', '--no-default-keyring',
-                '--no-auto-check-trustdb', '--trust-model', 'always',
-                '--keyring', '/shared-dir/apt-get/trusted-keybox.gpg',
-                '--export', '--yes', '--output',
-                '/shared-dir/apt-get/trusted.gpg'
-            ])
+        mock_Temporary_new_dir.return_value.__enter__.return_value = \
+            '/tmp/keys'
+        mock_glob.side_effect = lambda pattern: [
+            pattern.replace('*', '0.gpg')
+        ]
+        self.repo.keyring_prefix = 'kiwi-1234-'
+        self.repo.import_trusted_keys(
+            ['../data/signing_key.asc', '../data/signing_key.gpg']
+        )
+
+        # keyrings of a former import are deleted
+        assert mock_unlink.call_args_list == [
+            call('/etc/apt/keyrings/kiwi-1234-0.gpg'),
+            call('../data/etc/apt/keyrings/kiwi-1234-0.gpg')
+        ]
+        assert mock_Path_create.call_args_list == [
+            call('/etc/apt/keyrings'),
+            call('../data/etc/apt/keyrings'),
+            call('/etc/apt/keyrings'),
+            call('../data/etc/apt/keyrings')
+        ]
+        # keys are used as they are, the name extension
+        # reflects the key format as apt expects it
+        assert mock_copy.call_args_list == [
+            call(
+                '../data/signing_key.asc',
+                '/etc/apt/keyrings/kiwi-1234-0.asc'
+            ),
+            call(
+                '../data/signing_key.asc',
+                '../data/etc/apt/keyrings/kiwi-1234-0.asc'
+            ),
+            call(
+                '../data/signing_key.gpg',
+                '/etc/apt/keyrings/kiwi-1234-1.gpg'
+            ),
+            call(
+                '../data/signing_key.gpg',
+                '../data/etc/apt/keyrings/kiwi-1234-1.gpg'
+            )
+        ]
+        assert mock_chmod.call_args_list == [
+            call('/etc/apt/keyrings/kiwi-1234-0.asc', 0o644),
+            call('../data/etc/apt/keyrings/kiwi-1234-0.asc', 0o644),
+            call('/etc/apt/keyrings/kiwi-1234-1.gpg', 0o644),
+            call('../data/etc/apt/keyrings/kiwi-1234-1.gpg', 0o644)
+        ]
+        assert self.repo.keyrings == [
+            '/etc/apt/keyrings/kiwi-1234-0.asc',
+            '/etc/apt/keyrings/kiwi-1234-1.gpg'
         ]
 
+        # sources files reference the keyrings via Signed-By
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.add_repo(
+                'foo', 'http://example.com/debian', 'deb', None,
+                'trixie', 'main'
+            )
+            file_handle.write.assert_called_once_with(
+                'Types: deb\n'
+                'URIs: http://example.com/debian\n'
+                'Suites: trixie\n'
+                'Components: main\n'
+                'Signed-By: /etc/apt/keyrings/kiwi-1234-0.asc '
+                '/etc/apt/keyrings/kiwi-1234-1.gpg\n'
+            )
+
+    @patch('kiwi.repository.apt.glob.glob')
+    @patch('kiwi.repository.apt.os.chmod')
+    @patch('kiwi.repository.apt.shutil.copy')
+    @patch('kiwi.repository.apt.Path.create')
     @patch('kiwi.repository.apt.urlopen')
     @patch('kiwi.repository.apt.Temporary.new_dir')
-    @patch('kiwi.repository.apt.os.unlink')
-    @patch('kiwi.repository.apt.os.path.exists')
-    @patch('kiwi.repository.apt.Command.run')
     def test_import_trusted_keys_remote(
-        self, mock_run, mock_exists, mock_unlink, mock_Temporary_new_dir,
-        mock_urlopen
+        self, mock_Temporary_new_dir, mock_urlopen, mock_Path_create,
+        mock_copy, mock_chmod, mock_glob
     ):
-        mock_exists.return_value = False
+        mock_glob.return_value = []
         mock_Temporary_new_dir.return_value.__enter__.return_value = \
             '/tmp/keys'
         mock_urlopen.return_value.__enter__.return_value.read.return_value = \
             b'key-data'
+        self.repo.keyring_prefix = 'kiwi-1234-'
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
             file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = \
+                b'-----BEGIN PGP PUBLIC KEY BLOCK-----'
             self.repo.import_trusted_keys(
                 [
-                    'key-file-a.asc',
                     'https://user:pass%40word@example.com/key.asc',
                     'ftp://user:secret@example.com/key.asc'
                 ]
             )
             assert mock_open.call_args_list == [
+                call('/tmp/keys/key.0', 'wb'),
+                call('/tmp/keys/key.0', 'rb'),
                 call('/tmp/keys/key.1', 'wb'),
-                call('/tmp/keys/key.2', 'wb')
+                call('/tmp/keys/key.1', 'rb')
             ]
             assert file_handle.write.call_args_list == [
                 call(b'key-data'), call(b'key-data')
@@ -345,26 +400,19 @@ class TestRepositoryApt:
         assert ftp_request.full_url == \
             'ftp://user:secret@example.com/key.asc'
         assert ftp_request.get_header('Authorization') is None
-        gpg_args = [
-            'gpg', '--no-options', '--no-default-keyring',
-            '--no-auto-check-trustdb', '--trust-model', 'always',
-            '--keyring', '/shared-dir/apt-get/trusted-keybox.gpg',
-            '--import', '--ignore-time-conflict'
-        ]
-        assert mock_run.call_args_list == [
-            call(gpg_args + ['key-file-a.asc']),
-            call(gpg_args + ['/tmp/keys/key.1']),
-            call(gpg_args + ['/tmp/keys/key.2'])
+        assert mock_copy.call_args_list[::2] == [
+            call('/tmp/keys/key.0', '/etc/apt/keyrings/kiwi-1234-0.asc'),
+            call('/tmp/keys/key.1', '/etc/apt/keyrings/kiwi-1234-1.asc')
         ]
 
+    @patch('kiwi.repository.apt.glob.glob')
+    @patch('kiwi.repository.apt.shutil.copy')
     @patch('kiwi.repository.apt.urlopen')
     @patch('kiwi.repository.apt.Temporary.new_dir')
-    @patch('kiwi.repository.apt.os.path.exists')
-    @patch('kiwi.repository.apt.Command.run')
     def test_import_trusted_keys_remote_download_failed(
-        self, mock_run, mock_exists, mock_Temporary_new_dir, mock_urlopen
+        self, mock_Temporary_new_dir, mock_urlopen, mock_copy, mock_glob
     ):
-        mock_exists.return_value = False
+        mock_glob.return_value = []
         mock_Temporary_new_dir.return_value.__enter__.return_value = \
             '/tmp/keys'
         mock_urlopen.side_effect = Exception('404')
@@ -373,7 +421,43 @@ class TestRepositoryApt:
                 ['https://user:secret@example.com/key.asc']
             )
         assert 'secret' not in str(issue.value)
-        assert not mock_run.called
+        assert not mock_copy.called
+
+    @patch('kiwi.repository.apt.glob.glob')
+    @patch('kiwi.repository.apt.os.unlink')
+    def test_delete_trusted_keys(self, mock_unlink, mock_glob):
+        mock_glob.side_effect = lambda pattern: [
+            pattern.replace('*', '0.gpg')
+        ]
+        self.repo.keyring_prefix = 'kiwi-1234-'
+        self.repo.keyrings = ['/etc/apt/keyrings/kiwi-1234-0.gpg']
+        self.repo.delete_trusted_keys()
+        assert mock_glob.call_args_list == [
+            call('/etc/apt/keyrings/kiwi-1234-*'),
+            call('../data/etc/apt/keyrings/kiwi-1234-*')
+        ]
+        assert mock_unlink.call_args_list == [
+            call('/etc/apt/keyrings/kiwi-1234-0.gpg'),
+            call('../data/etc/apt/keyrings/kiwi-1234-0.gpg')
+        ]
+        assert self.repo.keyrings == []
+
+    @patch('kiwi.repository.apt.Temporary.unmanaged_file')
+    @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
+    @patch('kiwi.repository.apt.Path.create')
+    @patch('kiwi.repository.apt.os.path.exists')
+    @patch('kiwi.repository.apt.os.unlink')
+    def test_post_init_deletes_legacy_keyring(
+        self, mock_unlink, mock_exists, mock_Path_create, mock_template,
+        mock_temp
+    ):
+        mock_exists.return_value = True
+        root_bind = mock.Mock()
+        root_bind.root_dir = '../data'
+        root_bind.shared_location = '/shared-dir'
+        with patch('builtins.open', create=True):
+            RepositoryApt(root_bind)
+        mock_unlink.assert_called_once_with('/shared-dir/apt-get/trusted.gpg')
 
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):
@@ -420,8 +504,16 @@ class TestRepositoryApt:
             call('/shared-dir/apt-get/srcpkgcache.bin')
         ]
 
+    @patch('kiwi.repository.apt.glob.glob')
     @patch('os.path.isfile')
     @patch('os.unlink')
-    def test_cleanup(self, mock_os_unlink, mock_os_path_isfile):
+    def test_cleanup(self, mock_os_unlink, mock_os_path_isfile, mock_glob):
+        mock_glob.return_value = ['/etc/apt/keyrings/kiwi-1234-0.gpg']
+        self.repo.keyring_prefix = 'kiwi-1234-'
         self.repo.cleanup()
-        mock_os_unlink.assert_called_once_with('tmpfile')
+        # keyrings in the image root are kept, see delete_trusted_keys
+        mock_glob.assert_called_once_with('/etc/apt/keyrings/kiwi-1234-*')
+        assert mock_os_unlink.call_args_list == [
+            call('tmpfile'),
+            call('/etc/apt/keyrings/kiwi-1234-0.gpg')
+        ]

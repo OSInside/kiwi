@@ -529,6 +529,13 @@ class PackageManagerApt(PackageManagerBase):
             )
         )
 
+    def clean_leftovers(self) -> None:
+        """
+        Cleans package manager related data not needed in the
+        resulting image such as the repository keyring files
+        """
+        self.repository.delete_trusted_keys()
+
     def _package_requests(self) -> List:
         items = self.package_requests[:]
         self.cleanup_requests()

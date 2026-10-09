@@ -26,8 +26,6 @@ class TestPackageManagerApt:
     def setup(self):
         repository = Mock()
         repository.root_dir = 'root-dir'
-        repository.signing_keys = ['key-file.asc']
-        repository.keyring = 'trusted.gpg'
         repository.unauthenticated = 'false'
         repository.components = ['main', 'restricted']
         self.env = {'key': 'val'}
@@ -387,6 +385,10 @@ class TestPackageManagerApt:
 
     def test_match_package_installed(self):
         assert self.manager.match_package_installed('foo', 'Unpacking foo')
+
+    def test_clean_leftovers(self):
+        self.manager.clean_leftovers()
+        self.manager.repository.delete_trusted_keys.assert_called_once_with()
 
     def test_match_package_deleted(self):
         assert self.manager.match_package_deleted('foo', 'Removing foo')
