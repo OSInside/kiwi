@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from urllib.parse import urlparse
 from typing import (
     List, Optional, Any, Dict, NamedTuple, Callable, Union
 )
@@ -38,7 +39,8 @@ from kiwi.exceptions import (
     KiwiProfileNotFound,
     KiwiTypeNotFound,
     KiwiDistributionNameError,
-    KiwiFileAccessError
+    KiwiFileAccessError,
+    KiwiUriStyleUnknown
 )
 
 log = logging.getLogger('kiwi')
@@ -2386,6 +2388,9 @@ class XMLState:
     def get_repositories_signing_keys(self) -> List[str]:
         """
         Get list of signing keys specified on the repositories
+
+        :raises KiwiUriStyleUnknown: if a local key is not specified
+            as absolute file: URI
         """
         key_file_list: List[str] = []
         release_version = self.get_release_version()
@@ -2395,7 +2400,19 @@ class XMLState:
         ]
         for repository in self.get_repository_sections() or []:
             for signing in repository.get_source().get_signing() or []:
-                normalized_key_url = Uri(signing.get_key()).translate()
+                key_url = signing.get_key()
+                uri = urlparse(key_url)
+                is_absolute_path = uri.netloc in ('', 'localhost') and \
+                    uri.path.startswith(os.sep)
+                if uri.scheme == 'file' and not is_absolute_path:
+                    # RFC8089: file URIs only support absolute paths
+                    raise KiwiUriStyleUnknown(
+                        f'Invalid signing key URI {key_url}: file URIs '
+                        'must specify an absolute path like file:/path '
+                        'or file:///path. Use this://path for a key file '
+                        'relative to the image description directory'
+                    )
+                normalized_key_url = Uri(key_url).translate()
                 if release_version:
                     for release_var in release_vars:
                         if release_var in normalized_key_url:
@@ -2560,9 +2577,9 @@ class XMLState:
 
     def resolve_this_path(self) -> None:
         """
-        Resolve any this:// repo source path into the path
-        representing the target inside of the image description
-        directory
+        Resolve any this:// repo source path and repo signing key
+        into the path representing the target inside of the image
+        description directory
         """
         for repository in self.get_repository_sections() or []:
             repo_source = repository.get_source()
@@ -2578,6 +2595,19 @@ class XMLState:
                         )
                     )
                 )
+            for signing in repo_source.get_signing() or []:
+                key_path = signing.get_key()
+                if key_path.startswith('this://'):
+                    key_path = key_path.replace('this://', '')
+                    signing.set_key(
+                        'file://{0}'.format(
+                            os.path.realpath(
+                                os.path.join(
+                                    self.xml_data.description_dir, key_path
+                                )
+                            )
+                        )
+                    )
 
     def copy_displayname(self, target_state: Any) -> None:
         """
