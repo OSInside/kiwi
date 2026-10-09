@@ -92,7 +92,6 @@
         <package name="udev"/>
         <package name="filesystem"/>
         <package name="glibc-locale"/>
-        <package name="openSUSE-release"/>
     </packages>
     <packages type="delete" profiles="Kernel,System">
         <package name="sysconfig-netconfig"/>
