@@ -65,6 +65,30 @@ class PassThroughGroup(TyperGroup):
         return super().parse_args(ctx, args)
 
 
+class ManualPageGroup(TyperGroup):
+    """
+    **Command group for commands providing a manual page**
+
+    Used by the system, result and image services. Accepts the
+    positional argument 'help' after a command, e.g.
+    "kiwi-ng system build help", which shows the manual page of
+    that command. typer cannot express a trailing positional
+    argument which replaces all options of a command, in
+    particular not if the command has required options. Thus
+    the request is recognized before the command line of the
+    command gets parsed and the command itself is not invoked.
+    The task of the command shows the manual page instead
+    """
+    def parse_args(self, ctx: Any, args: List[str]) -> List[str]:
+        # ctx is a click Context, click is vendored by newer typer
+        # versions such that no common import location exists
+        if len(args) == 2 and args[1] == 'help' \
+                and self.get_command(ctx, args[0]):
+            Cli.request_manual_page(ctx.info_name, args[0])
+            raise typer.Exit(0)
+        return super().parse_args(ctx, args)
+
+
 class Cli:
     """
     **Implements the main command line interface**
@@ -83,18 +107,21 @@ class Cli:
 
     # system
     system = typer.Typer(
+        cls=ManualPageGroup,
         help='system command for building images. The system space '
         'can also be extended by custom command plugins.'
     )
 
     # result
     result = typer.Typer(
+        cls=ManualPageGroup,
         help='result command for listing image result information '
         'and create result bundles.'
     )
 
     # image
     image = typer.Typer(
+        cls=ManualPageGroup,
         help='image command for retrieving image information '
         'prior building.'
     )
@@ -321,20 +348,26 @@ class Cli:
         Cli.global_args['result'] = False
         Cli.global_args['system'] = False
 
-    # The following allows to show the kiwi main man page by
-    # calling "kiwi-ng help". However I was not able to code typer
-    # in a way that the other command specific man pages can be
-    # called as e.g. "kiwi image info help". That's because
-    # in "kiwi-ng [OPTIONS] COMMAND [ARGS]..." the COMMAND: help
-    # can be added. But in "kiwi-ng image info [OPTIONS]", help
-    # would be an OPTION and not a COMMAND. I could not come
-    # up with a solution to this issue. As such disable calling
-    # man pages from calling kiwi completely for now.
-    # @staticmethod
-    # @cli.command(help='[kiwi::COMMAND:SUBCOMMAND]')
-    # def help(command: Annotated[str, typer.Argument()] = 'kiwi'):
-    #     manual = Help()
-    #     manual.show(command)
+    @staticmethod
+    def request_manual_page(service: str, command: str) -> None:
+        """
+        Select the given command for showing its manual page
+
+        Called for e.g. "kiwi-ng system build help". The command
+        is selected like on a regular call but only carries the
+        help flag. The task of the command checks for this flag
+        and shows the manual page instead of running the command
+
+        :param str service: service name, e.g. system
+        :param str command: command name, e.g. build
+        """
+        Cli.subcommand_args[command] = {
+            'help': True
+        }
+        Cli.global_args[command] = True
+        Cli.global_args['command'] = command
+        Cli.global_args[service] = True
+        Cli.cli_ok = True
 
     @staticmethod
     @image.command()
@@ -1007,7 +1040,8 @@ class Cli:
         Cli.subcommand_args['update'] = {
             '--root': Cli._as_path_name(root),
             '--add-package': add_package,
-            '--delete-package': delete_package
+            '--delete-package': delete_package,
+            'help': False
         }
         Cli.global_args['update'] = True
         Cli.global_args['command'] = 'update'
@@ -1042,7 +1076,8 @@ class Cli:
         Cli.subcommand_args['create'] = {
             '--root': Cli._as_path_name(root),
             '--target-dir': Cli._as_path_name(target_dir),
-            '--signing-key': Cli._as_path_names(signing_key)
+            '--signing-key': Cli._as_path_names(signing_key),
+            'help': False
         }
         Cli.global_args['create'] = True
         Cli.global_args['command'] = 'create'
