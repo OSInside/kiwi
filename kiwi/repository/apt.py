@@ -17,7 +17,13 @@
 #
 import os
 import logging
-from urllib.parse import urlparse
+from base64 import b64encode
+from urllib.parse import (
+    urlparse, unquote
+)
+from urllib.request import (
+    Request, urlopen
+)
 from typing import List, Dict
 
 # project
@@ -30,6 +36,9 @@ from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.utils.toenv import ToEnv
+from kiwi.system.uri import Uri
+
+from kiwi.exceptions import KiwiUriOpenError
 
 log = logging.getLogger('kiwi')
 
@@ -257,7 +266,13 @@ class RepositoryApt(RepositoryBase):
         """
         Creates a new keyring including provided keys
 
-        :param list signing_keys: list of the key files to import
+        :param list signing_keys:
+            list of the key files to import. A key can be a local
+            file path or a remote http, https or ftp location. gpg
+            can only import local files, thus remote keys are
+            downloaded prior to the import
+
+        :raises KiwiUriOpenError: if the download of a remote key fails
         """
         keybox = '{}/trusted-keybox.gpg'.format(self.manager_base)
         gpg_args = [
@@ -269,8 +284,15 @@ class RepositoryApt(RepositoryBase):
             os.unlink(self.keyring)
         if os.path.exists(keybox):
             os.unlink(keybox)
-        for key in signing_keys:
-            Command.run(gpg_args + ['--import', '--ignore-time-conflict', key])
+        with Temporary(prefix='kiwi_apt_keys.').new_dir() as key_dir:
+            for index, key in enumerate(signing_keys):
+                if urlparse(key).scheme in ('http', 'https', 'ftp'):
+                    key = self._download_key(
+                        key, os.sep.join([key_dir, f'key.{index}'])
+                    )
+                Command.run(
+                    gpg_args + ['--import', '--ignore-time-conflict', key]
+                )
         if os.path.exists(keybox):
             Command.run(
                 gpg_args + ['--export', '--yes', '--output', self.keyring]
@@ -281,6 +303,34 @@ class RepositoryApt(RepositoryBase):
                 'The keyring is only available at build time. '
                 'It will not be part of the resulting image'
             )
+
+    @staticmethod
+    def _download_key(key_url: str, target: str) -> str:
+        log.info(f'Downloading signing key: {Uri.print_sensitive(key_url)}')
+        uri = urlparse(key_url)
+        request = Request(key_url)
+        if uri.username and uri.scheme != 'ftp':
+            # urllib handles credentials as part of the URL for
+            # ftp only, pass them as basic auth header for http(s)
+            netloc = uri.netloc.rpartition('@')[2]
+            request = Request(uri._replace(netloc=netloc).geturl())
+            credentials = b64encode(
+                ':'.join(
+                    [unquote(uri.username), unquote(uri.password or '')]
+                ).encode()
+            ).decode()
+            request.add_header('Authorization', f'Basic {credentials}')
+        try:
+            with urlopen(request) as location:
+                with open(target, 'wb') as key_file:
+                    key_file.write(location.read())
+        except Exception as issue:
+            raise KiwiUriOpenError(
+                'Failed to download signing key {0}: {1}: {2}'.format(
+                    Uri.print_sensitive(key_url), type(issue).__name__, issue
+                )
+            )
+        return target
 
     def delete_repo(self, name: str) -> None:
         """

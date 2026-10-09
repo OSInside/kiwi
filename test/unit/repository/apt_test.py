@@ -1,10 +1,13 @@
 from unittest.mock import (
     patch, call, MagicMock
 )
+from base64 import b64encode
+from pytest import raises
 import io
 import unittest.mock as mock
 
 from kiwi.repository.apt import RepositoryApt
+from kiwi.exceptions import KiwiUriOpenError
 
 
 class TestRepositoryApt:
@@ -274,10 +277,13 @@ class TestRepositoryApt:
                 '/shared-dir/apt-get/sources.list.d/foo.sources', 'w'
             )
 
+    @patch('kiwi.repository.apt.Temporary.new_dir')
     @patch('kiwi.repository.apt.os.unlink')
     @patch('kiwi.repository.apt.os.path.exists')
     @patch('kiwi.repository.apt.Command.run')
-    def test_import_trusted_keys(self, mock_run, mock_exists, mock_unlink):
+    def test_import_trusted_keys(
+        self, mock_run, mock_exists, mock_unlink, mock_Temporary_new_dir
+    ):
         mock_exists.return_value = True
         self.repo.import_trusted_keys(['key-file-a.asc', 'key-file-b.asc'])
         assert mock_run.call_args_list == [
@@ -299,6 +305,75 @@ class TestRepositoryApt:
                 '/shared-dir/apt-get/trusted.gpg'
             ])
         ]
+
+    @patch('kiwi.repository.apt.urlopen')
+    @patch('kiwi.repository.apt.Temporary.new_dir')
+    @patch('kiwi.repository.apt.os.unlink')
+    @patch('kiwi.repository.apt.os.path.exists')
+    @patch('kiwi.repository.apt.Command.run')
+    def test_import_trusted_keys_remote(
+        self, mock_run, mock_exists, mock_unlink, mock_Temporary_new_dir,
+        mock_urlopen
+    ):
+        mock_exists.return_value = False
+        mock_Temporary_new_dir.return_value.__enter__.return_value = \
+            '/tmp/keys'
+        mock_urlopen.return_value.__enter__.return_value.read.return_value = \
+            b'key-data'
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            self.repo.import_trusted_keys(
+                [
+                    'key-file-a.asc',
+                    'https://user:pass%40word@example.com/key.asc',
+                    'ftp://user:secret@example.com/key.asc'
+                ]
+            )
+            assert mock_open.call_args_list == [
+                call('/tmp/keys/key.1', 'wb'),
+                call('/tmp/keys/key.2', 'wb')
+            ]
+            assert file_handle.write.call_args_list == [
+                call(b'key-data'), call(b'key-data')
+            ]
+        http_request = mock_urlopen.call_args_list[0][0][0]
+        assert http_request.full_url == 'https://example.com/key.asc'
+        assert http_request.get_header('Authorization') == \
+            'Basic ' + b64encode(b'user:pass@word').decode()
+        ftp_request = mock_urlopen.call_args_list[1][0][0]
+        assert ftp_request.full_url == \
+            'ftp://user:secret@example.com/key.asc'
+        assert ftp_request.get_header('Authorization') is None
+        gpg_args = [
+            'gpg', '--no-options', '--no-default-keyring',
+            '--no-auto-check-trustdb', '--trust-model', 'always',
+            '--keyring', '/shared-dir/apt-get/trusted-keybox.gpg',
+            '--import', '--ignore-time-conflict'
+        ]
+        assert mock_run.call_args_list == [
+            call(gpg_args + ['key-file-a.asc']),
+            call(gpg_args + ['/tmp/keys/key.1']),
+            call(gpg_args + ['/tmp/keys/key.2'])
+        ]
+
+    @patch('kiwi.repository.apt.urlopen')
+    @patch('kiwi.repository.apt.Temporary.new_dir')
+    @patch('kiwi.repository.apt.os.path.exists')
+    @patch('kiwi.repository.apt.Command.run')
+    def test_import_trusted_keys_remote_download_failed(
+        self, mock_run, mock_exists, mock_Temporary_new_dir, mock_urlopen
+    ):
+        mock_exists.return_value = False
+        mock_Temporary_new_dir.return_value.__enter__.return_value = \
+            '/tmp/keys'
+        mock_urlopen.side_effect = Exception('404')
+        with raises(KiwiUriOpenError) as issue:
+            self.repo.import_trusted_keys(
+                ['https://user:secret@example.com/key.asc']
+            )
+        assert 'secret' not in str(issue.value)
+        assert not mock_run.called
 
     @patch('kiwi.path.Path.wipe')
     def test_delete_repo(self, mock_wipe):
