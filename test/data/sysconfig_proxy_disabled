@@ -1,0 +1,2 @@
+PROXY_ENABLED="no"
+HTTP_PROXY="http://sysconfig-proxy:3128"

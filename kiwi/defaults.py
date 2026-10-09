@@ -104,6 +104,10 @@ EFI_FAT_IMAGE_SIZE = 20
 # optional package manager environment variables
 PACKAGE_MANAGER_ENV_VARS = '/.kiwi.package_manager.env'
 
+# host proxy configuration taken into account for package managers
+HOST_SYSCONFIG_PROXY = '/etc/sysconfig/proxy'
+HOST_DNF_CONFIG = '/etc/dnf/dnf.conf'
+
 # Distribution specific CA store and tooling
 CA_UPDATE_MAP = {
     'suse': {

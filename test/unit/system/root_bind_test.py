@@ -174,6 +174,40 @@ class TestRootBind:
         ]
         self.shasum.digest.assert_called_once_with()
 
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.system.root_bind.Path.create')
+    def test_add_intermediate_config(self, mock_Path_create, mock_command):
+        self.bind_root.config_files = []
+        self.bind_root.cleanup_files = []
+        with patch('builtins.open', create=True) as m_open:
+            assert self.bind_root.add_intermediate_config(
+                '/etc/sysconfig/proxy', 'PROXY_ENABLED="yes"'
+            ) is None
+            assert m_open.call_args_list == [
+                call('root-dir/etc/sysconfig/proxy.kiwi', 'w'),
+                call('root-dir/etc/sysconfig/proxy.sha', 'w')
+            ]
+            m_open.return_value.__enter__.return_value.write.assert_any_call(
+                'PROXY_ENABLED="yes"'
+            )
+        mock_Path_create.assert_called_once_with('root-dir/etc/sysconfig')
+        mock_command.assert_called_once_with(
+            ['ln', '-s', '-f', 'proxy.kiwi', 'root-dir/etc/sysconfig/proxy']
+        )
+        self.runtime_config.get_checksum_handler.assert_called_once_with(
+            source_filename='root-dir/etc/sysconfig/proxy.kiwi'
+        )
+        assert self.bind_root.cleanup_files == ['/etc/sysconfig/proxy.kiwi']
+        assert self.bind_root.config_files == ['/etc/sysconfig/proxy']
+
+    @patch('kiwi.system.root_bind.Path.create')
+    def test_add_intermediate_config_raises_error(self, mock_Path_create):
+        mock_Path_create.side_effect = Exception
+        with raises(KiwiSetupIntermediateConfigError):
+            self.bind_root.add_intermediate_config(
+                '/etc/sysconfig/proxy', 'PROXY_ENABLED="yes"'
+            )
+
     @patch('textwrap.dedent')
     @patch('kiwi.system.root_bind.Checksum')
     @patch('kiwi.system.root_bind.MountManager.is_mounted')

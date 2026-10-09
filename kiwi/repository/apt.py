@@ -37,6 +37,7 @@ from kiwi.path import Path
 from kiwi.command import Command
 from kiwi.utils.toenv import ToEnv
 from kiwi.system.uri import Uri
+from kiwi.utils.proxy import HostProxy
 
 from kiwi.exceptions import KiwiUriOpenError
 
@@ -395,7 +396,8 @@ class RepositoryApt(RepositoryBase):
             Path.create(apt_get_dir)
         ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return dict(
-            os.environ, LANG='C', DEBIAN_FRONTEND='noninteractive'
+            os.environ, **HostProxy().get_env(),
+            LANG='C', DEBIAN_FRONTEND='noninteractive'
         )
 
     def _write_runtime_config(self, system_default: bool = False) -> None:
@@ -409,6 +411,12 @@ class RepositoryApt(RepositoryBase):
         else:
             template = self.apt_conf.get_image_template(self.exclude_docs)
             apt_conf_data = template.substitute(parameters)
+
+        # The runtime config redirects Dir::Etc away from the host
+        # apt configuration. Thus a proxy setup in the host apt
+        # configuration needs to be added explicitly
+        for proxy_config in HostProxy.get_apt_config():
+            apt_conf_data += proxy_config + os.linesep
 
         with open(self.runtime_apt_get_config_file.name, 'w') as config:
             config.write(apt_conf_data)

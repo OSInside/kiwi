@@ -92,7 +92,7 @@ class TestPackageManagerDnf5:
             [
                 'dnf5', '--config', '/root-dir/dnf.conf', '-y',
                 '--releasever=0', 'makecache'
-            ]
+            ], ['env']
         )
         mock_call.assert_called_once_with(
             [
