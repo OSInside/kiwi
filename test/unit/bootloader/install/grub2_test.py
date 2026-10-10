@@ -402,6 +402,35 @@ class TestBootLoaderInstallGrub2:
         )
         setup.setup_selinux_file_contexts.assert_called_once_with()
 
+    @patch('kiwi.bootloader.install.grub2.Path.wipe')
+    @patch('kiwi.bootloader.install.grub2.Path.which')
+    @patch('kiwi.bootloader.install.grub2.Command.run')
+    @patch('kiwi.bootloader.install.grub2.MountManager')
+    @patch('kiwi.bootloader.install.grub2.Defaults.get_grub_path')
+    @patch('kiwi.bootloader.install.grub2.SystemSetup')
+    def test_install_readonly_root(
+        self, mock_SystemSetup, mock_grub_path, mock_mount_manager,
+        mock_command, mock_which, mock_wipe
+    ):
+        mock_which.return_value = None
+        mock_grub_path.return_value = \
+            self.root_mount.mountpoint + '/usr/lib/grub2/i386-pc'
+        self.boot_mount.device = self.root_mount.device
+        readonly_device = Mock()
+        readonly_device.get_device.return_value = \
+            self.custom_args['root_device']
+        self.bootloader.device_map = {'readonly': readonly_device}
+
+        def side_effect(device, mountpoint=None):
+            return self.mount_managers.pop()
+
+        mock_mount_manager.side_effect = side_effect
+
+        self.bootloader.install()
+        self.root_mount.mount.assert_called_once_with(
+            options=['subvol=root', 'ro']
+        )
+
     @patch('kiwi.bootloader.install.grub2.Command.run')
     @patch('kiwi.bootloader.install.grub2.MountManager')
     @patch('os.path.exists')

@@ -140,6 +140,19 @@ class TestImageSystem:
                 mountpoint=os.path.join(root_mount_mountpoint, 'dev')
             )
         ]
+        # readonly root partition is mounted read-only
+        assert mock_MountManager.return_value.mount.call_args_list[0] == \
+            call(options=['ro'])
+
+    @patch('kiwi.system.mount.MountManager')
+    def test_mount_without_readonly_partition(self, mock_MountManager):
+        del self.device_map['readonly']
+        self.image_system.volume_manager = None
+        self.image_system.mount()
+        assert mock_MountManager.call_args_list[0] == \
+            call(device='/dev/root-device')
+        assert mock_MountManager.return_value.mount.call_args_list[0] == \
+            call(options=[])
 
     @patch('kiwi.system.mount.MountManager')
     def test_mount_s390(self, mock_MountManager):

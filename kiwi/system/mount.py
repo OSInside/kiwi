@@ -82,7 +82,11 @@ class ImageSystem:
         else:
             root_mount = MountManager(device=root_device)
             self.mount_list.append(root_mount)
-            root_mount.mount()
+            # The overlayroot readonly partition holds a read-only
+            # filesystem (squashfs/erofs), mount it as such
+            root_mount.mount(
+                options=['ro'] if 'readonly' in self.device_map else []
+            )
             self.root_mount_mountpoint = root_mount.mountpoint
 
         if 's390' in self.arch:
