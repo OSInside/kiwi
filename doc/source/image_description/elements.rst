@@ -165,6 +165,13 @@ settings apply:
      <certificate name="/some/ca/filename2"/>
    </certificates>
 
+The `certificates` element may be specified at most once and accepts the
+following optional attribute:
+
+profiles="profile_a,profile_b"
+  Import the listed certificates only when one of the listed build
+  profiles is active (see :ref:`sec.profiles`).
+
 .. _sec.preferences:
 
 <preferences>
@@ -182,10 +189,18 @@ Set up image type and layout.
 
 The mandatory preferences section contains information about the
 supported image type(s), the used package manager, the version of this
-image, and further optional elements. The preferences section can
-be configured to apply only for a certain architecture. In this
-case, specify the `arch` attribute with a value as it is reported
-by :command:`uname -m`.
+image, and further optional elements. The preferences element may be
+provided multiple times and accepts the following optional attributes:
+
+arch="arch_name[,arch_name]"
+  Use this preferences section only when building on one of the listed
+  host architectures, as reported by :command:`uname -m`.
+
+profiles="profile_a,profile_b"
+  Use this preferences section only when one of the listed build
+  profiles is active (see :ref:`sec.profiles`). Preferences sections
+  without a `profiles` attribute apply in any case and are combined
+  with the profiled ones.
 
 <preferences><version>
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -227,7 +242,8 @@ table shows which package manager is connected to which distributor:
 
 In general, the specification of one preferences section is sufficient.
 However, it’s possible to specify multiple preferences sections and
-distinguish between the sections via the `profiles` attribute.
+distinguish between the sections via the `profiles` attribute
+(see :ref:`sec.profiles`).
 
 In combination with the above, the preferences element supports the
 following optional elements:
@@ -1705,9 +1721,9 @@ arch="arch"
   architecture. In this case, specify the `arch` attribute with a
   value as it is reported by :command:`uname -m`.
 
-profiles="name[,name]"
-  A list of profiles to which this containers selection applies
-  (see :ref:`image-profiles`).
+profiles="profile_a,profile_b"
+  Fetch the containers of this section only when one of the listed
+  build profiles is active (see :ref:`sec.profiles`).
 
 <containers><container>
 -----------------------
@@ -1780,7 +1796,8 @@ arch="arch_name[,arch_name]"
   architectures.
 
 profiles="profile_a,profile_b"
-  Use this repository only when one of the listed build profiles is active.
+  Use this repository only when one of the listed build profiles is active
+  (see :ref:`sec.profiles`).
 
 architectures="arch_name[,arch_name]"
   Used for `apt-deb` repositories only. Declares which architectures this
@@ -2002,7 +2019,8 @@ In addition to `type`, the `packages` element accepts the following optional
 attributes:
 
 profiles="profile_a,profile_b"
-  Use this packages group only when one of the listed build profiles is active.
+  Use this packages group only when one of the listed build profiles is active
+  (see :ref:`sec.profiles`).
 
 patternType="onlyRequired|plusRecommended"
   Controls how `namedCollection` entries are resolved.
@@ -2284,9 +2302,16 @@ realname="string":
 shell="path":
   The login shell for this account.
 
-The `users` element itself accepts the optional `arch` and `profiles`
-attributes to restrict a whole group of accounts to a given host
-architecture or set of build profiles.
+The `users` element itself may be provided multiple times and accepts
+the following optional attributes to restrict a whole group of accounts:
+
+arch="arch_name[,arch_name]"
+  Create the users of this section only when building on one of the
+  listed host architectures.
+
+profiles="profile_a,profile_b"
+  Create the users of this section only when one of the listed build
+  profiles is active (see :ref:`sec.profiles`).
 
 .. _sec.drivers:
 
@@ -2302,7 +2327,11 @@ architecture or set of build profiles.
 Lists kernel driver modules to include in the {kiwi} initrd. Each `file`
 child element takes a `name` attribute holding a path relative to the
 kernel module directory (shell globs are supported). The `drivers` element
-accepts the optional `profiles` attribute and may be provided multiple times.
+may be provided multiple times and accepts the following optional attribute:
+
+profiles="profile_a,profile_b"
+  Include the drivers of this section only when one of the listed build
+  profiles is active (see :ref:`sec.profiles`).
 
 .. _sec.strip:
 
@@ -2329,8 +2358,12 @@ type="libs"
   A list of file names in the Linux library directories to keep;
   everything else is removed.
 
-The element accepts the optional `profiles` attribute and may be supplied
-multiple times.
+The `strip` element may be supplied multiple times and accepts the
+following optional attribute:
+
+profiles="profile_a,profile_b"
+  Apply the strip section only when one of the listed build profiles
+  is active (see :ref:`sec.profiles`).
 
 .. _sec.extension:
 
@@ -2401,6 +2434,21 @@ by separating the names in the profiles attribute with a comma:
    <packages type="image" profiles="profile_A,profile_B">
      <package name="name"/>
    </packages>
+
+The `profiles` attribute is supported on the following elements:
+
+* :ref:`sec.certificates`
+* :ref:`sec.preferences`
+* :ref:`sec.users`
+* :ref:`sec.drivers`
+* :ref:`sec.strip`
+* :ref:`sec.repository`
+* :ref:`sec.registry`
+* :ref:`sec.packages`
+
+Child elements, for example `<package>`, `<user>` or `<type>`, do not
+support the `profiles` attribute. To make them profile specific, place
+them into a parent section that carries the `profiles` attribute.
 
 If a section tag does not have a profiles attribute, it is globally
 present in the configuration. If global sections and profiled sections
