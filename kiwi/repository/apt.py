@@ -37,7 +37,6 @@ from kiwi.utils.temporary import (
 from kiwi.repository.template.apt import PackageManagerTemplateAptGet
 from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
-from kiwi.command import Command
 from kiwi.utils.toenv import ToEnv
 from kiwi.system.uri import Uri
 
@@ -299,43 +298,30 @@ class RepositoryApt(RepositoryBase):
 
         :param list signing_keys:
             list of the key files to import. A key can be a local
-            file path or a remote http, https or ftp location. gpg
-            can only import local files, thus remote keys are
-            downloaded prior to the import
+            file path or a remote http, https or ftp location. Remote
+            keys are downloaded prior to the import
 
         :raises KiwiUriOpenError: if the download of a remote key fails
         """
         self.delete_trusted_keys()
         with Temporary(prefix='kiwi_apt_keys.').new_dir() as key_dir:
-            # use a temporary gpg home to not touch the gpg setup
-            # of the user calling kiwi
-            gpg_home = os.sep.join([key_dir, 'gnupg'])
-            os.mkdir(gpg_home, 0o700)
             for index, key in enumerate(signing_keys):
                 if urlparse(key).scheme in ('http', 'https', 'ftp'):
                     key = self._download_key(
                         key, os.sep.join([key_dir, f'key.{index}'])
                     )
-                keyring_name = f'{self.keyring_prefix}{index}.gpg'
-                keyring_file = os.sep.join([key_dir, keyring_name])
-                gpg_args = [
-                    'gpg', '--homedir', gpg_home, '--no-options',
-                    '--no-default-keyring', '--no-auto-check-trustdb',
-                    '--trust-model', 'always', '--keyring',
-                    os.sep.join([key_dir, f'keybox.{index}.gpg'])
-                ]
-                # import and export the key to store it as binary
-                # keyring independent of the key file format
-                Command.run(
-                    gpg_args + ['--import', '--ignore-time-conflict', key]
-                )
-                Command.run(
-                    gpg_args + ['--export', '--yes', '--output', keyring_file]
+                # apt expects ASCII armored keys to use the .asc
+                # extension, any other key file is used as binary keyring
+                with open(key, 'rb') as key_file:
+                    is_armored = \
+                        b'-----BEGIN PGP PUBLIC KEY BLOCK-----' in key_file.read()
+                keyring_name = '{0}{1}.{2}'.format(
+                    self.keyring_prefix, index, 'asc' if is_armored else 'gpg'
                 )
                 for keyrings_dir in self._get_keyrings_dirs():
                     Path.create(keyrings_dir)
                     target = os.sep.join([keyrings_dir, keyring_name])
-                    shutil.copy(keyring_file, target)
+                    shutil.copy(key, target)
                     # apt verifies signatures as _apt user
                     os.chmod(target, 0o644)
                 keyring = os.sep.join([self.keyrings_dir, keyring_name])
@@ -468,7 +454,7 @@ class RepositoryApt(RepositoryBase):
 
     def _delete_keyrings(self, keyrings_dir: str) -> None:
         for keyring in glob.glob(
-            os.sep.join([keyrings_dir, f'{self.keyring_prefix}*.gpg'])
+            os.sep.join([keyrings_dir, f'{self.keyring_prefix}*'])
         ):
             os.unlink(keyring)
 
