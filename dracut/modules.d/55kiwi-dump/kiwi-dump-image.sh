@@ -482,6 +482,208 @@ function dump_image {
     then
         recreate_last_partition "${image_target}"
     fi
+
+    # update EFI boot entry for the installed system
+    remove_efi_boot_entry
+    add_efi_boot_entry "${image_target}"
+}
+
+function efi_boot_manager_available {
+    # """
+    # check if EFI boot entries can be managed on this system
+    # """
+    if [ ! -d /sys/firmware/efi ];then
+        warn "System not booted in EFI mode, skipping EFI boot entry setup"
+        return 1
+    fi
+    if ! command -v efibootmgr &>/dev/null;then
+        warn "efibootmgr not found, skipping EFI boot entry setup"
+        return 1
+    fi
+    return 0
+}
+
+function get_esp_partition {
+    # """
+    # lookup the EFI system partition on the given disk
+    # by its filesystem label EFI
+    # """
+    local disk_device=$1
+    udev_pending
+    lsblk -p -n -r -o NAME,LABEL "${disk_device}" |\
+        awk '$2 == "EFI" { print $1; exit }'
+}
+
+function get_partition_number {
+    # """
+    # get the partition number of the given partition device
+    # """
+    local partition_device=$1
+    local partition_node
+    local partition_number
+    partition_node=$(readlink -f "${partition_device}")
+    partition_node=${partition_node##*/}
+    if [ -e "/sys/class/block/${partition_node}/partition" ];then
+        read -r partition_number \
+            < "/sys/class/block/${partition_node}/partition"
+    elif [[ "${partition_device}" =~ ([0-9]+)$ ]];then
+        # e.g. device mapper partitions created by kpartx
+        partition_number=${BASH_REMATCH[1]}
+    fi
+    echo "${partition_number}"
+}
+
+function find_efi_binary {
+    # """
+    # print the first EFI binary found in the given directories.
+    # The name patterns are tried in the given order, each one
+    # across all directories before the next pattern is tried
+    # """
+    local patterns
+    local pattern
+    local efi_dir
+    local candidate
+    local candidate_name
+    read -r -a patterns <<< "$1"
+    shift
+    for pattern in "${patterns[@]}";do
+        for efi_dir in "$@";do
+            # shellcheck disable=SC2231
+            for candidate in "${efi_dir}"/${pattern};do
+                [ -f "${candidate}" ] || continue
+                candidate_name=${candidate##*/}
+                # skip MokManager and fallback helpers shipped next to shim
+                case "${candidate_name,,}" in
+                    mm*|fb*|mokmanager*|fallback*) continue ;;
+                esac
+                echo "${candidate}"
+                return 0
+            done
+        done
+    done
+    return 1
+}
+
+function get_efi_loader_path {
+    # """
+    # mount the given ESP read-only and search for an EFI binary.
+    # Any directory below EFI except BOOT is a vendor directory
+    # and searched first. The EFI/BOOT removable media path is
+    # searched last. In both cases shim is preferred over any
+    # other loader. The result is printed in EFI path notation,
+    # e.g \EFI\opensuse\shim.efi
+    # """
+    local esp_device=$1
+    local esp_mount=/run/kiwi-esp
+    local efi_dir
+    local efi_dir_name
+    local vendor_dirs=()
+    local boot_dirs=()
+    local loader
+    mkdir -p "${esp_mount}"
+    if ! mount -o ro "${esp_device}" "${esp_mount}";then
+        warn "Failed to mount ESP ${esp_device}"
+        rmdir "${esp_mount}"
+        return 1
+    fi
+    # FAT is case insensitive, match the same way
+    shopt -s nullglob nocaseglob
+    for efi_dir in "${esp_mount}"/[Ee][Ff][Ii]/*/;do
+        efi_dir=${efi_dir%/}
+        efi_dir_name=${efi_dir##*/}
+        if [ "${efi_dir_name,,}" = "boot" ];then
+            boot_dirs+=("${efi_dir}")
+        else
+            vendor_dirs+=("${efi_dir}")
+        fi
+    done
+    if [ ${#vendor_dirs[@]} -gt 0 ];then
+        loader=$(
+            find_efi_binary "shim*.efi grub*.efi *.efi" "${vendor_dirs[@]}"
+        )
+    fi
+    if [ -z "${loader}" ] && [ ${#boot_dirs[@]} -gt 0 ];then
+        loader=$(
+            find_efi_binary "shim*.efi boot*.efi *.efi" "${boot_dirs[@]}"
+        )
+    fi
+    shopt -u nullglob nocaseglob
+    umount "${esp_mount}"
+    rmdir "${esp_mount}"
+    if [ -z "${loader}" ];then
+        warn "No EFI binary found on ESP ${esp_device}"
+        return 1
+    fi
+    loader=${loader#"${esp_mount}"}
+    echo "${loader//\//\\}"
+}
+
+function remove_efi_boot_entry {
+    # """
+    # delete all EFI boot entries labeled with the name given
+    # in rd.kiwi.install.efi_display_label
+    # """
+    local label
+    local line
+    local bootnum
+    local bootnums
+    local entry_regex='^Boot([0-9A-Fa-f]{4})[* ] (.*)$'
+    label=$(getarg rd.kiwi.install.efi_display_label=)
+    if [ -z "${label}" ] || ! efi_boot_manager_available;then
+        return
+    fi
+    while read -r line;do
+        if [[ "${line}" =~ ${entry_regex} ]];then
+            # newer efibootmgr versions append the device path
+            # to the label separated by a tab
+            if [ "${BASH_REMATCH[2]%%$'\t'*}" = "${label}" ];then
+                bootnums="${bootnums} ${BASH_REMATCH[1]}"
+            fi
+        fi
+    done < <(efibootmgr)
+    for bootnum in ${bootnums};do
+        info "Removing EFI boot entry Boot${bootnum} (${label})"
+        if ! efibootmgr --quiet --bootnum "${bootnum}" --delete-bootnum;then
+            warn "Failed to remove EFI boot entry Boot${bootnum}"
+        fi
+    done
+}
+
+function add_efi_boot_entry {
+    # """
+    # create an EFI boot entry labeled with the name given in
+    # rd.kiwi.install.efi_display_label for the ESP on the
+    # given disk
+    # """
+    local disk_device=$1
+    local label
+    local esp_device
+    local esp_partnum
+    local loader
+    label=$(getarg rd.kiwi.install.efi_display_label=)
+    if [ -z "${label}" ] || ! efi_boot_manager_available;then
+        return
+    fi
+    esp_device=$(get_esp_partition "${disk_device}")
+    if [ -z "${esp_device}" ];then
+        warn "No partition labeled EFI found on ${disk_device}"
+        return
+    fi
+    esp_partnum=$(get_partition_number "${esp_device}")
+    if [ -z "${esp_partnum}" ];then
+        warn "Failed to get partition number of ESP ${esp_device}"
+        return
+    fi
+    if ! loader=$(get_efi_loader_path "${esp_device}");then
+        return
+    fi
+    info "Adding EFI boot entry ${label}: ${loader} on ${esp_device}"
+    if ! efibootmgr --quiet --create \
+        --disk "$(readlink -f "${disk_device}")" --part "${esp_partnum}" \
+        --label "${label}" --loader "${loader}"
+    then
+        warn "Failed to add EFI boot entry ${label}"
+    fi
 }
 
 function with_progress {
