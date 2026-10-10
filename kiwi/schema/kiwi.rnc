@@ -42,7 +42,7 @@ grub_console_output = xsd:token {pattern = "(none|console|gfxterm|serial|vga_tex
 grub_console_input = xsd:token {pattern = "(none|console|serial|at_keyboard|usb_keyboard)( (console|serial|at_keyboard|usb_keyboard))*"}
 fs_attributes = xsd:token {pattern = "(no-copy-on-write|synchronous-updates)(,(no-copy-on-write|synchronous-updates))*"}
 package-version-type =  xsd:token {pattern = "(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){3}"}
-simple-uri-type = xsd:token {pattern = "(file:|https:|http:|ftp:).*"}
+simple-uri-type = xsd:token {pattern = "(file:|this:|https:|http:|ftp:).*"}
 oci_format_type = xsd:token {pattern = "(oci|docker):(gce|ova|qcow2|vmdk|vdi|vhd|vhdx|vhd-fixed|raw)"}
 
 #==========================================
@@ -1288,7 +1288,9 @@ div {
 #
 div {
     k.signing.key.attribute =
-        ## Specify path to a signing key for this repo
+        ## Specify URI of a signing key for this repo. A local key
+        ## file is specified as absolute file:/ or file:/// URI or as
+        ## this:// URI relative to the image description directory
         attribute key { simple-uri-type }
     k.signing.attlist =
         k.signing.key.attribute

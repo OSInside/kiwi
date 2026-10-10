@@ -184,7 +184,7 @@
     </users>
     <repository priority="42" sourcetype="baseurl">
         <source path="iso:///image/CDs/dvd.iso">
-            <signing key="file:key_a"/>
+            <signing key="this://key_a"/>
             <signing key="file:///usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-$releasever-primary"/>
             <signing key="file:///usr/share/distribution-gpg-keys/fedora/RPM-GPG-KEY-fedora-${releasever}-primary"/>
         </source>
@@ -194,7 +194,7 @@
     </repository>
     <repository type="rpm-md" imageonly="true">
         <source path="obs://Devel:Docker:Images:SLE12SP2/SLE_12_SP2_Docker">
-            <signing key="file:key_b"/>
+            <signing key="this://key_b"/>
         </source>
     </repository>
     <packages type="image" patternType="plusRecommended">
