@@ -15,10 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from typing import List
+import os
+from typing import List, Optional
 
 # project
 from kiwi.command import Command
+from kiwi.path import Path
 
 
 class Users:
@@ -72,6 +74,9 @@ class Users:
         :param str user_name: user name
         :param list options: useradd options
         """
+        # useradd -m creates the home directory itself, but not missing
+        # parents. Issue #2493.
+        self._create_home_parent(options)
         Command.run(
             ['chroot', self.root_dir, 'useradd'] + options + [user_name]
         )
@@ -111,3 +116,35 @@ class Users:
         except Exception:
             return False
         return True
+
+    def _create_home_parent(self, options: List[str]) -> None:
+        """
+        Create missing parent directories for a useradd home path
+
+        useradd creates the home directory given with -d/--home-dir when
+        -m is set, but fails if a parent of that path does not exist.
+        """
+        home_path = self._home_path_from_options(options)
+        if home_path and home_path.startswith(os.sep):
+            # dirname() keeps a leading separator; drop it so join does not
+            # discard root_dir (os.path.join ignores earlier parts on abs paths).
+            # An empty relative parent means the home is directly under '/'.
+            relative_parent = os.path.dirname(
+                home_path.rstrip(os.sep)
+            ).lstrip(os.sep)
+            if relative_parent:
+                parent = os.path.join(self.root_dir, relative_parent)
+                if not os.path.isdir(parent):
+                    Path.create(parent)
+
+    @staticmethod
+    def _home_path_from_options(options: List[str]) -> Optional[str]:
+        home_flags = ('-d', '--home', '--home-dir')
+        for index, option in enumerate(options):
+            flag, separator, value = option.partition('=')
+            if flag in home_flags:
+                if separator:
+                    return value
+                if index + 1 < len(options):
+                    return options[index + 1]
+        return None
