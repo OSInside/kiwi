@@ -91,7 +91,7 @@ The :file:`kiwi/schema/kiwi.rnc` schema organizes the document below the
      - :ref:`sec.include`
    * - ``<certificates>``
      - Import additional CA certificates during the build.
-     - ``target_distribution`` with one or more ``<certificate name="..."/>`` entries.
+     - ``target_distribution`` and optional ``profiles`` with one or more ``<certificate name="..."/>`` entries.
      - :ref:`sec.certificates`
    * - ``<description>``
      - Define human-readable identity and ownership.
@@ -107,23 +107,23 @@ The :file:`kiwi/schema/kiwi.rnc` schema organizes the document below the
      - :ref:`sec.profiles`
    * - ``<users>``
      - Create or adjust users and groups in the image.
-     - User records, group membership, home, shell, and password data.
+     - Optional ``arch`` and ``profiles`` filters; user records, group membership, home, shell, and password data.
      - :ref:`sec.users`
    * - ``<drivers>``
      - Add driver files to the image description.
-     - File references with optional profile filters.
+     - Optional ``profiles`` filter; one or more ``<file>`` references.
      - :ref:`sec.drivers`
    * - ``<strip>``
      - Remove files, libraries, or toolchains from the prepared root tree.
-     - Required ``type`` (``delete``, ``tools``, or ``libs``) with one or more ``<file>`` entries.
+     - Required ``type`` (``delete``, ``tools``, or ``libs``) and optional ``profiles`` with one or more ``<file>`` entries.
      - :ref:`sec.strip`
    * - ``<repository>``
      - Point KIWI to package sources.
-     - Repository type, source type, priority, GPG behavior, credentials, and source URLs.
+     - Repository type, optional ``arch`` and ``profiles`` filters, source type, priority, GPG behavior, credentials, and source URLs.
      - :ref:`sec.repository`
    * - ``<containers>``
      - Define containers to fetch from a registry into the image.
-     - Required ``source`` and ``backend`` with one or more ``<container>`` entries.
+     - Required ``source`` and ``backend``, optional ``arch`` and ``profiles`` with one or more ``<container>`` entries.
      - :ref:`sec.registry`
    * - ``<packages>``
      - Define what KIWI installs, deletes, or imports.
