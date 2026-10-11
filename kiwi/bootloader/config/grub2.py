@@ -520,7 +520,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
             self.boot_dir + '/boot/mbrid'
         )
 
-        self._copy_theme_data_to_boot_directory(lookup_path, 'iso')
+        if self.theme:
+            self._copy_theme_data_to_boot_directory(lookup_path, 'iso')
 
         if self._supports_platform_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
@@ -573,7 +574,8 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         if self.firmware.efi_mode():
             self.efi_boot_path = self.create_efi_path()
 
-        self._copy_theme_data_to_boot_directory(lookup_path, 'disk')
+        if self.theme:
+            self._copy_theme_data_to_boot_directory(lookup_path, 'disk')
 
         if not self.xen_guest and self._supports_platform_modules():
             self._copy_bios_modules_to_boot_directory(lookup_path)
@@ -1367,52 +1369,51 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         )
         Path.create(boot_theme_dir)
 
-        if self.theme:
-            theme_dir = Defaults.get_grub_path(
-                lookup_path, 'themes/' + self.theme, raise_on_error=False
+        theme_dir = Defaults.get_grub_path(
+            lookup_path, 'themes/' + self.theme, raise_on_error=False
+        )
+        boot_theme_background_file = self._find_theme_background_file(
+            lookup_path
+        )
+        if theme_dir and os.path.exists(theme_dir):
+            if boot_theme_background_file:
+                # A background file was found. Preserve a copy of the
+                # file which was created at install time of the theme
+                # package by the activate-theme script
+                boot_theme_background_backup_file = os.sep.join(
+                    [self.boot_dir, 'background.png']
+                )
+                Command.run(
+                    [
+                        'cp', boot_theme_background_file,
+                        boot_theme_background_backup_file
+                    ]
+                )
+            # sync theme data from install path to boot path
+            data = DataSync(
+                theme_dir, boot_theme_dir
             )
-            boot_theme_background_file = self._find_theme_background_file(
-                lookup_path
+            data.sync_data(
+                options=['-a']
             )
-            if theme_dir and os.path.exists(theme_dir):
-                if boot_theme_background_file:
-                    # A background file was found. Preserve a copy of the
-                    # file which was created at install time of the theme
-                    # package by the activate-theme script
-                    boot_theme_background_backup_file = os.sep.join(
-                        [self.boot_dir, 'background.png']
-                    )
-                    Command.run(
-                        [
-                            'cp', boot_theme_background_file,
-                            boot_theme_background_backup_file
-                        ]
-                    )
-                # sync theme data from install path to boot path
-                data = DataSync(
-                    theme_dir, boot_theme_dir
+            if boot_theme_background_file:
+                # Install preserved background file to the theme
+                Command.run(
+                    [
+                        'mv', boot_theme_background_backup_file,
+                        os.sep.join([boot_theme_dir, self.theme])
+                    ]
                 )
-                data.sync_data(
-                    options=['-a']
-                )
-                if boot_theme_background_file:
-                    # Install preserved background file to the theme
-                    Command.run(
-                        [
-                            'mv', boot_theme_background_backup_file,
-                            os.sep.join([boot_theme_dir, self.theme])
-                        ]
-                    )
-            elif boot_theme_background_file:
-                # assume all theme data is in the directory of the
-                # background file and just sync that directory to the
-                # boot path
-                data = DataSync(
-                    os.path.dirname(boot_theme_background_file), boot_theme_dir
-                )
-                data.sync_data(
-                    options=['-a']
-                )
+        elif boot_theme_background_file:
+            # assume all theme data is in the directory of the
+            # background file and just sync that directory to the
+            # boot path
+            data = DataSync(
+                os.path.dirname(boot_theme_background_file), boot_theme_dir
+            )
+            data.sync_data(
+                options=['-a']
+            )
 
         self._check_boot_theme_exists()
 

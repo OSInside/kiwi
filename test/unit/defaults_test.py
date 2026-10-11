@@ -301,6 +301,21 @@ class TestDefaults:
             'some-boot/boot/grub*/powerpc-ieee1275/grub.elf'
         )
 
+    @patch('glob.iglob')
+    def test_get_grub_efi_font_directory(self, mock_glob_iglob):
+        mock_glob_iglob.return_value = []
+        assert Defaults.get_grub_efi_font_directory('root_path') is None
+        mock_glob_iglob.assert_called_once_with(
+            'root_path/boot/efi/EFI/*/fonts'
+        )
+
+        mock_glob_iglob.return_value = [
+            'root_path/boot/efi/EFI/fedora/fonts',
+            'root_path/boot/efi/EFI/opensuse/fonts'
+        ]
+        assert Defaults.get_grub_efi_font_directory('root_path') == \
+            'root_path/boot/efi/EFI/fedora/fonts'
+
     @patch('os.path.exists')
     def test_get_grub_path(self, mock_os_path_exists):
         mock_os_path_exists.return_value = False

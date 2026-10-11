@@ -93,9 +93,7 @@ class TestBootLoaderConfigGrub2:
             [],
             [],
             [],
-            ['root_dir/usr/lib64/efi/grub.efi'],
-            # get_grub_efi_font_directory
-            ['root_dir/boot/efi/EFI/DIST/fonts']
+            ['root_dir/usr/lib64/efi/grub.efi']
         ]
         self.glob_iglob_noshim_fallback = [
             # get_mok_manager
@@ -111,9 +109,7 @@ class TestBootLoaderConfigGrub2:
             [],
             [],
             [],
-            ['root_dir/usr/lib64/efi/grub.efi'],
-            # get_grub_efi_font_directory
-            ['root_dir/boot/efi/EFI/DIST/fonts']
+            ['root_dir/usr/lib64/efi/grub.efi']
         ]
         self.glob_iglob_shim_iso = [
             # get_mok_manager
@@ -145,9 +141,7 @@ class TestBootLoaderConfigGrub2:
             [],
             [],
             [],
-            ['root_dir/usr/lib64/efi/grub.efi'],
-            # get_grub_efi_font_directory
-            ['root_dir/boot/efi/EFI/DIST/fonts']
+            ['root_dir/usr/lib64/efi/grub.efi']
         ]
 
         mock_theme.return_value = None
@@ -1295,6 +1289,7 @@ class TestBootLoaderConfigGrub2:
         self, mock_get_grub_path, mock_exists, mock_get_boot_path, mock_command
     ):
         mock_get_boot_path.return_value = '/boot'
+        self.bootloader.theme = 'some-theme'
         self.os_exists['root_dir/boot/grub2/fonts/unicode.pf2'] = False
         self.os_exists['root_dir/usr/share/grub2/unicode.pf2'] = False
         self.os_exists['root_dir/usr/share/grub/unicode.pf2'] = False
@@ -1359,12 +1354,6 @@ class TestBootLoaderConfigGrub2:
             self.bootloader.setup_disk_boot_images('0815')
 
         assert mock_command.call_args_list == [
-            call(
-                [
-                    'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                    'root_dir/boot/grub2/fonts'
-                ]
-            ),
             call(
                 [
                     'chroot', 'root_dir', 'grub2-mkimage',
@@ -1443,12 +1432,6 @@ class TestBootLoaderConfigGrub2:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                    'root_dir/grub2/fonts'
-                ]
-            ),
-            call(
-                [
                     'chroot', 'root_dir', 'grub2-mkimage',
                     '-O', 'x86_64-efi',
                     '-o', '/boot/efi/EFI/BOOT/bootx64.efi',
@@ -1515,12 +1498,6 @@ class TestBootLoaderConfigGrub2:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                    'root_dir/grub2/fonts'
-                ]
-            ),
-            call(
-                [
                     'cp', 'custom_grub_image',
                     'root_dir/boot/efi/EFI/BOOT/bootx64.efi'
                 ]
@@ -1569,12 +1546,7 @@ class TestBootLoaderConfigGrub2:
 
         self.bootloader.setup_disk_boot_images('0815')
 
-        mock_command.assert_called_once_with(
-            [
-                'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/grub2/fonts'
-            ]
-        )
+        assert not mock_command.called
         mock_sync.assert_called_once_with(
             'root_dir/usr/share/grub2/x86_64-xen/',
             'root_dir/boot/grub2/x86_64-xen'
@@ -1604,12 +1576,7 @@ class TestBootLoaderConfigGrub2:
 
         self.bootloader.setup_disk_boot_images('0815')
 
-        mock_command.assert_called_once_with(
-            [
-                'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/grub2/fonts'
-            ]
-        )
+        assert not mock_command.called
 
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -1635,12 +1602,7 @@ class TestBootLoaderConfigGrub2:
 
         self.bootloader.setup_disk_boot_images('0815')
 
-        mock_command.assert_called_once_with(
-            [
-                'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                'root_dir/boot/grub2/fonts'
-            ]
-        )
+        assert not mock_command.called
 
     @patch('kiwi.bootloader.config.base.BootLoaderConfigBase.get_boot_path')
     @patch('kiwi.bootloader.config.grub2.Command.run')
@@ -1731,12 +1693,6 @@ class TestBootLoaderConfigGrub2:
                 assert mock_command.call_args_list == [
                     call(
                         [
-                            'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                            'root_dir/boot/efi/EFI/DIST/fonts'
-                        ]
-                    ),
-                    call(
-                        [
                             'rsync', '-a', '--exclude', '/*.module',
                             'root_dir/usr/share/grub2/i386-pc/',
                             'root_dir/boot/grub2/i386-pc'
@@ -1819,12 +1775,6 @@ class TestBootLoaderConfigGrub2:
                     'root_dir/boot/efi/EFI/BOOT/grub.cfg', 'w'
                 )
                 assert mock_command.call_args_list == [
-                    call(
-                        [
-                            'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                            'root_dir/boot/efi/EFI/DIST/fonts'
-                        ]
-                    ),
                     call(
                         [
                             'rsync', '-a', '--exclude', '/*.module',
@@ -1911,12 +1861,6 @@ class TestBootLoaderConfigGrub2:
             ]
 
         assert mock_command.call_args_list == [
-            call(
-                [
-                    'cp', 'lookup_dir/usr/share/grub2/unicode.pf2',
-                    'boot_dir/boot/grub2/fonts'
-                ]
-            ),
             call(
                 [
                     'chroot', 'root_dir', 'grub2-mkimage',
@@ -2016,20 +1960,12 @@ class TestBootLoaderConfigGrub2:
             ]
         assert mock_Path_create.call_args_list == [
             call('boot_dir/boot/grub2'),
-            call('boot_dir/boot/grub2/fonts'),
-            call('boot_dir/boot/grub2/themes'),
             call('root_dir/boot/grub2'),
             call('lookup_dir/usr/share/grub2/i386-pc'),
             call('root_dir/boot/efi/EFI/BOOT/'),
             call('boot_dir/EFI/BOOT')
         ]
         assert mock_command.call_args_list == [
-            call(
-                [
-                    'cp', 'lookup_dir/usr/share/grub2/unicode.pf2',
-                    'boot_dir/boot/grub2/fonts'
-                ]
-            ),
             call(
                 [
                     'chroot', 'root_dir', 'grub2-mkimage',
@@ -2141,12 +2077,6 @@ class TestBootLoaderConfigGrub2:
         assert mock_command.call_args_list == [
             call(
                 [
-                    'cp', 'boot_dir/usr/share/grub2/unicode.pf2',
-                    'boot_dir/boot/grub2/fonts'
-                ]
-            ),
-            call(
-                [
                     'bash', '-c', 'cat boot_dir/usr/share/grub2/i386-pc/'
                     'cdboot.img custom_bios_grub_image > '
                     'boot_dir/usr/share/grub2/i386-pc/eltorito.img'
@@ -2239,12 +2169,6 @@ class TestBootLoaderConfigGrub2:
                 assert mock_command.call_args_list == [
                     call(
                         [
-                            'cp', 'root_dir/usr/share/grub2/unicode.pf2',
-                            'root_dir/boot/efi/EFI/DIST/fonts'
-                        ]
-                    ),
-                    call(
-                        [
                             'rsync', '-a', 'root_dir/boot/efi/', 'root_dir'
                         ]
                     ),
@@ -2280,7 +2204,8 @@ class TestBootLoaderConfigGrub2:
         mock_get_grub_efi_font_directory
     ):
         Defaults.set_platform_name('x86_64')
-        mock_get_grub_efi_font_directory.return_value = None
+        mock_get_grub_efi_font_directory.return_value = \
+            'root_dir/boot/efi/EFI/DIST/fonts'
         mock_supports_platform_modules.return_value = False
         mock_glob.return_value = [
             'root_dir/boot/grub2/themes/some-theme/background.png'
@@ -2307,6 +2232,12 @@ class TestBootLoaderConfigGrub2:
             )
 
         assert mock_command.call_args_list == [
+            call(
+                [
+                    'cp', 'lookup_path/usr/share/grub2/unicode.pf2',
+                    'root_dir/boot/efi/EFI/DIST/fonts'
+                ]
+            ),
             call(
                 [
                     'cp',
