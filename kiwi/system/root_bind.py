@@ -176,24 +176,57 @@ class RootBind:
         try:
             for config in self.config_files:
                 if os.path.exists(config):
-                    self.cleanup_files.append(config + '.kiwi')
                     Command.run(
                         ['cp', config, self.root_dir + config + '.kiwi']
                     )
-                    link_target = os.path.basename(config) + '.kiwi'
-                    Command.run(
-                        ['ln', '-s', '-f', link_target, self.root_dir + config]
-                    )
-                    shasum = self.runtime_config.get_checksum_handler(
-                        source_filename=config
-                    )
-                    with open(f'{self.root_dir}{config}.sha', 'w') as sha_file:
-                        sha_file.write(shasum.digest())
+                    self._link_intermediate_config(config)
         except Exception as e:
             self.cleanup()
             raise KiwiSetupIntermediateConfigError(
                 f'{type(e).__name__}: {format(e)}'
             )
+
+    def add_intermediate_config(self, config: str, data: str) -> None:
+        """
+        Create intermediate config file from the given data
+
+        In contrast to setup_intermediate_config the config file
+        content is not copied from the buildsystem host but provided
+        by the caller, e.g. a config file generated from the host
+        environment. The file has the same lifecycle as the
+        intermediate config files copied from the host
+
+        :param str config: config file path, relative to the image root
+        :param str data: config file content
+
+        :raises KiwiSetupIntermediateConfigError: if the management of
+            the intermediate configuration file fails
+        """
+        try:
+            config_file = self.root_dir + config + '.kiwi'
+            Path.create(os.path.dirname(config_file))
+            with open(config_file, 'w') as intermediate:
+                intermediate.write(data)
+            self._link_intermediate_config(config)
+            if config not in self.config_files:
+                self.config_files.append(config)
+        except Exception as e:
+            raise KiwiSetupIntermediateConfigError(
+                f'{type(e).__name__}: {format(e)}'
+            )
+
+    def _link_intermediate_config(self, config: str) -> None:
+        config_file = self.root_dir + config + '.kiwi'
+        self.cleanup_files.append(config + '.kiwi')
+        link_target = os.path.basename(config) + '.kiwi'
+        Command.run(
+            ['ln', '-s', '-f', link_target, self.root_dir + config]
+        )
+        shasum = self.runtime_config.get_checksum_handler(
+            source_filename=config_file
+        )
+        with open(f'{self.root_dir}{config}.sha', 'w') as sha_file:
+            sha_file.write(shasum.digest())
 
     def cleanup(self) -> None:
         """

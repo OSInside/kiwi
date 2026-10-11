@@ -63,6 +63,12 @@ class TestRepositorPacman(object):
         assert self.repo.runtime_config()['command_env'] == \
             os.environ
 
+    def test_runtime_config_host_proxy(self, monkeypatch):
+        monkeypatch.setenv('https_proxy', 'http://proxy:3128')
+        command_env = self.repo.runtime_config()['command_env']
+        assert command_env['https_proxy'] == 'http://proxy:3128'
+        assert command_env['HTTPS_PROXY'] == 'http://proxy:3128'
+
     @patch('kiwi.repository.pacman.ConfigParser')
     @patch('os.path.exists')
     @patch('kiwi.command.Command.run')

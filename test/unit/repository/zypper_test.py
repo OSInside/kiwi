@@ -69,6 +69,56 @@ class TestRepositoryZypper:
                 call('main', 'gpgcheck', '1'),
             ]
 
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Temporary.unmanaged_file')
+    def test_post_init_intermediate_proxy_config(
+        self, mock_temp, mock_command, monkeypatch
+    ):
+        monkeypatch.setenv('http_proxy', 'http://proxy:3128')
+        monkeypatch.setenv('NO_PROXY', 'localhost')
+        with patch('builtins.open', create=True):
+            repo = RepositoryZypper(self.root_bind)
+        assert repo.command_env['http_proxy'] == 'http://proxy:3128'
+        assert repo.command_env['HTTP_PROXY'] == 'http://proxy:3128'
+        assert repo.command_env['no_proxy'] == 'localhost'
+        self.root_bind.add_intermediate_config.assert_called_once_with(
+            '/etc/sysconfig/proxy', os.linesep.join([
+                '# kiwi generated proxy config file',
+                'PROXY_ENABLED="yes"',
+                'HTTP_PROXY="http://proxy:3128"',
+                'HTTPS_PROXY=""',
+                'FTP_PROXY=""',
+                'NO_PROXY="localhost"'
+            ]) + os.linesep
+        )
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Temporary.unmanaged_file')
+    @patch('os.path.islink')
+    def test_post_init_intermediate_proxy_config_exists(
+        self, mock_islink, mock_temp, mock_command, monkeypatch
+    ):
+        monkeypatch.setenv('http_proxy', 'http://proxy:3128')
+        mock_islink.return_value = True
+        with patch('builtins.open', create=True):
+            RepositoryZypper(self.root_bind)
+        mock_islink.assert_called_once_with('../data/etc/sysconfig/proxy')
+        assert not self.root_bind.add_intermediate_config.called
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.repository.zypper.Temporary.unmanaged_file')
+    def test_post_init_no_intermediate_proxy_config(
+        self, mock_temp, mock_command, monkeypatch
+    ):
+        # host sysconfig proxy file is setup by RootBind
+        monkeypatch.setattr(
+            'kiwi.defaults.HOST_SYSCONFIG_PROXY', '../data/sysconfig_proxy'
+        )
+        monkeypatch.setenv('http_proxy', 'http://proxy:3128')
+        with patch('builtins.open', create=True):
+            RepositoryZypper(self.root_bind)
+        assert not self.root_bind.add_intermediate_config.called
+
     def test_use_default_location(self):
         self.repo.use_default_location()
         assert self.repo.zypper_args == [

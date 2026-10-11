@@ -31,6 +31,7 @@ from kiwi.repository.base import RepositoryBase
 from kiwi.path import Path
 from kiwi.utils.rpm_database import RpmDataBase
 from kiwi.utils.toenv import ToEnv
+from kiwi.utils.proxy import HostProxy
 
 
 class RepositoryDnf5(RepositoryBase):
@@ -319,7 +320,7 @@ class RepositoryDnf5(RepositoryBase):
             Path.create(dnf_dir)
         ToEnv(self.root_dir, defaults.PACKAGE_MANAGER_ENV_VARS)
         return dict(
-            os.environ, LANG='C'
+            os.environ, **HostProxy().get_env(), LANG='C'
         )
 
     def _create_runtime_config_parser(self) -> None:
@@ -336,6 +337,10 @@ class RepositoryDnf5(RepositoryBase):
             "plugins": "0",
             "gpgcheck": self.gpg_check,
         }
+        # The runtime config replaces the host dnf configuration.
+        # Thus a proxy setup in the host dnf configuration needs
+        # to be added explicitly
+        self.runtime_dnf_config["main"].update(HostProxy.get_dnf_config())
         if self.exclude_docs:
             self.runtime_dnf_config["main"]["tsflags"] = "nodocs"
         if self.target_arch:

@@ -150,7 +150,7 @@ class PackageManagerApk(PackageManagerBase):
         :rtype: namedtuple
         """
         Command.run(
-            ['chroot', self.root_dir, 'apk', 'update']
+            ['chroot', self.root_dir, 'apk', 'update'], self.command_env
         )
         apk_command = [
             'chroot', self.root_dir, 'apk'
@@ -175,7 +175,7 @@ class PackageManagerApk(PackageManagerBase):
         :rtype: namedtuple
         """
         Command.run(
-            ['chroot', self.root_dir, 'apk', 'update']
+            ['chroot', self.root_dir, 'apk', 'update'], self.command_env
         )
         apk_command = [
             'chroot', self.root_dir, 'apk'
@@ -196,7 +196,7 @@ class PackageManagerApk(PackageManagerBase):
         :rtype: namedtuple
         """
         Command.run(
-            ['chroot', self.root_dir, 'apk', 'update']
+            ['chroot', self.root_dir, 'apk', 'update'], self.command_env
         )
         return Command.call(
             [

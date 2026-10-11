@@ -61,12 +61,19 @@ class TestRepositoryDnf4:
             self.repo.post_init()
         assert self.repo.custom_args == []
 
+    @patch('kiwi.repository.dnf4.HostProxy')
     @patch('kiwi.repository.dnf4.Temporary.unmanaged_file')
     @patch('kiwi.repository.dnf4.Path.create')
     @patch('os.path.exists')
     def test_post_init_with_custom_args(
-        self, mock_exists, mock_path, mock_temp
+        self, mock_exists, mock_path, mock_temp, mock_HostProxy
     ):
+        mock_HostProxy.return_value.get_env.return_value = {
+            'http_proxy': 'http://proxy:3128'
+        }
+        mock_HostProxy.get_dnf_config.return_value = {
+            'proxy': 'http://dnf-proxy:3128'
+        }
         mock_exists.return_value = True
         m_open = mock_open()
         with patch('builtins.open', m_open, create=True):
@@ -76,6 +83,9 @@ class TestRepositoryDnf4:
             ]
         assert self.repo.custom_args == []
         assert self.repo.gpg_check == '1'
+        assert self.repo.command_env['http_proxy'] == 'http://proxy:3128'
+        assert self.repo.runtime_dnf_config['main']['proxy'] == \
+            'http://dnf-proxy:3128'
 
     @patch('kiwi.repository.dnf4.ConfigParser')
     def test_use_default_location(self, mock_config):

@@ -24,6 +24,12 @@ class TestRepositoryApk:
         assert self.repo.runtime_config()['command_env'] == \
             self.repo.command_env
 
+    def test_runtime_environment_host_proxy(self, monkeypatch):
+        monkeypatch.setenv('HTTP_PROXY', 'http://proxy:3128')
+        command_env = self.repo._create_apk_get_runtime_environment()
+        assert command_env['http_proxy'] == 'http://proxy:3128'
+        assert command_env['HTTP_PROXY'] == 'http://proxy:3128'
+
     def test_add_repo(self):
         with patch('builtins.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=io.IOBase)
