@@ -1861,6 +1861,18 @@ class TestSystemSetup:
             'uri-alias', 'uri', 'rpm-md', None, None, None, None, None,
             'kiwiRepoCredentials', None, None, None, '../data/script', None
         )
+        # only the imageonly repository provides a signing key,
+        # which is stored in the image prior adding the repository
+        assert [name for name, args, kwargs in repo.mock_calls] == [
+            'use_default_location',
+            'add_repo',
+            'import_repository_signing_keys',
+            'add_repo'
+        ]
+        repo.import_repository_signing_keys.assert_called_once_with(
+            'uri-alias',
+            [os.path.abspath(os.path.join(self.description_dir, 'key_b'))]
+        )
 
     @patch('os.path.exists')
     def test_script_exists(self, mock_path_exists):

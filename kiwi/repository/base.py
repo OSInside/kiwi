@@ -119,6 +119,23 @@ class RepositoryBase:
         """
         raise NotImplementedError
 
+    def import_repository_signing_keys(
+        self, name: str, signing_keys: List
+    ) -> None:
+        """
+        Permanently stores the signing keys of the repository with
+        the given name in the image, such that the repository added
+        afterwards via add_repo can be validated in the image.
+
+        The default implementation does nothing. Package managers
+        which keep the keys imported via import_trusted_keys as part
+        of the image, e.g. in the rpm database, don't need this.
+
+        :param str name: repository base file name
+        :param list signing_keys: list of the key files to store
+        """
+        pass
+
     def cleanup_unused_repos(self) -> None:
         """
         Cleanup/Delete unused repositories

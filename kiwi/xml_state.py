@@ -2393,34 +2393,51 @@ class XMLState:
             as absolute file: URI
         """
         key_file_list: List[str] = []
+        for repository in self.get_repository_sections() or []:
+            for key_url in self.get_repository_signing_keys(repository):
+                if key_url not in key_file_list:
+                    key_file_list.append(key_url)
+        return key_file_list
+
+    def get_repository_signing_keys(
+        self, repository: xml_parse.repository
+    ) -> List[str]:
+        """
+        Get list of signing keys specified on the given repository
+
+        :param repository: <repository> section reference
+
+        :raises KiwiUriStyleUnknown: if a local key is not specified
+            as absolute file: URI
+        """
+        key_file_list: List[str] = []
         release_version = self.get_release_version()
         release_vars = [
             '$releasever',
             '${releasever}'
         ]
-        for repository in self.get_repository_sections() or []:
-            for signing in repository.get_source().get_signing() or []:
-                key_url = signing.get_key()
-                uri = urlparse(key_url)
-                is_absolute_path = uri.netloc in ('', 'localhost') and \
-                    uri.path.startswith(os.sep)
-                if uri.scheme == 'file' and not is_absolute_path:
-                    # RFC8089: file URIs only support absolute paths
-                    raise KiwiUriStyleUnknown(
-                        f'Invalid signing key URI {key_url}: file URIs '
-                        'must specify an absolute path like file:/path '
-                        'or file:///path. Use this://path for a key file '
-                        'relative to the image description directory'
-                    )
-                normalized_key_url = Uri(key_url).translate()
-                if release_version:
-                    for release_var in release_vars:
-                        if release_var in normalized_key_url:
-                            normalized_key_url = normalized_key_url.replace(
-                                release_var, release_version
-                            )
-                if normalized_key_url not in key_file_list:
-                    key_file_list.append(normalized_key_url)
+        for signing in repository.get_source().get_signing() or []:
+            key_url = signing.get_key()
+            uri = urlparse(key_url)
+            is_absolute_path = uri.netloc in ('', 'localhost') and \
+                uri.path.startswith(os.sep)
+            if uri.scheme == 'file' and not is_absolute_path:
+                # RFC8089: file URIs only support absolute paths
+                raise KiwiUriStyleUnknown(
+                    f'Invalid signing key URI {key_url}: file URIs '
+                    'must specify an absolute path like file:/path '
+                    'or file:///path. Use this://path for a key file '
+                    'relative to the image description directory'
+                )
+            normalized_key_url = Uri(key_url).translate()
+            if release_version:
+                for release_var in release_vars:
+                    if release_var in normalized_key_url:
+                        normalized_key_url = normalized_key_url.replace(
+                            release_var, release_version
+                        )
+            if normalized_key_url not in key_file_list:
+                key_file_list.append(normalized_key_url)
         return key_file_list
 
     def set_repository(

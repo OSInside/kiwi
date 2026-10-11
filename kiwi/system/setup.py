@@ -236,6 +236,12 @@ class SystemSetup:
                     )
                 )
                 log.info('--> Alias: {0}'.format(repo_alias))
+                repo_signing_keys = \
+                    self.xml_state.get_repository_signing_keys(xml_repo)
+                if repo_signing_keys:
+                    repo.import_repository_signing_keys(
+                        repo_alias, repo_signing_keys
+                    )
                 repo.add_repo(
                     repo_alias, repo_source_translated,
                     repo_type, repo_priority, repo_dist, repo_components,

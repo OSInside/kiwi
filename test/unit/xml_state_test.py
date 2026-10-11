@@ -1348,6 +1348,24 @@ class TestXMLState:
             f'(mock_abspath){description_dir}/key_b'
         ]
 
+    @patch('kiwi.system.uri.os.path.abspath')
+    def test_get_repository_signing_keys(self, mock_root_path):
+        mock_root_path.side_effect = lambda x: f'(mock_abspath){x}'
+        description_dir = os.path.normpath(
+            os.sep.join([os.getcwd(), '../data'])
+        )
+        repositories = self.state.get_repository_sections()
+        # both $releasever variants resolve to the same key
+        assert self.state.get_repository_signing_keys(repositories[0]) == [
+            f'(mock_abspath){description_dir}/key_a',
+            '(mock_abspath)/usr/share/distribution-gpg-keys/'
+            'fedora/RPM-GPG-KEY-fedora-15.3-primary'
+        ]
+        assert self.state.get_repository_signing_keys(repositories[1]) == []
+        assert self.state.get_repository_signing_keys(repositories[2]) == [
+            f'(mock_abspath){description_dir}/key_b'
+        ]
+
     def test_get_repositories_signing_keys_absolute_file_uri(self):
         signing = self.state.get_repository_sections()[0] \
             .get_source().get_signing()

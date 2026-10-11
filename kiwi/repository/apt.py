@@ -59,6 +59,10 @@ class RepositoryApt(RepositoryBase):
     :param str keyrings_dir: location of the repository keyring files
     :param str keyring_prefix: build specific keyring file name prefix
     :param list keyrings: keyring files referenced via Signed-By
+    :param str image_keyrings_dir:
+        location of the keyring files permanently stored in the image
+    :param dict repository_keyrings:
+        keyring files referenced via Signed-By per repository name
     """
 
     def post_init(self, custom_args: List = []) -> None:
@@ -124,6 +128,12 @@ class RepositoryApt(RepositoryBase):
             ).hexdigest()[:8]
         )
         self.keyrings: List[str] = []
+
+        # Signing keys of repositories configured in the image are
+        # stored permanently as recommended for third party repositories
+        # in https://wiki.debian.org/DebianRepository/UseThirdParty
+        self.image_keyrings_dir = '/usr/share/keyrings'
+        self.repository_keyrings: Dict[str, List[str]] = {}
 
         # former kiwi versions created a global keyring in the
         # shared location, which would still be trusted by apt
@@ -245,9 +255,10 @@ class RepositoryApt(RepositoryBase):
                 self.distribution_path = uri
                 repo_details += 'Suites: ' + dist + os.linesep
                 repo_details += 'Components: ' + components + os.linesep
-            if self.keyrings:
+            keyrings = self.repository_keyrings.get(name) or self.keyrings
+            if keyrings:
                 repo_details += 'Signed-By: {0}{1}'.format(
-                    ' '.join(self.keyrings), os.linesep
+                    ' '.join(keyrings), os.linesep
                 )
             if repo_gpgcheck is False:
                 repo_details += 'trusted: yes' + os.linesep
@@ -306,27 +317,58 @@ class RepositoryApt(RepositoryBase):
         self.delete_trusted_keys()
         with Temporary(prefix='kiwi_apt_keys.').new_dir() as key_dir:
             for index, key in enumerate(signing_keys):
-                if urlparse(key).scheme in ('http', 'https', 'ftp'):
-                    key = self._download_key(
-                        key, os.sep.join([key_dir, f'key.{index}'])
-                    )
-                # apt expects ASCII armored keys to use the .asc
-                # extension, any other key file is used as binary keyring
-                with open(key, 'rb') as key_file:
-                    is_armored = \
-                        b'-----BEGIN PGP PUBLIC KEY BLOCK-----' in key_file.read()
+                key = self._fetch_key(key, key_dir, index)
                 keyring_name = '{0}{1}.{2}'.format(
-                    self.keyring_prefix, index, 'asc' if is_armored else 'gpg'
+                    self.keyring_prefix, index,
+                    self._get_keyring_extension(key)
                 )
                 for keyrings_dir in self._get_keyrings_dirs():
-                    Path.create(keyrings_dir)
-                    target = os.sep.join([keyrings_dir, keyring_name])
-                    shutil.copy(key, target)
-                    # apt verifies signatures as _apt user
-                    os.chmod(target, 0o644)
+                    self._install_keyring(
+                        key, keyrings_dir, keyring_name
+                    )
                 keyring = os.sep.join([self.keyrings_dir, keyring_name])
                 self.keyrings.append(keyring)
                 log.info(f'Keyring for APT created: {keyring}')
+
+    def import_repository_signing_keys(
+        self, name: str, signing_keys: List
+    ) -> None:
+        """
+        Permanently stores the signing keys of the repository with
+        the given name as keyring files in /usr/share/keyrings of the
+        image root. The keyring files are referenced via Signed-By
+        from the sources file of this repository added afterwards
+
+        :param str name: repository base file name
+        :param list signing_keys:
+            list of the key files to store. A key can be a local
+            file path or a remote http, https or ftp location. Remote
+            keys are downloaded prior to the import
+
+        :raises KiwiUriOpenError: if the download of a remote key fails
+        """
+        image_keyrings_dir = os.path.normpath(
+            os.sep.join([self.root_dir, self.image_keyrings_dir])
+        )
+        keyring_basename = f'{name}-archive-keyring'
+        # delete keyring files of a former import for this repository
+        for keyring in glob.glob(
+            os.sep.join([image_keyrings_dir, f'{keyring_basename}*'])
+        ):
+            os.unlink(keyring)
+        keyrings = []
+        with Temporary(prefix='kiwi_apt_keys.').new_dir() as key_dir:
+            for index, key in enumerate(signing_keys):
+                key = self._fetch_key(key, key_dir, index)
+                keyring_name = '{0}{1}.{2}'.format(
+                    keyring_basename, f'-{index}' if index else '',
+                    self._get_keyring_extension(key)
+                )
+                self._install_keyring(key, image_keyrings_dir, keyring_name)
+                keyring = os.sep.join([self.image_keyrings_dir, keyring_name])
+                keyrings.append(keyring)
+                log.info(f'--> Keyring: {keyring}')
+        self.repository_keyrings[name] = keyrings
 
     def delete_trusted_keys(self) -> None:
         """
@@ -336,6 +378,32 @@ class RepositoryApt(RepositoryBase):
         for keyrings_dir in self._get_keyrings_dirs():
             self._delete_keyrings(keyrings_dir)
         self.keyrings = []
+
+    def _fetch_key(self, key: str, key_dir: str, index: int) -> str:
+        if urlparse(key).scheme in ('http', 'https', 'ftp'):
+            key = self._download_key(
+                key, os.sep.join([key_dir, f'key.{index}'])
+            )
+        return key
+
+    @staticmethod
+    def _get_keyring_extension(key: str) -> str:
+        # apt expects ASCII armored keys to use the .asc
+        # extension, any other key file is used as binary keyring
+        with open(key, 'rb') as key_file:
+            is_armored = \
+                b'-----BEGIN PGP PUBLIC KEY BLOCK-----' in key_file.read()
+        return 'asc' if is_armored else 'gpg'
+
+    @staticmethod
+    def _install_keyring(
+        key: str, keyrings_dir: str, keyring_name: str
+    ) -> None:
+        Path.create(keyrings_dir)
+        target = os.sep.join([keyrings_dir, keyring_name])
+        shutil.copy(key, target)
+        # apt verifies signatures as _apt user
+        os.chmod(target, 0o644)
 
     @staticmethod
     def _download_key(key_url: str, target: str) -> str:

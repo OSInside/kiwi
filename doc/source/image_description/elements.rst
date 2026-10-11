@@ -1985,6 +1985,19 @@ All signing keys from all repositories will be collected and
 incorporated into the keyring as used by the selected package
 manager.
 
+.. note:: Signing keys of image repositories with apt
+
+   For the `apt` package manager, the signing keys are only available
+   at build time, unless the repository is marked with `imageinclude`
+   or `imageonly`. For such a repository, its signing keys are stored
+   permanently in the image as
+   :file:`/usr/share/keyrings/ALIAS-archive-keyring.[asc|gpg]` and
+   referenced via the `Signed-By` option of the repository
+   configuration in the image. This follows the
+   `Debian recommendation for third party repositories
+   <https://wiki.debian.org/DebianRepository/UseThirdParty>`_. Use the
+   `alias` attribute to get a predictable keyring file name.
+
 .. _sec.packages:
 
 <packages>
