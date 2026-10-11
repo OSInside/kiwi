@@ -999,6 +999,16 @@ class TestXMLState:
     def test_get_fs_mount_option_list(self):
         assert self.state.get_fs_mount_option_list() == ['async']
 
+    def test_get_efi_mount_option_list(self):
+        assert self.state.get_efi_mount_option_list() == []
+
+    @patch('kiwi.xml_parse.type_.get_efimountoptions')
+    def test_get_efi_mount_option_list_custom(self, mock_get_efimountoptions):
+        mock_get_efimountoptions.return_value = 'umask=0077,shortname=winnt'
+        assert self.state.get_efi_mount_option_list() == [
+            'umask=0077,shortname=winnt'
+        ]
+
     def test_get_fs_create_option_list(self):
         assert self.state.get_fs_create_option_list() == ['-O', '^has_journal']
 

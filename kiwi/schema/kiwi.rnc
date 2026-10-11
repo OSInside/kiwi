@@ -1738,6 +1738,14 @@ div {
             sch:param [ name = "attr" value = "efipartsize" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.efimountoptions.attribute =
+        ## Specifies the mount options of the EFI partition
+        ## which end up in fstab, e.g umask=0077,shortname=winnt
+        attribute efimountoptions { text }
+        >> sch:pattern [ id = "efimountoptions" is-a = "image_type"
+            sch:param [ name = "attr" value = "efimountoptions" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.eficsm.attribute =
         ## For images with an EFI layout, specify if the legacy
         ## CSM (BIOS) mode should be supported or not. By default
@@ -2490,6 +2498,7 @@ div {
         k.type.bootpartition.attribute? &
         k.type.bootpartsize.attribute? &
         k.type.efipartsize.attribute? &
+        k.type.efimountoptions.attribute? &
         k.type.efifatimagesize.attribute? &
         k.type.eficsm.attribute? &
         k.type.efiparttable.attribute? &

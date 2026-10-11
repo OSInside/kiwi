@@ -500,6 +500,13 @@ efipartsize="nonNegativeInteger":
   size is set to 20 MB.
   Only available for the `oem` type.
 
+efimountoptions="option_string":
+  For images with an EFI fat partition, this attribute specifies
+  the mount options of the EFI partition as written to
+  :file:`/etc/fstab`, for example `umask=0077,shortname=winnt`.
+  If not set, the `defaults` mount option is used.
+  Only available for the `oem` type.
+
 
 efifatimagesize="nonNegativeInteger":
   For ISO images (live and install), the EFI boot requires

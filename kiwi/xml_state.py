@@ -2926,6 +2926,25 @@ class XMLState:
 
         return option_list
 
+    def get_efi_mount_option_list(self) -> List:
+        """
+        List of EFI partition mount options
+
+        The list contains one element with the information from the
+        efimountoptions attribute. The value there is used as the
+        mount options of the EFI partition in fstab
+
+        :return: max one element list with mount option string
+
+        :rtype: list
+        """
+        option_list = []
+        mount_options = self.build_type.get_efimountoptions()
+        if mount_options:
+            option_list = [mount_options]
+
+        return option_list
+
     def get_fs_create_option_list(self) -> List:
         """
         List of root filesystem creation options

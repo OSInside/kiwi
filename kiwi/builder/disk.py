@@ -137,6 +137,7 @@ class DiskBuilder:
         self.root_clone_count = int(xml_state.build_type.get_root_clone()) \
             if xml_state.build_type.get_root_clone() else 0
         self.custom_root_mount_args = xml_state.get_fs_mount_option_list()
+        self.custom_efi_mount_args = xml_state.get_efi_mount_option_list()
         self.custom_root_creation_args = xml_state.get_fs_create_option_list()
         self.custom_root_readonly_creation_args = \
             xml_state.get_fs_readonly_create_option_list()
@@ -1543,7 +1544,8 @@ class DiskBuilder:
             )
         if device_map.get('efi'):
             self._add_fstab_entry(
-                device_map['efi'].get_device(), '/boot/efi'
+                device_map['efi'].get_device(), '/boot/efi',
+                self.custom_efi_mount_args
             )
         if system and self.volume_manager_name:
             volume_fstab_entries = system.get_fstab(
