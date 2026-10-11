@@ -217,6 +217,35 @@ class TestDiskBuilder:
         )
         assert disk_builder.arch == 'ix86'
 
+    @patch('kiwi.xml_parse.type_.get_efimountoptions')
+    def test_write_generic_fstab_efi_mount_options(
+        self, mock_get_efimountoptions
+    ):
+        mock_get_efimountoptions.return_value = 'umask=0077,shortname=winnt'
+        description = XMLDescription(
+            '../data/example_disk_config.xml'
+        )
+        disk_builder = DiskBuilder(
+            XMLState(description.load()), 'target_dir', 'root_dir'
+        )
+        assert disk_builder.custom_efi_mount_args == [
+            'umask=0077,shortname=winnt'
+        ]
+        disk_builder.fstab = Mock()
+        disk_builder.volume_manager_name = None
+        setup = Mock()
+        disk_builder._write_generic_fstab(
+            {
+                'root': self.device_map['root'],
+                'efi': self.device_map['efi']
+            }, setup, None
+        )
+        assert call(
+            'UUID=blkid_result /boot/efi blkid_result_fs '
+            'umask=0077,shortname=winnt 0 0'
+        ) in disk_builder.fstab.add_entry.call_args_list
+        setup.create_fstab.assert_called_once_with(disk_builder.fstab)
+
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     def test_create_invalid_type_for_install_media(

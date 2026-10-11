@@ -3567,7 +3567,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, archive=None, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, overlayroot_readonly_createoptions=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
+    def __init__(self, archive=None, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efimountoptions=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, overlayroot_readonly_createoptions=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
         self.original_tagname_ = None
         self.archive = _cast(bool, archive)
         self.eficsmpart_id = _cast(None, eficsmpart_id)
@@ -3581,6 +3581,7 @@ class type_(GeneratedsSuper):
         self.bootpartition = _cast(bool, bootpartition)
         self.bootpartsize = _cast(int, bootpartsize)
         self.efipartsize = _cast(int, efipartsize)
+        self.efimountoptions = _cast(None, efimountoptions)
         self.efifatimagesize = _cast(int, efifatimagesize)
         self.eficsm = _cast(bool, eficsm)
         self.efiparttable = _cast(None, efiparttable)
@@ -3798,6 +3799,8 @@ class type_(GeneratedsSuper):
     def set_bootpartsize(self, bootpartsize): self.bootpartsize = bootpartsize
     def get_efipartsize(self): return self.efipartsize
     def set_efipartsize(self, efipartsize): self.efipartsize = efipartsize
+    def get_efimountoptions(self): return self.efimountoptions
+    def set_efimountoptions(self, efimountoptions): self.efimountoptions = efimountoptions
     def get_efifatimagesize(self): return self.efifatimagesize
     def set_efifatimagesize(self, efifatimagesize): self.efifatimagesize = efifatimagesize
     def get_eficsm(self): return self.eficsm
@@ -4088,6 +4091,9 @@ class type_(GeneratedsSuper):
         if self.efipartsize is not None and 'efipartsize' not in already_processed:
             already_processed.add('efipartsize')
             outfile.write(' efipartsize="%s"' % self.gds_format_integer(self.efipartsize, input_name='efipartsize'))
+        if self.efimountoptions is not None and 'efimountoptions' not in already_processed:
+            already_processed.add('efimountoptions')
+            outfile.write(' efimountoptions=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.efimountoptions), input_name='efimountoptions')), ))
         if self.efifatimagesize is not None and 'efifatimagesize' not in already_processed:
             already_processed.add('efifatimagesize')
             outfile.write(' efifatimagesize="%s"' % self.gds_format_integer(self.efifatimagesize, input_name='efifatimagesize'))
@@ -4450,6 +4456,10 @@ class type_(GeneratedsSuper):
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
             if self.efipartsize < 0:
                 raise_parse_error(node, 'Invalid NonNegativeInteger')
+        value = find_attr_value_('efimountoptions', node)
+        if value is not None and 'efimountoptions' not in already_processed:
+            already_processed.add('efimountoptions')
+            self.efimountoptions = value
         value = find_attr_value_('efifatimagesize', node)
         if value is not None and 'efifatimagesize' not in already_processed:
             already_processed.add('efifatimagesize')
