@@ -37,6 +37,10 @@ class TestRepositoryBase:
         with raises(NotImplementedError):
             self.repo.import_trusted_keys(['key-file.asc'])
 
+    def test_import_repository_signing_keys(self):
+        # no-op for package managers keeping the keys in the image
+        self.repo.import_repository_signing_keys('name', ['key-file.asc'])
+
     def test_delete_repo(self):
         with raises(NotImplementedError):
             self.repo.delete_repo('name')

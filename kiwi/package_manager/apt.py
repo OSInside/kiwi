@@ -532,7 +532,10 @@ class PackageManagerApt(PackageManagerBase):
     def clean_leftovers(self) -> None:
         """
         Cleans package manager related data not needed in the
-        resulting image such as the repository keyring files
+        resulting image such as the repository keyring files used
+        at build time. Keyring files of repositories marked with
+        imageinclude or imageonly are stored in /usr/share/keyrings
+        and stay in the image
         """
         self.repository.delete_trusted_keys()
 

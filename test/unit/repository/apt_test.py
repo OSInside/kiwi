@@ -388,6 +388,123 @@ class TestRepositoryApt:
     @patch('kiwi.repository.apt.os.chmod')
     @patch('kiwi.repository.apt.shutil.copy')
     @patch('kiwi.repository.apt.Path.create')
+    @patch('kiwi.repository.apt.Temporary.new_dir')
+    @patch('kiwi.repository.apt.os.unlink')
+    def test_import_repository_signing_keys(
+        self, mock_unlink, mock_Temporary_new_dir, mock_Path_create,
+        mock_copy, mock_chmod, mock_glob
+    ):
+        mock_Temporary_new_dir.return_value.__enter__.return_value = \
+            '/tmp/keys'
+        mock_glob.return_value = [
+            '../data/usr/share/keyrings/foo-archive-keyring.gpg'
+        ]
+        self.repo.keyrings = ['/etc/apt/keyrings/kiwi-1234-0.asc']
+        self.repo.import_repository_signing_keys(
+            'foo', ['../data/signing_key.asc', '../data/signing_key.gpg']
+        )
+
+        # keyrings of a former import for this repository are deleted
+        mock_glob.assert_called_once_with(
+            '../data/usr/share/keyrings/foo-archive-keyring*'
+        )
+        mock_unlink.assert_called_once_with(
+            '../data/usr/share/keyrings/foo-archive-keyring.gpg'
+        )
+        # keys are stored in the image root only
+        assert mock_Path_create.call_args_list == [
+            call('../data/usr/share/keyrings'),
+            call('../data/usr/share/keyrings')
+        ]
+        assert mock_copy.call_args_list == [
+            call(
+                '../data/signing_key.asc',
+                '../data/usr/share/keyrings/foo-archive-keyring.asc'
+            ),
+            call(
+                '../data/signing_key.gpg',
+                '../data/usr/share/keyrings/foo-archive-keyring-1.gpg'
+            )
+        ]
+        assert mock_chmod.call_args_list == [
+            call('../data/usr/share/keyrings/foo-archive-keyring.asc', 0o644),
+            call('../data/usr/share/keyrings/foo-archive-keyring-1.gpg', 0o644)
+        ]
+        assert self.repo.repository_keyrings == {
+            'foo': [
+                '/usr/share/keyrings/foo-archive-keyring.asc',
+                '/usr/share/keyrings/foo-archive-keyring-1.gpg'
+            ]
+        }
+
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+
+            # the sources file of the repository references
+            # its own keyrings via Signed-By
+            self.repo.add_repo(
+                'foo', 'http://example.com/debian', 'deb', None,
+                'trixie', 'main'
+            )
+            file_handle.write.assert_called_once_with(
+                'Types: deb\n'
+                'URIs: http://example.com/debian\n'
+                'Suites: trixie\n'
+                'Components: main\n'
+                'Signed-By: /usr/share/keyrings/foo-archive-keyring.asc '
+                '/usr/share/keyrings/foo-archive-keyring-1.gpg\n'
+            )
+
+            # repositories without own keyrings use the build keyrings
+            file_handle.write.reset_mock()
+            self.repo.add_repo(
+                'bar', 'http://example.com/debian', 'deb', None,
+                'trixie', 'main'
+            )
+            file_handle.write.assert_called_once_with(
+                'Types: deb\n'
+                'URIs: http://example.com/debian\n'
+                'Suites: trixie\n'
+                'Components: main\n'
+                'Signed-By: /etc/apt/keyrings/kiwi-1234-0.asc\n'
+            )
+
+    @patch('kiwi.repository.apt.glob.glob')
+    @patch('kiwi.repository.apt.os.chmod')
+    @patch('kiwi.repository.apt.shutil.copy')
+    @patch('kiwi.repository.apt.Path.create')
+    @patch('kiwi.repository.apt.urlopen')
+    @patch('kiwi.repository.apt.Temporary.new_dir')
+    def test_import_repository_signing_keys_remote(
+        self, mock_Temporary_new_dir, mock_urlopen, mock_Path_create,
+        mock_copy, mock_chmod, mock_glob
+    ):
+        mock_glob.return_value = []
+        mock_Temporary_new_dir.return_value.__enter__.return_value = \
+            '/tmp/keys'
+        mock_urlopen.return_value.__enter__.return_value.read.return_value = \
+            b'key-data'
+        with patch('builtins.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(spec=io.IOBase)
+            file_handle = mock_open.return_value.__enter__.return_value
+            file_handle.read.return_value = \
+                b'-----BEGIN PGP PUBLIC KEY BLOCK-----'
+            self.repo.import_repository_signing_keys(
+                'foo', ['https://example.com/key.asc']
+            )
+        mock_copy.assert_called_once_with(
+            '/tmp/keys/key.0',
+            '../data/usr/share/keyrings/foo-archive-keyring.asc'
+        )
+        assert self.repo.repository_keyrings == {
+            'foo': ['/usr/share/keyrings/foo-archive-keyring.asc']
+        }
+
+    @patch('kiwi.repository.apt.glob.glob')
+    @patch('kiwi.repository.apt.os.chmod')
+    @patch('kiwi.repository.apt.shutil.copy')
+    @patch('kiwi.repository.apt.Path.create')
     @patch('kiwi.repository.apt.urlopen')
     @patch('kiwi.repository.apt.Temporary.new_dir')
     def test_import_trusted_keys_remote(
@@ -459,6 +576,9 @@ class TestRepositoryApt:
         ]
         self.repo.keyring_prefix = 'kiwi-1234-'
         self.repo.keyrings = ['/etc/apt/keyrings/kiwi-1234-0.gpg']
+        self.repo.repository_keyrings = {
+            'foo': ['/usr/share/keyrings/foo-archive-keyring.gpg']
+        }
         self.repo.delete_trusted_keys()
         assert mock_glob.call_args_list == [
             call('/etc/apt/keyrings/kiwi-1234-*'),
@@ -469,6 +589,10 @@ class TestRepositoryApt:
             call('../data/etc/apt/keyrings/kiwi-1234-0.gpg')
         ]
         assert self.repo.keyrings == []
+        # keyrings permanently stored in the image are kept
+        assert self.repo.repository_keyrings == {
+            'foo': ['/usr/share/keyrings/foo-archive-keyring.gpg']
+        }
 
     @patch('kiwi.repository.apt.Temporary.unmanaged_file')
     @patch('kiwi.repository.apt.PackageManagerTemplateAptGet')
