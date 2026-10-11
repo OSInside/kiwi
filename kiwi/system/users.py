@@ -75,7 +75,7 @@ class Users:
         :param list options: useradd options
         """
         # useradd -m creates the home directory itself, but not missing
-        # parents. Issue #2493.
+        # parents.
         self._create_home_parent(options)
         Command.run(
             ['chroot', self.root_dir, 'useradd'] + options + [user_name]
