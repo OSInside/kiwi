@@ -414,10 +414,12 @@ Obsoletes:      python%{python3_version}-kiwi_boxed_plugin < 0.2.60+1
 %endif
 %endif
 Requires:       python%{python3_pkgversion}-kiwi = %{version}-%{release}
+%ifnarch %{ix86}
 %if 0%{?ubuntu} || 0%{?debian}
 Requires:       qemu-kvm
 %else
 Requires:       qemu
+%endif
 %endif
 Recommends:     sshfs
 Recommends:     virtiofsd >= 1.10
