@@ -1468,6 +1468,7 @@ class BootLoaderConfigGrub2(BootLoaderConfigBase):
         boot_module_path = \
             self._get_grub2_boot_path() + '/' + os.path.basename(module_path)
         try:
+            Path.create(boot_module_path)
             data = DataSync(
                 module_path + '/', boot_module_path
             )

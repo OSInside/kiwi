@@ -1960,10 +1960,13 @@ class TestBootLoaderConfigGrub2:
             ]
         assert mock_Path_create.call_args_list == [
             call('boot_dir/boot/grub2'),
+            call('boot_dir/boot/grub2/i386-pc'),
             call('root_dir/boot/grub2'),
             call('lookup_dir/usr/share/grub2/i386-pc'),
             call('root_dir/boot/efi/EFI/BOOT/'),
-            call('boot_dir/EFI/BOOT')
+            call('boot_dir/EFI/BOOT'),
+            call('boot_dir/boot/grub2/x86_64-efi'),
+            call('boot_dir/boot/grub2/i386-efi')
         ]
         assert mock_command.call_args_list == [
             call(
