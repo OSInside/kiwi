@@ -50,6 +50,12 @@ unconfined_domain(kiwi_t)
 seutil_domtrans_setfiles_mac(kiwi_t)
 kiwi_nnp_nosuid_trans(setfiles_mac_t)
 
+# allow the package manager running in the kiwi_t domain
+# to execute package scriptlets in the rpm_script_t domain
+optional_policy(`
+        rpm_transition_script(kiwi_t, kiwi_roles)
+')
+
 # Allow sysadm and unconfined to run kiwi
 optional_policy(`
         gen_require(`
