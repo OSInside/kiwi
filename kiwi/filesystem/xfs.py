@@ -26,6 +26,15 @@ class FileSystemXfs(FileSystemBase):
     """
     **Implements creation of xfs filesystem**
     """
+    # Minimize speculative preallocation when a sparse data sync is requested.
+    #
+    # rsync --sparse only seeks forward across a sequence of null bytes, it
+    # does not punch a hole. On xfs most small skips lead to speculative
+    # preallocation (optimized for a fast-changing runtime) instead of the
+    # desired holes (as desired during one-time image construction).
+    # rsync therefore fails to save most space without this setting.
+    sparse_install_mount_options = ['allocsize=4k']
+
     def create_on_device(
         self, label: str = None, size: int = 0,
         unit: str = defaults.UNIT.kb, uuid: str = None

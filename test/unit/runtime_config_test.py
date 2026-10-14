@@ -215,6 +215,7 @@ class TestRuntimeConfig:
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_mapper_tool() == 'partx'
         assert runtime_config.get_package_changes() is True
+        assert runtime_config.get_sync_sparse() is True
         assert runtime_config.get_disabled_runtime_checks() == [
             'check_dracut_module_for_oem_install_in_package_list',
             'check_container_tool_chain_installed'
@@ -240,6 +241,7 @@ class TestRuntimeConfig:
         assert runtime_config.get_container_compression() is True
         assert runtime_config.get_iso_tool_category() == 'xorriso'
         assert runtime_config.get_iso_media_tag_tool() == 'checkmedia'
+        assert runtime_config.get_sync_sparse() == Defaults.get_sync_sparse()
         assert runtime_config.get_oci_archive_tool() == 'umoci'
         assert runtime_config.get_mapper_tool() == 'kpartx'
         assert runtime_config.get_package_changes() is False
@@ -278,4 +280,5 @@ class TestRuntimeConfig:
 
         assert runtime_config.get_container_compression() is True
         assert runtime_config.get_package_changes() is True
+        assert runtime_config.get_sync_sparse() is False
         assert runtime_config.get_iso_media_tag_tool() == "checkmedia"

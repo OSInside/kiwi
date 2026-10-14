@@ -64,6 +64,30 @@
 #  options: '--threads=0'
 
 
+# Setup behaviour of the data sync used to install the image payload
+#sync:
+#  # Specify if sequences of null bytes in the source data should be
+#  # turned into holes on the target. This adds the --sparse option to
+#  # the rsync call. It costs sync time because the data has to be
+#  # scanned for null sequences, and the gain depends on the payload.
+#  # It is effective for binaries built for a 64k page size, which
+#  # carry a zero tail per segment.
+#  # Default: false
+#  #
+#  # Note: the option is skipped with a warning if it cannot be used,
+#  # which is the case for rsync releases before 3.1.3 because they
+#  # reject --sparse together with --inplace.
+#  #
+#  # Note: on filesystems that perform speculative preallocation the
+#  # option alone does not reclaim space, because the skipped range
+#  # becomes an allocated but unwritten extent rather than a hole. For
+#  # those filesystems KIWI adds the mount options needed to prevent
+#  # this to the install time mount only, so they do not appear in the
+#  # fstab of the image. An explicit setting of the same option in the
+#  # fsmountoptions attribute of the image description takes precedence
+#  sparse: true
+
+
 # Setup process parameters for container image creation
 #container:
 #  # Specify compression for container images

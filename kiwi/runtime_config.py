@@ -332,6 +332,38 @@ class RuntimeConfig:
         xz_options = self._get_attribute(element='xz', attribute='options')
         return xz_options.split() if xz_options else None
 
+    def get_sync_sparse(self) -> bool:
+        """
+        Return if data sync operations should turn sequences of null bytes
+        into holes on the target.
+
+        sync:
+          sparse: true|false
+
+        If no configuration exists the default from the Defaults
+        class is returned.
+
+        Enabling this adds the --sparse option to the rsync call used
+        to install the image payload. On filesystems that perform
+        speculative preallocation the option alone does not reclaim
+        the space, because the skipped range is recorded as an
+        allocated but unwritten extent rather than as a hole. Such
+        filesystems can declare additional install time mount options
+        via the sparse_install_mount_options attribute of their
+        FileSystemBase implementation.
+
+        :return: True or False
+
+        :rtype: bool
+
+        """
+        sync_sparse = self._get_attribute(
+            element='sync', attribute='sparse'
+        )
+        if sync_sparse is None:
+            return Defaults.get_sync_sparse()
+        return bool(sync_sparse)
+
     def get_container_compression(self) -> bool:
         """
         Return compression for container images
