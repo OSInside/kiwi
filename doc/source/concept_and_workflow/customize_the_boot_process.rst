@@ -217,6 +217,18 @@ documents the most commonly used kernel boot parameters for these modules:
   `rd.kiwi.install.devicepersistency=by-path` would show the
   by-path device names in the list of available disks.
 
+``rd.kiwi.install.efi_display_label=name``
+  Instructs an OEM installation image on EFI systems to create
+  an EFI boot entry with the given name after the image was
+  dumped to the target disk. Any existing EFI boot entry with the
+  same name is removed first. The entry points to the
+  partition labeled `EFI` on the target disk and to the first
+  EFI binary found on it. Vendor specific loaders, e.g.
+  `\EFI\opensuse\shim.efi`, are preferred over the removable media
+  path `\EFI\BOOT`, and shim is preferred over any other
+  loader. Requires `efibootmgr` to be present in the
+  installation initrd.
+
 ``rd.kiwi.install.pxe``
   Instructs an OEM installation image to look up the system
   image on a remote location specified in `rd.kiwi.install.image`.
