@@ -20,9 +20,9 @@
 # If they aren't provided by a system installed macro, define them
 %{!?_defaultdocdir: %global _defaultdocdir %{_datadir}/doc}
 
-%if 0%{?suse_version} && 0%{?suse_version} < 1600
-%global __python3 /usr/bin/python3.11
-%global python3_pkgversion 311
+%if 0%{?suse_version} && (0%{?suse_version} == 1600 || 0%{?suse_version} == 1610)
+%global __python3 /usr/bin/python3.13
+%global python3_pkgversion 313
 %else
 %{!?__python3: %global __python3 /usr/bin/python3}
 %{!?python3_pkgversion:%global python3_pkgversion 3}
