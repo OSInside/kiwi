@@ -661,6 +661,18 @@ force_mbr="true|false":
   limitations with respect to the number of available partitions and their
   sizes. Only available for the `oem` type.
 
+apply_dps_codes="true|false":
+  A boolean parameter to apply the partition type codes of the
+  `Discoverable Partitions Specification <https://uapi-group.org/specifications/specs/discoverable_partitions_specification/>`_
+  (DPS) to the partitions of a GPT which match a DPS partition type,
+  e.g the root partition gets the root partition type of the image
+  architecture and the boot partition the extended boot loader (XBOOTLDR)
+  type. The type codes are taken from `systemd-id128 show` on the build
+  host, or from a built-in table if it is not available. By default the
+  type codes are not applied and the partitions keep the type of their
+  purpose, e.g Linux filesystem data for the root partition. Only
+  available for the `oem` type.
+
 fsmountoptions="option_string":
   Specifies the filesystem mount options that are passed
   via the `-o` flag to :command:`mount` and are included in

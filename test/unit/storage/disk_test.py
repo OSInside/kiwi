@@ -66,6 +66,102 @@ class TestDisk:
         self.disk.is_loop()
         self.storage_provider.is_loop.assert_called_once_with()
 
+    @patch.object(Disk, 'get_discoverable_partition_ids')
+    @patch('kiwi.storage.disk.Partitioner.new')
+    @patch('kiwi.storage.disk.RuntimeConfig')
+    def test_dps_codes_not_applied_by_default(
+        self, mock_RuntimeConfig, mock_Partitioner,
+        mock_get_discoverable_partition_ids
+    ):
+        mock_Partitioner.return_value = self.partitioner
+        self.partitioner.reset_mock()
+        disk = Disk('gpt', self.storage_provider)
+        assert disk.gUID == {}
+        assert not mock_get_discoverable_partition_ids.called
+        disk.create_root_partition('100')
+        disk.create_boot_partition('100')
+        disk.create_efi_partition('100')
+        disk.create_swap_partition('100')
+        assert not self.partitioner.set_uuid.called
+
+    @patch.object(Disk, 'get_discoverable_partition_ids')
+    @patch('kiwi.storage.disk.Partitioner.new')
+    @patch('kiwi.storage.disk.RuntimeConfig')
+    def test_dps_codes_applied_on_request(
+        self, mock_RuntimeConfig, mock_Partitioner,
+        mock_get_discoverable_partition_ids
+    ):
+        mock_Partitioner.return_value = self.partitioner
+        self.partitioner.reset_mock()
+        mock_get_discoverable_partition_ids.return_value = {
+            'root': 'root-uuid', 'xbootldr': 'boot-uuid',
+            'esp': 'esp-uuid', 'swap': 'swap-uuid'
+        }
+        disk = Disk('gpt', self.storage_provider, apply_dps_codes=True)
+        disk.create_root_partition('100')
+        disk.create_boot_partition('100')
+        disk.create_efi_partition('100')
+        disk.create_swap_partition('100')
+        assert self.partitioner.set_uuid.call_args_list == [
+            call('1', 'root-uuid'),
+            call('1', 'boot-uuid'),
+            call('1', 'esp-uuid'),
+            call('1', 'swap-uuid')
+        ]
+
+    @patch.object(Disk, 'get_discoverable_partition_ids')
+    @patch('kiwi.storage.disk.Partitioner.new')
+    @patch('kiwi.storage.disk.RuntimeConfig')
+    def test_dps_codes_applied_to_root_variants_and_custom_partitions(
+        self, mock_RuntimeConfig, mock_Partitioner,
+        mock_get_discoverable_partition_ids
+    ):
+        mock_Partitioner.return_value = self.partitioner
+        self.partitioner.reset_mock()
+        mock_get_discoverable_partition_ids.return_value = {
+            'root': 'root-uuid', 'var': 'var-uuid'
+        }
+        disk = Disk('gpt', self.storage_provider, apply_dps_codes=True)
+        disk.create_root_lvm_partition('100')
+        disk.create_root_raid_partition('100')
+        disk.create_root_readonly_partition('100')
+        # a custom partition gets the type code of the DPS partition
+        # type its partition name matches
+        disk.create_custom_partitions(
+            {
+                'var': ptable_entry_type(
+                    mbsize='100',
+                    clone=0,
+                    partition_name='var',
+                    partition_type='t.linux',
+                    partition_id=None,
+                    mountpoint='/var',
+                    filesystem='ext3',
+                    label='var'
+                ),
+                'data': ptable_entry_type(
+                    mbsize='100',
+                    clone=0,
+                    partition_name='p.lxdata',
+                    partition_type='t.linux',
+                    partition_id=None,
+                    mountpoint='/data',
+                    filesystem='ext3',
+                    label='data'
+                )
+            }
+        )
+        assert self.partitioner.set_uuid.call_args_list == [
+            call('1', 'root-uuid'),
+            call('1', 'root-uuid'),
+            call('1', 'root-uuid'),
+            call('1', 'var-uuid')
+        ]
+        assert call(None, 't.lvm') in self.partitioner.set_flag.call_args_list
+        assert call(None, 't.raid') in self.partitioner.set_flag.call_args_list
+        assert call(None, 't.linux') in \
+            self.partitioner.set_flag.call_args_list
+
     def test_create_root_partition(self):
         self.disk.create_root_partition('100', 1)
         assert self.partitioner.create.call_args_list == [

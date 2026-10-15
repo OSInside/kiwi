@@ -56,7 +56,8 @@ class Disk(DeviceProvider):
     """
     def __init__(
         self, table_type: str, storage_provider: DeviceProvider,
-        start_sector: int = None, extended_layout: bool = False
+        start_sector: int = None, extended_layout: bool = False,
+        apply_dps_codes: bool = False
     ):
         """
         Construct a new Disk layout object
@@ -71,6 +72,13 @@ class Disk(DeviceProvider):
             partition to be an extended partition and all following
             partitions will be placed as logical partitions inside
             of that extended partition
+        :param bool apply_dps_codes:
+            If set to true, partitions which match a partition type
+            of the Discoverable Partitions Specification (DPS) get
+            the type code defined for it, e.g the root partition
+            gets the root partition type of the architecture.
+            By default partitions keep the type code of their
+            partition type, e.g t.linux
         """
         self.partition_mapper = RuntimeConfig().get_mapper_tool()
         #: the underlaying device provider
@@ -91,8 +99,10 @@ class Disk(DeviceProvider):
             'efi'
         ]
 
-        #: Unified partition UUIDs according to systemd
-        self.gUID = self.get_discoverable_partition_ids()
+        #: Unified partition UUIDs according to systemd, only used
+        #: if the Discoverable Partition type codes should be applied
+        self.gUID: Dict[str, str] = \
+            self.get_discoverable_partition_ids() if apply_dps_codes else {}
 
         self.partition_map: Dict[str, str] = {}
         self.public_partition_id_map: Dict[str, str] = {}

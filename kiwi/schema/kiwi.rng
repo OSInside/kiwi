@@ -3006,6 +3006,20 @@ partitions</a:documentation>
         <sch:param name="types" value="oem"/>
       </sch:pattern>
     </define>
+    <define name="k.type.apply_dps_codes.attribute">
+      <attribute name="apply_dps_codes">
+        <a:documentation>Apply the partition type codes of the Discoverable
+Partitions Specification (DPS) to the partitions which
+match a DPS partition type, e.g the root partition gets
+the root partition type of the architecture. By default
+the type codes are not applied</a:documentation>
+        <data type="boolean"/>
+      </attribute>
+      <sch:pattern id="apply_dps_codes" is-a="image_type">
+        <sch:param name="attr" value="apply_dps_codes"/>
+        <sch:param name="types" value="oem"/>
+      </sch:pattern>
+    </define>
     <define name="k.type.fsmountoptions.attribute">
       <attribute name="fsmountoptions">
         <a:documentation>Specifies the filesystem mount options which also ends up in fstab
@@ -3680,6 +3694,9 @@ partition if present</a:documentation>
         </optional>
         <optional>
           <ref name="k.type.force_mbr.attribute"/>
+        </optional>
+        <optional>
+          <ref name="k.type.apply_dps_codes.attribute"/>
         </optional>
         <optional>
           <ref name="k.type.initrd_system.attribute"/>
