@@ -132,6 +132,8 @@ class DiskBuilder:
             xml_state.build_type.get_embed_verity_metadata()
         self.dosparttable_extended_layout = \
             xml_state.build_type.get_dosparttable_extended_layout()
+        self.apply_dps_codes = \
+            xml_state.build_type.get_apply_dps_codes()
         self.boot_clone_count = int(xml_state.build_type.get_boot_clone()) \
             if xml_state.build_type.get_boot_clone() else 0
         self.root_clone_count = int(xml_state.build_type.get_root_clone()) \
@@ -615,7 +617,8 @@ class DiskBuilder:
             self.firmware.get_partition_table_type(),
             loop_provider,
             self.disk_start_sector,
-            extended_layout=bool(self.dosparttable_extended_layout)
+            extended_layout=bool(self.dosparttable_extended_layout),
+            apply_dps_codes=bool(self.apply_dps_codes)
         )
 
     def _bootloader_instance(self, disk: Disk) -> BootLoaderConfigBase:

@@ -246,6 +246,16 @@ class TestDiskBuilder:
         ) in disk_builder.fstab.add_entry.call_args_list
         setup.create_fstab.assert_called_once_with(disk_builder.fstab)
 
+    @patch('kiwi.builder.disk.Disk')
+    def test_disk_instance_apply_dps_codes(self, mock_Disk):
+        loop_provider = Mock()
+        # the example description does not request the DPS type codes
+        self.disk_builder._disk_instance(loop_provider)
+        assert mock_Disk.call_args.kwargs['apply_dps_codes'] is False
+        self.disk_builder.apply_dps_codes = True
+        self.disk_builder._disk_instance(loop_provider)
+        assert mock_Disk.call_args.kwargs['apply_dps_codes'] is True
+
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     def test_create_invalid_type_for_install_media(

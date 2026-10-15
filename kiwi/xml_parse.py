@@ -3567,7 +3567,7 @@ class type_(GeneratedsSuper):
     """The Image Type of the Logical Extend"""
     subclass = None
     superclass = None
-    def __init__(self, archive=None, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efimountoptions=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, overlayroot_readonly_createoptions=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
+    def __init__(self, archive=None, eficsmpart_id=None, efipart_id=None, rootpart_id=None, bootpart_id=None, boot=None, bootfilesystem=None, firmware=None, bootkernel=None, bootpartition=None, bootpartsize=None, efipartsize=None, efimountoptions=None, efifatimagesize=None, eficsm=None, efiparttable=None, dosparttable_extended_layout=None, bootprofile=None, btrfs_quota_groups=None, btrfs_root_is_snapper_snapshot=None, btrfs_root_is_subvolume=None, btrfs_set_default_volume=None, btrfs_root_is_readonly_snapshot=None, compressed=None, devicepersistency=None, editbootconfig=None, editbootinstall=None, filesystem=None, flags=None, enclave_format=None, format=None, formatoptions=None, fsmountoptions=None, fscreateoptions=None, squashfscompression=None, erofscompression=None, gcelicense=None, hybridpersistent=None, hybridpersistent_filesystem=None, gpt_hybrid_mbr=None, force_mbr=None, apply_dps_codes=None, initrd_system=None, image=None, metadata_path=None, installboot=None, install_continue_on_timeout=None, installprovidefailsafe=None, installiso=None, installstick=None, installpxe=None, mediacheck=None, kernelcmdline=None, luks=None, luks_version=None, luksOS=None, luks_randomize=None, luks_pbkdf=None, mdraid=None, overlayroot=None, overlayroot_write_partition=None, overlayroot_readonly_filesystem=None, overlayroot_readonly_partsize=None, overlayroot_readonly_createoptions=None, verity_blocks=None, embed_verity_metadata=None, standalone_integrity=None, embed_integrity_metadata=None, integrity_legacy_hmac=None, integrity_metadata_key_description=None, integrity_keyfile=None, primary=None, ramonly=None, rootfs_label=None, spare_part=None, spare_part_mountpoint=None, spare_part_fs=None, spare_part_fs_attributes=None, spare_part_is_last=None, target_blocksize=None, target_removable=None, selinux_policy=None, vhdfixedtag=None, volid=None, application_id=None, wwid_wait_timeout=None, derived_from=None, delta_root=None, provide_system_files=None, require_system_files=None, ensure_empty_tmpdirs=None, xen_server=None, publisher=None, disk_start_sector=None, root_clone=None, boot_clone=None, bundle_format=None, bootloader=None, containerconfig=None, machine=None, oemconfig=None, size=None, systemdisk=None, partitions=None, vagrantconfig=None, installmedia=None, initrd=None, luksformat=None):
         self.original_tagname_ = None
         self.archive = _cast(bool, archive)
         self.eficsmpart_id = _cast(None, eficsmpart_id)
@@ -3610,6 +3610,7 @@ class type_(GeneratedsSuper):
         self.hybridpersistent_filesystem = _cast(None, hybridpersistent_filesystem)
         self.gpt_hybrid_mbr = _cast(bool, gpt_hybrid_mbr)
         self.force_mbr = _cast(bool, force_mbr)
+        self.apply_dps_codes = _cast(bool, apply_dps_codes)
         self.initrd_system = _cast(None, initrd_system)
         self.image = _cast(None, image)
         self.metadata_path = _cast(None, metadata_path)
@@ -3857,6 +3858,8 @@ class type_(GeneratedsSuper):
     def set_gpt_hybrid_mbr(self, gpt_hybrid_mbr): self.gpt_hybrid_mbr = gpt_hybrid_mbr
     def get_force_mbr(self): return self.force_mbr
     def set_force_mbr(self, force_mbr): self.force_mbr = force_mbr
+    def get_apply_dps_codes(self): return self.apply_dps_codes
+    def set_apply_dps_codes(self, apply_dps_codes): self.apply_dps_codes = apply_dps_codes
     def get_initrd_system(self): return self.initrd_system
     def set_initrd_system(self, initrd_system): self.initrd_system = initrd_system
     def get_image(self): return self.image
@@ -4178,6 +4181,9 @@ class type_(GeneratedsSuper):
         if self.force_mbr is not None and 'force_mbr' not in already_processed:
             already_processed.add('force_mbr')
             outfile.write(' force_mbr="%s"' % self.gds_format_boolean(self.force_mbr, input_name='force_mbr'))
+        if self.apply_dps_codes is not None and 'apply_dps_codes' not in already_processed:
+            already_processed.add('apply_dps_codes')
+            outfile.write(' apply_dps_codes="%s"' % self.gds_format_boolean(self.apply_dps_codes, input_name='apply_dps_codes'))
         if self.initrd_system is not None and 'initrd_system' not in already_processed:
             already_processed.add('initrd_system')
             outfile.write(' initrd_system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.initrd_system), input_name='initrd_system')), ))
@@ -4638,6 +4644,15 @@ class type_(GeneratedsSuper):
                 self.force_mbr = True
             elif value in ('false', '0'):
                 self.force_mbr = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('apply_dps_codes', node)
+        if value is not None and 'apply_dps_codes' not in already_processed:
+            already_processed.add('apply_dps_codes')
+            if value in ('true', '1'):
+                self.apply_dps_codes = True
+            elif value in ('false', '0'):
+                self.apply_dps_codes = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('initrd_system', node)

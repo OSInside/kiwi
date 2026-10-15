@@ -2089,6 +2089,17 @@ div {
             sch:param [ name = "attr" value = "force_mbr" ]
             sch:param [ name = "types" value = "oem" ]
         ]
+    k.type.apply_dps_codes.attribute =
+        ## Apply the partition type codes of the Discoverable
+        ## Partitions Specification (DPS) to the partitions which
+        ## match a DPS partition type, e.g the root partition gets
+        ## the root partition type of the architecture. By default
+        ## the type codes are not applied
+        attribute apply_dps_codes { xsd:boolean }
+        >> sch:pattern [ id = "apply_dps_codes" is-a = "image_type"
+            sch:param [ name = "attr" value = "apply_dps_codes" ]
+            sch:param [ name = "types" value = "oem" ]
+        ]
     k.type.fsmountoptions.attribute =
         ## Specifies the filesystem mount options which also ends up in fstab
         ## The string given here is passed as value to the -o option of mount
@@ -2527,6 +2538,7 @@ div {
         k.type.hybridpersistent_filesystem.attribute? &
         k.type.gpt_hybrid_mbr.attribute? &
         k.type.force_mbr.attribute? &
+        k.type.apply_dps_codes.attribute? &
         k.type.initrd_system.attribute? &
         k.type.image.attribute &
         k.type.metadata_path.attribute? &
