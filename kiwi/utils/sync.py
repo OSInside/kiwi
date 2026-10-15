@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
 import errno
 import logging
 from stat import ST_MODE
@@ -23,6 +24,7 @@ from typing import List
 
 # project
 from kiwi.command import Command
+from kiwi.runtime_config import RuntimeConfig
 
 log = logging.getLogger('kiwi')
 
@@ -87,6 +89,9 @@ class DataSync:
         rsync_options = []
         if options:
             rsync_options = options
+        if RuntimeConfig().get_sync_sparse():
+            rsync_options = \
+                rsync_options + self._get_sparse_options(rsync_options)
         if not self.target_supports_extended_attributes():
             warn_me = False
             if '--xattrs' in rsync_options:
@@ -124,6 +129,68 @@ class DataSync:
             # sync are applied back after sync to ensure they have
             # not changed
             os.chmod(self.target_dir, target_entry_permissions)
+
+    def _get_sparse_options(self, rsync_options: List[str]) -> List[str]:
+        """
+        Provide the --sparse option if it is both wanted and usable
+
+        The option turns sequences of null bytes into holes on the
+        target. It is skipped if the caller already asked for it, and
+        it is skipped with a warning if it cannot be combined with the
+        options the caller provided:
+
+        * rsync releases before 3.1.3 reject --sparse together with
+          --inplace. kiwi syncs with --inplace, so on such a host the
+          combination would abort the build.
+        * --preallocate defeats the purpose, because every file is
+          allocated in full before it is written. The result occupies
+          the space of a dense file while a hole detecting reader still
+          sees holes, which is worse than not asking for sparse at all.
+
+        :param list rsync_options: options provided by the caller
+
+        :return: list of options to add
+
+        :rtype: list
+        """
+        if '--sparse' in rsync_options:
+            return []
+        if '--preallocate' in rsync_options:
+            log.warning(
+                'Sparse data sync not used: incompatible with --preallocate'
+            )
+            return []
+        if '--inplace' in rsync_options and \
+           not self._rsync_supports_sparse_inplace():
+            log.warning(
+                'Sparse data sync not used: rsync too old to combine '
+                '--sparse with --inplace, 3.1.3 or later is required'
+            )
+            return []
+        return ['--sparse']
+
+    @staticmethod
+    def _rsync_supports_sparse_inplace() -> bool:
+        """
+        Check if the host rsync allows --sparse together with --inplace
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        try:
+            version_text = Command.run(['rsync', '--version']).output
+            version = re.search(r'version (\d+)\.(\d+)\.(\d+)', version_text)
+            if not version:
+                return False
+            return tuple(
+                int(part) for part in version.groups()
+            ) >= (3, 1, 3)
+        except Exception as issue:
+            log.warning(
+                'Could not detect rsync version: {0}'.format(issue)
+            )
+            return False
 
     def target_supports_extended_attributes(self) -> bool:
         """

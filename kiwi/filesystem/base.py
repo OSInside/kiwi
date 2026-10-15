@@ -29,6 +29,7 @@ from typing import (
 import kiwi.defaults as defaults
 
 from kiwi.defaults import Defaults
+from kiwi.runtime_config import RuntimeConfig
 from kiwi.utils.sync import DataSync
 from kiwi.mount_manager import MountManager
 from kiwi.command import Command
@@ -53,6 +54,14 @@ class FileSystemBase:
     :param string root_dir: root directory path name
     :param dict custom_args: custom filesystem arguments
     """
+    # Mount options applied only to the install time mount of a newly created
+    # filesystem. They are deliberately not part of the mount options from the
+    # image description and therefore never end up in the fstab of the
+    # image. A filesystem implementation declares options here when sparse
+    # sync cannot work without them, see the xfs implementation for an
+    # example.
+    sparse_install_mount_options: List[str] = []
+
     def __init__(
         self, device_provider: DeviceProvider,
         root_dir: str = '', custom_args: Dict = {}
@@ -196,7 +205,7 @@ class FileSystemBase:
             device=self.device_provider.get_device()
         )
         self.filesystem_mount.mount(
-            self.custom_args['mount_options']
+            self._get_install_mount_options()
         )
         self._apply_attributes()
         data = DataSync(
@@ -206,6 +215,42 @@ class FileSystemBase:
             exclude=exclude, options=Defaults.get_sync_options()
         )
         return self.filesystem_mount
+
+    def _get_install_mount_options(self) -> List[str]:
+        """
+        Provide mount options for the install time mount of the
+        filesystem the image payload is synced into.
+
+        These are the mount options from the image description, plus
+        any options the filesystem implementation declares as needed
+        for a sparse data sync. The latter apply to this mount only
+        and are not passed on to the fstab of the image.
+
+        As everywhere else in kiwi the result is a list of at most one
+        element, holding the comma separated option string that is
+        passed along to the -o mount option.
+
+        :return: max one element list with mount option string
+
+        :rtype: list
+        """
+        given_options = self.custom_args['mount_options']
+        if not self.sparse_install_mount_options or \
+           not RuntimeConfig().get_sync_sparse():
+            return list(given_options)
+        options = ','.join(given_options).split(',') if given_options else []
+        given_names = [option.split('=')[0] for option in options if option]
+        for option in self.sparse_install_mount_options:
+            if option.split('=')[0] in given_names:
+                # an explicit setting from the image description wins
+                continue
+            log.info(
+                'Using install time mount option {0} for sparse sync'.format(
+                    option
+                )
+            )
+            options.append(option)
+        return [','.join(options)] if options else []
 
     def create_verity_layer(
         self, blocks: Optional[int] = None, filename: str = None

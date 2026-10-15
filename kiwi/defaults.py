@@ -413,6 +413,21 @@ class Defaults:
         ]
 
     @staticmethod
+    def get_sync_sparse():
+        """
+        Provides default setting for sparse data sync
+
+        If enabled, rsync is called with the --sparse option which
+        turns sequences of null bytes in the source data into holes
+        on the target.
+
+        :return: True or False
+
+        :rtype: bool
+        """
+        return False
+
+    @staticmethod
     def get_removed_files_name():
         """
         Provides base file name to store removed files
