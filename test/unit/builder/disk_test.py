@@ -1305,14 +1305,16 @@ class TestDiskBuilder:
             with raises(KiwiDiskBootImageError):
                 self.disk_builder.create_disk()
 
+    @patch('kiwi.mount_manager.BlockID')
     @patch('kiwi.builder.disk.Disk')
     @patch('kiwi.builder.disk.create_boot_loader_config')
     @patch('kiwi.builder.disk.FileSystem.new')
     @patch('kiwi.builder.disk.Command.run')
     def test_create_disk_standard_root_xen_server_boot(
         self, mock_command, mock_fs, mock_create_boot_loader_config,
-        mock_Disk
+        mock_Disk, mock_BlockID
     ):
+        mock_BlockID.return_value.get_filesystem.return_value = 'xfs'
         bootloader_config = Mock()
         bootloader_config.get_boot_cmdline = Mock(
             return_value='boot_cmdline'
