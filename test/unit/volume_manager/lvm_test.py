@@ -174,6 +174,7 @@ class TestVolumeManagerLVM:
         mock_size.return_value = size
         self.volume_manager.volume_group = 'volume_group'
         self.volume_manager.create_volumes('ext3')
+        assert self.volume_manager.filesystem_name == 'ext3'
         myvol_size = 500
         etc_size = 200 + 42 + Defaults.get_min_volume_mbytes('ext3')
         root_size = 100 + 42 + Defaults.get_min_volume_mbytes('ext3')
@@ -310,6 +311,35 @@ class TestVolumeManagerLVM:
         self.volume_manager.mount_list = [volume_mount]
         self.volume_manager.mount_volumes()
         mock_path.create.assert_called_once_with(volume_mount.mountpoint)
+        volume_mount.mount.assert_called_once_with(options=['a,b,c'])
+
+    @patch('kiwi.filesystem.base.RuntimeConfig')
+    @patch('kiwi.volume_manager.lvm.Path')
+    def test_mount_volumes_sparse_sync(self, mock_path, mock_RuntimeConfig):
+        mock_RuntimeConfig.return_value.get_sync_sparse.return_value = True
+        volume_mount = Mock()
+        volume_mount.mountpoint = 'volume_mount_point'
+        self.volume_manager.mount_list = [volume_mount]
+        self.volume_manager.filesystem_name = 'xfs'
+        self.volume_manager.mount_volumes()
+        volume_mount.mount.assert_called_once_with(
+            options=['a,b,c,allocsize=4k']
+        )
+        # the install time option is not part of the data the
+        # fstab of the image is built from
+        assert self.volume_manager.mount_options == 'a,b,c'
+
+    @patch('kiwi.filesystem.base.RuntimeConfig')
+    @patch('kiwi.volume_manager.lvm.Path')
+    def test_mount_volumes_sparse_sync_no_declaration(
+        self, mock_path, mock_RuntimeConfig
+    ):
+        mock_RuntimeConfig.return_value.get_sync_sparse.return_value = True
+        volume_mount = Mock()
+        volume_mount.mountpoint = 'volume_mount_point'
+        self.volume_manager.mount_list = [volume_mount]
+        self.volume_manager.filesystem_name = 'ext3'
+        self.volume_manager.mount_volumes()
         volume_mount.mount.assert_called_once_with(options=['a,b,c'])
 
     def test_umount_volumes(self):

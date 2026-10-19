@@ -65,3 +65,14 @@ class TestFileSystem:
         provider = Mock()
         FileSystem.new('swap', provider)
         mock_swap.assert_called_once_with(provider, None, None)
+
+    def test_sparse_install_mount_options(self):
+        assert FileSystem.sparse_install_mount_options('xfs') == [
+            'allocsize=4k'
+        ]
+
+    def test_sparse_install_mount_options_not_declared(self):
+        assert FileSystem.sparse_install_mount_options('ext3') == []
+
+    def test_sparse_install_mount_options_not_implemented(self):
+        assert FileSystem.sparse_install_mount_options('foo') == []
