@@ -84,7 +84,12 @@
 #  # those filesystems KIWI adds the mount options needed to prevent
 #  # this to the install time mount only, so they do not appear in the
 #  # fstab of the image. An explicit setting of the same option in the
-#  # fsmountoptions attribute of the image description takes precedence
+#  # fsmountoptions attribute of the image description takes precedence.
+#  #
+#  # Note: For an encrypted image, gains on image size require that
+#  # luks_randomize is set to false, otherwise all blocks remain
+#  # written. Inside the image, sparse savings do manifest as more
+#  # free space in the rsync target.
 #  sparse: true
 
 
