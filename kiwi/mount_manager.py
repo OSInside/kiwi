@@ -28,6 +28,7 @@ from kiwi.path import Path
 from kiwi.utils.temporary import Temporary
 from kiwi.command import Command
 from kiwi.exceptions import KiwiCommandError, KiwiUmountBusyError
+from kiwi.utils.block import BlockID
 
 log = logging.getLogger('kiwi')
 
@@ -119,8 +120,12 @@ class MountManager:
             option_list = []
             if options:
                 option_list = ['-o'] + options
+            type_list = []
+            filesystem = BlockID(self.device).get_filesystem()
+            if filesystem:
+                type_list = ['-t', filesystem]
             Command.run(
-                ['mount'] + option_list + [self.device, self.mountpoint]
+                ['mount'] + type_list + option_list + [self.device, self.mountpoint]
             )
 
     def umount_lazy(self) -> None:

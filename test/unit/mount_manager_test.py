@@ -70,11 +70,26 @@ class TestMountManager:
             ['mount', '-t', 'tmpfs', 'tmpfs', '/some/mountpoint']
         )
 
+    @patch('kiwi.mount_manager.BlockID')
     @patch('kiwi.mount_manager.Command.run')
     @patch('kiwi.mount_manager.MountManager.is_mounted')
-    def test_mount(self, mock_mounted, mock_command):
+    def test_mount(self, mock_mounted, mock_command, mock_BlockID):
         mock_mounted.return_value = False
+        mock_BlockID.return_value.get_filesystem.return_value = 'vfat'
         self.mount_manager.mount(['options'])
+        mock_BlockID.assert_called_once_with('/dev/some-device')
+        mock_command.assert_called_once_with(
+            ['mount', '-t', 'vfat', '-o', 'options', '/dev/some-device', '/some/mountpoint']
+        )
+
+    @patch('kiwi.mount_manager.BlockID')
+    @patch('kiwi.mount_manager.Command.run')
+    @patch('kiwi.mount_manager.MountManager.is_mounted')
+    def test_mount_unknown_filesystem(self, mock_mounted, mock_command, mock_BlockID):
+        mock_mounted.return_value = False
+        mock_BlockID.return_value.get_filesystem.return_value = ''
+        self.mount_manager.mount(['options'])
+        mock_BlockID.assert_called_once_with('/dev/some-device')
         mock_command.assert_called_once_with(
             ['mount', '-o', 'options', '/dev/some-device', '/some/mountpoint']
         )
