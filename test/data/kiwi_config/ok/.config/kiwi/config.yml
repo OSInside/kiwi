@@ -1,6 +1,9 @@
 xz:
   options: -a -b xxx
 
+sync:
+  sparse: true
+
 bundle:
   compress: true
 

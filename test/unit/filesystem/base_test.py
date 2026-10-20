@@ -90,6 +90,56 @@ class TestFileSystemBase:
         filesystem_mount.mount.assert_called_once_with([])
         assert self.fsbase.get_mountpoint() == 'tmpdir'
 
+    @patch('kiwi.filesystem.base.RuntimeConfig')
+    def test_get_install_mount_options_no_sparse_options(
+        self, mock_RuntimeConfig
+    ):
+        # a filesystem that declares nothing keeps the options as given
+        # and does not even consult the runtime configuration
+        self.fsbase.custom_args['mount_options'] = ['noatime']
+        assert self.fsbase._get_install_mount_options() == ['noatime']
+        assert not mock_RuntimeConfig.called
+
+    @patch('kiwi.filesystem.base.RuntimeConfig')
+    def test_get_install_mount_options_sparse_not_requested(
+        self, mock_RuntimeConfig
+    ):
+        mock_RuntimeConfig.return_value.get_sync_sparse.return_value = False
+        self.fsbase.sparse_install_mount_options = ['allocsize=4k']
+        self.fsbase.custom_args['mount_options'] = ['noatime']
+        assert self.fsbase._get_install_mount_options() == ['noatime']
+
+    @patch('kiwi.filesystem.base.RuntimeConfig')
+    def test_get_install_mount_options_sparse_requested(
+        self, mock_RuntimeConfig
+    ):
+        mock_RuntimeConfig.return_value.get_sync_sparse.return_value = True
+        self.fsbase.sparse_install_mount_options = ['allocsize=4k']
+
+        # appended to the given options as one comma separated element
+        self.fsbase.custom_args['mount_options'] = ['noatime']
+        with self._caplog.at_level(logging.INFO):
+            assert self.fsbase._get_install_mount_options() == [
+                'noatime,allocsize=4k'
+            ]
+            assert 'allocsize=4k' in self._caplog.text
+
+        # used on its own if the image description provides no options
+        self.fsbase.custom_args['mount_options'] = []
+        assert self.fsbase._get_install_mount_options() == ['allocsize=4k']
+
+        # the mount options from the image description take precedence
+        self.fsbase.custom_args['mount_options'] = ['noatime,allocsize=1m']
+        assert self.fsbase._get_install_mount_options() == [
+            'noatime,allocsize=1m'
+        ]
+
+        # and the result stays independent of the custom args, which
+        # are the source for the fstab of the image
+        assert self.fsbase.custom_args['mount_options'] == [
+            'noatime,allocsize=1m'
+        ]
+
     @patch('kiwi.filesystem.base.VeritySetup')
     def test_create_verity_layer(self, mock_VeritySetup):
         self.fsbase.create_verity_layer()

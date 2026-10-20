@@ -1,6 +1,9 @@
 bundle:
   has_package_changes: true
 
+sync:
+  sparse: false
+
 container:
   compress: true
 

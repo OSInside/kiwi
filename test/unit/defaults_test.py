@@ -180,6 +180,9 @@ class TestDefaults:
             '.buildenv', 'var/cache/kiwi'
         ]
 
+    def test_get_sync_sparse(self):
+        assert Defaults.get_sync_sparse() is False
+
     @patch('glob.iglob')
     def test_get_signed_grub_loader(self, mock_iglob):
         def iglob_no_matches(pattern):
