@@ -20,6 +20,7 @@ from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.mapped_device import MappedDevice
+from kiwi.partitioner.gpt import PartitionerGpt
 from kiwi.xml_state import DracutT
 
 from kiwi.exceptions import (
@@ -2008,3 +2009,22 @@ class TestDiskBuilder:
             return_value='gzip'
         )
         assert self.disk_builder._get_root_readonly_compression() == 'gzip'
+
+    def test_custom_partition_id(self):
+        assert self.disk_builder._custom_partition_id('128') == 128
+        assert self.disk_builder._custom_partition_id(None) is None
+
+    def test_custom_partition_id_allows_the_partitioner_to_count_on(self):
+        # The partitioner derives the next partition number from the last
+        # one it was given. Handing it the raw string from the image
+        # description made the next partition without an explicit number
+        # fail with "can only concatenate str (not int) to str".
+        partitioner = PartitionerGpt(Mock())
+        with patch('kiwi.partitioner.gpt.Command.run'):
+            partitioner.create(
+                'p.UEFI', 20, 't.efi',
+                partition_id=self.disk_builder._custom_partition_id('128')
+            )
+            assert partitioner.partition_id == 128
+            partitioner.create('p.lxlvm', 100, 't.lvm')
+        assert partitioner.partition_id == 129
