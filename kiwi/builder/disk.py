@@ -1353,20 +1353,27 @@ class DiskBuilder:
                         f'clone:{clone_rootfs_mbsize}:{clone_rootfs_mbsize}'
                 else:
                     rootfs_mbsize = f'clone:{rootfs_mbsize}:{rootfs_mbsize}'
+            rootpart_id = self._custom_partition_id(
+                self.xml_state.build_type.get_rootpart_id()
+            )
             if self.volume_manager_name and self.volume_manager_name == 'lvm':
                 log.info(
                     '--> creating {0} partition [with {1} clone(s)]'.format(
                         'root(LVM)', root_clone_count
                     )
                 )
-                disk.create_root_lvm_partition(rootfs_mbsize, root_clone_count)
+                disk.create_root_lvm_partition(
+                    rootfs_mbsize, root_clone_count, rootpart_id
+                )
             elif self.mdraid:
                 log.info(
                     '--> creating {0} partition [with {1} clone(s)]'.format(
                         f'root(mdraid={self.mdraid})', root_clone_count
                     )
                 )
-                disk.create_root_raid_partition(rootfs_mbsize, root_clone_count)
+                disk.create_root_raid_partition(
+                    rootfs_mbsize, root_clone_count, rootpart_id
+                )
             else:
                 log.info(
                     '--> creating root partition [with {0} clone(s)]'.format(
@@ -1374,10 +1381,7 @@ class DiskBuilder:
                     )
                 )
                 disk.create_root_partition(
-                    rootfs_mbsize, root_clone_count,
-                    self._custom_partition_id(
-                        self.xml_state.build_type.get_rootpart_id()
-                    )
+                    rootfs_mbsize, root_clone_count, rootpart_id
                 )
 
         if self.spare_part_is_last:
