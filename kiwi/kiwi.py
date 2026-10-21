@@ -46,7 +46,7 @@ def main():
         sys.exit(1)
     except SystemExit as e:
         # user exception, program aborted by user
-        sys.exit(e)
+        sys.exit(e.code)
     except Exception:
         # exception we did no expect, show python backtrace
         log.error('Unexpected error:')

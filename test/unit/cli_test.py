@@ -211,6 +211,20 @@ class TestCli:
                 f'KIWI (next generation) version {__version__}'
             )
 
+    def test_exit_status_without_command(self):
+        # --version and --help end the program through typer with
+        # status 0 and a usage error with status 2. None of them
+        # must be turned into status 1
+        for arguments, status in [
+            (['--version'], 0),
+            (['--help'], 0),
+            (['--no-such-option'], 2)
+        ]:
+            with patch('sys.argv', [sys.argv[0]] + arguments):
+                with raises(SystemExit) as exit_info:
+                    Cli()
+                assert exit_info.value.code == status
+
     def test_command_help(self):
         # required options of the command are not needed to
         # request its manual page

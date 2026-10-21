@@ -161,9 +161,15 @@ class Cli:
             )
         try:
             Cli.cli()
-        except SystemExit:
-            # avoid standalone mode
-            pass
+        except SystemExit as e:
+            # avoid standalone mode: typer always exits here once the
+            # command line is parsed. Keep the status of a usage error
+            # and of a clean exit without a command to run, such as
+            # --help, --version or a manual page request
+            if e.code:
+                sys.exit(e.code)
+            if not Cli.cli_ok:
+                sys.exit(0)
         if not Cli.cli_ok:
             sys.exit(exit_code)
 
