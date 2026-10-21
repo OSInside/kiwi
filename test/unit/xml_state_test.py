@@ -438,6 +438,18 @@ class TestXMLState:
                 mountpoint='/var',
                 filesystem='ext3',
                 label=''
+            ),
+            # a custom partition number arrives from the parser as a
+            # string and must reach the partitioner as an int
+            'home': ptable_entry_type(
+                mbsize=200,
+                clone=0,
+                partition_name='p.lxhome',
+                partition_type='t.linux',
+                partition_id=3,
+                mountpoint='/home',
+                filesystem='ext3',
+                label=''
             )
         }
 

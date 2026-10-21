@@ -1892,7 +1892,8 @@ class XMLState:
                 clone=int(partition.get_clone()) if partition.get_clone() else 0,
                 partition_name=partition_name,
                 partition_type=partition.get_partition_type() or 't.linux',
-                partition_id=partition.get_part_id(),
+                partition_id=int(partition.get_part_id())
+                if partition.get_part_id() else None,
                 mountpoint=partition.get_mountpoint(),
                 filesystem=partition.get_filesystem(),
                 label=partition.get_label() or ''
