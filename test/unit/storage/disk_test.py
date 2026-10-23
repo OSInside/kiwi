@@ -108,6 +108,14 @@ class TestDisk:
             call('1', 'esp-uuid'),
             call('1', 'swap-uuid')
         ]
+        # Applying the DPS type code resets the partition hex code, so
+        # the hex code is set again afterwards. It has to be set on the
+        # partition that was created, which is not the number from the
+        # image description because that one is optional
+        assert self.partitioner.set_flag.call_args_list == [
+            call('1', 't.efi'),
+            call('1', 't.swap')
+        ]
 
     @patch.object(Disk, 'get_discoverable_partition_ids')
     @patch('kiwi.storage.disk.Partitioner.new')
@@ -157,9 +165,9 @@ class TestDisk:
             call('1', 'root-uuid'),
             call('1', 'var-uuid')
         ]
-        assert call(None, 't.lvm') in self.partitioner.set_flag.call_args_list
-        assert call(None, 't.raid') in self.partitioner.set_flag.call_args_list
-        assert call(None, 't.linux') in \
+        assert call('1', 't.lvm') in self.partitioner.set_flag.call_args_list
+        assert call('1', 't.raid') in self.partitioner.set_flag.call_args_list
+        assert call('1', 't.linux') in \
             self.partitioner.set_flag.call_args_list
 
     def test_create_root_partition(self):

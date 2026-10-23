@@ -14,6 +14,7 @@
         <type image="oem" filesystem="ext3" installiso="true" kernelcmdline="splash" firmware="efi">
             <partitions>
                 <partition name="var" size="100" mountpoint="/var" filesystem="ext3"/>
+                <partition name="home" size="200" mountpoint="/home" filesystem="ext3" part_id="3"/>
             </partitions>
         </type>
     </preferences>

@@ -20,6 +20,7 @@ from kiwi.xml_state import XMLState
 from kiwi.builder.disk import DiskBuilder
 from kiwi.storage.disk import ptable_entry_type
 from kiwi.storage.mapped_device import MappedDevice
+from kiwi.partitioner.gpt import PartitionerGpt
 from kiwi.xml_state import DracutT
 
 from kiwi.exceptions import (
@@ -1425,7 +1426,7 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         disk.create_root_raid_partition.assert_called_once_with(
-            'all_free', 0
+            'all_free', 0, None
         )
         self.raid_root.create_degraded_raid.assert_called_once_with(
             raid_level='mirroring'
@@ -1437,6 +1438,19 @@ class TestDiskBuilder:
             'kiwi_RaidPart': 1, 'kiwi_RootPart': 1, 'kiwi_BootPart': 1,
             'kiwi_RaidDev': '/dev/md0'
         }
+
+        # A custom root partition number from the image description
+        # reaches the raid partition
+        disk.create_root_raid_partition.reset_mock()
+        self.disk_builder.xml_state.build_type.get_rootpart_id = Mock(
+            return_value='128'
+        )
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+
+        disk.create_root_raid_partition.assert_called_once_with(
+            'all_free', 0, 128
+        )
 
     @patch('kiwi.builder.disk.Disk')
     @patch('kiwi.builder.disk.create_boot_loader_config')
@@ -1742,7 +1756,7 @@ class TestDiskBuilder:
             self.disk_builder.create_disk()
 
         disk.create_root_lvm_partition.assert_called_once_with(
-            'all_free', 0
+            'all_free', 0, None
         )
         volume_manager.setup.assert_called_once_with('systemVG')
         volume_manager.create_volumes.assert_called_once_with('btrfs')
@@ -1763,6 +1777,19 @@ class TestDiskBuilder:
         )
         self.boot_image_task.setup.create_fstab.assert_called_once_with(
             self.disk_builder.fstab
+        )
+
+        # A custom root partition number from the image description
+        # reaches the lvm partition
+        disk.create_root_lvm_partition.reset_mock()
+        self.disk_builder.xml_state.build_type.get_rootpart_id = Mock(
+            return_value='128'
+        )
+        with patch('builtins.open'):
+            self.disk_builder.create_disk()
+
+        disk.create_root_lvm_partition.assert_called_once_with(
+            'all_free', 0, 128
         )
 
     @patch('kiwi.builder.disk.Disk')
@@ -2008,3 +2035,22 @@ class TestDiskBuilder:
             return_value='gzip'
         )
         assert self.disk_builder._get_root_readonly_compression() == 'gzip'
+
+    def test_custom_partition_id(self):
+        assert self.disk_builder._custom_partition_id('128') == 128
+        assert self.disk_builder._custom_partition_id(None) is None
+
+    def test_custom_partition_id_allows_the_partitioner_to_count_on(self):
+        # The partitioner derives the next partition number from the last
+        # one it was given. Handing it the raw string from the image
+        # description made the next partition without an explicit number
+        # fail with "can only concatenate str (not int) to str".
+        partitioner = PartitionerGpt(Mock())
+        with patch('kiwi.partitioner.gpt.Command.run'):
+            partitioner.create(
+                'p.UEFI', 20, 't.efi',
+                partition_id=self.disk_builder._custom_partition_id('128')
+            )
+            assert partitioner.partition_id == 128
+            partitioner.create('p.lxlvm', 100, 't.lvm')
+        assert partitioner.partition_id == 129

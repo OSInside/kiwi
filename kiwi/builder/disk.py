@@ -1178,6 +1178,29 @@ class DiskBuilder:
                 system_boot = filesystem
         return system_boot, system_efi
 
+    @staticmethod
+    def _custom_partition_id(part_id: Optional[str]) -> Optional[int]:
+        """
+        Convert a custom partition number from the image description
+        into the integer the partitioner expects
+
+        The schema declares the *part_id attributes as a number type,
+        but the attribute value arrives from the XML parser as a
+        string. The partitioner stores the given value as the last
+        used partition number and derives the next one from it by
+        adding one, so passing the string on makes the first partition
+        without an explicit number fail with
+
+            TypeError: can only concatenate str (not "int") to str
+
+        :param str part_id: partition number from the image description
+
+        :return: partition number, or None if the description sets none
+
+        :rtype: int
+        """
+        return int(part_id) if part_id else None
+
     def _build_and_map_disk_partitions(
         self, disk: Disk, disksize_mbytes: float
     ) -> Dict:
@@ -1188,7 +1211,9 @@ class DiskBuilder:
             partition_mbsize = self.firmware.get_legacy_bios_partition_size()
             disk.create_efi_csm_partition(
                 partition_mbsize,
-                self.xml_state.build_type.get_eficsmpart_id()
+                self._custom_partition_id(
+                    self.xml_state.build_type.get_eficsmpart_id()
+                )
             )
             disksize_used_mbytes += partition_mbsize
 
@@ -1197,7 +1222,9 @@ class DiskBuilder:
             partition_mbsize = self.firmware.get_efi_partition_size()
             disk.create_efi_partition(
                 partition_mbsize,
-                self.xml_state.build_type.get_efipart_id()
+                self._custom_partition_id(
+                    self.xml_state.build_type.get_efipart_id()
+                )
             )
             disksize_used_mbytes += partition_mbsize
 
@@ -1218,7 +1245,9 @@ class DiskBuilder:
             partition_mbsize = self.disk_setup.boot_partition_size()
             disk.create_boot_partition(
                 format(partition_mbsize), self.boot_clone_count,
-                self.xml_state.build_type.get_bootpart_id()
+                self._custom_partition_id(
+                    self.xml_state.build_type.get_bootpart_id()
+                )
             )
             disksize_used_mbytes += \
                 (self.boot_clone_count + 1) * partition_mbsize if \
@@ -1324,20 +1353,27 @@ class DiskBuilder:
                         f'clone:{clone_rootfs_mbsize}:{clone_rootfs_mbsize}'
                 else:
                     rootfs_mbsize = f'clone:{rootfs_mbsize}:{rootfs_mbsize}'
+            rootpart_id = self._custom_partition_id(
+                self.xml_state.build_type.get_rootpart_id()
+            )
             if self.volume_manager_name and self.volume_manager_name == 'lvm':
                 log.info(
                     '--> creating {0} partition [with {1} clone(s)]'.format(
                         'root(LVM)', root_clone_count
                     )
                 )
-                disk.create_root_lvm_partition(rootfs_mbsize, root_clone_count)
+                disk.create_root_lvm_partition(
+                    rootfs_mbsize, root_clone_count, rootpart_id
+                )
             elif self.mdraid:
                 log.info(
                     '--> creating {0} partition [with {1} clone(s)]'.format(
                         f'root(mdraid={self.mdraid})', root_clone_count
                     )
                 )
-                disk.create_root_raid_partition(rootfs_mbsize, root_clone_count)
+                disk.create_root_raid_partition(
+                    rootfs_mbsize, root_clone_count, rootpart_id
+                )
             else:
                 log.info(
                     '--> creating root partition [with {0} clone(s)]'.format(
@@ -1345,8 +1381,7 @@ class DiskBuilder:
                     )
                 )
                 disk.create_root_partition(
-                    rootfs_mbsize, root_clone_count,
-                    self.xml_state.build_type.get_rootpart_id()
+                    rootfs_mbsize, root_clone_count, rootpart_id
                 )
 
         if self.spare_part_is_last:
