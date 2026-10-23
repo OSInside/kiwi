@@ -78,6 +78,9 @@ class VolumeManagerBase(DeviceProvider):
         self.volumes = volumes
         #: volume group name
         self.volume_group = None
+        #: filesystem name the volumes were created with. Only known
+        #: after an explicit create_volumes() call
+        self.filesystem_name: str = ''
         #: map volume name to device node
         self.volume_map: Dict[str, str] = {}
         #: list of volume MountManager's

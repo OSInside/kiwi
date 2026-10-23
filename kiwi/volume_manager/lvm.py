@@ -29,6 +29,7 @@ from kiwi.command import Command
 from kiwi.mount_manager import MountManager
 from kiwi.storage.mapped_device import MappedDevice
 from kiwi.filesystem import FileSystem
+from kiwi.filesystem.base import FileSystemBase
 from kiwi.path import Path
 
 from kiwi.exceptions import (
@@ -172,6 +173,7 @@ class VolumeManagerLVM(VolumeManagerBase):
         log.info(
             'Creating volumes(%s)', filesystem_name
         )
+        self.filesystem_name = filesystem_name
         self.create_volume_paths_in_root_dir()
 
         canonical_volume_list = self.get_canonical_volume_list()
@@ -295,11 +297,21 @@ class VolumeManagerLVM(VolumeManagerBase):
     def mount_volumes(self):
         """
         Mount lvm volumes
+
+        The volumes are mounted with the options from the image
+        description, plus any option the filesystem implementation
+        declares as needed for a sparse data sync. The latter are not
+        part of self.mount_options and therefore cannot reach the
+        fstab of the image, which is built from that attribute.
         """
+        mount_options = FileSystemBase.merge_install_mount_options(
+            FileSystem.sparse_install_mount_options(self.filesystem_name),
+            [self.mount_options]
+        )
         for volume_mount in self.mount_list:
             Path.create(volume_mount.mountpoint)
             volume_mount.mount(
-                options=[self.mount_options]
+                options=mount_options
             )
 
     def umount_volumes(self):

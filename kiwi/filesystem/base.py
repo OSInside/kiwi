@@ -234,13 +234,41 @@ class FileSystemBase:
 
         :rtype: list
         """
-        given_options = self.custom_args['mount_options']
-        if not self.sparse_install_mount_options or \
-           not RuntimeConfig().get_sync_sparse():
+        return FileSystemBase.merge_install_mount_options(
+            self.sparse_install_mount_options,
+            self.custom_args['mount_options']
+        )
+
+    @staticmethod
+    def merge_install_mount_options(
+        sparse_options: List[str], given_options: List[str]
+    ) -> List[str]:
+        """
+        Merge the mount options declared for a sparse data sync into
+        the mount options from the image description.
+
+        The declared options are only used if a sparse data sync was
+        requested, and only for an option the image description does
+        not set itself. The result describes an install time mount and
+        is never used to build the fstab of the image.
+
+        This is a static method because a filesystem is not always
+        mounted by its own implementation. The volume managers mount
+        the volumes they created themselves and use this to arrive at
+        the same options.
+
+        :param list sparse_options: declared sparse sync mount options
+        :param list given_options: mount options from the image description
+
+        :return: max one element list with mount option string
+
+        :rtype: list
+        """
+        if not sparse_options or not RuntimeConfig().get_sync_sparse():
             return list(given_options)
         options = ','.join(given_options).split(',') if given_options else []
         given_names = [option.split('=')[0] for option in options if option]
-        for option in self.sparse_install_mount_options:
+        for option in sparse_options:
             if option.split('=')[0] in given_names:
                 # an explicit setting from the image description wins
                 continue

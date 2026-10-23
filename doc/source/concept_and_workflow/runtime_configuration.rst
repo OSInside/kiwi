@@ -60,3 +60,51 @@ files.
 A default runtime config file in :file:`/usr/share/kiwi/kiwi.yml.example` is
 provided with the `python3-kiwi` main package. The file contains the available
 settings as comments, including a short description of each setting.
+
+.. _runtime_config_sparse_sync:
+
+The sparse data sync
+^^^^^^^^^^^^^^^^^^^^
+
+The `sparse` setting of the `sync` section asks the sync step that
+installs the image payload to turn sequences of null bytes in the
+source into holes on the target. It is off by default. Its effect
+depends on the presence of null runs in the source material and the
+target filesystem.  The setting applies to every data sync {kiwi}
+performs, not only to the one that installs the payload.
+
+One typical system setup with many null runs is a Linux distribution
+compiled for a larger page size (e.g., for ARM 64K Kernels).  This
+leads to many zero tails between elf binary segments.
+
+Filesystems differ in what is needed to make the holes stick. On a
+filesystem that performs speculative preallocation, syncing sparsely
+is not enough on its own, because the skipped range is eaten by
+speculative preallocation and is recorded as an
+allocated-but-unwritten extent.  Such an extent reads as zero and is
+reported as a hole, yet it still occupies space. {kiwi} therefore lets
+a filesystem implementation declare the mount options it needs to
+prevent this, and applies them to the install time mount only, so that
+they do not become mount options of the running system. Of the
+filesystems {kiwi} supports, only `xfs` needs this. `ext4` and `btrfs`
+keep the holes without help.
+
+An encrypted image keeps the gain inside the filesystem, but by
+default not in the image file. The sync sees the null runs in the
+source and writes the payload sparsely either way, so the filesystem
+in the image accounts less and the running system has that space
+available. The image file does not become smaller by itself, because
+{kiwi} overwrites the whole device with random data before the
+filesystem is created, which allocates every block of the image
+whatever the data sync does. With ``luks_randomize="false"`` the image
+file accounts less as well. It is the randomization that limits the
+gain. However, if the sparseness savings allow for it, you can always
+make the overall image smaller in the build recipe.
+
+A compressing read-only filesystem, such as `squashfs` or `erofs`,
+typically gains nothing in addition, because the compression already
+removes the null runs.
+
+Sparse allocation can sometimes lead to additional fragmentation in
+the target filesystem and underlying image file. Do not blindly enable
+it, but check if your use case gains.

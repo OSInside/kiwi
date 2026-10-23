@@ -16,7 +16,9 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import importlib
-from typing import Dict
+from typing import (
+    Dict, List
+)
 from abc import (
     ABCMeta,
     abstractmethod
@@ -25,6 +27,19 @@ from abc import (
 # project
 from kiwi.storage.device_provider import DeviceProvider
 from kiwi.exceptions import KiwiFileSystemSetupError
+
+filesystem_class_map = {
+    'ext2': 'Ext2',
+    'ext3': 'Ext3',
+    'ext4': 'Ext4',
+    'btrfs': 'Btrfs',
+    'xfs': 'Xfs',
+    'fat16': 'Fat16',
+    'fat32': 'Fat32',
+    'squashfs': 'SquashFs',
+    'swap': 'Swap',
+    'erofs': 'EroFs'
+}
 
 
 class FileSystem(metaclass=ABCMeta):
@@ -45,23 +60,13 @@ class FileSystem(metaclass=ABCMeta):
         name: str, device_provider: DeviceProvider,
         root_dir: str=None, custom_args: Dict=None  # noqa: E252
     ):
-        name_map = {
-            'ext2': 'Ext2',
-            'ext3': 'Ext3',
-            'ext4': 'Ext4',
-            'btrfs': 'Btrfs',
-            'xfs': 'Xfs',
-            'fat16': 'Fat16',
-            'fat32': 'Fat32',
-            'squashfs': 'SquashFs',
-            'swap': 'Swap',
-            'erofs': 'EroFs'
-        }
         try:
             filesystem = importlib.import_module(
                 'kiwi.filesystem.{0}'.format(name)
             )
-            return filesystem.__dict__['FileSystem{0}'.format(name_map[name])](
+            return filesystem.__dict__[
+                'FileSystem{0}'.format(filesystem_class_map[name])
+            ](
                 device_provider, root_dir, custom_args
             )
         except Exception as issue:
@@ -70,3 +75,34 @@ class FileSystem(metaclass=ABCMeta):
                     name, issue
                 )
             )
+
+    @staticmethod
+    def sparse_install_mount_options(name: str) -> List[str]:
+        """
+        Provide the mount options that the filesystem implementation of
+        the given name declares as needed at install time for a sparse
+        data sync to be effective.
+
+        Reading the declaration does not require an instance of the
+        filesystem. This allows callers that mount a filesystem they
+        did not create, as the volume managers do, to apply the same
+        options as the filesystem implementation would.
+
+        :param string name: filesystem name
+
+        :return: list of mount options
+
+        :rtype: list
+        """
+        try:
+            filesystem = importlib.import_module(
+                'kiwi.filesystem.{0}'.format(name)
+            )
+            return filesystem.__dict__[
+                'FileSystem{0}'.format(filesystem_class_map[name])
+            ].sparse_install_mount_options
+        except Exception:
+            # A filesystem that cannot be looked up declares nothing.
+            # Reporting an unsupported filesystem is the task of new(),
+            # which is where one gets created.
+            return []
