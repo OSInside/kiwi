@@ -13,7 +13,7 @@ depends() {
 
 # called by dracut
 installkernel() {
-    instmods squashfs loop iso9660
+    instmods squashfs loop iso9660 vfat nls_cp437 nls_iso8859-1
 }
 
 # called by dracut
@@ -23,6 +23,7 @@ install() {
     inst_multiple \
         tr lsblk dd sha256sum sha512sum head pv kexec \
         basename awk kpartx sort mount mountpoint readlink
+    inst_multiple -o efibootmgr
 
     inst_hook pre-udev 30 "${moddir}/kiwi-installer-genrules.sh"
 
