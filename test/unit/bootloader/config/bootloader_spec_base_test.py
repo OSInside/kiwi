@@ -96,29 +96,32 @@ class TestBootLoaderSpecBase:
         # just pass
         self.bootloader.write_meta_data()
 
+    def _setup_root_tree(self, root_dir, kernel_versions, entries):
+        for kernel_version in kernel_versions:
+            modules_dir = root_dir / 'lib' / 'modules' / kernel_version
+            modules_dir.mkdir(parents=True)
+            (modules_dir / 'vmlinuz').touch()
+        entries_dir = root_dir / self.bootloader.entries_dir.lstrip('/')
+        entries_dir.mkdir(parents=True)
+        for entry in entries:
+            (entries_dir / entry).touch()
+        self.bootloader.root_dir = str(root_dir)
+
     @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
-    @patch('kiwi.bootloader.config.bootloader_spec_base.glob.iglob')
     def test_get_entry_name_kernel_lookup_raises(
-        self, mock_iglob, mock_OsRelease
+        self, mock_OsRelease, tmp_path
     ):
-        mock_iglob.return_value = None
+        self._setup_root_tree(tmp_path, [], [])
         with raises(KiwiKernelLookupError):
             self.bootloader.get_entry_name()
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
-    @patch('kiwi.bootloader.config.bootloader_spec_base.glob.iglob')
-    def test_get_entry_name_kiwi_policy(
-        self, mock_iglob, mock_OsRelease
-    ):
-        glob_return_value = [
-            ['/lib/modules/5.3.18-59.10-default'],
-            []
-        ]
-
-        def get_glob(args):
-            return glob_return_value.pop(0)
-
-        mock_iglob.side_effect = get_glob
+    def test_get_entry_name_kiwi_policy(self, mock_OsRelease, tmp_path):
+        # the entry belongs to the latest kernel, not to the first
+        # one by name
+        self._setup_root_tree(
+            tmp_path, ['5.3.18-59.10-default', '5.3.18-59.9-default'], []
+        )
         os_release = Mock()
         os_release.get.return_value = 'opensuse-leap'
         mock_OsRelease.return_value = os_release
@@ -126,18 +129,35 @@ class TestBootLoaderSpecBase:
             'opensuse-leap-5.3.18-59.10-default.conf'
 
     @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
-    @patch('kiwi.bootloader.config.bootloader_spec_base.glob.iglob')
-    def test_get_entry_name_os_policy(
-        self, mock_iglob, mock_OsRelease
-    ):
-        glob_return_value = [
-            ['/lib/modules/5.3.18-59.10-default'],
-            ['/boot/loader/entries/bc8499a-5.3.18-59.10-default.conf']
-        ]
-
-        def get_glob(args):
-            return glob_return_value.pop(0)
-
-        mock_iglob.side_effect = get_glob
+    def test_get_entry_name_os_policy(self, mock_OsRelease, tmp_path):
+        self._setup_root_tree(
+            tmp_path, ['5.3.18-59.10-default', '5.3.18-59.9-default'], [
+                'bc8499a-5.3.18-59.9-default.conf',
+                'bc8499a-5.3.18-59.10-default.conf'
+            ]
+        )
         assert self.bootloader.get_entry_name() == \
             'bc8499a-5.3.18-59.10-default.conf'
+
+    @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
+    def test_get_entry_name_os_policy_of_other_kernel(
+        self, mock_OsRelease, tmp_path
+    ):
+        # only the entry of an earlier kernel exists, its naming
+        # policy is applied to the latest kernel
+        self._setup_root_tree(
+            tmp_path, ['5.3.18-59.10-default', '5.3.18-59.9-default'], [
+                'bc8499a-5.3.18-59.9-default.conf'
+            ]
+        )
+        assert self.bootloader.get_entry_name() == \
+            'bc8499a-5.3.18-59.10-default.conf'
+
+    @patch('kiwi.bootloader.config.bootloader_spec_base.OsRelease')
+    def test_get_entry_name_os_policy_without_version(
+        self, mock_OsRelease, tmp_path
+    ):
+        self._setup_root_tree(
+            tmp_path, ['5.3.18-59.10-default'], ['default.conf']
+        )
+        assert self.bootloader.get_entry_name() == 'default.conf'

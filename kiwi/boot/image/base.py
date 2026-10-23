@@ -533,11 +533,26 @@ class BootImageBase:
     def _get_boot_image_output_file_format_from_existing_file(
         self, kernel_version: str
     ) -> Optional[str]:
-        for initrd_file in glob.iglob(self.boot_root_directory + '/boot/init*'):
+        """
+        Derive the initrd file name format from an initrd file which
+        exists in the boot root directory
+
+        Only a file whose name contains the version of an installed
+        kernel tells the format: the version is replaced by the
+        {kernel_version} placeholder, see Kernel.get_version_in_name().
+        A file of another name, e.g the initrd of a kernel which is not
+        installed anymore, is skipped, its name would otherwise become
+        the name of the new initrd and not fit to its kernel
+        """
+        kernel = Kernel(self.boot_root_directory)
+        for initrd_file in sorted(
+            glob.iglob(self.boot_root_directory + '/boot/init*')
+        ):
             if not os.path.islink(initrd_file):
-                return os.path.basename(initrd_file).replace(
-                    kernel_version, '{kernel_version}'
-                )
+                initrd_name = os.path.basename(initrd_file)
+                version = kernel.get_version_in_name(initrd_name)
+                if version:
+                    return initrd_name.replace(version, '{kernel_version}')
         return None
 
     def _get_boot_image_output_file_format_from_config(

@@ -16,7 +16,6 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
-import glob
 import logging
 from string import Template
 from contextlib import ExitStack
@@ -34,10 +33,10 @@ from kiwi.command import Command
 from kiwi.utils.os_release import OsRelease
 from kiwi.utils.sparse import SparseFile
 
+from kiwi.system.kernel import Kernel
 from kiwi.exceptions import (
     KiwiTemplateError,
-    KiwiBootLoaderTargetError,
-    KiwiKernelLookupError
+    KiwiBootLoaderTargetError
 )
 
 import kiwi.defaults as defaults
@@ -110,14 +109,10 @@ class BootLoaderSystemdBoot(BootLoaderSpecBase):
             target identifier, one of disk, live(iso) or install(iso)
         """
         os_release = OsRelease(root_dir)
-        try:
-            kernel_name = os.path.basename(
-                list(glob.iglob(f'{root_dir}/lib/modules/*'))[0]
-            )
-        except Exception as issue:
-            raise KiwiKernelLookupError(
-                f'Kernel lookup in {root_dir}/lib/modules failed with {issue}'
-            )
+        # The entry belongs to the kernel of the latest version, the
+        # one kiwi creates the initrd for
+        kernel_info = Kernel(root_dir).get_kernel(raise_on_not_found=True)
+        kernel_name = kernel_info.version if kernel_info else ''
         default_entry = f'{os_release.get("ID")}-{kernel_name}.conf'
         BootLoaderSystemdBoot._write_config_file(
             BootLoaderTemplateSystemdBoot().get_entry_template(),
