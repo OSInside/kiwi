@@ -168,11 +168,17 @@ class TestBootImageBase:
         mock_Kernel
     ):
         mock_islink.return_value = False
+        # the initrd of a kernel which is not installed anymore does
+        # not tell the format, its name has no installed version
         mock_iglob.return_value = [
-            '/boot/initrd.img-kernel_version'
+            '/boot/initrd.img-other_kernel_version',
+            '/boot/initrd-gone_version'
         ]
         mock_Path_which.return_value = None
         mock_Kernel.return_value = self.kernel
+        self.kernel.get_version_in_name.side_effect = lambda name: {
+            'initrd.img-other_kernel_version': 'other_kernel_version'
+        }.get(name)
         self.xml_state.get_initrd_system.return_value = 'dracut'
         assert self.boot_image.get_boot_names() == self.boot_names_type(
             kernel_name='kernel_name',

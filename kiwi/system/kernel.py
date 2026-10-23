@@ -18,7 +18,7 @@
 import re
 import os
 from typing import (
-    NamedTuple, Optional, List
+    NamedTuple, Optional, List, Tuple, Union
 )
 
 # project
@@ -45,6 +45,11 @@ class Kernel:
     """
     **Implementes kernel lookup and extraction from given root tree**
 
+    If more than one kernel is installed in the root tree, the
+    kernel of the latest version is used. The version of a kernel
+    is the name of its modules directory, which is also the version
+    the initrd gets created for, see get_kernel_versions()
+
     :param str root_dir: root directory path name
     :param list kernel_names: list of kernel names to search for
         functions.sh::suseStripKernel() provides a normalized
@@ -66,13 +71,20 @@ class Kernel:
 
         :raises KiwiKernelLookupError: if raise_on_not_found flag is active
             and kernel is not found
+        The kernel names are ordered by kernel version, latest first,
+        see _setup_kernel_names_for_lookup(). The first existing kernel
+        file is therefore the kernel of the latest version which is
+        installed. Its version is taken from the kernel name, which is
+        relative to the root tree: a path of the root tree itself does
+        not affect it
+
         :return: tuple with filename, kernelname and version
 
         :rtype: tuple|None
         """
         kernel_patterns = [
-            '.*/boot/.*?-(.*)',
-            '.*/lib/modules/(.*)/.*'
+            r'^boot/[^/-]+-(.+)$',
+            r'^(?:usr/)?lib/modules/([^/]+)/[^/]+$'
         ]
         for kernel_name in self.kernel_names:
             kernel_file = os.sep.join(
@@ -80,7 +92,7 @@ class Kernel:
             )
             if os.path.exists(kernel_file):
                 for kernel_pattern in kernel_patterns:
-                    version_match = re.match(kernel_pattern, kernel_file)
+                    version_match = re.match(kernel_pattern, kernel_name)
                     if version_match:
                         version = version_match.group(1)
                         return kernel_type(
@@ -97,6 +109,86 @@ class Kernel:
                 )
             )
         return None
+
+    def get_kernel_versions(self) -> List[str]:
+        """
+        Provide the versions of the kernels installed in the root tree,
+        latest first
+
+        The version of a kernel is the name of its modules directory
+        below lib/modules or usr/lib/modules. The directories are not
+        ordered by their name but by version, see version_key(), e.g
+        6.10.1 is later than 6.9.12. A version which is installed
+        below both directories, e.g with lib being a link to usr/lib,
+        is only listed once
+
+        :return: list of kernel versions
+
+        :rtype: list
+        """
+        kernel_versions = set()
+        kernel_module_dirs = [
+            os.sep.join([self.root_dir, 'lib/modules']),
+            os.sep.join([self.root_dir, 'usr/lib/modules'])
+        ]
+        for kernel_module_dir in kernel_module_dirs:
+            if os.path.isdir(kernel_module_dir):
+                kernel_versions.update(os.listdir(kernel_module_dir))
+        return sorted(
+            kernel_versions,
+            key=lambda version: (Kernel.version_key(version), version),
+            reverse=True
+        )
+
+    def get_version_in_name(self, name: str) -> Optional[str]:
+        """
+        Provide the version of the installed kernel the given file
+        name refers to, e.g 6.4.0-1-default for initrd-6.4.0-1-default
+
+        The installed versions are looked for in the name longest
+        first, a version does not match within a longer one, e.g 6.1
+        within initramfs-6.10.img
+
+        :param str name: file name
+
+        :return: kernel version or None
+
+        :rtype: str|None
+        """
+        for version in sorted(
+            self.get_kernel_versions(),
+            key=lambda version: (-len(version), version)
+        ):
+            if version in name:
+                return version
+        return None
+
+    @staticmethod
+    def version_key(version: str) -> List[Tuple[int, Union[int, str]]]:
+        """
+        Provide a sort key which orders kernel versions by version
+        rather than by name
+
+        The version is split into its numeric and alphabetic parts,
+        all other characters only separate them, like rpm does it.
+        Numeric parts are compared as numbers, alphabetic parts as
+        strings and a numeric part is later than an alphabetic one.
+        A version which continues where another one ends is the later
+        one, e.g:
+
+        6.4.0-150600.23.7-default < 6.4.0-150600.23.25-default
+        6.9.12-1-default < 6.10.1-1-default
+
+        :param str version: kernel version
+
+        :return: sort key
+
+        :rtype: list
+        """
+        return [
+            (1, int(part)) if part.isdigit() else (0, part)
+            for part in re.findall(r'[0-9]+|[a-zA-Z]+', version)
+        ]
 
     def get_xen_hypervisor(self) -> Optional[xen_hypervisor_type]:
         """
@@ -160,21 +252,17 @@ class Kernel:
         This method returns a list of possible kernel image names in
         order to search and find one of them
 
+        The names are ordered by kernel version, latest first, and
+        only then by the image name prefixes. All names of a version
+        come before the names of an earlier version, the kernel of a
+        later version is found first no matter its image name
+
         :return: list of kernel image names
 
         :rtype: list
         """
         kernel_names = []
-        kernel_dirs = []
-        kernel_module_dirs = [
-            os.sep.join([self.root_dir, 'lib/modules']),
-            os.sep.join([self.root_dir, 'usr/lib/modules'])
-        ]
-        for kernel_module_dir in kernel_module_dirs:
-            if os.path.isdir(kernel_module_dir):
-                kernel_entries = sorted(os.listdir(kernel_module_dir))
-                if kernel_entries:
-                    kernel_dirs += kernel_entries
+        kernel_dirs = self.get_kernel_versions()
         if kernel_dirs:
             # append lookup for the real kernel image names
             # depending on the arch and os they are different
@@ -182,8 +270,8 @@ class Kernel:
             kernel_prefixes = [
                 'uImage', 'Image', 'zImage', 'vmlinuz', 'image', 'vmlinux', 'kernel'
             ]
-            for kernel_prefix in kernel_prefixes:
-                for kernel_dir in kernel_dirs:
+            for kernel_dir in kernel_dirs:
+                for kernel_prefix in kernel_prefixes:
                     # add kernel names to be found in boot
                     kernel_names.append(
                         f'boot/{kernel_prefix}-{kernel_dir}'
