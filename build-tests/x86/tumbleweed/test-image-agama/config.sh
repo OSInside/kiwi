@@ -52,8 +52,6 @@ systemctl disable snapper-timeline.timer
 #======================================
 # disable unused services
 #--------------------------------------
-systemctl disable YaST2-Firstboot.service
-systemctl disable YaST2-Second-Stage.service
 systemctl -f disable purge-kernels
 
 #======================================
